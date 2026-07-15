@@ -5,10 +5,13 @@ ComboBox {
     id: root
 
     property color accentColor: theme.cyan
+    property string labelText: ""
 
-    implicitHeight: 40
+    implicitHeight: root.labelText.length > 0 ? 58 : 40
     leftPadding: 12
     rightPadding: 34
+    topPadding: root.labelText.length > 0 ? 22 : 6
+    bottomPadding: 6
     font.pixelSize: 14
 
     AppTheme {
@@ -75,6 +78,21 @@ ComboBox {
         color: root.enabled ? "#1c222b" : "#171a20"
         border.color: root.activeFocus ? root.accentColor : "#303641"
         border.width: 1
+
+        Text {
+            visible: root.labelText.length > 0
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.leftMargin: 12
+            anchors.rightMargin: 34
+            anchors.topMargin: 6
+            text: root.labelText
+            color: theme.textMuted
+            font.pixelSize: 10
+            elide: Text.ElideRight
+            maximumLineCount: 1
+        }
     }
 
     popup: Popup {

@@ -424,6 +424,42 @@ def test_reducer_compatibility_uses_catalog_telescope_ids() -> None:
         temporary_directory.cleanup()
 
 
+def test_reducer_update_preserves_generic_compatibility_when_not_replaced() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        reducer = next(
+            item
+            for item in repository.reducers()
+            if item["model"] == "Alan Gee Mark II Telecompressor"
+        )
+        assert reducer["compatible_telescope_ids"] == []
+        compatibility = reducer["compatible_models"]
+        assert compatibility
+
+        ok, _ = repository.update_reducer(
+            reducer["id"],
+            reducer["brand"],
+            reducer["model"],
+            reducer["reduction_factor"],
+            reducer["optical_system"],
+            connection_name=reducer["connection"],
+            backfocus_mm=reducer["backfocus_mm"],
+            visual_compatible=reducer["visual_compatible"],
+            imaging_compatible=reducer["imaging_compatible"],
+            corrected_field=reducer["corrected_field"],
+            notes=reducer["notes"],
+        )
+
+        assert ok
+        updated = next(
+            item for item in repository.reducers() if item["id"] == reducer["id"]
+        )
+        assert updated["compatible_models"] == compatibility
+        assert updated["compatible_telescope_ids"] == []
+    finally:
+        temporary_directory.cleanup()
+
+
 def test_custom_reducer_compatibility_survives_seed_refresh() -> None:
     temporary_directory, database_path, repository = _database()
     try:
@@ -471,6 +507,32 @@ def test_custom_reducer_rejects_unknown_telescope_compatibility() -> None:
             item["model"] == "Riduttore non valido"
             for item in repository.reducers()
         )
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_binocular_catalog_uses_natural_model_order_within_each_brand() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        binoculars = repository.binoculars()
+        canon = [item["model"] for item in binoculars if item["brand"] == "Canon"]
+        celestron_ed = [
+            item["model"]
+            for item in binoculars
+            if item["brand"] == "Celestron" and "Nature DX ED" in item["model"]
+        ]
+
+        assert canon == [
+            "8x20 IS",
+            "10x20 IS",
+            "10x30 IS II",
+            "10x42 L IS WP",
+            "12x32 IS",
+            "12x36 IS III",
+            "15x50 IS All Weather",
+            "18x50 IS All Weather",
+        ]
+        assert celestron_ed == ["Nature DX ED 8x42", "Nature DX ED 10x42"]
     finally:
         temporary_directory.cleanup()
 

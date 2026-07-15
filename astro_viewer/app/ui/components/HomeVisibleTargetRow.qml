@@ -6,6 +6,7 @@ Rectangle {
 
     property var itemData: ({})
     property bool compact: false
+    property bool headerMode: false
 
     signal openRequested(string objectId)
 
@@ -28,10 +29,11 @@ Rectangle {
     }
 
     width: parent ? parent.width : implicitWidth
-    implicitHeight: root.compact ? Math.max(82, compactLayout.implicitHeight + 16) : 46
+    implicitHeight: root.compact ? Math.max(82, compactLayout.implicitHeight + 16)
+                                 : (root.headerMode ? 34 : 46)
     radius: 8
-    color: mouseArea.containsMouse ? "#20242b" : "transparent"
-    border.color: mouseArea.containsMouse ? theme.border : "transparent"
+    color: mouseArea.containsMouse && !root.headerMode ? "#20242b" : "transparent"
+    border.color: mouseArea.containsMouse && !root.headerMode ? theme.border : "transparent"
     border.width: 1
 
     RowLayout {
@@ -48,7 +50,7 @@ Rectangle {
             Layout.preferredWidth: 4
             Layout.fillHeight: true
             radius: 2
-            color: root.accent()
+            color: root.headerMode ? "transparent" : root.accent()
         }
 
         Text {
@@ -57,8 +59,8 @@ Rectangle {
             Layout.preferredWidth: 250
             Layout.maximumWidth: 300
             text: root.value("name", qsTr("Oggetto"))
-            color: theme.textPrimary
-            font.pixelSize: 13
+            color: root.headerMode ? theme.textMuted : theme.textPrimary
+            font.pixelSize: root.headerMode ? 11 : 13
             font.weight: Font.DemiBold
             maximumLineCount: 1
             elide: Text.ElideRight
@@ -70,8 +72,9 @@ Rectangle {
             Layout.preferredWidth: 180
             Layout.maximumWidth: 210
             text: root.value("typeLabel", qsTr("Oggetto"))
-            color: theme.textSecondary
-            font.pixelSize: 12
+            color: root.headerMode ? theme.textMuted : theme.textSecondary
+            font.pixelSize: root.headerMode ? 11 : 12
+            font.weight: root.headerMode ? Font.DemiBold : Font.Normal
             maximumLineCount: 1
             elide: Text.ElideRight
         }
@@ -79,8 +82,9 @@ Rectangle {
         Text {
             Layout.preferredWidth: 145
             text: root.value("windowLabel", qsTr("n/d"))
-            color: theme.textSecondary
-            font.pixelSize: 12
+            color: root.headerMode ? theme.textMuted : theme.textSecondary
+            font.pixelSize: root.headerMode ? 11 : 12
+            font.weight: root.headerMode ? Font.DemiBold : Font.Normal
             maximumLineCount: 1
             elide: Text.ElideRight
         }
@@ -89,7 +93,8 @@ Rectangle {
             Layout.preferredWidth: 95
             text: root.value("direction", qsTr("n/d"))
             color: theme.textMuted
-            font.pixelSize: 12
+            font.pixelSize: root.headerMode ? 11 : 12
+            font.weight: root.headerMode ? Font.DemiBold : Font.Normal
             maximumLineCount: 1
             elide: Text.ElideRight
         }
@@ -99,7 +104,8 @@ Rectangle {
             horizontalAlignment: Text.AlignRight
             text: root.value("difficulty", qsTr("n/d"))
             color: theme.textMuted
-            font.pixelSize: 12
+            font.pixelSize: root.headerMode ? 11 : 12
+            font.weight: root.headerMode ? Font.DemiBold : Font.Normal
             maximumLineCount: 1
             elide: Text.ElideRight
         }
@@ -110,7 +116,7 @@ Rectangle {
         anchors.fill: parent
         anchors.margins: 9
         spacing: 4
-        visible: root.compact
+        visible: root.compact && !root.headerMode
 
         RowLayout {
             Layout.fillWidth: true
@@ -168,8 +174,9 @@ Rectangle {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
+        enabled: !root.headerMode
+        hoverEnabled: enabled
+        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
         onClicked: root.openRequested(root.objectId())
     }
 }

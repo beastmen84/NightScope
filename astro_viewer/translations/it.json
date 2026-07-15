@@ -451,1108 +451,406 @@
       "messier-M110": {
         "name": "Satellite di Andromeda n. 2",
         "description": "M110 (NGC 205) - Galassia ellittica nana in Andromeda."
-      },
-      "caldwell-C1": {
-        "name": "NGC188",
-        "description": "C1 (NGC 188) - Ammasso aperto nella costellazione di Cefeo."
-      },
-      "caldwell-C2": {
-        "name": "NGC40",
-        "description": "C2 (NGC 40) - Nebulosa planetaria nella costellazione di Cefeo."
-      },
-      "caldwell-C3": {
-        "name": "NGC4236",
-        "description": "C3 (NGC 4236) - Galassia spirale nella costellazione di Dragone."
-      },
-      "caldwell-C4": {
-        "name": "NGC 7023 - Nebulosa Iris",
-        "description": "C4 (NGC 7023) - Nebulosa nella costellazione di Cefeo."
-      },
-      "caldwell-C5": {
-        "name": "IC342",
-        "description": "C5 (IC 342) - Galassia spirale barrata nella costellazione di Giraffa."
-      },
-      "caldwell-C6": {
-        "name": "NGC 6543 - Nebulosa Occhio di Gatto",
-        "description": "C6 (NGC 6543) - Nebulosa planetaria nella costellazione di Dragone."
-      },
-      "caldwell-C7": {
-        "name": "NGC2403",
-        "description": "C7 (NGC 2403) - Galassia spirale nella costellazione di Giraffa."
-      },
-      "caldwell-C8": {
-        "name": "NGC559",
-        "description": "C8 (NGC 559) - Ammasso aperto nella costellazione di Cassiopea."
-      },
-      "caldwell-C9": {
-        "name": "Sh2-155 - Nebulosa Grotta",
-        "description": "C9 (Sh2-155) - Nebulosa nella costellazione di Cefeo."
-      },
-      "caldwell-C10": {
-        "name": "NGC663",
-        "description": "C10 (NGC 663) - Ammasso aperto nella costellazione di Cassiopea."
-      },
-      "caldwell-C11": {
-        "name": "NGC 7635 - Nebulosa Bolla",
-        "description": "C11 (NGC 7635) - Nebulosa nella costellazione di Cassiopea."
-      },
-      "caldwell-C12": {
-        "name": "NGC 6946 - Galassia Fuochi d'Artificio",
-        "description": "C12 (NGC 6946) - Galassia spirale nella costellazione di Cefeo."
-      },
-      "caldwell-C13": {
-        "name": "NGC 457 - Ammasso Civetta",
-        "description": "C13 (NGC 457) - Ammasso aperto nella costellazione di Cassiopea."
-      },
-      "caldwell-C14": {
-        "name": "NGC 869/884 - Doppio Ammasso di Perseo",
-        "description": "C14 (NGC 869/884) - Doppio ammasso aperto nella costellazione di Perseo."
-      },
-      "caldwell-C15": {
-        "name": "NGC 6826 - Nebulosa Lampeggiante",
-        "description": "C15 (NGC 6826) - Nebulosa planetaria nella costellazione di Cigno."
-      },
-      "caldwell-C16": {
-        "name": "NGC7243",
-        "description": "C16 (NGC 7243) - Ammasso aperto nella costellazione di Lucertola."
-      },
-      "caldwell-C17": {
-        "name": "NGC147",
-        "description": "C17 (NGC 147) - Galassia ellittica nana nella costellazione di Cassiopea."
-      },
-      "caldwell-C18": {
-        "name": "NGC185",
-        "description": "C18 (NGC 185) - Galassia ellittica nana nella costellazione di Cassiopea."
-      },
-      "caldwell-C19": {
-        "name": "IC 5146 - Nebulosa Bozzolo",
-        "description": "C19 (IC 5146) - Nebulosa nella costellazione di Cigno."
-      },
-      "caldwell-C20": {
-        "name": "NGC 7000 - Nebulosa Nord America",
-        "description": "C20 (NGC 7000) - Nebulosa nella costellazione di Cigno."
-      },
-      "caldwell-C21": {
-        "name": "NGC4449",
-        "description": "C21 (NGC 4449) - Galassia irregolare nella costellazione di Cani da Caccia."
-      },
-      "caldwell-C22": {
-        "name": "NGC 7662 - Nebulosa Palla di Neve Blu",
-        "description": "C22 (NGC 7662) - Nebulosa planetaria nella costellazione di Andromeda."
-      },
-      "caldwell-C23": {
-        "name": "NGC 891",
-        "description": "C23 (NGC 891) - Galassia spirale nella costellazione di Andromeda."
-      },
-      "caldwell-C24": {
-        "name": "NGC 1275 - Perseus A",
-        "description": "C24 (NGC 1275) - Galassia di Seyfert nella costellazione di Perseo."
-      },
-      "caldwell-C25": {
-        "name": "NGC 2419 - Vagabondo Intergalattico",
-        "description": "C25 (NGC 2419) - Ammasso globulare nella costellazione di Lince."
-      },
-      "caldwell-C26": {
-        "name": "NGC 4244 - Galassia Ago d'Argento",
-        "description": "C26 (NGC 4244) - Galassia spirale nella costellazione di Cani da Caccia."
-      },
-      "caldwell-C27": {
-        "name": "NGC 6888 - Nebulosa Crescente",
-        "description": "C27 (NGC 6888) - Nebulosa nella costellazione di Cigno."
-      },
-      "caldwell-C28": {
-        "name": "NGC752",
-        "description": "C28 (NGC 752) - Ammasso aperto nella costellazione di Andromeda."
-      },
-      "caldwell-C29": {
-        "name": "NGC5005",
-        "description": "C29 (NGC 5005) - Galassia spirale nella costellazione di Cani da Caccia."
-      },
-      "caldwell-C30": {
-        "name": "NGC7331",
-        "description": "C30 (NGC 7331) - Galassia spirale nella costellazione di Pegaso."
-      },
-      "caldwell-C31": {
-        "name": "IC 405 - Nebulosa Stella Fiammeggiante",
-        "description": "C31 (IC 405) - Nebulosa nella costellazione dell'Auriga."
-      },
-      "caldwell-C32": {
-        "name": "NGC 4631 - Galassia Balena",
-        "description": "C32 (NGC 4631) - Galassia spirale nella costellazione di Cani da Caccia."
-      },
-      "caldwell-C33": {
-        "name": "NGC 6992/6995 - Nebulosa Velo Est",
-        "description": "C33 (NGC 6992/6995) - Resto di supernova nella costellazione di Cigno."
-      },
-      "caldwell-C34": {
-        "name": "NGC 6960 - Nebulosa Velo Ovest",
-        "description": "C34 (NGC 6960) - Resto di supernova nella costellazione di Cigno."
-      },
-      "caldwell-C35": {
-        "name": "NGC4889",
-        "description": "C35 (NGC 4889) - Galassia ellittica nella costellazione di Chioma di Berenice."
-      },
-      "caldwell-C36": {
-        "name": "NGC4559",
-        "description": "C36 (NGC 4559) - Galassia spirale nella costellazione di Chioma di Berenice."
-      },
-      "caldwell-C37": {
-        "name": "NGC6885",
-        "description": "C37 (NGC 6885) - Ammasso aperto nella costellazione di Volpetta."
-      },
-      "caldwell-C38": {
-        "name": "NGC 4565 - Galassia Ago",
-        "description": "C38 (NGC 4565) - Galassia spirale nella costellazione di Chioma di Berenice."
-      },
-      "caldwell-C39": {
-        "name": "NGC2392",
-        "description": "C39 (NGC 2392) - Nebulosa planetaria nella costellazione di Gemelli."
-      },
-      "caldwell-C40": {
-        "name": "NGC3626",
-        "description": "C40 (NGC 3626) - Galassia spirale nella costellazione del Leone."
-      },
-      "caldwell-C41": {
-        "name": "Iadi",
-        "description": "C41 - Ammasso aperto nella costellazione di Toro."
-      },
-      "caldwell-C42": {
-        "name": "NGC7006",
-        "description": "C42 (NGC 7006) - Ammasso globulare nella costellazione del Delfino."
-      },
-      "caldwell-C43": {
-        "name": "NGC7814",
-        "description": "C43 (NGC 7814) - Galassia spirale nella costellazione di Pegaso."
-      },
-      "caldwell-C44": {
-        "name": "NGC7479",
-        "description": "C44 (NGC 7479) - Galassia spirale barrata nella costellazione di Pegaso."
-      },
-      "caldwell-C45": {
-        "name": "NGC5248",
-        "description": "C45 (NGC 5248) - Galassia spirale nella costellazione di Boote."
-      },
-      "caldwell-C46": {
-        "name": "NGC 2261 - Nebulosa Variabile di Hubble",
-        "description": "C46 (NGC 2261) - Nebulosa nella costellazione di Unicorno."
-      },
-      "caldwell-C47": {
-        "name": "NGC6934",
-        "description": "C47 (NGC 6934) - Ammasso globulare nella costellazione del Delfino."
-      },
-      "caldwell-C48": {
-        "name": "NGC2775",
-        "description": "C48 (NGC 2775) - Galassia spirale nella costellazione di Cancro."
-      },
-      "caldwell-C49": {
-        "name": "NGC 2237-2239 - Nebulosa Rosetta",
-        "description": "C49 (NGC 2237-2239) - Nebulosa nella costellazione di Unicorno."
-      },
-      "caldwell-C50": {
-        "name": "NGC2244",
-        "description": "C50 (NGC 2244) - Ammasso aperto nella costellazione di Unicorno."
-      },
-      "caldwell-C51": {
-        "name": "IC1613",
-        "description": "C51 (IC 1613) - Galassia irregolare nella costellazione di Balena."
-      },
-      "caldwell-C52": {
-        "name": "NGC4697",
-        "description": "C52 (NGC 4697) - Galassia ellittica nella costellazione della Vergine."
-      },
-      "caldwell-C53": {
-        "name": "NGC 3115 - Galassia Fuso",
-        "description": "C53 (NGC 3115) - Galassia ellittica nella costellazione di Sestante."
-      },
-      "caldwell-C54": {
-        "name": "NGC2506",
-        "description": "C54 (NGC 2506) - Ammasso aperto nella costellazione di Unicorno."
-      },
-      "caldwell-C55": {
-        "name": "NGC 7009 - Nebulosa Saturno",
-        "description": "C55 (NGC 7009) - Nebulosa planetaria nella costellazione dell'Acquario."
-      },
-      "caldwell-C56": {
-        "name": "NGC246",
-        "description": "C56 (NGC 246) - Nebulosa planetaria nella costellazione di Balena."
-      },
-      "caldwell-C57": {
-        "name": "NGC 6822 - Galassia di Barnard",
-        "description": "C57 (NGC 6822) - Galassia irregolare nella costellazione del Sagittario."
-      },
-      "caldwell-C58": {
-        "name": "NGC2360",
-        "description": "C58 (NGC 2360) - Ammasso aperto nella costellazione di Cane Maggiore."
-      },
-      "caldwell-C59": {
-        "name": "NGC 3242 - Fantasma di Giove",
-        "description": "C59 (NGC 3242) - Nebulosa planetaria nella costellazione di Idra."
-      },
-      "caldwell-C60": {
-        "name": "NGC 4038 - Galassie Antenne",
-        "description": "C60 (NGC 4038) - Galassia spirale nella costellazione del Corvo."
-      },
-      "caldwell-C61": {
-        "name": "NGC 4039 - Galassie Antenne",
-        "description": "C61 (NGC 4039) - Galassia spirale nella costellazione del Corvo."
-      },
-      "caldwell-C62": {
-        "name": "NGC247",
-        "description": "C62 (NGC 247) - Galassia spirale nella costellazione di Balena."
-      },
-      "caldwell-C63": {
-        "name": "NGC 7293 - Nebulosa Elica",
-        "description": "C63 (NGC 7293) - Nebulosa planetaria nella costellazione dell'Acquario."
-      },
-      "caldwell-C64": {
-        "name": "NGC 2362 - Ammasso Tau Canis Majoris",
-        "description": "C64 (NGC 2362) - Ammasso aperto nella costellazione di Cane Maggiore."
-      },
-      "caldwell-C65": {
-        "name": "NGC 253 - Galassia dello Scultore",
-        "description": "C65 (NGC 253) - Galassia spirale nella costellazione di Scultore."
-      },
-      "caldwell-C66": {
-        "name": "NGC5694",
-        "description": "C66 (NGC 5694) - Ammasso globulare nella costellazione di Idra."
-      },
-      "caldwell-C67": {
-        "name": "NGC1097",
-        "description": "C67 (NGC 1097) - Galassia spirale barrata nella costellazione di Fornace."
-      },
-      "caldwell-C68": {
-        "name": "NGC 6729 - Nebulosa R Coronae Australis",
-        "description": "C68 (NGC 6729) - Nebulosa nella costellazione della Corona Australe."
-      },
-      "caldwell-C69": {
-        "name": "NGC 6302 - Nebulosa Insetto",
-        "description": "C69 (NGC 6302) - Nebulosa planetaria nella costellazione dello Scorpione."
-      },
-      "caldwell-C70": {
-        "name": "NGC 300",
-        "description": "C70 (NGC 300) - Galassia spirale nella costellazione di Scultore."
-      },
-      "caldwell-C71": {
-        "name": "NGC2477",
-        "description": "C71 (NGC 2477) - Ammasso aperto nella costellazione di Poppa."
-      },
-      "caldwell-C72": {
-        "name": "NGC55",
-        "description": "C72 (NGC 55) - Galassia spirale barrata nella costellazione di Scultore."
-      },
-      "caldwell-C73": {
-        "name": "NGC1851",
-        "description": "C73 (NGC 1851) - Ammasso globulare nella costellazione di Colomba."
-      },
-      "caldwell-C74": {
-        "name": "NGC 3132",
-        "description": "C74 (NGC 3132) - Nebulosa planetaria nella costellazione di Vele."
-      },
-      "caldwell-C75": {
-        "name": "NGC6124",
-        "description": "C75 (NGC 6124) - Ammasso aperto nella costellazione di Scorpione."
-      },
-      "caldwell-C76": {
-        "name": "NGC6231",
-        "description": "C76 (NGC 6231) - Ammasso aperto nella costellazione di Scorpione."
-      },
-      "caldwell-C77": {
-        "name": "NGC 5128 - Centauro A",
-        "description": "C77 (NGC 5128) - Galassia peculiare nella costellazione di Centauro."
-      },
-      "caldwell-C78": {
-        "name": "NGC6541",
-        "description": "C78 (NGC 6541) - Ammasso globulare nella costellazione della Corona Australe."
-      },
-      "caldwell-C79": {
-        "name": "NGC 3201",
-        "description": "C79 (NGC 3201) - Ammasso globulare nella costellazione di Vele."
-      },
-      "caldwell-C80": {
-        "name": "NGC 5139 - Omega Centauri",
-        "description": "C80 (NGC 5139) - Ammasso globulare nella costellazione di Centauro."
-      },
-      "caldwell-C81": {
-        "name": "NGC6352",
-        "description": "C81 (NGC 6352) - Ammasso globulare nella costellazione di Altare."
-      },
-      "caldwell-C82": {
-        "name": "NGC6193",
-        "description": "C82 (NGC 6193) - Ammasso aperto nella costellazione di Altare."
-      },
-      "caldwell-C83": {
-        "name": "NGC4945",
-        "description": "C83 (NGC 4945) - Galassia spirale barrata nella costellazione di Centauro."
-      },
-      "caldwell-C84": {
-        "name": "NGC5286",
-        "description": "C84 (NGC 5286) - Ammasso globulare nella costellazione di Centauro."
-      },
-      "caldwell-C85": {
-        "name": "IC 2391 - Ammasso Omicron Velorum",
-        "description": "C85 (IC 2391) - Ammasso aperto nella costellazione di Vele."
-      },
-      "caldwell-C86": {
-        "name": "NGC6397",
-        "description": "C86 (NGC 6397) - Ammasso globulare nella costellazione di Altare."
-      },
-      "caldwell-C87": {
-        "name": "NGC1261",
-        "description": "C87 (NGC 1261) - Ammasso globulare nella costellazione dell'Orologio."
-      },
-      "caldwell-C88": {
-        "name": "NGC5823",
-        "description": "C88 (NGC 5823) - Ammasso aperto nella costellazione di Compasso."
-      },
-      "caldwell-C89": {
-        "name": "NGC 6087 - Ammasso S Normae",
-        "description": "C89 (NGC 6087) - Ammasso aperto nella costellazione di Regolo."
-      },
-      "caldwell-C90": {
-        "name": "NGC2867",
-        "description": "C90 (NGC 2867) - Nebulosa planetaria nella costellazione di Carena."
-      },
-      "caldwell-C91": {
-        "name": "NGC3532",
-        "description": "C91 (NGC 3532) - Ammasso aperto nella costellazione di Carena."
-      },
-      "caldwell-C92": {
-        "name": "NGC 3372 - Nebulosa della Carena",
-        "description": "C92 (NGC 3372) - Nebulosa nella costellazione di Carena."
-      },
-      "caldwell-C93": {
-        "name": "NGC6752",
-        "description": "C93 (NGC 6752) - Ammasso globulare nella costellazione di Pavone."
-      },
-      "caldwell-C94": {
-        "name": "NGC 4755 - Scrigno di Gioielli",
-        "description": "C94 (NGC 4755) - Ammasso aperto nella costellazione di Croce del Sud."
-      },
-      "caldwell-C95": {
-        "name": "NGC6025",
-        "description": "C95 (NGC 6025) - Ammasso aperto nella costellazione del Triangolo Australe."
-      },
-      "caldwell-C96": {
-        "name": "NGC2516",
-        "description": "C96 (NGC 2516) - Ammasso aperto nella costellazione di Carena."
-      },
-      "caldwell-C97": {
-        "name": "NGC3766",
-        "description": "C97 (NGC 3766) - Ammasso aperto nella costellazione di Centauro."
-      },
-      "caldwell-C98": {
-        "name": "NGC4609",
-        "description": "C98 (NGC 4609) - Ammasso aperto nella costellazione di Croce del Sud."
-      },
-      "caldwell-C99": {
-        "name": "Nebulosa Sacco di Carbone",
-        "description": "C99 - Nebulosa oscura nella costellazione di Croce del Sud."
-      },
-      "caldwell-C100": {
-        "name": "IC 2944 - Ammasso Lambda Centauri",
-        "description": "C100 (IC 2944) - Ammasso aperto nella costellazione di Centauro."
-      },
-      "caldwell-C101": {
-        "name": "NGC6744",
-        "description": "C101 (NGC 6744) - Galassia spirale barrata nella costellazione di Pavone."
-      },
-      "caldwell-C102": {
-        "name": "IC 2602 - Pleiadi del Sud",
-        "description": "C102 (IC 2602) - Ammasso aperto nella costellazione di Carena."
-      },
-      "caldwell-C103": {
-        "name": "NGC 2070 - Nebulosa Tarantola",
-        "description": "C103 (NGC 2070) - Nebulosa nella costellazione di Dorado."
-      },
-      "caldwell-C104": {
-        "name": "NGC362",
-        "description": "C104 (NGC 362) - Ammasso globulare nella costellazione di Tucano."
-      },
-      "caldwell-C105": {
-        "name": "NGC4833",
-        "description": "C105 (NGC 4833) - Ammasso globulare nella costellazione di Mosca."
-      },
-      "caldwell-C106": {
-        "name": "NGC 104 - 47 Tucanae",
-        "description": "C106 (NGC 104) - Ammasso globulare nella costellazione di Tucano."
-      },
-      "caldwell-C107": {
-        "name": "NGC6101",
-        "description": "C107 (NGC 6101) - Ammasso globulare nella costellazione di Uccello del Paradiso."
-      },
-      "caldwell-C108": {
-        "name": "NGC4372",
-        "description": "C108 (NGC 4372) - Ammasso globulare nella costellazione di Mosca."
-      },
-      "caldwell-C109": {
-        "name": "NGC 3195",
-        "description": "C109 (NGC 3195) - Nebulosa planetaria nella costellazione di Camaleonte."
       }
     },
     "equipment_telescopes": {
       "askar::103apo": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "askar::120apo": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "askar::151phq": {
-        "optical_type": "rifrattore Petzval",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "askar::fra300 pro": {
-        "optical_type": "rifrattore Petzval",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "askar::fra400": {
-        "optical_type": "rifrattore Petzval",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "askar::fra500": {
-        "optical_type": "rifrattore Petzval",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "bresser::messier ar-102/1000": {
-        "optical_type": "rifrattore",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "bresser::messier ar-102/600": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "bresser::messier ar-127l/1200": {
-        "optical_type": "rifrattore",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "bresser::messier ar-80/640": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "bresser::messier ar-90/900": {
-        "optical_type": "rifrattore",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "bresser::messier mc-100/1400": {
-        "optical_type": "Maksutov",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "bresser::messier mc-127/1900": {
-        "optical_type": "Maksutov",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "bresser::messier nt-130/1000": {
-        "optical_type": "Newton",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "bresser::messier nt-150s/750": {
-        "optical_type": "Newton",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "bresser::messier nt-203/1000": {
-        "optical_type": "Newton",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::astromaster 102az": {
-        "optical_type": "rifrattore",
-        "mount_type": "altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::astromaster 114eq": {
-        "optical_type": "Newton",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::astromaster 130eq": {
-        "optical_type": "Newton",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::astromaster 70az": {
-        "optical_type": "rifrattore",
-        "mount_type": "altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::astromaster 90az": {
-        "optical_type": "rifrattore",
-        "mount_type": "altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::edgehd 11 ota": {
-        "optical_type": "Schmidt-Cassegrain",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::edgehd 8 ota": {
-        "optical_type": "Schmidt-Cassegrain",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::edgehd 9.25 ota": {
-        "optical_type": "Schmidt-Cassegrain",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::nexstar 130slt": {
-        "optical_type": "Newton",
-        "mount_type": "Vai a altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::nexstar 4se": {
-        "optical_type": "Maksutov",
-        "mount_type": "Vai a altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::nexstar 5se": {
-        "optical_type": "Schmidt-Cassegrain",
-        "mount_type": "Vai a altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::nexstar 6se": {
-        "optical_type": "Schmidt-Cassegrain",
-        "mount_type": "Vai a altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::nexstar 8se": {
-        "optical_type": "Schmidt-Cassegrain",
-        "mount_type": "Vai a altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::omni xlt 102": {
-        "optical_type": "rifrattore",
-        "mount_type": "equatoriale CG-4",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::omni xlt 120": {
-        "optical_type": "rifrattore",
-        "mount_type": "equatoriale CG-4",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::omni xlt 150": {
-        "optical_type": "Newton",
-        "mount_type": "equatoriale CG-4",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::starsense explorer 10 dobsonian": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson PushTo",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::starsense explorer 8 dobsonian": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson PushTo",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::starsense explorer dx 102az": {
-        "optical_type": "rifrattore",
-        "mount_type": "altazimutale PushTo",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::starsense explorer dx 130az": {
-        "optical_type": "Newton",
-        "mount_type": "altazimutale PushTo",
         "notes": "Specifiche del catalogo del produttore."
       },
       "celestron::starsense explorer lt 80az": {
-        "optical_type": "rifrattore",
-        "mount_type": "altazimutale PushTo",
         "notes": "Specifiche del catalogo del produttore."
       },
       "explore scientific::ar102": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "explore scientific::ar127": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "explore scientific::david h. levy comet hunter": {
-        "optical_type": "Maksutov-Newton",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "explore scientific::ed102 essential": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "explore scientific::ed127 essential": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "explore scientific::ed80 essential": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "explore scientific::firstlight 114mm newton": {
-        "optical_type": "Newton",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "explore scientific::firstlight 130mm newton": {
-        "optical_type": "Newton",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "explore scientific::firstlight ar102": {
-        "optical_type": "rifrattore",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "explore scientific::firstlight ar80": {
-        "optical_type": "rifrattore",
-        "mount_type": "altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "gso::classical cassegrain 6": {
-        "optical_type": "Cassegrain classico",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "gso::classical cassegrain 8": {
-        "optical_type": "Cassegrain classico",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "gso::dobson 200/1200": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "gso::dobson 250/1250": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "gso::dobson 300/1500": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "gso::newton 150/750": {
-        "optical_type": "Newton",
-        "mount_type": "OTA",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "gso::newton 200/1000": {
-        "optical_type": "Newton",
-        "mount_type": "OTA",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "gso::newton 200/800": {
-        "optical_type": "Newton",
-        "mount_type": "OTA",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "gso::rc 6": {
-        "optical_type": "RC",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "gso::rc 8": {
-        "optical_type": "RC",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "meade::etx125 observer": {
-        "optical_type": "Maksutov",
-        "mount_type": "Vai a altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "meade::etx90 observer": {
-        "optical_type": "Maksutov",
-        "mount_type": "Vai a altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "meade::infinity 70az": {
-        "optical_type": "rifrattore",
-        "mount_type": "altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "meade::infinity 80az": {
-        "optical_type": "rifrattore",
-        "mount_type": "altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "meade::infinity 90az": {
-        "optical_type": "rifrattore",
-        "mount_type": "altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "meade::lx200 8 acf": {
-        "optical_type": "Schmidt-Cassegrain",
-        "mount_type": "Vai a forcella",
         "notes": "Specifiche del catalogo del produttore."
       },
       "meade::lx90 8 acf": {
-        "optical_type": "Schmidt-Cassegrain",
-        "mount_type": "Vai a forcella",
         "notes": "Specifiche del catalogo del produttore."
       },
       "meade::lightbridge mini 130": {
-        "optical_type": "Newton",
-        "mount_type": "Piano del tavolo Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "meade::polaris 130eq": {
-        "optical_type": "Newton",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "omegon::ac 102/660 az-3": {
-        "optical_type": "rifrattore",
-        "mount_type": "altazimutale",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "omegon::ac 70/700 az-2": {
-        "optical_type": "rifrattore",
-        "mount_type": "altazimutale",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "omegon::ac 90/1000 eq-2": {
-        "optical_type": "rifrattore",
-        "mount_type": "equatoriale",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "omegon::advanced 130/650 eq-320": {
-        "optical_type": "Newton",
-        "mount_type": "equatoriale",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "omegon::advanced 150/750 eq-320": {
-        "optical_type": "Newton",
-        "mount_type": "equatoriale",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "omegon::prodob n 153/1200": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "omegon::prodob n 203/1200": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "omegon::prodob n 254/1250": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "omegon::pronewton n 203/1000": {
-        "optical_type": "Newton",
-        "mount_type": "OTA",
         "notes": "Specifiche codificate nel nome del modello."
       },
       "orion::apex 127": {
-        "optical_type": "Maksutov",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "orion::apex 90": {
-        "optical_type": "Maksutov",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "orion::observer 80st": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "orion::observer 90mm eq": {
-        "optical_type": "rifrattore",
-        "mount_type": "equatoriale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "orion::skyquest xt10": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "orion::skyquest xt12": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "orion::skyquest xt4.5": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "orion::skyquest xt6": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "orion::skyquest xt8": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "orion::starblast 4.5 astro": {
-        "optical_type": "Newton",
-        "mount_type": "Piano del tavolo Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "orion::starblast 6 astro": {
-        "optical_type": "Newton",
-        "mount_type": "Piano del tavolo Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sharpstar::15028hnt": {
-        "optical_type": "Newton",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sharpstar::61edph iii": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sharpstar::76edph": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sharpstar::94edph": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::classic 150p dobson": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::classic 200p dobson": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::classic 250p dobson": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::classic 300p dobson": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::evostar 100ed ds-pro": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::evostar 120ed ds-pro": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::evostar 72ed ds-pro": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::evostar 80ed ds-pro": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::explorer 130pds": {
-        "optical_type": "Newton",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::explorer 150pds": {
-        "optical_type": "Newton",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::explorer 200pds": {
-        "optical_type": "Newton",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::heritage 100p": {
-        "optical_type": "Newton",
-        "mount_type": "Piano del tavolo Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::heritage 130p": {
-        "optical_type": "Newton",
-        "mount_type": "Piano del tavolo Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::heritage 150p": {
-        "optical_type": "Newton",
-        "mount_type": "Piano del tavolo Dobson",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::skyliner 200p flextube": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson collassabile",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::skyliner 250p flextube": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson collassabile",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::skyliner 300p flextube": {
-        "optical_type": "Newton",
-        "mount_type": "Dobson collassabile",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::skymax 102": {
-        "optical_type": "Maksutov",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::skymax 127": {
-        "optical_type": "Maksutov",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::skymax 150": {
-        "optical_type": "Maksutov",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "sky-watcher::skymax 90": {
-        "optical_type": "Maksutov",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "takahashi::fc-100dc": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "takahashi::fc-100dz": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "takahashi::fc-76dcu": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "takahashi::fs-60cb": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "takahashi::toa-130ns": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "takahashi::tsa-120": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "vixen::a105m": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "vixen::a80mf": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "vixen::ed80sf": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "vixen::ed81s": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "vixen::r200ss": {
-        "optical_type": "Newton",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "vixen::vc200l": {
-        "optical_type": "Catadiottrico",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "william optics::gran turismo 102": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "william optics::gran turismo 71": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "william optics::gran turismo 81": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "william optics::redcat 51": {
-        "optical_type": "rifrattore Petzval",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "william optics::redcat 61": {
-        "optical_type": "rifrattore Petzval",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "william optics::zenithstar 61 ii": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "william optics::zenithstar 73 iii": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "william optics::zenithstar 81": {
-        "optical_type": "rifrattore",
-        "mount_type": "OTA",
         "notes": "Specifiche del catalogo del produttore."
       },
       "zwo/seestar::seestar s30": {
-        "optical_type": "Telescopio intelligente",
-        "mount_type": "Vai a altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       },
       "zwo/seestar::seestar s50": {
-        "optical_type": "Telescopio intelligente",
-        "mount_type": "Vai a altazimutale",
         "notes": "Specifiche del catalogo del produttore."
       }
     },
@@ -2065,250 +1363,6 @@
       },
       "william optics::apo barlow::2": {
         "notes": "Specifiche del catalogo del produttore."
-      }
-    },
-    "equipment_filters": {
-      "astronomik::uhc": {
-        "notes": "Visuale per nebulose a emissione e planetarie."
-      },
-      "astronomik::uhc-e": {
-        "notes": "Passabanda moderatamente adatta anche ad apertura contenuta."
-      },
-      "astronomik::oiii visual": {
-        "notes": "Contrasto selettivo sulle righe OIII."
-      },
-      "astronomik::h-beta visual": {
-        "notes": "Per nebulose dominate dalla riga H-beta."
-      },
-      "astronomik::cls": {
-        "notes": "Riduzione moderata dell'inquinamento luminoso."
-      },
-      "baader::uhc-l ultra l-booster": {
-        "notes": "Filtro UHC visivo a banda larga."
-      },
-      "baader::oiii visual 10 nm": {
-        "notes": "Filtro visivo OIII da 10 nm."
-      },
-      "baader::oiii super-g 9 nm": {
-        "notes": "Filtro OIII stretto per aperture medio-grandi."
-      },
-      "baader::neodymium moon & skyglow": {
-        "notes": "Contrasto lunare e planetario con vetro al neodimio."
-      },
-      "baader::contrast booster": {
-        "notes": "Incremento del contrasto planetario."
-      },
-      "baader::fringe killer": {
-        "notes": "Riduzione del cromatismo nei rifrattori acromatici."
-      },
-      "baader::semi apo": {
-        "notes": "Correzione cromatica moderata per rifrattori."
-      },
-      "baader::neutral density nd 0.6": {
-        "notes": "Trasmissione neutra nominale del 25 percento."
-      },
-      "baader::neutral density nd 0.9": {
-        "notes": "Trasmissione neutra nominale del 12,5 percento."
-      },
-      "baader::double polarizing": {
-        "notes": "Attenuazione variabile per Luna e pianeti luminosi."
-      },
-      "baader::yellow 495 nm": {
-        "notes": "Filtro colorato per Luna e pianeti."
-      },
-      "baader::dark blue 435 nm": {
-        "notes": "Filtro colorato planetario blu scuro."
-      },
-      "baader::light blue 470 nm": {
-        "notes": "Filtro colorato planetario azzurro."
-      },
-      "baader::green 500 nm": {
-        "notes": "Filtro colorato planetario verde."
-      },
-      "baader::orange 570 nm": {
-        "notes": "Filtro colorato planetario arancio."
-      },
-      "baader::red 610 nm": {
-        "notes": "Filtro colorato planetario rosso."
-      },
-      "baader::c2 swan-band 15 nm": {
-        "notes": "Isola le bande del carbonio nelle comete gassose."
-      },
-      "lumicon::gen 3 uhc": {
-        "notes": "Filtro UHC visivo per nebulose."
-      },
-      "lumicon::gen 3 oxygen iii": {
-        "notes": "Filtro OIII visivo per nebulose."
-      },
-      "lumicon::gen 3 h-beta": {
-        "notes": "Filtro H-beta visivo selettivo."
-      },
-      "lumicon::comet": {
-        "notes": "Contrasto delle bande molecolari nelle comete."
-      },
-      "explore scientific::uhc nebula": {
-        "notes": "Filtro UHC visivo per nebulose."
-      },
-      "explore scientific::oxygen iii nebula": {
-        "notes": "Filtro visivo sulle righe OIII."
-      },
-      "explore scientific::h-beta nebula": {
-        "notes": "Passabanda dichiarata da 478 a 496 nm."
-      },
-      "explore scientific::cls nebula": {
-        "notes": "Riduzione dell'inquinamento luminoso per uso visivo."
-      },
-      "explore scientific::neutral density moon": {
-        "notes": "Attenuazione neutra per l'osservazione lunare."
-      },
-      "celestron::uhc/lpr": {
-        "notes": "Il filtro UHC/LPR visualizza una passabanda moderata."
-      },
-      "celestron::oxygen iii narrowband": {
-        "notes": "Isola le righe OIII a 496 e 501 nm."
-      },
-      "celestron::moon": {
-        "notes": "Riduci il fiume durante l'osservazione lunare."
-      },
-      "celestron::neutral density moon nd96-0.9": {
-        "notes": "Trasmissione neutra nominale del 13 percento."
-      },
-      "celestron::variable polarizing filter": {
-        "notes": "Trasmissione variabile dall'1 al 40 percento per Luna, Venere e oggetti luminosi."
-      },
-      "celestron::#12 deep yellow": {
-        "notes": "Aumenta il contrasto di dettagli lunari e delle bande di Giove e Saturno."
-      },
-      "celestron::#21 orange": {
-        "notes": "Evidenzia dettagli su Marte e le bande e regioni polari di Giove e Saturno."
-      },
-      "celestron::#25 red": {
-        "notes": "Mette in risalto calotte polari e dettagli superficiali di Marte."
-      },
-      "celestron::#80a light blue": {
-        "notes": "Aumenta il contrasto delle bande di Giove e dei dettagli atmosferici di Saturno."
-      },
-      "celestron::#56 light green": {
-        "notes": "Evidenzia la Grande Macchia Rossa e le calotte e nubi di Marte."
-      },
-      "celestron::#58 green": {
-        "notes": "Aumenta il contrasto di dettagli atmosferici su Giove, Marte e Saturno."
-      },
-      "celestron::#47 violet": {
-        "notes": "Filtro molto selettivo per nubi alte di Marte e struttura degli anelli di Saturno."
-      },
-      "optolong::uhc": {
-        "notes": "Filtro UHC per uso visuale."
-      },
-      "optolong::cls": {
-        "notes": "Riduzione dell'inquinamento luminoso."
-      },
-      "optolong::oiii": {
-        "notes": "Filtro visivo sulle righe OIII."
-      },
-      "optolong::h-beta": {
-        "notes": "Filtro visuale sulla riga H-beta."
-      },
-      "optolong::moon & skyglow": {
-        "notes": "Contrasto lunare e del fondo cielo."
-      }
-    },
-    "equipment_reducers": {
-      "celestron::reducer-corrector f/6.3::0.63": {
-        "connection": "Filettatura posteriore SCT",
-        "notes": "Non compatibile con EdgeHD o Maksutov-Cassegrain."
-      },
-      "celestron::reducer lens 0.7x edgehd 8::0.7": {
-        "connection": "Filettatura EdgeHD 8",
-        "notes": "Progettato esclusivamente per EdgeHD 8."
-      },
-      "celestron::reducer lens 0.7x edgehd 9.25::0.7": {
-        "connection": "Filettatura EdgeHD 9.25",
-        "notes": "Progettato esclusivamente per EdgeHD 9.25."
-      },
-      "celestron::reducer lens 0.7x edgehd 11::0.7": {
-        "connection": "Filettatura EdgeHD 11",
-        "notes": "Progettato esclusivamente per EdgeHD 11."
-      },
-      "celestron::reducer lens 0.7x edgehd 14::0.7": {
-        "connection": "Filettatura EdgeHD 14",
-        "notes": "Progettato esclusivamente per EdgeHD 14."
-      },
-      "meade::series 4000 f/6.3 focal reducer field flattener::0.63": {
-        "connection": "Filettatura posteriore SCT",
-        "notes": "Riduttore e spianatore per SCT classici."
-      },
-      "baader::alan gee mark ii telecompressor::0.59": {
-        "connection": "Baffle SCT o sistema T-2",
-        "notes": "Fattore nominale dipendente dalla distanza ottica."
-      },
-      "baader::universal alan gee ii uag::0.59": {
-        "connection": "Sistema T-2",
-        "notes": "Versione preconfigurata per uso visuale."
-      },
-      "starizona::sct corrector iv::0.63": {
-        "connection": "Filettatura posteriore SCT",
-        "notes": "Riduttore e correttore fotografico per SCT classici."
-      },
-      "starizona::sct corrector lf::0.63": {
-        "connection": "Filettatura posteriore SCT",
-        "notes": "Versione fotografica a grande formato."
-      },
-      "starizona::night owl sct reducer-corrector::0.4": {
-        "connection": "Corpo da 2 pollici",
-        "notes": "Riduttore fotografico rapido per piccoli sensori."
-      },
-      "william optics::flat 73r::0.8": {
-        "connection": "Connessione dedicata WO",
-        "notes": "Riduttore e spianatore dedicato."
-      },
-      "william optics::flat 6aiii::0.8": {
-        "connection": "M63 lato telescopio e M48 lato camera",
-        "notes": "Backfocus regolabile in base al telescopio."
-      },
-      "william optics::flat 7a::0.8": {
-        "connection": "Connessione dedicata WO",
-        "notes": "Backfocus regolabile in base al telescopio."
-      },
-      "william optics::flat 8::0.72": {
-        "connection": "Connessione dedicata WO",
-        "notes": "Riduttore e spianatore per rifrattori di grande apertura."
-      },
-      "william optics::ultra flat 91::0.79": {
-        "connection": "Connessione dedicata WO",
-        "notes": "Riduttore dedicato con campo corretto."
-      },
-      "william optics::ultra flat 132::0.79": {
-        "connection": "Connessione dedicata WO",
-        "notes": "Riduttore dedicato con campo corretto."
-      },
-      "william optics::ultra flat 156::0.79": {
-        "connection": "Connessione dedicata WO",
-        "notes": "Riduttore dedicato con campo corretto."
-      },
-      "william optics::dr. flat master::0.8": {
-        "connection": "M92 lato telescopio e M48 lato camera",
-        "notes": "Riduttore apocromatico per Ritchey-Chretien."
-      },
-      "sky-watcher::0.85x reducer-corrector ed72::0.85": {
-        "connection": "Connessione dedicata Sky-Watcher",
-        "notes": "Accessorio fotografico otticamente abbinato."
-      },
-      "sky-watcher::0.85x reducer-corrector ed80::0.85": {
-        "connection": "M48 lato camera",
-        "notes": "Accessorio fotografico otticamente abbinato."
-      },
-      "sky-watcher::0.85x reducer-corrector ed100::0.85": {
-        "connection": "M48 lato camera",
-        "notes": "Accessorio fotografico otticamente abbinato."
-      },
-      "sky-watcher::0.85x reducer-corrector ed120::0.85": {
-        "connection": "M48 lato camera",
-        "notes": "Accessorio fotografico otticamente abbinato."
-      },
-      "explore scientific::3-inch field flattener 0.7x focal reducer::0.7": {
-        "connection": "3 pollici con adattatore M42 o M48",
-        "notes": "Riduttore e spianatore fotografico dedicato."
       }
     }
   }

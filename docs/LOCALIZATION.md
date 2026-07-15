@@ -3,8 +3,10 @@
 NightScope discovers languages from files. The runtime, sidebar and packaging do
 not contain a hard-coded list of supported language codes.
 
-Italian is the canonical source and fallback language. A runtime language pack
-is made of:
+Italian is the canonical UI source and fallback language. Historical structured
+CSV data can legitimately mix Italian and English between fields; the content
+generator records the actual source language per field instead of assigning one
+language to an entire section. A runtime language pack is made of:
 
 - `<code>.json`: language metadata, locale formats and structured editorial
   content;
@@ -111,7 +113,9 @@ committed.
 - Python: use a literal `tr("Testo italiano", value=value)`. The extraction tool
   rejects dynamic source strings.
 - Seed/editorial content: keep the canonical value in its CSV and expose the
-  field through `source_content()` in `tools/update_content_translations.py`.
+  field through `source_content()` in `tools/update_content_translations.py`;
+  declare its real language through `source_language()`. Never infer the source
+  language from the section or from the requested output language.
 - Domain codes and persisted values remain stable and untranslated. Add a
   presentation label instead of branching on translated text.
 - Derived labels, such as catalogue designation plus object name, are composed
@@ -134,5 +138,5 @@ Before a release run:
 .\.venv\Scripts\python.exe tools\update_content_translations.py
 .\tools\update_translations.ps1 -UpdateOnly
 .\tools\update_translations.ps1 -CompileOnly
-.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer\tests
+.\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
 ```

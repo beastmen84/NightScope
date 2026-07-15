@@ -237,7 +237,7 @@ def test_no_location_no_targets_and_original_objects_are_not_mutated() -> None:
     )
 
     assert no_location == SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass.")
-    assert no_targets == SkyCompassService.empty("no_targets", "Nessun target osservabile in questo momento.")
+    assert no_targets == SkyCompassService.empty("no_targets", "Nessun oggetto osservabile in questo momento.")
     assert targets == before
 
 

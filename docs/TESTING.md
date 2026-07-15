@@ -95,6 +95,28 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.33.1 Visual-Fix Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-15 after resolving the
+bilingual visual checklist:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --fast` | Passed in 197.6 s |
+| `pip check`, Ruff and `compileall` | Passed |
+| `pytest -q -n 4 astro_viewer/tests` | 788 passed, 613 warnings, 7 subtests passed in 112.77 s |
+| Backend smoke, disposable runtime | Passed |
+| QML smoke from the standard gate | Passed |
+| Separate Italian and English QML smoke runs | Passed |
+| Translation catalogues | IT and EN: 1,665 finished, 0 unfinished each |
+| Focused localization, Equipment, Home and Calendar tests | 113 passed |
+| QML lint | 30 files, exit 0; 760 known static warnings |
+
+Coverage and installed-environment security audit were not repeated for this
+presentation-focused patch. Their latest measured baseline remains the 1.33.0
+audit below; the public artifact gate must run them again after rebuilding the
+Windows dist.
+
 ## Measured 1.33.0 Baseline
 
 Measured on Windows with Python 3.14.5 on 2026-07-14 after the pre-release

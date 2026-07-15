@@ -146,8 +146,8 @@ Item {
     function skyCompassGeometricTargetCountLabel(count) {
         var value = Number(count || 0)
         if (value === 1)
-            return qsTr("1 target geometricamente visibile")
-        return qsTr("%1 target geometricamente visibili").arg(value)
+            return qsTr("1 oggetto geometricamente visibile")
+        return qsTr("%1 oggetti geometricamente visibili").arg(value)
     }
 
     function alternativeCountLabel(count) {
@@ -882,7 +882,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: !skyCompassCard.compassData.available
-                    text: skyCompassCard.compassData.message || qsTr("Nessun target consigliato al momento.")
+                    text: skyCompassCard.compassData.message || qsTr("Nessun oggetto consigliato al momento.")
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -1069,7 +1069,7 @@ Item {
                                         Layout.fillWidth: true
                                         text: skyCompassCard.sessionRecommended
                                               ? (skyCompassCard.compassData.zoneLabel || qsTr("Zona consigliata"))
-                                              : qsTr("Zona con più target")
+                                              : qsTr("Zona con più oggetti")
                                         color: theme.teal
                                         font.pixelSize: 15
                                         font.weight: Font.DemiBold
@@ -1168,7 +1168,7 @@ Item {
                             Text {
                                 Layout.fillWidth: true
                                 text: skyCompassCard.sessionRecommended
-                                      ? qsTr("Target principali") : qsTr("Target nella direzione")
+                                      ? qsTr("Oggetti principali") : qsTr("Oggetti nella direzione")
                                 color: theme.textPrimary
                                 font.pixelSize: 15
                                 font.weight: Font.DemiBold
@@ -1320,7 +1320,7 @@ Item {
                     ToolTip.visible: hovered
                     ToolTip.text: root.skyCompassFilterAvailable
                                   ? qsTr("Mostra nelle due schede solo gli oggetti nella zona indicata da Sky Compass")
-                                  : qsTr("Nessun target osservabile in questo momento")
+                                  : qsTr("Nessun oggetto osservabile in questo momento")
                     onClicked: root.setSkyCompassFilter(checked)
                 }
             }
@@ -1501,59 +1501,17 @@ Item {
                         }
                     }
 
-                    RowLayout {
+                    HomeVisibleTargetRow {
                         Layout.fillWidth: true
                         visible: root.width > 900 && root.filteredNightAlternatives().length > 0
-                        spacing: 12
-
-                        Item { Layout.preferredWidth: 4 }
-
-                        Text {
-                            Layout.fillWidth: true
-                            Layout.minimumWidth: 210
-                            Layout.preferredWidth: 250
-                            Layout.maximumWidth: 300
-                            text: qsTr("Oggetto")
-                            color: theme.textMuted
-                            font.pixelSize: 11
-                            font.weight: Font.DemiBold
-                        }
-
-                        Text {
-                            Layout.fillWidth: true
-                            Layout.minimumWidth: 150
-                            Layout.preferredWidth: 180
-                            Layout.maximumWidth: 210
-                            text: qsTr("Tipo")
-                            color: theme.textMuted
-                            font.pixelSize: 11
-                            font.weight: Font.DemiBold
-                        }
-
-                        Text {
-                            Layout.preferredWidth: 145
-                            text: qsTr("Finestra")
-                            color: theme.textMuted
-                            font.pixelSize: 11
-                            font.weight: Font.DemiBold
-                        }
-
-                        Text {
-                            Layout.preferredWidth: 95
-                            text: qsTr("Direzione")
-                            color: theme.textMuted
-                            font.pixelSize: 11
-                            font.weight: Font.DemiBold
-                        }
-
-                        Text {
-                            Layout.preferredWidth: 175
-                            horizontalAlignment: Text.AlignRight
-                            text: qsTr("Difficoltà")
-                            color: theme.textMuted
-                            font.pixelSize: 11
-                            font.weight: Font.DemiBold
-                        }
+                        headerMode: true
+                        itemData: ({
+                            "name": qsTr("Oggetto"),
+                            "typeLabel": qsTr("Tipo"),
+                            "windowLabel": qsTr("Finestra"),
+                            "direction": qsTr("Direzione"),
+                            "difficulty": qsTr("Difficoltà")
+                        })
                     }
 
                     ListView {
@@ -1648,7 +1606,7 @@ Item {
                             property bool hovered: false
 
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 92
+                            Layout.preferredHeight: 108
                             radius: 8
                             color: hovered ? "#1b222a" : "#151a20"
                             border.color: hovered ? root.eventAccent(modelData.typeCode) : "#29313b"

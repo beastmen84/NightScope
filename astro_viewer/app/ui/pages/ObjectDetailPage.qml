@@ -16,6 +16,7 @@ Item {
     readonly property var sessionData: objectData.session || ({})
     readonly property var evaluationData: objectData.evaluation || ({})
     readonly property var equipmentData: objectData.equipment || ({})
+    readonly property var originMetricData: objectData.originMetric || ({})
     readonly property var filterRecommendationsData: equipmentData.filterRecommendations || ({})
     readonly property var reducerRecommendationData: equipmentData.reducerRecommendation || ({})
     property bool hasObject: objectData && objectData.name !== undefined && objectData.name !== ""
@@ -55,7 +56,9 @@ Item {
     }
 
     function originMetricLabel() {
-        return root.isCatalogueDetail ? qsTr("Catalogo") : qsTr("Distanza")
+        if (root.isCatalogueDetail)
+            return qsTr("Catalogo")
+        return root.originMetricData.label || qsTr("Distanza")
     }
 
     function originMetricValue() {
@@ -63,7 +66,7 @@ Item {
             return qsTr("n/d")
         if (root.isCatalogueDetail)
             return root.safeValue(objectData.catalogueLabel || objectData.catalogue)
-        return root.safeValue(objectData.distance)
+        return root.safeValue(root.originMetricData.value || objectData.distance)
     }
 
     function maxAngularSizeText() {
@@ -99,8 +102,8 @@ Item {
             parts.push(root.safeValue(objectData.catalogueId))
         if (root.includeCatalogueMetric(objectData.catalogueTypeLabel || objectData.type))
             parts.push(root.safeValue(objectData.catalogueTypeLabel || objectData.type))
-        if (root.includeCatalogueMetric(objectData.constellation))
-            parts.push(qsTr("Costellazione %1").arg(root.safeValue(objectData.constellation)))
+        if (root.includeCatalogueMetric(objectData.constellationLabel || objectData.constellation))
+            parts.push(qsTr("Costellazione %1").arg(root.safeValue(objectData.constellationLabel || objectData.constellation)))
         return parts.join("  -  ")
     }
 
@@ -109,10 +112,10 @@ Item {
             { "label": qsTr("Catalogo"), "value": objectData.catalogueLabel || objectData.catalogue, "accent": theme.violet },
             { "label": qsTr("ID catalogo"), "value": objectData.catalogueId, "accent": theme.cyan },
             { "label": qsTr("Tipo"), "value": objectData.catalogueTypeLabel || objectData.type, "accent": theme.teal },
-            { "label": qsTr("Costellazione"), "value": objectData.constellation, "accent": theme.amber },
+            { "label": qsTr("Costellazione"), "value": objectData.constellationLabel || objectData.constellation, "accent": theme.amber },
             { "label": qsTr("Magnitudine"), "value": objectData.magnitude, "accent": theme.cyan },
             { "label": qsTr("Dimensione"), "value": objectData.apparentSize, "accent": theme.green },
-            { "label": qsTr("Dim. max"), "value": root.maxAngularSizeText(), "accent": theme.teal },
+            { "label": qsTr("Dimensione angolare massima"), "value": root.maxAngularSizeText(), "accent": theme.teal },
             { "label": qsTr("Osservazione"), "value": objectData.catalogueObservationTypeLabel || objectData.recommendedObservationType, "accent": theme.amber },
             { "label": qsTr("A.R."), "value": objectData.rightAscension, "accent": theme.violet },
             { "label": qsTr("Dec"), "value": objectData.declination, "accent": theme.coral },
@@ -121,7 +124,7 @@ Item {
             { "label": qsTr("Sorge"), "value": objectData.riseTime, "accent": theme.teal },
             { "label": qsTr("Transita"), "value": objectData.culminationTime, "accent": theme.green },
             { "label": qsTr("Tramonta"), "value": objectData.setTime, "accent": theme.amber },
-            { "label": qsTr("Utile (≥15°)"), "value": objectData.catalogueUsefullyObservableLabel, "accent": objectData.catalogueUsefullyObservable === true ? theme.green : theme.textMuted },
+            { "label": qsTr("Raggiunge ≥15°"), "value": objectData.catalogueUsefullyObservableLabel, "accent": objectData.catalogueUsefullyObservable === true ? theme.green : theme.textMuted },
             { "label": qsTr("Visibile nel mese corrente"), "value": objectData.catalogueVisibleCurrentMonthLabel, "accent": objectData.catalogueVisibleCurrentMonth === true ? theme.green : theme.textMuted }
         ]
         var result = []

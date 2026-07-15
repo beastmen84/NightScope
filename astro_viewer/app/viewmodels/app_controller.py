@@ -92,6 +92,7 @@ from astro_viewer.app.services.best_object_nsom_ranking import (
 )
 from astro_viewer.app.services.calendar_overview import CalendarOverviewService
 from astro_viewer.app.services.catalogue_presentation import (
+    catalogue_constellation_label,
     catalogue_display_name,
     catalogue_object_type_label,
     catalogue_observation_type_label,
@@ -653,6 +654,7 @@ class AppController(QObject):
     @Property("QVariant", notify=catalogueChanged)
     def catalogueFilterOptions(self) -> dict:
         object_types = self._catalogue_option_values("type")
+        constellations = self._catalogue_option_values("constellation")
         observation_types = self._catalogue_option_values("recommended_observation_type")
         type_choices = [
             {"value": value, "label": catalogue_object_type_label(value)}
@@ -661,6 +663,10 @@ class AppController(QObject):
         observation_type_choices = [
             {"value": value, "label": catalogue_observation_type_label(value)}
             for value in observation_types
+        ]
+        constellation_choices = [
+            {"value": value, "label": catalogue_constellation_label(value)}
+            for value in constellations
         ]
         catalogue_choices = [
             {"value": value, "label": self._catalogue_label(value)}
@@ -671,11 +677,17 @@ class AppController(QObject):
             "catalogueChoices": catalogue_choices,
             "types": object_types,
             "typeChoices": type_choices,
-            "constellations": self._catalogue_option_values("constellation"),
+            "constellations": constellations,
+            "constellationChoices": constellation_choices,
             "observationTypes": observation_types,
             "observationTypeChoices": observation_type_choices,
         })
-        for key in ("catalogueChoices", "typeChoices", "observationTypeChoices"):
+        for key in (
+            "catalogueChoices",
+            "typeChoices",
+            "constellationChoices",
+            "observationTypeChoices",
+        ):
             options[key].sort(key=lambda item: str(item["label"]).casefold())
         return options
 
@@ -1059,7 +1071,7 @@ class AppController(QObject):
     def filterCatalog(self) -> list[dict]:
         return render_payload(self._catalog_filters)
 
-    @Property("QVariant", constant=True)
+    @Property("QVariant", notify=equipmentChanged)
     def filterClassOptions(self) -> list[dict[str, str]]:
         return render_payload([
             {"code": code, "label": label}
@@ -4232,7 +4244,7 @@ class AppController(QObject):
     @staticmethod
     def _location_source_label(provider: str) -> str:
         labels = {
-            "windows_precise": tr("Windows precisa"),
+            "windows_precise": tr("Posizione Windows precisa"),
             "windows_coarse": tr("Windows approssimata"),
             "ip_geolocation": tr("Online approssimata"),
             "manual_city": tr("Città manuale"),
@@ -4713,6 +4725,9 @@ class AppController(QObject):
             object_id,
             "description",
             item.get("description", ""),
+        )
+        data["constellation_label"] = catalogue_constellation_label(
+            str(item.get("constellation", ""))
         )
         data["is_geometrically_observable"] = geometric_value is True
         data["is_geometrically_observable_known"] = geometric_value is not None
@@ -5267,6 +5282,7 @@ class AppController(QObject):
             )
             data["catalogueId"] = metadata.get("catalogueId") or (item.id.split("-", 1)[1] if "-" in item.id else item.id)
             data["constellation"] = metadata.get("constellation", "")
+            data["constellationLabel"] = metadata.get("constellationLabel", "")
             data["rightAscension"] = metadata.get("rightAscension", "")
             data["declination"] = metadata.get("declination", "")
             data["maxAngularSizeLabel"] = metadata.get("maxAngularSizeLabel") or self._format_catalogue_angle(item.max_angular_size_deg)
@@ -5313,7 +5329,9 @@ class AppController(QObject):
         data["curiositySourceLabel"] = curiosity.get("source_label", "").strip()
         data["curiositySourceUrl"] = curiosity.get("source_url", "").strip()
         data["curiosityVerified"] = bool(curiosity.get("verified", False))
-        data["imageAttribution"] = image_metadata.get("attribution", "").strip()
+        data["imageAttribution"] = self._localized_image_attribution(
+            image_metadata.get("attribution", "")
+        )
         data["imageSourceUrl"] = image_metadata.get("source_url", "").strip()
         data["imageLicense"] = image_metadata.get("license", "").strip()
         data["imageVerified"] = bool(image_metadata.get("verified", False))
@@ -5325,6 +5343,20 @@ class AppController(QObject):
             data["moonCycleFraction"] = self._moon_cycle_fraction(self._moon.phase_angle)
             data["moonCycleDay"] = self._moon_cycle_day_label(self._moon.phase_angle)
         return data
+
+    @staticmethod
+    def _localized_image_attribution(value: object) -> str:
+        attribution = presentation_text(value, strip=True)
+        hips_credit = "HiPS a colori e ritaglio: CDS"
+        if attribution.endswith(hips_credit):
+            source = attribution[: -len(hips_credit)].rstrip("; ")
+            return join_text(
+                (source, tr("HiPS a colori e ritaglio: CDS")),
+                separator="; ",
+            )
+        if attribution == "NightScope generated local SVG":
+            return tr("SVG locale generato da NightScope")
+        return attribution
 
     def _catalogue_object_visible_current_month(self, object_id: str) -> tuple[bool | None, str]:
         now = datetime.now(self._zone())
@@ -5403,9 +5435,16 @@ class AppController(QObject):
                     ),
                     "catalogueId": str(catalogue_item.get("catalogue_id") or ""),
                     "constellation": constellation,
+                    "constellationLabel": (
+                        constellation
+                        if constellation == "—"
+                        else catalogue_constellation_label(constellation)
+                    ),
                     "rightAscension": str(catalogue_item.get("right_ascension") or ""),
                     "declination": str(catalogue_item.get("declination") or ""),
-                    "maxAngularSizeLabel": str(catalogue_item.get("max_angular_size_label") or ""),
+                    "maxAngularSizeLabel": presentation_text(
+                        catalogue_item.get("max_angular_size_label", "")
+                    ),
                     "catalogueDesignations": list(catalogue_item.get("designations", [])),
                     "catalogueDesignationLabels": list(
                         catalogue_item.get("designation_labels", [])
@@ -5476,14 +5515,14 @@ class AppController(QObject):
                 "{value} km",
                 value=format_number(384_000),
             ),
-            max_altitude=tr("45 gradi"),
+            max_altitude=tr("45°"),
             direction=tr("Sud"),
             best_time=event.best_time,
             observing_window=event.best_time,
             notes=event.note,
             recommended_setup="",
             visibility_class=tr("Luna"),
-            azimuth=tr("180 gradi"),
+            azimuth=tr("180°"),
             time_above_horizon=tr("n/d"),
             apparent_size="30 arcmin",
             score=event.usefulness,
@@ -5575,14 +5614,14 @@ class AppController(QObject):
             image=f"resources/images/solar_system/{target_id}.jpg",
             magnitude=magnitude,
             distance=tr("n/d"),
-            max_altitude=tr("45 gradi"),
+            max_altitude=tr("45°"),
             direction=tr("Sud"),
             best_time=event.best_time,
             observing_window=event.observing_window or event.best_time,
             notes=event.note,
             recommended_setup="",
             visibility_class=tr("Pianeta"),
-            azimuth=tr("180 gradi"),
+            azimuth=tr("180°"),
             time_above_horizon=tr("n/d"),
             score=event.usefulness,
         )
@@ -5669,7 +5708,7 @@ class AppController(QObject):
                 return (
                     "limited",
                     tr("Finestra marginale"),
-                    tr("Finestra marginale: il target non raggiunge la visibilità utile mensile."),
+                    tr("Finestra marginale: l'oggetto non raggiunge la visibilità utile mensile."),
                 )
             return (
                 "limited",
@@ -5678,7 +5717,7 @@ class AppController(QObject):
             )
         if observable_now:
             altitude = (
-                tr("{value} gradi", value=format_number(current_altitude))
+                tr("{value}°", value=format_number(current_altitude))
                 if current_altitude is not None
                 else tr("quota utile")
             )
@@ -5692,7 +5731,7 @@ class AppController(QObject):
                 "above_horizon",
                 tr("Sopra l'orizzonte"),
                 tr(
-                    "Attualmente a {altitude} gradi, ma fuori dalla notte osservativa. Finestra utile: {window}.",
+                    "Attualmente a {altitude}°, ma fuori dalla notte osservativa. Finestra utile: {window}.",
                     altitude=format_number(current_altitude),
                     window=window,
                 ),
@@ -5715,7 +5754,7 @@ class AppController(QObject):
                 "limited",
                 tr("Troppo basso ora"),
                 tr(
-                    "Attualmente a {altitude} gradi, sotto la soglia utile di {threshold} gradi. Finestra utile: {window}.",
+                    "Attualmente a {altitude}°, sotto la soglia utile di {threshold}°. Finestra utile: {window}.",
                     altitude=format_number(current_altitude),
                     threshold=format_number(altitude_threshold),
                     window=window,
@@ -5801,21 +5840,21 @@ class AppController(QObject):
         altitude = format_number(max_altitude)
         if max_altitude >= 65:
             return tr(
-                "Culmina molto alto ({altitude} gradi): meno atmosfera e immagine più stabile.",
+                "Culmina molto alto ({altitude}°): meno atmosfera e immagine più stabile.",
                 altitude=altitude,
             )
         if max_altitude >= 35:
             return tr(
-                "Raggiunge una buona altezza ({altitude} gradi): osservazione realistica.",
+                "Raggiunge una buona altezza ({altitude}°): osservazione realistica.",
                 altitude=altitude,
             )
         if max_altitude >= 15:
             return tr(
-                "Resta basso ({altitude} gradi): serve orizzonte libero e cielo stabile.",
+                "Resta basso ({altitude}°): serve orizzonte libero e cielo stabile.",
                 altitude=altitude,
             )
         return tr(
-            "Altezza massima critica ({altitude} gradi): target difficile da sfruttare.",
+            "Altezza massima critica ({altitude}°): oggetto difficile da sfruttare.",
             altitude=altitude,
         )
 
@@ -5844,7 +5883,7 @@ class AppController(QObject):
             )
         if difficulty == "Difficile":
             return tr(
-                "Cielo Bortle {bortle}: target penalizzato, meglio trasparenza alta e luci schermate.",
+                "Cielo Bortle {bortle}: oggetto penalizzato, meglio trasparenza alta e luci schermate.",
                 bortle=bortle,
             )
         return tr(
@@ -6053,8 +6092,8 @@ class AppController(QObject):
                 icon="⚠",
                 detail=tr("Le condizioni attuali non sono ancora favorevoli."),
                 description=tr(
-                    "È però prevista una finestra osservativa promettente.\n"
-                    "Ti consigliamo di ricontrollare il meteo prima di preparare la sessione."
+                    "Le condizioni migliorano in una finestra osservativa successiva.\n"
+                    "Ricontrolla il meteo prima di preparare la sessione."
                 ),
                 show_opportunity=True,
             )
@@ -6266,13 +6305,7 @@ class AppController(QObject):
         return None
 
     def _format_home_datetime(self, value: datetime) -> str:
-        period_code = self._home_time_period_code(value)
-        labels = {
-            "evening": tr("sera"),
-            "night": tr("notte"),
-            "before_dawn": tr("prima dell'alba"),
-        }
-        return tr("{time} {period}", time=value.strftime("%H:%M"), period=labels[period_code])
+        return value.strftime("%H:%M")
 
     def _home_time_period_code(self, value: datetime) -> str:
         night_window = getattr(self, "_observing_night_window", None)
@@ -6376,7 +6409,7 @@ class AppController(QObject):
             "barlows": ("notes",),
             "binoculars": (),
             "filters": ("notes",),
-            "reducers": ("connection", "notes"),
+            "reducers": ("compatible_models", "connection", "notes"),
         }
         fields = identity_fields[section_name]
         translated_fields = content_fields[section_name]
@@ -7093,7 +7126,7 @@ class AppController(QObject):
             else tr("{count} oculari", count=len(eyepieces))
         )
         return tr(
-            "Profilo attivo: {telescope}. Disponibili: {eyepieces}, {barlows}.",
+            "Profilo attivo: {telescope}. Opzioni di ingrandimento: {eyepieces}, {barlows}.",
             telescope=telescope.name,
             eyepieces=eyepiece_text,
             barlows=barlow_text,

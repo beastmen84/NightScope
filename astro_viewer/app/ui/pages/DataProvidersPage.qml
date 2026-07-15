@@ -67,7 +67,7 @@ Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.minimumHeight: 206
-                    title: qsTr("Earthdata NASA")
+                    title: qsTr("NASA Earthdata")
                     subtitle: controller.earthdataConnectionVerified ? qsTr("Connessione LAADS verificata") : (controller.earthdataCredentialsConfigured ? qsTr("Credenziali salvate nel vault di sistema") : qsTr("Accesso opzionale ai dati VIIRS"))
                     accentColor: controller.earthdataConnectionVerified ? theme.green : (controller.earthdataAuthorizationRequired ? theme.violet : theme.amber)
                     headerActionText: qsTr("Crea account")

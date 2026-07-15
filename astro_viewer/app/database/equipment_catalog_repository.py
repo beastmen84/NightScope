@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import sqlite3
 from collections.abc import Iterable
 from contextlib import closing
@@ -21,6 +22,15 @@ OPTICAL_SYSTEM_LABELS = {
     "UNIVERSAL": tr("Universale"),
     "OTHER": tr("Altro"),
 }
+
+
+def _natural_sort_key(value: object) -> tuple[tuple[int, object], ...]:
+    parts = re.split(r"(\d+(?:\.\d+)?)", str(value or "").casefold())
+    return tuple(
+        (0, float(part)) if re.fullmatch(r"\d+(?:\.\d+)?", part) else (1, part)
+        for part in parts
+        if part
+    )
 
 
 def _barrel_size_label(value: object) -> str:
@@ -517,10 +527,19 @@ class EquipmentCatalogRepository:
                 SELECT id, brand, model, magnification, objective_diameter_mm,
                        image_stabilized, is_builtin, seed_key, is_user_modified
                 FROM BinocularCatalog
-                ORDER BY brand, model, magnification, objective_diameter_mm
                 """
             ).fetchall()
-        return [self._binocular_model(row) for row in rows]
+        models = [self._binocular_model(row) for row in rows]
+        return sorted(
+            models,
+            key=lambda item: (
+                _natural_sort_key(item["brand"]),
+                _natural_sort_key(item["model"]),
+                item["magnification"],
+                item["objective_diameter_mm"],
+                item["id"],
+            ),
+        )
 
     def add_binocular(
         self,
@@ -835,7 +854,7 @@ class EquipmentCatalogRepository:
         model: str,
         reduction_factor: float,
         optical_system: str,
-        compatible_models: str = "",
+        compatible_models: str | None = None,
         connection_name: str = "",
         backfocus_mm: float | None = None,
         visual_compatible: bool = False,
@@ -849,7 +868,7 @@ class EquipmentCatalogRepository:
             model,
             reduction_factor,
             optical_system,
-            compatible_models,
+            compatible_models or "",
             connection_name,
             backfocus_mm,
             visual_compatible,
@@ -904,45 +923,45 @@ class EquipmentCatalogRepository:
         model: str,
         reduction_factor: float,
         optical_system: str,
-        compatible_models: str = "",
+        compatible_models: str | None = None,
         connection_name: str = "",
         backfocus_mm: float | None = None,
         visual_compatible: bool = False,
         imaging_compatible: bool = True,
         corrected_field: bool = False,
         notes: str = "",
-        compatible_telescope_ids: Iterable[str] = (),
+        compatible_telescope_ids: Iterable[str] | None = None,
     ) -> tuple[bool, str]:
-        values, error = self._validated_reducer_values(
-            brand,
-            model,
-            reduction_factor,
-            optical_system,
-            compatible_models,
-            connection_name,
-            backfocus_mm,
-            visual_compatible,
-            imaging_compatible,
-            corrected_field,
-            notes,
-        )
-        if error:
-            return False, error
         with closing(self._connect()) as connection:
             existing = connection.execute(
-                "SELECT id, is_builtin FROM ReducerCatalog WHERE id = ?",
+                "SELECT id, is_builtin, compatible_models FROM ReducerCatalog WHERE id = ?",
                 (reducer_id,),
             ).fetchone()
             if not existing:
                 return False, tr("Riduttore non trovato.")
-            telescope_model_ids, compatibility_error = (
-                self._validated_reducer_telescope_ids(
+            values, error = self._validated_reducer_values(
+                brand,
+                model,
+                reduction_factor,
+                optical_system,
+                existing["compatible_models"] if compatible_models is None else compatible_models,
+                connection_name,
+                backfocus_mm,
+                visual_compatible,
+                imaging_compatible,
+                corrected_field,
+                notes,
+            )
+            if error:
+                return False, error
+            telescope_model_ids: tuple[int, ...] | None = None
+            if compatible_telescope_ids is not None:
+                telescope_model_ids, compatibility_error = self._validated_reducer_telescope_ids(
                     connection,
                     compatible_telescope_ids,
                 )
-            )
-            if compatibility_error:
-                return False, compatibility_error
+                if compatibility_error:
+                    return False, compatibility_error
             duplicate = connection.execute(
                 """
                 SELECT id FROM ReducerCatalog
@@ -966,11 +985,12 @@ class EquipmentCatalogRepository:
                 """,
                 values + (reducer_id,),
             )
-            self._replace_reducer_telescope_compatibility(
-                connection,
-                reducer_id,
-                telescope_model_ids,
-            )
+            if telescope_model_ids is not None:
+                self._replace_reducer_telescope_compatibility(
+                    connection,
+                    reducer_id,
+                    telescope_model_ids,
+                )
             connection.commit()
         return True, tr("Riduttore aggiornato.")
 
@@ -1224,7 +1244,7 @@ class EquipmentCatalogRepository:
             "max_focal_length_mm": max_focal,
             "apparent_field_deg": row["apparent_field_deg"],
             "apparent_field_label": tr(
-                "{value} gradi",
+                "{value}°",
                 value=format_compact_number(row["apparent_field_deg"]),
             ),
             "afov_min": row["afov_min"],
@@ -1377,7 +1397,7 @@ class EquipmentCatalogRepository:
         if clean_type.casefold() == "zoom":
             clean_type = "Zoom"
         if apparent_field_deg <= 0 or apparent_field_deg > 180:
-            return (), tr("Il campo apparente deve essere compreso tra 0 e 180 gradi.")
+            return (), tr("Il campo apparente deve essere compreso tra 0° e 180°.")
         if clean_type != "Zoom":
             if focal_length_mm <= 0:
                 return (), tr("La focale deve essere maggiore di zero.")

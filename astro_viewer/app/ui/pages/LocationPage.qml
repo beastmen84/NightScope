@@ -179,7 +179,7 @@ Item {
 
                             CheckBox {
                                 Layout.fillWidth: true
-                                text: qsTr("Posizione Windows")
+                                text: qsTr("Posizione Windows precisa")
                                 enabled: controller.autoDetectLocationOnStartup && (controller.allowApproximateOnlineLocation || !controller.useWindowsLocationOnStartup)
                                 checked: controller.autoDetectLocationOnStartup && controller.useWindowsLocationOnStartup
                                 opacity: enabled || checked ? 1 : 0.55
@@ -324,7 +324,7 @@ Item {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     Layout.minimumHeight: 206
-                    title: qsTr("Posizione Windows")
+                    title: qsTr("Posizione Windows precisa")
                     subtitle: qsTr("Precisa con fallback Windows approssimato")
                     accentColor: theme.cyan
 

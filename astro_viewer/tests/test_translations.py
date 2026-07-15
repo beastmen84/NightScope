@@ -25,8 +25,8 @@ from astro_viewer.app.services.translation_manager import (
 )
 from astro_viewer.app.viewmodels.app_controller import AppController
 from tools.update_content_translations import (
-    SECTION_SOURCE_LANGUAGES,
     source_content,
+    source_language,
 )
 
 
@@ -107,24 +107,35 @@ def test_structured_content_covers_every_translatable_seed_field() -> None:
     sources = source_content()
     packs = discover_language_packs(TRANSLATIONS_DIR)
 
-    assert set(sources) == set(SECTION_SOURCE_LANGUAGES)
     for pack in packs.values():
         translation_code = str(
             pack.payload["language"].get("translation_code") or pack.code
         )
-        expected_sections = {
-            section
-            for section, source_code in SECTION_SOURCE_LANGUAGES.items()
-            if source_code != translation_code
-        }
+        expected: dict[str, dict[str, set[str]]] = {}
+        for section, items in sources.items():
+            for item_key, fields in items.items():
+                translated_fields = {
+                    field
+                    for field in fields
+                    if source_language(section, item_key, field) != translation_code
+                }
+                if translated_fields:
+                    expected.setdefault(section, {})[item_key] = translated_fields
+
         content = pack.payload["content"]
-        assert set(content) == expected_sections
-        for section in expected_sections:
-            assert content[section].keys() == sources[section].keys()
-            for item_key, fields in sources[section].items():
+        assert set(content) == set(expected)
+        for section, items in expected.items():
+            assert content[section].keys() == items.keys()
+            for item_key, fields in items.items():
                 translated_fields = content[section][item_key]
-                assert translated_fields.keys() == fields.keys()
+                assert translated_fields.keys() == fields
                 assert all(str(value).strip() for value in translated_fields.values())
+
+    assert source_language("catalogue_objects", "messier-M1", "name") == "en"
+    assert source_language("catalogue_objects", "caldwell-C1", "name") == "it"
+    assert source_language("equipment_telescopes", "any", "notes") == "en"
+    assert source_language("equipment_telescopes", "any", "optical_type") == "it"
+    assert source_language("equipment_reducers", "any", "compatible_models") == "it"
 
 
 def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
@@ -181,13 +192,54 @@ def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
     assert italian_catalogue["messier-M3"]["description"].endswith("Cani da Caccia.")
     assert italian_catalogue["messier-M11"]["description"].endswith("Scudo.")
     assert italian_catalogue["messier-M41"]["description"].endswith("Cane Maggiore.")
-    italian_filters = italian["content"]["equipment_filters"]
-    assert italian_filters["astronomik::h-beta visual"]["notes"] == (
-        "Per nebulose dominate dalla riga H-beta."
+    assert "equipment_filters" not in italian["content"]
+    english_filters = english["content"]["equipment_filters"]
+    assert english_filters["astronomik::h-beta visual"]["notes"] == (
+        "For nebulae dominated by the H-beta line."
     )
-    assert italian_filters["baader::oiii super-g 9 nm"]["notes"] == (
-        "Filtro OIII stretto per aperture medio-grandi."
+    assert english_filters["baader::oiii super-g 9 nm"]["notes"] == (
+        "Narrow OIII filter for medium to large apertures."
     )
+
+    english_catalogue = english["content"]["catalogue_objects"]
+    assert len(english_catalogue) == 109
+    assert english_catalogue["caldwell-C13"]["name"] == "NGC 457 - Owl Cluster"
+    assert english_catalogue["caldwell-C38"]["name"] == "NGC 4565 - Needle Galaxy"
+    assert english_catalogue["caldwell-C53"]["name"] == "NGC 3115 - Spindle Galaxy"
+    for item in english_catalogue.values():
+        assert re.search(r"\b(NGC|IC)\d", item["name"]) is None
+        assert not any(
+            bad in item["description"]
+            for bad in ("Moscow", "Regulus", "Volpetta", "Cani da Caccia")
+        )
+
+    assert descriptions["caldwell-C1"]["observing_notes"] == (
+        "Use a medium field under dark skies; increase magnification moderately "
+        "to separate the many faint stars from the background."
+    )
+    english_reducers = english["content"]["equipment_reducers"]
+    assert english_reducers["baader::alan gee mark ii telecompressor::0.59"][
+        "compatible_models"
+    ]
+    structured_english = json.dumps(english["content"], ensure_ascii=False).casefold()
+    for forbidden in (
+        "medium shot",
+        "narrowing the shot",
+        "dedicated gearbox",
+        "fuso galaxy",
+        "ago galaxy",
+        "planetary mixer",
+        "multi-billion-dollar",
+        "discreet and not immediate",
+        "dark sky counts more",
+        "magnitude figure concerns",
+        "magnitude figure applies",
+        "move up",
+        "of integrated magnitude",
+        "initially retains",
+        "initially preserves",
+    ):
+        assert forbidden not in structured_english
 
 
 def test_translation_manager_switches_live_and_preserves_preferences(

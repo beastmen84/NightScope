@@ -2,10 +2,10 @@
 
 Aggiornato: 2026-07-15
 
-Questo documento e' la coda unica del controllo visuale pre-release. Durante
-la raccolta delle schermate si aggiornano soltanto risultati e stato dei
-rilievi; codice, layout e traduzioni verranno corretti in un unico passaggio
-quando la panoramica sara' completa e l'utente dara' conferma.
+Questo documento registra il controllo visuale pre-release e il relativo
+passaggio unico di correzione concluso nella sorgente `1.33.1`. Le verifiche
+sull'artefatto Windows restano separate in `RELEASE_CHECKLIST.md` e dovranno
+essere ripetute dopo la prossima rigenerazione della dist.
 
 Stati usati:
 
@@ -57,42 +57,42 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 | Home - prossimi eventi | controllata | controllata | completata |
 | Home - dettaglio Luna e cielo profondo | controllata | controllata | completata |
 
-## Correzioni Aperte
+## Correzioni Risolte
 
-- [ ] **VIS-001 - Localita' - traduzione sorgente Windows (`APERTA`)**
+- [x] **VIS-001 - Localita' - traduzione sorgente Windows (`RISOLTA`)**
   - In inglese `Windows specifies` e' una traduzione errata di `Windows precisa`.
   - Testo previsto: `Posizione Windows precisa` / `Precise Windows location`.
   - La stessa sorgente compare anche nel sottotitolo della pagina Meteo, quindi
     la correzione deve aggiornare entrambe le presentazioni.
 
-- [ ] **VIS-002 - Provider - nome NASA Earthdata (`APERTA`)**
+- [x] **VIS-002 - Provider - nome NASA Earthdata (`RISOLTA`)**
   - Il marchio ufficiale deve restare `NASA Earthdata` anche in italiano,
     invece di `Earthdata NASA`.
 
-- [ ] **VIS-003 - Profili - riepilogo oculari e Barlow (`APERTA`)**
+- [x] **VIS-003 - Profili - riepilogo oculari e Barlow (`RISOLTA`)**
   - `Disponibili` / `Available` sembra descrivere tutto il profilo, ma il
     conteggio include intenzionalmente soltanto oculari e Barlow usati per le
     combinazioni di ingrandimento.
   - Rendere esplicito il significato, per esempio `Opzioni di ingrandimento` /
     `Magnification options`.
 
-- [ ] **VIS-004 - Profili - titolo capacita' inglese (`APERTA`)**
+- [x] **VIS-004 - Profili - titolo capacita' inglese (`RISOLTA`)**
   - `Profile capacity` e' poco idiomatico; usare `Profile capabilities`.
 
-- [ ] **VIS-005 - Sidebar - stato serata inglese (`APERTA`)**
+- [x] **VIS-005 - Sidebar - stato serata inglese (`RISOLTA`)**
   - `To be monitored` e' comprensibile ma meccanico; valutare
     `Monitor conditions` mantenendo invariata la semantica dello stato.
   - Lo stesso concetto compare nel riepilogo Home e nel dettaglio oggetto come
     `Session to monitor`; uniformare badge, titolo e stato con una formulazione
     inglese naturale senza modificare il codice canonico `monitor`.
 
-- [ ] **VIS-006 - Profili - nome riduttore troncato (`APERTA`)**
+- [x] **VIS-006 - Profili - nome riduttore troncato (`RISOLTA`)**
   - Il nome `Celestron Reducer-Corrector...` viene eliso nella colonna dei
     riduttori.
   - Consentire al nome un massimo di due righe senza rendere instabile la
     griglia o allargare eccessivamente la scheda.
 
-- [ ] **VIS-008 - Oggetti celesti - nomi catalogo localizzati (`APERTA`)**
+- [x] **VIS-008 - Oggetti celesti - nomi catalogo localizzati (`RISOLTA`)**
   - La sorgente `catalogue_objects_seed.csv` e' italiana, ma il generatore la
     dichiara inglese. In inglese restano quindi soprannomi come `Nebulosa Iris`
     e `Galassia Fuochi d'Artificio`; in italiano 59 nomi NGC/IC perdono lo
@@ -108,13 +108,13 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     `Galassia spirale nella costellazione di Dragone`. In italiano lo stesso
     override produce `NGC4236` senza lo spazio canonico.
 
-- [ ] **VIS-009 - Dettaglio oggetto - credito immagine inglese (`APERTA`)**
+- [x] **VIS-009 - Dettaglio oggetto - credito immagine inglese (`RISOLTA`)**
   - Il testo `HiPS a colori e ritaglio: CDS` resta italiano nella pagina
     inglese, sia dal Catalogo sia aprendo lo stesso oggetto dalla Home.
   - Conservare invariati survey, enti e licenza, localizzando soltanto la parte
     descrittiva dell'attribuzione.
 
-- [ ] **VIS-010 - Dettaglio oggetto - nota osservativa inglese (`APERTA`)**
+- [x] **VIS-010 - Dettaglio oggetto - nota osservativa inglese (`RISOLTA`)**
   - La frase di C1 `Use a medium shot...; increases moderately...` usa un
     termine fotografico errato e una forma verbale non corretta.
   - Testo coerente con il dominio: `Use a medium field under dark skies;
@@ -123,20 +123,20 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Controllare le altre note osservative inglesi generate per individuare
     traduzioni automatiche analoghe.
 
-- [ ] **VIS-011 - Dettaglio oggetto - formato decimale inglese (`APERTA`)**
+- [x] **VIS-011 - Dettaglio oggetto - formato decimale inglese (`RISOLTA`)**
   - Nel dettaglio inglese C1 la dimensione massima appare come `0,233°`, mentre
     nell'elenco inglese e' correttamente `0.233°`.
   - Assicurare che i label numerici preformattati seguano il nuovo locale dopo
     il cambio lingua live oppure derivarli dal valore numerico in presentazione.
 
-- [ ] **VIS-012 - Oggetti celesti - soglia geometrica (`APERTA`)**
+- [x] **VIS-012 - Oggetti celesti - soglia geometrica (`RISOLTA`)**
   - `Utile (≥15°)` / `Useful (≥15°)` non chiarisce che il valore indica se
     l'oggetto puo' raggiungere teoricamente almeno 15° dalla posizione attiva,
     indipendentemente dalla visibilita' nel mese.
   - Preferire una dicitura descrittiva come `Raggiunge ≥15°` /
     `Reaches ≥15°`, senza cambiare il calcolo.
 
-- [ ] **VIS-015 - Form Equipment - etichette persistenti (`APERTA`)**
+- [x] **VIS-015 - Form Equipment - etichette persistenti (`RISOLTA`)**
   - Aggiunta e modifica Telescopi, Oculari, Barlow, Filtri, Riduttori e Binocoli
     usano soltanto placeholder. Appena un campo contiene un valore non e' piu'
     visibile cosa rappresenta; anche i selettori di tipo o sistema non hanno
@@ -146,7 +146,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Applicare lo stesso criterio agli altri form Equipment che mostreranno lo
     stesso schema durante il controllo visuale.
 
-- [ ] **VIS-016 - Telescopi - tipo e montatura in inglese (`APERTA`)**
+- [x] **VIS-016 - Telescopi - tipo e montatura in inglese (`RISOLTA`)**
   - La pagina e il form inglesi mostrano valori italiani come `rifrattore`,
     `rifrattore Petzval` ed `equatoriale`.
   - Il seed mescola note inglesi con categorie italiane, pur essendo dichiarato
@@ -155,7 +155,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     traduzioni; valori personalizzati o modificati dall'utente devono restare
     invariati.
 
-- [ ] **VIS-017 - Cataloghi Equipment - sottotitoli inglesi (`APERTA`)**
+- [x] **VIS-017 - Cataloghi Equipment - sottotitoli inglesi (`RISOLTA`)**
   - `Models available to observing profiles` nei Telescopi e `Optical
     accessories available to observing profiles` in Oculari/Barlow e
     Filtri/Riduttori sono poco naturali; lo stesso primo testo compare nei
@@ -163,26 +163,26 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Preferire `Models available for observing profiles` e `Optical accessories
     available for observing profiles`.
 
-- [ ] **VIS-018 - Oculari - unita' AFOV nelle schede (`APERTA`)**
+- [x] **VIS-018 - Oculari - unita' AFOV nelle schede (`RISOLTA`)**
   - Le pill mostrano `50 gradi` / `50 degrees`, mentre i form e gli altri angoli
     dell'app usano il simbolo `°`.
   - Mostrare `50°`, `68°` e valori analoghi: e' piu' compatto e coerente in
     entrambe le lingue.
 
-- [ ] **VIS-019 - Form Equipment - decimali precompilati italiani (`APERTA`)**
+- [x] **VIS-019 - Form Equipment - decimali precompilati italiani (`RISOLTA`)**
   - Gli elenchi italiani localizzano correttamente `1,25″`, `2,25x` e `0,59x`,
     ma i form di modifica precompilano gli stessi valori come `1.25`, `2.25` e
     `0.59`.
   - Formattare i valori iniziali secondo il locale corrente, continuando ad
     accettare sia virgola sia punto in input come gia' fa il parser.
 
-- [ ] **VIS-020 - Oculari - campi AFOV Fisso/Zoom (`APERTA`)**
+- [x] **VIS-020 - Oculari - campi AFOV Fisso/Zoom (`RISOLTA`)**
   - Con tipo `Fisso` il form mostra `AFOV medio` e un intervallo facoltativo,
     anche se per un oculare a focale fissa serve un singolo AFOV.
   - Usare `AFOV (°)` e nascondere l'intervallo per `Fisso`; per `Zoom` mantenere
     AFOV medio e intervallo, indicando il formato atteso, per esempio `48-68`.
 
-- [ ] **VIS-021 - Filtri e riduttori - contenuti inglesi (`APERTA`)**
+- [x] **VIS-021 - Filtri e riduttori - contenuti inglesi (`RISOLTA`)**
   - Nell'elenco e nei form inglesi restano in italiano note dei filtri,
     compatibilita' descrittive, connessioni e note dei riduttori.
   - `filter_catalog_seed.csv` e `reducer_catalog_seed.csv` contengono testo
@@ -195,7 +195,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     aggiornare questi payload di presentazione senza modificare dati utente,
     associazioni Equipment, recommendation o score.
 
-- [ ] **VIS-022 - Filtri - classe non aggiornata al cambio lingua (`APERTA`)**
+- [x] **VIS-022 - Filtri - classe non aggiornata al cambio lingua (`RISOLTA`)**
   - Nel form italiano del filtro CLS compare `Reduction of light pollution`,
     mentre la scheda mostra correttamente `Riduzione inquinamento luminoso`.
   - `filterClassOptions` e' esposta come proprieta' costante: dopo il cambio
@@ -203,7 +203,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Rendere reattive soltanto le label visibili, conservando invariati i codici
     canonici delle classi filtro.
 
-- [ ] **VIS-023 - Riduttori - compatibilita' descrittiva persa (`APERTA`)**
+- [x] **VIS-023 - Riduttori - compatibilita' descrittiva persa (`RISOLTA`)**
   - Alcuni riduttori integrati, come Baader Alan Gee Mark II, hanno una
     compatibilita' testuale generica ma nessuna associazione esatta; il form
     mostra correttamente `0 selezionati` nella lista opzionale.
@@ -214,14 +214,14 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     le associazioni esatte selezionate devono continuare a usare gli ID
     normalizzati dei telescopi.
 
-- [ ] **VIS-024 - Binocoli - ordinamento naturale (`APERTA`)**
+- [x] **VIS-024 - Binocoli - ordinamento naturale (`RISOLTA`)**
   - L'ordinamento lessicografico del modello colloca Canon `8x20` dopo `18x50`
     e Celestron Nature DX ED `10x42` prima di `8x42`.
   - Applicare un ordinamento naturale stabile a marca e modello, mantenendo
     unite le serie commerciali e interpretando numericamente le specifiche;
     non ordinare globalmente solo per ingrandimento e diametro.
 
-- [ ] **VIS-025 - Log osservazioni - intestazione Voto disallineata (`APERTA`)**
+- [x] **VIS-025 - Log osservazioni - intestazione Voto disallineata (`RISOLTA`)**
   - Nell'elenco italiano e inglese `Voto` / `Rating` non si trova sopra il
     valore `4/5`, ma molto piu' a destra verso i pulsanti di azione.
   - Intestazione e delegato dichiarano uno spazio azioni di `142 px`; nella
@@ -231,7 +231,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     intestazione la larghezza effettiva delle azioni e mantenendo il voto
     centrato sopra il relativo valore in entrambe le lingue.
 
-- [ ] **VIS-026 - Log osservazioni - messaggi inglesi (`APERTA`)**
+- [x] **VIS-026 - Log osservazioni - messaggi inglesi (`RISOLTA`)**
   - La validazione dell'oggetto usa `Indicates the observed object.`: deve
     essere l'imperativo `Specify the observed object.`.
   - Il rifiuto di una data futura usa `The Observations Log...`, incoerente con
@@ -240,7 +240,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Il messaggio dopo la modifica `Updated observation.` e' meno naturale di
     `Observation updated.`; uniformare anche questo stato alle altre conferme.
 
-- [ ] **VIS-027 - Meteo - unita' radianza VIIRS (`APERTA`)**
+- [x] **VIS-027 - Meteo - unita' radianza VIIRS (`RISOLTA`)**
   - Scheda e riga sorgente mostrano `nW/cm² sr`, notazione ambigua perche' non
     rende esplicito che anche lo steradiante e' al denominatore.
   - La specifica NASA VNP46A3 dichiara `nWatts/(cm^2 sr)`, equivalente a
@@ -248,7 +248,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     `nW/(cm²·sr)` in tutte le presentazioni italiano/inglese.
   - Riferimento: `https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/VNP46A3/`.
 
-- [ ] **VIS-028 - Meteo - terminologia inglese (`APERTA`)**
+- [x] **VIS-028 - Meteo - terminologia inglese (`RISOLTA`)**
   - Il dettaglio orario usa `Cloudiness`, mentre sintesi e grafico usano il
     termine piu' preciso `Cloud cover`; uniformare la pagina su `Cloud cover`.
   - La classe atmosferica `Velata` e' tradotta letteralmente come `Veiled`,
@@ -257,7 +257,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Mantenere invariati codici, soglie AOD/OpenAQ e logica NSOM: sono correzioni
     delle sole label di presentazione.
 
-- [ ] **VIS-029 - Calendario - terminologia inglese (`APERTA`)**
+- [x] **VIS-029 - Calendario - terminologia inglese (`RISOLTA`)**
   - `Maximum approach` non e' il termine astronomico naturale per una
     congiunzione; usare `Closest approach`.
   - I titoli `Maximum Southern Delta Aquariids` e `Maximum Perseids` vanno
@@ -270,7 +270,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Ricontrollare nello stesso passaggio tutte le stringhe inglesi prodotte da
     `CalendarOverviewService`, non soltanto i casi visibili negli screenshot.
 
-- [ ] **VIS-030 - Calendario - angoli e composizione delle finestre (`APERTA`)**
+- [x] **VIS-030 - Calendario - angoli e composizione delle finestre (`RISOLTA`)**
   - Congiunzioni, opposizioni e fasi lunari mostrano `gradi` / `degrees`, mentre
     ISS e comete usano gia' `°`. Uniformare gli angoli del Calendario al simbolo
     `°`, mantenendo virgola italiana e punto inglese per i decimali.
@@ -279,7 +279,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     Separare il testo autonomo dalla forma incorporata oppure comporre l'intera
     frase, cosi' da ottenere `intorno alle` / `around` nel contesto corrente.
 
-- [ ] **VIS-031 - Calendario - inglese delle eclissi (`APERTA`)**
+- [x] **VIS-031 - Calendario - inglese delle eclissi (`RISOLTA`)**
   - Il titolo e' composto come `Lunar Eclipse {kind}` con `partial`, `total` o
     `penumbral` interpolato in coda, producendo forme come `Lunar Eclipse
     partial`. Usare l'ordine naturale `Partial lunar eclipse`, `Total lunar
@@ -290,7 +290,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     nei consigli. Il ramo non era presente negli screenshot, ma il difetto e'
     confermato nel catalogo di traduzione.
 
-- [ ] **VIS-032 - Calendario - affidabilita' cometaria (`APERTA`)**
+- [x] **VIS-032 - Calendario - affidabilita' cometaria (`RISOLTA`)**
   - `Affidabilita' della luminosita': Indicativa` / `Brightness estimate
     confidence: Approximate` accosta una label di confidenza a un qualificatore
     che descrive invece il tipo di stima; inoltre la magnitudine e' gia'
@@ -300,7 +300,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     invariati modello fotometrico, intervallo di magnitudine e soglie della
     finestra cometaria.
 
-- [ ] **VIS-033 - Home - metrica Distanza/Catalogo (`APERTA`)**
+- [x] **VIS-033 - Home - metrica Distanza/Catalogo (`RISOLTA`)**
   - Nel dettaglio osservativo di C3 la scheda mostra `Distanza` / `Distance`,
     ma il valore e' `Catalogo Caldwell` / `Catalog Caldwell`.
   - Non e' un valore runtime errato: per gli oggetti deep-sky
@@ -312,7 +312,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     `Distanza` soltanto per corpi che trasportano realmente quella misura. Non
     inventare una distanza assente dal dataset.
 
-- [ ] **VIS-034 - Home - terminologia e testi operativi (`APERTA`)**
+- [x] **VIS-034 - Home - terminologia e testi operativi (`RISOLTA`)**
   - Correggere le forme inglesi troppo letterali: `It rises 07:04` /
     `It sets 19:59`, `18:48 evening`, `Stay low`, `a promising observation
     window is foreseen`, `Bortle Sky 6`, `Difficulty: Average` e `Colored
@@ -326,7 +326,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     esempio `readable lunar detail`, senza cambiare selezione di telescopio,
     oculare, filtro o riduttore.
 
-- [ ] **VIS-035 - Home - unita' angolari (`APERTA`)**
+- [x] **VIS-035 - Home - unita' angolari (`RISOLTA`)**
   - Stato, metriche, valutazione osservativa e configurazioni mostrano
     `gradi` / `degrees` (`28 gradi`, `0.96 degrees`, `Stay low (15 degrees)`),
     mentre Calendario e altri dati tecnici stanno convergendo sul simbolo `°`.
@@ -334,7 +334,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     mantenendo la localizzazione dei decimali e senza modificare i valori
     numerici o le soglie geometriche.
 
-- [ ] **VIS-036 - Home - intestazioni Oggetti visibili (`APERTA`)**
+- [x] **VIS-036 - Home - intestazioni Oggetti visibili (`RISOLTA`)**
   - Le intestazioni `Oggetto`, `Tipo`, `Finestra`, `Direzione` e `Difficolta'`
     risultano spostate a sinistra rispetto ai valori delle rispettive colonne;
     il disallineamento diventa particolarmente evidente da `Tipo` in poi.
@@ -347,26 +347,33 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     Verificare l'allineamento sia in italiano sia in inglese; la vista compatta,
     che non mostra l'header tabellare, deve restare invariata.
 
-## Decisioni Aperte
+## Decisioni Risolte
 
-- [ ] **VIS-007 - Localita' - paese dinamico in italiano (`DA DECIDERE`)**
+- [x] **VIS-007 - Localita' - paese dinamico in italiano (`RISOLTA`)**
   - `Ethiopia` arriva dai metadati dinamici della localita' e non dal catalogo
     delle traduzioni UI.
   - Se si decide di localizzarlo, tradurre soltanto la visualizzazione tramite
     codice paese; conservare i dati canonici e non reintrodurre un catalogo
     citta'.
+  - Decisione: mantenere i nomi paese forniti dai provider nel formato
+    canonico. La timezone IANA derivata dalle coordinate e' il dato operativo;
+    non viene reintrodotto il catalogo citta'.
 
-- [ ] **VIS-013 - Dettaglio oggetto - dimensione massima (`DA DECIDERE`)**
+- [x] **VIS-013 - Dettaglio oggetto - dimensione massima (`RISOLTA`)**
   - `Dim. max` / `Max size` e' la massima dimensione angolare convertita in
     gradi e affianca gia' la dimensione catalogata in primi d'arco.
   - Valutare `Dim. angolare max` / `Maximum angular size` oppure la rimozione
     del dato duplicato dalla scheda, mantenendolo dove serve ai calcoli.
+  - Decisione: mantenere il dato con label esplicita `Dimensione angolare
+    massima` / `Maximum angular size`.
 
-- [ ] **VIS-014 - Oggetti celesti - nomi costellazioni (`DA DECIDERE`)**
+- [x] **VIS-014 - Oggetti celesti - nomi costellazioni (`RISOLTA`)**
   - L'italiano mostra i nomi IAU latini (`Cepheus`, `Draco`, `Cygnus`), mentre
     i testi descrittivi usano `Cefeo`, `Dragone` e `Cigno`.
   - Scegliere se mantenere esplicitamente i nomi canonici oppure localizzare
     soltanto il display e i filtri, preservando il valore canonico interno.
+  - Decisione: localizzare elenco, dettaglio e filtri; i valori IAU canonici
+    restano invariati internamente.
 
 ## Verifiche Superate
 
@@ -542,6 +549,18 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   osservativo, piano notturno, ranking e Sky Compass passano integralmente:
   `95 passed` nei nove file `test_home_*`, `test_observing_object_detail.py` e
   `test_sky_compass_*` eseguiti in questo passaggio.
+
+## Verifica Delle Correzioni 1.33.1
+
+- Tutti i rilievi `VIS-001` - `VIS-036` risultano `RISOLTA` nella sorgente.
+- Suite mirata localizzazione, Equipment, Home e Calendario: `113 passed`.
+- Gate completo: `788 passed`, `613 warnings` note Skyfield/NumPy e `7
+  subtests`; `pip check`, Ruff, `compileall`, smoke backend e smoke QML passano.
+- Cataloghi Qt IT/EN: `1665` traduzioni finite e `0` unfinished per lingua.
+- `qmllint`: 30 file, exit `0`; smoke QML separati italiano/inglese passati con
+  runtime temporanei.
+- La verifica visuale dell'artefatto Windows resta aperta fino alla prossima
+  rigenerazione della dist.
 
 ## Nota Per Screenshot Pubblici
 

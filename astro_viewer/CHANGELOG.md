@@ -1,5 +1,44 @@
 # Changelog
 
+## NightScope 1.33.1 - 2026-07-15
+
+- Completato il passaggio di correzione derivato dalla matrice visuale
+  italiano/inglese: risolti tutti i 36 rilievi registrati in
+  `docs/VISUAL_CHECKLIST.md` senza modificare score, soglie astronomiche o
+  selezione dell'equipaggiamento.
+- Resa la localizzazione dei contenuti strutturati consapevole della lingua di
+  ogni singolo campo. Nomi, descrizioni, note e categorie dei cataloghi
+  Oggetti ed Equipment non dipendono piu' da una lingua unica dichiarata per
+  l'intero CSV; i designatori NGC/IC restano canonici e le traduzioni inglesi
+  Caldwell sono deterministiche e protette da regressioni lessicali.
+- Localizzati soltanto in presentazione i nomi delle costellazioni, conservando
+  i valori IAU canonici per filtri e servizi. I nomi paese dinamici dei provider
+  restano intenzionalmente canonici; la timezone IANA continua a essere il dato
+  operativo autorevole.
+- Aggiunte etichette persistenti e unita' ai form Equipment, corretti campi
+  AFOV Fisso/Zoom e decimali precompilati, reso reattivo il menu delle classi
+  filtro e uniformate le classi dei filtri colorati. I nomi lunghi dei
+  riduttori possono occupare due righe e i binocoli usano ordinamento naturale.
+- Corretto l'aggiornamento dei riduttori affinche' preservi compatibilita'
+  descrittive e associazioni esatte quando non vengono sostituite. Il percorso
+  di aggiunta gestisce correttamente l'assenza di compatibilita' testuale.
+- Uniformati angoli, radianza VIIRS, terminologia astronomica e testi operativi
+  in Home, Calendario, Meteo, Log e dettaglio oggetto. Le eclissi usano titoli
+  completi e naturali, la metrica Home distingue Catalogo da Distanza e le
+  occorrenze italiane visibili di `target` sono state sostituite con `oggetto`.
+- Riallineate le intestazioni della tabella Oggetti visibili usando lo stesso
+  componente delle righe, stabilizzata la colonna azioni del Log e aumentata
+  l'altezza delle schede Prossimi eventi per consentire titoli su due righe.
+- Cataloghi Qt italiano e inglese completi e compilati (`1665/1665`); suite
+  mirata localizzazione, Equipment, Home e Calendario: `113 passed`.
+- Gate completo `--fast` superato: `788 passed`, `613 warnings` note di
+  compatibilita' Skyfield/NumPy e `7 subtests`; `pip check`, Ruff,
+  `compileall`, smoke backend e smoke QML puliti. `qmllint` termina con exit
+  `0` su tutti i 30 file QML e gli smoke QML separati passano in italiano e
+  inglese con runtime temporanei.
+- Schema SQLite invariato a `16`. La dist esistente resta `1.32.3`; la dist
+  `1.33.1` non e' stata rigenerata.
+
 ## NightScope 1.33.0 - 2026-07-14
 
 - Eseguito un audit pre-release completo su codice Python/QML, database,

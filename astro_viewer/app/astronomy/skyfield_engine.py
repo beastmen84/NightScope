@@ -70,12 +70,12 @@ class _TransientEventResult:
     events: tuple[AstronomicalEvent, ...]
 
 
-def _italian_lunar_eclipse_kind(kind_name: str) -> str:
+def _lunar_eclipse_title(kind_name: str) -> str:
     return {
-        "total": tr("totale"),
-        "partial": tr("parziale"),
-        "penumbral": tr("penombrale"),
-    }.get(kind_name.strip().lower(), kind_name.strip().lower())
+        "total": tr("Eclissi lunare totale"),
+        "partial": tr("Eclissi lunare parziale"),
+        "penumbral": tr("Eclissi lunare penombrale"),
+    }.get(kind_name.strip().lower(), tr("Eclissi lunare"))
 
 
 class SkyfieldAstronomyEngine(AstronomyEngine):
@@ -363,15 +363,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     item,
                     direction=self._azimuth_direction(azimuth_degrees),
                     azimuth=tr(
-                        "{value} gradi",
+                        "{value}°",
                         value=format_number(azimuth_degrees),
                     ),
                     current_altitude=tr(
-                        "{value} gradi",
+                        "{value}°",
                         value=format_number(altitude_degrees, decimals=1),
                     ),
                     current_azimuth=tr(
-                        "{value} gradi",
+                        "{value}°",
                         value=format_number(azimuth_degrees, decimals=1),
                     ),
                     observable_now=observable_now,
@@ -699,7 +699,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     visibility_label = tr("Non osservabile")
                     visibility_detail = tr(
                         "Il pianeta appare vicino al Sole e non costituisce "
-                        "un target visuale sicuro."
+                        "un oggetto visuale sicuro."
                     )
                     observing_window = ""
                     title = tr(
@@ -744,7 +744,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         )
         for eclipse_time, eclipse_kind in zip(eclipse_times, eclipse_kinds):
             kind_name = eclipselib.LUNAR_ECLIPSES[int(eclipse_kind)]
-            eclipse_label = _italian_lunar_eclipse_kind(kind_name)
+            eclipse_title = _lunar_eclipse_title(kind_name)
             local_dt = eclipse_time.utc_datetime().astimezone(zone)
             visibility_state, visibility_label, visibility_detail = (
                 self._calendar_eclipse_visibility(location, local_dt)
@@ -752,7 +752,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             events.append(
                 AstronomicalEvent(
                     id=f"lunar-eclipse-{eclipse_time.tt}",
-                    title=tr("Eclissi lunare {kind}", kind=eclipse_label),
+                    title=eclipse_title,
                     event_type="Eclissi",
                     date_label=self._format_date(local_dt),
                     best_time=self._format_dt(local_dt),
@@ -763,7 +763,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     timing_kind="instant",
                     timing_label=tr("Massimo dell'eclissi"),
                     observing_window=(
-                        tr("Intorno alle {time}", time=self._format_dt(local_dt))
+                        tr("intorno alle {time}", time=self._format_dt(local_dt))
                         if visibility_state == "visible"
                         else ""
                     ),
@@ -1009,7 +1009,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 tr("Non visibili nella notte"),
                 tr(
                     "Nelle notti vicine almeno uno dei due pianeti resta sotto la soglia "
-                    "locale di 8 gradi; separazione minima {separation}.",
+                    "locale di 8°; separazione minima {separation}.",
                     separation=separation_label,
                 ),
                 "",
@@ -1023,7 +1023,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         if is_brief:
             midpoint = window_start + (window_end - window_start) / 2
             observing_window = tr(
-                "Intorno alle {time}",
+                "intorno alle {time}",
                 time=self._format_dt(midpoint),
             )
         else:
@@ -1034,8 +1034,8 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             "check" if is_brief else "visible",
             tr("Finestra breve") if is_brief else tr("Visibili nella notte"),
             tr(
-                "Entrambi superano 8 gradi nella finestra locale {window}; "
-                "altezza comune massima {altitude} gradi e separazione minima "
+                "Entrambi superano 8° nella finestra locale {window}; "
+                "altezza comune massima {altitude}° e separazione minima "
                 "{separation}.",
                 window=observing_window,
                 altitude=format_number(peak_altitude),
@@ -1120,7 +1120,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     @staticmethod
     def _format_angular_separation(value: float) -> str:
         precision = 2 if value < 1.0 else 1
-        return tr("{value} gradi", value=format_number(value, decimals=precision))
+        return tr("{value}°", value=format_number(value, decimals=precision))
 
     def _calendar_phase_visibility(
         self,
@@ -1184,7 +1184,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             "not_visible",
             tr("Non visibile nella notte"),
             tr(
-                "Non supera la soglia utile locale di 8 gradi nella notte dell'evento; "
+                "Non supera la soglia utile locale di 8° nella notte dell'evento; "
                 "altezza massima {altitude}.",
                 altitude=target.max_altitude,
             ),
@@ -1225,7 +1225,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 "visible",
                 tr("Visibile"),
                 tr(
-                    "Altezza locale {altitude} gradi con Sole sotto l'orizzonte.",
+                    "Altezza locale {altitude}° con Sole sotto l'orizzonte.",
                     altitude=format_number(body_degrees),
                 ),
             )
@@ -1234,7 +1234,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 "daylight",
                 tr("Luce diurna"),
                 tr(
-                    "Altezza locale {altitude} gradi, ma il Sole è sopra l'orizzonte.",
+                    "Altezza locale {altitude}°, ma il Sole è sopra l'orizzonte.",
                     altitude=format_number(body_degrees),
                 ),
             )
@@ -1242,7 +1242,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             "below_horizon",
             tr("Sotto l'orizzonte"),
             tr(
-                "Altezza locale {altitude} gradi all'istante dell'evento.",
+                "Altezza locale {altitude}° all'istante dell'evento.",
                 altitude=format_number(body_degrees),
             ),
         )
@@ -1784,7 +1784,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     @staticmethod
     def _degrees_label(value: float, *, decimals: int = 0) -> str:
         return tr(
-            "{value} gradi",
+            "{value}°",
             value=format_number(value, decimals=decimals),
         )
 

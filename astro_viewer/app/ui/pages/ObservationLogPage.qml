@@ -14,6 +14,7 @@ Item {
     property var editedObservation: ({})
     property var pendingDeletion: ({})
     readonly property var summary: controller ? (controller.observationLogSummary || ({})) : ({})
+    readonly property int actionColumnWidth: 176
 
     function filteredObservations() {
         if (!root.controller)
@@ -216,7 +217,11 @@ Item {
                         Text { Layout.preferredWidth: 138; text: qsTr("Oggetto"); color: theme.textSecondary; font.pixelSize: 11; font.weight: Font.DemiBold }
                         Text { Layout.fillWidth: true; text: qsTr("Dettagli"); color: theme.textSecondary; font.pixelSize: 11; font.weight: Font.DemiBold }
                         Text { Layout.preferredWidth: 54; text: qsTr("Voto"); color: theme.textSecondary; font.pixelSize: 11; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignHCenter }
-                        Item { Layout.preferredWidth: 142 }
+                        Item {
+                            Layout.minimumWidth: root.actionColumnWidth
+                            Layout.preferredWidth: root.actionColumnWidth
+                            Layout.maximumWidth: root.actionColumnWidth
+                        }
                     }
                 }
 
@@ -291,7 +296,9 @@ Item {
                             }
 
                             RowLayout {
-                                Layout.preferredWidth: 142
+                                Layout.minimumWidth: root.actionColumnWidth
+                                Layout.preferredWidth: root.actionColumnWidth
+                                Layout.maximumWidth: root.actionColumnWidth
                                 spacing: 6
 
                                 DarkButton {

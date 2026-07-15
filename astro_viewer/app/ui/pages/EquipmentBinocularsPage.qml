@@ -248,10 +248,10 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            DarkTextField { id: binocularBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca *") }
-            DarkTextField { id: binocularModel; Layout.fillWidth: true; placeholderText: qsTr("Modello *") }
-            DarkTextField { id: binocularMagnification; Layout.fillWidth: true; placeholderText: qsTr("Ingrandimento *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: binocularObjective; Layout.fillWidth: true; placeholderText: qsTr("Diametro obiettivo (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: binocularBrand; Layout.fillWidth: true; labelText: qsTr("Marca *") }
+            DarkTextField { id: binocularModel; Layout.fillWidth: true; labelText: qsTr("Modello *") }
+            DarkTextField { id: binocularMagnification; Layout.fillWidth: true; labelText: qsTr("Ingrandimento (x) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: binocularObjective; Layout.fillWidth: true; labelText: qsTr("Diametro obiettivo (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             CheckBox { id: binocularStabilized; Layout.fillWidth: true; text: qsTr("Stabilizzato") }
         }
 

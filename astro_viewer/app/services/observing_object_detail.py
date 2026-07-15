@@ -56,7 +56,7 @@ class ObservingObjectDetailService:
             "durationText": _duration_text(duration, altitude_threshold_deg),
             "altitudeThresholdDeg": altitude_threshold_deg,
             "altitudeThresholdLabel": tr(
-                "Soglia utile {value:g} gradi",
+                "Soglia utile {value:g}°",
                 value=altitude_threshold_deg,
             ),
             "currentAltitude": _text(payload, "currentAltitude") or tr("n/d"),
@@ -86,6 +86,7 @@ class ObservingObjectDetailService:
                 reducer_recommendation
             ),
         }
+        origin_metric = _origin_metric_payload(payload, is_deep_sky=is_deep_sky)
         payload.update(
             {
                 "schemaVersion": OBSERVING_OBJECT_DETAIL_SCHEMA_VERSION,
@@ -94,6 +95,7 @@ class ObservingObjectDetailService:
                 "session": session_payload,
                 "evaluation": evaluation,
                 "equipment": equipment,
+                "originMetric": origin_metric,
             }
         )
         return payload
@@ -125,6 +127,23 @@ def _session_payload(session: Mapping[str, object]) -> dict[str, object]:
         "description": _text(session, "description"),
         "limitingFactorCode": _text(session, "limitingFactorCode"),
         "limitingFactor": _text(session, "limitingFactor"),
+    }
+
+
+def _origin_metric_payload(
+    payload: Mapping[str, object],
+    *,
+    is_deep_sky: bool,
+) -> dict[str, object]:
+    value = payload.get("distance", "")
+    canonical = str(value).strip()
+    is_catalogue_reference = is_deep_sky and canonical.startswith(
+        ("Catalogo ", "Cataloghi ")
+    )
+    return {
+        "code": "catalogue" if is_catalogue_reference else "distance",
+        "label": tr("Catalogo") if is_catalogue_reference else tr("Distanza"),
+        "value": value,
     }
 
 
@@ -187,7 +206,7 @@ def _duration_text(duration: str, altitude_threshold_deg: float) -> str:
     if not duration or duration in {"n/d", "0 h"}:
         return tr("Durata utile non disponibile")
     return tr(
-        "{duration} nella finestra utile, sopra {threshold:g} gradi",
+        "{duration} nella finestra utile, sopra {threshold:g}°",
         duration=duration,
         threshold=altitude_threshold_deg,
     )

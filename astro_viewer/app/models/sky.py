@@ -30,7 +30,7 @@ class SkyQuality:
         data["confidenceLabel"] = _localized_confidence(self.confidence)
         data["viirsRadianceLabel"] = (
             tr(
-                "{value} nW/cm² sr",
+                "{value} nW/(cm²·sr)",
                 value=format_number(self.viirs_radiance, decimals=2),
             )
             if self.viirs_radiance is not None
@@ -159,7 +159,7 @@ def _localized_sky_quality_source(value: str) -> str:
     if match:
         return tr(
             "Fonte: NASA Black Marble VNP46A3 {month} "
-            "(radianza {radiance} nW/cm² sr, osservazioni {observations})",
+            "(radianza {radiance} nW/(cm²·sr), osservazioni {observations})",
             month=match.group(1),
             radiance=format_number(float(match.group(2)), decimals=2),
             observations=int(match.group(3)),

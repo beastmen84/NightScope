@@ -17,6 +17,13 @@ Item {
         return Number(String(value).trim().replace(",", "."))
     }
 
+    function localizedNumber(value) {
+        if (value === undefined || value === null || value === "")
+            return ""
+        var number = Number(value)
+        return isFinite(number) ? number.toLocaleString(Qt.locale()) : String(value)
+    }
+
     function isPositiveNumber(value) {
         var number = root.numberValue(value)
         return isFinite(number) && number > 0
@@ -40,11 +47,12 @@ Item {
         eyepieceBrand.text = item ? item.brand : ""
         eyepieceModel.text = item ? item.model : ""
         eyepieceType.currentIndex = item && item.type === "Zoom" ? 1 : 0
-        eyepieceFocal.text = item ? String(item.focal_length_mm || "") : ""
-        eyepieceMinFocal.text = item ? String(item.min_focal_length_mm || "") : ""
-        eyepieceMaxFocal.text = item ? String(item.max_focal_length_mm || "") : ""
-        eyepieceAfov.text = item ? String(item.apparent_field_deg || "") : ""
-        eyepieceAfovRange.text = item && item.afov_min && item.afov_max ? item.afov_min + "-" + item.afov_max : ""
+        eyepieceFocal.text = item ? root.localizedNumber(item.focal_length_mm) : ""
+        eyepieceMinFocal.text = item ? root.localizedNumber(item.min_focal_length_mm) : ""
+        eyepieceMaxFocal.text = item ? root.localizedNumber(item.max_focal_length_mm) : ""
+        eyepieceAfov.text = item ? root.localizedNumber(item.apparent_field_deg) : ""
+        eyepieceAfovRange.text = item && item.afov_min && item.afov_max
+            ? root.localizedNumber(item.afov_min) + "-" + root.localizedNumber(item.afov_max) : ""
         eyepieceBarrel.text = item ? (item.barrel_size || "") : ""
         eyepieceNotes.text = item ? (item.notes || "") : ""
         eyepieceDialog.title = item ? qsTr("Modifica oculare") : qsTr("Aggiungi oculare")
@@ -55,7 +63,7 @@ Item {
         editBarlow = item || ({})
         barlowBrand.text = item ? item.brand : ""
         barlowModel.text = item ? item.model : ""
-        barlowMultiplier.text = item ? String(item.multiplier || "") : ""
+        barlowMultiplier.text = item ? root.localizedNumber(item.multiplier) : ""
         barlowBarrel.text = item ? (item.barrel_size || "") : ""
         barlowNotes.text = item ? (item.notes || "") : ""
         barlowDialog.title = item ? qsTr("Modifica Barlow") : qsTr("Aggiungi Barlow")
@@ -461,16 +469,27 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            DarkTextField { id: eyepieceBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca *") }
-            DarkTextField { id: eyepieceModel; Layout.fillWidth: true; placeholderText: qsTr("Modello *") }
-            DarkComboBox { id: eyepieceType; Layout.fillWidth: true; model: [qsTr("Fisso"), "Zoom"] }
-            DarkTextField { id: eyepieceFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 0; placeholderText: qsTr("Focale (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceMinFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; placeholderText: qsTr("Focale minima (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceMaxFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; placeholderText: qsTr("Focale massima (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceAfov; Layout.fillWidth: true; placeholderText: qsTr("AFOV medio (°) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceAfovRange; Layout.fillWidth: true; placeholderText: qsTr("Intervallo AFOV (°; facoltativo)") }
-            DarkTextField { id: eyepieceBarrel; Layout.fillWidth: true; placeholderText: qsTr("Barilotto (facoltativo)") }
-            DarkTextField { id: eyepieceNotes; Layout.fillWidth: true; placeholderText: qsTr("Note (facoltative)") }
+            DarkTextField { id: eyepieceBrand; Layout.fillWidth: true; labelText: qsTr("Marca *") }
+            DarkTextField { id: eyepieceModel; Layout.fillWidth: true; labelText: qsTr("Modello *") }
+            DarkComboBox { id: eyepieceType; Layout.fillWidth: true; labelText: qsTr("Tipo *"); model: [qsTr("Fisso"), "Zoom"] }
+            DarkTextField { id: eyepieceFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 0; labelText: qsTr("Focale (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceMinFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; labelText: qsTr("Focale minima (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceMaxFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; labelText: qsTr("Focale massima (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField {
+                id: eyepieceAfov
+                Layout.fillWidth: true
+                labelText: eyepieceType.currentIndex === 0 ? qsTr("AFOV (°) *") : qsTr("AFOV medio (°) *")
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+            }
+            DarkTextField {
+                id: eyepieceAfovRange
+                Layout.fillWidth: true
+                visible: eyepieceType.currentIndex === 1
+                labelText: qsTr("Intervallo AFOV (°; facoltativo)")
+                placeholderText: qsTr("48-68")
+            }
+            DarkTextField { id: eyepieceBarrel; Layout.fillWidth: true; labelText: qsTr("Barilotto (facoltativo)") }
+            DarkTextField { id: eyepieceNotes; Layout.fillWidth: true; labelText: qsTr("Note (facoltative)") }
         }
 
         Text {
@@ -510,11 +529,11 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            DarkTextField { id: barlowBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca *") }
-            DarkTextField { id: barlowModel; Layout.fillWidth: true; placeholderText: qsTr("Modello *") }
-            DarkTextField { id: barlowMultiplier; Layout.fillWidth: true; placeholderText: qsTr("Moltiplicatore *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: barlowBarrel; Layout.fillWidth: true; placeholderText: qsTr("Barilotto (facoltativo)") }
-            DarkTextField { id: barlowNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: qsTr("Note (facoltative)") }
+            DarkTextField { id: barlowBrand; Layout.fillWidth: true; labelText: qsTr("Marca *") }
+            DarkTextField { id: barlowModel; Layout.fillWidth: true; labelText: qsTr("Modello *") }
+            DarkTextField { id: barlowMultiplier; Layout.fillWidth: true; labelText: qsTr("Moltiplicatore (x) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: barlowBarrel; Layout.fillWidth: true; labelText: qsTr("Barilotto (facoltativo)") }
+            DarkTextField { id: barlowNotes; Layout.columnSpan: 2; Layout.fillWidth: true; labelText: qsTr("Note (facoltative)") }
         }
 
         Text {

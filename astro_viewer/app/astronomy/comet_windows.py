@@ -628,8 +628,8 @@ class CometWindowEventSource:
                 ),
                 (
                     "estimate_reliability",
-                    tr("Affidabilità della luminosità"),
-                    tr("Indicativa"),
+                    tr("Affidabilità della stima"),
+                    tr("Bassa"),
                 ),
             ),
             data_source=self.DATA_SOURCE,

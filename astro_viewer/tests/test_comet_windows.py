@@ -165,7 +165,7 @@ def test_comet_source_builds_one_aggregate_window_and_reuses_cache(
     facts = {code: value for code, _label, value in event.event_facts}
     assert int(facts["useful_nights"]) > 1
     assert facts["predicted_magnitude"].startswith("circa ")
-    assert facts["estimate_reliability"] == "Indicativa"
+    assert facts["estimate_reliability"] == "Bassa"
     assert event.observing_window.startswith("Dal 29/08/2026 al 11/10/2026")
 
 

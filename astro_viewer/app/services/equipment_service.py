@@ -85,7 +85,7 @@ class EquipmentService:
                             value=format_number(values["magnification"]),
                         ),
                         "trueField": tr(
-                            "{value} gradi",
+                            "{value}°",
                             value=format_number(
                                 values["true_field_of_view_deg"], decimals=2
                             ),
@@ -176,8 +176,8 @@ class EquipmentService:
             "availableMagnificationMax": tr("{value}x", value=format_number(max(magnifications))) if magnifications else tr("n/d"),
             "exitPupilMin": tr("{value} mm", value=format_number(min(exit_pupils), decimals=1)) if exit_pupils else tr("n/d"),
             "exitPupilMax": tr("{value} mm", value=format_number(max(exit_pupils), decimals=1)) if exit_pupils else tr("n/d"),
-            "trueFieldMin": tr("{value} gradi", value=format_number(min(true_fields), decimals=2)) if true_fields else tr("n/d"),
-            "trueFieldMax": tr("{value} gradi", value=format_number(max(true_fields), decimals=2)) if true_fields else tr("n/d"),
+            "trueFieldMin": tr("{value}°", value=format_number(min(true_fields), decimals=2)) if true_fields else tr("n/d"),
+            "trueFieldMax": tr("{value}°", value=format_number(max(true_fields), decimals=2)) if true_fields else tr("n/d"),
             "lightGathering": tr("{value}x occhio", value=light_gathering),
             "limitingMagnitude": tr("{value} stimata", value=format_number(limiting_magnitude, decimals=1)),
             "resolution": tr("{value}\" stimata", value=format_number(resolution, decimals=2)),

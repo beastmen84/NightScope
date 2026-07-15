@@ -599,7 +599,7 @@ def _separation_label(value: float | None) -> str:
     if value is None:
         return ""
     precision = 2 if value < 1.0 else 1
-    return tr("{value} gradi", value=format_number(value, decimals=precision))
+    return tr("{value}°", value=format_number(value, decimals=precision))
 
 
 def _detail_subtitle(date_label: str, timing_label: str, timing_value: str) -> str:

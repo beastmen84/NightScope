@@ -1057,7 +1057,7 @@ class Phase6RealDataTests(unittest.TestCase):
             'TableHeader { text: qsTr("Magnitudine")',
             'TableHeader { text: qsTr("Dimensione")',
             'TableHeader { text: qsTr("Osservazione")',
-            'TableHeader { text: qsTr("Utile (≥15°)"); Layout.preferredWidth: 104 }',
+            'TableHeader { text: qsTr("Raggiunge ≥15°"); Layout.preferredWidth: 104 }',
         ):
             self.assertIn(table_header, object_catalogue_qml)
         self.assertNotIn('TableHeader { text: qsTr("Visibile nel mese")', object_catalogue_qml)
@@ -1065,7 +1065,8 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertNotIn('TableHeader { text: qsTr("Mag.")', object_catalogue_qml)
         self.assertNotIn('TableHeader { text: qsTr("Dim.")', object_catalogue_qml)
         self.assertNotIn('TableHeader { text: qsTr("Osserv.")', object_catalogue_qml)
-        self.assertIn("root.textOrDash(itemData.constellation)", object_catalogue_qml)
+        self.assertIn("root.textOrDash(itemData.constellation_label)", object_catalogue_qml)
+        self.assertIn('model: root.choiceModel("constellationChoices")', object_catalogue_qml)
         self.assertIn('qsTr("%1°")', object_catalogue_qml)
         self.assertIn('qsTr("%1°")', object_detail_qml)
         self.assertIn("is_usefully_observable_label", object_catalogue_qml)
@@ -1080,19 +1081,20 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('"label": qsTr("Costellazione")', object_detail_qml)
         self.assertIn('text: qsTr("Catalogo binocoli")', binoculars_qml)
         self.assertIn('placeholderText: qsTr("Cerca binocolo...")', binoculars_qml)
-        self.assertIn('placeholderText: qsTr("Diametro obiettivo (mm) *")', binoculars_qml)
+        self.assertIn('labelText: qsTr("Diametro obiettivo (mm) *")', binoculars_qml)
         self.assertIn("controller.binocularCatalog", binoculars_qml)
         self.assertIn("controller.addBinocularModel", binoculars_qml)
         self.assertIn("controller.updateBinocularModel", binoculars_qml)
         self.assertIn("controller.deleteBinocularModel", binoculars_qml)
         self.assertIn('text: qsTr("Stabilizzato")', binoculars_qml)
         self.assertNotIn("Stabilizzato (facoltativo)", binoculars_qml)
-        self.assertIn('placeholderText: qsTr("Apertura (mm) *")', telescopes_qml)
-        self.assertIn('placeholderText: qsTr("Focale (mm) *")', telescopes_qml)
-        self.assertIn('placeholderText: qsTr("Focale (mm) *")', optics_qml)
-        self.assertIn('placeholderText: qsTr("AFOV medio (°) *")', optics_qml)
+        self.assertIn('labelText: qsTr("Apertura (mm) *")', telescopes_qml)
+        self.assertIn('labelText: qsTr("Focale (mm) *")', telescopes_qml)
+        self.assertIn('labelText: qsTr("Focale (mm) *")', optics_qml)
+        self.assertIn('qsTr("AFOV medio (°) *")', optics_qml)
         self.assertIn("itemData.barrel_size_label", optics_qml)
-        self.assertIn('placeholderText: qsTr("Fattore * (es. 0,63)")', filters_reducers_qml)
+        self.assertIn('labelText: qsTr("Fattore di riduzione *")', filters_reducers_qml)
+        self.assertIn('placeholderText: qsTr("es. 0,63")', filters_reducers_qml)
         self.assertIn("controller.equipmentUsage(\"binocular\"", binoculars_qml)
         for equipment_qml in (telescopes_qml, optics_qml, binoculars_qml, filters_reducers_qml):
             self.assertGreaterEqual(
@@ -1196,7 +1198,7 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("function includeCatalogueMetric(value)", object_detail_qml)
         self.assertIn('text !== qsTr("n/d")', object_detail_qml)
         self.assertNotIn('indexOf("Catalogo ")', object_detail_qml)
-        self.assertIn("root.isCatalogueDetail ? qsTr(\"Catalogo\")", object_detail_qml)
+        self.assertIn("return root.originMetricData.label || qsTr(\"Distanza\")", object_detail_qml)
         self.assertIn("visible: root.isCatalogueDetail", object_detail_qml)
         self.assertIn('title: qsTr("Dati di catalogo")', object_detail_qml)
         self.assertIn("columns: root.width > 1160 ? 4 : root.width > 760 ? 2 : 1", object_detail_qml)
@@ -1212,11 +1214,11 @@ class Phase6RealDataTests(unittest.TestCase):
             '"label": qsTr("Costellazione")',
             '"label": qsTr("Magnitudine")',
             '"label": qsTr("Dimensione")',
-            '"label": qsTr("Dim. max")',
+            '"label": qsTr("Dimensione angolare massima")',
             '"label": qsTr("Osservazione")',
             '"label": qsTr("A.R.")',
             '"label": qsTr("Dec")',
-            '"label": qsTr("Utile (≥15°)")',
+            '"label": qsTr("Raggiunge ≥15°")',
             '"label": qsTr("Visibile nel mese corrente")',
         ):
             self.assertIn(label, object_detail_qml)

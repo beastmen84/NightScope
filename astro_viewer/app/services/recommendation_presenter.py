@@ -163,7 +163,7 @@ class RecommendationPresenter:
             "alternative": tr("Binocolo o telescopio consigliato") if not naked_eye_realistic else tr("Occhio nudo"),
             "setupText": tr("Occhio nudo") if naked_eye_realistic else tr("Serve almeno un binocolo o telescopio"),
             "setupOptions": [],
-            "explanation": tr("Oggetto compatibile con osservazione a occhio nudo.") if naked_eye_realistic else tr("Target non realistico senza strumento ottico."),
+            "explanation": tr("Oggetto compatibile con osservazione a occhio nudo.") if naked_eye_realistic else tr("Oggetto non realistico senza strumento ottico."),
             "telescopeId": naked_eye_id,
             "telescopeName": tr("Occhio nudo"),
             "equipmentType": "NakedEye",
@@ -288,7 +288,7 @@ class RecommendationPresenter:
                 value=format_number(candidate.magnification),
             ),
             "trueField": (
-                tr("{value} gradi", value=format_number(true_field, decimals=2))
+                tr("{value}°", value=format_number(true_field, decimals=2))
                 if true_field is not None
                 else tr("n/d")
             ),
@@ -427,7 +427,7 @@ class RecommendationPresenter:
         max_altitude = TargetObservationTraits.from_object(celestial_object).max_altitude_deg
         altitude_clause = (
             tr(
-                "; altezza massima {altitude} gradi",
+                "; altezza massima {altitude}°",
                 altitude=format_number(max_altitude),
             )
             if max_altitude > 0
@@ -435,7 +435,7 @@ class RecommendationPresenter:
         )
         return tr(
             "{magnification}x con pupilla {exit_pupil} mm; "
-            "campo reale {true_field} gradi; {barlow}{altitude}.",
+            "campo reale {true_field}°; {barlow}{altitude}.",
             magnification=format_number(candidate.magnification),
             exit_pupil=format_number(candidate.exit_pupil, decimals=1),
             true_field=format_number(candidate.true_field, decimals=2),

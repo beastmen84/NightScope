@@ -97,7 +97,7 @@ class SkyCompassService:
         if not targets:
             return self.empty(
                 "no_targets",
-                tr("Nessun target osservabile in questo momento."),
+                tr("Nessun oggetto osservabile in questo momento."),
                 caution_text=caution_text,
             )
 
@@ -316,9 +316,9 @@ class SkyCompassService:
     @staticmethod
     def _available_count_label(count: int) -> str:
         return (
-            tr("1 target osservabile ora")
+            tr("1 oggetto osservabile ora")
             if count == 1
-            else tr("{count} target osservabili ora", count=count)
+            else tr("{count} oggetti osservabili ora", count=count)
         )
 
     _target_count_label = _available_count_label
@@ -348,7 +348,7 @@ class SkyCompassService:
         elif cluster_count >= 2:
             reasons.append(tr("Più ammassi nella stessa zona"))
         elif deep_sky_count >= 2:
-            reasons.append(tr("Più target deep sky nella stessa zona"))
+            reasons.append(tr("Più oggetti deep sky nella stessa zona"))
         elif planet_targets and not first["isBest"]:
             reasons.append(
                 tr(
@@ -359,9 +359,9 @@ class SkyCompassService:
 
         max_count = max(group["targetCount"] for group in ranked_groups)
         if top_group["targetCount"] == max_count and max_count > 1:
-            reasons.append(tr("Maggiore concentrazione di target osservabili ora"))
+            reasons.append(tr("Maggiore concentrazione di oggetti osservabili ora"))
         elif top_group["targetCount"] > 1:
-            reasons.append(tr("Più target osservabili ora nella stessa zona"))
+            reasons.append(tr("Più oggetti osservabili ora nella stessa zona"))
         if any(item["inPlan"] for item in targets):
             reasons.append(tr("Include una tappa del piano attualmente osservabile"))
         return reasons[:3]
@@ -371,7 +371,7 @@ class SkyCompassService:
         if count <= 0:
             return ""
         return (
-            tr("+1 altro target")
+            tr("+1 altro oggetto")
             if count == 1
-            else tr("+{count} altri target", count=count)
+            else tr("+{count} altri oggetti", count=count)
         )

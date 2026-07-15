@@ -66,7 +66,7 @@ def test_observing_detail_contract_is_score_free_and_distinguishes_window_from_b
     assert payload["geometry"]["windowStart"] == "21:00"
     assert payload["geometry"]["windowEnd"] == "02:00"
     assert payload["geometry"]["bestTimeLabel"] == "23:30 notte"
-    assert payload["geometry"]["durationText"] == "5 h nella finestra utile, sopra 15 gradi"
+    assert payload["geometry"]["durationText"] == "5 h nella finestra utile, sopra 15°"
     assert payload["geometry"]["showHorizonEvents"] is False
     assert payload["session"]["state"] == "monitor"
     assert payload["session"]["badge"] == "Sessione da monitorare"
@@ -77,6 +77,29 @@ def test_observing_detail_contract_is_score_free_and_distinguishes_window_from_b
         "optionalColor": {},
     }
     assert payload["equipment"]["reducerRecommendation"] == {}
+    assert payload["originMetric"] == {
+        "code": "catalogue",
+        "label": "Catalogo",
+        "value": "Catalogo Messier",
+    }
+
+
+def test_observing_detail_keeps_real_solar_system_distance_semantics() -> None:
+    target = replace(_target(), id="moon", distance="384.400 km")
+    payload = ObservingObjectDetailService().build(
+        object_payload=target.to_qml(),
+        geometry_state="observable_now",
+        session={"state": "recommended"},
+        setup_model=None,
+        altitude_threshold_deg=0.0,
+        is_deep_sky=False,
+    )
+
+    assert payload["originMetric"] == {
+        "code": "distance",
+        "label": "Distanza",
+        "value": "384.400 km",
+    }
 
 
 def test_observing_detail_exposes_only_sanitized_filter_recommendations() -> None:

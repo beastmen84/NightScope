@@ -4,15 +4,15 @@ import unittest
 import tempfile
 from pathlib import Path
 
-from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine, _italian_lunar_eclipse_kind
+from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine, _lunar_eclipse_title
 from astro_viewer.tools.generate_validation_report import validate_astronomy
 
 
 class AstronomyValidationTests(unittest.TestCase):
-    def test_lunar_eclipse_kind_is_localized(self) -> None:
-        self.assertEqual(_italian_lunar_eclipse_kind("Partial"), "parziale")
-        self.assertEqual(_italian_lunar_eclipse_kind("Total"), "totale")
-        self.assertEqual(_italian_lunar_eclipse_kind("Penumbral"), "penombrale")
+    def test_lunar_eclipse_title_is_complete_and_localizable(self) -> None:
+        self.assertEqual(_lunar_eclipse_title("Partial"), "Eclissi lunare parziale")
+        self.assertEqual(_lunar_eclipse_title("Total"), "Eclissi lunare totale")
+        self.assertEqual(_lunar_eclipse_title("Penumbral"), "Eclissi lunare penombrale")
 
     def test_supernova_remnant_uses_nebula_intrinsic_type_bonus(self) -> None:
         self.assertEqual(

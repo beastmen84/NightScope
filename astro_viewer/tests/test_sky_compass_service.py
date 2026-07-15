@@ -26,7 +26,7 @@ def test_sky_compass_ranks_broad_direction_from_home_targets() -> None:
     assert result["direction"] == "Nord-Est"
     assert result["targetCount"] == 2
     assert result["zoneLabel"] == "Migliore zona adesso"
-    assert result["targetCountLabel"] == "2 target osservabili ora"
+    assert result["targetCountLabel"] == "2 oggetti osservabili ora"
     assert result["primaryTargets"][0]["id"] == "messier-M13"
     assert [item["name"] for item in result["primaryTargets"]] == ["M13", "M92"]
     assert "targetNames" not in result
@@ -121,7 +121,7 @@ def test_sky_compass_presents_max_three_primary_targets_and_other_count() -> Non
         "messier-M15",
     ]
     assert result["otherTargetCount"] == 1
-    assert result["otherTargetCountLabel"] == "+1 altro target"
+    assert result["otherTargetCountLabel"] == "+1 altro oggetto"
     assert len(result["decisionReasons"]) <= 3
     assert not any("score" in reason.lower() for reason in result["decisionReasons"])
     assert "Pianeti e deep sky nella stessa zona" in result["decisionReasons"]
@@ -189,11 +189,11 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert 'if (typeCode === "meteor_shower")' in source
     assert "accentColor: root.eventAccent(modelData.typeCode)" in events_block
     assert "columns: root.width > 1040 ? 4 : root.width > 760 ? 2 : 1" in events_block
-    assert "Layout.preferredHeight: 92" in events_block
+    assert "Layout.preferredHeight: 108" in events_block
     assert "Layout.alignment: Qt.AlignVCenter" in events_block
     assert "root.chronologicalEvents(root.width > 900 ? 8 : 4)" in events_block
     assert "Perché questa direzione?" in source
-    assert "Target principali" in source
+    assert "Oggetti principali" in source
     assert "skyCompassCanvas" in source
     assert "skyCompassTypeIconKind" in source
     assert "skyCompassTypeLabel" not in source
@@ -203,7 +203,7 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert 'qsTr("Dove iniziare stasera") : qsTr("Orientamento del cielo")' in sky_compass_block
     assert 'qsTr("Inizia da") : qsTr("Guarda verso")' in sky_compass_block
     assert 'qsTr("Alternative") : qsTr("Altre direzioni")' in sky_compass_block
-    assert 'qsTr("Target principali") : qsTr("Target nella direzione")' in sky_compass_block
+    assert 'qsTr("Oggetti principali") : qsTr("Oggetti nella direzione")' in sky_compass_block
     assert "text: modelData.typeLabel || modelData.type" in sky_compass_block
     assert "Migliore zona osservativa" not in source
     assert "targetNames" not in source

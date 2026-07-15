@@ -185,7 +185,7 @@ Item {
                         DarkComboBox {
                             id: constellationFilter
                             Layout.fillWidth: true
-                            model: root.optionModel("constellations")
+                            model: root.choiceModel("constellationChoices")
                             textRole: "label"
                             valueRole: "value"
                             onActivated: controller.setCatalogueFilter("constellation", currentValue)
@@ -294,7 +294,7 @@ Item {
                         TableHeader { text: qsTr("Magnitudine"); Layout.preferredWidth: 92 }
                         TableHeader { text: qsTr("Dimensione"); Layout.preferredWidth: 94 }
                         TableHeader { text: qsTr("Osservazione"); Layout.preferredWidth: 130 }
-                        TableHeader { text: qsTr("Utile (≥15°)"); Layout.preferredWidth: 104 }
+                        TableHeader { text: qsTr("Raggiunge ≥15°"); Layout.preferredWidth: 104 }
                     }
                 }
 
@@ -326,7 +326,7 @@ Item {
                                 TableCell { text: itemData.catalogue_id; color: theme.cyan; font.weight: Font.DemiBold; Layout.preferredWidth: 64 }
                                 TableCell { text: itemData.name; color: theme.textPrimary; Layout.fillWidth: true; Layout.minimumWidth: 120 }
                                 TableCell { text: root.textOrDash(itemData.type_label); Layout.preferredWidth: 164 }
-                                TableCell { text: root.textOrDash(itemData.constellation); Layout.preferredWidth: 112 }
+                                TableCell { text: root.textOrDash(itemData.constellation_label); Layout.preferredWidth: 112 }
                                 TableCell { text: root.magnitudeText(itemData); Layout.preferredWidth: 92 }
                                 TableCell { text: root.sizeText(itemData); Layout.preferredWidth: 94 }
                                 TableCell { text: root.textOrDash(itemData.recommended_observation_type_label); Layout.preferredWidth: 130 }

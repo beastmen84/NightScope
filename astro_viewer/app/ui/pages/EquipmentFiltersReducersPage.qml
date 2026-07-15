@@ -27,8 +27,11 @@ Item {
         qsTr("Universale"), qsTr("Altro")
     ]
 
-    function optionalText(value) {
-        return value === undefined || value === null ? "" : String(value)
+    function localizedNumber(value) {
+        if (value === undefined || value === null || value === "")
+            return ""
+        var number = Number(value)
+        return isFinite(number) ? number.toLocaleString(Qt.locale()) : String(value)
     }
 
     function numberValue(value) {
@@ -105,10 +108,10 @@ Item {
         filterModel.text = item ? item.model : ""
         var typeIndex = root.filterTypeCodes.indexOf(item ? item.filter_class : "UHC")
         filterType.currentIndex = item && typeIndex < 0 ? -1 : Math.max(0, typeIndex)
-        filterCentral.text = item ? root.optionalText(item.central_wavelength_nm) : ""
-        filterBandwidth.text = item ? root.optionalText(item.bandwidth_nm) : ""
-        filterTransmission.text = item ? root.optionalText(item.transmission_pct) : ""
-        filterAperture.text = item ? root.optionalText(item.minimum_aperture_mm) : ""
+        filterCentral.text = item ? root.localizedNumber(item.central_wavelength_nm) : ""
+        filterBandwidth.text = item ? root.localizedNumber(item.bandwidth_nm) : ""
+        filterTransmission.text = item ? root.localizedNumber(item.transmission_pct) : ""
+        filterAperture.text = item ? root.localizedNumber(item.minimum_aperture_mm) : ""
         filterNotes.text = item ? (item.notes || "") : ""
         filterDialog.title = item ? qsTr("Modifica filtro") : qsTr("Aggiungi filtro")
         filterDialog.open()
@@ -118,13 +121,13 @@ Item {
         editReducer = item || ({})
         reducerBrand.text = item ? item.brand : ""
         reducerModel.text = item ? item.model : ""
-        reducerFactor.text = item ? root.optionalText(item.reduction_factor) : ""
+        reducerFactor.text = item ? root.localizedNumber(item.reduction_factor) : ""
         reducerSystem.currentIndex = Math.max(0, root.opticalSystemCodes.indexOf(item ? item.optical_system : "SCT_CLASSIC"))
         reducerTelescopeIds = item ? (item.compatible_telescope_ids || []).slice() : []
         reducerTelescopeSearch = ""
         reducerTelescopeSearchField.text = ""
         reducerConnection.text = item ? (item.connection || "") : ""
-        reducerBackfocus.text = item ? root.optionalText(item.backfocus_mm) : ""
+        reducerBackfocus.text = item ? root.localizedNumber(item.backfocus_mm) : ""
         reducerVisual.checked = item ? item.visual_compatible : false
         reducerImaging.checked = item ? item.imaging_compatible : true
         reducerCorrected.checked = item ? item.corrected_field : true
@@ -470,12 +473,14 @@ Item {
                 spacing: 8
                 Text {
                     Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     text: reducerRow.itemData.brand + " " + reducerRow.itemData.model
                     color: theme.textPrimary
                     font.pixelSize: 14
                     font.weight: Font.DemiBold
+                    wrapMode: Text.WordWrap
                     elide: Text.ElideRight
-                    maximumLineCount: 1
+                    maximumLineCount: 2
                 }
                 DarkButton {
                     text: qsTr("Modifica")
@@ -539,14 +544,14 @@ Item {
             columns: 2
             columnSpacing: 8
             rowSpacing: 8
-            DarkTextField { id: filterBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca *") }
-            DarkTextField { id: filterModel; Layout.fillWidth: true; placeholderText: qsTr("Modello *") }
-            DarkComboBox { id: filterType; Layout.columnSpan: 2; Layout.fillWidth: true; model: root.filterTypeLabels }
-            DarkTextField { id: filterCentral; Layout.fillWidth: true; placeholderText: qsTr("Lunghezza d'onda centrale (nm, facoltativa)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: filterBandwidth; Layout.fillWidth: true; placeholderText: qsTr("Larghezza banda (nm, facoltativa)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: filterTransmission; Layout.fillWidth: true; placeholderText: qsTr("Trasmissione (%, facoltativa)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: filterAperture; Layout.fillWidth: true; placeholderText: qsTr("Apertura minima (mm, facoltativa)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: filterNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: qsTr("Note (facoltative)") }
+            DarkTextField { id: filterBrand; Layout.fillWidth: true; labelText: qsTr("Marca *") }
+            DarkTextField { id: filterModel; Layout.fillWidth: true; labelText: qsTr("Modello *") }
+            DarkComboBox { id: filterType; Layout.columnSpan: 2; Layout.fillWidth: true; labelText: qsTr("Classe filtro *"); model: root.filterTypeLabels }
+            DarkTextField { id: filterCentral; Layout.fillWidth: true; labelText: qsTr("Lunghezza d'onda centrale (nm, facoltativa)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: filterBandwidth; Layout.fillWidth: true; labelText: qsTr("Larghezza banda (nm, facoltativa)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: filterTransmission; Layout.fillWidth: true; labelText: qsTr("Trasmissione (%, facoltativa)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: filterAperture; Layout.fillWidth: true; labelText: qsTr("Apertura minima (mm, facoltativa)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: filterNotes; Layout.columnSpan: 2; Layout.fillWidth: true; labelText: qsTr("Note (facoltative)") }
         }
 
         Text {
@@ -588,16 +593,16 @@ Item {
             columns: 2
             columnSpacing: 8
             rowSpacing: 8
-            DarkTextField { id: reducerBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca *") }
-            DarkTextField { id: reducerModel; Layout.fillWidth: true; placeholderText: qsTr("Modello *") }
-            DarkTextField { id: reducerFactor; Layout.fillWidth: true; placeholderText: qsTr("Fattore * (es. 0,63)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkComboBox { id: reducerSystem; Layout.fillWidth: true; model: root.opticalSystemLabels }
-            DarkTextField { id: reducerConnection; Layout.fillWidth: true; placeholderText: qsTr("Connessione (facoltativa)") }
-            DarkTextField { id: reducerBackfocus; Layout.fillWidth: true; placeholderText: qsTr("Backfocus (mm, facoltativo)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: reducerBrand; Layout.fillWidth: true; labelText: qsTr("Marca *") }
+            DarkTextField { id: reducerModel; Layout.fillWidth: true; labelText: qsTr("Modello *") }
+            DarkTextField { id: reducerFactor; Layout.fillWidth: true; labelText: qsTr("Fattore di riduzione *"); placeholderText: qsTr("es. 0,63"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkComboBox { id: reducerSystem; Layout.fillWidth: true; labelText: qsTr("Sistema ottico *"); model: root.opticalSystemLabels }
+            DarkTextField { id: reducerConnection; Layout.fillWidth: true; labelText: qsTr("Connessione (facoltativa)") }
+            DarkTextField { id: reducerBackfocus; Layout.fillWidth: true; labelText: qsTr("Backfocus (mm, facoltativo)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             CheckBox { id: reducerVisual; Layout.fillWidth: true; text: qsTr("Uso visuale") }
             CheckBox { id: reducerImaging; Layout.fillWidth: true; text: qsTr("Uso fotografico") }
             CheckBox { id: reducerCorrected; Layout.columnSpan: 2; Layout.fillWidth: true; text: qsTr("Correzione del campo") }
-            DarkTextField { id: reducerNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: qsTr("Note (facoltative)") }
+            DarkTextField { id: reducerNotes; Layout.columnSpan: 2; Layout.fillWidth: true; labelText: qsTr("Note (facoltative)") }
 
             RowLayout {
                 Layout.columnSpan: 2

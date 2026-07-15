@@ -436,7 +436,9 @@ Item {
                     color: theme.textPrimary
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
+                    wrapMode: Text.WordWrap
                     elide: Text.ElideRight
+                    maximumLineCount: modelData.kind === "reducer" ? 2 : 1
                 }
                 StatusPill { text: modelData.details; accentColor: group.accent }
                 StatusPill {
@@ -526,8 +528,9 @@ Item {
                     color: theme.textPrimary
                     font.pixelSize: 14
                     font.weight: Font.DemiBold
+                    wrapMode: Text.WordWrap
                     elide: Text.ElideRight
-                    maximumLineCount: 1
+                    maximumLineCount: itemData.kind === "reducer" ? 2 : 1
                 }
 
                 StatusPill {
@@ -582,7 +585,7 @@ Item {
         DarkTextField {
             id: addProfileName
             Layout.fillWidth: true
-            placeholderText: qsTr("Nome profilo")
+            labelText: qsTr("Nome profilo *")
         }
     }
 
@@ -595,7 +598,7 @@ Item {
         DarkTextField {
             id: renameProfileName
             Layout.fillWidth: true
-            placeholderText: qsTr("Nome profilo")
+            labelText: qsTr("Nome profilo *")
         }
     }
 

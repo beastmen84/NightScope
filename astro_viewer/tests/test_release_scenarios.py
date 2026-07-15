@@ -95,7 +95,7 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertEqual(controller.observingSessionTitle, "Sessione da monitorare")
             self.assertEqual(controller.observingSessionIcon, "⚠")
             self.assertEqual(controller.observingSessionDetail, "Le condizioni attuali non sono ancora favorevoli.")
-            self.assertIn("finestra osservativa promettente", controller.observingSessionDescription)
+            self.assertIn("finestra osservativa successiva", controller.observingSessionDescription)
             self.assertTrue(controller.showObservingSessionOpportunity)
             self.assertEqual(controller.suggestedObservingWindow, "03:00–06:00")
             self.assertEqual(controller.nightPlan, [])
@@ -515,7 +515,7 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertNotIn("function hasBlockingWeather", qml)
         self.assertNotIn("function blockingWeatherReason", qml)
         self.assertNotIn("function blockingWeatherDetail", qml)
-        self.assertIn("Layout.preferredHeight: 92", qml)
+        self.assertIn("Layout.preferredHeight: 108", qml)
         self.assertIn("maximumLineCount: 2", qml[qml.index('title: qsTr("Prossimi eventi")'):])
         self.assertIn("Layout.preferredWidth: 250", target_row_qml)
         self.assertIn("Layout.preferredWidth: 180", target_row_qml)
@@ -559,9 +559,9 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn('title: qsTr("Posizioni recenti")', location_qml)
         self.assertIn('text: qsTr("Nessuna posizione recente.")', location_qml)
         self.assertNotIn("visible: controller.recentLocations.length > 0", location_qml)
-        self.assertNotIn('title: qsTr("Earthdata NASA")', location_qml)
+        self.assertNotIn('title: qsTr("NASA Earthdata")', location_qml)
         self.assertIn('text: qsTr("Provider dati")', qml)
-        self.assertIn('title: qsTr("Earthdata NASA")', qml)
+        self.assertIn('title: qsTr("NASA Earthdata")', qml)
         self.assertIn('earthdataRegistrationUrl: "https://urs.earthdata.nasa.gov/users/new"', qml)
         self.assertIn('headerActionText: qsTr("Crea account")', qml)
         self.assertIn("headerActionWidth: 148", qml)
@@ -596,10 +596,10 @@ class ReleaseScenarioTests(unittest.TestCase):
         )
         self.assertLess(
             qml.index("title: qsTr(\"Rilevamento posizione all'avvio\")"),
-            qml.index('title: qsTr("Posizione Windows")'),
+            qml.index('title: qsTr("Posizione Windows precisa")'),
         )
         self.assertLess(
-            qml.index('title: qsTr("Posizione Windows")'),
+            qml.index('title: qsTr("Posizione Windows precisa")'),
             qml.index('title: qsTr("Località IP (ipapi/ipwho)")'),
         )
         self.assertLess(
@@ -610,7 +610,7 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("clip: true", qml)
         city_card = qml[
             qml.index('title: qsTr("Ricerca città")') : qml.index(
-                'title: qsTr("Posizione Windows")'
+                'title: qsTr("Posizione Windows precisa")'
             )
         ]
         self.assertIn("contentFillsHeight: true", city_card)

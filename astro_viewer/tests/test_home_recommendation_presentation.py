@@ -46,14 +46,13 @@ def test_home_uses_a_neutral_moon_icon_and_readable_alternative_columns() -> Non
     assert 'controller.assetBaseUrl + "/resources/icons/moon.svg"' in source
     assert "controller.moonSummary.image" not in source
     assert "compact: root.width <= 900" in source
-    assert "Layout.preferredWidth: 250" in source
+    assert "headerMode: true" in source
+    assert '"name": qsTr("Oggetto")' in source
     assert "Layout.preferredWidth: 250" in row_source
-    assert "Layout.maximumWidth: 300" in source
     assert "Layout.maximumWidth: 300" in row_source
-    assert "Layout.preferredWidth: 180" in source
     assert "Layout.preferredWidth: 180" in row_source
-    assert "Layout.maximumWidth: 210" in source
     assert "Layout.maximumWidth: 210" in row_source
+    assert "enabled: !root.headerMode" in row_source
 
 
 def test_home_alternatives_capture_wheel_events_while_the_list_can_scroll() -> None:
