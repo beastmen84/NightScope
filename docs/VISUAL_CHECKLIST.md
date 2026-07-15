@@ -45,12 +45,17 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 | Log osservazioni - elenco | controllata | controllata | completata |
 | Log osservazioni - aggiunta | controllata | controllata | completata |
 | Log osservazioni - modifica | controllata | controllata | completata |
+| Meteo - sintesi e qualita' cielo | controllata | controllata | completata |
+| Meteo - AOD e OpenAQ | controllata | controllata | completata |
+| Meteo - previsioni orarie | controllata | controllata | completata |
 
 ## Correzioni Aperte
 
 - [ ] **VIS-001 - Localita' - traduzione sorgente Windows (`APERTA`)**
   - In inglese `Windows specifies` e' una traduzione errata di `Windows precisa`.
   - Testo previsto: `Posizione Windows precisa` / `Precise Windows location`.
+  - La stessa sorgente compare anche nel sottotitolo della pagina Meteo, quindi
+    la correzione deve aggiornare entrambe le presentazioni.
 
 - [ ] **VIS-002 - Provider - nome NASA Earthdata (`APERTA`)**
   - Il marchio ufficiale deve restare `NASA Earthdata` anche in italiano,
@@ -218,6 +223,23 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Il messaggio dopo la modifica `Updated observation.` e' meno naturale di
     `Observation updated.`; uniformare anche questo stato alle altre conferme.
 
+- [ ] **VIS-027 - Meteo - unita' radianza VIIRS (`APERTA`)**
+  - Scheda e riga sorgente mostrano `nW/cm² sr`, notazione ambigua perche' non
+    rende esplicito che anche lo steradiante e' al denominatore.
+  - La specifica NASA VNP46A3 dichiara `nWatts/(cm^2 sr)`, equivalente a
+    `nW·cm⁻²·sr⁻¹`; usare una forma compatta e inequivocabile come
+    `nW/(cm²·sr)` in tutte le presentazioni italiano/inglese.
+  - Riferimento: `https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/VNP46A3/`.
+
+- [ ] **VIS-028 - Meteo - terminologia inglese (`APERTA`)**
+  - Il dettaglio orario usa `Cloudiness`, mentre sintesi e grafico usano il
+    termine piu' preciso `Cloud cover`; uniformare la pagina su `Cloud cover`.
+  - La classe atmosferica `Velata` e' tradotta letteralmente come `Veiled`,
+    poco naturale per aerosol e particolato: usare `Hazy`. Nella stessa scala,
+    `High aerosols` va reso come `High aerosol load`.
+  - Mantenere invariati codici, soglie AOD/OpenAQ e logica NSOM: sono correzioni
+    delle sole label di presentazione.
+
 ## Decisioni Aperte
 
 - [ ] **VIS-007 - Localita' - paese dinamico in italiano (`DA DECIDERE`)**
@@ -332,6 +354,26 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   modifica, eliminazione confermata, ordinamento dal piu' recente, ricerca,
   filtro per voto e riepiloghi senza un limite artificiale ai risultati. La
   suite mirata `test_observation_log.py` passa integralmente: `7 passed`.
+- [x] **VIS-V29 (`VERIFICATA`)** - Sintesi, qualita' cielo, AOD, OpenAQ,
+  copertura nuvolosa e dettaglio orario sono leggibili nelle due lingue senza
+  sovrapposizioni o troncamenti. Lo scroll verticale e la lista oraria
+  orizzontale conservano dimensioni stabili nelle schermate fornite.
+- [x] **VIS-V30 (`VERIFICATA`)** - La sintesi usa le dodici ore della notte
+  osservativa evidenziate da `19:00` a `06:00`: i valori visibili producono
+  correttamente circa `45%` di nuvolosita' media. La finestra `23:00-04:00`
+  della sidebar e' invece il sottointervallo operativo consigliato e non viene
+  confusa con l'intera notte usata per le medie.
+- [x] **VIS-V31 (`VERIFICATA`)** - I dati reali sono semanticamente coerenti:
+  radianza VIIRS `24,79` con 14 osservazioni ricade nella soglia Bortle 6;
+  l'AOD `0,656` e' segnalato come misura di tre giorni, mentre OpenAQ mostra
+  esplicitamente che la lettura di 54 giorni e' storica e non recente.
+- [x] **VIS-V32 (`VERIFICATA`)** - Decimali e date seguono il locale in tutti i
+  blocchi: virgola e `GG/MM/AAAA` in italiano, punto e `MM/DD/YYYY` in inglese.
+  Orari, timezone IANA, nomi provider, codici prodotto e QA restano invariati.
+- [x] **VIS-V33 (`VERIFICATA`)** - Selezione della notte, cache VIIRS, qualita'
+  AOD e stati OpenAQ superano le suite mirate
+  `test_observing_night_weather.py`, `test_viirs_cache_policy.py`,
+  `test_nasa_aod_provider.py` e `test_openaq_atmosphere.py`: `67 passed`.
 
 ## Nota Per Screenshot Pubblici
 
