@@ -9,7 +9,7 @@ Aggiornato: 2026-07-15
   commit `836c90f` e usata per il controllo visuale con localita'.
 - Dist `1.33.0` non rigenerata.
 - Commit sorgente validato: `398f28a Audit release readiness and add bilingual manual`
-- Commit checklist visuale: `f747474 Record weather page visual findings`
+- Commit checklist visuale: `4eb2c32 Record calendar visual findings`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
 stato del codice usare `398f28a`; non sostituire questo hash con un valore
@@ -17,6 +17,7 @@ previsto prima del commit.
 
 ## Commit Recenti
 
+- `4eb2c32 Record calendar visual findings`
 - `f747474 Record weather page visual findings`
 - `86b61a8 Record observation log visual findings`
 - `11e7628 Record binocular catalog visual findings`
@@ -217,12 +218,13 @@ correzione quando la panoramica sara' completa e l'utente dara' conferma.
 Le coppie italiano/inglese completate sono Provider dati, Configurazione
 localita', Profili, elenco Oggetti celesti, dettaglio Oggetto celeste,
 elenco/aggiunta/modifica Telescopi, Oculari/Barlow, Filtri/Riduttori e Binocoli,
-elenco/aggiunta/modifica del Log osservazioni e l'intera pagina Meteo con
-sintesi, qualita' cielo, AOD/OpenAQ e previsioni orarie. Per i cataloghi sono
-stati verificati conteggi, layout, obbligatorieta', protezione delle voci
-integrate e assenza delle pill opzionali vuote. Nei Binocoli resta da sostituire
-l'ordinamento lessicografico con quello naturale, cosi' che specifiche come
-`8x20` precedano `10x20` e `18x50`.
+elenco/aggiunta/modifica del Log osservazioni, l'intera pagina Meteo con
+sintesi, qualita' cielo, AOD/OpenAQ e previsioni orarie, e il Calendario con
+panoramica, filtri, timeline e dettagli di Luna, opposizioni, congiunzioni,
+sciami e comete. Per i cataloghi sono stati verificati conteggi, layout,
+obbligatorieta', protezione delle voci integrate e assenza delle pill opzionali
+vuote. Nei Binocoli resta da sostituire l'ordinamento lessicografico con quello
+naturale, cosi' che specifiche come `8x20` precedano `10x20` e `18x50`.
 
 Nel Log date, medie e riepiloghi seguono il locale, mentre i testi registrati
 dall'utente restano invariati. CRUD e validazione sono coerenti e la suite
@@ -239,6 +241,24 @@ la radianza VNP46A3 come `nW/(cm²·sr)`, uniformare `Cloud cover` e correggere 
 label atmosferiche inglesi `Veiled` / `High aerosols`. VIS-001 compare anche nel
 sottotitolo Meteo come `Windows specifies`. Nessun codice applicativo e' stato
 modificato durante questo passaggio.
+
+Nel Calendario i contatori sono coerenti: `49 + 5 + 11 + 4 + 10 + 2 + 0 + 2`
+corrisponde agli `83` eventi della vista annuale. Layout, filtri, ordinamento,
+formati locali e distinzione tra istante astronomico e finestra osservativa
+sono corretti. Congiunzioni solari, raccomandazioni del profilo, link agli
+oggetti catalogati e finestra cometaria restano semanticamente separati. ISS ed
+eclissi non erano disponibili come casi live negli screenshot; i relativi rami
+sono stati verificati da codice e test senza attribuire loro una verifica
+visuale inesistente. Le suite Calendario/ISS/comete passano con `19 passed` e
+quella delle traduzioni con `15 passed`.
+
+Restano quattro rilievi di sola presentazione nel Calendario: terminologia
+inglese troppo letterale (`Maximum approach`, titoli e consigli degli sciami),
+uso alternato di `gradi` / `degrees` e `°` con maiuscola incorporata in
+`Intorno alle` / `Around`, composizione inglese errata dei titoli eclissi e
+semantica poco chiara di `Brightness estimate confidence: Approximate`. Sono
+registrati come VIS-029--VIS-032. Nessun codice applicativo e' stato modificato
+durante questo passaggio.
 
 Restano accodati etichette persistenti, sottotitoli inglesi, simbolo AFOV,
 decimali precompilati italiani e campi AFOV specifici per Fisso/Zoom. Il
