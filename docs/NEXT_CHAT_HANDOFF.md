@@ -9,7 +9,7 @@ Aggiornato: 2026-07-15
   commit `836c90f` e usata per il controllo visuale con localita'.
 - Dist `1.33.0` non rigenerata.
 - Commit sorgente validato: `398f28a Audit release readiness and add bilingual manual`
-- Commit checklist visuale: `86b61a8 Record observation log visual findings`
+- Commit checklist visuale: `f747474 Record weather page visual findings`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
 stato del codice usare `398f28a`; non sostituire questo hash con un valore
@@ -17,6 +17,7 @@ previsto prima del commit.
 
 ## Commit Recenti
 
+- `f747474 Record weather page visual findings`
 - `86b61a8 Record observation log visual findings`
 - `11e7628 Record binocular catalog visual findings`
 - `1f1d211 Record filter and reducer visual findings`
@@ -216,7 +217,8 @@ correzione quando la panoramica sara' completa e l'utente dara' conferma.
 Le coppie italiano/inglese completate sono Provider dati, Configurazione
 localita', Profili, elenco Oggetti celesti, dettaglio Oggetto celeste,
 elenco/aggiunta/modifica Telescopi, Oculari/Barlow, Filtri/Riduttori e Binocoli,
-oltre a elenco/aggiunta/modifica del Log osservazioni. Per i cataloghi sono
+elenco/aggiunta/modifica del Log osservazioni e l'intera pagina Meteo con
+sintesi, qualita' cielo, AOD/OpenAQ e previsioni orarie. Per i cataloghi sono
 stati verificati conteggi, layout, obbligatorieta', protezione delle voci
 integrate e assenza delle pill opzionali vuote. Nei Binocoli resta da sostituire
 l'ordinamento lessicografico con quello naturale, cosi' che specifiche come
@@ -228,6 +230,15 @@ mirata passa con `7 passed`. Restano da allineare `Voto` / `Rating` sopra il
 relativo valore, poiche' le dimensioni implicite dei pulsanti allargano soltanto
 la riga, e da correggere tre messaggi inglesi di validazione/stato annotati come
 VIS-026.
+
+Nel Meteo le medie corrispondono alle ore evidenziate della notte osservativa;
+la finestra piu' breve in sidebar resta correttamente una proiezione operativa.
+Formati locali, Bortle/VIIRS, freschezza AOD e stato storico OpenAQ sono
+coerenti; le quattro suite mirate passano con `67 passed`. Restano da esprimere
+la radianza VNP46A3 come `nW/(cm²·sr)`, uniformare `Cloud cover` e correggere le
+label atmosferiche inglesi `Veiled` / `High aerosols`. VIS-001 compare anche nel
+sottotitolo Meteo come `Windows specifies`. Nessun codice applicativo e' stato
+modificato durante questo passaggio.
 
 Restano accodati etichette persistenti, sottotitoli inglesi, simbolo AFOV,
 decimali precompilati italiani e campi AFOV specifici per Fisso/Zoom. Il
