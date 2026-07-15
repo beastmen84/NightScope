@@ -26,6 +26,9 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 | Profili | controllata | controllata | completata |
 | Oggetti celesti - elenco | controllata | controllata | completata |
 | Oggetti celesti - dettaglio | controllata | controllata | completata |
+| Telescopi - elenco | controllata | controllata | completata |
+| Telescopi - aggiunta | controllata | controllata | completata |
+| Telescopi - modifica | controllata | controllata | completata |
 
 ## Correzioni Aperte
 
@@ -95,6 +98,28 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Preferire una dicitura descrittiva come `Raggiunge ≥15°` /
     `Reaches ≥15°`, senza cambiare il calcolo.
 
+- [ ] **VIS-015 - Form Equipment - etichette persistenti (`APERTA`)**
+  - Aggiunta e modifica Telescopi usano soltanto placeholder. Appena un campo
+    contiene un valore non e' piu' visibile se rappresenta marca, modello, tipo
+    ottico, apertura, focale, montatura o note.
+  - Aggiungere label sempre visibili con unita' e indicazione obbligatorio /
+    facoltativo, mantenendo gli asterischi coerenti con la validazione reale.
+  - Applicare lo stesso criterio agli altri form Equipment che mostreranno lo
+    stesso schema durante il controllo visuale.
+
+- [ ] **VIS-016 - Telescopi - tipo e montatura in inglese (`APERTA`)**
+  - La pagina e il form inglesi mostrano valori italiani come `rifrattore`,
+    `rifrattore Petzval` ed `equatoriale`.
+  - Il seed mescola note inglesi con categorie italiane, pur essendo dichiarato
+    sorgente inglese dal generatore dei contenuti.
+  - Normalizzare i valori integrati in una sorgente coerente e rigenerare le
+    traduzioni; valori personalizzati o modificati dall'utente devono restare
+    invariati.
+
+- [ ] **VIS-017 - Telescopi - sottotitolo inglese (`APERTA`)**
+  - `Models available to observing profiles` e' poco naturale.
+  - Preferire `Models available for observing profiles`.
+
 ## Decisioni Aperte
 
 - [ ] **VIS-007 - Localita' - paese dinamico in italiano (`DA DECIDERE`)**
@@ -135,6 +160,17 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 - [x] **VIS-V08 (`VERIFICATA`)** - Per Addis Abeba C1 culmina teoricamente a
   circa 13,7°, quindi il valore negativo rispetto alla soglia di 15° e'
   corretto.
+- [x] **VIS-V09 (`VERIFICATA`)** - La griglia Telescopi mostra 133 modelli in
+  due colonne senza sovrapposizioni o testi tagliati nelle righe fornite.
+- [x] **VIS-V10 (`VERIFICATA`)** - Marca, modello, tipo ottico, apertura intera
+  positiva, focale intera positiva e montatura sono obbligatori sia in QML sia
+  nel repository; soltanto le note sono facoltative e Salva resta disabilitato
+  finche' i dati richiesti non sono validi.
+- [x] **VIS-V11 (`VERIFICATA`)** - I modelli integrati sono modificabili ma non
+  eliminabili; i modelli utente espongono Elimina e il repository applica la
+  stessa protezione anche oltre la UI.
+- [x] **VIS-V12 (`VERIFICATA`)** - Apertura, focale e rapporto focale seguono il
+  formato locale: virgola decimale italiana e punto/raggruppamento inglese.
 
 ## Nota Per Screenshot Pubblici
 
