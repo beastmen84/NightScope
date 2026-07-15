@@ -9,7 +9,7 @@ Aggiornato: 2026-07-15
   commit `836c90f` e usata per il controllo visuale con localita'.
 - Dist `1.33.0` non rigenerata.
 - Commit sorgente validato: `398f28a Audit release readiness and add bilingual manual`
-- Commit checklist visuale: `11e7628 Record binocular catalog visual findings`
+- Commit checklist visuale: `86b61a8 Record observation log visual findings`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
 stato del codice usare `398f28a`; non sostituire questo hash con un valore
@@ -17,6 +17,7 @@ previsto prima del commit.
 
 ## Commit Recenti
 
+- `86b61a8 Record observation log visual findings`
 - `11e7628 Record binocular catalog visual findings`
 - `1f1d211 Record filter and reducer visual findings`
 - `cb67d21 Record eyepiece and Barlow visual findings`
@@ -213,12 +214,20 @@ Il controllo visuale configurato e' ora tracciato in
 le correzioni annotate: aggiornare la checklist e fare un unico passaggio di
 correzione quando la panoramica sara' completa e l'utente dara' conferma.
 Le coppie italiano/inglese completate sono Provider dati, Configurazione
-localita', Profili, elenco Oggetti celesti, dettaglio Oggetto celeste ed
-elenco/aggiunta/modifica Telescopi, Oculari/Barlow, Filtri/Riduttori e Binocoli.
-Per questi cataloghi sono stati verificati conteggi, layout, obbligatorieta',
-protezione delle voci integrate e assenza delle pill opzionali vuote. Nei
-Binocoli resta da sostituire l'ordinamento lessicografico con quello naturale,
-cosi' che specifiche come `8x20` precedano `10x20` e `18x50`.
+localita', Profili, elenco Oggetti celesti, dettaglio Oggetto celeste,
+elenco/aggiunta/modifica Telescopi, Oculari/Barlow, Filtri/Riduttori e Binocoli,
+oltre a elenco/aggiunta/modifica del Log osservazioni. Per i cataloghi sono
+stati verificati conteggi, layout, obbligatorieta', protezione delle voci
+integrate e assenza delle pill opzionali vuote. Nei Binocoli resta da sostituire
+l'ordinamento lessicografico con quello naturale, cosi' che specifiche come
+`8x20` precedano `10x20` e `18x50`.
+
+Nel Log date, medie e riepiloghi seguono il locale, mentre i testi registrati
+dall'utente restano invariati. CRUD e validazione sono coerenti e la suite
+mirata passa con `7 passed`. Restano da allineare `Voto` / `Rating` sopra il
+relativo valore, poiche' le dimensioni implicite dei pulsanti allargano soltanto
+la riga, e da correggere tre messaggi inglesi di validazione/stato annotati come
+VIS-026.
 
 Restano accodati etichette persistenti, sottotitoli inglesi, simbolo AFOV,
 decimali precompilati italiani e campi AFOV specifici per Fisso/Zoom. Il
