@@ -10,8 +10,9 @@ source commit or a passing unit suite alone is not a release approval.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, timezone-boundary ODbL 1.0, survey image, and
   NASA/JPL attribution is present where required.
-- [ ] Record the public NightScope source URL and exact corresponding commit for
-  the distributed MPL executable.
+- [x] Record the public NightScope source URL and exact corresponding commit for
+  the distributed MPL executable: tag `v1.33.2`, commit
+  `9c17204f718223e83183367e9ccea078805b5a00`.
 - [ ] Confirm version number, changelog, manual revision, and About/build
   metadata agree.
 - [ ] Freeze the release scope; defer unrelated refactors.
@@ -81,19 +82,19 @@ Do not commit credentials or exact personal locations.
 ## 6. Windows Artifact
 
 - [ ] Build from a clean checkout with `packaging/build_windows.ps1`.
-- [ ] Confirm the source commit and build environment are recorded.
+- [x] Confirm the source commit and build environment are recorded.
 - [x] Run backend and QML smoke tests against the packaged executable.
 - [x] Confirm the bundle-root legal files and Qt module audit pass.
 - [ ] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
   timezone polygons, and credential backend.
 - [ ] Run the complete visual and provider matrices on the packaged build, not
   only from source. Test a copy and preserve a pristine release bundle.
-- [ ] Immediately before archiving, rerun `tools/audit_qt_bundle.py` on the
+- [x] Immediately before archiving, rerun `tools/audit_qt_bundle.py` on the
   pristine bundle and confirm that no runtime database, backup, cache, settings,
   or logs are present.
 - [ ] Scan the artifact with the chosen security tooling.
 - [ ] Sign the executable or document the explicit initial-release policy.
-- [ ] Publish a SHA-256 hash with the artifact.
+- [x] Publish a SHA-256 hash with the artifact.
 - [ ] Test extraction and first launch from a normal writable user directory.
 
 ## 7. Release Approval
@@ -101,5 +102,5 @@ Do not commit credentials or exact personal locations.
 - [ ] No unresolved severity-1 or severity-2 defect.
 - [ ] Known limitations match README and manual.
 - [ ] Changelog contains only verified results.
-- [ ] Git worktree is clean and release tag points to the audited commit.
-- [ ] Final artifact identity and hash are recorded in the release notes.
+- [x] Git worktree is clean and release tag points to the audited commit.
+- [x] Final artifact identity and hash are recorded in the release notes.

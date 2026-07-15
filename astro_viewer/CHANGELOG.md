@@ -24,6 +24,12 @@
 - Gate completo con security superato: `791 passed`, `613 warnings` note,
   `7 subtests`, coverage runtime `84%`, nessuna vulnerabilita' installata nota
   e Bandit invariato a `0 high`, `26 medium`, `12 low`.
+- Pubblicata la release GitHub `v1.33.2` dal commit sorgente
+  `9c17204f718223e83183367e9ccea078805b5a00`. Lo ZIP Windows x64 estratto
+  contiene `5221` file, supera l'audit Qt/licenze/stato runtime e non include
+  database o log dell'utente.
+- SHA-256 pubblicato per `NightScope-v1.33.2-windows-x64.zip`:
+  `33424e4e8317dee951230d795e2f0de936946910ede232ba478e893c73e02967`.
 
 ## NightScope 1.33.1 - 2026-07-15
 

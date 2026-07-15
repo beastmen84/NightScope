@@ -119,7 +119,16 @@ correct. Running the executable in place created `nightscope.db`, its backup,
 and logs as designed, so that directory is a validation copy rather than the
 final release artifact. The bundle audit now rejects such runtime state. The
 public archive must use a pristine copy and still complete the visual, provider,
-artifact-security, and release-metadata gates.
+and artifact-security gates.
+
+The published `NightScope-v1.33.2-windows-x64.zip` was verified against its
+local source archive and extracted to a disposable directory. It contains
+`5,221` files (`434,071,829` uncompressed bytes), passes the
+Qt/legal/runtime-state bundle audit, and contains no NightScope runtime database
+or root log directory. GitHub and the local file report the same SHA-256 digest:
+`33424e4e8317dee951230d795e2f0de936946910ede232ba478e893c73e02967`.
+The release tag `v1.33.2` resolves to audited source commit
+`9c17204f718223e83183367e9ccea078805b5a00`.
 
 ## Measured 1.33.1 Visual-Fix Gate
 

@@ -17,6 +17,11 @@ setup?**
 > Qt, backend, and QML checks; its packaged visual and live-provider release
 > matrices are not complete yet.
 
+Current Windows package:
+[NightScope 1.33.2](https://github.com/beastmen84/NightScope/releases/tag/v1.33.2).
+Its release notes identify the corresponding source commit and publish the
+SHA-256 digest of the portable ZIP.
+
 ## What It Does
 
 - Builds a local observing night from sunset to sunrise for the selected
@@ -230,8 +235,8 @@ remaining release work are tracked in
   coverage, freshness, authorization, and quality gates.
 - Comet magnitudes can differ materially from orbital-catalogue estimates.
 - Reducer recommendations do not model a complete camera and back-focus train.
-- There is no installer, automatic updater, artifact signature, or published
-  release hash yet.
+- There is no installer, automatic updater, or artifact signature. The current
+  portable release publishes its SHA-256 digest.
 - The final manual and application visual matrix still requires a human pass on
   the release build.
 

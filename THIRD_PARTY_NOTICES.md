@@ -3,10 +3,12 @@
 NightScope is Copyright 2026 Davide Marchi and is licensed under the Mozilla
 Public License 2.0. The complete project license is in `LICENSE`.
 
-Each distributed executable must identify the exact corresponding NightScope
-source commit and its public repository URL in the release notes. The repository
-has no configured public remote at the time this notice was prepared, so that
-release-specific source URL must be added before public distribution.
+Public NightScope source repository:
+`https://github.com/beastmen84/NightScope`
+
+The NightScope 1.33.2 Windows executable corresponds to source tag `v1.33.2`
+and commit `9c17204f718223e83183367e9ccea078805b5a00`:
+`https://github.com/beastmen84/NightScope/tree/v1.33.2`
 
 This notice covers software and data redistributed with the portable Windows
 application. `THIRD_PARTY_LICENSES.txt` contains the installed Python component

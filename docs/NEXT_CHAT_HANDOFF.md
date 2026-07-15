@@ -5,6 +5,11 @@ Aggiornato: 2026-07-15
 ## Stato Versioni
 
 - Versione sorgente: `1.33.2`
+- Repository pubblico: `https://github.com/beastmen84/NightScope`
+- Release pubblica: `v1.33.2`, tag sul commit sorgente
+  `9c17204f718223e83183367e9ccea078805b5a00`.
+- Asset: `NightScope-v1.33.2-windows-x64.zip`, SHA-256
+  `33424e4e8317dee951230d795e2f0de936946910ede232ba478e893c73e02967`.
 - Distribuzione Windows corrente: `1.33.2`, rigenerata dall'utente dopo il
   commit `3baa6a6`.
 - Audit Qt/licenze e smoke backend/QML del binario superati. L'avvio ha creato
@@ -19,6 +24,7 @@ previsto prima del commit.
 
 ## Commit Recenti
 
+- `ecf6232 Update handoff after bundle validation`
 - `9c17204 Reject runtime state in release bundles`
 - `e4bdd19 Create FUNDING.yml`
 - `3baa6a6 Update handoff for licensing release gate`
@@ -222,7 +228,7 @@ di validazione sono stati corretti. Non sono emersi difetti applicativi ad alta
 severita'. La review visuale allora residua e' chiusa da `1.33.1`; NightScope
 non e' ancora approvato per il rilascio perche' restano matrice provider,
 matrice visuale sulla dist, bundle finale pulito, lock/SBOM, firma o policy
-esplicita e hash dell'artefatto.
+esplicita. Bundle pubblico, commit sorgente e hash sono ora verificati.
 
 `1.33.1` chiude il controllo visuale bilingue tracciato in
 `docs/VISUAL_CHECKLIST.md`: tutti i 36 rilievi VIS-001--VIS-036 sono risolti e
@@ -248,9 +254,10 @@ test hanno creato database, backup e log nella cartella. L'audit rifiuta ora
 questo stato runtime: usare una copia per i controlli e archiviare soltanto un
 bundle pulito verificato immediatamente prima della pubblicazione.
 
-Il repository non ha ancora un remote pubblico configurato. Prima del rilascio
-MPL, release notes e artefatto devono indicare URL pubblico e commit sorgente
-esatto corrispondente; il gate e' tracciato in `docs/RELEASE_CHECKLIST.md`.
+Il repository pubblico e' `https://github.com/beastmen84/NightScope`. La release
+`v1.33.2` punta al commit sorgente verificato
+`9c17204f718223e83183367e9ccea078805b5a00`; note e asset pubblicano anche il
+digest SHA-256 dello ZIP.
 
 La pipeline dei contenuti ora distingue la lingua sorgente per catalogo e per
 campo, genera descrizioni Caldwell inglesi deterministiche e include traduzioni
@@ -938,6 +945,10 @@ Risultati:
 - L'esecuzione in-place ha creato `nightscope.db`, `nightscope.db.backup` e
   `logs`; la cartella e' una copia di validazione. Il nuovo audit rifiuta stato
   runtime nel bundle destinato alla pubblicazione.
+- Lo ZIP pubblico e' stato estratto in una directory temporanea: `5221` file,
+  `434.071.829` byte non compressi, audit Qt/licenze/stato runtime superato,
+  nessun database o log NightScope. SHA-256 locale e GitHub coincidono:
+  `33424e4e8317dee951230d795e2f0de936946910ede232ba478e893c73e02967`.
 
 ## Validazione 1.33.1
 

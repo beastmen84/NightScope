@@ -9,6 +9,8 @@ privacy-sensitive logging, and Windows packaging configuration.
 
 The initial audit did not rebuild `dist`. The user later rebuilt the persistent
 `1.33.2` bundle; its legal/Qt audit and packaged backend/QML smoke tests pass.
+The public release is available at
+`https://github.com/beastmen84/NightScope/releases/tag/v1.33.2`.
 
 ## Verdict
 
@@ -16,19 +18,20 @@ No high-severity functional application defect was found. The deterministic
 suite, static checks, catalogue asset checks, and runtime dependency audit are
 clean after the fixes listed below.
 
-NightScope is nevertheless **not release-ready yet**. The remaining blockers
-are release-process and product decisions rather than a known broken core:
+NightScope 1.33.2 has been published, but it is **not yet fully approved by its
+own release checklist**. The remaining work concerns release hardening and
+product verification rather than a known broken core:
 
 1. The Windows distribution has been rebuilt and passes automated artifact
    checks, but it must still pass the packaged-build visual matrix. Validation
    creates runtime data beside the executable, so tests must use a copy and the
-   final archive must come from a pristine bundle. The release notes must also
-   identify the public URL and exact corresponding MPL source commit.
+   final archive must come from a pristine bundle. The published ZIP has passed
+   this audit and the release notes identify its exact MPL source commit.
 2. The final live-provider matrix has not been executed for Open-Meteo,
    CelesTrak, JPL SBDB, Earthdata VIIRS/AOD, OpenAQ, Windows location, and the
    explicit IP fallback.
 3. Release dependencies are range-based rather than frozen into a tested lock
-   or SBOM, and the final artifact is not signed or accompanied by a hash.
+   or SBOM, and the artifact is not signed. Its SHA-256 digest is published.
 
 Use `docs/RELEASE_CHECKLIST.md` as the release gate.
 
@@ -46,9 +49,10 @@ The previous PyInstaller bundle collected every QML module installed with
 PySide6, including unused Qt Addons and GPL-only modules. Runtime requirements
 now select PySide6 Essentials, custom hooks retain only NightScope's required
 LGPL-compatible QML modules, and the build script rejects missing legal files,
-missing required Qt DLLs, or unexpected GPL-only Qt modules. An isolated
-PyInstaller bundle passed this audit and its packaged QML smoke test; the
-checked-in `dist` remains unchanged and must still be rebuilt for release.
+missing required Qt DLLs, or unexpected GPL-only Qt modules. The isolated
+PyInstaller bundle, persistent Windows build, and extracted public ZIP passed
+the Qt/legal audit. The packaged backend and QML smoke tests pass, and the ZIP
+contains no NightScope runtime database, backup, cache, or log.
 
 ### Developer dependency advisory
 
@@ -196,7 +200,7 @@ Baseline and final commands completed during this audit:
 | QML lint and smoke | 30 files linted with no failure; 760 known static warnings; Italian and English smoke passed |
 | Deep-sky image repository check | 219 JPEG assets passed |
 | Solar System image repository check | 9 JPEG assets passed |
-| Windows bundles | Isolated and persistent Qt/legal audits and packaged smoke passed; the used persistent copy contains expected runtime state |
+| Windows bundles | Isolated, persistent, and published-ZIP Qt/legal audits passed; packaged smoke passed and the ZIP contains no runtime state |
 
 Detailed commands, timings, known dependency warnings, and the disposable
 runtime contract are recorded in `docs/TESTING.md`.
