@@ -1,6 +1,6 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-14
+Aggiornato: 2026-07-15
 
 ## Stato Versioni
 
@@ -9,6 +9,7 @@ Aggiornato: 2026-07-14
   commit `836c90f` e usata per il controllo visuale con localita'.
 - Dist `1.33.0` non rigenerata.
 - Commit sorgente validato: `398f28a Audit release readiness and add bilingual manual`
+- Commit checklist visuale: `9ca9b77 Add visual review checklist`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
 stato del codice usare `398f28a`; non sostituire questo hash con un valore
@@ -16,6 +17,7 @@ previsto prima del commit.
 
 ## Commit Recenti
 
+- `9ca9b77 Add visual review checklist`
 - `398f28a Audit release readiness and add bilingual manual`
 - `1c30467 Harden AOD quality and observing presentation`
 - `7be80cf Remove legacy location normalization`
@@ -200,6 +202,13 @@ di validazione sono stati corretti. Non sono emersi difetti applicativi ad alta
 severita', ma NightScope non e' ancora approvato per il rilascio: restano review
 visuale, licenza/notice, matrice provider, rebuild/test della dist e produzione
 di lock/SBOM, firma o policy esplicita e hash dell'artefatto.
+
+Il controllo visuale configurato e' ora tracciato in
+`docs/VISUAL_CHECKLIST.md`. Durante la raccolta delle schermate non applicare
+le correzioni annotate: aggiornare la checklist e fare un unico passaggio di
+correzione quando la panoramica sara' completa e l'utente dara' conferma. Le
+prime coppie italiano/inglese completate sono Provider dati, Configurazione
+localita' e Profili.
 
 ## Audit Pre-Release 1.33.0
 
@@ -901,6 +910,7 @@ corretti; il gate finale non li riporta.
 - `docs/LOCALIZATION.md`
 - `docs/RELEASE_CANDIDATE_REVIEW.md`
 - `docs/RELEASE_CHECKLIST.md`
+- `docs/VISUAL_CHECKLIST.md`
 - `docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md`
 - `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md`
 - `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`
