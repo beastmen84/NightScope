@@ -334,6 +334,19 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     mantenendo la localizzazione dei decimali e senza modificare i valori
     numerici o le soglie geometriche.
 
+- [ ] **VIS-036 - Home - intestazioni Oggetti visibili (`APERTA`)**
+  - Le intestazioni `Oggetto`, `Tipo`, `Finestra`, `Direzione` e `Difficolta'`
+    risultano spostate a sinistra rispetto ai valori delle rispettive colonne;
+    il disallineamento diventa particolarmente evidente da `Tipo` in poi.
+  - Header e righe usano due `RowLayout` indipendenti. Il delegate
+    `HomeVisibleTargetRow` aggiunge inoltre margini laterali e la barra colore,
+    quindi la duplicazione delle larghezze nominali non garantisce le stesse
+    coordinate effettive.
+  - Definire un solo contratto condiviso per margini, barra e larghezze delle
+    cinque colonne, mantenendo lo spazio gia' assegnato a Nome e Difficolta'.
+    Verificare l'allineamento sia in italiano sia in inglese; la vista compatta,
+    che non mostra l'header tabellare, deve restare invariata.
+
 ## Decisioni Aperte
 
 - [ ] **VIS-007 - Localita' - paese dinamico in italiano (`DA DECIDERE`)**
@@ -507,9 +520,10 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   contraddizione e il toggle `Solo suggeriti ora` resta disabilitato quando la
   proiezione live non contiene target.
 - [x] **VIS-V42 (`VERIFICATA`)** - I conteggi e i filtri della lista coincidono:
-  `4` pianeti + `184` oggetti cielo profondo = `188` totali. Nome, tipo,
-  finestra, direzione e difficolta' hanno spazi stabili; la colonna difficolta'
-  non tronca piu' `Non adatto a occhio nudo` nelle viste gia' verificate.
+  `4` pianeti + `184` oggetti cielo profondo = `188` totali. Le larghezze delle
+  righe mantengono leggibili Nome e Difficolta' e non troncano piu' `Non adatto
+  a occhio nudo`; resta pero' da riallineare l'header ai valori come registrato
+  in VIS-036.
 - [x] **VIS-V43 (`VERIFICATA`)** - Home mostra gli otto prossimi eventi in
   ordine cronologico. Titoli e intervalli cometari occupano al massimo due
   righe senza ridimensionare le schede; l'azione `Vedi tutti` apre la stessa
