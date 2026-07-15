@@ -9,7 +9,7 @@ Aggiornato: 2026-07-15
   commit `836c90f` e usata per il controllo visuale con localita'.
 - Dist `1.33.0` non rigenerata.
 - Commit sorgente validato: `398f28a Audit release readiness and add bilingual manual`
-- Commit checklist visuale: `4eb2c32 Record calendar visual findings`
+- Commit checklist visuale: `c28ecf1 Record Home visual findings`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
 stato del codice usare `398f28a`; non sostituire questo hash con un valore
@@ -17,6 +17,7 @@ previsto prima del commit.
 
 ## Commit Recenti
 
+- `c28ecf1 Record Home visual findings`
 - `4eb2c32 Record calendar visual findings`
 - `f747474 Record weather page visual findings`
 - `86b61a8 Record observation log visual findings`
@@ -212,19 +213,22 @@ visuale, licenza/notice, matrice provider, rebuild/test della dist e produzione
 di lock/SBOM, firma o policy esplicita e hash dell'artefatto.
 
 Il controllo visuale configurato e' ora tracciato in
-`docs/VISUAL_CHECKLIST.md`. Durante la raccolta delle schermate non applicare
-le correzioni annotate: aggiornare la checklist e fare un unico passaggio di
-correzione quando la panoramica sara' completa e l'utente dara' conferma.
+`docs/VISUAL_CHECKLIST.md`. La raccolta delle schermate e' completa. Non
+applicare correzioni isolate: eseguire un unico passaggio sui rilievi annotati
+quando l'utente dara' conferma.
 Le coppie italiano/inglese completate sono Provider dati, Configurazione
 localita', Profili, elenco Oggetti celesti, dettaglio Oggetto celeste,
 elenco/aggiunta/modifica Telescopi, Oculari/Barlow, Filtri/Riduttori e Binocoli,
 elenco/aggiunta/modifica del Log osservazioni, l'intera pagina Meteo con
 sintesi, qualita' cielo, AOD/OpenAQ e previsioni orarie, e il Calendario con
 panoramica, filtri, timeline e dettagli di Luna, opposizioni, congiunzioni,
-sciami e comete. Per i cataloghi sono stati verificati conteggi, layout,
-obbligatorieta', protezione delle voci integrate e assenza delle pill opzionali
-vuote. Nei Binocoli resta da sostituire l'ordinamento lessicografico con quello
-naturale, cosi' che specifiche come `8x20` precedano `10x20` e `18x50`.
+sciami e comete. Sono state completate anche tutte le viste Home: sintesi
+osservativa, Sky Compass, piano notturno, filtri, oggetti visibili, prossimi
+eventi e dettagli osservativi di Luna e C3. Per i cataloghi sono stati
+verificati conteggi, layout, obbligatorieta', protezione delle voci integrate e
+assenza delle pill opzionali vuote. Nei Binocoli resta da sostituire
+l'ordinamento lessicografico con quello naturale, cosi' che specifiche come
+`8x20` precedano `10x20` e `18x50`.
 
 Nel Log date, medie e riepiloghi seguono il locale, mentre i testi registrati
 dall'utente restano invariati. CRUD e validazione sono coerenti e la suite
@@ -259,6 +263,23 @@ uso alternato di `gradi` / `degrees` e `°` con maiuscola incorporata in
 semantica poco chiara di `Brightness estimate confidence: Approximate`. Sono
 registrati come VIS-029--VIS-032. Nessun codice applicativo e' stato modificato
 durante questo passaggio.
+
+Nella Home layout, stati, filtri e conteggi sono coerenti in entrambe le lingue:
+`4` pianeti + `184` oggetti cielo profondo corrispondono ai `188` totali. Il
+messaggio Sky Compass riguarda correttamente l'istante corrente, mentre la lista
+mostra finestre successive della stessa notte. Gli otto prossimi eventi sono in
+ordine cronologico e rispettano il limite di due righe; le configurazioni
+ottiche di Luna e C3 producono ingrandimento, pupilla e campo reale corretti. Le
+nove suite mirate per Home, dettaglio osservativo, piano notturno, ranking e Sky
+Compass passano con `95 passed`.
+
+Restano tre rilievi Home specifici: il campo legacy del catalogo deep-sky viene
+presentato erroneamente come `Distanza`, alcuni testi operativi sono troppo
+letterali o usano anglicismi italiani, e le unita' angolari alternano
+`gradi` / `degrees` e `°`. Sono registrati come VIS-033--VIS-035. La Home
+conferma inoltre i rilievi trasversali VIS-005, VIS-008 e VIS-009 su stato
+`monitor`, contenuti seed mancanti in inglese e credito immagine. Nessun codice
+applicativo e' stato modificato durante questo passaggio.
 
 Restano accodati etichette persistenti, sottotitoli inglesi, simbolo AFOV,
 decimali precompilati italiani e campi AFOV specifici per Fisso/Zoom. Il
