@@ -29,6 +29,11 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 | Telescopi - elenco | controllata | controllata | completata |
 | Telescopi - aggiunta | controllata | controllata | completata |
 | Telescopi - modifica | controllata | controllata | completata |
+| Oculari e Barlow - elenco | controllata | controllata | completata |
+| Oculari - aggiunta | controllata | controllata | completata |
+| Oculari - modifica | controllata | controllata | completata |
+| Barlow - aggiunta | controllata | controllata | completata |
+| Barlow - modifica | controllata | controllata | completata |
 
 ## Correzioni Aperte
 
@@ -99,9 +104,10 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     `Reaches ≥15°`, senza cambiare il calcolo.
 
 - [ ] **VIS-015 - Form Equipment - etichette persistenti (`APERTA`)**
-  - Aggiunta e modifica Telescopi usano soltanto placeholder. Appena un campo
-    contiene un valore non e' piu' visibile se rappresenta marca, modello, tipo
-    ottico, apertura, focale, montatura o note.
+  - Aggiunta e modifica Telescopi, Oculari e Barlow usano soltanto placeholder.
+    Appena un campo contiene un valore non e' piu' visibile cosa rappresenta;
+    negli oculari anche il selettore `Fisso` / `Zoom` non identifica il tipo di
+    campo.
   - Aggiungere label sempre visibili con unita' e indicazione obbligatorio /
     facoltativo, mantenendo gli asterischi coerenti con la validazione reale.
   - Applicare lo stesso criterio agli altri form Equipment che mostreranno lo
@@ -116,9 +122,30 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     traduzioni; valori personalizzati o modificati dall'utente devono restare
     invariati.
 
-- [ ] **VIS-017 - Telescopi - sottotitolo inglese (`APERTA`)**
-  - `Models available to observing profiles` e' poco naturale.
-  - Preferire `Models available for observing profiles`.
+- [ ] **VIS-017 - Cataloghi Equipment - sottotitoli inglesi (`APERTA`)**
+  - `Models available to observing profiles` nei Telescopi e `Optical
+    accessories available to observing profiles` in Oculari e Barlow sono poco
+    naturali.
+  - Preferire `Models available for observing profiles` e `Optical accessories
+    available for observing profiles`.
+
+- [ ] **VIS-018 - Oculari - unita' AFOV nelle schede (`APERTA`)**
+  - Le pill mostrano `50 gradi` / `50 degrees`, mentre i form e gli altri angoli
+    dell'app usano il simbolo `°`.
+  - Mostrare `50°`, `68°` e valori analoghi: e' piu' compatto e coerente in
+    entrambe le lingue.
+
+- [ ] **VIS-019 - Oculari e Barlow - decimali nei form italiani (`APERTA`)**
+  - L'elenco italiano localizza correttamente `1,25″` e `2,25x`, ma i form di
+    modifica precompilano gli stessi valori come `1.25` e `2.25`.
+  - Formattare i valori iniziali secondo il locale corrente, continuando ad
+    accettare sia virgola sia punto in input come gia' fa il parser.
+
+- [ ] **VIS-020 - Oculari - campi AFOV Fisso/Zoom (`APERTA`)**
+  - Con tipo `Fisso` il form mostra `AFOV medio` e un intervallo facoltativo,
+    anche se per un oculare a focale fissa serve un singolo AFOV.
+  - Usare `AFOV (°)` e nascondere l'intervallo per `Fisso`; per `Zoom` mantenere
+    AFOV medio e intervallo, indicando il formato atteso, per esempio `48-68`.
 
 ## Decisioni Aperte
 
@@ -171,6 +198,20 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   stessa protezione anche oltre la UI.
 - [x] **VIS-V12 (`VERIFICATA`)** - Apertura, focale e rapporto focale seguono il
   formato locale: virgola decimale italiana e punto/raggruppamento inglese.
+- [x] **VIS-V13 (`VERIFICATA`)** - I cataloghi affiancati mostrano correttamente
+  134 oculari e 35 Barlow, senza sovrapposizioni, troncamenti o instabilita'
+  nelle righe fornite; ricerca, contatori e scroll restano separati e leggibili.
+- [x] **VIS-V14 (`VERIFICATA`)** - Per gli oculari sono obbligatori marca,
+  modello, tipo, focale singola oppure intervallo focale Zoom e AFOV; intervallo
+  AFOV, barilotto e note sono facoltativi. Per le Barlow sono obbligatori marca,
+  modello e moltiplicatore maggiore di 1; barilotto e note sono facoltativi.
+  QML e repository applicano le stesse regole di base.
+- [x] **VIS-V15 (`VERIFICATA`)** - Oculari e Barlow integrati espongono
+  `Modifica` ma non `Elimina`; le voci utente restano eliminabili e il
+  repository blocca comunque la cancellazione delle voci integrate.
+- [x] **VIS-V16 (`VERIFICATA`)** - Tipo `Fisso` / `Fixed`, note dei prodotti,
+  dimensioni del barilotto e moltiplicatori risultano coerenti e localizzati
+  nelle due lingue; marchi e nomi commerciali restano invariati.
 
 ## Nota Per Screenshot Pubblici
 
