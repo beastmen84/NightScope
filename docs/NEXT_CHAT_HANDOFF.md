@@ -24,6 +24,7 @@ previsto prima del commit.
 
 ## Commit Recenti
 
+- `72342fa Document public 1.33.2 release`
 - `ecf6232 Update handoff after bundle validation`
 - `9c17204 Reject runtime state in release bundles`
 - `e4bdd19 Create FUNDING.yml`
