@@ -34,6 +34,11 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 | Oculari - modifica | controllata | controllata | completata |
 | Barlow - aggiunta | controllata | controllata | completata |
 | Barlow - modifica | controllata | controllata | completata |
+| Filtri e riduttori - elenco | controllata | controllata | completata |
+| Filtri - aggiunta | controllata | controllata | completata |
+| Filtri - modifica | controllata | controllata | completata |
+| Riduttori - aggiunta | controllata | controllata | completata |
+| Riduttori - modifica | controllata | controllata | completata |
 
 ## Correzioni Aperte
 
@@ -104,10 +109,10 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     `Reaches ≥15°`, senza cambiare il calcolo.
 
 - [ ] **VIS-015 - Form Equipment - etichette persistenti (`APERTA`)**
-  - Aggiunta e modifica Telescopi, Oculari e Barlow usano soltanto placeholder.
-    Appena un campo contiene un valore non e' piu' visibile cosa rappresenta;
-    negli oculari anche il selettore `Fisso` / `Zoom` non identifica il tipo di
-    campo.
+  - Aggiunta e modifica Telescopi, Oculari, Barlow, Filtri e Riduttori usano
+    soltanto placeholder. Appena un campo contiene un valore non e' piu'
+    visibile cosa rappresenta; anche i selettori di tipo o sistema non hanno
+    un'etichetta propria.
   - Aggiungere label sempre visibili con unita' e indicazione obbligatorio /
     facoltativo, mantenendo gli asterischi coerenti con la validazione reale.
   - Applicare lo stesso criterio agli altri form Equipment che mostreranno lo
@@ -124,8 +129,8 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 
 - [ ] **VIS-017 - Cataloghi Equipment - sottotitoli inglesi (`APERTA`)**
   - `Models available to observing profiles` nei Telescopi e `Optical
-    accessories available to observing profiles` in Oculari e Barlow sono poco
-    naturali.
+    accessories available to observing profiles` in Oculari/Barlow e
+    Filtri/Riduttori sono poco naturali.
   - Preferire `Models available for observing profiles` e `Optical accessories
     available for observing profiles`.
 
@@ -135,9 +140,10 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Mostrare `50°`, `68°` e valori analoghi: e' piu' compatto e coerente in
     entrambe le lingue.
 
-- [ ] **VIS-019 - Oculari e Barlow - decimali nei form italiani (`APERTA`)**
-  - L'elenco italiano localizza correttamente `1,25″` e `2,25x`, ma i form di
-    modifica precompilano gli stessi valori come `1.25` e `2.25`.
+- [ ] **VIS-019 - Form Equipment - decimali precompilati italiani (`APERTA`)**
+  - Gli elenchi italiani localizzano correttamente `1,25″`, `2,25x` e `0,59x`,
+    ma i form di modifica precompilano gli stessi valori come `1.25`, `2.25` e
+    `0.59`.
   - Formattare i valori iniziali secondo il locale corrente, continuando ad
     accettare sia virgola sia punto in input come gia' fa il parser.
 
@@ -146,6 +152,38 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     anche se per un oculare a focale fissa serve un singolo AFOV.
   - Usare `AFOV (°)` e nascondere l'intervallo per `Fisso`; per `Zoom` mantenere
     AFOV medio e intervallo, indicando il formato atteso, per esempio `48-68`.
+
+- [ ] **VIS-021 - Filtri e riduttori - contenuti inglesi (`APERTA`)**
+  - Nell'elenco e nei form inglesi restano in italiano note dei filtri,
+    compatibilita' descrittive, connessioni e note dei riduttori.
+  - `filter_catalog_seed.csv` e `reducer_catalog_seed.csv` contengono testo
+    italiano, ma `update_content_translations.py` li dichiara sorgenti inglesi;
+    di conseguenza `en.json` non contiene le sezioni `equipment_filters` e
+    `equipment_reducers`. Inoltre `compatible_models` non e' incluso tra i
+    campi traducibili dei riduttori.
+  - Correggere la lingua sorgente, includere tutti i campi descrittivi e
+    rigenerare l'inglese per 48 filtri e 24 riduttori. Il cambio lingua live deve
+    aggiornare questi payload di presentazione senza modificare dati utente,
+    associazioni Equipment, recommendation o score.
+
+- [ ] **VIS-022 - Filtri - classe non aggiornata al cambio lingua (`APERTA`)**
+  - Nel form italiano del filtro CLS compare `Reduction of light pollution`,
+    mentre la scheda mostra correttamente `Riduzione inquinamento luminoso`.
+  - `filterClassOptions` e' esposta come proprieta' costante: dopo il cambio
+    lingua il modello del menu conserva le label gia' materializzate.
+  - Rendere reattive soltanto le label visibili, conservando invariati i codici
+    canonici delle classi filtro.
+
+- [ ] **VIS-023 - Riduttori - compatibilita' descrittiva persa (`APERTA`)**
+  - Alcuni riduttori integrati, come Baader Alan Gee Mark II, hanno una
+    compatibilita' testuale generica ma nessuna associazione esatta; il form
+    mostra correttamente `0 selezionati` nella lista opzionale.
+  - Il percorso di aggiornamento non reinvia pero' `compatible_models` e usa il
+    default vuoto del repository: salvare anche una modifica non correlata puo'
+    quindi cancellare la descrizione mostrata nella scheda.
+  - Preservare il testo esistente quando non viene sostituito esplicitamente;
+    le associazioni esatte selezionate devono continuare a usare gli ID
+    normalizzati dei telescopi.
 
 ## Decisioni Aperte
 
@@ -212,6 +250,24 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 - [x] **VIS-V16 (`VERIFICATA`)** - Tipo `Fisso` / `Fixed`, note dei prodotti,
   dimensioni del barilotto e moltiplicatori risultano coerenti e localizzati
   nelle due lingue; marchi e nomi commerciali restano invariati.
+- [x] **VIS-V17 (`VERIFICATA`)** - I cataloghi affiancati mostrano 48 filtri e
+  24 riduttori senza sovrapposizioni o troncamenti nelle righe fornite. Le pill
+  opzionali compaiono soltanto quando esiste un valore: per esempio CLS non
+  mostra box vuoti e UHC-E omette correttamente la trasmissione assente.
+- [x] **VIS-V18 (`VERIFICATA`)** - Per i filtri sono obbligatori marca, modello
+  e classe; lunghezza d'onda, banda, trasmissione, apertura minima e note sono
+  facoltative ma validate se presenti. Per i riduttori sono obbligatori marca,
+  modello, fattore tra 0 e 1, sistema ottico e almeno un uso visuale/fotografico;
+  connessione, backfocus, correzione campo, note e telescopi esatti sono
+  facoltativi. Il form rende obbligatori gli stessi campi del repository;
+  controller e repository validano anche gli opzionali quando compilati.
+- [x] **VIS-V19 (`VERIFICATA`)** - Filtri e riduttori integrati sono
+  modificabili ma non eliminabili; le voci utente espongono `Elimina` e il
+  repository mantiene la protezione oltre la UI.
+- [x] **VIS-V20 (`VERIFICATA`)** - Fattori, backfocus, bande e trasmissioni
+  presenti nelle schede seguono il locale corrente. La griglia dei telescopi
+  compatibili offre ricerca, selezione multipla, conteggio e scroll, mentre il
+  repository valida e deduplica gli ID selezionati.
 
 ## Nota Per Screenshot Pubblici
 
