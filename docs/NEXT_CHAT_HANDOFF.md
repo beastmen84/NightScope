@@ -881,12 +881,15 @@ Rimossi:
 
 ## Validazione 1.33.1
 
-Eseguita nella venv corrente dopo le correzioni visuali:
+Eseguita nella venv corrente dopo le correzioni visuali e la review finale del
+sorgente:
 
 ```powershell
-.\.venv\Scripts\python.exe tools\run_checks.py --fast
+.\.venv\Scripts\python.exe tools\run_checks.py --security
 .\tools\update_translations.ps1 -CompileOnly
-# pytest -q sulle suite mirate a UI, contenuti e traduzioni
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_translations.py
+.\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --check
+.\.venv\Scripts\python.exe astro_viewer\tools\sync_solar_system_images.py --check
 # pyside6-qmllint eseguito su tutti i file astro_viewer/app/ui/**/*.qml
 # smoke QML italiano e inglese eseguiti in runtime temporanei separati
 git diff --check
@@ -894,21 +897,28 @@ git diff --check
 
 Risultati:
 
-- Gate `--fast`: `788 passed`, `613 warnings`, `7 subtests passed` in
-  `112,77 s`; pip check, Ruff, compileall, smoke backend e smoke QML puliti.
+- Gate con coverage e security: `788 passed`, `613 warnings`, `7 subtests
+  passed` in `112,44 s`; coverage runtime `84%` su `15.242` statement.
+- `pip check`, Ruff, compileall, smoke backend e smoke QML puliti;
+  `pip-audit` non rileva vulnerabilita' note.
+- Bandit: `0 high`, `26 medium`, `12 low`, invariato rispetto alla baseline
+  revisionata.
 - Suite mirate finali: `113 passed`, con soli warning Skyfield/NumPy gia' noti.
 - Cataloghi Qt italiano/inglese completi e compilati: `1665/1665` ciascuno,
   nessuna stringa incompleta.
+- Test traduzioni: `15 passed`.
 - `qmllint`: exit `0` su tutti i 30 QML; restano `760` warning statiche note
   relative soprattutto agli accessi non qualificati.
+- Immagini: `219` JPEG deep-sky e `9` JPEG Sistema Solare validi.
 - Smoke QML isolati in italiano e inglese: entrambi completati con exit `0`.
 - Schema SQLite invariato a `16`; nessuna migrazione e nessuna modifica ai dati
   runtime dell'utente.
 - `git diff --check`: pulito.
 - Dist corrente `1.32.3`; dist `1.33.1` non rigenerata.
 
-Coverage e security audit non sono stati ripetuti per `1.33.1`: resta valida
-come baseline la validazione completa `1.33.0` riportata sotto.
+La review del codice e dei contratti QML non ha rilevato regressioni funzionali.
+La review visuale bilingue del sorgente e' conclusa; resta aperta la verifica
+visuale della dist Windows dopo il rebuild.
 
 ## Validazione 1.33.0
 

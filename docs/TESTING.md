@@ -102,20 +102,24 @@ bilingual visual checklist:
 
 | Check | Result |
 | --- | --- |
-| `python tools/run_checks.py --fast` | Passed in 197.6 s |
+| `python tools/run_checks.py --security` | Passed in 204.1 s |
 | `pip check`, Ruff and `compileall` | Passed |
-| `pytest -q -n 4 astro_viewer/tests` | 788 passed, 613 warnings, 7 subtests passed in 112.77 s |
+| `pytest -q -n 4 astro_viewer/tests` | 788 passed, 613 warnings, 7 subtests passed in 112.44 s |
+| Runtime coverage | 84% across 15,242 statements; tests and developer tools excluded |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Bandit application/tool scan | 0 high, 26 medium, 12 low; no change from the reviewed baseline |
 | Backend smoke, disposable runtime | Passed |
 | QML smoke from the standard gate | Passed |
 | Separate Italian and English QML smoke runs | Passed |
 | Translation catalogues | IT and EN: 1,665 finished, 0 unfinished each |
+| Translation regression tests | 15 passed |
 | Focused localization, Equipment, Home and Calendar tests | 113 passed |
 | QML lint | 30 files, exit 0; 760 known static warnings |
+| Deep-sky image check | 219 JPEG assets passed |
+| Solar System image check | 9 JPEG assets passed |
 
-Coverage and installed-environment security audit were not repeated for this
-presentation-focused patch. Their latest measured baseline remains the 1.33.0
-audit below; the public artifact gate must run them again after rebuilding the
-Windows dist.
+The public artifact gate must repeat these checks after rebuilding the Windows
+distribution.
 
 ## Measured 1.33.0 Baseline
 

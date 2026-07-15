@@ -1,6 +1,6 @@
 # NightScope Pre-Release Audit
 
-Review date: 2026-07-14
+Review date: 2026-07-15
 
 Scope: Python and QML application code, SQLite/bootstrap paths, astronomy and
 recommendation boundaries, external-provider handling, localization, packaged
@@ -20,13 +20,13 @@ are release-process and product decisions rather than a known broken core:
 
 1. The repository has no project `LICENSE` file and no consolidated
    third-party notice.
-2. The user's final visual review is incomplete.
-3. The checked-in source is ahead of the existing Windows distribution, which
-   must be rebuilt from a clean environment and retested.
-4. The final live-provider matrix has not been executed for Open-Meteo,
+2. The checked-in source is ahead of the existing Windows distribution, which
+   must be rebuilt from a clean environment and pass the packaged-build visual
+   matrix. The bilingual source visual review is complete.
+3. The final live-provider matrix has not been executed for Open-Meteo,
    CelesTrak, JPL SBDB, Earthdata VIIRS/AOD, OpenAQ, Windows location, and the
    explicit IP fallback.
-5. Release dependencies are range-based rather than frozen into a tested lock
+4. Release dependencies are range-based rather than frozen into a tested lock
    or SBOM, and the final artifact is not signed or accompanied by a hash.
 
 Use `docs/RELEASE_CHECKLIST.md` as the release gate.
@@ -169,13 +169,13 @@ Baseline and final commands completed during this audit:
 | `python -m pip check` | No broken requirements |
 | `python -m ruff check astro_viewer tools` | Passed |
 | `python -m compileall -q astro_viewer tools` | Passed |
-| `python -m pytest -q -n 4 astro_viewer/tests` | 785 passed, 613 warnings, 7 subtests passed |
-| Runtime-only coverage | 84% across 15,212 statements |
+| `python -m pytest -q -n 4 astro_viewer/tests` | 788 passed, 613 warnings, 7 subtests passed |
+| Runtime-only coverage | 84% across 15,242 statements |
 | Installed-environment `pip-audit` | No known vulnerabilities |
 | Bandit application/tool scan | 0 high, 26 medium, 12 low; dynamic-SQL and subprocess findings manually reviewed |
-| Translation catalogues | IT/EN: 1,595 finished, 0 unfinished each |
+| Translation catalogues | IT/EN: 1,665 finished, 0 unfinished each |
 | Translation regression tests | 15 passed |
-| QML lint and smoke | 30 files linted; Italian and English smoke passed |
+| QML lint and smoke | 30 files linted with no failure; 760 known static warnings; Italian and English smoke passed |
 | Deep-sky image repository check | 219 JPEG assets passed |
 | Solar System image repository check | 9 JPEG assets passed |
 

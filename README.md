@@ -12,9 +12,10 @@ setup?**
 
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
-> validated, but the final visual review, release licensing, signed Windows
-> artifact, and live-provider release matrix are not complete. The bundled
-> executable may lag behind the source.
+> validated and its bilingual source visual review is complete. Release
+> licensing, the rebuilt and visually verified Windows artifact, and the
+> live-provider release matrix are not complete. The bundled executable may
+> lag behind the source.
 
 ## What It Does
 
