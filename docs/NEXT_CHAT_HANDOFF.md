@@ -8,15 +8,18 @@ Aggiornato: 2026-07-15
 - Distribuzione Windows corrente: `1.32.3`, rigenerata dall'utente dopo il
   commit `836c90f` e usata per il controllo visuale con localita'.
 - Dist `1.33.2` non rigenerata.
-- Commit sorgente validato: `ea821fc Resolve bilingual visual review findings`
-- Checklist visuale completata nello stesso commit sorgente.
+- Commit sorgente validato: `da5a636 Add MPL licensing and Qt bundle audit`
+- Checklist visuale completata nel commit `ea821fc`.
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `ea821fc`; non sostituire questo hash con un valore
+stato del codice usare `da5a636`; non sostituire questo hash con un valore
 previsto prima del commit.
 
 ## Commit Recenti
 
+- `da5a636 Add MPL licensing and Qt bundle audit`
+- `73b0533 Clarify pre-release validation status`
+- `5325455 Document visual review completion`
 - `ea821fc Resolve bilingual visual review findings`
 - `4b5c525 Update handoff with Home header finding`
 - `9b2078f Record Home table header misalignment`
