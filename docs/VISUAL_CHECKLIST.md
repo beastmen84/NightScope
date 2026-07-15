@@ -42,6 +42,9 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 | Binocoli - elenco | controllata | controllata | completata |
 | Binocoli - aggiunta | controllata | controllata | completata |
 | Binocoli - modifica | controllata | controllata | completata |
+| Log osservazioni - elenco | controllata | controllata | completata |
+| Log osservazioni - aggiunta | controllata | controllata | completata |
+| Log osservazioni - modifica | controllata | controllata | completata |
 
 ## Correzioni Aperte
 
@@ -196,6 +199,25 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     unite le serie commerciali e interpretando numericamente le specifiche;
     non ordinare globalmente solo per ingrandimento e diametro.
 
+- [ ] **VIS-025 - Log osservazioni - intestazione Voto disallineata (`APERTA`)**
+  - Nell'elenco italiano e inglese `Voto` / `Rating` non si trova sopra il
+    valore `4/5`, ma molto piu' a destra verso i pulsanti di azione.
+  - Intestazione e delegato dichiarano uno spazio azioni di `142 px`; nella
+    riga, pero', le dimensioni implicite dei pulsanti `Modifica` e `Elimina`
+    allargano quel blocco, mentre lo spacer dell'intestazione resta invariato.
+  - Usare una geometria condivisa e stabile per le colonne, riservando in
+    intestazione la larghezza effettiva delle azioni e mantenendo il voto
+    centrato sopra il relativo valore in entrambe le lingue.
+
+- [ ] **VIS-026 - Log osservazioni - messaggi inglesi (`APERTA`)**
+  - La validazione dell'oggetto usa `Indicates the observed object.`: deve
+    essere l'imperativo `Specify the observed object.`.
+  - Il rifiuto di una data futura usa `The Observations Log...`, incoerente con
+    il nome pagina `Observation Log`; mantenere il nome singolare e una frase
+    naturale, per esempio `The Observation Log only accepts past observations.`
+  - Il messaggio dopo la modifica `Updated observation.` e' meno naturale di
+    `Observation updated.`; uniformare anche questo stato alle altre conferme.
+
 ## Decisioni Aperte
 
 - [ ] **VIS-007 - Localita' - paese dinamico in italiano (`DA DECIDERE`)**
@@ -293,6 +315,23 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 - [x] **VIS-V24 (`VERIFICATA`)** - Marchi, nomi commerciali e sigle come `IS`
   restano invariati, mentre titoli, azioni, ricerca e attributo di
   stabilizzazione sono tradotti correttamente in italiano e inglese.
+- [x] **VIS-V25 (`VERIFICATA`)** - Elenco e dialoghi di aggiunta/modifica del
+  Log sono leggibili e privi di sovrapposizioni o troncamenti nelle schermate
+  fornite, salvo il disallineamento dell'intestazione registrato in VIS-025.
+  Etichette persistenti e aree di input restano chiare anche a campi compilati.
+- [x] **VIS-V26 (`VERIFICATA`)** - Data, ora, oggetto e valutazione sono i dati
+  obbligatori; luogo, telescopio, oculare e note sono facoltativi. Il servizio
+  accetta data e ora soltanto nei formati univoci `AAAA-MM-GG` e `HH:MM`, limita
+  il voto a 1-5 e rifiuta osservazioni future; i test mirati confermano le
+  stesse regole oltre la UI.
+- [x] **VIS-V27 (`VERIFICATA`)** - Date e medie dell'elenco e dei riepiloghi
+  seguono correttamente il locale: `15/07/2026`, `4,0/5` in italiano e
+  `07/15/2026`, `4.0/5` in inglese. Testi registrati dall'utente come `Luna` e
+  `prova` restano intenzionalmente invariati al cambio lingua.
+- [x] **VIS-V28 (`VERIFICATA`)** - Persistenza e read model coprono aggiunta,
+  modifica, eliminazione confermata, ordinamento dal piu' recente, ricerca,
+  filtro per voto e riepiloghi senza un limite artificiale ai risultati. La
+  suite mirata `test_observation_log.py` passa integralmente: `7 passed`.
 
 ## Nota Per Screenshot Pubblici
 
