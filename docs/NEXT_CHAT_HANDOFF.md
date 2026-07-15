@@ -9,7 +9,7 @@ Aggiornato: 2026-07-15
   commit `836c90f` e usata per il controllo visuale con localita'.
 - Dist `1.33.0` non rigenerata.
 - Commit sorgente validato: `398f28a Audit release readiness and add bilingual manual`
-- Commit checklist visuale: `c28ecf1 Record Home visual findings`
+- Commit checklist visuale: `9b2078f Record Home table header misalignment`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
 stato del codice usare `398f28a`; non sostituire questo hash con un valore
@@ -17,6 +17,7 @@ previsto prima del commit.
 
 ## Commit Recenti
 
+- `9b2078f Record Home table header misalignment`
 - `c28ecf1 Record Home visual findings`
 - `4eb2c32 Record calendar visual findings`
 - `f747474 Record weather page visual findings`
@@ -273,13 +274,16 @@ ottiche di Luna e C3 producono ingrandimento, pupilla e campo reale corretti. Le
 nove suite mirate per Home, dettaglio osservativo, piano notturno, ranking e Sky
 Compass passano con `95 passed`.
 
-Restano tre rilievi Home specifici: il campo legacy del catalogo deep-sky viene
+Restano quattro rilievi Home specifici: il campo legacy del catalogo deep-sky viene
 presentato erroneamente come `Distanza`, alcuni testi operativi sono troppo
 letterali o usano anglicismi italiani, e le unita' angolari alternano
-`gradi` / `degrees` e `°`. Sono registrati come VIS-033--VIS-035. La Home
-conferma inoltre i rilievi trasversali VIS-005, VIS-008 e VIS-009 su stato
-`monitor`, contenuti seed mancanti in inglese e credito immagine. Nessun codice
-applicativo e' stato modificato durante questo passaggio.
+`gradi` / `degrees` e `°`. Inoltre, le intestazioni della tabella Oggetti
+visibili sono spostate a sinistra rispetto ai valori perche' header e delegate
+risolvono separatamente margini e geometria delle colonne. Sono registrati come
+VIS-033--VIS-036. La Home conferma inoltre i rilievi trasversali VIS-005,
+VIS-008 e VIS-009 su stato `monitor`, contenuti seed mancanti in inglese e
+credito immagine. Nessun codice applicativo e' stato modificato durante questo
+passaggio.
 
 Restano accodati etichette persistenti, sottotitoli inglesi, simbolo AFOV,
 decimali precompilati italiani e campi AFOV specifici per Fisso/Zoom. Il
