@@ -48,6 +48,10 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 | Meteo - sintesi e qualita' cielo | controllata | controllata | completata |
 | Meteo - AOD e OpenAQ | controllata | controllata | completata |
 | Meteo - previsioni orarie | controllata | controllata | completata |
+| Calendario - panoramica, filtri e timeline | controllata | controllata | completata |
+| Calendario - Luna, opposizioni e congiunzioni | controllata | controllata | completata |
+| Calendario - sciami meteorici e comete | controllata | controllata | completata |
+| Calendario - eclissi e passaggi ISS | verificata da codice/test | verificata da codice/test | completata senza caso live |
 
 ## Correzioni Aperte
 
@@ -240,6 +244,49 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Mantenere invariati codici, soglie AOD/OpenAQ e logica NSOM: sono correzioni
     delle sole label di presentazione.
 
+- [ ] **VIS-029 - Calendario - terminologia inglese (`APERTA`)**
+  - `Maximum approach` non e' il termine astronomico naturale per una
+    congiunzione; usare `Closest approach`.
+  - I titoli `Maximum Southern Delta Aquariids` e `Maximum Perseids` vanno
+    formulati come `Southern Delta Aquariids peak` e `Perseids peak`.
+    Analogamente, `Night close to {date}` va reso `Night around {date}`.
+  - Alcuni consigli sono traduzioni troppo letterali: `The dark sky counts
+    more than the telescope`, `Observe for a long time with a reclining chair`,
+    `more chances to wait for stable seeing` e `before fine detailing` devono
+    diventare frasi osservative idiomatiche, senza cambiare la raccomandazione.
+  - Ricontrollare nello stesso passaggio tutte le stringhe inglesi prodotte da
+    `CalendarOverviewService`, non soltanto i casi visibili negli screenshot.
+
+- [ ] **VIS-030 - Calendario - angoli e composizione delle finestre (`APERTA`)**
+  - Congiunzioni, opposizioni e fasi lunari mostrano `gradi` / `degrees`, mentre
+    ISS e comete usano gia' `°`. Uniformare gli angoli del Calendario al simbolo
+    `°`, mantenendo virgola italiana e punto inglese per i decimali.
+  - La label riutilizzabile `Intorno alle` / `Around` viene inserita con
+    l'iniziale maiuscola dentro una frase (`finestra locale Intorno alle...`).
+    Separare il testo autonomo dalla forma incorporata oppure comporre l'intera
+    frase, cosi' da ottenere `intorno alle` / `around` nel contesto corrente.
+
+- [ ] **VIS-031 - Calendario - inglese delle eclissi (`APERTA`)**
+  - Il titolo e' composto come `Lunar Eclipse {kind}` con `partial`, `total` o
+    `penumbral` interpolato in coda, producendo forme come `Lunar Eclipse
+    partial`. Usare l'ordine naturale `Partial lunar eclipse`, `Total lunar
+    eclipse` e `Penumbral lunar eclipse` senza affidarsi alla capitalizzazione
+    accidentale del frammento.
+  - Anche `Maximum of the eclipse` e `complete schedules of the phases` sono
+    meccanici; preferire `Eclipse maximum` e `full phase timings` nelle label e
+    nei consigli. Il ramo non era presente negli screenshot, ma il difetto e'
+    confermato nel catalogo di traduzione.
+
+- [ ] **VIS-032 - Calendario - affidabilita' cometaria (`APERTA`)**
+  - `Affidabilita' della luminosita': Indicativa` / `Brightness estimate
+    confidence: Approximate` accosta una label di confidenza a un qualificatore
+    che descrive invece il tipo di stima; inoltre la magnitudine e' gia'
+    presentata come intervallo approssimativo.
+  - Rendere il dato semanticamente esplicito, preferibilmente
+    `Affidabilita' della stima: Bassa` / `Estimate confidence: Low`, mantenendo
+    invariati modello fotometrico, intervallo di magnitudine e soglie della
+    finestra cometaria.
+
 ## Decisioni Aperte
 
 - [ ] **VIS-007 - Localita' - paese dinamico in italiano (`DA DECIDERE`)**
@@ -374,6 +421,34 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   AOD e stati OpenAQ superano le suite mirate
   `test_observing_night_weather.py`, `test_viirs_cache_policy.py`,
   `test_nasa_aod_provider.py` e `test_openaq_atmosphere.py`: `67 passed`.
+- [x] **VIS-V34 (`VERIFICATA`)** - Panoramica, filtri e timeline del Calendario
+  sono leggibili nelle due lingue, senza sovrapposizioni o troncamenti nei casi
+  forniti. La griglia passa correttamente a due colonne nello spazio disponibile
+  e le schede mantengono una geometria stabile.
+- [x] **VIS-V35 (`VERIFICATA`)** - Il totale di `83` eventi coincide con la
+  somma delle categorie mostrate: `49 + 5 + 11 + 4 + 10 + 2 + 0 + 2`. Date,
+  intervalli e decimali seguono il locale, mentre i tre orizzonti restano
+  distinti: annuale, ISS a breve termine e finestre cometarie.
+- [x] **VIS-V36 (`VERIFICATA`)** - I dettagli distinguono correttamente
+  l'istante astronomico dalla finestra osservativa locale. Congiunzione solare,
+  fase lunare diurna, opposizione e congiunzione planetaria mostrano stati,
+  spiegazioni e azioni coerenti; la congiunzione solare resta esplicitamente un
+  evento informativo non osservabile in sicurezza.
+- [x] **VIS-V37 (`VERIFICATA`)** - Le raccomandazioni usano il profilo Equipment
+  per gli eventi catalogati, aprono gli oggetti coinvolti e non trasformano
+  comete o passaggi ISS in `CatalogueObject`. La cometa resta una finestra
+  transitoria con sorgente, aggiornamento, intervallo di magnitudine, geometria
+  locale e numero stimato di notti utili.
+- [x] **VIS-V38 (`VERIFICATA`)** - I template non disponibili come caso live
+  sono comunque completi: le eclissi distinguono massimo visibile, luce diurna
+  e Luna sotto l'orizzonte; i passaggi ISS espongono ingresso/uscita,
+  culminazione, altezza, direzioni, durata, illuminazione e freschezza orbitale.
+  Lo zero ISS per la posizione e la finestra correnti e' quindi uno stato valido,
+  non un tipo evento mancante.
+- [x] **VIS-V39 (`VERIFICATA`)** - Le suite mirate
+  `test_calendar_overview.py`, `test_iss_passes.py` e
+  `test_comet_windows.py` passano integralmente (`19 passed`); anche
+  `test_translations.py` passa integralmente (`15 passed`).
 
 ## Nota Per Screenshot Pubblici
 
