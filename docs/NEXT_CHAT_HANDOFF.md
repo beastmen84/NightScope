@@ -4,19 +4,21 @@ Aggiornato: 2026-07-15
 
 ## Stato Versioni
 
-- Versione sorgente: `1.33.0`
+- Versione sorgente: `1.33.1`
 - Distribuzione Windows corrente: `1.32.3`, rigenerata dall'utente dopo il
   commit `836c90f` e usata per il controllo visuale con localita'.
-- Dist `1.33.0` non rigenerata.
-- Commit sorgente validato: `398f28a Audit release readiness and add bilingual manual`
-- Commit checklist visuale: `9b2078f Record Home table header misalignment`
+- Dist `1.33.1` non rigenerata.
+- Commit sorgente validato: `ea821fc Resolve bilingual visual review findings`
+- Checklist visuale completata nello stesso commit sorgente.
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `398f28a`; non sostituire questo hash con un valore
+stato del codice usare `ea821fc`; non sostituire questo hash con un valore
 previsto prima del commit.
 
 ## Commit Recenti
 
+- `ea821fc Resolve bilingual visual review findings`
+- `4b5c525 Update handoff with Home header finding`
 - `9b2078f Record Home table header misalignment`
 - `c28ecf1 Record Home visual findings`
 - `4eb2c32 Record calendar visual findings`
@@ -209,89 +211,38 @@ sono stati separati dalla cronologia: il README GitHub e' ora in inglese e il
 manuale HTML e' unico, bilingue, responsive e accessibile dalla sidebar nella
 lingua corrente. Privacy dei log, ownership della directory runtime e tooling
 di validazione sono stati corretti. Non sono emersi difetti applicativi ad alta
-severita', ma NightScope non e' ancora approvato per il rilascio: restano review
-visuale, licenza/notice, matrice provider, rebuild/test della dist e produzione
-di lock/SBOM, firma o policy esplicita e hash dell'artefatto.
+severita'. La review visuale allora residua e' chiusa da `1.33.1`; NightScope
+non e' ancora approvato per il rilascio perche' restano licenza/notice, matrice
+provider, rebuild/test della dist, lock/SBOM, firma o policy esplicita e hash
+dell'artefatto.
 
-Il controllo visuale configurato e' ora tracciato in
-`docs/VISUAL_CHECKLIST.md`. La raccolta delle schermate e' completa. Non
-applicare correzioni isolate: eseguire un unico passaggio sui rilievi annotati
-quando l'utente dara' conferma.
-Le coppie italiano/inglese completate sono Provider dati, Configurazione
-localita', Profili, elenco Oggetti celesti, dettaglio Oggetto celeste,
-elenco/aggiunta/modifica Telescopi, Oculari/Barlow, Filtri/Riduttori e Binocoli,
-elenco/aggiunta/modifica del Log osservazioni, l'intera pagina Meteo con
-sintesi, qualita' cielo, AOD/OpenAQ e previsioni orarie, e il Calendario con
-panoramica, filtri, timeline e dettagli di Luna, opposizioni, congiunzioni,
-sciami e comete. Sono state completate anche tutte le viste Home: sintesi
-osservativa, Sky Compass, piano notturno, filtri, oggetti visibili, prossimi
-eventi e dettagli osservativi di Luna e C3. Per i cataloghi sono stati
-verificati conteggi, layout, obbligatorieta', protezione delle voci integrate e
-assenza delle pill opzionali vuote. Nei Binocoli resta da sostituire
-l'ordinamento lessicografico con quello naturale, cosi' che specifiche come
-`8x20` precedano `10x20` e `18x50`.
+`1.33.1` chiude il controllo visuale bilingue tracciato in
+`docs/VISUAL_CHECKLIST.md`: tutti i 36 rilievi VIS-001--VIS-036 sono risolti e
+marcati completati. Il passaggio ha riguardato Provider, localita', Profili,
+cataloghi celesti ed Equipment, Log, Meteo, Calendario e tutte le viste Home,
+senza cambiare scoring NSOM, Planner o ranking.
 
-Nel Log date, medie e riepiloghi seguono il locale, mentre i testi registrati
-dall'utente restano invariati. CRUD e validazione sono coerenti e la suite
-mirata passa con `7 passed`. Restano da allineare `Voto` / `Rating` sopra il
-relativo valore, poiche' le dimensioni implicite dei pulsanti allargano soltanto
-la riga, e da correggere tre messaggi inglesi di validazione/stato annotati come
-VIS-026.
+La pipeline dei contenuti ora distingue la lingua sorgente per catalogo e per
+campo, genera descrizioni Caldwell inglesi deterministiche e include traduzioni
+complete per Filtri, Riduttori e modelli compatibili. Le costellazioni sono
+localizzate solo in presentazione, mantenendo internamente i valori IAU
+canonici. I nomi paese dei provider restano canonici e il fuso IANA rimane il
+dato autorevole. La dimensione angolare massima resta una metrica esplicita:
+sono decisioni di prodotto, non rilievi residui.
 
-Nel Meteo le medie corrispondono alle ore evidenziate della notte osservativa;
-la finestra piu' breve in sidebar resta correttamente una proiezione operativa.
-Formati locali, Bortle/VIIRS, freschezza AOD e stato storico OpenAQ sono
-coerenti; le quattro suite mirate passano con `67 passed`. Restano da esprimere
-la radianza VNP46A3 come `nW/(cm²·sr)`, uniformare `Cloud cover` e correggere le
-label atmosferiche inglesi `Veiled` / `High aerosols`. VIS-001 compare anche nel
-sottotitolo Meteo come `Windows specifies`. Nessun codice applicativo e' stato
-modificato durante questo passaggio.
+Home condivide ora la stessa geometria tra intestazione e righe della tabella
+Oggetti visibili; gli orari sono `HH:MM`, l'origine distingue `Catalogo` dalla
+distanza reale e le card evento consentono al massimo due righe. Calendario usa
+titoli eclissi naturali, terminologia inglese corretta e angoli visibili in
+`°`. Meteo mostra VIIRS come `nW/(cm²·sr)`. Log, moduli Equipment, menu
+reattivi, AFOV Fisso/Zoom, decimali locali, associazioni Riduttori e ordinamento
+naturale Binocoli sono stati allineati al contratto visuale italiano/inglese.
 
-Nel Calendario i contatori sono coerenti: `49 + 5 + 11 + 4 + 10 + 2 + 0 + 2`
-corrisponde agli `83` eventi della vista annuale. Layout, filtri, ordinamento,
-formati locali e distinzione tra istante astronomico e finestra osservativa
-sono corretti. Congiunzioni solari, raccomandazioni del profilo, link agli
-oggetti catalogati e finestra cometaria restano semanticamente separati. ISS ed
-eclissi non erano disponibili come casi live negli screenshot; i relativi rami
-sono stati verificati da codice e test senza attribuire loro una verifica
-visuale inesistente. Le suite Calendario/ISS/comete passano con `19 passed` e
-quella delle traduzioni con `15 passed`.
-
-Restano quattro rilievi di sola presentazione nel Calendario: terminologia
-inglese troppo letterale (`Maximum approach`, titoli e consigli degli sciami),
-uso alternato di `gradi` / `degrees` e `°` con maiuscola incorporata in
-`Intorno alle` / `Around`, composizione inglese errata dei titoli eclissi e
-semantica poco chiara di `Brightness estimate confidence: Approximate`. Sono
-registrati come VIS-029--VIS-032. Nessun codice applicativo e' stato modificato
-durante questo passaggio.
-
-Nella Home layout, stati, filtri e conteggi sono coerenti in entrambe le lingue:
-`4` pianeti + `184` oggetti cielo profondo corrispondono ai `188` totali. Il
-messaggio Sky Compass riguarda correttamente l'istante corrente, mentre la lista
-mostra finestre successive della stessa notte. Gli otto prossimi eventi sono in
-ordine cronologico e rispettano il limite di due righe; le configurazioni
-ottiche di Luna e C3 producono ingrandimento, pupilla e campo reale corretti. Le
-nove suite mirate per Home, dettaglio osservativo, piano notturno, ranking e Sky
-Compass passano con `95 passed`.
-
-Restano quattro rilievi Home specifici: il campo legacy del catalogo deep-sky viene
-presentato erroneamente come `Distanza`, alcuni testi operativi sono troppo
-letterali o usano anglicismi italiani, e le unita' angolari alternano
-`gradi` / `degrees` e `°`. Inoltre, le intestazioni della tabella Oggetti
-visibili sono spostate a sinistra rispetto ai valori perche' header e delegate
-risolvono separatamente margini e geometria delle colonne. Sono registrati come
-VIS-033--VIS-036. La Home conferma inoltre i rilievi trasversali VIS-005,
-VIS-008 e VIS-009 su stato `monitor`, contenuti seed mancanti in inglese e
-credito immagine. Nessun codice applicativo e' stato modificato durante questo
-passaggio.
-
-Restano accodati etichette persistenti, sottotitoli inglesi, simbolo AFOV,
-decimali precompilati italiani e campi AFOV specifici per Fisso/Zoom. Il
-passaggio Filtri/Riduttori ha inoltre rilevato che i relativi seed italiani sono
-dichiarati sorgenti inglesi, `en.json` non contiene le due sezioni, il menu
-classe filtro non e' reattivo al cambio lingua e la modifica di un riduttore
-puo' cancellare `compatible_models`. Nessun codice applicativo e' stato
-modificato durante la raccolta.
+I cataloghi Qt contengono `1665` stringhe finite e nessuna incompleta per
+lingua. I contenuti generati sono coperti da controlli contro le regressioni
+lessicali individuate durante la review. La distribuzione non e' stata
+rigenerata: il controllo visivo successivo deve usare una nuova build esplicita
+quando richiesta.
 
 ## Audit Pre-Release 1.33.0
 
@@ -927,6 +878,37 @@ Rimossi:
   `7 giorni`, retry fino a 3 tentativi con backoff sui `5xx`.
 - Il timer transitorio globale resta orario per la ISS; la cache risultati del
   motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
+
+## Validazione 1.33.1
+
+Eseguita nella venv corrente dopo le correzioni visuali:
+
+```powershell
+.\.venv\Scripts\python.exe tools\run_checks.py --fast
+.\tools\update_translations.ps1 -CompileOnly
+# pytest -q sulle suite mirate a UI, contenuti e traduzioni
+# pyside6-qmllint eseguito su tutti i file astro_viewer/app/ui/**/*.qml
+# smoke QML italiano e inglese eseguiti in runtime temporanei separati
+git diff --check
+```
+
+Risultati:
+
+- Gate `--fast`: `788 passed`, `613 warnings`, `7 subtests passed` in
+  `112,77 s`; pip check, Ruff, compileall, smoke backend e smoke QML puliti.
+- Suite mirate finali: `113 passed`, con soli warning Skyfield/NumPy gia' noti.
+- Cataloghi Qt italiano/inglese completi e compilati: `1665/1665` ciascuno,
+  nessuna stringa incompleta.
+- `qmllint`: exit `0` su tutti i 30 QML; restano `760` warning statiche note
+  relative soprattutto agli accessi non qualificati.
+- Smoke QML isolati in italiano e inglese: entrambi completati con exit `0`.
+- Schema SQLite invariato a `16`; nessuna migrazione e nessuna modifica ai dati
+  runtime dell'utente.
+- `git diff --check`: pulito.
+- Dist corrente `1.32.3`; dist `1.33.1` non rigenerata.
+
+Coverage e security audit non sono stati ripetuti per `1.33.1`: resta valida
+come baseline la validazione completa `1.33.0` riportata sotto.
 
 ## Validazione 1.33.0
 
