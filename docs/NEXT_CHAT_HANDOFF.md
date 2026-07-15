@@ -10,15 +10,17 @@ Aggiornato: 2026-07-15
 - Audit Qt/licenze e smoke backend/QML del binario superati. L'avvio ha creato
   database, backup e log: la cartella corrente e' una copia di validazione, non
   il bundle pulito da archiviare.
-- Commit sorgente validato: `da5a636 Add MPL licensing and Qt bundle audit`
+- Commit sorgente validato: `9c17204 Reject runtime state in release bundles`
 - Checklist visuale completata nel commit `ea821fc`.
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `da5a636`; non sostituire questo hash con un valore
+stato del codice usare `9c17204`; non sostituire questo hash con un valore
 previsto prima del commit.
 
 ## Commit Recenti
 
+- `9c17204 Reject runtime state in release bundles`
+- `e4bdd19 Create FUNDING.yml`
 - `3baa6a6 Update handoff for licensing release gate`
 - `da5a636 Add MPL licensing and Qt bundle audit`
 - `73b0533 Clarify pre-release validation status`
