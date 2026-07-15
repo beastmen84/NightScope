@@ -29,6 +29,9 @@ source commit or a passing unit suite alone is not a release approval.
 Run every row in both Italian and English at the supported minimum and normal
 desktop sizes.
 
+Record findings and their resolution status in
+[`VISUAL_CHECKLIST.md`](VISUAL_CHECKLIST.md).
+
 - [ ] First start with no location.
 - [ ] Valid location, no optional provider, Default profile in Naked eye mode.
 - [ ] Valid location and a multi-instrument profile.
