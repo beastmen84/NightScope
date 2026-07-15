@@ -9,7 +9,7 @@ Aggiornato: 2026-07-15
   commit `836c90f` e usata per il controllo visuale con localita'.
 - Dist `1.33.0` non rigenerata.
 - Commit sorgente validato: `398f28a Audit release readiness and add bilingual manual`
-- Commit checklist visuale: `9ca9b77 Add visual review checklist`
+- Commit checklist visuale: `f89e264 Record celestial object visual findings`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
 stato del codice usare `398f28a`; non sostituire questo hash con un valore
@@ -17,6 +17,7 @@ previsto prima del commit.
 
 ## Commit Recenti
 
+- `f89e264 Record celestial object visual findings`
 - `9ca9b77 Add visual review checklist`
 - `398f28a Audit release readiness and add bilingual manual`
 - `1c30467 Harden AOD quality and observing presentation`
@@ -206,9 +207,9 @@ di lock/SBOM, firma o policy esplicita e hash dell'artefatto.
 Il controllo visuale configurato e' ora tracciato in
 `docs/VISUAL_CHECKLIST.md`. Durante la raccolta delle schermate non applicare
 le correzioni annotate: aggiornare la checklist e fare un unico passaggio di
-correzione quando la panoramica sara' completa e l'utente dara' conferma. Le
-prime coppie italiano/inglese completate sono Provider dati, Configurazione
-localita' e Profili.
+correzione quando la panoramica sara' completa e l'utente dara' conferma.
+Le coppie italiano/inglese completate sono Provider dati, Configurazione
+localita', Profili, elenco Oggetti celesti e dettaglio Oggetto celeste.
 
 ## Audit Pre-Release 1.33.0
 
