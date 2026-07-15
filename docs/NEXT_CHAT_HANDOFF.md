@@ -9,7 +9,7 @@ Aggiornato: 2026-07-15
   commit `836c90f` e usata per il controllo visuale con localita'.
 - Dist `1.33.0` non rigenerata.
 - Commit sorgente validato: `398f28a Audit release readiness and add bilingual manual`
-- Commit checklist visuale: `4a0b67a Record telescope catalog visual findings`
+- Commit checklist visuale: `cb67d21 Record eyepiece and Barlow visual findings`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
 stato del codice usare `398f28a`; non sostituire questo hash con un valore
@@ -17,6 +17,7 @@ previsto prima del commit.
 
 ## Commit Recenti
 
+- `cb67d21 Record eyepiece and Barlow visual findings`
 - `4a0b67a Record telescope catalog visual findings`
 - `f89e264 Record celestial object visual findings`
 - `9ca9b77 Add visual review checklist`
@@ -211,7 +212,12 @@ le correzioni annotate: aggiornare la checklist e fare un unico passaggio di
 correzione quando la panoramica sara' completa e l'utente dara' conferma.
 Le coppie italiano/inglese completate sono Provider dati, Configurazione
 localita', Profili, elenco Oggetti celesti, dettaglio Oggetto celeste ed
-elenco/aggiunta/modifica Telescopi.
+elenco/aggiunta/modifica Telescopi, Oculari e Barlow. Per Oculari e Barlow sono
+stati verificati conteggi, layout, obbligatorieta', protezione delle voci
+integrate e contenuti localizzati. Restano accodati nella checklist etichette
+persistenti, sottotitolo inglese, simbolo AFOV, decimali precompilati italiani e
+campi AFOV specifici per Fisso/Zoom; nessun codice applicativo e' stato
+modificato durante la raccolta.
 
 ## Audit Pre-Release 1.33.0
 
