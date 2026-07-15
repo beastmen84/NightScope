@@ -24,6 +24,8 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 | Provider dati | controllata | controllata | completata |
 | Configurazione localita' | controllata | controllata | completata |
 | Profili | controllata | controllata | completata |
+| Oggetti celesti - elenco | controllata | controllata | completata |
+| Oggetti celesti - dettaglio | controllata | controllata | completata |
 
 ## Correzioni Aperte
 
@@ -55,6 +57,44 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Consentire al nome un massimo di due righe senza rendere instabile la
     griglia o allargare eccessivamente la scheda.
 
+- [ ] **VIS-008 - Oggetti celesti - nomi catalogo localizzati (`APERTA`)**
+  - La sorgente `catalogue_objects_seed.csv` e' italiana, ma il generatore la
+    dichiara inglese. In inglese restano quindi soprannomi come `Nebulosa Iris`
+    e `Galassia Fuochi d'Artificio`; in italiano 59 nomi NGC/IC perdono lo
+    spazio del designatore, per esempio `NGC188` e `IC342`.
+  - Correggere la lingua sorgente e rigenerare i contenuti preservando sempre
+    i designatori canonici; tradurre soltanto il soprannome descrittivo.
+  - Verificare anche ricerca, descrizione breve e tutti i 219 oggetti seed, non
+    soltanto le righe Caldwell mostrate negli screenshot.
+
+- [ ] **VIS-009 - Dettaglio oggetto - credito immagine inglese (`APERTA`)**
+  - Il testo `HiPS a colori e ritaglio: CDS` resta italiano nella pagina
+    inglese.
+  - Conservare invariati survey, enti e licenza, localizzando soltanto la parte
+    descrittiva dell'attribuzione.
+
+- [ ] **VIS-010 - Dettaglio oggetto - nota osservativa inglese (`APERTA`)**
+  - La frase di C1 `Use a medium shot...; increases moderately...` usa un
+    termine fotografico errato e una forma verbale non corretta.
+  - Testo coerente con il dominio: `Use a medium field under dark skies;
+    increase magnification moderately to separate the many faint stars from
+    the background.`
+  - Controllare le altre note osservative inglesi generate per individuare
+    traduzioni automatiche analoghe.
+
+- [ ] **VIS-011 - Dettaglio oggetto - formato decimale inglese (`APERTA`)**
+  - Nel dettaglio inglese C1 la dimensione massima appare come `0,233°`, mentre
+    nell'elenco inglese e' correttamente `0.233°`.
+  - Assicurare che i label numerici preformattati seguano il nuovo locale dopo
+    il cambio lingua live oppure derivarli dal valore numerico in presentazione.
+
+- [ ] **VIS-012 - Oggetti celesti - soglia geometrica (`APERTA`)**
+  - `Utile (≥15°)` / `Useful (≥15°)` non chiarisce che il valore indica se
+    l'oggetto puo' raggiungere teoricamente almeno 15° dalla posizione attiva,
+    indipendentemente dalla visibilita' nel mese.
+  - Preferire una dicitura descrittiva come `Raggiunge ≥15°` /
+    `Reaches ≥15°`, senza cambiare il calcolo.
+
 ## Decisioni Aperte
 
 - [ ] **VIS-007 - Localita' - paese dinamico in italiano (`DA DECIDERE`)**
@@ -63,6 +103,18 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Se si decide di localizzarlo, tradurre soltanto la visualizzazione tramite
     codice paese; conservare i dati canonici e non reintrodurre un catalogo
     citta'.
+
+- [ ] **VIS-013 - Dettaglio oggetto - dimensione massima (`DA DECIDERE`)**
+  - `Dim. max` / `Max size` e' la massima dimensione angolare convertita in
+    gradi e affianca gia' la dimensione catalogata in primi d'arco.
+  - Valutare `Dim. angolare max` / `Maximum angular size` oppure la rimozione
+    del dato duplicato dalla scheda, mantenendolo dove serve ai calcoli.
+
+- [ ] **VIS-014 - Oggetti celesti - nomi costellazioni (`DA DECIDERE`)**
+  - L'italiano mostra i nomi IAU latini (`Cepheus`, `Draco`, `Cygnus`), mentre
+    i testi descrittivi usano `Cefeo`, `Dragone` e `Cigno`.
+  - Scegliere se mantenere esplicitamente i nomi canonici oppure localizzare
+    soltanto il display e i filtri, preservando il valore canonico interno.
 
 ## Verifiche Superate
 
@@ -76,9 +128,15 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   completi e coerenti nelle due lingue.
 - [x] **VIS-V05 (`VERIFICATA`)** - Il PNG italiano dei provider e' integro;
   l'apparente contenuto mancante era un artefatto dell'anteprima combinata.
+- [x] **VIS-V06 (`VERIFICATA`)** - Elenco e dettaglio Oggetti celesti non
+  mostrano sovrapposizioni, tagli o instabilita' nelle schermate fornite.
+- [x] **VIS-V07 (`VERIFICATA`)** - Il filtro mensile passa coerentemente da
+  228 a 182 oggetti; C1, indicato come non visibile nel mese, viene escluso.
+- [x] **VIS-V08 (`VERIFICATA`)** - Per Addis Abeba C1 culmina teoricamente a
+  circa 13,7°, quindi il valore negativo rispetto alla soglia di 15° e'
+  corretto.
 
 ## Nota Per Screenshot Pubblici
 
 - [ ] Prima di pubblicare immagini su GitHub, oscurare identificativi account,
   coordinate personali e qualsiasi altro dato non destinato alla diffusione.
-
