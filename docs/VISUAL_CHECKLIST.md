@@ -39,6 +39,9 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 | Filtri - modifica | controllata | controllata | completata |
 | Riduttori - aggiunta | controllata | controllata | completata |
 | Riduttori - modifica | controllata | controllata | completata |
+| Binocoli - elenco | controllata | controllata | completata |
+| Binocoli - aggiunta | controllata | controllata | completata |
+| Binocoli - modifica | controllata | controllata | completata |
 
 ## Correzioni Aperte
 
@@ -109,8 +112,8 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     `Reaches ≥15°`, senza cambiare il calcolo.
 
 - [ ] **VIS-015 - Form Equipment - etichette persistenti (`APERTA`)**
-  - Aggiunta e modifica Telescopi, Oculari, Barlow, Filtri e Riduttori usano
-    soltanto placeholder. Appena un campo contiene un valore non e' piu'
+  - Aggiunta e modifica Telescopi, Oculari, Barlow, Filtri, Riduttori e Binocoli
+    usano soltanto placeholder. Appena un campo contiene un valore non e' piu'
     visibile cosa rappresenta; anche i selettori di tipo o sistema non hanno
     un'etichetta propria.
   - Aggiungere label sempre visibili con unita' e indicazione obbligatorio /
@@ -130,7 +133,8 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 - [ ] **VIS-017 - Cataloghi Equipment - sottotitoli inglesi (`APERTA`)**
   - `Models available to observing profiles` nei Telescopi e `Optical
     accessories available to observing profiles` in Oculari/Barlow e
-    Filtri/Riduttori sono poco naturali.
+    Filtri/Riduttori sono poco naturali; lo stesso primo testo compare nei
+    Binocoli.
   - Preferire `Models available for observing profiles` e `Optical accessories
     available for observing profiles`.
 
@@ -184,6 +188,13 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Preservare il testo esistente quando non viene sostituito esplicitamente;
     le associazioni esatte selezionate devono continuare a usare gli ID
     normalizzati dei telescopi.
+
+- [ ] **VIS-024 - Binocoli - ordinamento naturale (`APERTA`)**
+  - L'ordinamento lessicografico del modello colloca Canon `8x20` dopo `18x50`
+    e Celestron Nature DX ED `10x42` prima di `8x42`.
+  - Applicare un ordinamento naturale stabile a marca e modello, mantenendo
+    unite le serie commerciali e interpretando numericamente le specifiche;
+    non ordinare globalmente solo per ingrandimento e diametro.
 
 ## Decisioni Aperte
 
@@ -268,6 +279,20 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   presenti nelle schede seguono il locale corrente. La griglia dei telescopi
   compatibili offre ricerca, selezione multipla, conteggio e scroll, mentre il
   repository valida e deduplica gli ID selezionati.
+- [x] **VIS-V21 (`VERIFICATA`)** - Il catalogo mostra 94 binocoli in due colonne
+  senza sovrapposizioni, troncamenti o pill vuote nelle righe fornite; ricerca,
+  conteggio, specifica `ingrandimento×diametro` e badge `IS` sono coerenti nelle
+  due lingue.
+- [x] **VIS-V22 (`VERIFICATA`)** - Marca, modello, ingrandimento intero positivo
+  e diametro obiettivo intero positivo sono obbligatori sia nel form sia nel
+  controller/repository. La stabilizzazione e' un attributo booleano e Salva
+  resta disabilitato finche' i quattro valori richiesti non sono validi.
+- [x] **VIS-V23 (`VERIFICATA`)** - I binocoli integrati espongono `Modifica` ma
+  non `Elimina`; le voci utente restano eliminabili e il repository impedisce
+  comunque la cancellazione delle voci integrate.
+- [x] **VIS-V24 (`VERIFICATA`)** - Marchi, nomi commerciali e sigle come `IS`
+  restano invariati, mentre titoli, azioni, ricerca e attributo di
+  stabilizzazione sono tradotti correttamente in italiano e inglese.
 
 ## Nota Per Screenshot Pubblici
 
