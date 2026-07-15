@@ -16,8 +16,12 @@
   necessarie o compaiono moduli GPL-only inattesi.
 - Una build PyInstaller temporanea e isolata ha superato audit legale/Qt e
   smoke QML dell'eseguibile (`5223` file, `469,8 MiB`). La `dist` persistente
-  non e' stata rigenerata e resta alla versione `1.32.3`.
-- Gate completo con security superato: `790 passed`, `613 warnings` note,
+  `1.33.2` e' stata poi rigenerata e ha superato audit Qt/licenze e smoke
+  backend/QML.
+- L'audit rifiuta ora database, backup, preferenze, cache e log runtime nella
+  cartella da pubblicare. I controlli manuali vanno eseguiti su una copia del
+  bundle pulito, evitando di distribuire stato locale creato durante i test.
+- Gate completo con security superato: `791 passed`, `613 warnings` note,
   `7 subtests`, coverage runtime `84%`, nessuna vulnerabilita' installata nota
   e Bandit invariato a `0 high`, `26 medium`, `12 low`.
 

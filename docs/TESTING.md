@@ -102,20 +102,24 @@ license, generated third-party archive, and restricted Qt packaging hooks:
 
 | Check | Result |
 | --- | --- |
-| `python tools/run_checks.py --security` | Passed in 261.5 s |
+| `python tools/run_checks.py --security` | Passed in 271.7 s |
 | `pip check`, Ruff and `compileall` | Passed |
 | Third-party license archive check | Current; 61 distributions covered |
-| `pytest -q -n 4 astro_viewer/tests` | 790 passed, 613 warnings, 7 subtests passed in 145.31 s |
+| `pytest -q -n 4 astro_viewer/tests` | 791 passed, 613 warnings, 7 subtests passed in 153.85 s |
 | Runtime coverage | 84% across 15,242 statements; tests and developer tools excluded |
 | Installed-environment `pip-audit` | No known vulnerabilities |
 | Bandit application/tool scan | 0 high, 26 medium, 12 low; no change from the reviewed baseline |
 | Backend and source QML smoke | Passed in disposable runtimes |
 | Isolated PyInstaller bundle | 5,223 files, 469.8 MiB; Qt/legal audit and packaged QML smoke passed |
 
-The isolated package was deleted after validation. The checked-in Windows
-distribution was not rebuilt and remains version 1.32.3. The public artifact
-gate must repeat the clean build, Qt/legal audit, smoke, visual, provider, and
-security checks.
+The isolated package was deleted after validation. The persistent Windows
+distribution was subsequently rebuilt as `1.33.2`; its packaged `VERSION`,
+manual revision, legal files, Qt module audit, backend smoke, and QML smoke are
+correct. Running the executable in place created `nightscope.db`, its backup,
+and logs as designed, so that directory is a validation copy rather than the
+final release artifact. The bundle audit now rejects such runtime state. The
+public archive must use a pristine copy and still complete the visual, provider,
+artifact-security, and release-metadata gates.
 
 ## Measured 1.33.1 Visual-Fix Gate
 

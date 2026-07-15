@@ -324,3 +324,22 @@ def test_qt_bundle_audit_rejects_gpl_only_modules(tmp_path: Path) -> None:
     timeline_errors = audit_bundle(tmp_path)
     assert len(timeline_errors) == 1
     assert "QtQuick/Timeline/qmldir" in timeline_errors[0]
+
+
+def test_qt_bundle_audit_rejects_runtime_state(tmp_path: Path) -> None:
+    for filename in REQUIRED_DLLS:
+        (tmp_path / filename).touch()
+    for filename in ("LICENSE", "THIRD_PARTY_LICENSES.txt", "THIRD_PARTY_NOTICES.md"):
+        (tmp_path / filename).touch()
+
+    (tmp_path / "nightscope.db").touch()
+    (tmp_path / "nightscope.db.backup").touch()
+    (tmp_path / "logs").mkdir()
+
+    errors = audit_bundle(tmp_path)
+
+    assert len(errors) == 1
+    assert errors[0] == (
+        "runtime state present in release bundle: "
+        "logs, nightscope.db, nightscope.db.backup"
+    )

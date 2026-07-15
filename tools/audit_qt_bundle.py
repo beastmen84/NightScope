@@ -16,6 +16,13 @@ REQUIRED_LEGAL_FILES = {
     "THIRD_PARTY_LICENSES.txt",
     "THIRD_PARTY_NOTICES.md",
 }
+FORBIDDEN_RUNTIME_ENTRIES = {
+    "location_cache.json",
+    "logs",
+    "nasa_aod_cache.json",
+    "nightscope.db",
+    "user_preferences.json",
+}
 FORBIDDEN_PATH_PARTS = {
     "qtcanvaspainter",
     "qtcoap",
@@ -73,6 +80,18 @@ def audit_bundle(bundle_dir: Path) -> list[str]:
     if missing_legal:
         errors.append("missing legal files: " + ", ".join(missing_legal))
 
+    runtime_entries = sorted(
+        path.name
+        for path in bundle_dir.iterdir()
+        if path.name.lower() in FORBIDDEN_RUNTIME_ENTRIES
+        or path.name.lower().startswith(("nightscope.db.", "nightscope.db-"))
+    )
+    if runtime_entries:
+        errors.append(
+            "runtime state present in release bundle: "
+            + ", ".join(runtime_entries)
+        )
+
     forbidden: list[str] = []
     for path in files:
         relative = path.relative_to(bundle_dir)
@@ -110,7 +129,7 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}")
         return 1
-    print("Qt bundle and legal-file audit passed.")
+    print("Qt, legal-file, and runtime-state bundle audit passed.")
     return 0
 
 

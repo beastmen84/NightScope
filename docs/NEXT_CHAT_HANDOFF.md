@@ -5,9 +5,11 @@ Aggiornato: 2026-07-15
 ## Stato Versioni
 
 - Versione sorgente: `1.33.2`
-- Distribuzione Windows corrente: `1.32.3`, rigenerata dall'utente dopo il
-  commit `836c90f` e usata per il controllo visuale con localita'.
-- Dist `1.33.2` non rigenerata.
+- Distribuzione Windows corrente: `1.33.2`, rigenerata dall'utente dopo il
+  commit `3baa6a6`.
+- Audit Qt/licenze e smoke backend/QML del binario superati. L'avvio ha creato
+  database, backup e log: la cartella corrente e' una copia di validazione, non
+  il bundle pulito da archiviare.
 - Commit sorgente validato: `da5a636 Add MPL licensing and Qt bundle audit`
 - Checklist visuale completata nel commit `ea821fc`.
 
@@ -17,6 +19,7 @@ previsto prima del commit.
 
 ## Commit Recenti
 
+- `3baa6a6 Update handoff for licensing release gate`
 - `da5a636 Add MPL licensing and Qt bundle audit`
 - `73b0533 Clarify pre-release validation status`
 - `5325455 Document visual review completion`
@@ -216,8 +219,8 @@ lingua corrente. Privacy dei log, ownership della directory runtime e tooling
 di validazione sono stati corretti. Non sono emersi difetti applicativi ad alta
 severita'. La review visuale allora residua e' chiusa da `1.33.1`; NightScope
 non e' ancora approvato per il rilascio perche' restano matrice provider,
-rebuild/test della dist, lock/SBOM, firma o policy esplicita e hash
-dell'artefatto.
+matrice visuale sulla dist, bundle finale pulito, lock/SBOM, firma o policy
+esplicita e hash dell'artefatto.
 
 `1.33.1` chiude il controllo visuale bilingue tracciato in
 `docs/VISUAL_CHECKLIST.md`: tutti i 36 rilievi VIS-001--VIS-036 sono risolti e
@@ -236,6 +239,12 @@ locali raccolgono solo i moduli QML usati e rimuovono input virtuale e tooling
 QML che trascinavano DLL GPL-only non utilizzate. `build_windows.ps1` copia i
 tre documenti legali nella radice del bundle e blocca build con archivio stale,
 DLL Qt obbligatorie assenti o moduli GPL-only inattesi.
+
+La dist `1.33.2` persistente e' stata rigenerata e supera audit Qt/licenze e
+smoke backend/QML. Poiche' NightScope salva i dati accanto all'eseguibile, i
+test hanno creato database, backup e log nella cartella. L'audit rifiuta ora
+questo stato runtime: usare una copia per i controlli e archiviare soltanto un
+bundle pulito verificato immediatamente prima della pubblicazione.
 
 Il repository non ha ancora un remote pubblico configurato. Prima del rilascio
 MPL, release notes e artefatto devono indicare URL pubblico e commit sorgente
@@ -913,8 +922,8 @@ git diff --check
 
 Risultati:
 
-- Gate completo: `790 passed`, `613 warnings`, `7 subtests passed` in
-  `145,31 s`; coverage runtime `84%` su `15.242` statement.
+- Gate completo: `791 passed`, `613 warnings`, `7 subtests passed` in
+  `153,85 s`; coverage runtime `84%` su `15.242` statement.
 - `pip check`, Ruff, compileall, archivio third-party, smoke backend e smoke QML
   puliti; `pip-audit` non rileva vulnerabilita' note.
 - Bandit invariato: `0 high`, `26 medium`, `12 low`.
@@ -922,7 +931,11 @@ Risultati:
   dipendenze transitive e termini del bootloader PyInstaller.
 - Bundle temporaneo: `5223` file, `469,8 MiB`; audit Qt/licenze e smoke QML
   dell'eseguibile superati. La directory temporanea e' stata rimossa.
-- Dist persistente invariata a `1.32.3`; dist `1.33.2` non rigenerata.
+- Dist persistente `1.33.2` rigenerata: versione e manuale `1.33.2`, file legali
+  presenti, audit Qt/licenze e smoke backend/QML superati.
+- L'esecuzione in-place ha creato `nightscope.db`, `nightscope.db.backup` e
+  `logs`; la cartella e' una copia di validazione. Il nuovo audit rifiuta stato
+  runtime nel bundle destinato alla pubblicazione.
 
 ## Validazione 1.33.1
 

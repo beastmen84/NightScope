@@ -82,12 +82,15 @@ Do not commit credentials or exact personal locations.
 
 - [ ] Build from a clean checkout with `packaging/build_windows.ps1`.
 - [ ] Confirm the source commit and build environment are recorded.
-- [ ] Run backend and QML smoke tests against the packaged executable.
-- [ ] Confirm the bundle-root legal files and Qt module audit pass.
+- [x] Run backend and QML smoke tests against the packaged executable.
+- [x] Confirm the bundle-root legal files and Qt module audit pass.
 - [ ] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
   timezone polygons, and credential backend.
 - [ ] Run the complete visual and provider matrices on the packaged build, not
-  only from source.
+  only from source. Test a copy and preserve a pristine release bundle.
+- [ ] Immediately before archiving, rerun `tools/audit_qt_bundle.py` on the
+  pristine bundle and confirm that no runtime database, backup, cache, settings,
+  or logs are present.
 - [ ] Scan the artifact with the chosen security tooling.
 - [ ] Sign the executable or document the explicit initial-release policy.
 - [ ] Publish a SHA-256 hash with the artifact.

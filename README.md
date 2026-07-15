@@ -13,9 +13,9 @@ setup?**
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
 > validated; its bilingual source visual review and source licensing are
-> complete. The rebuilt, legally and visually verified Windows artifact and
-> the live-provider release matrix are not complete. The bundled executable
-> may lag behind the source.
+> complete. The Windows bundle has been rebuilt and passes automated legal,
+> Qt, backend, and QML checks; its packaged visual and live-provider release
+> matrices are not complete yet.
 
 ## What It Does
 
@@ -184,6 +184,16 @@ ephemeris.
 The application writes its database, preferences, caches, and logs beside the
 executable, so do not run it from a read-only directory. `dist` is intentionally
 ignored by Git and must be rebuilt and independently smoke-tested for a release.
+Run smoke, visual, and provider tests on a copy of the clean build: launching
+NightScope creates local runtime state beside the executable. Before archiving
+the untouched release copy, rerun:
+
+```powershell
+.\.venv\Scripts\python.exe tools\audit_qt_bundle.py dist\NightScope
+```
+
+The audit rejects databases, backups, preferences, caches, or logs left in the
+release bundle.
 
 ## Project Layout
 
