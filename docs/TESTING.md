@@ -95,6 +95,25 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.34.0 Spanish Localization Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-20 after adding the reviewed
+Spanish language pack and multilingual manual:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --fast` | Passed in 238.7 s |
+| `pip check`, Ruff, `compileall`, and third-party archive | Passed |
+| `pytest -q -n 4 astro_viewer/tests` | 794 passed, 613 warnings, 7 subtests passed in 145.81 s |
+| Translation catalogues | IT, EN, and ES: 1,665 finished, 0 unfinished each |
+| Focused localization and developer-tooling tests | 30 passed |
+| Separate Italian, English, and Spanish QML smoke runs | Passed in disposable runtimes |
+| Spanish structured content | 7 sections, 821 items, 2,038 translated fields |
+| Spanish manual | Chromium desktop and 390 px mobile rendering passed; no horizontal overflow; ES/EN/ES switching and anchors passed |
+
+This source gate does not replace the page-by-page Spanish visual matrix or a
+clean Windows `1.34.0` bundle audit. The published package remains `1.33.2`.
+
 ## Measured 1.33.2 Licensing And Bundle Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-15 after adding the project

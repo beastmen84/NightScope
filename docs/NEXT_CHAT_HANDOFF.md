@@ -1,10 +1,10 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-15
+Aggiornato: 2026-07-20
 
 ## Stato Versioni
 
-- Versione sorgente: `1.33.2`
+- Versione sorgente: `1.34.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica: `v1.33.2`, tag sul commit sorgente
   `9c17204f718223e83183367e9ccea078805b5a00`.
@@ -15,12 +15,13 @@ Aggiornato: 2026-07-15
 - Audit Qt/licenze e smoke backend/QML del binario superati. L'avvio ha creato
   database, backup e log: la cartella corrente e' una copia di validazione, non
   il bundle pulito da archiviare.
-- Commit sorgente validato: `9c17204 Reject runtime state in release bundles`
+- Commit sorgente della release pubblica validato:
+  `9c17204 Reject runtime state in release bundles`
 - Checklist visuale completata nel commit `ea821fc`.
 
-Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `9c17204`; non sostituire questo hash con un valore
-previsto prima del commit.
+La localizzazione spagnola appartiene al sorgente `1.34.0`, non alla release
+pubblica `1.33.2`. Non descrivere ZIP o dist correnti come `1.34.0` finche' non
+vengono rigenerati e verificati esplicitamente.
 
 ## Commit Recenti
 
@@ -259,6 +260,14 @@ Il repository pubblico e' `https://github.com/beastmen84/NightScope`. La release
 `v1.33.2` punta al commit sorgente verificato
 `9c17204f718223e83183367e9ccea078805b5a00`; note e asset pubblicano anche il
 digest SHA-256 dello ZIP.
+
+`1.34.0` aggiunge lo spagnolo (Spagna) all'intera superficie localizzata:
+messaggi Qt/Python, contenuti strutturati, nomi dei cataloghi, Equipment e tutte
+le 14 sezioni del manuale. Le traduzioni automatiche sono state corrette con un
+passaggio editoriale deterministico, includendo terminologia astronomica e
+ottica, tono formale, privacy, provider e sicurezza solare. La logica di
+scoring e raccomandazione non cambia. Questa versione non e' ancora stata
+costruita o pubblicata come pacchetto Windows.
 
 La pipeline dei contenuti ora distingue la lingua sorgente per catalogo e per
 campo, genera descrizioni Caldwell inglesi deterministiche e include traduzioni
@@ -584,12 +593,15 @@ quando richiesta.
   atomicamente preservando le altre chiavi.
 - Le stringhe Python sono lazy e i servizi interni consumano valori canonici;
   date, numeri e payload vengono renderizzati solo al boundary Qt/QML.
-- `astro_viewer/translations` contiene pack completi `it` ed `en`; PyInstaller
-  include l'intera directory e quindi acquisisce anche nuovi pack senza cambiare
-  la spec.
-- Gli updater estraggono `1586` messaggi per lingua, preservano le traduzioni
+- Da `1.34.0`, `astro_viewer/translations` contiene pack completi `it`, `en` ed
+  `es`; PyInstaller include l'intera directory e quindi acquisisce nuovi pack
+  senza cambiare la spec.
+- Gli updater estraggono `1665` messaggi per lingua, preservano le traduzioni
   gia' revisionate, rifiutano cataloghi incompleti o placeholder incompatibili
   e producono output idempotente.
+- Le correzioni spagnole revisionate sono riproducibili tramite
+  `tools/translation_reviews/es.json`; l'updater rifiuta riferimenti obsoleti e
+  placeholder alterati.
 - La review successiva ha corretto la terminologia astronomica inglese, i nomi
   IAU delle costellazioni, i caratteri invisibili nei contenuti, la sicurezza
   per l'osservazione solare, `R.A.` e l'ordinamento localizzato dei filtri.
@@ -916,6 +928,35 @@ Rimossi:
   `7 giorni`, retry fino a 3 tentativi con backoff sui `5xx`.
 - Il timer transitorio globale resta orario per la ISS; la cache risultati del
   motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
+
+## Validazione 1.34.0
+
+Eseguita nella venv corrente:
+
+```powershell
+.\.venv\Scripts\python.exe tools\run_checks.py --fast
+.\tools\update_translations.ps1 -CompileOnly
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_translations.py astro_viewer\tests\test_developer_tooling.py
+# smoke QML separati it/en/es con user_preferences e runtime temporanei
+# manuale es verificato in Chromium a 1440x900 e 390x844
+git diff --check
+```
+
+Risultati:
+
+- Gate completo senza coverage: `794 passed`, `613 warnings`, `7 subtests
+  passed` in `145,81 s`; durata complessiva `238,7 s`.
+- `pip check`, Ruff, `compileall`, archivio third-party, smoke backend e smoke
+  QML standard puliti.
+- Cataloghi Qt IT/EN/ES: `1665` traduzioni finite e `0` unfinished per lingua.
+- Contenuti spagnoli: `7` sezioni, `821` elementi, `2038` campi tradotti;
+  overlay editoriale TS con `615` correzioni globali e `4` contestuali.
+- Test mirati localizzazione/tooling: `30 passed`; smoke QML separati italiano,
+  inglese e spagnolo completati con exit `0` in runtime temporanei.
+- Manuale spagnolo: desktop e mobile senza overflow orizzontale; cambio
+  ES/EN/ES, persistenza e navigazione alle ancore verificati in Chromium.
+- Nessuna build o release `1.34.0`: il pacchetto pubblico resta `1.33.2` e la
+  matrice visuale completa dell'app spagnola resta aperta.
 
 ## Validazione 1.33.2
 

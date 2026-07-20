@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import Mock
 from xml.etree import ElementTree
 
+import pytest
 from PySide6.QtCore import QCoreApplication, QLocale, QObject
 
 from astro_viewer.app.models.sky import SkyQuality
@@ -27,6 +28,10 @@ from astro_viewer.app.viewmodels.app_controller import AppController
 from tools.update_content_translations import (
     source_content,
     source_language,
+)
+from tools.update_ts_translations import (
+    _apply_translation_review,
+    _reviewed_translations,
 )
 
 
@@ -70,7 +75,7 @@ def _catalog_entries(path: Path) -> tuple[ElementTree.Element, dict[tuple[str, s
 
 def test_discovered_language_catalogs_are_complete_and_symmetric() -> None:
     packs = discover_language_packs(TRANSLATIONS_DIR)
-    assert {"it", "en"} <= packs.keys()
+    assert {"it", "en", "es"} <= packs.keys()
 
     source_pack = next(pack for pack in packs.values() if pack.source)
     reference_keys: set[tuple[str, str]] | None = None
@@ -101,6 +106,35 @@ def test_discovered_language_catalogs_are_complete_and_symmetric() -> None:
     assert catalogs["en"][("WeatherPage", "Meteo osservativo")] == (
         "Observing weather"
     )
+    assert catalogs["es"][("main", "Meteo")] == "Meteorología"
+    assert catalogs["es"][("main", "Lingua")] == "Idioma"
+    assert catalogs["es"][("EquipmentProfilesPage", "Pupilla d’uscita")] == (
+        "Pupila de salida"
+    )
+    assert catalogs["es"][("EquipmentTelescopesPage", "Montatura *")] == (
+        "Montura *"
+    )
+    assert catalogs["es"][("EquipmentBinocularsPage", "Catalogo binocoli")] == (
+        "Catálogo de prismáticos"
+    )
+    assert catalogs["es"][("WeatherPage", "Seeing notturno")] == (
+        "Seeing nocturno"
+    )
+    assert catalogs["es"][
+        ("", "Scegliere un orizzonte aperto a Nord-Est e un cielo buio.")
+    ] == "Elija un horizonte abierto hacia el noreste y un cielo oscuro."
+    assert catalogs["es"][("", "Aggiungi oculari per suggerimenti completi")] == (
+        "Añada oculares para obtener sugerencias completas"
+    )
+    spanish_messages = "\n".join(catalogs["es"].values())
+    assert re.search(r"\b(?:tu|tus)\b", spanish_messages, re.IGNORECASE) is None
+    for informal_instruction in (
+        "Elige un horizonte",
+        "Prueba primero",
+        "Usa prismáticos",
+        "Configura una ubicación",
+    ):
+        assert informal_instruction not in spanish_messages
 
 
 def test_structured_content_covers_every_translatable_seed_field() -> None:
@@ -242,6 +276,146 @@ def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
         assert forbidden not in structured_english
 
 
+def test_curated_spanish_content_uses_reviewed_astronomy_terms() -> None:
+    spanish = json.loads((TRANSLATIONS_DIR / "es.json").read_text(encoding="utf-8"))
+    assert spanish["language"] == {
+        "code": "es",
+        "label": "Español",
+        "locale": "es_ES",
+        "source": False,
+    }
+    assert spanish["formats"] == {
+        "date": "dd/MM/yyyy",
+        "date_time": "dd/MM/yyyy HH:mm",
+    }
+
+    objects = spanish["content"]["objects"]
+    catalogue = spanish["content"]["catalogue_objects"]
+    assert "pupila de salida" in objects["messier-M16"]["observing_notes"]
+    assert "0,3′/21′" in objects["caldwell-C59"]["short_description"]
+    assert catalogue["messier-M13"]["name"] == "Gran cúmulo de Hércules"
+    assert catalogue["messier-M11"]["name"] == "Cúmulo del Pato Salvaje"
+    assert catalogue["caldwell-C13"]["name"] == "NGC 457 - Cúmulo del Búho"
+    assert catalogue["caldwell-C1"]["name"] == "NGC 188"
+    assert catalogue["caldwell-C5"]["name"] == "IC 342"
+    assert catalogue["caldwell-C99"]["description"] == (
+        "C99 - Nebulosa oscura en la Cruz del Sur."
+    )
+
+    telescope_content = spanish["content"]["equipment_telescopes"]
+    assert {item["optical_type"] for item in telescope_content.values()} == {
+        "Cassegrain clásico",
+        "Catadióptrico",
+        "Maksutov",
+        "Maksutov-Newton",
+        "Newtoniano",
+        "Refractor",
+        "Refractor Petzval",
+        "Ritchey-Chrétien",
+        "Schmidt-Cassegrain",
+        "Telescopio inteligente",
+    }
+    assert {item["mount_type"] for item in telescope_content.values()} == {
+        "Altazimutal",
+        "Altazimutal GoTo",
+        "Altazimutal PushTo",
+        "Dobson",
+        "Dobson de sobremesa",
+        "Dobson plegable",
+        "Dobson PushTo",
+        "Ecuatorial",
+        "Ecuatorial CG-4",
+        "Horquilla GoTo",
+        "OTA",
+    }
+
+    rendered = json.dumps(spanish["content"], ensure_ascii=False).casefold()
+    for forbidden in (
+        "binoculares",
+        "capítulo 99",
+        "caja de cambios",
+        "clúster",
+        "cúmulo cúmulo",
+        "estrellas solubles",
+        "la aumento",
+        "mayores poderes",
+        "nebula cocoon",
+        "nebulosa dumbbell",
+        "ng 188",
+        "racimo",
+        "una globular",
+        "visión evitada",
+        "\u200b",
+    ):
+        assert forbidden not in rendered
+
+
+def test_spanish_ts_review_is_complete_and_idempotent() -> None:
+    translations, contexts = _reviewed_translations("es")
+    assert len(translations) >= 600
+    assert sum(len(entries) for entries in contexts.values()) >= 4
+
+    root = ElementTree.parse(TRANSLATIONS_DIR / "es.ts").getroot()
+    assert _apply_translation_review(root, "es") == 0
+
+
+def test_ts_review_rejects_invalid_or_stale_entries(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    review_dir = tmp_path / "translation_reviews"
+    review_dir.mkdir()
+    review_path = review_dir / "es.json"
+    monkeypatch.setattr(
+        "tools.update_ts_translations.TRANSLATION_REVIEWS_DIR",
+        review_dir,
+    )
+    root = ElementTree.fromstring(
+        "<TS><context><name>Test</name><message>"
+        "<source>Valore %1</source><translation>Valor %1</translation>"
+        "</message></context></TS>"
+    )
+
+    review_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "translations": {"Valore %1": "Valor"},
+                "contexts": {},
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="Placeholder mismatch"):
+        _apply_translation_review(root, "es")
+
+    review_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "translations": {"Messaggio rimosso": "Mensaje eliminado"},
+                "contexts": {},
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="missing from es.ts"):
+        _apply_translation_review(root, "es")
+
+    review_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "translations": {"Valore %1": "  "},
+                "contexts": {},
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="Invalid translation review entries"):
+        _reviewed_translations("es")
+
+
 def test_translation_manager_switches_live_and_preserves_preferences(
     tmp_path: Path,
 ) -> None:
@@ -282,16 +456,26 @@ def test_translation_manager_switches_live_and_preserves_preferences(
     )["source"] == "Source: World Atlas sample"
     assert render_text(AppController._format_catalogue_angle(0.233)) == "0.233°"
 
+    assert manager.setLanguage("es")
+    assert manager.languageCode == "es"
+    assert engine.retranslate_calls == 2
+    assert QCoreApplication.translate("main", "Lingua") == "Idioma"
+    assert QLocale().name() == "es_ES"
+    assert render_text(format_datetime(datetime(2026, 7, 13, 22, 5))) == (
+        "13/07/2026 22:05"
+    )
+    assert render_text(format_number(12.5, decimals=1)).endswith(",5")
+
     stored_preferences = json.loads(preferences_path.read_text(encoding="utf-8"))
     assert stored_preferences["saved_location"] == {"name": "Roma"}
-    assert stored_preferences["language"] == "en"
+    assert stored_preferences["language"] == "es"
 
     assert not manager.setLanguage("de")
-    assert manager.languageCode == "en"
-    assert engine.retranslate_calls == 1
+    assert manager.languageCode == "es"
+    assert engine.retranslate_calls == 2
     assert manager.setLanguage("it")
     assert QCoreApplication.translate("main", "Calendario") == "Calendario"
-    assert engine.retranslate_calls == 2
+    assert engine.retranslate_calls == 3
 
 
 def test_catalogue_choices_are_sorted_after_localization(tmp_path: Path) -> None:

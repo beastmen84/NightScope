@@ -592,6 +592,7 @@
 <body>
   <a class="skip-link" href="#it-main" data-copy-it>Vai al contenuto</a>
   <a class="skip-link" href="#en-main" data-copy-en hidden>Skip to content</a>
+  <a class="skip-link" href="#es-main" data-copy-es hidden>Ir al contenido</a>
 
   <header class="topbar">
     <div class="topbar-inner">
@@ -603,10 +604,12 @@
         <div class="language-switch" role="group" aria-label="Language">
           <button type="button" data-lang="it" aria-pressed="true">IT</button>
           <button type="button" data-lang="en" aria-pressed="false">EN</button>
+          <button type="button" data-lang="es" aria-pressed="false">ES</button>
         </div>
         <button class="print-button" type="button" id="print-manual">
           <span data-copy-it>Stampa</span>
           <span data-copy-en hidden>Print</span>
+          <span data-copy-es hidden>Imprimir</span>
         </button>
       </div>
     </div>
@@ -617,13 +620,19 @@
       <p class="eyebrow">Guida operativa e logica osservativa</p>
       <h1>Manuale utente NightScope</h1>
       <p>Configura la tua postazione, interpreta le raccomandazioni e prepara una sessione visuale sapendo quali dati sono reali, quali sono stimati e quali non sono disponibili.</p>
-      <div class="release-note"><strong>Stato pre-release.</strong> Il controllo visuale bilingue del sorgente è concluso; restano da completare la build finale e la sua verifica visuale.</div>
+      <div class="release-note"><strong>Versione pubblica.</strong> NightScope 1.33.2 è disponibile su GitHub; questo manuale segue il sorgente corrente e include italiano, inglese e spagnolo.</div>
     </div>
     <div class="hero-inner" data-article="en" hidden>
       <p class="eyebrow">Operating guide and observing logic</p>
       <h1>NightScope user manual</h1>
       <p>Configure your site, interpret recommendations, and prepare a visual session while knowing which data is measured, estimated, or unavailable.</p>
-      <div class="release-note"><strong>Pre-release status.</strong> The bilingual source visual review is complete; the final build and its visual verification are still pending.</div>
+      <div class="release-note"><strong>Public release.</strong> NightScope 1.33.2 is available on GitHub; this manual tracks the current source and includes Italian, English, and Spanish.</div>
+    </div>
+    <div class="hero-inner" data-article="es" hidden>
+      <p class="eyebrow">Guía operativa y lógica de observación</p>
+      <h1>Manual de usuario de NightScope</h1>
+      <p>Configure su ubicación, interprete las recomendaciones y prepare una sesión visual sabiendo qué datos son medidos, estimados o no disponibles.</p>
+      <div class="release-note"><strong>Versión pública.</strong> NightScope 1.33.2 está disponible en GitHub; este manual sigue el código fuente actual e incluye italiano, inglés y español.</div>
     </div>
   </div>
 
@@ -665,6 +674,26 @@
         <li><a href="#en-privacy">12. Privacy and storage</a></li>
         <li><a href="#en-troubleshooting">13. Troubleshooting</a></li>
         <li><a href="#en-limits">14. Limits and safety</a></li>
+      </ul>
+    </nav>
+
+    <nav class="toc" data-nav="es" aria-label="Índice" hidden>
+      <p class="toc-title">Índice</p>
+      <ul>
+        <li><a href="#es-start">1. Primeros pasos</a></li>
+        <li><a href="#es-location">2. Ubicación y hora</a></li>
+        <li><a href="#es-profiles">3. Perfiles y equipo</a></li>
+        <li><a href="#es-home">4. Inicio y sesión</a></li>
+        <li><a href="#es-logic">5. Lógica de recomendación</a></li>
+        <li><a href="#es-equipment">6. Selección del equipo</a></li>
+        <li><a href="#es-catalogue">7. Catálogo y detalles</a></li>
+        <li><a href="#es-calendar">8. Calendario</a></li>
+        <li><a href="#es-weather">9. Tiempo y calidad del cielo</a></li>
+        <li><a href="#es-log">10. Registro de observación</a></li>
+        <li><a href="#es-data-states">11. Datos ausentes y confianza</a></li>
+        <li><a href="#es-privacy">12. Privacidad y almacenamiento</a></li>
+        <li><a href="#es-troubleshooting">13. Solución de problemas</a></li>
+        <li><a href="#es-limits">14. Límites y seguridad</a></li>
       </ul>
     </nav>
 
@@ -1137,12 +1166,248 @@
         <p>Use each recommendation as a starting point. Local haze, turbulence, dark adaptation, experience, and actual instrument quality remain the observer's responsibility.</p>
       </section>
     </main>
+
+    <main id="es-main" data-article="es" hidden>
+      <section id="es-start">
+        <h2>1. Primeros pasos</h2>
+        <p>NightScope funciona sin cuentas externas. Una ubicación válida basta para obtener un primer plan; añadir el equipo que posee permite adaptar el resultado a cada objeto.</p>
+        <ol class="steps">
+          <li><strong>Ejecute NightScope desde una carpeta con permiso de escritura.</strong> La versión portátil guarda la base de datos, las preferencias y los registros junto al ejecutable.</li>
+          <li><strong>Establezca la ubicación.</strong> Use la ubicación de Windows, busque en el catálogo de ciudades sin conexión o introduzca las coordenadas.</li>
+          <li><strong>Compruebe el perfil Default.</strong> Añada telescopios o prismáticos al perfil activo. Si no hay ninguno, NightScope utiliza el modo A simple vista.</li>
+          <li><strong>Abra Inicio.</strong> Lea primero el estado de la sesión y el factor limitante; consulte después el plan y las alternativas.</li>
+          <li><strong>Configure los proveedores opcionales solo cuando los necesite.</strong> Earthdata añade VIIRS/AOD; OpenAQ añade mediciones locales de partículas.</li>
+        </ol>
+        <div class="callout good"><strong>La ubicación es el dato mínimo necesario.</strong> La astronomía, la zona horaria, los catálogos, los perfiles y la lógica del equipo funcionan localmente. El tiempo actual requiere acceso a internet.</div>
+      </section>
+
+      <section id="es-location">
+        <h2>2. Ubicación y hora local</h2>
+        <p>La ubicación determina el horizonte astronómico, la noche de observación, la altitud y el acimut de los objetos, el calendario local, el tiempo y los resultados de los proveedores. NightScope conserva las coordenadas exactas obtenidas mediante el método elegido.</p>
+        <dl class="term-grid">
+          <dt>Ubicación de Windows</dt>
+          <dd>Requiere el permiso de ubicación del sistema operativo. Windows proporciona principalmente las coordenadas; NightScope resuelve sin conexión la zona horaria IANA y puede completar la etiqueta mediante el catálogo local de ciudades.</dd>
+          <dt>Búsqueda de ciudades</dt>
+          <dd>Utiliza los datos de GeoNames sin conexión. El nombre solo sirve para la presentación; la zona horaria se obtiene a partir de los límites horarios locales en las coordenadas de la ciudad.</dd>
+          <dt>Coordenadas manuales</dt>
+          <dd>Admite latitud y longitud sin exigir una ciudad importada cercana. Es el método más preciso para un emplazamiento remoto.</dd>
+          <dt>Alternativa en línea</dt>
+          <dd>Es una acción explícita y aproximada basada en la dirección IP. Úsela solo cuando los demás métodos no estén disponibles.</dd>
+        </dl>
+        <p>El dato esencial es el par <strong>coordenadas + zona horaria IANA</strong>, no el nombre de la ciudad. La zona horaria gestiona el horario de verano y las fechas locales, y se calcula sin conexión mediante <code>timezonefinder</code>, incluso fuera del catálogo de ciudades importado.</p>
+        <div class="callout warning"><strong>Después de cambiar la ubicación</strong>, espere a que termine la actualización. NightScope invalida los resultados que dependen de la posición y descarta las respuestas asíncronas pertenecientes a una ubicación anterior.</div>
+      </section>
+
+      <section id="es-profiles">
+        <h2>3. Perfiles y catálogos de equipo</h2>
+        <p>Los <strong>catálogos</strong> contienen los modelos disponibles; los <strong>perfiles</strong> describen lo que pretende usar en una sesión. El perfil inicial se llama <strong>Default</strong>; A simple vista es un modo de observación, no el nombre de un perfil.</p>
+        <ul>
+          <li>Asigne al perfil telescopios, oculares, lentes de Barlow, prismáticos, filtros y reductores.</li>
+          <li>Cuando un perfil contiene varios telescopios o prismáticos, NightScope evalúa todos ellos para cada objeto. No existe un único telescopio global que determine la clasificación.</li>
+          <li>Puede corregir las filas integradas, pero no eliminarlas. Las filas creadas por el usuario se pueden modificar y eliminar.</li>
+          <li>Los oculares y las lentes de Barlow solo se utilizan con un telescopio. Un perfil compuesto únicamente por prismáticos es válido.</li>
+          <li>Sin telescopios ni prismáticos, las alternativas se filtran según la capacidad real del modo A simple vista.</li>
+        </ul>
+        <p>Confirme siempre el perfil activo antes de interpretar una recomendación: la configuración mostrada en los detalles corresponde a ese objeto concreto y al perfil activo.</p>
+      </section>
+
+      <section id="es-home">
+        <h2>4. Inicio y estado de la sesión</h2>
+        <p>Inicio es el punto de partida operativo. Sus métricas superiores resumen la <strong>noche de observación</strong>, no necesariamente la hora actual. Una ventana normal se extiende desde la puesta de sol local hasta el amanecer siguiente.</p>
+        <dl class="term-grid">
+          <dt>Por evaluar</dt>
+          <dd>Falta la ubicación o no hay datos suficientes, por lo que no se puede tomar una decisión.</dd>
+          <dt>Recomendada</dt>
+          <dd>Las condiciones y oportunidades disponibles favorecen una sesión de observación.</dd>
+          <dt>Por supervisar</dt>
+          <dd>La sesión puede resultar útil, pero un factor incierto o cambiante requiere atención.</dd>
+          <dt>No recomendada</dt>
+          <dd>La limitación dominante hace que la sesión prevista resulte poco productiva.</dd>
+        </dl>
+        <h3>Plan y alternativas</h3>
+        <p>El plan selecciona hasta cuatro buenas oportunidades de observación y las ordena cronológicamente. La tabla inferior contiene otros planetas y objetos de cielo profundo con una ventana útil, excluidos los que ya figuran en el plan. Abra una fila para consultar la explicación completa y la configuración seleccionada.</p>
+        <h3>Sky Compass</h3>
+        <p>Sky Compass se actualiza cada minuto. Solo incluye objetos observables en ese momento y combina la calidad con la densidad de objetos en cada dirección. Plan y Mejor objeto aportan contexto y resuelven empates; no conceden bonificaciones dominantes a una dirección.</p>
+        <h3>Próximos eventos</h3>
+        <p>Inicio reutiliza los eventos futuros del Calendario en orden cronológico. Varios pasos cercanos de la ISS pueden ocupar varias posiciones: no son recomendaciones NSOM ni compiten con los objetos del plan.</p>
+      </section>
+
+      <section id="es-logic">
+        <h2>5. Cómo se construye una recomendación</h2>
+        <p>NightScope separa los hechos astronómicos, las condiciones locales y la capacidad del observador. No existe una única valoración científica absoluta y las puntuaciones internas sin procesar no se presentan como una verdad para el usuario.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Factor</th><th>Qué representa</th><th>Ejemplos</th></tr></thead>
+            <tbody>
+              <tr><td>Calidad intrínseca</td><td>Características del objeto independientes de su ubicación.</td><td>Tipo, magnitud y naturaleza del objeto.</td></tr>
+              <tr><td>Geometría</td><td>Cómo y cuándo resulta útil el objeto durante la noche local.</td><td>Altitud, duración, culminación y cronología.</td></tr>
+              <tr><td>Luna</td><td>Interferencia real durante la ventana del objeto.</td><td>Separación, iluminación, altitud y solapamiento temporal.</td></tr>
+              <tr><td>Entorno</td><td>Condiciones disponibles del cielo y de la atmósfera.</td><td>Tiempo, transparencia, seeing, VIIRS y datos AOD o PM aceptados.</td></tr>
+              <tr><td>Capacidad</td><td>Adecuación de la configuración específica para el objeto.</td><td>Abertura, campo, aumento, captación de luz y comodidad.</td></tr>
+              <tr><td>Sesión</td><td>Decisión global para la noche.</td><td>Recomendada, por supervisar, no recomendada o por evaluar.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Una ventana útil de cielo profundo suele requerir una altitud mínima de <strong>15 grados</strong>; los planetas y la Luna utilizan unos <strong>8 grados</strong> en los detalles nocturnos. Son umbrales geométricos, no garantías de buen rendimiento cerca del horizonte.</p>
+        <div class="callout"><strong>La confianza son metadatos.</strong> Describe la integridad, calidad y actualidad de las fuentes, pero no multiplica de forma oculta el valor del objeto. La ausencia de datos no se considera automáticamente favorable.</div>
+        <p>El estado general de la sesión no altera la posición del objeto. Puede cambiar la presentación y las indicaciones operativas, pero no la geometría astronómica.</p>
+      </section>
+
+      <section id="es-equipment">
+        <h2>6. Cómo se selecciona el equipo</h2>
+        <p>Para cada objeto, NightScope genera las configuraciones posibles con el equipo asignado al perfil activo, calcula los valores ópticos y compara su idoneidad práctica. La selección tiene en cuenta el tipo, el tamaño y la magnitud del objeto, el campo necesario, la altitud y el seeing previsto.</p>
+        <span class="formula">Aumento = (distancia focal del telescopio / distancia focal del ocular) x factor de Barlow</span>
+        <span class="formula">Campo real estimado = campo aparente del ocular / aumento</span>
+        <span class="formula">Pupila de salida = abertura del telescopio / aumento</span>
+        <p>Un aumento teóricamente posible no siempre resulta útil. El seeing, una altitud baja, una pupila de salida muy pequeña, un campo insuficiente y la complejidad añadida por una Barlow pueden hacer preferible una configuración menos exigente.</p>
+        <ul>
+          <li><strong>Objetos extensos:</strong> se favorecen un campo real y una pupila de salida adecuados.</li>
+          <li><strong>Planetas, Luna y detalles compactos:</strong> pueden beneficiarse de aumentos mayores dentro de los límites del seeing y de la abertura.</li>
+          <li><strong>Objetos débiles:</strong> necesitan principalmente una captación de luz, un fondo de cielo y una transparencia compatibles.</li>
+          <li><strong>Prismáticos:</strong> se evalúan como configuraciones completas; la estabilización y el aumento afectan a la comodidad.</li>
+        </ul>
+        <h3>Filtros</h3>
+        <p>Los detalles pueden sugerir un filtro principal y un filtro de color opcional del perfil activo, teniendo en cuenta el objeto, la abertura y la clase de producto. Un filtro no cambia la configuración seleccionada, la capacidad, la clasificación ni NSOM.</p>
+        <h3>Reductores de focal</h3>
+        <p>La recomendación es fotográfica y solo aparece cuando el objeto está marcado como oportunidad de campo amplio y el reductor tiene una asociación exacta con el telescopio seleccionado. NightScope no modela el sensor, la distancia de enfoque posterior ni el tren óptico completo.</p>
+        <div class="callout warning"><strong>Compruebe siempre la compatibilidad indicada por el fabricante.</strong> La recomendación reduce las opciones, pero las revisiones regionales, los diámetros de inserción y los accesorios intermedios pueden cambiar el resultado físico.</div>
+      </section>
+
+      <section id="es-catalogue">
+        <h2>7. Objetos celestes y detalles</h2>
+        <p>El catálogo reúne objetos del Sistema Solar, Messier y Caldwell. El objeto físico y sus designaciones se mantienen separados: añadir una designación no crea un segundo objeto ni duplica los cálculos.</p>
+        <ul>
+          <li>La búsqueda y los filtros abarcan el nombre, la designación, el tipo, la constelación y el modo de observación.</li>
+          <li><strong>Útil (al menos 15 grados)</strong> se refiere a objetos de cielo profundo con coordenadas fijas desde la ubicación activa. No es una recomendación meteorológica ni de equipo.</li>
+          <li><strong>Visible durante el mes</strong> es un cálculo astronómico para la ubicación y el mes, sin el tiempo de la sesión ni una puntuación de recomendación.</li>
+          <li>Los detalles abiertos desde el catálogo siguen siendo descriptivos; los abiertos desde Inicio o Planificador incluyen el contexto de observación de esa noche.</li>
+          <li>Las imágenes de los planetas y la Luna son representativas y estáticas; no muestran la fase, orientación o apariencia actuales.</li>
+        </ul>
+        <p>Los créditos de las imágenes y curiosidades aparecen en los detalles y enlazan con sus fuentes originales.</p>
+      </section>
+
+      <section id="es-calendar">
+        <h2>8. Calendario</h2>
+        <p>El Calendario combina fuentes con distintos horizontes temporales, pero mantiene separada la semántica de cada una.</p>
+        <dl class="term-grid">
+          <dt>Eventos anuales</dt>
+          <dd>Fases lunares, oposiciones, conjunciones, eclipses y lluvias de meteoros calculados o recurrentes.</dd>
+          <dt>Pasos de la ISS</dt>
+          <dd>Eventos a corto plazo calculados localmente a partir de elementos orbitales actualizados. Muestran entrada, culminación, salida, altitud máxima, direcciones y duración cuando la estación está iluminada y el cielo del observador está suficientemente oscuro.</dd>
+          <dt>Ventanas de cometas</dt>
+          <dd>Varias noches útiles se agrupan en un intervalo con una fecha preferente. La magnitud prevista puede ser muy incierta.</dd>
+        </dl>
+        <p>La ISS y los cometas <strong>no reciben puntuación</strong>: no pasan por Catálogo, Equipo, Planificador, tiempo ni NSOM. Indican que un objeto transitorio debería ser visible, no que sea el mejor objeto de la noche.</p>
+        <p>Los catálogos orbitales se descargan sin enviar su ubicación a CelesTrak ni JPL; la propagación y las comprobaciones de visibilidad local se realizan en su equipo.</p>
+      </section>
+
+      <section id="es-weather">
+        <h2>9. Tiempo, atmósfera y calidad del cielo</h2>
+        <p>Las métricas superiores de Meteorología resumen la noche de observación. Los detalles horarios muestran, en cambio, la previsión para el intervalo seleccionado. Open-Meteo es el proveedor meteorológico estándar y no requiere una cuenta.</p>
+        <dl class="term-grid">
+          <dt>Seeing</dt>
+          <dd>Estabilidad de la imagen, especialmente importante para los planetas, la Luna y los grandes aumentos.</dd>
+          <dt>Transparencia</dt>
+          <dd>Transmisión de la luz a través de la atmósfera; depende del tiempo y, cuando se aceptan, de los datos de aerosoles o partículas.</dd>
+          <dt>Fondo de cielo</dt>
+          <dd>Brillo artificial del cielo, descrito mediante VIIRS, SQM o Bortle solo cuando existe una fuente real.</dd>
+        </dl>
+        <h3>VIIRS y Bortle</h3>
+        <p>Earthdata puede proporcionar VIIRS Black Marble para estimar el fondo de cielo local. Sin una medición real en caché o un conjunto de datos local real, Bortle, SQM y la magnitud límite permanecen como <strong>n/d</strong>. NightScope no inventa un valor a partir de la ciudad o las coordenadas.</p>
+        <h3>NASA MAIAC AOD</h3>
+        <p>El AOD a 550 nm describe la columna de aerosoles. NightScope solo acepta píxeles que superan los controles de calidad, actualidad, incertidumbre y distancia local. Se muestran el método de extracción y el área de búsqueda porque un píxel exacto y una alternativa espacial no ofrecen la misma calidad.</p>
+        <h3>OpenAQ</h3>
+        <p>OpenAQ proporciona PM2.5 y PM10 cerca de la superficie. Es distinto del AOD y requiere una clave de API. Una medición actual que supere los controles de calidad puede intervenir en la transparencia atmosférica como <strong>alternativa no aditiva</strong> cuando el AOD no está disponible. El AOD y OpenAQ nunca se suman como dos penalizaciones independientes.</p>
+        <h3>Configuración de los proveedores</h3>
+        <ol>
+          <li>Abra <strong>Proveedores de datos</strong>.</li>
+          <li>Para Earthdata, guarde el nombre de usuario y la contraseña, autorice la aplicación LAADS cuando se solicite y pruebe la conexión.</li>
+          <li>Para OpenAQ, cree una clave personal, guárdela y pruebe la conexión.</li>
+          <li>Vuelva a Meteorología y espere a que termine la actualización; es posible que un proveedor no tenga cobertura o datos válidos.</li>
+        </ol>
+        <div class="callout"><strong>Unas credenciales verificadas no garantizan una medición.</strong> La cobertura, la fecha del producto, las nubes, el control de calidad, la estación y la distancia pueden producir correctamente un resultado no disponible.</div>
+      </section>
+
+      <section id="es-log">
+        <h2>10. Registro de observación</h2>
+        <p>El registro es un archivo local independiente de las recomendaciones. Puede añadir, buscar, filtrar, modificar y eliminar observaciones con fecha, hora, objeto, lugar, equipo, valoración y notas.</p>
+        <p>Cambiar una recomendación o un objeto del catálogo no modifica las observaciones anteriores. Haga una copia de seguridad de la base de datos antes de cambiar de versión para conservar el registro.</p>
+      </section>
+
+      <section id="es-data-states">
+        <h2>11. Datos ausentes, caché y confianza</h2>
+        <dl class="term-grid">
+          <dt>n/d o guion</dt>
+          <dd>El valor no está disponible, no es aplicable o no se ha calculado. No significa cero.</dd>
+          <dt>No</dt>
+          <dd>Resultado negativo de un cálculo que sí se ha ejecutado.</dd>
+          <dt>Caché / no actual</dt>
+          <dd>Último resultado válido reutilizado después de un error o sin actualización. Consulte conjuntamente la fuente y su antigüedad.</dd>
+          <dt>Confianza</dt>
+          <dd>Describe la integridad y calidad de las fuentes. Es independiente del valor utilizado para ordenar los objetos.</dd>
+          <dt>Parcial</dt>
+          <dd>Una recomendación puede ser útil aunque carezca, por ejemplo, de datos reales sobre el fondo de cielo; la interfaz debe indicar esa limitación.</dd>
+        </dl>
+        <p>Un proveedor puede devolver correctamente cero resultados. Evite actualizar de forma repetida cuando la página indique que la cobertura o la calidad son insuficientes.</p>
+      </section>
+
+      <section id="es-privacy">
+        <h2>12. Privacidad, red y almacenamiento</h2>
+        <p>NightScope no tiene cuentas de aplicación. En la versión portátil, los datos de la aplicación se guardan junto al ejecutable.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Dato o servicio</th><th>Destino</th><th>Finalidad</th></tr></thead>
+            <tbody>
+              <tr><td>Coordenadas</td><td>SQLite/JSON local; Open-Meteo, Earthdata y OpenAQ cuando se utilizan.</td><td>Previsiones y productos específicos de la ubicación.</td></tr>
+              <tr><td>Ubicación de Windows</td><td>Windows y NightScope.</td><td>Obtención precisa; sin geocodificador inverso en línea automático.</td></tr>
+              <tr><td>Alternativa por IP</td><td>Servicio de IP tras una acción explícita.</td><td>Ubicación aproximada.</td></tr>
+              <tr><td>Elementos de la ISS y los cometas</td><td>Descargados de CelesTrak/JPL sin las coordenadas del usuario.</td><td>Propagación local.</td></tr>
+              <tr><td>Contraseña de Earthdata / clave de OpenAQ</td><td>Almacén de credenciales de Windows.</td><td>Autenticación; no se guardan en SQLite.</td></tr>
+              <tr><td>Registro de observación</td><td>Solo <code>nightscope.db</code>.</td><td>Archivo personal local.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Los registros de diagnóstico evitan las coordenadas y los identificadores de credenciales, pero pueden incluir el estado de los proveedores, errores técnicos y nombres genéricos de operaciones.</p>
+        <h3>Copia de seguridad</h3>
+        <p>Con la aplicación cerrada, copie al menos <code>nightscope.db</code>, <code>user_preferences.json</code> y <code>location_cache.json</code>. La carpeta <code>logs</code> resulta útil para el diagnóstico, pero no es necesaria para restaurar perfiles y observaciones.</p>
+      </section>
+
+      <section id="es-troubleshooting">
+        <h2>13. Solución de problemas</h2>
+        <h3>La ubicación de Windows no funciona</h3>
+        <p>Compruebe los permisos de ubicación de Windows. También puede buscar una ciudad o introducir las coordenadas manualmente; la zona horaria se seguirá calculando sin conexión.</p>
+        <h3>Inicio no muestra recomendaciones</h3>
+        <p>Compruebe primero la ubicación y el estado de la sesión. Confirme después el perfil activo: sin equipo solo se muestran objetos realistas a simple vista. Una noche sin ventanas útiles puede ser un resultado correcto.</p>
+        <h3>Los datos meteorológicos no están disponibles</h3>
+        <p>Compruebe el acceso a internet y utilice Actualizar. NightScope puede conservar una caché válida; consulte siempre su antigüedad. Open-Meteo no utiliza las credenciales de Earthdata.</p>
+        <h3>No llegan datos VIIRS o AOD</h3>
+        <p>Compruebe el almacenamiento de las credenciales, la autorización de LAADS y la prueba de conexión. Incluso con credenciales válidas puede no existir un píxel aceptable para la fecha del producto y la ubicación.</p>
+        <h3>OpenAQ no encuentra mediciones</h3>
+        <p>Compruebe la clave y la conexión. La estación más cercana puede estar demasiado lejos, ser demasiado antigua o no disponer de valores PM2.5/PM10 aceptables.</p>
+        <h3>El manual no se abre</h3>
+        <p>No separe el ejecutable de la carpeta <code>_internal</code> de PyInstaller. En el árbol de código fuente, mantenga <code>manuale.html</code> en la raíz del proyecto.</p>
+      </section>
+
+      <section id="es-limits">
+        <h2>14. Límites, criterio sobre el terreno y seguridad</h2>
+        <ul>
+          <li>NightScope no modela árboles, edificios, montañas, máscaras del horizonte ni luces directas del lugar.</li>
+          <li>La extinción atmosférica cerca del horizonte y el brillo superficial no se modelan por completo.</li>
+          <li>El tiempo, el seeing, la transparencia y la magnitud de los cometas son previsiones o estimaciones, no mediciones garantizadas del telescopio.</li>
+          <li>Las imágenes científicas locales son representativas y no sustituyen una carta celeste para apuntar.</li>
+          <li>Los filtros y reductores requieren una comprobación física y la documentación del fabricante.</li>
+        </ul>
+        <div class="callout danger"><strong>Seguridad solar.</strong> Nunca observe el Sol con óptica sin filtrar. Utilice únicamente un filtro solar certificado de abertura completa, fijado delante del instrumento. No utilice filtros solares de ocular.</div>
+        <p>Utilice cada recomendación como punto de partida. La bruma local, la turbulencia, la adaptación a la oscuridad, la experiencia y la calidad real del instrumento siguen siendo responsabilidad del observador.</p>
+      </section>
+    </main>
   </div>
 
   <footer>
     <div class="footer-inner">
-      <span data-copy-it>NightScope - Manuale utente bilingue - revisione 1.33.2</span>
-      <span data-copy-en hidden>NightScope - Bilingual user manual - revision 1.33.2</span>
+      <span data-copy-it>NightScope - Manuale utente multilingue - revisione 1.34.0</span>
+      <span data-copy-en hidden>NightScope - Multilingual user manual - revision 1.34.0</span>
+      <span data-copy-es hidden>NightScope - Manual de usuario multilingüe - revisión 1.34.0</span>
     </div>
   </footer>
 
@@ -1153,6 +1418,12 @@
       var navs = document.querySelectorAll("[data-nav]");
       var italianCopies = document.querySelectorAll("[data-copy-it]");
       var englishCopies = document.querySelectorAll("[data-copy-en]");
+      var spanishCopies = document.querySelectorAll("[data-copy-es]");
+      var titles = {
+        it: "NightScope - Manuale utente",
+        en: "NightScope - User manual",
+        es: "NightScope - Manual de usuario"
+      };
 
       function setCopies(nodes, hidden) {
         for (var index = 0; index < nodes.length; index += 1) {
@@ -1161,11 +1432,9 @@
       }
 
       function setLanguage(language, persist) {
-        var selected = language === "en" ? "en" : "it";
+        var selected = language === "en" || language === "es" ? language : "it";
         document.documentElement.lang = selected;
-        document.title = selected === "it"
-          ? "NightScope - Manuale utente"
-          : "NightScope - User manual";
+        document.title = titles[selected];
 
         for (var index = 0; index < articles.length; index += 1) {
           articles[index].hidden = articles[index].getAttribute("data-article") !== selected;
@@ -1180,6 +1449,7 @@
 
         setCopies(italianCopies, selected !== "it");
         setCopies(englishCopies, selected !== "en");
+        setCopies(spanishCopies, selected !== "es");
 
         if (persist) {
           try {
@@ -1198,11 +1468,13 @@
         storedLanguage = "";
       }
       var browserLanguage = (window.navigator.language || "it").toLowerCase();
-      var initialLanguage = queryLanguage === "it" || queryLanguage === "en"
+      var initialLanguage = queryLanguage === "it" || queryLanguage === "en" || queryLanguage === "es"
         ? queryLanguage
-        : storedLanguage === "it" || storedLanguage === "en"
+        : storedLanguage === "it" || storedLanguage === "en" || storedLanguage === "es"
           ? storedLanguage
-          : browserLanguage.indexOf("it") === 0 ? "it" : "en";
+          : browserLanguage.indexOf("it") === 0
+            ? "it"
+            : browserLanguage.indexOf("es") === 0 ? "es" : "en";
 
       for (var index = 0; index < languageButtons.length; index += 1) {
         languageButtons[index].addEventListener("click", function (event) {

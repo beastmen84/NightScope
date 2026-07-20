@@ -1,11 +1,25 @@
 # NightScope - Visual Review Checklist
 
-Aggiornato: 2026-07-15
+Aggiornato: 2026-07-20
 
 Questo documento registra il controllo visuale pre-release e il relativo
 passaggio unico di correzione concluso nella sorgente `1.33.1`. Le verifiche
 sull'artefatto Windows restano separate in `RELEASE_CHECKLIST.md` e dovranno
 essere ripetute dopo la prossima rigenerazione della dist.
+
+## Verifica Sorgente Spagnolo 1.34.0
+
+- [x] Manuale spagnolo renderizzato in Chromium a `1440x900` e `390x844`:
+  nessun overflow orizzontale, selettore e persistenza ES/EN/ES corretti,
+  navigazione alla sezione finale non coperta dall'header.
+- [x] Cataloghi Qt IT/EN/ES completi: `1665` traduzioni finite e `0` unfinished
+  per lingua; contenuti spagnoli completi per `7` sezioni, `821` elementi e
+  `2038` campi.
+- [x] Smoke QML separati italiano, inglese e spagnolo superati in runtime
+  temporanei; suite completa `794 passed`.
+- [ ] Eseguire la matrice visuale pagina-per-pagina in spagnolo su una nuova
+  build Windows `1.34.0`. I controlli sorgente sopra non approvano da soli un
+  nuovo artefatto pubblico.
 
 Stati usati:
 

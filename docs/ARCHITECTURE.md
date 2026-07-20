@@ -72,8 +72,9 @@ persists changes and calls `QQmlApplicationEngine.retranslate()`, so QML
 bindings using `qsTr()` update without rebuilding controller state or
 recomputing NSOM.
 
-Italian is the source and fallback language. Runtime packs are auto-discovered
-from `<code>.json` metadata and use matching Qt `<code>.qm` catalogues, so the
+Italian is the source and fallback language; complete Italian, English, and
+Spanish packs are currently bundled. Runtime packs are auto-discovered from
+`<code>.json` metadata and use matching Qt `<code>.qm` catalogues, so the
 sidebar and PyInstaller spec contain no hard-coded language list. Static QML
 copy uses `qsTr()`. Python services retain lazy `tr()` messages and structured
 `content_text()` references until the controller renders a QML property.
@@ -83,9 +84,9 @@ user-entered text.
 
 The sidebar help button opens the packaged self-contained `manuale.html` through
 the constant `AppController.manualUrl`. The current runtime language is passed
-as `?lang=<code>`; the manual owns its Italian/English selection without adding
-another runtime translation surface. In source the file is resolved from the
-project root; in PyInstaller it is resolved from the bundle data root.
+as `?lang=<code>`; the manual owns its Italian/English/Spanish selection without
+adding another runtime translation surface. In source the file is resolved from
+the project root; in PyInstaller it is resolved from the bundle data root.
 
 Internal read models consume canonical, unrendered payloads. A language switch
 emits presentation signals only and does not recompute astronomy, weather,

@@ -207,7 +207,7 @@ def test_manual_is_packaged_and_linked_from_the_sidebar() -> None:
     assert 'translationManager.languageCode' in qml
 
 
-def test_bilingual_manual_has_complete_navigation_and_current_provider_semantics() -> None:
+def test_multilingual_manual_has_complete_navigation_and_current_provider_semantics() -> None:
     manual = (PROJECT_ROOT / "manuale.html").read_text(encoding="utf-8")
     parser = _ManualStructureParser()
     parser.feed(manual)
@@ -217,7 +217,8 @@ def test_bilingual_manual_has_complete_navigation_and_current_provider_semantics
     assert set(parser.internal_links).issubset(set(parser.ids))
     assert parser.article_languages.count("it") == 2
     assert parser.article_languages.count("en") == 2
-    for language in ("it", "en"):
+    assert parser.article_languages.count("es") == 2
+    for language in ("it", "en", "es"):
         for section in (
             "start",
             "location",
@@ -239,9 +240,11 @@ def test_bilingual_manual_has_complete_navigation_and_current_provider_semantics
     assert 'new URLSearchParams(window.location.search).get("lang")' in manual
     assert "fallback non additivo" in manual
     assert "non-additive fallback" in manual
+    assert "alternativa no aditiva" in manual
     assert "NightScope non usa OpenAQ per raccomandazioni" not in manual
     assert "Do not use eyepiece solar filters" in manual
     assert "Non usare filtri solari da oculare" in manual
+    assert "No utilice filtros solares de ocular" in manual
 
 
 def test_github_readme_is_product_focused_and_links_release_documents() -> None:

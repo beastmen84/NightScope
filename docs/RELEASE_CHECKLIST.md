@@ -29,8 +29,8 @@ source commit or a passing unit suite alone is not a release approval.
 
 ## 3. Visual Matrix
 
-Run every row in both Italian and English at the supported minimum and normal
-desktop sizes.
+Run every row in every supported language (currently Italian, English, and
+Spanish) at the supported minimum and normal desktop sizes.
 
 Record findings and their resolution status in
 [`VISUAL_CHECKLIST.md`](VISUAL_CHECKLIST.md).

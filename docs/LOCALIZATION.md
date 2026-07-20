@@ -3,6 +3,9 @@
 NightScope discovers languages from files. The runtime, sidebar and packaging do
 not contain a hard-coded list of supported language codes.
 
+The source tree currently ships complete packs for Italian (`it`), English
+(`en`), and Spanish for Spain (`es`).
+
 Italian is the canonical UI source and fallback language. Historical structured
 CSV data can legitimately mix Italian and English between fields; the content
 generator records the actual source language per field instead of assigning one
@@ -89,6 +92,14 @@ rejects empty, unfinished or placeholder-incompatible entries.
 The update tools preserve existing reviewed translations. Use `--refresh` only
 when intentionally replacing all generated text, because it can overwrite
 editorial corrections.
+
+Reviewed TS corrections can be stored in
+`tools/translation_reviews/<code>.json`. The optional `translations` object
+applies a correction to a source message globally; `contexts` applies it only
+inside a named Qt context. `update_ts_translations.py` applies this overlay
+after generation and fails on malformed placeholders or stale review entries,
+so editorial terminology remains reproducible instead of depending on manual
+edits to generated XML.
 
 ### Machine-Translation Provider
 

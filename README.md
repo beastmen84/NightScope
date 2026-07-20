@@ -12,8 +12,10 @@ setup?**
 
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
-> validated; its bilingual source visual review and source licensing are
-> complete. The Windows bundle has been rebuilt and passes automated legal,
+> validated; its Italian/English source visual review and source licensing are
+> complete. Source version 1.34.0 adds reviewed Spanish localization; its full
+> Spanish visual matrix and matching Windows bundle have not been completed.
+> The published Windows bundle passes automated legal,
 > Qt, backend, and QML checks; its packaged visual and live-provider release
 > matrices are not complete yet.
 
@@ -40,8 +42,8 @@ SHA-256 digest of the portable ZIP.
 - Includes offline catalogues for 110 Messier objects, 109 Caldwell objects,
   nine Solar System targets, cities, equipment, descriptions, and credited
   scientific images.
-- Switches the application and its content between Italian and English at
-  runtime.
+- Switches the application and its content between Italian, English, and
+  Spanish at runtime.
 
 NightScope is a decision-support tool, not a planetarium, telescope-control
 system, or substitute for an astronomical atlas.
@@ -182,9 +184,9 @@ the latest measured baseline are in [`docs/TESTING.md`](docs/TESTING.md).
 ```
 
 PyInstaller writes the portable application to `dist\NightScope`. The build
-includes QML, translations, the bilingual manual, catalogue seeds, scientific
-images, GeoNames data, timezone boundary data, and the local JPL `de421`
-ephemeris.
+includes QML, translations, the multilingual manual, catalogue seeds,
+scientific images, GeoNames data, timezone boundary data, and the local JPL
+`de421` ephemeris.
 
 The application writes its database, preferences, caches, and logs beside the
 executable, so do not run it from a read-only directory. `dist` is intentionally
@@ -218,7 +220,7 @@ astro_viewer/
 docs/                 Architecture, model, testing and release documentation
 packaging/            PyInstaller spec and Windows build script
 tools/                Validation and localization maintenance tools
-manuale.html          Self-contained Italian/English user manual
+manuale.html          Self-contained Italian/English/Spanish user manual
 ```
 
 Architecture details are in

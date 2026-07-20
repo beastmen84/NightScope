@@ -1,5 +1,30 @@
 # Changelog
 
+## NightScope 1.34.0 - 2026-07-20
+
+- Aggiunta la localizzazione completa in spagnolo (Spagna): `1665` messaggi
+  Qt/Python, contenuti strutturati di cataloghi ed Equipment e catalogo runtime
+  compilato. Terminologia astronomica, ottica, provider, privacy e sicurezza
+  solare sono state revisionate editorialmente, non lasciate al solo output
+  automatico.
+- Tradotto integralmente in spagnolo il manuale HTML, comprese tutte le 14
+  sezioni, la navigazione responsive, le formule Equipment e le avvertenze di
+  sicurezza.
+- Aggiunto un overlay deterministico per le traduzioni TS revisionate. Gli
+  updater applicano le correzioni per testo o contesto, verificano placeholder
+  e riferimenti obsoleti e restano idempotenti dopo una rigenerazione.
+- Estesi i test di localizzazione a discovery, completezza, contenuti, termini
+  revisionati, preferenze, formati locali e cambio live italiano/inglese/
+  spagnolo. Nessuna modifica a scoring, Planner, Home, Equipment, Sky Compass,
+  schema SQLite o logica delle raccomandazioni.
+- Gate completo senza coverage superato: `794 passed`, `613 warnings` note e
+  `7 subtests`; cataloghi IT/EN/ES completi `1665/1665`, smoke QML separati
+  nelle tre lingue e manuale spagnolo verificato in Chromium a larghezza desktop
+  e mobile senza overflow orizzontale.
+- La versione sorgente passa a `1.34.0`; la release GitHub e il pacchetto
+  Windows pubblicati restano `1.33.2` finche' non viene eseguito un nuovo ciclo
+  esplicito di build e rilascio.
+
 ## NightScope 1.33.2 - 2026-07-15
 
 - Adottata la Mozilla Public License 2.0 per NightScope, Copyright 2026 Davide

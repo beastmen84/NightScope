@@ -17,6 +17,7 @@ from tools.translation_provider import GoogleTranslator  # noqa: E402
 
 
 TRANSLATIONS_DIR = PROJECT_ROOT / "astro_viewer" / "translations"
+TRANSLATION_REVIEWS_DIR = PROJECT_ROOT / "tools" / "translation_reviews"
 TRANSLATION_CHUNK_LIMIT = 3_500
 SEPARATOR = "\n[NIGHTSCOPE_TS_SPLIT_0001]\n"
 PLACEHOLDER_PATTERN = re.compile(
@@ -166,6 +167,94 @@ def _write_catalog(path: Path, root: ElementTree.Element) -> None:
     )
 
 
+def _reviewed_translations(
+    language_code: str,
+) -> tuple[dict[str, str], dict[str, dict[str, str]]]:
+    path = TRANSLATION_REVIEWS_DIR / f"{language_code}.json"
+    if not path.exists():
+        return {}, {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("schema_version") != 1:
+        raise ValueError(f"Invalid translation review: {path}")
+    translations = payload.get("translations", {})
+    contexts = payload.get("contexts", {})
+    if not isinstance(translations, dict) or not all(
+        isinstance(source, str)
+        and bool(source)
+        and isinstance(value, str)
+        and bool(value.strip())
+        for source, value in translations.items()
+    ):
+        raise ValueError(f"Invalid translation review entries: {path}")
+    if not isinstance(contexts, dict) or not all(
+        isinstance(context, str)
+        and isinstance(entries, dict)
+        and all(
+            isinstance(source, str)
+            and bool(source)
+            and isinstance(value, str)
+            and bool(value.strip())
+            for source, value in entries.items()
+        )
+        for context, entries in contexts.items()
+    ):
+        raise ValueError(f"Invalid contextual translation review entries: {path}")
+    return translations, contexts
+
+
+def _apply_translation_review(
+    root: ElementTree.Element,
+    language_code: str,
+) -> int:
+    translations, contexts = _reviewed_translations(language_code)
+    if not translations and not contexts:
+        return 0
+    expected = {(None, source) for source in translations}
+    expected.update(
+        (context, source)
+        for context, entries in contexts.items()
+        for source in entries
+    )
+    seen: set[tuple[str | None, str]] = set()
+    changed = 0
+    for context_node in root.findall("context"):
+        context = context_node.findtext("name", default="")
+        contextual = contexts.get(context, {})
+        for message in context_node.findall("message"):
+            translation = message.find("translation")
+            if translation is None or translation.get("type") in {
+                "obsolete",
+                "vanished",
+            }:
+                continue
+            source = message.findtext("source", default="")
+            reviewed = contextual.get(source)
+            review_key: tuple[str | None, str] = (context, source)
+            if reviewed is None:
+                reviewed = translations.get(source)
+                review_key = (None, source)
+            if reviewed is None:
+                continue
+            if sorted(PLACEHOLDER_PATTERN.findall(reviewed)) != sorted(
+                PLACEHOLDER_PATTERN.findall(source)
+            ):
+                raise ValueError(
+                    f"Placeholder mismatch in {language_code} review: "
+                    f"{context}/{source}"
+                )
+            seen.add(review_key)
+            if (translation.text or "") != reviewed:
+                translation.text = reviewed
+                translation.attrib.pop("type", None)
+                changed += 1
+    missing = sorted(expected - seen)
+    if missing:
+        raise ValueError(
+            f"Translation review entries missing from {language_code}.ts: {missing}"
+        )
+    return changed
+
+
 def update_catalog(
     language_code: str,
     payload: dict,
@@ -207,8 +296,12 @@ def update_catalog(
             raise AssertionError("translation node disappeared")
         translation.text = translations[source]
         translation.attrib.pop("type", None)
+    reviewed = _apply_translation_review(root, language_code)
     _write_catalog(path, root)
-    print(f"{language_code}: updated {len(pending)} TS messages")
+    print(
+        f"{language_code}: updated {len(pending)} TS messages; "
+        f"applied {reviewed} reviewed corrections"
+    )
 
 
 def parse_args() -> argparse.Namespace:
