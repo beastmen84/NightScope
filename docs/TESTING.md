@@ -95,6 +95,29 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.34.0 Deep Review Hardening Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-21 after the provider,
+location-cache, numeric-input and startup hardening follow-up:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` | Passed in 246.5 s |
+| `pip check`, Ruff, `compileall`, and third-party archive | Passed |
+| `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 816 passed, 613 warnings, 10 subtests passed in 143.85 s |
+| Runtime coverage | 84% across 15,403 statements |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Focused post-fix verification | 62 passed |
+| Translation catalogues | IT, EN, and ES: 1,670 finished, 0 unfinished each |
+| Focused localization and developer-tooling tests | 34 passed |
+| Separate Italian, English, and Spanish QML smoke runs | Passed in disposable runtimes |
+| `qmllint` | 30 files, 0 failures, 760 known static warnings |
+| Repository image checks | 219 deep-sky and 9 Solar System JPEG assets passed |
+| Bandit application/tool scan | 0 high, 26 medium, 12 low; unchanged reviewed baseline |
+
+No schema migration, seed-data change, distribution rebuild or scoring and
+recommendation-policy change belongs to this hardening pass.
+
 ## Measured 1.34.0 Spanish Localization Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-21 after the second complete

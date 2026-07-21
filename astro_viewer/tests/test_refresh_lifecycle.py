@@ -313,9 +313,11 @@ class RefreshManagerTest(unittest.TestCase):
         controller._light_pollution_service.viirs_cache_state.return_value = ViirsCacheState.STALE
         controller._light_pollution_service.remote_sky_quality.return_value = None
         controller._refresh_manager = RefreshManager()
-        emissions: list[tuple[str, object, str]] = []
+        emissions: list[tuple[int, str, object, str]] = []
         controller._viirsSkyQualityFinished.connect(
-            lambda location_key, quality, message: emissions.append((location_key, quality, message))
+            lambda request_id, location_key, quality, message: emissions.append(
+                (request_id, location_key, quality, message)
+            )
         )
 
         with patch("astro_viewer.app.viewmodels.app_controller.Thread") as thread_cls:
@@ -328,12 +330,37 @@ class RefreshManagerTest(unittest.TestCase):
             emissions,
             [
                 (
+                    1,
                     "9.030:38.740:addis ababa",
                     None,
                     "Aggiornamento VIIRS non disponibile; uso dati in cache.",
                 )
             ],
         )
+
+    def test_stale_viirs_generation_cannot_finish_current_refresh(self) -> None:
+        controller = AppController.__new__(AppController)
+        QObject.__init__(controller)
+        controller._location = ObserverLocation(
+            "Addis Ababa",
+            "Ethiopia",
+            9.03,
+            38.74,
+            "Africa/Addis_Ababa",
+        )
+        controller._viirs_sky_quality_request_id = 2
+        controller._viirs_sky_quality_running = True
+        controller._light_pollution_status = "current refresh"
+
+        controller._finish_viirs_sky_quality_refresh(
+            1,
+            "9.030:38.740:addis ababa",
+            None,
+            "stale refresh",
+        )
+
+        self.assertTrue(controller._viirs_sky_quality_running)
+        self.assertEqual(controller._light_pollution_status, "current refresh")
 
 
 class _FakeAstronomyEngine:

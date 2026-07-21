@@ -115,7 +115,8 @@ its runtime data next to the executable:
 
 - `nightscope.db`: location, profiles, catalogues, caches, and observation log;
 - `user_preferences.json`: interface and provider state;
-- `location_cache.json`: last location acquisition result;
+- `location_cache.json`: last location acquisition result; approximate IP
+  fallback data is accepted for at most 24 hours and is labelled as cached;
 - `logs/`: rotating diagnostic logs.
 
 Exact coordinates are therefore local application data, but they are sent to a

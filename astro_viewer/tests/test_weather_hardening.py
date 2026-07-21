@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from threading import Event, Thread
 from unittest.mock import Mock, patch
 
 import requests
@@ -201,6 +202,67 @@ class WeatherHardeningTests(unittest.TestCase):
 
         weather_get.assert_called_once()
         self.assertEqual(forecast[0].cloud_cover, 10)
+
+    def test_concurrent_requests_keep_error_state_bound_to_their_thread(self) -> None:
+        service = OpenMeteoWeatherService()
+        second_started = Event()
+        first_completed = Event()
+        results: dict[str, tuple[list, str, bool]] = {}
+        response = Mock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = {
+            "hourly": {
+                "time": ["2026-06-21T22:00"],
+                "cloud_cover": [12],
+                "precipitation_probability": [0],
+                "temperature_2m": [18.0],
+                "relative_humidity_2m": [55],
+                "wind_speed_10m": [6],
+                "visibility": [18000],
+            }
+        }
+        second_location = ObserverLocation(
+            "Bologna",
+            "Italy",
+            44.4938,
+            11.3387,
+            "Europe/Rome",
+        )
+
+        def request(params: dict):
+            if params["latitude"] == self.location.latitude:
+                self.assertTrue(second_started.wait(timeout=2))
+                raise requests.Timeout
+            second_started.set()
+            self.assertTrue(first_completed.wait(timeout=2))
+            return response
+
+        def run(label: str, location: ObserverLocation) -> None:
+            hours = service.hourly_forecast(location)
+            results[label] = (
+                hours,
+                service.last_error,
+                service.retry_recommended,
+            )
+            if label == "first":
+                first_completed.set()
+
+        with patch.object(service, "_get_with_timeout_retry", side_effect=request):
+            first = Thread(target=run, args=("first", self.location))
+            second = Thread(target=run, args=("second", second_location))
+            first.start()
+            second.start()
+            first.join(timeout=3)
+            second.join(timeout=3)
+
+        self.assertFalse(first.is_alive())
+        self.assertFalse(second.is_alive())
+        self.assertEqual(results["first"][0], [])
+        self.assertEqual(results["first"][1], WEATHER_UNAVAILABLE_MESSAGE)
+        self.assertTrue(results["first"][2])
+        self.assertEqual(len(results["second"][0]), 1)
+        self.assertEqual(results["second"][1], "")
+        self.assertFalse(results["second"][2])
 
 
 if __name__ == "__main__":

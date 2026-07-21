@@ -4,6 +4,7 @@ import json
 import subprocess
 import tempfile
 import unittest
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -478,6 +479,78 @@ class LocationServiceWindowsTests(unittest.TestCase):
             with self.assertLogs("astro_viewer.app.services.location_service", level="WARNING"):
                 with self.assertRaisesRegex(LocationUnavailableError, APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE):
                     IpGeolocationProvider().detect()
+
+    def test_recent_ip_cache_is_explicitly_reused_after_network_failure(self) -> None:
+        now = datetime(2026, 7, 21, 12, 0, tzinfo=UTC)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_path = Path(temp_dir) / "location_cache.json"
+            provider = IpGeolocationProvider(cache_path, clock=lambda: now)
+            provider._write_cache(
+                LocationDetectionResult(
+                    location=ObserverLocation(
+                        "Rome",
+                        "Italy",
+                        41.9,
+                        12.5,
+                        "Europe/Rome",
+                    ),
+                    provider="ip_geolocation",
+                    source="https://ipapi.co/json/",
+                    accuracy="25 km",
+                    approximate=True,
+                )
+            )
+
+            with patch(
+                "astro_viewer.app.services.location_service.requests.get",
+                side_effect=requests.Timeout,
+            ):
+                with self.assertLogs(
+                    "astro_viewer.app.services.location_service",
+                    level="WARNING",
+                ):
+                    result = provider.detect()
+
+        self.assertTrue(result.source.endswith(" cached"))
+        self.assertEqual(result.message, "Posizione caricata.")
+        self.assertEqual(result.location.city, "Rome")
+
+    def test_expired_ip_cache_is_not_presented_as_current_location(self) -> None:
+        now = datetime(2026, 7, 21, 12, 0, tzinfo=UTC)
+        clock = {"now": now}
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_path = Path(temp_dir) / "location_cache.json"
+            provider = IpGeolocationProvider(
+                cache_path,
+                clock=lambda: clock["now"],
+            )
+            provider._write_cache(
+                LocationDetectionResult(
+                    location=ObserverLocation(
+                        "Old city",
+                        "Old country",
+                        1.0,
+                        2.0,
+                        "UTC",
+                    ),
+                    provider="ip_geolocation",
+                    source="https://ipapi.co/json/",
+                    accuracy="city",
+                    approximate=True,
+                )
+            )
+            clock["now"] = now + timedelta(hours=24, seconds=1)
+
+            with patch(
+                "astro_viewer.app.services.location_service.requests.get",
+                side_effect=requests.Timeout,
+            ):
+                with self.assertLogs(
+                    "astro_viewer.app.services.location_service",
+                    level="WARNING",
+                ):
+                    with self.assertRaises(LocationUnavailableError):
+                        provider.detect()
 
     def test_fallback_order(self) -> None:
         calls: list[str] = []

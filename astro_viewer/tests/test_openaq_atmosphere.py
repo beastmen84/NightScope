@@ -7,8 +7,11 @@ from unittest.mock import Mock
 from PySide6.QtCore import QObject
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
-from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere
-from astro_viewer.app.services.openaq_atmosphere_service import OpenAQLocalAtmosphereService
+from astro_viewer.app.services.openaq_atmosphere_service import (
+    LocalAtmosphere,
+    OpenAQLocalAtmosphereService,
+    OpenAQReading,
+)
 from astro_viewer.app.services.openaq_credentials import OpenAQCredentialState
 from astro_viewer.app.viewmodels.app_controller import AppController
 
@@ -197,6 +200,81 @@ class OpenAQLocalAtmosphereServiceTests(unittest.TestCase):
         self.assertFalse(result.has_data)
         self.assertIn("HTTP 500", result.message)
 
+    def test_latest_endpoint_failure_is_not_cached_as_no_data(self) -> None:
+        service, session = _service(
+            [
+                _locations_response(),
+                FakeOpenAQResponse(429),
+                _locations_response(),
+                _latest_response(),
+            ],
+            clock=lambda: self.now,
+        )
+
+        first = service.atmosphere("openaq-secret", _location())
+        second = service.atmosphere("openaq-secret", _location())
+
+        self.assertIn("limite di traffico", first.message)
+        self.assertEqual(
+            second.message,
+            "Nessun dato OpenAQ disponibile per questa località.",
+        )
+        self.assertEqual(len(session.calls), 4)
+
+    def test_latest_authentication_failure_uses_language_independent_category(self) -> None:
+        service, _session = _service(
+            [
+                _locations_response(),
+                FakeOpenAQResponse(401),
+            ],
+            clock=lambda: self.now,
+        )
+
+        result = service.atmosphere("openaq-secret", _location())
+
+        self.assertEqual(result.error_category, "authentication")
+        self.assertIn("API key OpenAQ", result.message)
+
+    def test_distance_fields_use_documented_units_and_preserve_zero(self) -> None:
+        self.assertEqual(
+            OpenAQLocalAtmosphereService._distance_km(
+                {"distance": 100},
+                _location(),
+            ),
+            0.1,
+        )
+        self.assertEqual(
+            OpenAQLocalAtmosphereService._distance_km(
+                {"distance": 0},
+                _location(),
+            ),
+            0.0,
+        )
+        self.assertEqual(
+            OpenAQLocalAtmosphereService._distance_km(
+                {"distance_km": 0.4},
+                _location(),
+            ),
+            0.4,
+        )
+
+    def test_exact_station_is_sorted_and_selected_before_more_distant_data(self) -> None:
+        ordered = OpenAQLocalAtmosphereService._nearest_locations(
+            [
+                {"id": 2, "distance": 100},
+                {"id": 1, "distance": 0},
+                {"id": 3},
+            ]
+        )
+        self.assertEqual([item["id"] for item in ordered], [1, 2, 3])
+
+        timestamp = datetime(2026, 6, 28, 8, 0, tzinfo=UTC)
+        selected = OpenAQLocalAtmosphereService._source_reading(
+            OpenAQReading("pm25", 8, "ug/m3", timestamp, distance_km=0.0),
+            OpenAQReading("pm10", 20, "ug/m3", timestamp, distance_km=0.1),
+        )
+        self.assertEqual(selected.distance_km, 0.0)
+
     def test_recent_measurements_show_warning_freshness(self) -> None:
         service, _session = _service(
             [
@@ -304,6 +382,7 @@ class OpenAQLocalAtmosphereControllerTests(unittest.TestCase):
         previous = LocalAtmosphere.no_data()
         controller._local_atmosphere = previous
         controller._local_atmosphere_refresh_running = True
+        controller._local_atmosphere_refresh_request_id = 1
         controller._location = _location()
         controller._refresh_local_atmosphere = Mock()
 
@@ -335,6 +414,24 @@ class OpenAQLocalAtmosphereControllerTests(unittest.TestCase):
         )
 
         self.assertFalse(controller._local_atmosphere.visible)
+
+    def test_stale_request_generation_cannot_finish_current_refresh(self) -> None:
+        controller = AppController.__new__(AppController)
+        QObject.__init__(controller)
+        previous = LocalAtmosphere.no_data()
+        controller._local_atmosphere = previous
+        controller._local_atmosphere_refresh_running = True
+        controller._local_atmosphere_refresh_request_id = 2
+        controller._location = _location()
+
+        controller._finish_local_atmosphere_refresh(
+            1,
+            "9.030:38.740:addis ababa",
+            LocalAtmosphere.failure(),
+        )
+
+        self.assertTrue(controller._local_atmosphere_refresh_running)
+        self.assertIs(controller._local_atmosphere, previous)
 
 
 class _FakeOpenAQCredentialStore:

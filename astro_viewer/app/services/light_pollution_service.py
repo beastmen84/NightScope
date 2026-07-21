@@ -4,9 +4,7 @@ import csv
 import io
 import logging
 import math
-import os
 import re
-import tempfile
 from collections.abc import Iterable
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -22,7 +20,10 @@ from urllib3.util.retry import Retry
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.models.sky import SkyQuality
-from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialStore
+from astro_viewer.app.services.earthdata_credentials import (
+    EarthdataCredentialStore,
+    temporary_earthdata_netrc,
+)
 from astro_viewer.app.services.localization import tr
 
 try:
@@ -87,6 +88,7 @@ class LightPollutionService:
         self._clock = clock or (lambda: datetime.now(UTC))
         self._viirs_cache_recheck_interval = viirs_cache_recheck_interval
         self._viirs_cache_reuse_radius_km = max(0.0, float(viirs_cache_reuse_radius_km))
+        self.last_remote_error = ""
         deleted_estimates = self._repository.delete_non_viirs_estimates()
         if deleted_estimates:
             logger.info(
@@ -123,6 +125,7 @@ class LightPollutionService:
         return ViirsCacheState.STALE
 
     def remote_sky_quality(self, location: ObserverLocation) -> SkyQuality | None:
+        self.last_remote_error = ""
         key = self._location_key(location)
         cached = self._cached_viirs_row(location)
         if cached and self._viirs_cache_state(cached) is ViirsCacheState.FRESH:
@@ -133,8 +136,14 @@ class LightPollutionService:
                 quality = provider.lookup(location)
             except Exception:
                 logger.warning("%s failed during remote sky-quality lookup.", provider.name, exc_info=True)
+                self.last_remote_error = tr(
+                    "Dati NASA VIIRS non disponibili al momento."
+                )
                 continue
             if not quality:
+                provider_error = getattr(provider, "last_error", "")
+                if isinstance(provider_error, str) and provider_error:
+                    self.last_remote_error = provider_error
                 continue
             self._repository.set(
                 key,
@@ -294,6 +303,10 @@ class ViirsGranule:
     product_month: str
 
 
+class _ViirsProviderError(RuntimeError):
+    pass
+
+
 class NasaViirsBlackMarbleProvider:
     name = "NasaViirsBlackMarbleProvider"
 
@@ -323,12 +336,16 @@ class NasaViirsBlackMarbleProvider:
             return None
 
         username, password = credentials
-        session_source = self._session(username, password)
-        if hasattr(session_source, "__enter__"):
-            with session_source as session:
-                quality = self._lookup_with_session(session, location)
-        else:
-            quality = self._lookup_with_session(session_source, location)
+        try:
+            session_source = self._session(username, password)
+            if hasattr(session_source, "__enter__"):
+                with session_source as session:
+                    quality = self._lookup_with_session(session, location)
+            else:
+                quality = self._lookup_with_session(session_source, location)
+        except _ViirsProviderError as exc:
+            self.last_error = str(exc)
+            return None
         if quality:
             return quality
 
@@ -369,9 +386,16 @@ class NasaViirsBlackMarbleProvider:
             response = session.get(directory_url, timeout=(5, 12), allow_redirects=True)
         except requests.RequestException as exc:
             logger.info("VIIRS directory lookup failed for %s: %s", directory_url, exc)
-            return None
+            raise _ViirsProviderError(
+                tr(
+                    "Connessione NASA VIIRS non riuscita: {error_type}.",
+                    error_type=exc.__class__.__name__,
+                )
+            ) from exc
         if response.status_code != 200:
-            return None
+            if response.status_code == 404:
+                return None
+            raise _ViirsProviderError(self._http_error_message(response.status_code))
         pattern = re.compile(
             rf"({self.PRODUCT}\.A{month_start.year}{doy:03d}\.{tile.identifier}\.{self.VERSION}\.\d+\.h5)"
         )
@@ -399,10 +423,34 @@ class NasaViirsBlackMarbleProvider:
             response = session.get(url, params={"dap4.ce": constraint}, timeout=(8, 45), allow_redirects=True)
         except requests.RequestException as exc:
             logger.info("VIIRS subset lookup failed for %s: %s", url, exc)
-            return None
-        if response.status_code != 200 or not response.content:
+            raise _ViirsProviderError(
+                tr(
+                    "Connessione NASA VIIRS non riuscita: {error_type}.",
+                    error_type=exc.__class__.__name__,
+                )
+            ) from exc
+        if response.status_code != 200:
+            if response.status_code == 404:
+                return None
+            raise _ViirsProviderError(self._http_error_message(response.status_code))
+        if not response.content:
             return None
         return response.content
+
+    @staticmethod
+    def _http_error_message(status_code: int) -> str:
+        if status_code in (401, 403):
+            return tr(
+                "Autenticazione Earthdata non riuscita durante il recupero VIIRS."
+            )
+        if status_code == 429:
+            return tr(
+                "NASA VIIRS ha applicato un limite di traffico. Riprova più tardi."
+            )
+        return tr(
+            "NASA VIIRS ha risposto con HTTP {status_code}.",
+            status_code=status_code,
+        )
 
     def _parse_subset(self, payload: bytes, product_month: str) -> SkyQuality | None:
         with h5py.File(io.BytesIO(payload), "r") as data:
@@ -467,28 +515,16 @@ class NasaViirsBlackMarbleProvider:
     @staticmethod
     @contextmanager
     def _session(username: str, password: str):
-        with tempfile.TemporaryDirectory(prefix="nightscope-viirs-") as temp_dir:
-            netrc_path = Path(temp_dir) / "_netrc"
-            netrc_path.write_text(
-                f"machine urs.earthdata.nasa.gov login {username} password {password}\n",
-                encoding="ascii",
-            )
-            try:
-                os.chmod(netrc_path, 0o600)
-            except OSError:
-                pass
-
-            previous_netrc = os.environ.get("NETRC")
-            os.environ["NETRC"] = str(netrc_path)
+        with temporary_earthdata_netrc(
+            username,
+            password,
+            prefix="nightscope-viirs-",
+        ):
             session = NasaViirsBlackMarbleProvider._requests_session()
             try:
                 yield session
             finally:
                 session.close()
-                if previous_netrc is None:
-                    os.environ.pop("NETRC", None)
-                else:
-                    os.environ["NETRC"] = previous_netrc
 
     @staticmethod
     def _requests_session() -> requests.Session:

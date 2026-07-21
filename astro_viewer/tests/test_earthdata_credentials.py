@@ -1,11 +1,17 @@
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
+from threading import Event, Thread
 from unittest.mock import patch
 
-from astro_viewer.app.services.earthdata_credentials import EarthdataConnectionTester, EarthdataCredentialStore
+from astro_viewer.app.services.earthdata_credentials import (
+    EarthdataConnectionTester,
+    EarthdataCredentialStore,
+    temporary_earthdata_netrc,
+)
 
 
 class FakeCredentialBackend:
@@ -152,6 +158,47 @@ class EarthdataConnectionTesterTests(unittest.TestCase):
         self.assertFalse(result.ok)
         self.assertTrue(result.authorization_required)
         self.assertIn("Autorizza l'app LAADS OPeNDAP", result.message)
+
+    def test_temporary_netrc_contexts_are_serialized_and_restore_environment(self) -> None:
+        first_entered = Event()
+        release_first = Event()
+        second_attempted = Event()
+        second_entered = Event()
+        paths: list[Path] = []
+
+        def first_worker() -> None:
+            with temporary_earthdata_netrc("first", "secret") as path:
+                paths.append(path)
+                first_entered.set()
+                self.assertTrue(release_first.wait(timeout=2))
+                self.assertEqual(Path(os.environ["NETRC"]), path)
+
+        def second_worker() -> None:
+            second_attempted.set()
+            with temporary_earthdata_netrc("second", "secret") as path:
+                paths.append(path)
+                self.assertEqual(Path(os.environ["NETRC"]), path)
+                second_entered.set()
+
+        with patch.dict(os.environ, {"NETRC": "original-netrc"}, clear=False):
+            first = Thread(target=first_worker)
+            second = Thread(target=second_worker)
+            first.start()
+            self.assertTrue(first_entered.wait(timeout=2))
+            second.start()
+            self.assertTrue(second_attempted.wait(timeout=2))
+            self.assertFalse(second_entered.wait(timeout=0.1))
+            release_first.set()
+            first.join(timeout=2)
+            second.join(timeout=2)
+
+            self.assertFalse(first.is_alive())
+            self.assertFalse(second.is_alive())
+            self.assertTrue(second_entered.is_set())
+            self.assertEqual(os.environ["NETRC"], "original-netrc")
+
+        self.assertEqual(len(paths), 2)
+        self.assertTrue(all(not path.exists() for path in paths))
 
 
 if __name__ == "__main__":

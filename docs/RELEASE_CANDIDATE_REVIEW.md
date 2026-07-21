@@ -1,6 +1,6 @@
 # NightScope Pre-Release Audit
 
-Review date: 2026-07-15
+Review date: 2026-07-21
 
 Scope: Python and QML application code, SQLite/bootstrap paths, astronomy and
 recommendation boundaries, external-provider handling, localization, packaged
@@ -101,6 +101,29 @@ location detection is disabled by default, and delete it after the subprocess.
 They therefore do not depend on or modify the developer's database, preferences,
 caches, or logs.
 
+### Provider concurrency and input hardening follow-up
+
+The 2026-07-21 deep review reproduced edge cases that the original release
+audit did not cover. OpenAQ distances below 500 metres were interpreted as
+kilometres, an exact zero-distance station lost ordering priority, and failed
+`latest` requests could be cached as genuine no-data. The service now follows
+the API v3 metre contract, preserves zero and only caches measurements,
+historical results or successful no-data responses.
+
+Open-Meteo request status is now thread-local. OpenAQ, VIIRS and NASA AOD
+completions carry request generations as well as location identity, so stale
+credential/location workers cannot complete a newer refresh. Temporary
+Earthdata `NETRC` use is serialized across connection tests and VIIRS. VIIRS
+reports authentication, rate-limit, HTTP and transport failures separately
+from missing granules and stops retrying older months on provider-wide errors.
+
+The same pass added a 24-hour freshness limit and explicit cached wording for
+the approximate IP-location fallback, finite-number validation at controller
+and repository boundaries, timezone-aware initialization of the Catalogue
+month, and console-log fallback when the portable runtime cannot create its log
+directory. The database/schema and all recommendation/scoring policies remain
+unchanged.
+
 ### User documentation and access
 
 The GitHub README was an Italian release diary mixed with project instructions.
@@ -191,13 +214,13 @@ Baseline and final commands completed during this audit:
 | `python -m ruff check astro_viewer tools` | Passed |
 | `python -m compileall -q astro_viewer tools` | Passed |
 | Third-party license archive | Current; 61 distributions covered |
-| `python -m pytest -q -n 4 astro_viewer/tests` | 791 passed, 613 warnings, 7 subtests passed |
-| Runtime-only coverage | 84% across 15,242 statements |
+| `python -m pytest -q -n 4 astro_viewer/tests` | 816 passed, 613 warnings, 10 subtests passed |
+| Runtime-only coverage | 84% across 15,403 statements |
 | Installed-environment `pip-audit` | No known vulnerabilities |
 | Bandit application/tool scan | 0 high, 26 medium, 12 low; dynamic-SQL and subprocess findings manually reviewed |
-| Translation catalogues | IT/EN: 1,665 finished, 0 unfinished each |
-| Translation regression tests | 15 passed |
-| QML lint and smoke | 30 files linted with no failure; 760 known static warnings; Italian and English smoke passed |
+| Translation catalogues | IT/EN/ES: 1,670 finished, 0 unfinished each |
+| Translation and developer-tooling regression tests | 34 passed |
+| QML lint and smoke | 30 files linted with no failure; 760 known static warnings; Italian, English and Spanish smoke passed |
 | Deep-sky image repository check | 219 JPEG assets passed |
 | Solar System image repository check | 9 JPEG assets passed |
 | Windows bundles | Isolated, persistent, and published-ZIP Qt/legal audits passed; packaged smoke passed and the ZIP contains no runtime state |

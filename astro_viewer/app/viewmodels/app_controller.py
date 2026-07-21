@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import math
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, replace
@@ -189,11 +190,11 @@ class AppController(QObject):
     openaqCredentialsChanged = Signal()
     _earthdataConnectionTestFinished = Signal(bool, object, bool)
     _openaqConnectionTestFinished = Signal(bool, object)
-    _viirsSkyQualityFinished = Signal(str, object, object)
+    _viirsSkyQualityFinished = Signal(int, str, object, object)
     _startupLocationDetectionFinished = Signal(int, object, bool, object)
     _weatherRefreshFinished = Signal(int, str, object, object, bool)
-    _localAtmosphereRefreshFinished = Signal(str, object)
-    _nasaAodRefreshFinished = Signal(str, object)
+    _localAtmosphereRefreshFinished = Signal(int, str, object)
+    _nasaAodRefreshFinished = Signal(int, str, object)
     _skyCompassLiveRefreshFinished = Signal(int, str, object)
     _astronomyRefreshFinished = Signal(int, str, str, object, object)
     _transientEventsRefreshFinished = Signal(int, str, object)
@@ -253,8 +254,11 @@ class AppController(QObject):
         self._openaq_credentials_state = self._openaq_credential_store.state()
         self._openaq_connection_test_running = False
         self._local_atmosphere_refresh_running = False
+        self._local_atmosphere_refresh_request_id = 0
         self._nasa_aod_refresh_running = False
+        self._nasa_aod_refresh_request_id = 0
         self._viirs_sky_quality_running = False
+        self._viirs_sky_quality_request_id = 0
         self._light_pollution_status = ""
         self._startup_location_detection_running = False
         self._startup_location_detection_request_id = 0
@@ -424,6 +428,7 @@ class AppController(QObject):
         }
         self._catalogue_year = self._catalogue_current_year()
         self._catalogue_selected_month = self._catalogue_current_month()
+        self._catalogue_month_user_selected = False
         self._catalogue_visible_this_month_only = False
         self._catalogue_visibility_cache: dict[tuple[float, float, str, int, int, float], dict[str, bool]] = {}
         self._catalogue_current_month_visibility_cache: dict[
@@ -450,6 +455,7 @@ class AppController(QObject):
 
         self._refresh_manager.mark_dirty(RefreshReason.STARTUP)
         self._initialize_startup_location()
+        self._align_catalogue_month_to_location()
         self._refresh_all()
         self._update_sky_compass_live_timer()
 
@@ -1287,6 +1293,7 @@ class AppController(QObject):
     def setCatalogueMonth(self, month: int) -> None:
         if month < 1 or month > 12:
             return
+        self._catalogue_month_user_selected = True
         if self._catalogue_selected_month == month:
             return
         self._catalogue_selected_month = month
@@ -1447,7 +1454,7 @@ class AppController(QObject):
                 self._earthdata_credentials_state,
                 message=exc.args[0],
             )
-        self._nasa_aod_refresh_running = False
+        self._invalidate_earthdata_provider_refreshes()
         self._nasa_aod_result = NasaAodResult.no_credentials()
         self._nasa_aod_provider.clear_cache()
         self.earthdataCredentialsChanged.emit()
@@ -1460,7 +1467,7 @@ class AppController(QObject):
             (RefreshDomain.SKY_QUALITY, RefreshDomain.AOD),
         )
         self._earthdata_credentials_state = self._earthdata_credential_store.remove()
-        self._nasa_aod_refresh_running = False
+        self._invalidate_earthdata_provider_refreshes()
         self._nasa_aod_result = NasaAodResult.no_credentials()
         self._nasa_aod_provider.clear_cache()
         self.earthdataCredentialsChanged.emit()
@@ -1521,7 +1528,7 @@ class AppController(QObject):
             self._schedule_nasa_aod_refresh()
         else:
             self._clear_refresh_domains(RefreshDomain.SKY_QUALITY, RefreshDomain.AOD)
-            self._nasa_aod_refresh_running = False
+            self._invalidate_earthdata_provider_refreshes()
             self._nasa_aod_result = NasaAodResult.no_credentials()
             self.weatherChanged.emit()
 
@@ -1536,6 +1543,7 @@ class AppController(QObject):
                 self._openaq_credentials_state,
                 message=exc.args[0],
             )
+        self._invalidate_local_atmosphere_refresh()
         self._refresh_local_atmosphere()
         self.openaqCredentialsChanged.emit()
         self.weatherChanged.emit()
@@ -1544,6 +1552,7 @@ class AppController(QObject):
     def removeOpenAQCredentials(self) -> None:
         self._mark_refresh_dirty(RefreshReason.API_KEY_CHANGED, (RefreshDomain.AIR_QUALITY,))
         self._openaq_credentials_state = self._openaq_credential_store.remove()
+        self._invalidate_local_atmosphere_refresh()
         self._local_atmosphere_service.clear_cache()
         self._local_atmosphere = LocalAtmosphere.not_configured()
         self.openaqCredentialsChanged.emit()
@@ -1974,6 +1983,8 @@ class AppController(QObject):
     def addBarlowModel(self, brand: str, model: str, multiplier: str, barrel_size: str, notes: str) -> bool:
         try:
             parsed_multiplier = float(multiplier.replace(",", "."))
+            if not math.isfinite(parsed_multiplier):
+                raise ValueError
         except ValueError:
             self._equipment_message = tr("Moltiplicatore Barlow non valido.")
             self.equipmentChanged.emit()
@@ -1986,6 +1997,8 @@ class AppController(QObject):
     def updateBarlowModel(self, barlow_id: int, brand: str, model: str, multiplier: str, barrel_size: str, notes: str) -> bool:
         try:
             parsed_multiplier = float(multiplier.replace(",", "."))
+            if not math.isfinite(parsed_multiplier):
+                raise ValueError
         except ValueError:
             self._equipment_message = tr("Moltiplicatore Barlow non valido.")
             self.equipmentChanged.emit()
@@ -2494,8 +2507,7 @@ class AppController(QObject):
         self._weather_hours = []
         self._weather_status = tr("Configura una località per visualizzare il meteo.")
         self._light_pollution_status = ""
-        self._viirs_sky_quality_running = False
-        self._nasa_aod_refresh_running = False
+        self._invalidate_condition_provider_refreshes()
         self._nasa_aod_result = NasaAodResult.no_location()
         self._refresh_local_atmosphere()
         self._weather_summary = WeatherSummary(
@@ -3585,15 +3597,24 @@ class AppController(QObject):
         )
         location = self._location
         location_key = LightPollutionService._location_key(location)
+        self._local_atmosphere_refresh_request_id = (
+            getattr(self, "_local_atmosphere_refresh_request_id", 0) + 1
+        )
+        request_id = self._local_atmosphere_refresh_request_id
         self._local_atmosphere_refresh_running = True
 
         def run_lookup() -> None:
             try:
                 atmosphere = self._local_atmosphere_service.atmosphere(api_key, location)
-                self._localAtmosphereRefreshFinished.emit(location_key, atmosphere)
+                self._localAtmosphereRefreshFinished.emit(
+                    request_id,
+                    location_key,
+                    atmosphere,
+                )
             except Exception:
                 logger.warning("Unexpected OpenAQ local atmosphere refresh failure.", exc_info=True)
                 self._localAtmosphereRefreshFinished.emit(
+                    request_id,
                     location_key,
                     LocalAtmosphere.failure(
                         tr("Dati OpenAQ non disponibili al momento.")
@@ -3602,8 +3623,19 @@ class AppController(QObject):
 
         Thread(target=run_lookup, daemon=True).start()
 
-    @Slot(str, object)
-    def _finish_local_atmosphere_refresh(self, location_key: str, atmosphere: object) -> None:
+    @Slot(int, str, object)
+    def _finish_local_atmosphere_refresh(
+        self,
+        request_id: int | str,
+        location_key: str | object,
+        atmosphere: object = None,
+    ) -> None:
+        if not isinstance(request_id, int):
+            atmosphere = location_key
+            location_key = request_id
+            request_id = getattr(self, "_local_atmosphere_refresh_request_id", 0)
+        if request_id != getattr(self, "_local_atmosphere_refresh_request_id", 0):
+            return
         self._local_atmosphere_refresh_running = False
         if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
             self.weatherChanged.emit()
@@ -3680,6 +3712,10 @@ class AppController(QObject):
             (RefreshDomain.SKY_QUALITY,),
         )
         location_key = LightPollutionService._location_key(location)
+        self._viirs_sky_quality_request_id = (
+            getattr(self, "_viirs_sky_quality_request_id", 0) + 1
+        )
+        request_id = self._viirs_sky_quality_request_id
         self._viirs_sky_quality_running = True
         self._light_pollution_status = (
             tr("Verifica aggiornamenti VIIRS NASA...")
@@ -3691,18 +3727,33 @@ class AppController(QObject):
         def run_lookup() -> None:
             try:
                 quality = self._light_pollution_service.remote_sky_quality(location)
+                provider_error = getattr(
+                    self._light_pollution_service,
+                    "last_remote_error",
+                    "",
+                )
+                if not isinstance(provider_error, str):
+                    provider_error = ""
                 if quality:
                     message = tr("Dati VIIRS NASA aggiornati.")
+                elif provider_error:
+                    message = provider_error
                 elif cache_state is ViirsCacheState.STALE:
                     message = tr(
                         "Aggiornamento VIIRS non disponibile; uso dati in cache."
                     )
                 else:
                     message = unavailable_message
-                self._viirsSkyQualityFinished.emit(location_key, quality, message)
+                self._viirsSkyQualityFinished.emit(
+                    request_id,
+                    location_key,
+                    quality,
+                    message,
+                )
             except Exception:
                 logger.warning("Unexpected VIIRS sky-quality refresh failure.", exc_info=True)
                 self._viirsSkyQualityFinished.emit(
+                    request_id,
                     location_key,
                     None,
                     (
@@ -3714,8 +3765,21 @@ class AppController(QObject):
 
         Thread(target=run_lookup, daemon=True).start()
 
-    @Slot(str, object, object)
-    def _finish_viirs_sky_quality_refresh(self, location_key: str, quality: object, message: object) -> None:
+    @Slot(int, str, object, object)
+    def _finish_viirs_sky_quality_refresh(
+        self,
+        request_id: int | str,
+        location_key: str | object,
+        quality: object,
+        message: object = None,
+    ) -> None:
+        if not isinstance(request_id, int):
+            message = quality
+            quality = location_key
+            location_key = request_id
+            request_id = getattr(self, "_viirs_sky_quality_request_id", 0)
+        if request_id != getattr(self, "_viirs_sky_quality_request_id", 0):
+            return
         self._viirs_sky_quality_running = False
         if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
             self._light_pollution_status = ""
@@ -3817,6 +3881,10 @@ class AppController(QObject):
 
         self._mark_refresh_dirty(RefreshReason.AOD_TTL_EXPIRED, (RefreshDomain.AOD,))
         location_key = LightPollutionService._location_key(location)
+        self._nasa_aod_refresh_request_id = (
+            getattr(self, "_nasa_aod_refresh_request_id", 0) + 1
+        )
+        request_id = self._nasa_aod_refresh_request_id
         self._nasa_aod_refresh_running = True
         self.weatherChanged.emit()
         logger.info("NASA AOD refresh started for the active location.")
@@ -3824,10 +3892,11 @@ class AppController(QObject):
         def run_lookup() -> None:
             try:
                 result = self._nasa_aod_provider.aod(location)
-                self._nasaAodRefreshFinished.emit(location_key, result)
+                self._nasaAodRefreshFinished.emit(request_id, location_key, result)
             except Exception:
                 logger.warning("Unexpected NASA AOD refresh failure.", exc_info=True)
                 self._nasaAodRefreshFinished.emit(
+                    request_id,
                     location_key,
                     NasaAodResult.failure(
                         "parse_error",
@@ -3837,8 +3906,19 @@ class AppController(QObject):
 
         Thread(target=run_lookup, daemon=True).start()
 
-    @Slot(str, object)
-    def _finish_nasa_aod_refresh(self, location_key: str, result: object) -> None:
+    @Slot(int, str, object)
+    def _finish_nasa_aod_refresh(
+        self,
+        request_id: int | str,
+        location_key: str | object,
+        result: object = None,
+    ) -> None:
+        if not isinstance(request_id, int):
+            result = location_key
+            location_key = request_id
+            request_id = getattr(self, "_nasa_aod_refresh_request_id", 0)
+        if request_id != getattr(self, "_nasa_aod_refresh_request_id", 0):
+            return
         self._nasa_aod_refresh_running = False
         if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
             logger.info("NASA AOD refresh result discarded for a stale location.")
@@ -4008,8 +4088,10 @@ class AppController(QObject):
             or LightPollutionService._location_key(previous_location)
             != LightPollutionService._location_key(result.location)
         ):
+            self._invalidate_condition_provider_refreshes()
             self._reset_location_provider_presentations()
         self._invalidate_catalogue_visibility_cache()
+        self._align_catalogue_month_to_location()
         if persist:
             self._location_preferences.save_location(result)
         self.catalogueChanged.emit()
@@ -4031,6 +4113,11 @@ class AppController(QObject):
                 longitude=format_number(location.longitude, decimals=4),
             )
         if result.provider == "ip_geolocation":
+            if result.source.endswith(" cached"):
+                return tr(
+                    "Ultima posizione caricata: {city}.",
+                    city=location.city,
+                )
             return tr(
                 "Posizione approssimata rilevata tramite connessione internet: {city}, {country}. La precisione può essere limitata.",
                 city=location.city,
@@ -4065,6 +4152,27 @@ class AppController(QObject):
             )
         else:
             self._local_atmosphere = LocalAtmosphere.not_configured()
+
+    def _invalidate_local_atmosphere_refresh(self) -> None:
+        self._local_atmosphere_refresh_request_id = (
+            getattr(self, "_local_atmosphere_refresh_request_id", 0) + 1
+        )
+        self._local_atmosphere_refresh_running = False
+
+    def _invalidate_earthdata_provider_refreshes(self) -> None:
+        self._viirs_sky_quality_request_id = (
+            getattr(self, "_viirs_sky_quality_request_id", 0) + 1
+        )
+        self._nasa_aod_refresh_request_id = (
+            getattr(self, "_nasa_aod_refresh_request_id", 0) + 1
+        )
+        self._viirs_sky_quality_running = False
+        self._nasa_aod_refresh_running = False
+        self._light_pollution_status = ""
+
+    def _invalidate_condition_provider_refreshes(self) -> None:
+        self._invalidate_local_atmosphere_refresh()
+        self._invalidate_earthdata_provider_refreshes()
 
     def _has_valid_location(self) -> bool:
         location = self._location
@@ -4878,6 +4986,17 @@ class AppController(QObject):
 
     def _catalogue_current_month(self) -> int:
         return datetime.now(self._zone()).month
+
+    def _align_catalogue_month_to_location(self) -> None:
+        now = datetime.now(self._zone())
+        selected_month = self._catalogue_selected_month
+        if not getattr(self, "_catalogue_month_user_selected", False):
+            selected_month = now.month
+        if self._catalogue_year == now.year and self._catalogue_selected_month == selected_month:
+            return
+        self._catalogue_year = now.year
+        self._catalogue_selected_month = selected_month
+        self._invalidate_catalogue_month_visibility_cache()
 
     def _catalogue_month_label(self, month: int) -> str:
         if month < 1 or month > 12:
@@ -6517,6 +6636,8 @@ class AppController(QObject):
     ) -> tuple[float, float | None] | None:
         try:
             factor = float(reduction_factor.replace(",", "."))
+            if not math.isfinite(factor):
+                raise ValueError
             backfocus_mm = self._optional_float_input(backfocus)
         except ValueError:
             self._equipment_message = tr("Dati riduttore non validi.")
@@ -6539,7 +6660,10 @@ class AppController(QObject):
         clean_value = value.strip()
         if not clean_value:
             return None
-        return float(clean_value.replace(",", "."))
+        parsed = float(clean_value.replace(",", "."))
+        if not math.isfinite(parsed):
+            raise ValueError
+        return parsed
 
     def _parse_binocular_inputs(
         self,
@@ -6558,7 +6682,7 @@ class AppController(QObject):
     @staticmethod
     def _positive_int(value: str) -> int:
         parsed = float(value.strip().replace(",", "."))
-        if parsed <= 0 or not parsed.is_integer():
+        if not math.isfinite(parsed) or parsed <= 0 or not parsed.is_integer():
             raise ValueError
         return int(parsed)
 
@@ -6577,12 +6701,19 @@ class AppController(QObject):
                 min_value = float(min_focal.replace(",", "."))
                 max_value = float(max_focal.replace(",", "."))
                 focal_value = max_value
-                if min_value <= 0 or max_value <= 0 or min_value >= max_value:
+                if (
+                    not all(math.isfinite(value) for value in (apparent, min_value, max_value))
+                    or min_value <= 0
+                    or max_value <= 0
+                    or min_value >= max_value
+                ):
                     raise ValueError
             else:
                 focal_value = float(focal.replace(",", "."))
                 min_value = None
                 max_value = None
+                if not all(math.isfinite(value) for value in (apparent, focal_value)):
+                    raise ValueError
         except ValueError:
             self._equipment_message = tr("Dati oculare non validi.")
             self.equipmentChanged.emit()
@@ -6600,7 +6731,12 @@ class AppController(QObject):
                     raise ValueError
                 afov_min = float(parts[0])
                 afov_max = float(parts[1])
-                if afov_min <= 0 or afov_min > afov_max or afov_max > 180:
+                if (
+                    not all(math.isfinite(value) for value in (afov_min, afov_max))
+                    or afov_min <= 0
+                    or afov_min > afov_max
+                    or afov_max > 180
+                ):
                     raise ValueError
             except ValueError:
                 self._equipment_message = tr("Intervallo AFOV non valido.")

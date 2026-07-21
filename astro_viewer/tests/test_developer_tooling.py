@@ -175,6 +175,22 @@ def test_runtime_override_and_log_path_share_the_same_directory(
                 handler.close()
 
 
+def test_main_falls_back_to_console_when_runtime_log_is_not_writable() -> None:
+    args = Mock(qml_smoke_test=False, smoke_test=True)
+    with patch(
+        "astro_viewer.app.services.logging_service.configure_logging",
+        side_effect=PermissionError("read-only runtime"),
+    ), patch.object(main_module, "parse_args", return_value=args), patch.object(
+        main_module,
+        "run_smoke_test",
+        return_value=0,
+    ) as smoke_test:
+        result = main_module.main()
+
+    assert result == 0
+    smoke_test.assert_called_once_with()
+
+
 def test_developer_requirements_include_validation_tools_without_deep_translator() -> None:
     requirements = (PROJECT_ROOT / "requirements-dev.txt").read_text(
         encoding="utf-8"

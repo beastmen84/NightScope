@@ -13,6 +13,7 @@ from zoneinfo import ZoneInfo
 
 import h5py
 import numpy as np
+import requests
 
 from astro_viewer.app.astronomy.engine import ObserverLocation, ObservingNightWindow
 from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
@@ -2075,6 +2076,90 @@ class Phase6RealDataTests(unittest.TestCase):
 
             self.assertEqual(os.environ["NETRC"], "existing-netrc")
 
+    def test_viirs_http_failures_stop_month_scan_and_keep_specific_error(self) -> None:
+        cases = (
+            (401, "Autenticazione Earthdata non riuscita"),
+            (429, "limite di traffico"),
+            (503, "HTTP 503"),
+        )
+        location = ObserverLocation(
+            "Bologna",
+            "Italy",
+            44.4938,
+            11.3387,
+            "Europe/Rome",
+        )
+        for status_code, expected in cases:
+            with self.subTest(status_code=status_code):
+                session = FakeViirsStatusSession(status_code)
+                provider = NasaViirsBlackMarbleProvider(
+                    FakeEarthdataCredentials(),
+                    months_to_search=36,
+                )
+
+                with patch.object(
+                    NasaViirsBlackMarbleProvider,
+                    "_session",
+                    return_value=session,
+                ):
+                    quality = provider.lookup(location)
+
+                self.assertIsNone(quality)
+                self.assertEqual(session.calls, 1)
+                self.assertIn(expected, provider.last_error)
+
+    def test_viirs_missing_months_remain_a_no_data_result(self) -> None:
+        session = FakeViirsStatusSession(404)
+        provider = NasaViirsBlackMarbleProvider(
+            FakeEarthdataCredentials(),
+            months_to_search=3,
+        )
+
+        with patch.object(
+            NasaViirsBlackMarbleProvider,
+            "_session",
+            return_value=session,
+        ):
+            quality = provider.lookup(
+                ObserverLocation(
+                    "Bologna",
+                    "Italy",
+                    44.4938,
+                    11.3387,
+                    "Europe/Rome",
+                )
+            )
+
+        self.assertIsNone(quality)
+        self.assertEqual(session.calls, 3)
+        self.assertIn("non disponibili per questa posizione", provider.last_error)
+
+    def test_viirs_network_failure_keeps_exception_type_in_safe_message(self) -> None:
+        session = FakeViirsStatusSession(request_error=requests.Timeout())
+        provider = NasaViirsBlackMarbleProvider(
+            FakeEarthdataCredentials(),
+            months_to_search=36,
+        )
+
+        with patch.object(
+            NasaViirsBlackMarbleProvider,
+            "_session",
+            return_value=session,
+        ):
+            quality = provider.lookup(
+                ObserverLocation(
+                    "Bologna",
+                    "Italy",
+                    44.4938,
+                    11.3387,
+                    "Europe/Rome",
+                )
+            )
+
+        self.assertIsNone(quality)
+        self.assertEqual(session.calls, 1)
+        self.assertIn("Timeout", provider.last_error)
+
     def test_seeing_provider_fallback(self) -> None:
         hours = [
             WeatherHour(
@@ -2138,6 +2223,24 @@ class FakeViirsSession:
         year, doy = match.groups()
         granule = f"VNP46A3.A{year}{doy}.h19v04.002.9999999999999.h5"
         return FakeViirsResponse(text=f'<a href="{granule}">{granule}</a>')
+
+
+class FakeViirsStatusSession:
+    def __init__(
+        self,
+        status_code: int = 200,
+        *,
+        request_error: requests.RequestException | None = None,
+    ) -> None:
+        self.status_code = status_code
+        self.request_error = request_error
+        self.calls = 0
+
+    def get(self, _url: str, **_kwargs) -> FakeViirsResponse:
+        self.calls += 1
+        if self.request_error is not None:
+            raise self.request_error
+        return FakeViirsResponse(status_code=self.status_code)
 
 
 def _viirs_nc4_payload(radiance: float, observations: int, quality: int) -> bytes:

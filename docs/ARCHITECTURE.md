@@ -63,6 +63,11 @@ a fresh temporary override and remove it when each subprocess exits, so they do
 not reuse personal settings, start automatic location detection, or modify the
 checkout's runtime files.
 
+If the rotating file logger cannot create its directory, the entry point falls
+back to console logging and continues into the normal startup error boundary.
+The portable Windows contract still requires the extracted application
+directory to be writable for its database, preferences and caches.
+
 ## UI Localization
 
 `TranslationManager` is created before the controller and QML engine. It reads
@@ -274,8 +279,9 @@ Current runtime status for `1.27.0`:
   freshness is visible, and no NSOM ranking explanation panel is exposed.
 - VIIRS cache hardening is active: cached Black Marble values are revalidated
   every 7 days while stale data remains available if NASA cannot be reached.
-- AOD and OpenAQ worker completions carry a location key. A stale-location
-  result is discarded and the current location is scheduled immediately; old
+- AOD, OpenAQ and VIIRS worker completions carry both a request generation and
+  a location key. Results started for old credentials or an old location are
+  discarded without changing the running state of a newer request; old
   provider presentation data is cleared as soon as the active location changes.
 - AOD and VIIRS provider-cache lookups reuse a valid observation within 500
   metres to absorb normal Windows geolocation jitter. Exact location keys remain
@@ -283,8 +289,18 @@ Current runtime status for `1.27.0`:
   performs this cache-only preflight before a background worker is started.
 - Open-Meteo retains cached forecasts on provider failure and classifies
   retryable transport/server failures separately from permanent client/rate
-  errors. Retryable failures schedule a forced lookup after five minutes;
-  status-code logging excludes request coordinates and parameters.
+  errors. Error, HTTP and retry state is thread-local so overlapping stale and
+  current workers cannot mix their result metadata. Retryable failures schedule
+  a forced lookup after five minutes; status-code logging excludes request
+  coordinates and parameters.
+- OpenAQ v3 location distances are meters and are converted unconditionally to
+  kilometres at the service boundary. HTTP, transport and invalid-payload
+  failures from per-location `latest` requests remain retryable and are not
+  cached as genuine no-data results.
+- Earthdata connection tests and VIIRS requests share one serialized temporary
+  `NETRC` context because `NETRC` is a process-wide environment variable.
+  VIIRS distinguishes missing monthly granules from authentication, rate-limit,
+  network and HTTP failures and stops the month scan on provider-wide failures.
 - The upper Home overview has a dedicated read-only presentation boundary,
   `homeObservingOverview`. It separates Session state, weather index, NSOM
   category diagnostics and Moon impact. The upper QML cards consume this
@@ -742,6 +758,15 @@ forced unlinking and assignment without NSOM or capability refresh. The schema
 confusing that profile name with the derived naked-eye observing mode.
 
 ## Cache Ownership
+
+Approximate IP-location cache:
+
+- Owner: `IpGeolocationProvider`; persisted in `location_cache.json`.
+- Lifetime: 24 hours. Missing, invalid, future-dated or older entries are not
+  accepted as the result of a new online-location request.
+- A valid fallback is labelled as a previously loaded location rather than a
+  fresh internet detection. Manually selected and Windows-provider cache rows
+  are never consumed as IP-provider cache entries.
 
 Weather cache:
 

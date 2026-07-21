@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from datetime import datetime
+from unittest.mock import patch
+from zoneinfo import ZoneInfo
+
+from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.viewmodels.app_controller import (
     CATALOGUE_ALL_FILTER,
     AppController,
@@ -71,6 +76,57 @@ def test_catalogue_search_matches_secondary_designation_once() -> None:
     result = controller._filtered_catalogue_objects()
     assert len(result) == 1
     assert result[0]["object_id"] == "messier-M31"
+
+
+def test_catalogue_default_month_realigns_after_startup_location_is_known() -> None:
+    controller = AppController.__new__(AppController)
+    controller._location = ObserverLocation(
+        "Kiritimati",
+        "Kiribati",
+        1.8721,
+        -157.4278,
+        "Pacific/Kiritimati",
+    )
+    controller._catalogue_year = 2026
+    controller._catalogue_selected_month = 12
+    controller._catalogue_month_user_selected = False
+    controller._catalogue_visibility_cache = {("old",): {}}
+    local_now = datetime(2027, 1, 1, 0, 30, tzinfo=ZoneInfo("Pacific/Kiritimati"))
+
+    with patch(
+        "astro_viewer.app.viewmodels.app_controller.datetime"
+    ) as mocked_datetime:
+        mocked_datetime.now.return_value = local_now
+        controller._align_catalogue_month_to_location()
+
+    assert controller._catalogue_year == 2027
+    assert controller._catalogue_selected_month == 1
+    assert controller._catalogue_visibility_cache == {}
+
+
+def test_catalogue_location_change_preserves_explicitly_selected_month() -> None:
+    controller = AppController.__new__(AppController)
+    controller._location = ObserverLocation(
+        "Kiritimati",
+        "Kiribati",
+        1.8721,
+        -157.4278,
+        "Pacific/Kiritimati",
+    )
+    controller._catalogue_year = 2026
+    controller._catalogue_selected_month = 6
+    controller._catalogue_month_user_selected = True
+    controller._catalogue_visibility_cache = {("old",): {}}
+    local_now = datetime(2027, 1, 1, 0, 30, tzinfo=ZoneInfo("Pacific/Kiritimati"))
+
+    with patch(
+        "astro_viewer.app.viewmodels.app_controller.datetime"
+    ) as mocked_datetime:
+        mocked_datetime.now.return_value = local_now
+        controller._align_catalogue_month_to_location()
+
+    assert controller._catalogue_year == 2027
+    assert controller._catalogue_selected_month == 6
 
 
 def _filters() -> dict[str, str]:

@@ -386,7 +386,17 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     from astro_viewer.app.services.logging_service import configure_logging
 
-    configure_logging(RUNTIME_DIR)
+    try:
+        configure_logging(RUNTIME_DIR)
+    except OSError:
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+        )
+        logging.getLogger(__name__).warning(
+            "Runtime log directory is not writable; continuing with console logging.",
+            exc_info=True,
+        )
     try:
         args = parse_args()
         if args.qml_smoke_test:

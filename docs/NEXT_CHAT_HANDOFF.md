@@ -23,6 +23,35 @@ La localizzazione spagnola appartiene al sorgente `1.34.0`, non alla release
 pubblica `1.33.2`. Non descrivere ZIP o dist correnti come `1.34.0` finche' non
 vengono rigenerati e verificati esplicitamente.
 
+## Hardening Da Review Profonda
+
+Il passaggio del 2026-07-21 ha corretto edge case riprodotti su OpenAQ,
+Open-Meteo, Earthdata/VIIRS, refresh NASA AOD, cache IP, input Equipment, mese
+Catalogo e avvio con directory log non scrivibile. I refresh OpenAQ, VIIRS e AOD
+usano ora generazioni di richiesta; lo stato Open-Meteo e' isolato per thread e
+il `NETRC` temporaneo Earthdata e' serializzato. VIIRS distingue errori provider
+da vera assenza di granuli e OpenAQ non mette piu' in cache i fallimenti come
+no-data.
+
+La cache IP ha TTL 24 ore e viene indicata come gia' caricata. I numeri non
+finiti vengono respinti sia dal controller sia dal repository Equipment. Il
+mese iniziale del Catalogo viene riallineato dopo aver conosciuto la timezone
+della localita', senza sovrascrivere una selezione esplicita dell'utente.
+Schema SQLite, dati seed, scoring e raccomandazioni non sono cambiati. La `dist`
+non e' stata rigenerata in questo passaggio.
+
+Validazione conclusiva del passaggio:
+
+- `tools/run_checks.py --security`: superato in `246,5 s`;
+- suite con coverage: `816 passed`, `613 warnings`, `10 subtests passed`,
+  coverage runtime `84%` su `15.403` statement;
+- `pip-audit`: nessuna vulnerabilita' nota;
+- cataloghi Qt IT/EN/ES: `1670` finite, `0` unfinished per lingua;
+- smoke QML separati IT/EN/ES: tutti superati in runtime temporanei;
+- `qmllint`: `30` file, `0` failure, `760` warning statici noti;
+- immagini: `219` deep-sky e `9` Sistema Solare valide;
+- Bandit invariato: `0 high`, `26 medium`, `12 low`.
+
 ## Commit Recenti
 
 - `64f3caf Fix Spanish localization review findings`

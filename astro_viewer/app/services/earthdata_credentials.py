@@ -4,9 +4,11 @@ import json
 import logging
 import os
 import tempfile
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from pathlib import Path
-from typing import Protocol
+from threading import RLock
+from typing import Iterator, Protocol
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -16,6 +18,7 @@ from astro_viewer.app.services.localization import tr
 
 
 logger = logging.getLogger(__name__)
+_NETRC_ENVIRONMENT_LOCK = RLock()
 
 
 EARTHDATA_SERVICE_NAME = "NightScope Earthdata"
@@ -27,6 +30,38 @@ EARTHDATA_OPENDAP_DDS_URL = (
     "VNP46A3/2025/152/VNP46A3.A2025152.h19v04.002.2026064134300.h5.dds"
 )
 EARTHDATA_LAADS_AUTHORIZATION_URL = "https://urs.earthdata.nasa.gov/approve_app?client_id=A6th7HB-3EBoO7iOCiCLlA"
+
+
+@contextmanager
+def temporary_earthdata_netrc(
+    username: str,
+    password: str,
+    *,
+    prefix: str = "nightscope-earthdata-",
+) -> Iterator[Path]:
+    """Expose one temporary Earthdata netrc without racing process-wide NETRC."""
+
+    with _NETRC_ENVIRONMENT_LOCK:
+        with tempfile.TemporaryDirectory(prefix=prefix) as temp_dir:
+            netrc_path = Path(temp_dir) / "_netrc"
+            netrc_path.write_text(
+                f"machine urs.earthdata.nasa.gov login {username} password {password}\n",
+                encoding="ascii",
+            )
+            try:
+                os.chmod(netrc_path, 0o600)
+            except OSError:
+                pass
+
+            previous_netrc = os.environ.get("NETRC")
+            os.environ["NETRC"] = str(netrc_path)
+            try:
+                yield netrc_path
+            finally:
+                if previous_netrc is None:
+                    os.environ.pop("NETRC", None)
+                else:
+                    os.environ["NETRC"] = previous_netrc
 
 
 class CredentialBackend(Protocol):
@@ -237,16 +272,14 @@ class EarthdataConnectionTester:
                 tr("Credenziali Earthdata non configurate."),
             )
 
-        with tempfile.TemporaryDirectory(prefix="nightscope-earthdata-") as temp_dir:
-            netrc_path = Path(temp_dir) / "_netrc"
-            netrc_path.write_text(
-                f"machine urs.earthdata.nasa.gov login {username} password {password}\n",
-                encoding="ascii",
-            )
-            previous_netrc = os.environ.get("NETRC")
-            os.environ["NETRC"] = str(netrc_path)
+        with temporary_earthdata_netrc(username, password):
+            session = self._session()
             try:
-                response = self._session().get(self._dds_url, timeout=(20, 60), allow_redirects=True)
+                response = session.get(
+                    self._dds_url,
+                    timeout=(20, 60),
+                    allow_redirects=True,
+                )
             except requests.RequestException as exc:
                 logger.warning("Earthdata connection test failed.", exc_info=True)
                 return EarthdataConnectionResult(
@@ -257,10 +290,9 @@ class EarthdataConnectionTester:
                     ),
                 )
             finally:
-                if previous_netrc is None:
-                    os.environ.pop("NETRC", None)
-                else:
-                    os.environ["NETRC"] = previous_netrc
+                close = getattr(session, "close", None)
+                if close:
+                    close()
 
         if response.status_code != 200:
             return EarthdataConnectionResult(

@@ -1,8 +1,25 @@
 # Changelog
 
-## NightScope 1.34.0 - 2026-07-20
+## NightScope 1.34.0 - 2026-07-21
 
-- Aggiunta la localizzazione completa in spagnolo (Spagna): `1665` messaggi
+- Il follow-up di review profonda ha corretto le distanze OpenAQ: i campi
+  `distance` della API v3 sono ora interpretati sempre in metri, una stazione a
+  distanza zero conserva la priorita' e i fallimenti degli endpoint `latest`
+  non vengono piu' convertiti e memorizzati come assenza di dati.
+- Isolato per thread lo stato errore/retry di Open-Meteo e aggiunti identificatori
+  di generazione ai refresh OpenAQ, VIIRS e NASA AOD. Risultati avviati con una
+  localita' o credenziali precedenti non possono piu' chiudere o sovrascrivere
+  il refresh corrente.
+- Serializzato l'uso temporaneo della variabile globale `NETRC` tra test
+  Earthdata e download VIIRS. VIIRS interrompe ora la scansione mensile sui
+  guasti di rete, autenticazione, rate limit o HTTP e ne mostra la causa
+  distinta dalla legittima assenza di granuli.
+- La cache della posizione IP scade dopo 24 ore ed e' presentata esplicitamente
+  come posizione gia' caricata. Gli input numerici Equipment non accettano piu'
+  `NaN` o infinito, il mese Catalogo iniziale segue la timezone della localita'
+  e un errore di scrittura dei log passa al logging console prima della gestione
+  controllata dell'avvio.
+- Aggiunta la localizzazione completa in spagnolo (Spagna): `1670` messaggi
   Qt/Python, contenuti strutturati di cataloghi ed Equipment e catalogo runtime
   compilato. Terminologia astronomica, ottica, provider, privacy e sicurezza
   solare sono state revisionate editorialmente, non lasciate al solo output
@@ -37,8 +54,8 @@
   revisionati, preferenze, formati locali e cambio live italiano/inglese/
   spagnolo. Nessuna modifica a scoring, Planner, Home, Equipment, Sky Compass,
   schema SQLite o logica delle raccomandazioni.
-- Gate completo senza coverage superato: `797 passed`, `613 warnings` note e
-  `7 subtests`; cataloghi IT/EN/ES completi `1665/1665`, smoke QML separati
+- Gate completo con coverage e security superato: `816 passed`, `613 warnings`
+  note e `10 subtests`; cataloghi IT/EN/ES completi `1670/1670`, smoke QML separati
   nelle tre lingue e manuale spagnolo verificato in Chromium a larghezza desktop
   e mobile senza overflow orizzontale.
 - La versione sorgente passa a `1.34.0`; la release GitHub e il pacchetto

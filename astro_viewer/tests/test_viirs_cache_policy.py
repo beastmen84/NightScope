@@ -13,6 +13,7 @@ from astro_viewer.app.services.light_pollution_service import (
     LightPollutionService,
     ViirsCacheState,
 )
+from astro_viewer.app.services.localization import tr
 
 
 NOW = datetime(2026, 7, 10, 12, 0, tzinfo=UTC)
@@ -106,6 +107,26 @@ class ViirsCachePolicyTests(unittest.TestCase):
         self.assertEqual(row["source"], cached.source)
         self.assertEqual(row["updated_at"], cached_at.isoformat())
 
+    def test_provider_error_is_exposed_without_overwriting_stale_cache(self) -> None:
+        cached = _viirs_quality("2026-05", 24.79, 14, 6)
+        cached_at = NOW - timedelta(days=8)
+        self._store(cached, cached_at)
+        provider_error = tr("Dati NASA VIIRS non disponibili al momento.")
+        provider = _FakeViirsProvider(None, error=provider_error)
+        service = self._service(provider)
+
+        result = service.remote_sky_quality(LOCATION)
+
+        self.assertIsNone(result)
+        self.assertIs(service.last_remote_error, provider_error)
+        self.assertEqual(
+            service.last_remote_error.source,
+            "Dati NASA VIIRS non disponibili al momento.",
+        )
+        row = self._repository.get(LightPollutionService._location_key(LOCATION))
+        self.assertEqual(row["source"], cached.source)
+        self.assertEqual(row["updated_at"], cached_at.isoformat())
+
     def test_missing_or_invalid_viirs_timestamp_requires_revalidation(self) -> None:
         service = self._service(_FakeViirsProvider(None))
         self.assertEqual(service.viirs_cache_state(LOCATION), ViirsCacheState.MISSING)
@@ -153,8 +174,9 @@ class ViirsCachePolicyTests(unittest.TestCase):
 class _FakeViirsProvider:
     name = "FakeViirsProvider"
 
-    def __init__(self, result: SkyQuality | None) -> None:
+    def __init__(self, result: SkyQuality | None, error: str = "") -> None:
         self._result = result
+        self.last_error = error
         self.calls = 0
 
     def lookup(self, _location: ObserverLocation) -> SkyQuality | None:

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from datetime import UTC, datetime, timedelta
+from threading import local
 from typing import Protocol
 
 import requests
@@ -59,9 +60,34 @@ class OpenMeteoWeatherService:
 
     def __init__(self, cache_repository: WeatherCacheRepository | None = None):
         self._cache_repository = cache_repository
+        self._request_status = local()
         self.last_error = ""
         self.last_http_status: int | None = None
         self.retry_recommended = False
+
+    @property
+    def last_error(self) -> str:
+        return getattr(self._request_status, "last_error", "")
+
+    @last_error.setter
+    def last_error(self, value: str) -> None:
+        self._request_status.last_error = value
+
+    @property
+    def last_http_status(self) -> int | None:
+        return getattr(self._request_status, "last_http_status", None)
+
+    @last_http_status.setter
+    def last_http_status(self, value: int | None) -> None:
+        self._request_status.last_http_status = value
+
+    @property
+    def retry_recommended(self) -> bool:
+        return bool(getattr(self._request_status, "retry_recommended", False))
+
+    @retry_recommended.setter
+    def retry_recommended(self, value: bool) -> None:
+        self._request_status.retry_recommended = bool(value)
 
     def hourly_forecast(self, location: ObserverLocation, force_refresh: bool = False) -> list[WeatherHour]:
         self.last_error = ""

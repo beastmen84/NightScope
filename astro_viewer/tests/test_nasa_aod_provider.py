@@ -710,6 +710,22 @@ class NasaAodControllerRefreshTests(unittest.TestCase):
         self.assertIs(controller._nasa_aod_result, previous)
         self.assertIn("credentials are no longer verified", "\n".join(logs.output))
 
+    def test_stale_request_generation_cannot_finish_current_refresh(self) -> None:
+        controller = _aod_controller(verified=True)
+        previous = NasaAodResult.no_location()
+        controller._nasa_aod_result = previous
+        controller._nasa_aod_refresh_running = True
+        controller._nasa_aod_refresh_request_id = 2
+
+        controller._finish_nasa_aod_refresh(
+            1,
+            "9.030:38.740:test",
+            NasaAodResult.failure("no_valid_pixel", "No data"),
+        )
+
+        self.assertTrue(controller._nasa_aod_refresh_running)
+        self.assertIs(controller._nasa_aod_result, previous)
+
 
 class EarthaccessNasaAodClientTests(unittest.TestCase):
     def test_login_retries_before_success(self) -> None:

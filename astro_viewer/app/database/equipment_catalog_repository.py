@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import re
 import sqlite3
 from collections.abc import Iterable
@@ -22,6 +23,10 @@ OPTICAL_SYSTEM_LABELS = {
     "UNIVERSAL": tr("Universale"),
     "OTHER": tr("Altro"),
 }
+
+
+def _all_finite(*values: float | None) -> bool:
+    return all(value is None or math.isfinite(value) for value in values)
 
 
 def _natural_sort_key(value: object) -> tuple[tuple[int, object], ...]:
@@ -145,7 +150,7 @@ class EquipmentCatalogRepository:
         clean_mount_type = mount_type.strip()
         if not clean_optical_type or not clean_mount_type:
             return False, tr("Tipo ottico e montatura sono obbligatori.")
-        if aperture_mm <= 0 or focal_length_mm <= 0:
+        if not _all_finite(aperture_mm, focal_length_mm) or aperture_mm <= 0 or focal_length_mm <= 0:
             return False, tr("Apertura e focale devono essere maggiori di zero.")
         with closing(self._connect()) as connection:
             brand_id = self._ensure_brand(connection, clean_brand)
@@ -197,7 +202,7 @@ class EquipmentCatalogRepository:
         clean_mount_type = mount_type.strip()
         if not clean_optical_type or not clean_mount_type:
             return False, tr("Tipo ottico e montatura sono obbligatori.")
-        if aperture_mm <= 0 or focal_length_mm <= 0:
+        if not _all_finite(aperture_mm, focal_length_mm) or aperture_mm <= 0 or focal_length_mm <= 0:
             return False, tr("Apertura e focale devono essere maggiori di zero.")
         with closing(self._connect()) as connection:
             old = self._telescope_model_by_id(connection, model_id)
@@ -443,7 +448,7 @@ class EquipmentCatalogRepository:
         clean_model = model.strip()
         if not clean_brand or not clean_model:
             return False, tr("Marca e modello sono obbligatori.")
-        if multiplier <= 1:
+        if not math.isfinite(multiplier) or multiplier <= 1:
             return False, tr("Il moltiplicatore Barlow deve essere maggiore di 1.")
         with closing(self._connect()) as connection:
             duplicate = connection.execute(
@@ -467,7 +472,7 @@ class EquipmentCatalogRepository:
         clean_model = model.strip()
         if not clean_brand or not clean_model:
             return False, tr("Marca e modello sono obbligatori.")
-        if multiplier <= 1:
+        if not math.isfinite(multiplier) or multiplier <= 1:
             return False, tr("Il moltiplicatore Barlow deve essere maggiore di 1.")
         with closing(self._connect()) as connection:
             existing = connection.execute(
@@ -553,7 +558,7 @@ class EquipmentCatalogRepository:
         clean_model = model.strip()
         if not clean_brand or not clean_model:
             return False, tr("Marca e modello sono obbligatori.")
-        if magnification <= 0 or objective_diameter_mm <= 0:
+        if not _all_finite(magnification, objective_diameter_mm) or magnification <= 0 or objective_diameter_mm <= 0:
             return False, tr("Ingrandimento e diametro obiettivo devono essere maggiori di zero.")
         with closing(self._connect()) as connection:
             duplicate = connection.execute(
@@ -596,7 +601,7 @@ class EquipmentCatalogRepository:
         clean_model = model.strip()
         if not clean_brand or not clean_model:
             return False, tr("Marca e modello sono obbligatori.")
-        if magnification <= 0 or objective_diameter_mm <= 0:
+        if not _all_finite(magnification, objective_diameter_mm) or magnification <= 0 or objective_diameter_mm <= 0:
             return False, tr("Ingrandimento e diametro obiettivo devono essere maggiori di zero.")
         with closing(self._connect()) as connection:
             existing = connection.execute(
@@ -1396,6 +1401,15 @@ class EquipmentCatalogRepository:
             return (), tr("Tipo di oculare non valido.")
         if clean_type.casefold() == "zoom":
             clean_type = "Zoom"
+        if not _all_finite(
+            focal_length_mm,
+            apparent_field_deg,
+            min_focal_length_mm,
+            max_focal_length_mm,
+            afov_min,
+            afov_max,
+        ):
+            return (), tr("Dati oculare non validi.")
         if apparent_field_deg <= 0 or apparent_field_deg > 180:
             return (), tr("Il campo apparente deve essere compreso tra 0° e 180°.")
         if clean_type != "Zoom":
@@ -1451,11 +1465,17 @@ class EquipmentCatalogRepository:
             return (), tr("Marca e modello sono obbligatori.")
         if clean_class not in FILTER_CLASS_LABELS:
             return (), tr("Tipo di filtro non valido.")
-        if central_wavelength_nm is not None and central_wavelength_nm <= 0:
+        if central_wavelength_nm is not None and (
+            not math.isfinite(central_wavelength_nm) or central_wavelength_nm <= 0
+        ):
             return (), tr("La lunghezza d'onda deve essere maggiore di zero.")
-        if bandwidth_nm is not None and bandwidth_nm <= 0:
+        if bandwidth_nm is not None and (
+            not math.isfinite(bandwidth_nm) or bandwidth_nm <= 0
+        ):
             return (), tr("La larghezza di banda deve essere maggiore di zero.")
-        if transmission_pct is not None and not 0 < transmission_pct <= 100:
+        if transmission_pct is not None and (
+            not math.isfinite(transmission_pct) or not 0 < transmission_pct <= 100
+        ):
             return (), tr("La trasmissione deve essere compresa tra 0 e 100%.")
         if minimum_aperture_mm is not None and minimum_aperture_mm <= 0:
             return (), tr("L'apertura minima deve essere maggiore di zero.")
@@ -1489,11 +1509,13 @@ class EquipmentCatalogRepository:
         clean_system = optical_system.strip().upper()
         if not clean_brand or not clean_model:
             return (), tr("Marca e modello sono obbligatori.")
-        if not 0 < reduction_factor < 1:
+        if not math.isfinite(reduction_factor) or not 0 < reduction_factor < 1:
             return (), tr("Il fattore di riduzione deve essere compreso tra 0 e 1.")
         if clean_system not in OPTICAL_SYSTEM_LABELS:
             return (), tr("Sistema ottico non valido.")
-        if backfocus_mm is not None and backfocus_mm <= 0:
+        if backfocus_mm is not None and (
+            not math.isfinite(backfocus_mm) or backfocus_mm <= 0
+        ):
             return (), tr("Il backfocus deve essere maggiore di zero.")
         if not visual_compatible and not imaging_compatible:
             return (), tr("Indica almeno un impiego compatibile.")

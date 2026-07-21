@@ -5,9 +5,9 @@ import logging
 import math
 import subprocess
 from dataclasses import asdict, dataclass, replace
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Protocol
+from typing import Callable, Protocol
 from zoneinfo import ZoneInfo
 
 import requests
@@ -205,13 +205,20 @@ class WindowsCoarseLocationProvider(WindowsLocationProvider):
 class IpGeolocationProvider:
     name = "ip_geolocation"
     REQUEST_TIMEOUT_SECONDS = 4
+    CACHE_TTL = timedelta(hours=24)
     ENDPOINTS = (
         "https://ipapi.co/json/",
         "https://ipwho.is/",
     )
 
-    def __init__(self, cache_path: Path | None = None):
+    def __init__(
+        self,
+        cache_path: Path | None = None,
+        *,
+        clock: Callable[[], datetime] | None = None,
+    ):
         self._cache_path = cache_path
+        self._clock = clock or (lambda: datetime.now(UTC))
 
     def detect(self) -> LocationDetectionResult:
         last_error = ""
@@ -280,7 +287,7 @@ class IpGeolocationProvider:
             self._cache_path.parent.mkdir(parents=True, exist_ok=True)
             payload = result.to_qml()
             payload.pop("message", None)
-            payload["cachedAt"] = datetime.now().isoformat(timespec="seconds")
+            payload["cachedAt"] = self._now().isoformat(timespec="seconds")
             self._cache_path.write_text(json.dumps(payload), encoding="utf-8")
         except OSError:
             logger.warning("Could not write approximate location cache.", exc_info=True)
@@ -290,6 +297,14 @@ class IpGeolocationProvider:
             return None
         try:
             payload = json.loads(self._cache_path.read_text(encoding="utf-8"))
+            if payload.get("provider") != self.name:
+                return None
+            cached_at = datetime.fromisoformat(str(payload["cachedAt"]))
+            if cached_at.tzinfo is None:
+                cached_at = cached_at.astimezone()
+            age = self._now() - cached_at.astimezone(UTC)
+            if age < timedelta(0) or age > self.CACHE_TTL:
+                return None
             location_payload = payload["location"]
             location = ObserverLocation(
                 city=location_payload["city"],
@@ -307,15 +322,18 @@ class IpGeolocationProvider:
                 region=payload.get("region", ""),
                 raw_provider_timezone=str(payload.get("raw_provider_timezone") or ""),
                 message=tr(
-                    "Posizione approssimata rilevata tramite connessione internet: "
-                    "{city}, {country}. La precisione può essere limitata.",
-                    city=location.city,
-                    country=location.country or tr("sconosciuto"),
+                    "Posizione caricata."
                 ),
             )
         except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
             logger.warning("Approximate location cache is invalid.", exc_info=True)
             return None
+
+    def _now(self) -> datetime:
+        now = self._clock()
+        if now.tzinfo is None:
+            now = now.replace(tzinfo=UTC)
+        return now.astimezone(UTC)
 
 
 class ManualCityProvider:

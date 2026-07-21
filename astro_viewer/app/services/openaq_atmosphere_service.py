@@ -66,6 +66,7 @@ class LocalAtmosphere:
     freshness_category: str = "unavailable"
     freshness_warning: bool = False
     source_distance_km: float | None = None
+    error_category: str = ""
 
     @classmethod
     def not_configured(cls) -> LocalAtmosphere:
@@ -109,8 +110,10 @@ class LocalAtmosphere:
     def failure(
         cls,
         message: str = tr("Dati OpenAQ non disponibili al momento."),
+        *,
+        error_category: str = "provider",
     ) -> LocalAtmosphere:
-        return cls(True, False, message)
+        return cls(True, False, message, error_category=error_category)
 
     def to_qml(self) -> dict:
         return {
@@ -219,11 +222,13 @@ class OpenAQLocalAtmosphereService:
                 params={"limit": "100", "page": "1"},
             )
             if isinstance(latest_response, LocalAtmosphere):
-                latest_failure = latest_response
+                if latest_response.error_category == "authentication":
+                    return latest_response
+                latest_failure = latest_failure or latest_response
                 continue
             latest_results = self._payload_results(latest_response)
             if latest_results is None:
-                latest_failure = LocalAtmosphere.failure(
+                latest_failure = latest_failure or LocalAtmosphere.failure(
                     tr("Risposta OpenAQ non riconosciuta.")
                 )
                 continue
@@ -235,7 +240,7 @@ class OpenAQLocalAtmosphereService:
         readings = self._readings_from_results(latest_items, location)
         if readings:
             return self._from_readings(readings)
-        if latest_failure is not None and latest_failure.message.startswith("API key"):
+        if latest_failure is not None:
             return latest_failure
         return LocalAtmosphere.no_data()
 
@@ -248,24 +253,28 @@ class OpenAQLocalAtmosphereService:
                 tr(
                     "Connessione OpenAQ non riuscita: {error_type}.",
                     error_type=exc.__class__.__name__,
-                )
+                ),
+                error_category="network",
             )
 
         if response.status_code == 200:
             return response
         if response.status_code in (401, 403):
             return LocalAtmosphere.failure(
-                tr("API key OpenAQ non valida o non autorizzata.")
+                tr("API key OpenAQ non valida o non autorizzata."),
+                error_category="authentication",
             )
         if response.status_code == 429:
             return LocalAtmosphere.failure(
-                tr("OpenAQ ha applicato un limite di traffico. Riprova più tardi.")
+                tr("OpenAQ ha applicato un limite di traffico. Riprova più tardi."),
+                error_category="rate_limit",
             )
         return LocalAtmosphere.failure(
             tr(
                 "OpenAQ ha risposto con HTTP {status_code}.",
                 status_code=response.status_code,
-            )
+            ),
+            error_category="http",
         )
 
     def _from_payload(self, response: requests.Response, location: ObserverLocation) -> LocalAtmosphere:
@@ -330,9 +339,14 @@ class OpenAQLocalAtmosphereService:
     @staticmethod
     def _nearest_locations(locations: list) -> list[dict[str, Any]]:
         usable = [item for item in locations if isinstance(item, dict)]
+
+        def distance_key(item: dict[str, Any]) -> float:
+            distance = OpenAQLocalAtmosphereService._float_value(item.get("distance"))
+            return distance if distance is not None else math.inf
+
         return sorted(
             usable,
-            key=lambda item: OpenAQLocalAtmosphereService._float_value(item.get("distance")) or math.inf,
+            key=distance_key,
         )
 
     @staticmethod
@@ -463,7 +477,11 @@ class OpenAQLocalAtmosphereService:
             candidates,
             key=lambda reading: (
                 reading.timestamp or datetime.min.replace(tzinfo=UTC),
-                -(reading.distance_km or math.inf),
+                -(
+                    reading.distance_km
+                    if reading.distance_km is not None
+                    else math.inf
+                ),
             ),
             reverse=True,
         )[0]
@@ -647,10 +665,15 @@ class OpenAQLocalAtmosphereService:
 
     @staticmethod
     def _distance_km(item: dict[str, Any], location: ObserverLocation) -> float | None:
+        for key in ("distance_km", "distanceKm"):
+            value = OpenAQLocalAtmosphereService._float_value(item.get(key))
+            if value is not None:
+                return value
+
         for key in ("distance", "distance_m", "distanceMeters"):
             value = OpenAQLocalAtmosphereService._float_value(item.get(key))
             if value is not None:
-                return value / 1000 if value > 500 else value
+                return value / 1000
 
         coordinates = item.get("coordinates")
         if not isinstance(coordinates, dict):

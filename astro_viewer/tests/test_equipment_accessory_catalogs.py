@@ -176,6 +176,55 @@ def test_builtin_equipment_cannot_be_deleted_from_repository() -> None:
         temporary_directory.cleanup()
 
 
+def test_non_finite_accessory_values_are_rejected_before_sqlite_write() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        attempts = (
+            repository.add_eyepiece(
+                "NightScope",
+                "Invalid eyepiece",
+                "Fisso",
+                10.0,
+                float("nan"),
+                "1.25",
+            ),
+            repository.add_barlow(
+                "NightScope",
+                "Invalid Barlow",
+                float("inf"),
+                "1.25",
+            ),
+            repository.add_filter(
+                "NightScope",
+                "Invalid filter",
+                "OIII",
+                central_wavelength_nm=float("nan"),
+            ),
+            repository.add_reducer(
+                "NightScope",
+                "Invalid reducer",
+                0.8,
+                "REFRACTOR",
+                backfocus_mm=float("inf"),
+                imaging_compatible=True,
+            ),
+        )
+
+        assert all(not ok for ok, _message in attempts)
+        assert not any(
+            row["brand"] == "NightScope"
+            for rows in (
+                repository.eyepieces(),
+                repository.barlows(),
+                repository.filters(),
+                repository.reducers(),
+            )
+            for row in rows
+        )
+    finally:
+        temporary_directory.cleanup()
+
+
 def test_builtin_equipment_edits_are_persistent_and_keep_delete_protection() -> None:
     temporary_directory, database_path, repository = _database()
     try:
