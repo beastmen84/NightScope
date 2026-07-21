@@ -55,6 +55,12 @@ locale-aware date/number helpers. Services consume canonical values; rendering
 happens only at the Qt/QML boundary. User-entered names, notes and observation
 log text are never translated.
 
+Database-backed Messier and Caldwell catalogue rows use the
+`catalogue_objects` structured-content section. Synthetic Solar System rows
+instead retain their lazy `tr()` names and `objects` descriptions through the
+catalogue read-model; rebinding them to `catalogue_objects` would discard the
+English and Spanish presentation because that section has no synthetic rows.
+
 ## Add A Language
 
 To add French without changing application code:

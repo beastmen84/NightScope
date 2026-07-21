@@ -28,11 +28,16 @@
   riga anche su mobile. Una regressione dedicata protegge il layout a tre
   colonne; il rendering e' stato verificato a `390`, `621` e `1440 px` senza
   overflow orizzontale.
+- Corrette le righe del Sistema Solare nel Catalogo Oggetti: nomi e descrizioni
+  conservano ora la localizzazione lazy fino al payload QML, la ricerca accetta
+  il nome nella lingua attiva e anche il dettaglio di fallback non torna
+  all'italiano. Aggiunta una regressione live per tutti i nove oggetti in
+  inglese e spagnolo.
 - Estesi i test di localizzazione a discovery, completezza, contenuti, termini
   revisionati, preferenze, formati locali e cambio live italiano/inglese/
   spagnolo. Nessuna modifica a scoring, Planner, Home, Equipment, Sky Compass,
   schema SQLite o logica delle raccomandazioni.
-- Gate completo senza coverage superato: `796 passed`, `613 warnings` note e
+- Gate completo senza coverage superato: `797 passed`, `613 warnings` note e
   `7 subtests`; cataloghi IT/EN/ES completi `1665/1665`, smoke QML separati
   nelle tre lingue e manuale spagnolo verificato in Chromium a larghezza desktop
   e mobile senza overflow orizzontale.

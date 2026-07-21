@@ -11,6 +11,7 @@ from xml.etree import ElementTree
 import pytest
 from PySide6.QtCore import QCoreApplication, QLocale, QObject
 
+from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
 from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.services.localization import (
     active_language_code,
@@ -646,6 +647,93 @@ def test_catalogue_choices_are_sorted_after_localization(tmp_path: Path) -> None
             "High magnification",
             "Wide field",
         ]
+    finally:
+        assert manager.setLanguage("it")
+
+
+def test_solar_system_catalogue_rows_and_search_follow_live_language(
+    tmp_path: Path,
+) -> None:
+    app = QCoreApplication.instance() or QCoreApplication([])
+    manager = TranslationManager(TRANSLATIONS_DIR, tmp_path / "preferences.json")
+    assert app is not None
+    assert manager.install()
+
+    controller = AppController.__new__(AppController)
+    QObject.__init__(controller)
+    controller._location = None
+    controller._object_descriptions = {
+        "sun": {
+            "short_description": content_text(
+                "objects",
+                "sun",
+                "short_description",
+                "Il Sole è la stella al centro del Sistema Solare.",
+            )
+        }
+    }
+    controller._catalogue_objects = [
+        controller._catalogue_item_from_solar_system(config, sort_index)
+        for sort_index, config in enumerate(
+            SkyfieldAstronomyEngine.BODY_CONFIGS,
+            start=1,
+        )
+    ]
+    controller._catalogue_identifier_index = controller._build_catalogue_identifier_index(
+        controller._catalogue_objects
+    )
+    controller._catalogue_search_query = ""
+    controller._catalogue_filters = {}
+    controller._catalogue_visible_this_month_only = False
+    controller._catalogue_year = 2026
+    controller._catalogue_selected_month = 7
+    controller._solar_system_objects = []
+    controller._base_solar_system_objects = []
+    controller._object_image_map = {}
+
+    try:
+        assert manager.setLanguage("en")
+        english_rows = controller.catalogueObjects
+        assert [item["name"] for item in english_rows] == [
+            "Sun",
+            "Moon",
+            "Mercury",
+            "Venus",
+            "Mars",
+            "Jupiter",
+            "Saturn",
+            "Uranus",
+            "Neptune",
+        ]
+        assert english_rows[0]["description"].startswith("The Sun is the star")
+        assert {item["catalogue_label"] for item in english_rows} == {
+            "Solar System"
+        }
+
+        assert manager.setLanguage("es")
+        spanish_rows = controller.catalogueObjects
+        assert [item["name"] for item in spanish_rows] == [
+            "Sol",
+            "Luna",
+            "Mercurio",
+            "Venus",
+            "Marte",
+            "Júpiter",
+            "Saturno",
+            "Urano",
+            "Neptuno",
+        ]
+        assert spanish_rows[0]["description"].startswith("El Sol es la estrella")
+        controller._catalogue_search_query = "Júpiter"
+        assert [item["name"] for item in controller.catalogueObjects] == ["Júpiter"]
+
+        source_item = next(
+            item
+            for item in controller._catalogue_objects
+            if item["object_id"] == "jupiter"
+        )
+        detail = controller._solar_system_catalogue_detail_object(source_item)
+        assert render_text(detail.name) == "Júpiter"
     finally:
         assert manager.setLanguage("it")
 

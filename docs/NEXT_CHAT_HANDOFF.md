@@ -613,6 +613,11 @@ quando richiesta.
 - Le correzioni spagnole revisionate sono riproducibili tramite
   `tools/translation_reviews/es.json`; l'updater rifiuta riferimenti obsoleti e
   placeholder alterati.
+- Le righe sintetiche del Sistema Solare nel Catalogo Oggetti conservano i
+  nomi Qt lazy e le descrizioni `objects` fino al payload QML. La tabella, la
+  ricerca nella lingua attiva e il dettaglio di fallback mostrano quindi
+  `Sun`/`Moon`/pianeti in inglese e `Sol`/`Luna`/pianeti in spagnolo senza
+  ricalcolare l'astronomia.
 - La prosa strutturata spagnola applica inoltre override e normalizzazioni
   editoriali deterministici in `tools/update_content_translations.py`; i test
   vietano il ritorno dei termini superati e proteggono unicita', alias e
@@ -959,15 +964,17 @@ git diff --check
 
 Risultati:
 
-- Gate completo senza coverage: `796 passed`, `613 warnings`, `7 subtests
-  passed` in `114,38 s`; durata complessiva `194,4 s`.
+- Gate completo senza coverage: `797 passed`, `613 warnings`, `7 subtests
+  passed` in `119,77 s`; durata complessiva `202,9 s`.
 - `pip check`, Ruff, `compileall`, archivio third-party, smoke backend e smoke
   QML standard puliti.
 - Cataloghi Qt IT/EN/ES: `1665` traduzioni finite e `0` unfinished per lingua.
 - Contenuti spagnoli: `7` sezioni, `821` elementi, `2038` campi tradotti;
   overlay editoriale TS con `617` correzioni globali e `5` contestuali.
-- Test mirati localizzazione/tooling: `32 passed`; smoke QML separati italiano,
-  inglese e spagnolo completati con exit `0` in runtime temporanei.
+- Test mirati localizzazione/tooling: `33 passed`; localizzazione e flussi reali
+  del catalogo: `90 passed`, `29 warnings` note e `7 subtests`. Smoke QML
+  separati italiano, inglese e spagnolo completati con exit `0` in runtime
+  temporanei.
 - Manuale spagnolo: desktop, breakpoint `621 px` e mobile senza overflow
   orizzontale; `IT`/`EN`/`ES` restano su una sola riga. Cambio lingua,
   persistenza e navigazione alle ancore verificati in Chromium.

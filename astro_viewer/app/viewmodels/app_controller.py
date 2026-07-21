@@ -4611,7 +4611,7 @@ class AppController(QObject):
                 item
                 for item in objects
                 if query in item["catalogue_id"].casefold()
-                or query in item["name"].casefold()
+                or query in render_text(item["name"]).casefold()
                 or query
                 in render_text(
                     content_text(
@@ -4714,18 +4714,24 @@ class AppController(QObject):
         data["catalogue_label"] = self._catalogue_label(
             str(item.get("catalogue", ""))
         )
-        data["name"] = content_text(
-            "catalogue_objects",
-            object_id,
-            "name",
-            item.get("name", ""),
-        )
-        data["description"] = content_text(
-            "catalogue_objects",
-            object_id,
-            "description",
-            item.get("description", ""),
-        )
+        if item.get("solar_system_body_id"):
+            data["name"] = presentation_text(item.get("name", ""), strip=True)
+            data["description"] = presentation_text(
+                item.get("description", ""), strip=True
+            )
+        else:
+            data["name"] = content_text(
+                "catalogue_objects",
+                object_id,
+                "name",
+                item.get("name", ""),
+            )
+            data["description"] = content_text(
+                "catalogue_objects",
+                object_id,
+                "description",
+                item.get("description", ""),
+            )
         data["constellation_label"] = catalogue_constellation_label(
             str(item.get("constellation", ""))
         )
@@ -5016,7 +5022,7 @@ class AppController(QObject):
         return self._apply_object_content(
             CelestialObject(
                 id=item["object_id"],
-                name=str(item["name"]),
+                name=presentation_text(item["name"], strip=True),
                 object_type=item["type"],
                 image=str(item.get("image") or "resources/images/m13.svg"),
                 magnitude="",
