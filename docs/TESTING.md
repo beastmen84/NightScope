@@ -95,23 +95,24 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
-## Measured 1.34.1 Deep Review Hardening Gate
+## Measured 1.34.1 Deep Review And Provider Guidance Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-21 after the provider,
-location-cache, numeric-input and startup hardening follow-up:
+location-cache, numeric-input and startup hardening follow-up and the localized
+provider-account guidance:
 
 | Check | Result |
 | --- | --- |
-| `python tools/run_checks.py --security` | Passed in 246.5 s |
+| `python tools/run_checks.py --security` | Passed in 218.6 s |
 | `pip check`, Ruff, `compileall`, and third-party archive | Passed |
-| `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 816 passed, 613 warnings, 10 subtests passed in 143.85 s |
+| `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 817 passed, 613 warnings, 10 subtests passed in 120.46 s |
 | Runtime coverage | 84% across 15,403 statements |
 | Installed-environment `pip-audit` | No known vulnerabilities |
-| Focused post-fix verification | 62 passed |
-| Translation catalogues | IT, EN, and ES: 1,670 finished, 0 unfinished each |
-| Focused localization and developer-tooling tests | 34 passed |
+| Focused provider-guidance verification | 23 passed |
+| Translation catalogues | IT, EN, and ES: 1,679 finished, 0 unfinished each |
 | Separate Italian, English, and Spanish QML smoke runs | Passed in disposable runtimes |
-| `qmllint` | 30 files, 0 failures, 760 known static warnings |
+| Data Providers visual rendering | IT, EN, and ES passed at 1,400 and 774 px page widths |
+| `qmllint` | 31 files, 0 failures, 760 known static warnings |
 | Repository image checks | 219 deep-sky and 9 Solar System JPEG assets passed |
 | Bandit application/tool scan | 0 high, 26 medium, 12 low; unchanged reviewed baseline |
 

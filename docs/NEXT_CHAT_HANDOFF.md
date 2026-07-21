@@ -41,20 +41,39 @@ della localita', senza sovrascrivere una selezione esplicita dell'utente.
 Schema SQLite, dati seed, scoring e raccomandazioni non sono cambiati. La `dist`
 non e' stata rigenerata in questo passaggio.
 
+## Guide Configurazione Provider
+
+La pagina Provider dati contiene ora due guide numerate localizzate in italiano,
+inglese e spagnolo. La guida Earthdata copre creazione e attivazione account,
+compilazione di tutti i campi del profilo anche quando indicati come facoltativi,
+salvataggio, test, autorizzazione LAADS OPeNDAP e ripetizione del test. Non viene
+attribuito il blocco dei campi mancanti al solo VIIRS o al solo AOD: entrambi
+usano il flusso Earthdata condiviso da NightScope.
+
+La guida OpenAQ porta dalla registrazione alla pagina account e alla sezione
+`API Keys`, quindi a salvataggio e test in NightScope. La griglia QML passa a
+una colonna quando lo spazio effettivo non basta; le card sono state renderizzate
+in IT/EN/ES a `1400x900` e `774x900`. Il pulsante spagnolo `Autorizar aplicación`
+e' stato allargato dopo il controllo visuale. Il manuale multilingue replica le
+procedure con sequenze numerate. Database, schema, credenziali locali e `dist`
+non sono stati modificati.
+
 Validazione conclusiva del passaggio:
 
-- `tools/run_checks.py --security`: superato in `246,5 s`;
-- suite con coverage: `816 passed`, `613 warnings`, `10 subtests passed`,
+- `tools/run_checks.py --security`: superato in `218,6 s`;
+- suite con coverage: `817 passed`, `613 warnings`, `10 subtests passed`,
   coverage runtime `84%` su `15.403` statement;
 - `pip-audit`: nessuna vulnerabilita' nota;
-- cataloghi Qt IT/EN/ES: `1670` finite, `0` unfinished per lingua;
+- cataloghi Qt IT/EN/ES: `1679` finite, `0` unfinished per lingua;
 - smoke QML separati IT/EN/ES: tutti superati in runtime temporanei;
-- `qmllint`: `30` file, `0` failure, `760` warning statici noti;
+- `qmllint`: `31` file, `0` failure, `760` warning statici noti;
 - immagini: `219` deep-sky e `9` Sistema Solare valide;
 - Bandit invariato: `0 high`, `26 medium`, `12 low`.
 
 ## Commit Recenti
 
+- `6256d5f Bump source version to 1.34.1`
+- `1513201 Fix provider and runtime edge cases`
 - `64f3caf Fix Spanish localization review findings`
 - `5a1faa6 Add reviewed Spanish localization`
 - `72342fa Document public 1.33.2 release`
@@ -981,7 +1000,7 @@ Rimossi:
 
 ## Validazione 1.34.1
 
-Eseguita nella venv corrente dopo il passaggio di hardening:
+Eseguita nella venv corrente dopo il passaggio di hardening e le guide provider:
 
 ```powershell
 .\.venv\Scripts\python.exe tools\run_checks.py --security
@@ -991,15 +1010,15 @@ git diff --check
 
 Risultati:
 
-- Gate completo con security: `816 passed`, `613 warnings`, `10 subtests
-  passed` in `143,85 s`; durata complessiva `246,5 s`.
+- Gate completo con security: `817 passed`, `613 warnings`, `10 subtests
+  passed` in `120,46 s`; durata complessiva `218,6 s`.
 - Coverage runtime `84%` su `15403` statement; `pip check`, Ruff, `compileall`,
   archivio third-party, `pip-audit`, smoke backend e smoke QML puliti.
-- Cataloghi Qt IT/EN/ES: `1670` traduzioni finite e `0` unfinished per lingua;
+- Cataloghi Qt IT/EN/ES: `1679` traduzioni finite e `0` unfinished per lingua;
   smoke QML separati italiano, inglese e spagnolo completati con exit `0`.
-- Verifica mirata post-fix: `62 passed`; `qmllint` su 30 file senza failure e
-  con le 760 warning statiche note; immagini 219 deep-sky e 9 Sistema Solare
-  verificate.
+- Verifica mirata guide provider: `23 passed`; `qmllint` su 31 file senza
+  failure e con le 760 warning statiche note; rendering diretto della pagina
+  Provider completato in IT/EN/ES a larghezza desktop e minima.
 - Bandit resta sul baseline revisionato: `0 high`, `26 medium`, `12 low`.
 - Nessuna modifica a schema, seed data, scoring o recommendation policy; nessuna
   build o release `1.34.1` generata.

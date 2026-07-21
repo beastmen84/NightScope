@@ -553,9 +553,13 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn('window.currentPage = "detail"', main_qml)
 
     def test_data_providers_page_exposes_earthdata_configuration(self) -> None:
+        ui_components = Path(__file__).resolve().parents[1] / "app" / "ui" / "components"
         ui_pages = Path(__file__).resolve().parents[1] / "app" / "ui" / "pages"
         location_qml = (ui_pages / "LocationPage.qml").read_text(encoding="utf-8")
         qml = (ui_pages / "DataProvidersPage.qml").read_text(encoding="utf-8")
+        setup_step_qml = (ui_components / "ProviderSetupStep.qml").read_text(
+            encoding="utf-8"
+        )
         self.assertIn('title: qsTr("Posizioni recenti")', location_qml)
         self.assertIn('text: qsTr("Nessuna posizione recente.")', location_qml)
         self.assertNotIn("visible: controller.recentLocations.length > 0", location_qml)
@@ -574,6 +578,16 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("onHeaderActionClicked: Qt.openUrlExternally(root.earthdataRegistrationUrl)", qml)
         self.assertIn('openAQRegistrationUrl: "https://explore.openaq.org/register"', qml)
         self.assertIn('title: qsTr("OpenAQ")', qml)
+        self.assertIn("columns: scroll.availableWidth >= 1320 ? 2 : 1", qml)
+        self.assertIn('qsTr("Accesso opzionale ai dati VIIRS e AOD")', qml)
+        self.assertEqual(qml.count("ProviderSetupStep {"), 8)
+        self.assertIn("compila tutti i campi, anche quelli indicati come facoltativi", qml)
+        self.assertIn("spunta tutte le autorizzazioni richieste da LAADS OPeNDAP", qml)
+        self.assertIn("scorri fino alla sezione API Keys", qml)
+        self.assertIn("Layout.preferredWidth: 160", qml)
+        self.assertIn("Layout.preferredWidth: 24", setup_step_qml)
+        self.assertIn("Layout.preferredHeight: 24", setup_step_qml)
+        self.assertIn("wrapMode: Text.WordWrap", setup_step_qml)
         self.assertIn(
             'placeholderText: controller.openaqCredentialsConfigured ? qsTr("Nuova API key OpenAQ") : qsTr("API key OpenAQ")',
             qml,

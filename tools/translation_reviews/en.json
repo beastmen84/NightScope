@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "translations": {
+    "Accesso opzionale ai dati VIIRS e AOD": "Optional access to VIIRS and AOD data",
+    "Guida alla configurazione": "Setup guide",
+    "Crea l'account Earthdata, conferma l'e-mail di attivazione e accedi.": "Create an Earthdata account, confirm the activation email, and sign in.",
+    "Apri Modifica profilo e compila tutti i campi, anche quelli indicati come facoltativi: organizzazione, affiliazione, tipo di utente e area di studio. Inserisci informazioni veritiere e pertinenti al tuo caso.": "Open Edit Profile and complete every field, including those marked optional: organization, affiliation, user type, and study area. Enter truthful information that applies to you.",
+    "In NightScope inserisci nome utente e password. Seleziona quindi Salva e Test connessione.": "In NightScope, enter your username and password. Then select Save and Test connection.",
+    "Se richiesto, seleziona Autorizza app, spunta tutte le autorizzazioni richieste da LAADS OPeNDAP e conferma con Authorize. Torna quindi in NightScope e ripeti il test.": "If prompted, select Authorize app, check every authorization option requested by LAADS OPeNDAP, and confirm with Authorize. Then return to NightScope and repeat the test.",
+    "Crea un account OpenAQ e accedi.": "Create an OpenAQ account and sign in.",
+    "Apri la pagina dell'account dal menu del profilo e scorri fino alla sezione API Keys.": "Open the account page from the profile menu and scroll to the API Keys section.",
+    "Crea o copia la chiave API. Trattala come una password e non condividerla.": "Create or copy the API key. Treat it like a password and do not share it.",
+    "In NightScope incolla la chiave, seleziona Salva e poi Test connessione. La configurazione è completa quando lo stato diventa Verificato.": "In NightScope, paste the key, select Save, then Test connection. Setup is complete when the status changes to Verified."
+  },
+  "contexts": {}
+}

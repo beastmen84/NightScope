@@ -286,6 +286,11 @@
       font-size: 19px;
     }
 
+    h4 {
+      margin: 20px 0 8px;
+      font-size: 15px;
+    }
+
     p {
       margin: 0 0 14px;
     }
@@ -849,12 +854,22 @@
         <h3>OpenAQ</h3>
         <p>OpenAQ fornisce PM2.5 e PM10 vicino al suolo. È diverso da AOD e richiede una API key. Una misura corrente che supera i controlli di qualità può entrare nella trasparenza atmosferica come <strong>fallback non additivo</strong> quando AOD non è disponibile. AOD e OpenAQ non vengono mai sommati come due penalità indipendenti.</p>
         <h3>Configurazione provider</h3>
-        <ol>
-          <li>Apri <strong>Provider dati</strong>.</li>
-          <li>Per Earthdata salva utente e password, autorizza l'app LAADS quando richiesto e prova la connessione.</li>
-          <li>Per OpenAQ crea una chiave personale, salvala e prova la connessione.</li>
-          <li>Torna a Meteo e attendi il refresh; un provider può legittimamente non trovare copertura o dati validi.</li>
+        <p>Apri <strong>Provider dati</strong> e segui la guida del servizio che vuoi abilitare.</p>
+        <h4>NASA Earthdata / LAADS</h4>
+        <ol class="steps">
+          <li>Seleziona <strong>Crea account</strong>, registrati e conferma l'e-mail di attivazione prima di accedere.</li>
+          <li>Apri <strong>Modifica profilo</strong> e compila tutti i campi, anche quelli indicati come facoltativi: organizzazione, affiliazione, tipo di utente, area di studio e gli altri dati richiesti. Inserisci informazioni veritiere e pertinenti al tuo caso.</li>
+          <li>In NightScope inserisci nome utente e password, seleziona <strong>Salva</strong> e poi <strong>Test connessione</strong>.</li>
+          <li>Se si apre la pagina di autorizzazione, spunta tutte le autorizzazioni richieste da LAADS OPeNDAP e conferma con <strong>Authorize</strong>. Torna quindi in NightScope e ripeti il test.</li>
         </ol>
+        <h4>OpenAQ</h4>
+        <ol class="steps">
+          <li>Seleziona <strong>Crea account</strong> e registrati sul sito OpenAQ, quindi accedi.</li>
+          <li>Apri la pagina dell'account dal menu del profilo e scorri fino alla sezione <strong>API Keys</strong>.</li>
+          <li>Crea o copia la chiave API. Trattala come una password e non condividerla.</li>
+          <li>In NightScope incolla la chiave, seleziona <strong>Salva</strong> e poi <strong>Test connessione</strong>. La configurazione è completa quando lo stato diventa <strong>Verificato</strong>.</li>
+        </ol>
+        <p>Torna a Meteo e attendi il refresh; un provider può legittimamente non trovare copertura o dati validi.</p>
         <div class="callout"><strong>Credenziali verificate non significano dato garantito.</strong> Copertura, data del prodotto, nuvole, QA, stazione e distanza possono produrre un risultato non disponibile corretto.</div>
       </section>
 
@@ -1084,12 +1099,22 @@
         <h3>OpenAQ</h3>
         <p>OpenAQ supplies near-surface PM2.5 and PM10. It differs from AOD and requires an API key. A current measurement that passes quality gates can enter atmospheric transparency as a <strong>non-additive fallback</strong> when AOD is unavailable. AOD and OpenAQ are never added as two independent penalties.</p>
         <h3>Provider setup</h3>
-        <ol>
-          <li>Open <strong>Data providers</strong>.</li>
-          <li>For Earthdata, save username and password, authorize the LAADS application when requested, and test the connection.</li>
-          <li>For OpenAQ, create a personal key, save it, and test the connection.</li>
-          <li>Return to Weather and allow the refresh to complete; a provider may legitimately have no coverage or valid data.</li>
+        <p>Open <strong>Data providers</strong> and follow the guide for the service you want to enable.</p>
+        <h4>NASA Earthdata / LAADS</h4>
+        <ol class="steps">
+          <li>Select <strong>Create account</strong>, register, and confirm the activation email before signing in.</li>
+          <li>Open <strong>Edit Profile</strong> and complete every field, including those marked optional: organization, affiliation, user type, study area, and any other requested details. Enter truthful information that applies to you.</li>
+          <li>In NightScope, enter your username and password, select <strong>Save</strong>, then <strong>Test connection</strong>.</li>
+          <li>If the authorization page opens, check every authorization option requested by LAADS OPeNDAP and confirm with <strong>Authorize</strong>. Then return to NightScope and repeat the test.</li>
         </ol>
+        <h4>OpenAQ</h4>
+        <ol class="steps">
+          <li>Select <strong>Create account</strong>, register on the OpenAQ website, and sign in.</li>
+          <li>Open the account page from the profile menu and scroll to the <strong>API Keys</strong> section.</li>
+          <li>Create or copy the API key. Treat it like a password and do not share it.</li>
+          <li>In NightScope, paste the key, select <strong>Save</strong>, then <strong>Test connection</strong>. Setup is complete when the status changes to <strong>Verified</strong>.</li>
+        </ol>
+        <p>Return to Weather and allow the refresh to complete; a provider may legitimately have no coverage or valid data.</p>
         <div class="callout"><strong>Verified credentials do not guarantee a measurement.</strong> Coverage, product date, cloud, QA, station, and distance can correctly produce an unavailable result.</div>
       </section>
 
@@ -1319,12 +1344,22 @@
         <h3>OpenAQ</h3>
         <p>OpenAQ proporciona PM2.5 y PM10 cerca de la superficie. Es distinto del AOD y requiere una clave de API. Una medición actual que supere los controles de calidad puede intervenir en la transparencia atmosférica como <strong>alternativa no aditiva</strong> cuando el AOD no está disponible. El AOD y OpenAQ nunca se suman como dos penalizaciones independientes.</p>
         <h3>Configuración de los proveedores</h3>
-        <ol>
-          <li>Abra <strong>Proveedores de datos</strong>.</li>
-          <li>Para Earthdata, guarde el nombre de usuario y la contraseña, autorice la aplicación LAADS cuando se solicite y pruebe la conexión.</li>
-          <li>Para OpenAQ, cree una clave personal, guárdela y pruebe la conexión.</li>
-          <li>Vuelva a Meteorología y espere a que termine la actualización; es posible que un proveedor no tenga cobertura o datos válidos.</li>
+        <p>Abra <strong>Proveedores de datos</strong> y siga la guía del servicio que quiera habilitar.</p>
+        <h4>NASA Earthdata / LAADS</h4>
+        <ol class="steps">
+          <li>Seleccione <strong>Crear cuenta</strong>, regístrese y confirme el correo electrónico de activación antes de iniciar sesión.</li>
+          <li>Abra <strong>Editar perfil</strong> y complete todos los campos, también los indicados como opcionales: organización, afiliación, tipo de usuario, área de estudio y cualquier otro dato solicitado. Introduzca información veraz y pertinente para su caso.</li>
+          <li>En NightScope, introduzca el nombre de usuario y la contraseña; seleccione <strong>Guardar</strong> y después <strong>Probar conexión</strong>.</li>
+          <li>Si se abre la página de autorización, marque todas las autorizaciones requeridas por LAADS OPeNDAP y confirme con <strong>Authorize</strong>. Después, vuelva a NightScope y repita la prueba.</li>
         </ol>
+        <h4>OpenAQ</h4>
+        <ol class="steps">
+          <li>Seleccione <strong>Crear cuenta</strong>, regístrese en el sitio web de OpenAQ e inicie sesión.</li>
+          <li>Abra la página de la cuenta desde el menú del perfil y desplácese hasta la sección <strong>API Keys</strong>.</li>
+          <li>Cree o copie la clave de API. Trátela como una contraseña y no la comparta.</li>
+          <li>En NightScope, pegue la clave, seleccione <strong>Guardar</strong> y después <strong>Probar conexión</strong>. La configuración estará completa cuando el estado cambie a <strong>Verificado</strong>.</li>
+        </ol>
+        <p>Vuelva a Meteorología y espere a que termine la actualización; es posible que un proveedor no tenga cobertura o datos válidos.</p>
         <div class="callout"><strong>Unas credenciales verificadas no garantizan una medición.</strong> La cobertura, la fecha del producto, las nubes, el control de calidad, la estación y la distancia pueden producir correctamente un resultado no disponible.</div>
       </section>
 

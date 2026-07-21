@@ -108,6 +108,19 @@ def test_discovered_language_catalogs_are_complete_and_symmetric() -> None:
     assert catalogs["en"][("WeatherPage", "Meteo osservativo")] == (
         "Observing weather"
     )
+    earthdata_profile_source = (
+        "Apri Modifica profilo e compila tutti i campi, anche quelli indicati "
+        "come facoltativi: organizzazione, affiliazione, tipo di utente e area "
+        "di studio. Inserisci informazioni veritiere e pertinenti al tuo caso."
+    )
+    assert catalogs["en"][("DataProvidersPage", earthdata_profile_source)] == (
+        "Open Edit Profile and complete every field, including those marked "
+        "optional: organization, affiliation, user type, and study area. Enter "
+        "truthful information that applies to you."
+    )
+    assert catalogs["en"][("DataProvidersPage", "Guida alla configurazione")] == (
+        "Setup guide"
+    )
     assert catalogs["es"][("main", "Meteo")] == "Meteorología"
     assert catalogs["es"][("main", "Lingua")] == "Idioma"
     assert catalogs["es"][("EquipmentProfilesPage", "Pupilla d’uscita")] == (
@@ -121,6 +134,14 @@ def test_discovered_language_catalogs_are_complete_and_symmetric() -> None:
     )
     assert catalogs["es"][("WeatherPage", "Seeing notturno")] == (
         "Seeing nocturno"
+    )
+    assert catalogs["es"][("DataProvidersPage", earthdata_profile_source)] == (
+        "Abra Editar perfil y complete todos los campos, también los indicados "
+        "como opcionales: organización, afiliación, tipo de usuario y área de "
+        "estudio. Introduzca información veraz y pertinente para su caso."
+    )
+    assert catalogs["es"][("DataProvidersPage", "Guida alla configurazione")] == (
+        "Guía de configuración"
     )
     assert catalogs["es"][
         ("", "Scegliere un orizzonte aperto a Nord-Est e un cielo buio.")
@@ -486,6 +507,12 @@ def test_spanish_ts_review_is_complete_and_idempotent() -> None:
 
     root = ElementTree.parse(TRANSLATIONS_DIR / "es.ts").getroot()
     assert _apply_translation_review(root, "es") == 0
+
+
+def test_provider_setup_ts_reviews_are_idempotent() -> None:
+    for language_code in ("en", "es"):
+        root = ElementTree.parse(TRANSLATIONS_DIR / f"{language_code}.ts").getroot()
+        assert _apply_translation_review(root, language_code) == 0
 
 
 def test_ts_review_rejects_invalid_or_stale_entries(

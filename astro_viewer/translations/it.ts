@@ -6023,153 +6023,199 @@ Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</tran
       <translation>Configura gli accessi opzionali ai servizi esterni.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="70" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="72" />
       <source>NASA Earthdata</source>
       <translation>NASA Earthdata</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="71" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="73" />
       <source>Connessione LAADS verificata</source>
       <translation>Connessione LAADS verificata</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="71" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="73" />
       <source>Credenziali salvate nel vault di sistema</source>
       <translation>Credenziali salvate nel vault di sistema</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="71" />
-      <source>Accesso opzionale ai dati VIIRS</source>
-      <translation>Accesso opzionale ai dati VIIRS</translation>
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="73" />
+      <source>Accesso opzionale ai dati VIIRS e AOD</source>
+      <translation>Accesso opzionale ai dati VIIRS e AOD</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="73" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="186" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="76" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="230" />
       <source>Crea account</source>
       <translation>Crea account</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="77" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="190" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="80" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="234" />
       <source>Account già configurato</source>
       <translation>Account già configurato</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="77" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="80" />
       <source>Crea un account NASA Earthdata</source>
       <translation>Crea un account NASA Earthdata</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="94" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="198" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="97" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="242" />
       <source>Verifica</source>
       <translation>Verifica</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="94" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="198" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="97" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="242" />
       <source>Verificato</source>
       <translation>Verificato</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="94" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="97" />
       <source>Autorizza</source>
       <translation>Autorizza</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="94" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="198" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="97" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="242" />
       <source>Da testare</source>
       <translation>Da testare</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="94" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="97" />
       <source>Fallback</source>
       <translation>Fallback</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="116" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="119" />
       <source>Utente Earthdata</source>
       <translation>Utente Earthdata</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="124" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="127" />
       <source>Nuova password</source>
       <translation>Nuova password</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="124" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="127" />
       <source>Password Earthdata</source>
       <translation>Password Earthdata</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="136" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="225" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="139" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="269" />
       <source>Salva</source>
       <translation>Salva</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="147" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="236" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="150" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="280" />
       <source>Verifica...</source>
       <translation>Verifica...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="147" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="236" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="150" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="280" />
       <source>Test connessione</source>
       <translation>Test connessione</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="155" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="158" />
       <source>Autorizza app</source>
       <translation>Autorizza app</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="167" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="248" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="170" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="292" />
       <source>Rimuovi</source>
       <translation>Rimuovi</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="183" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="189" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="310" />
+      <source>Guida alla configurazione</source>
+      <translation>Guida alla configurazione</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="198" />
+      <source>Crea l'account Earthdata, conferma l'e-mail di attivazione e accedi.</source>
+      <translation>Crea l'account Earthdata, conferma l'e-mail di attivazione e accedi.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="204" />
+      <source>Apri Modifica profilo e compila tutti i campi, anche quelli indicati come facoltativi: organizzazione, affiliazione, tipo di utente e area di studio. Inserisci informazioni veritiere e pertinenti al tuo caso.</source>
+      <translation>Apri Modifica profilo e compila tutti i campi, anche quelli indicati come facoltativi: organizzazione, affiliazione, tipo di utente e area di studio. Inserisci informazioni veritiere e pertinenti al tuo caso.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="210" />
+      <source>In NightScope inserisci nome utente e password. Seleziona quindi Salva e Test connessione.</source>
+      <translation>In NightScope inserisci nome utente e password. Seleziona quindi Salva e Test connessione.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="216" />
+      <source>Se richiesto, seleziona Autorizza app, spunta tutte le autorizzazioni richieste da LAADS OPeNDAP e conferma con Authorize. Torna quindi in NightScope e ripeti il test.</source>
+      <translation>Se richiesto, seleziona Autorizza app, spunta tutte le autorizzazioni richieste da LAADS OPeNDAP e conferma con Authorize. Torna quindi in NightScope e ripeti il test.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="226" />
       <source>OpenAQ</source>
       <translation>OpenAQ</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="184" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="227" />
       <source>Connessione API verificata</source>
       <translation>Connessione API verificata</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="184" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="227" />
       <source>API key salvata nel vault di sistema</source>
       <translation>API key salvata nel vault di sistema</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="184" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="227" />
       <source>Accesso opzionale ai dati qualità aria</source>
       <translation>Accesso opzionale ai dati qualità aria</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="190" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="234" />
       <source>Crea un account OpenAQ</source>
       <translation>Crea un account OpenAQ</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="198" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="242" />
       <source>Non configurato</source>
       <translation>Non configurato</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="214" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="258" />
       <source>Nuova API key OpenAQ</source>
       <translation>Nuova API key OpenAQ</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="214" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="258" />
       <source>API key OpenAQ</source>
       <translation>API key OpenAQ</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="319" />
+      <source>Crea un account OpenAQ e accedi.</source>
+      <translation>Crea un account OpenAQ e accedi.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="325" />
+      <source>Apri la pagina dell'account dal menu del profilo e scorri fino alla sezione API Keys.</source>
+      <translation>Apri la pagina dell'account dal menu del profilo e scorri fino alla sezione API Keys.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="331" />
+      <source>Crea o copia la chiave API. Trattala come una password e non condividerla.</source>
+      <translation>Crea o copia la chiave API. Trattala come una password e non condividerla.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="337" />
+      <source>In NightScope incolla la chiave, seleziona Salva e poi Test connessione. La configurazione è completa quando lo stato diventa Verificato.</source>
+      <translation>In NightScope incolla la chiave, seleziona Salva e poi Test connessione. La configurazione è completa quando lo stato diventa Verificato.</translation>
     </message>
   </context>
   <context>

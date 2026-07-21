@@ -107,6 +107,11 @@ after generation and fails on malformed placeholders or stale review entries,
 so editorial terminology remains reproducible instead of depending on manual
 edits to generated XML.
 
+The current tree contains reviewed overlays for both `en` and `es`. The English
+overlay protects the provider-account instructions; the broader Spanish
+overlay also owns the reviewed UI terminology. Tests require both overlays to
+remain applicable and idempotent after catalogue regeneration.
+
 ### Machine-Translation Provider
 
 The maintenance scripts use `tools/translation_provider.py`, a small

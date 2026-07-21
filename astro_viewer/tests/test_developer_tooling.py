@@ -264,6 +264,14 @@ def test_multilingual_manual_has_complete_navigation_and_current_provider_semant
     assert "Pupila de salida = apertura del telescopio / aumento" in manual
     assert "Pupila de salida = abertura del telescopio / aumento" not in manual
     assert "El catálogo reúne objetos del sistema solar" in manual
+    assert manual.count('class="steps"') == 9
+    assert (
+        "compila tutti i campi, anche quelli indicati come facoltativi" in manual
+    )
+    assert "complete every field, including those marked optional" in manual
+    assert "complete todos los campos, también los indicados como opcionales" in manual
+    assert manual.count("LAADS OPeNDAP") >= 3
+    assert manual.count("API Keys") >= 3
 
 
 def test_manual_language_switch_keeps_all_languages_on_one_row() -> None:

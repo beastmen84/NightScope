@@ -19,16 +19,26 @@
   `NaN` o infinito, il mese Catalogo iniziale segue la timezone della localita'
   e un errore di scrittura dei log passa al logging console prima della gestione
   controllata dell'avvio.
+- La pagina Provider dati usa ora lo spazio disponibile per guide operative
+  localizzate e responsive. Earthdata copre registrazione, attivazione e-mail,
+  compilazione di tutti i campi del profilo inclusi quelli indicati come
+  facoltativi, test, autorizzazione LAADS OPeNDAP e secondo test; OpenAQ copre
+  account, sezione `API Keys`, salvataggio e verifica.
+- Il manuale italiano, inglese e spagnolo contiene le stesse procedure estese.
+  La griglia passa a una colonna alla larghezza minima e il pulsante spagnolo
+  `Autorizar aplicación` non viene piu' troncato.
 - Localizzate in italiano, inglese e spagnolo le nuove diagnostiche VIIRS per
-  errori di rete, autenticazione, rate limit e risposte HTTP. I cataloghi Qt
-  risultano completi con `1670` messaggi finiti e nessun messaggio incompleto.
+  errori di rete, autenticazione, rate limit e risposte HTTP, insieme alle guide
+  provider. I cataloghi Qt risultano completi con `1679` messaggi finiti e
+  nessun messaggio incompleto.
 - Aggiunte regressioni per concorrenza dei provider, cache IP, credenziali
-  Earthdata, input numerici non finiti, mese Catalogo e fallback del logging.
-  Nessuna modifica a schema SQLite, seed data, scoring o policy delle
-  raccomandazioni.
-- Gate completo con coverage e security superato: `816 passed`, `613 warnings`
+  Earthdata, input numerici non finiti, mese Catalogo, fallback del logging e
+  completezza delle guide provider. Nessuna modifica a schema SQLite, seed
+  data, scoring o policy delle raccomandazioni.
+- Gate completo con coverage e security superato: `817 passed`, `613 warnings`
   note e `10 subtests`; coverage runtime `84%`, smoke QML separati nelle tre
-  lingue, `pip-audit` senza vulnerabilita' note e Bandit invariato a `0 high`.
+  lingue, `pip-audit` senza vulnerabilita' note, `qmllint` su `31` file senza
+  failure e Bandit invariato a `0 high`.
 - La versione sorgente passa a `1.34.1`; la release GitHub e il pacchetto
   Windows pubblicati restano `1.33.2` finche' non viene eseguito un nuovo ciclo
   esplicito di build e rilascio.

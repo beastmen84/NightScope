@@ -21,6 +21,18 @@ essere ripetute dopo la prossima rigenerazione della dist.
   build Windows `1.34.1`. I controlli sorgente sopra non approvano da soli un
   nuovo artefatto pubblico.
 
+## Verifica Sorgente Provider 1.34.1
+
+- [x] Pagina Provider dati renderizzata direttamente in IT/EN/ES a `1400x900`
+  e `774x900`: card affiancate o impilate senza sovrapposizioni.
+- [x] `Autorizar aplicación` resta leggibile per intero nel pulsante spagnolo.
+- [x] Guide UI e manuale includono profilo Earthdata completo, campi indicati
+  come facoltativi, autorizzazione LAADS OPeNDAP, secondo test e flusso API Keys
+  OpenAQ.
+- [x] Cataloghi `1679/1679`, smoke QML IT/EN/ES e gate completo `817 passed`.
+- [ ] Ripetere il controllo sulla dist Windows dopo la rigenerazione; la `dist`
+  non e' stata modificata in questo passaggio.
+
 Stati usati:
 
 - `APERTA`: correzione confermata.

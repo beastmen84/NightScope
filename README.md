@@ -101,6 +101,12 @@ data.
 | OpenAQ | Local particulate measurements | Optional API key | Yes |
 | IP geolocation fallback | Approximate location after explicit user action | No | Public IP is visible to the service |
 
+The localized **Data providers** page includes step-by-step setup guides. For
+the Earthdata/LAADS flow used by NightScope, complete every profile field,
+including fields marked optional, before testing the connection. First access
+may also require LAADS OPeNDAP application authorization followed by a second
+connection test.
+
 CelesTrak and JPL downloads provide orbital catalogues; NightScope performs the
 location-specific pass and visibility calculations locally. External results
 are cached in SQLite with source-specific refresh and staleness rules.

@@ -59,16 +59,19 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                columns: root.width > 1040 ? 2 : 1
+                columns: scroll.availableWidth >= 1320 ? 2 : 1
                 columnSpacing: 16
                 rowSpacing: 16
 
                 GlassCard {
+                    id: earthdataCard
+
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.minimumHeight: 206
+                    Layout.minimumHeight: 500
                     title: qsTr("NASA Earthdata")
-                    subtitle: controller.earthdataConnectionVerified ? qsTr("Connessione LAADS verificata") : (controller.earthdataCredentialsConfigured ? qsTr("Credenziali salvate nel vault di sistema") : qsTr("Accesso opzionale ai dati VIIRS"))
+                    subtitle: controller.earthdataConnectionVerified ? qsTr("Connessione LAADS verificata") : (controller.earthdataCredentialsConfigured ? qsTr("Credenziali salvate nel vault di sistema") : qsTr("Accesso opzionale ai dati VIIRS e AOD"))
+                    subtitleWrap: true
                     accentColor: controller.earthdataConnectionVerified ? theme.green : (controller.earthdataAuthorizationRequired ? theme.violet : theme.amber)
                     headerActionText: qsTr("Crea account")
                     headerActionWidth: 148
@@ -106,7 +109,7 @@ Item {
 
                     GridLayout {
                         Layout.fillWidth: true
-                        columns: root.width > 920 ? 2 : 1
+                        columns: earthdataCard.width >= 720 ? 2 : 1
                         columnSpacing: 12
                         rowSpacing: 10
 
@@ -151,7 +154,7 @@ Item {
                         }
 
                         DarkButton {
-                            Layout.preferredWidth: 128
+                            Layout.preferredWidth: 160
                             text: qsTr("Autorizza app")
                             enabled: controller.earthdataAuthorizationRequired && !controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified
                             accentColor: theme.violet
@@ -174,14 +177,55 @@ Item {
                             }
                         }
                     }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 1
+                        color: theme.border
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: qsTr("Guida alla configurazione")
+                        color: theme.textPrimary
+                        font.pixelSize: 14
+                        font.weight: Font.DemiBold
+                    }
+
+                    ProviderSetupStep {
+                        stepNumber: 1
+                        accentColor: earthdataCard.accentColor
+                        description: qsTr("Crea l'account Earthdata, conferma l'e-mail di attivazione e accedi.")
+                    }
+
+                    ProviderSetupStep {
+                        stepNumber: 2
+                        accentColor: earthdataCard.accentColor
+                        description: qsTr("Apri Modifica profilo e compila tutti i campi, anche quelli indicati come facoltativi: organizzazione, affiliazione, tipo di utente e area di studio. Inserisci informazioni veritiere e pertinenti al tuo caso.")
+                    }
+
+                    ProviderSetupStep {
+                        stepNumber: 3
+                        accentColor: earthdataCard.accentColor
+                        description: qsTr("In NightScope inserisci nome utente e password. Seleziona quindi Salva e Test connessione.")
+                    }
+
+                    ProviderSetupStep {
+                        stepNumber: 4
+                        accentColor: earthdataCard.accentColor
+                        description: qsTr("Se richiesto, seleziona Autorizza app, spunta tutte le autorizzazioni richieste da LAADS OPeNDAP e conferma con Authorize. Torna quindi in NightScope e ripeti il test.")
+                    }
                 }
 
                 GlassCard {
+                    id: openaqCard
+
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.minimumHeight: 206
+                    Layout.minimumHeight: 500
                     title: qsTr("OpenAQ")
                     subtitle: controller.openaqConnectionVerified ? qsTr("Connessione API verificata") : (controller.openaqCredentialsConfigured ? qsTr("API key salvata nel vault di sistema") : qsTr("Accesso opzionale ai dati qualità aria"))
+                    subtitleWrap: true
                     accentColor: controller.openaqConnectionVerified ? theme.green : (controller.openaqCredentialsConfigured ? theme.amber : theme.violet)
                     headerActionText: qsTr("Crea account")
                     headerActionWidth: 148
@@ -253,6 +297,44 @@ Item {
                                 openaqApiKey.text = ""
                             }
                         }
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 1
+                        color: theme.border
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: qsTr("Guida alla configurazione")
+                        color: theme.textPrimary
+                        font.pixelSize: 14
+                        font.weight: Font.DemiBold
+                    }
+
+                    ProviderSetupStep {
+                        stepNumber: 1
+                        accentColor: openaqCard.accentColor
+                        description: qsTr("Crea un account OpenAQ e accedi.")
+                    }
+
+                    ProviderSetupStep {
+                        stepNumber: 2
+                        accentColor: openaqCard.accentColor
+                        description: qsTr("Apri la pagina dell'account dal menu del profilo e scorri fino alla sezione API Keys.")
+                    }
+
+                    ProviderSetupStep {
+                        stepNumber: 3
+                        accentColor: openaqCard.accentColor
+                        description: qsTr("Crea o copia la chiave API. Trattala come una password e non condividerla.")
+                    }
+
+                    ProviderSetupStep {
+                        stepNumber: 4
+                        accentColor: openaqCard.accentColor
+                        description: qsTr("In NightScope incolla la chiave, seleziona Salva e poi Test connessione. La configurazione è completa quando lo stato diventa Verificato.")
                     }
                 }
             }
