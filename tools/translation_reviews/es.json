@@ -165,7 +165,7 @@
     "10 mm + Barlow 2x se il seeing lo consente": "10 mm + Barlow 2x si el seeing lo permite",
     "Basso sull'orizzonte: serve visuale libera e seeing stabile.": "Bajo sobre el horizonte: requiere un horizonte despejado y un seeing estable.",
     "Richiede seeing e acclimatazione accurati.": "Requiere un buen seeing y una aclimatación cuidadosa.",
-    "Aumenta l'ingrandimento solo se il seeing della notte dell'evento mantiene il pianeta nitido.": "Aumente la magnificación solo si el seeing de la noche del evento mantiene nítido el planeta.",
+    "Aumenta l'ingrandimento solo se il seeing della notte dell'evento mantiene il pianeta nitido.": "Suba el aumento solo si el seeing de la noche del evento mantiene nítido el planeta.",
     "Il pianeta resta visibile a lungo, diventa più luminoso e permette di aspettare i momenti di seeing stabile.": "El planeta permanece visible durante mucho tiempo, se vuelve más brillante y permite esperar los momentos de seeing estable.",
     "È la finestra con meno luce lunare: riservala a galassie, nebulose e ammassi deboli che perdono contrasto nelle altre notti.": "Es la ventana con menos luz lunar: resérvela para galaxias, nebulosas y cúmulos tenues que pierden contraste en otras noches.",
     "Usa alti ingrandimenti solo se il seeing lo permette.": "Use grandes aumentos solo si el seeing lo permite.",
@@ -178,7 +178,7 @@
     "Osservabile a occhio nudo o con binocolo.": "Observable a simple vista o con prismáticos.",
     "È osservabile anche a occhio nudo; binocolo o basso ingrandimento aiutano a seguire ombra e colore sul disco lunare.": "También se puede observar a simple vista; los prismáticos o un aumento bajo ayudan a seguir la sombra y el color sobre el disco lunar.",
     "I due pianeti raggiungono la minima separazione apparente e possono entrare nello stesso campo con binocolo o bassi ingrandimenti.": "Los dos planetas alcanzan su separación aparente mínima y pueden entrar en el mismo campo con prismáticos o pocos aumentos.",
-    "Aumenta l'ingrandimento a piccoli passi.": "Aumente la magnificación poco a poco.",
+    "Aumenta l'ingrandimento a piccoli passi.": "Suba el aumento poco a poco.",
     "Usa binocolo o basso ingrandimento.": "Use prismáticos o pocos aumentos.",
     "Non puntare binocoli, telescopi o cercatori vicino al Sole.": "No apunte prismáticos, telescopios ni buscadores cerca del Sol.",
     "Preferisci bassi ingrandimenti o binocolo.": "Dé preferencia a pocos aumentos o a los prismáticos.",
@@ -394,11 +394,11 @@
     "Prossimi 365 giorni": "Próximos 365 días",
     "Scegliere un orizzonte aperto a Nord-Est e un cielo buio.": "Elija un horizonte abierto hacia el noreste y un cielo oscuro.",
     "Evento basso sull'orizzonte: verifica gli ostacoli locali.": "Evento bajo en el horizonte: compruebe si hay obstáculos locales.",
-    "Conta più il cielo buio del telescopio: servono campo ampio, pazienza e vista adattata al buio.": "La oscuridad del cielo importa más que la abertura: use un campo amplio, paciencia y una visión bien adaptada a la oscuridad.",
+    "Conta più il cielo buio del telescopio: servono campo ampio, pazienza e vista adattata al buio.": "La oscuridad del cielo importa más que la apertura: use un campo amplio, paciencia y una visión bien adaptada a la oscuridad.",
     "Condizioni di categoria NSOM: ambiente atmosferico, fondo cielo e Luna sono applicati una sola volta; sessione ed equipaggiamento restano separati.": "Condiciones de categoría NSOM: el entorno atmosférico, el fondo de cielo y la Luna se aplican una sola vez; la sesión y el equipo permanecen separados.",
     "Osserva il Sole solo con filtri solari certificati davanti all'obiettivo. Non usare oculari o cercatori non filtrati.": "Observe el Sol únicamente con un filtro solar certificado delante del objetivo. No utilice oculares ni buscadores sin filtro.",
     "Configura un profilo per consigli più precisi; resta comunque la notte migliore del mese per galassie, nebulose e ammassi deboli.": "Configure un perfil para obtener recomendaciones más precisas; aun así, sigue siendo la mejor noche del mes para galaxias, nebulosas y cúmulos débiles.",
-    "Il terminatore evidenzia crateri e rilievi; usa ingrandimenti progressivi.": "El terminador resalta cráteres y relieves; aumente la magnificación progresivamente.",
+    "Il terminatore evidenzia crateri e rilievi; usa ingrandimenti progressivi.": "El terminador resalta cráteres y relieves; suba el aumento progresivamente.",
     "Usa filtro lunare o ingrandimenti moderati: il disco è molto luminoso.": "Use un filtro lunar o aumentos moderados: el disco es muy brillante.",
     "Mantieni il disco comodo nel campo e aumenta l'ingrandimento solo con immagine stabile.": "Mantenga el disco cómodamente dentro del campo y aumente solo cuando la imagen sea estable.",
     "Configura un profilo per consigli più precisi.": "Configure un perfil para obtener recomendaciones más precisas.",
@@ -616,7 +616,8 @@
     "Verifica gli orari completi delle fasi per la tua posizione.": "Consulte los horarios de las fases completas para su ubicación.",
     "Con il tuo profilo": "Con su perfil",
     "Scegli un oggetto dalla Home, dal calendario o dal catalogo.": "Elija un objeto de Inicio, el calendario o el catálogo.",
-    "Il log è vuoto. Aggiungi la prima osservazione.": "El registro está vacío. Añada la primera observación."
+    "Il log è vuoto. Aggiungi la prima osservazione.": "El registro está vacío. Añada la primera observación.",
+    "Il Log Osservazioni accetta soltanto osservazioni già effettuate.": "El Registro de Observaciones solo acepta observaciones pasadas."
   },
   "contexts": {
     "ObjectDetailPage": {

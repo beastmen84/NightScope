@@ -16,6 +16,13 @@
 - Il follow-up di review ha corretto `Norma` in `Escuadra`, uniformato tutte le
   istruzioni al registro formale, distinto `Eclipse` da `Eclipses` per contesto
   e inserito l'applicazione dell'overlay nella sequenza di release documentata.
+- Una seconda review editoriale integrale delle `228` schede spagnole ha
+  eliminato refusi e calchi, uniformato `visión periférica`, `brillo
+  superficial`, `aumento`, `apertura` e `sistema solar`, e reso coerenti alias
+  come `Critter Cluster` e `Vulpecula`. Sono state inoltre corrette le
+  descrizioni scientifiche contraddittorie di M84, M86, C51 e C53 e rimossa la
+  raccomandazione di filtri a banda stretta per la nebulosa a riflessione M78.
+  Override e normalizzazioni restano deterministici e coperti da regressioni.
 - Estesi i test di localizzazione a discovery, completezza, contenuti, termini
   revisionati, preferenze, formati locali e cambio live italiano/inglese/
   spagnolo. Nessuna modifica a scoring, Planner, Home, Equipment, Sky Compass,

@@ -26,6 +26,7 @@ from astro_viewer.app.services.translation_manager import (
 )
 from astro_viewer.app.viewmodels.app_controller import AppController
 from tools.update_content_translations import (
+    curate_content_translation,
     source_content,
     source_language,
 )
@@ -137,7 +138,7 @@ def test_discovered_language_catalogs_are_complete_and_symmetric() -> None:
             "Il terminatore evidenzia crateri e rilievi; usa ingrandimenti progressivi.",
         )
     ] == (
-        "El terminador resalta cráteres y relieves; aumente la magnificación "
+        "El terminador resalta cráteres y relieves; suba el aumento "
         "progresivamente."
     )
     assert catalogs["es"][
@@ -150,6 +151,19 @@ def test_discovered_language_catalogs_are_complete_and_symmetric() -> None:
         "Este evento debe planificarse utilizando protección certificada específica "
         "para la observación solar."
     )
+    assert catalogs["es"][
+        (
+            "",
+            "Aumenta l'ingrandimento solo se il seeing della notte dell'evento "
+            "mantiene il pianeta nitido.",
+        )
+    ] == "Suba el aumento solo si el seeing de la noche del evento mantiene nítido el planeta."
+    assert catalogs["es"][("", "Aumenta l'ingrandimento a piccoli passi.")] == (
+        "Suba el aumento poco a poco."
+    )
+    assert catalogs["es"][
+        ("", "Il Log Osservazioni accetta soltanto osservazioni già effettuate.")
+    ] == "El Registro de Observaciones solo acepta observaciones pasadas."
     spanish_messages = "\n".join(catalogs["es"].values())
     assert re.search(r"\b(?:tu|tus)\b", spanish_messages, re.IGNORECASE) is None
     for informal_instruction in (
@@ -341,6 +355,62 @@ def test_curated_spanish_content_uses_reviewed_astronomy_terms() -> None:
     assert catalogue["caldwell-C99"]["description"] == (
         "C99 - Nebulosa oscura en la Cruz del Sur."
     )
+    assert catalogue["messier-M34"]["name"] == "Cúmulo Espiral"
+    assert catalogue["messier-M93"]["name"] == "Critter Cluster"
+    assert catalogue["messier-M107"]["name"] == "Cúmulo del Crucifijo"
+    assert catalogue["caldwell-C25"]["name"].endswith("Vagabundo Intergaláctico")
+    assert catalogue["messier-M84"]["description"].endswith(
+        "Galaxia elíptica en Virgo."
+    )
+    assert catalogue["messier-M86"]["description"].endswith(
+        "Galaxia elíptica o lenticular en Virgo."
+    )
+    assert catalogue["caldwell-C53"]["description"].endswith(
+        "Galaxia lenticular en Sextante."
+    )
+
+    assert "Cúmulo Espiral" in objects["messier-M34"]["observing_notes"]
+    assert "Cúmulo con Forma de Corazón" in objects["messier-M50"]["curiosity_text"]
+    assert "Critter Cluster" in objects["messier-M93"]["short_description"]
+    assert "Cúmulo del Crucifijo" in objects["messier-M107"]["short_description"]
+    assert "Vagabundo Intergaláctico" in objects["caldwell-C25"]["curiosity_text"]
+    assert "e indicios" in objects["messier-M22"]["curiosity_text"]
+    assert "la franja oscura" in objects["caldwell-C19"]["curiosity_text"]
+    assert "y, por tanto," in objects["messier-M88"]["curiosity_text"]
+    assert "ya hayan desaparecido" in objects["caldwell-C88"]["curiosity_text"]
+    assert "nudos cometarios" in objects["caldwell-C63"]["curiosity_text"]
+    assert "sin filtros de banda estrecha" in objects["messier-M78"]["observing_notes"]
+    assert "galaxia elíptica" in objects["messier-M84"]["short_description"]
+    assert "clasificación se debate" in objects["messier-M86"]["short_description"]
+    assert "detalles en espiral" not in objects["caldwell-C51"]["short_description"]
+    assert "galaxia lenticular" in objects["caldwell-C53"]["short_description"]
+
+    for field in ("short_description", "observing_notes", "curiosity_text"):
+        values = [item[field] for item in objects.values()]
+        assert len(values) == len(set(values))
+
+    regenerated_m84 = curate_content_translation(
+        "objects",
+        "messier-M84",
+        "short_description",
+        "M84 es una galaxia lenticular en Virgo.",
+        "es",
+    )
+    assert regenerated_m84 == objects["messier-M84"]["short_description"]
+    normalized = curate_content_translation(
+        "objects",
+        "future-object",
+        "observing_notes",
+        "Use visión desviada y valore el contraste de la superficie.",
+        "es",
+    )
+    assert normalized == "Use visión periférica y valore el brillo superficial."
+    assert (
+        curate_content_translation(
+            "objects", "future-object", "observing_notes", normalized, "es"
+        )
+        == normalized
+    )
 
     telescope_content = spanish["content"]["equipment_telescopes"]
     assert {item["optical_type"] for item in telescope_content.values()} == {
@@ -369,22 +439,40 @@ def test_curated_spanish_content_uses_reviewed_astronomy_terms() -> None:
         "OTA",
     }
 
-    rendered = json.dumps(spanish["content"], ensure_ascii=False).casefold()
+    raw_rendered = json.dumps(spanish["content"], ensure_ascii=False)
+    rendered = raw_rendered.casefold()
+    assert "Sistema Solar" not in raw_rendered
     for forbidden in (
+        "abertura",
         "binoculares",
+        "brillo de la superficie",
+        "brillo de su superficie",
         "capítulo 99",
         "caja de cambios",
+        "campo de amplitud media",
+        "cielo despejado",
         "clúster",
+        "contraste de la superficie",
+        "cúmulo critter",
         "cúmulo cúmulo",
+        "cúmulo crucifijo",
+        "cúmulo del corazón",
+        "cúmulo en espiral",
+        "desviada",
+        "errante intergaláctico",
         "estrellas solubles",
         "la aumento",
+        "magnificación",
         "mayores poderes",
         "nebula cocoon",
         "nebulosa dumbbell",
         "ng 188",
+        "nodos cometarios",
         "racimo",
+        "telescopio estrecho",
         "una globular",
         "visión evitada",
+        "zorra",
         "\u200b",
     ):
         assert forbidden not in rendered

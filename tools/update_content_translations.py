@@ -237,7 +237,7 @@ _SPANISH_CONTENT_REPLACEMENTS = (
     ("Starfish Cluster", "Cúmulo de la Estrella de Mar"),
     ("Pyramid Cluster", "Cúmulo de la Pirámide"),
     ("Beehive Cluster", "Cúmulo del Pesebre"),
-    ("Heart Cluster", "Cúmulo del Corazón"),
+    ("Heart Cluster", "Cúmulo con Forma de Corazón"),
     ("Scorpion Cluster", "Cúmulo del Escorpión"),
     ("Spectre Cluster", "Cúmulo del Espectro"),
     ("King Cobra", "Cobra Real"),
@@ -248,7 +248,6 @@ _SPANISH_CONTENT_REPLACEMENTS = (
     ("Southern Pinwheel Galaxy", "Galaxia del Molinete Austral"),
     ("Squid Galaxy", "Galaxia del Calamar"),
     ("Carabin Galaxy", "Galaxia de Carabin"),
-    ("Critter Cluster", "Cúmulo Critter"),
     ("Mirror Galaxy", "Galaxia del Espejo"),
     ("Surfboard Galaxy", "Galaxia de la Tabla de Surf"),
     ("Vacuum Cleaner Galaxy", "Galaxia de la Aspiradora"),
@@ -271,9 +270,9 @@ _SPANISH_CONTENT_REPLACEMENTS = (
     ("Black Eye Galaxy", "Galaxia del Ojo Negro"),
     ("Spindle Galaxy", "Galaxia del Huso"),
     ("Civetta Cluster", "Cúmulo del Búho"),
-    ("visualización directa y evitada", "visión directa y desviada"),
-    ("visualización directa y desviada", "visión directa y desviada"),
-    ("visión evitada", "visión desviada"),
+    ("visualización directa y evitada", "visión directa y periférica"),
+    ("visualización directa y desviada", "visión directa y periférica"),
+    ("visión evitada", "visión periférica"),
     ("una visualización limpia y agradable", "una observación limpia y agradable"),
     ("Coma Berenices", "Cabellera de Berenice"),
     ("Coma di Berenice", "Cabellera de Berenice"),
@@ -303,7 +302,7 @@ _SPANISH_CONTENT_REPLACEMENTS = (
     ("cúmulo globular rica", "cúmulo globular rico"),
     ("relativamente desenfocado", "relativamente poco concentrado"),
     ("muchos grupos similares", "muchos cúmulos similares"),
-    ("a medida que aumenta el aumento", "al aumentar la magnificación"),
+    ("a medida que aumenta el aumento", "al subir el aumento"),
     ("suele tener mayores poderes que", "suele admitir más aumento que"),
     ("es un planeta brillante", "es una nebulosa planetaria brillante"),
     ("muchas estrellas globulares", "muchos cúmulos globulares"),
@@ -335,11 +334,11 @@ _SPANISH_CONTENT_REPLACEMENTS = (
     ("Galaxia Ojo de Gato", "Galaxia del Ojo de Gato"),
     ("M77 (Ballena A", "M77 (Cetus A"),
     ("Velas", "Vela"),
-    ("al aumentar la potencia", "al aumentar la magnificación"),
-    ("aumente el aumento", "aumente la magnificación"),
+    ("al aumentar la potencia", "al subir el aumento"),
+    ("aumente el aumento", "suba el aumento"),
     (
         "cuando la visión permite aumentar el aumento",
-        "cuando el seeing permite aumentar la magnificación",
+        "cuando el seeing permite subir el aumento",
     ),
     ("textura de la estrella", "textura estelar"),
     ("Galaxia Sombrero", "Galaxia del Sombrero"),
@@ -403,9 +402,8 @@ _SPANISH_CONTENT_REPLACEMENTS = (
     ("punto de estrella", "punto estelar"),
     ("Proyectada hacia el centro de la Vía Láctea", "Proyectado hacia el centro de la Vía Láctea"),
     ("Con un aumento reducido", "Con poco aumento"),
-    ("campo mediano", "campo de amplitud media"),
-    ("campo medio", "campo de amplitud media"),
-    ("aumente moderadamente el aumento", "aumente moderadamente la magnificación"),
+    ("campo mediano", "campo medio"),
+    ("aumente moderadamente el aumento", "suba el aumento con moderación"),
     ("cuando el cielo está bien", "cuando las condiciones son buenas"),
     ("de la M20", "de M20"),
     ("de la M37", "de M37"),
@@ -470,7 +468,7 @@ _SPANISH_CONTENT_REPLACEMENTS = (
     ("La roseta cubre", "La Nebulosa Roseta cubre"),
     ("segmentos de anillo alrededor del campo", "segmentos del anillo alrededor del cúmulo"),
     ("En el campo, C51 se extiende 12′ x 11′", "En el campo, C51 abarca 12′ x 11′"),
-    ("antes de aumentar el aumento", "antes de aumentar la magnificación"),
+    ("antes de aumentar el aumento", "antes de subir el aumento"),
     ("hacer que se note sorprendentemente", "hacerla destacar de forma sorprendente"),
     ("Nebulosa de los Insectos", "Nebulosa del Insecto"),
     (
@@ -592,7 +590,7 @@ _SPANISH_BEST_SEEN = {
         "Cuando supere los 30 grados de altitud"
     ),
     "Durante el día, utilizando un filtro solar de apertura total certificado": (
-        "Durante el día, con un filtro solar certificado de abertura completa"
+        "Durante el día, con un filtro solar certificado de apertura completa"
     ),
     "invierno": "Invierno",
     "primavera": "Primavera",
@@ -662,7 +660,7 @@ _SPANISH_CATALOGUE_NAMES = {
     "messier-M83": "Galaxia del Molinete Austral",
     "messier-M87": "Virgo A",
     "messier-M90": "Galaxia de Carabin",
-    "messier-M93": "Cúmulo Critter",
+    "messier-M93": "Critter Cluster",
     "messier-M94": "Ojo de Cocodrilo o Galaxia del Ojo de Gato",
     "messier-M97": "Nebulosa del Búho",
     "messier-M99": "Rueda de Santa Catalina",
@@ -1208,6 +1206,390 @@ _SPANISH_CONTENT_OVERRIDES = {
     ),
 }
 
+_SPANISH_EDITORIAL_REPLACEMENTS = (
+    ("entre visión directa y periférica", "entre la visión directa y la periférica"),
+    ("la visión directa y la desviada", "la visión directa y la periférica"),
+    ("visión directa y la desviada", "visión directa y la periférica"),
+    ("visualización directa y desviada", "visión directa y periférica"),
+    ("visión directa y desviada", "visión directa y periférica"),
+    ("visión directa y periférica", "visión directa y la periférica"),
+    ("aumente moderadamente la magnificación", "suba el aumento con moderación"),
+    ("aumente la magnificación moderadamente", "suba el aumento con moderación"),
+    ("al aumentar la magnificación", "al subir el aumento"),
+    ("aumentar la magnificación", "subir el aumento"),
+    ("aumente la magnificación", "suba el aumento"),
+    ("contraste de la superficie", "brillo superficial"),
+    ("brillo de la superficie", "brillo superficial"),
+    ("brillo de su superficie", "brillo superficial"),
+    ("campo de amplitud media", "campo medio"),
+    ("cielo muy despejado", "cielo muy oscuro y transparente"),
+    ("Cúmulo con forma de corazón", "Cúmulo con Forma de Corazón"),
+    ("Cúmulo en espiral", "Cúmulo Espiral"),
+    ("Cúmulo del Corazón", "Cúmulo con Forma de Corazón"),
+    ("Errante Intergaláctico", "Vagabundo Intergaláctico"),
+    ("globulares Messier", "cúmulos globulares de Messier"),
+    ("Cúmulo Crucifijo", "Cúmulo del Crucifijo"),
+    ("catálogo Messier", "catálogo de Messier"),
+    ("visión desviada", "visión periférica"),
+    ("cielo despejado", "cielo oscuro"),
+    ("Cúmulo Critter", "Critter Cluster"),
+    ("Nebulosa Hélice", "Nebulosa de la Hélice"),
+    ("nodos cometarios", "nudos cometarios"),
+    ("200.000 kelvin", "200.000 K"),
+    ("Esta combinación lo hace fotogénico", "Esta combinación la hace fotogénica"),
+    ("enorme pero casi inactivo", "enorme, pero casi inactivo"),
+    ("compacta pero inconfundible", "compacta, pero inconfundible"),
+    ("hermosa pero baja", "hermosa, pero baja"),
+    ("Es rico pero discreto", "Es rico, pero discreto"),
+    ("Probablemente ", "Probablemente, "),
+    ("Visualmente ", "Visualmente, "),
+    ("magnificaciones", "aumentos"),
+    ("magnificación", "aumento"),
+    ("Sistema Solar", "sistema solar"),
+    ("aberturas", "aperturas"),
+    ("abertura", "apertura"),
+    ("Grupo Leo", "Grupo de Leo"),
+    ("Zorra", "Vulpecula"),
+)
+
+_SPANISH_EDITORIAL_OVERRIDES = {
+    ("objects", "mercury", "short_description"): (
+        "Mercurio es un desafío más que un espectáculo. Siempre permanece cerca "
+        "del Sol y ofrece ventanas breves, a poca altura sobre el horizonte, "
+        "justo antes del amanecer o después del atardecer. En el telescopio "
+        "aparece pequeño y a menudo afectado por la turbulencia, pero distinguir "
+        "su fase resulta gratificante. Elegir el momento adecuado importa más "
+        "que la apertura del instrumento."
+    ),
+    ("objects", "jupiter", "observing_notes"): (
+        "Obsérvelo cuando esté alto sobre el horizonte; un seeing estable y los "
+        "aumentos medios suelen ofrecer más detalle que forzar el aumento máximo."
+    ),
+    ("objects", "messier-M4", "curiosity_text"): (
+        "M4 alberga el sistema PSR B1620-26, formado por un púlsar y una enana "
+        "blanca orbitados por un planeta apodado Matusalén. Con una edad estimada "
+        "de más de 12.000 millones de años, es uno de los planetas más antiguos "
+        "conocidos."
+    ),
+    ("objects", "messier-M3", "curiosity_text"): (
+        "En M3 se han catalogado más de 270 estrellas variables, una cifra "
+        "excepcional para un cúmulo globular. Muchas son variables RR Lyrae; su "
+        "luminosidad característica permite utilizarlas como candelas estándar "
+        "para medir distancias dentro de la Vía Láctea."
+    ),
+    ("objects", "messier-M7", "curiosity_text"): (
+        "M7 ya fue descrito por Ptolomeo en el siglo II como una nebulosidad "
+        "cerca del aguijón de Escorpio. Es el objeto Messier más austral y uno "
+        "de los pocos con una observación documentada desde la Antigüedad."
+    ),
+    ("objects", "messier-M12", "short_description"): (
+        "M12 es un cúmulo globular de Ofiuco, menos concentrado y más abierto "
+        "que M10. Los estudios modernos sugieren que perdió muchas estrellas "
+        "de baja masa durante sus pasos por el disco de la Galaxia."
+    ),
+    ("objects", "messier-M12", "curiosity_text"): (
+        "M12 parece haber perdido gran parte de sus estrellas de baja masa. "
+        "Durante los repetidos pasos a través del disco de la Vía Láctea, las "
+        "mareas galácticas podrían haber arrancado del cúmulo hasta un millón "
+        "de ellas."
+    ),
+    ("objects", "messier-M17", "observing_notes"): (
+        "En M17 (Nebulosa Omega, del Cisne, de la Herradura, de la Langosta o "
+        "de la Marca de Verificación), registre por separado el efecto del "
+        "filtro y del aumento; su magnitud integrada es 6,0 y su extensión de "
+        "referencia, 11′."
+    ),
+    ("objects", "messier-M21", "short_description"): (
+        "M21 (Cúmulo de la Cruz de Webb) es un cúmulo abierto de Sagitario y el "
+        "pequeño compañero estelar de la Nebulosa Trífida. Aunque es menos "
+        "famoso, aporta variedad al campo y completa el recorrido por la región "
+        "de M20."
+    ),
+    ("objects", "messier-M22", "curiosity_text"): (
+        "M22 fue reconocido por Abraham Ihle en 1665 y es el primer cúmulo "
+        "globular descubierto. Mucho más tarde se comprobó que también contiene "
+        "una rara nebulosa planetaria e indicios de múltiples generaciones "
+        "estelares."
+    ),
+    ("objects", "messier-M24", "short_description"): (
+        "M24 (Pequeña Nube Estelar de Sagitario) es una nube estelar de la Vía "
+        "Láctea situada en Sagitario. No es un único cúmulo, sino una ventana "
+        "brillante hacia las regiones internas de la Galaxia. Es ideal para "
+        "prismáticos y aumentos bajos."
+    ),
+    ("objects", "messier-M36", "short_description"): (
+        "M36 (Cúmulo del Molinete) es un cúmulo abierto de Auriga. Es el más "
+        "compacto de los tres grandes cúmulos de la constelación, brillante y "
+        "fácil de reconocer. Constituye un buen punto de partida para un "
+        "recorrido invernal por M36, M37 y M38."
+    ),
+    ("objects", "messier-M37", "curiosity_text"): (
+        "M37 es el más rico de los tres cúmulos de Messier en Auriga y contiene "
+        "varias gigantes rojas. Su presencia indica una edad mayor que la de la "
+        "cercana M36, dominada por estrellas azules jóvenes."
+    ),
+    ("objects", "messier-M38", "short_description"): (
+        "M38 (Cúmulo de la Estrella de Mar) es un cúmulo abierto de Auriga. "
+        "Presenta una estructura grande e irregular, descrita a menudo como una "
+        "estrella de mar. Está menos concentrado que M37, pero resulta muy "
+        "agradable en campos amplios."
+    ),
+    ("objects", "messier-M38", "curiosity_text"): (
+        "No muy lejos de M38 aparece NGC 1907, más pequeño y compacto. Las "
+        "mediciones de sus movimientos indican que ambos cúmulos atraviesan la "
+        "misma región, pero no se formaron como una pareja ligada "
+        "gravitacionalmente."
+    ),
+    ("objects", "messier-M39", "curiosity_text"): (
+        "M39 está tan cerca y disperso que solo reúne una treintena de miembros "
+        "confirmados en un campo muy extenso. Su forma triangular destaca mejor "
+        "con poco aumento y un campo visual amplio."
+    ),
+    ("objects", "messier-M40", "short_description"): (
+        "M40 (Winnecke 4) es una doble óptica de la Osa Mayor. Es una curiosidad "
+        "histórica del catálogo: un aparente par de estrellas, no un objeto de "
+        "cielo profundo. Vale la pena observarlo para comprender la finalidad "
+        "práctica del catálogo original de Messier."
+    ),
+    ("objects", "messier-M45", "short_description"): (
+        "M45, las Pléyades, es un cúmulo abierto joven y cercano, dominado por "
+        "estrellas azules muy brillantes. A simple vista muestra el conocido "
+        "pequeño grupo; con prismáticos aparecen decenas de componentes y el "
+        "conjunto adquiere una profundidad notable. La nebulosidad de reflexión "
+        "se aprecia sobre todo en fotografía; visualmente requiere un cielo muy "
+        "oscuro y transparente."
+    ),
+    ("objects", "messier-M50", "curiosity_text"): (
+        "Una gigante roja muy evidente contrasta con las estrellas azul-blancas "
+        "de M50. El conjunto recibió el sobrenombre de Cúmulo con Forma de "
+        "Corazón por la figura que dibujan sus miembros más brillantes."
+    ),
+    ("objects", "messier-M51", "short_description"): (
+        "M51, la Galaxia del Remolino, es una espiral vista casi de frente que "
+        "interactúa con su compañera NGC 5195. En instrumentos pequeños pueden "
+        "distinguirse dos núcleos inmersos en un halo común; bajo cielos oscuros "
+        "y con aperturas medias, los brazos aparecen como variaciones arqueadas "
+        "de brillo y puede percibirse el puente hacia la compañera. Es uno de "
+        "los mejores objetivos para intentar distinguir visualmente una "
+        "estructura espiral."
+    ),
+    ("objects", "messier-M57", "curiosity_text"): (
+        "La Nebulosa del Anillo no es un simple anillo plano. Las "
+        "reconstrucciones tridimensionales describen una estructura semejante "
+        "a un barril o una rosquilla, observada casi a lo largo de su eje."
+    ),
+    ("objects", "messier-M58", "short_description"): (
+        "M58 es una galaxia espiral barrada del Cúmulo de Virgo. Visualmente es "
+        "discreta: en el ocular suele mostrar un núcleo definido dentro de un "
+        "halo tenue, mientras que la barra requiere condiciones excelentes."
+    ),
+    ("objects", "messier-M59", "short_description"): (
+        "M59 es una galaxia elíptica del Cúmulo de Virgo. No ofrece detalles "
+        "obvios en el ocular, pero cobra interés cuando se observa como parte "
+        "del rico campo de galaxias de la región."
+    ),
+    ("objects", "messier-M61", "curiosity_text"): (
+        "M61 ha albergado numerosas supernovas observadas, más que la mayoría "
+        "de las galaxias del catálogo de Messier. Su núcleo activo y sus "
+        "regiones de formación estelar revelan un sistema todavía muy dinámico."
+    ),
+    ("objects", "messier-M63", "curiosity_text"): (
+        "Una delgada corriente de estrellas envuelve M63 a lo largo de decenas "
+        "de miles de años luz. Es el remanente de una galaxia enana desgarrada "
+        "y absorbida, una antigua fusión aún visible en la periferia de la "
+        "Galaxia del Girasol."
+    ),
+    ("objects", "messier-M69", "curiosity_text"): (
+        "M69 se encuentra entre los cúmulos globulares más ricos en elementos "
+        "pesados del catálogo de Messier. Su posición en el bulbo galáctico "
+        "indica un entorno de formación diferente al de los cúmulos pobres en "
+        "metales del halo."
+    ),
+    ("objects", "messier-M73", "short_description"): (
+        "M73 es un asterismo de cuatro estrellas en Acuario, más curioso que "
+        "espectacular. Su presencia en el catálogo recuerda el carácter "
+        "práctico y observacional del trabajo de Messier."
+    ),
+    ("objects", "messier-M75", "curiosity_text"): (
+        "M75 posee uno de los núcleos más concentrados entre los cúmulos "
+        "globulares del catálogo de Messier. La luminosidad crece rápidamente "
+        "hacia el centro, donde la densidad estelar es mucho mayor que en el "
+        "halo exterior."
+    ),
+    ("objects", "messier-M78", "observing_notes"): (
+        "La transparencia es crucial; obsérvela sin filtros de banda estrecha, "
+        "con poco aumento y bajo un cielo oscuro."
+    ),
+    ("objects", "messier-M84", "short_description"): (
+        "M84 es una galaxia elíptica de Virgo y forma parte de la Cadena de "
+        "Markarian. En el ocular destaca por su núcleo concentrado y por el "
+        "contexto de galaxias cercanas más que por sus detalles internos."
+    ),
+    ("objects", "messier-M84", "curiosity_text"): (
+        "M84 se encuentra en la Cadena de Markarian y alberga un núcleo activo. "
+        "Un chorro relativista emerge de la región del agujero negro central, "
+        "aunque resulta mucho menos llamativo que el del cercano M87."
+    ),
+    ("objects", "messier-M86", "short_description"): (
+        "M86 es una galaxia de Virgo cuya clasificación se debate entre el tipo "
+        "elíptico y el lenticular. Forma parte de la Cadena de Markarian; "
+        "observarla junto a M84 y las galaxias cercanas transmite la sensación "
+        "de recorrer un cúmulo entero."
+    ),
+    ("objects", "messier-M88", "curiosity_text"): (
+        "M88 se precipita hacia el centro del Cúmulo de Virgo a lo largo de una "
+        "órbita muy alargada. La presión del gas intergaláctico comienza a "
+        "modificar su contenido de hidrógeno y, por tanto, el futuro de su "
+        "formación estelar."
+    ),
+    ("objects", "messier-M90", "curiosity_text"): (
+        "M90 es una de las pocas galaxias de Messier con desplazamiento al azul, "
+        "porque se mueve en nuestra dirección dentro del Cúmulo de Virgo. El "
+        "gas de su disco es arrancado por la presión del medio intergaláctico."
+    ),
+    ("objects", "messier-M93", "curiosity_text"): (
+        "Las estrellas más brillantes de M93 dibujan una figura triangular o "
+        "similar a una mariposa. El cúmulo tiene varios cientos de millones de "
+        "años, una edad suficiente para que algunas de sus estrellas más "
+        "masivas hayan evolucionado hasta convertirse en gigantes rojas."
+    ),
+    ("objects", "messier-M95", "short_description"): (
+        "M95 es una galaxia espiral barrada del Grupo de Leo, tenue y poco "
+        "evidente a primera vista. Requiere cielos oscuros para destacar frente "
+        "a las demás galaxias de la zona."
+    ),
+    ("objects", "messier-M100", "short_description"): (
+        "M100 (Galaxia del Espejo) es una elegante galaxia espiral de gran "
+        "diseño en Cabellera de Berenice. En el ocular es tenue y exige un cielo "
+        "oscuro, pero su núcleo permite situarla en el rico entorno del Cúmulo "
+        "de Virgo."
+    ),
+    ("objects", "messier-M105", "short_description"): (
+        "M105 es una galaxia elíptica de Leo, la mayor de este tipo en el "
+        "catálogo de Messier y miembro del Grupo de Leo. Visualmente es sencilla, "
+        "pero revela un entorno galáctico rico y compacto."
+    ),
+    ("objects", "messier-M106", "short_description"): (
+        "M106 es una galaxia espiral activa de Lebreles, conocida por sus "
+        "emisiones energéticas y sus máseres de agua. En el ocular es una de las "
+        "galaxias más brillantes y accesibles de la región."
+    ),
+    ("objects", "messier-M107", "short_description"): (
+        "M107 (Cúmulo del Crucifijo) es un cúmulo globular de Ofiuco, "
+        "relativamente disperso y menos denso que los ejemplos más famosos. "
+        "Requiere cielos oscuros, pero ofrece una delicada textura estelar."
+    ),
+    ("objects", "caldwell-C19", "curiosity_text"): (
+        "La Nebulosa del Capullo se encuentra en el extremo de la larga nebulosa "
+        "oscura Barnard 168. El contraste entre el capullo brillante y la franja "
+        "oscura muestra dos formas opuestas en las que el mismo polvo puede "
+        "reflejar o bloquear la luz."
+    ),
+    ("objects", "caldwell-C23", "curiosity_text"): (
+        "NGC 891 se utiliza a menudo como análogo de una galaxia semejante a la "
+        "Vía Láctea vista de canto. Sus filamentos de polvo se elevan muy por "
+        "encima del disco, impulsados por vientos y supernovas desde las regiones "
+        "de formación estelar."
+    ),
+    ("objects", "caldwell-C25", "curiosity_text"): (
+        "NGC 2419 recibe el sobrenombre de Vagabundo Intergaláctico porque "
+        "orbita a una distancia enorme, más allá del borde brillante de la Vía "
+        "Láctea. Es tan masivo y complejo que podría ser el núcleo residual de "
+        "una galaxia enana capturada."
+    ),
+    ("objects", "caldwell-C34", "short_description"): (
+        "C34, NGC 6960, es la parte occidental de la Nebulosa del Velo y cruza "
+        "visualmente la estrella 52 Cygni. La estrella facilita la localización, "
+        "pero puede perjudicar la adaptación a la oscuridad; con un filtro OIII, "
+        "la nebulosa aparece como un arco fino e irregular que rebasa el campo. "
+        "Es uno de los remanentes de supernova visualmente más espectaculares. "
+        "El perfil observable puede ser menor que los 70′ x 6′ catalogados si el "
+        "fondo del cielo reduce el contraste de los filamentos."
+    ),
+    ("objects", "caldwell-C39", "curiosity_text"): (
+        "NGC 2392 presenta dos envolturas: una capa interior brillante y una "
+        "región exterior filamentosa. Los rápidos vientos de la estrella central "
+        "golpean el material expulsado con anterioridad y generan esta doble "
+        "arquitectura."
+    ),
+    ("objects", "caldwell-C47", "curiosity_text"): (
+        "NGC 6934 contiene estrellas rezagadas azules, más calientes y luminosas "
+        "de lo esperable para la edad del cúmulo. Su distribución ayuda a "
+        "reconstruir cómo las colisiones y los sistemas binarios han mezclado "
+        "el núcleo."
+    ),
+    ("objects", "caldwell-C49", "short_description"): (
+        "C49, NGC 2237, es la gran nebulosa de emisión asociada a la Nebulosa "
+        "Roseta en Unicornio. Rodea un cúmulo abierto central y visualmente "
+        "aparece como un anillo muy grande y tenue, dividido en segmentos más "
+        "brillantes. Un campo amplio, un cielo oscuro y un filtro UHC u OIII "
+        "son fundamentales. La Nebulosa Roseta abarca unos 80′ x 60′; al no "
+        "disponer de una magnitud integrada fiable, la extensión y el contraste "
+        "del fondo guían la elección del campo."
+    ),
+    ("objects", "caldwell-C51", "short_description"): (
+        "C51 (IC 1613) es una galaxia irregular de la constelación de Ballena. "
+        "Es extensa y posee un brillo superficial muy bajo: busque primero el "
+        "tenue resplandor general y recorra después las regiones exteriores con "
+        "visión periférica. En el campo abarca 12′ x 11′ y tiene una magnitud "
+        "integrada de 9,0."
+    ),
+    ("objects", "caldwell-C53", "short_description"): (
+        "C53 (NGC 3115) es una galaxia lenticular de la constelación de Sextante. "
+        "Muestra una luz regular y concentrada, sin brazos visibles; el detalle "
+        "principal es el gradiente desde el núcleo hacia el halo exterior. Su "
+        "magnitud integrada es 9,1 y su extensión aparente, 8′ x 3′."
+    ),
+    ("objects", "caldwell-C57", "curiosity_text"): (
+        "La Galaxia de Barnard fue una de las primeras galaxias enanas situadas "
+        "fuera de la Vía Láctea que se estudiaron en detalle. Las variables "
+        "cefeidas observadas en su interior ayudaron a Edwin Hubble a extender "
+        "la escala de distancias más allá de nuestra galaxia."
+    ),
+    ("objects", "messier-M53", "observing_notes"): (
+        "En M53, busque la transición entre el núcleo y el halo a lo largo de "
+        "sus 13′ de diámetro, sin depender únicamente de la magnitud 7,6."
+    ),
+    ("objects", "caldwell-C59", "observing_notes"): (
+        "En C59 (NGC 3242 - Fantasma de Júpiter), registre por separado los "
+        "efectos del filtro y del aumento; su magnitud integrada es 8,6 y su "
+        "extensión de referencia, 0,3′/21′."
+    ),
+    ("objects", "caldwell-C63", "curiosity_text"): (
+        "La Nebulosa de la Hélice contiene miles de nudos cometarios, cada uno "
+        "del tamaño del sistema solar. Sus densas cabezas resisten la radiación "
+        "de la estrella central, mientras que las largas colas apuntan hacia el "
+        "exterior."
+    ),
+    ("objects", "caldwell-C66", "curiosity_text"): (
+        "NGC 5694 es un cúmulo globular remoto e inusualmente compacto situado "
+        "en el halo exterior de la Vía Láctea. Sus propiedades químicas y "
+        "dinámicas sugieren que pudo originarse en una galaxia enana absorbida "
+        "posteriormente."
+    ),
+    ("objects", "caldwell-C69", "curiosity_text"): (
+        "La estrella central de la Nebulosa de la Mariposa supera los 200.000 K "
+        "y se encuentra entre las más calientes conocidas. Un denso toro de "
+        "polvo oculta el centro y obliga al gas a expandirse hacia dos lóbulos "
+        "opuestos."
+    ),
+    ("objects", "caldwell-C88", "curiosity_text"): (
+        "El cúmulo NGC 5823 fue catalogado por el astrónomo escocés James Dunlop "
+        "durante sus observaciones en Australia en 1826. Tiene unos 800 millones "
+        "de años, tiempo suficiente para que sus estrellas originales más "
+        "masivas ya hayan desaparecido."
+    ),
+    ("catalogue_objects", "messier-M84", "description"): (
+        "M84 (NGC 4374) - Galaxia elíptica en Virgo."
+    ),
+    ("catalogue_objects", "messier-M86", "description"): (
+        "M86 (NGC 4406) - Galaxia elíptica o lenticular en Virgo."
+    ),
+    ("catalogue_objects", "caldwell-C53", "description"): (
+        "C53 (NGC 3115) - Galaxia lenticular en Sextante."
+    ),
+}
+
 _SPANISH_CONSTELLATION_NAMES = {
     "Andromeda": "Andrómeda",
     "Apus": "Ave del Paraíso",
@@ -1279,6 +1661,16 @@ _SPANISH_CONSTELLATION_NAMES = {
 }
 
 
+def _apply_spanish_editorial_replacements(value: str) -> str:
+    for source, replacement in sorted(
+        _SPANISH_EDITORIAL_REPLACEMENTS,
+        key=lambda item: len(item[0]),
+        reverse=True,
+    ):
+        value = value.replace(source, replacement)
+    return value
+
+
 def source_language(section: str, item_key: str, field: str) -> str:
     """Returns the language actually used by each seed field.
 
@@ -1330,13 +1722,17 @@ def curate_content_translation(
     for character in ("\u200b", "\u200c", "\u200d", "\ufeff"):
         value = value.replace(character, "")
     if language_code == "es":
-        override = _SPANISH_CONTENT_OVERRIDES.get((section, item_key, field))
+        key = (section, item_key, field)
+        override = _SPANISH_EDITORIAL_OVERRIDES.get(key)
         if override:
-            return override
+            return _apply_spanish_editorial_replacements(override)
+        override = _SPANISH_CONTENT_OVERRIDES.get(key)
+        if override:
+            return _apply_spanish_editorial_replacements(override)
         if section == "catalogue_objects" and field == "name":
             reviewed_name = _SPANISH_CATALOGUE_NAMES.get(item_key)
             if reviewed_name:
-                return reviewed_name
+                return _apply_spanish_editorial_replacements(reviewed_name)
         for source, replacement in sorted(
             _SPANISH_CONTENT_REPLACEMENTS,
             key=lambda item: len(item[0]),
@@ -1409,7 +1805,7 @@ def curate_content_translation(
                 ("Comprueba", "Compruebe"),
                 ("Explora", "Explore"),
                 ("sólo", "solo"),
-                ("amplíe", "aumente la magnificación"),
+                ("amplíe", "suba el aumento"),
             ):
                 value = re.sub(rf"\b{source}\b", replacement, value)
             value = re.sub(
@@ -1482,7 +1878,7 @@ def curate_content_translation(
             ("; deja ", "; deje "),
         ):
             value = value.replace(source, replacement)
-        return value
+        return _apply_spanish_editorial_replacements(value)
     if language_code != "en":
         return value
     if section == "catalogue_objects" and field == "description":

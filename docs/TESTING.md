@@ -97,18 +97,19 @@ zero-warning baseline.
 
 ## Measured 1.34.0 Spanish Localization Gate
 
-Measured on Windows with Python 3.14.5 on 2026-07-20 after adding the reviewed
-Spanish language pack and multilingual manual:
+Measured on Windows with Python 3.14.5 on 2026-07-21 after the second complete
+editorial review of the Spanish language pack and multilingual manual:
 
 | Check | Result |
 | --- | --- |
-| `python tools/run_checks.py --fast` | Passed in 238.7 s |
+| `python tools/run_checks.py --fast` | Passed in 193.8 s |
 | `pip check`, Ruff, `compileall`, and third-party archive | Passed |
-| `pytest -q -n 4 astro_viewer/tests` | 794 passed, 613 warnings, 7 subtests passed in 145.81 s |
+| `pytest -q -n 4 astro_viewer/tests` | 795 passed, 613 warnings, 7 subtests passed in 119.31 s |
 | Translation catalogues | IT, EN, and ES: 1,665 finished, 0 unfinished each |
-| Focused localization and developer-tooling tests | 30 passed |
+| Focused localization and developer-tooling tests | 31 passed |
 | Separate Italian, English, and Spanish QML smoke runs | Passed in disposable runtimes |
 | Spanish structured content | 7 sections, 821 items, 2,038 translated fields |
+| Spanish narrative review | 228 unique descriptions, notes, and curiosities; terminology and LanguageTool checks passed |
 | Spanish manual | Chromium desktop and 390 px mobile rendering passed; no horizontal overflow; ES/EN/ES switching and anchors passed |
 
 This source gate does not replace the page-by-page Spanish visual matrix or a

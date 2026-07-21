@@ -2315,7 +2315,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1081" />
       <source>Il terminatore evidenzia crateri e rilievi; usa ingrandimenti progressivi.</source>
-      <translation>El terminador resalta cráteres y relieves; aumente la magnificación progresivamente.</translation>
+      <translation>El terminador resalta cráteres y relieves; suba el aumento progresivamente.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1083" />
@@ -2330,7 +2330,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1087" />
       <source>Aumenta l'ingrandimento solo se il seeing della notte dell'evento mantiene il pianeta nitido.</source>
-      <translation>Aumente la magnificación solo si el seeing de la noche del evento mantiene nítido el planeta.</translation>
+      <translation>Suba el aumento solo si el seeing de la noche del evento mantiene nítido el planeta.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1089" />
@@ -2387,7 +2387,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1113" />
       <source>Conta più il cielo buio del telescopio: servono campo ampio, pazienza e vista adattata al buio.</source>
-      <translation>La oscuridad del cielo importa más que la abertura: use un campo amplio, paciencia y una visión bien adaptada a la oscuridad.</translation>
+      <translation>La oscuridad del cielo importa más que la apertura: use un campo amplio, paciencia y una visión bien adaptada a la oscuridad.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1115" />
@@ -2517,7 +2517,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1165" />
       <source>Aumenta l'ingrandimento a piccoli passi.</source>
-      <translation>Aumente la magnificación poco a poco.</translation>
+      <translation>Suba el aumento poco a poco.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1167" />
@@ -4391,7 +4391,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2111" />
       <source>Il Log Osservazioni accetta soltanto osservazioni già effettuate.</source>
-      <translation>El Registro de Observaciones sólo acepta observaciones pasadas.</translation>
+      <translation>El Registro de Observaciones solo acepta observaciones pasadas.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2113" />

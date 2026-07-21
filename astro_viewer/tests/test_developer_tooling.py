@@ -245,6 +245,9 @@ def test_multilingual_manual_has_complete_navigation_and_current_provider_semant
     assert "Do not use eyepiece solar filters" in manual
     assert "Non usare filtri solari da oculare" in manual
     assert "No utilice filtros solares de ocular" in manual
+    assert "Pupila de salida = apertura del telescopio / aumento" in manual
+    assert "Pupila de salida = abertura del telescopio / aumento" not in manual
+    assert "El catálogo reúne objetos del sistema solar" in manual
 
 
 def test_localization_release_workflow_reapplies_reviewed_ts_overlay() -> None:

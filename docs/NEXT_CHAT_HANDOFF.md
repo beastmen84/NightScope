@@ -1,6 +1,6 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-20
+Aggiornato: 2026-07-21
 
 ## Stato Versioni
 
@@ -25,6 +25,8 @@ vengono rigenerati e verificati esplicitamente.
 
 ## Commit Recenti
 
+- `64f3caf Fix Spanish localization review findings`
+- `5a1faa6 Add reviewed Spanish localization`
 - `72342fa Document public 1.33.2 release`
 - `ecf6232 Update handoff after bundle validation`
 - `9c17204 Reject runtime state in release bundles`
@@ -268,6 +270,15 @@ passaggio editoriale deterministico, includendo terminologia astronomica e
 ottica, tono formale, privacy, provider e sicurezza solare. La logica di
 scoring e raccomandazione non cambia. Questa versione non e' ancora stata
 costruita o pubblicata come pacchetto Windows.
+
+La seconda review del `2026-07-21` ha letto tutte le `228` schede spagnole e
+verificato con LanguageTool i contenuti narrativi, i cataloghi e l'Equipment.
+Descrizioni, note e curiosita' restano tutte uniche e con lunghezze comparabili
+ai testi italiani e inglesi. Il lessico e' ora uniforme su `visión periférica`,
+`brillo superficial`, `aumento`, `apertura` e `sistema solar`; alias, refusi e
+calchi sono stati corretti. M84, M86, C51 e C53 hanno descrizioni spagnole
+scientificamente coerenti e M78 non suggerisce piu' filtri a banda stretta. I
+tipi canonici usati da filtri e scoring non sono stati modificati.
 
 La pipeline dei contenuti ora distingue la lingua sorgente per catalogo e per
 campo, genera descrizioni Caldwell inglesi deterministiche e include traduzioni
@@ -602,6 +613,10 @@ quando richiesta.
 - Le correzioni spagnole revisionate sono riproducibili tramite
   `tools/translation_reviews/es.json`; l'updater rifiuta riferimenti obsoleti e
   placeholder alterati.
+- La prosa strutturata spagnola applica inoltre override e normalizzazioni
+  editoriali deterministici in `tools/update_content_translations.py`; i test
+  vietano il ritorno dei termini superati e proteggono unicita', alias e
+  classificazioni presentate.
 - La review successiva ha corretto la terminologia astronomica inglese, i nomi
   IAU delle costellazioni, i caratteri invisibili nei contenuti, la sicurezza
   per l'osservazione solare, `R.A.` e l'ordinamento localizzato dei filtri.
@@ -944,14 +959,14 @@ git diff --check
 
 Risultati:
 
-- Gate completo senza coverage: `794 passed`, `613 warnings`, `7 subtests
-  passed` in `145,81 s`; durata complessiva `238,7 s`.
+- Gate completo senza coverage: `795 passed`, `613 warnings`, `7 subtests
+  passed` in `119,31 s`; durata complessiva `193,8 s`.
 - `pip check`, Ruff, `compileall`, archivio third-party, smoke backend e smoke
   QML standard puliti.
 - Cataloghi Qt IT/EN/ES: `1665` traduzioni finite e `0` unfinished per lingua.
 - Contenuti spagnoli: `7` sezioni, `821` elementi, `2038` campi tradotti;
-  overlay editoriale TS con `615` correzioni globali e `4` contestuali.
-- Test mirati localizzazione/tooling: `30 passed`; smoke QML separati italiano,
+  overlay editoriale TS con `617` correzioni globali e `5` contestuali.
+- Test mirati localizzazione/tooling: `31 passed`; smoke QML separati italiano,
   inglese e spagnolo completati con exit `0` in runtime temporanei.
 - Manuale spagnolo: desktop e mobile senza overflow orizzontale; cambio
   ES/EN/ES, persistenza e navigazione alle ancore verificati in Chromium.
