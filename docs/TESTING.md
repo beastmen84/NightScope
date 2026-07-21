@@ -95,7 +95,7 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
-## Measured 1.34.0 Deep Review Hardening Gate
+## Measured 1.34.1 Deep Review Hardening Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-21 after the provider,
 location-cache, numeric-input and startup hardening follow-up:
@@ -136,7 +136,7 @@ editorial review of the Spanish language pack and multilingual manual:
 | Spanish manual | Chromium desktop and 390 px mobile rendering passed; no horizontal overflow; ES/EN/ES switching and anchors passed |
 
 This source gate does not replace the page-by-page Spanish visual matrix or a
-clean Windows `1.34.0` bundle audit. The published package remains `1.33.2`.
+clean Windows `1.34.1` bundle audit. The published package remains `1.33.2`.
 
 ## Measured 1.33.2 Licensing And Bundle Gate
 

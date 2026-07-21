@@ -4,7 +4,7 @@ Aggiornato: 2026-07-21
 
 ## Stato Versioni
 
-- Versione sorgente: `1.34.0`
+- Versione sorgente: `1.34.1`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica: `v1.33.2`, tag sul commit sorgente
   `9c17204f718223e83183367e9ccea078805b5a00`.
@@ -19,13 +19,14 @@ Aggiornato: 2026-07-21
   `9c17204 Reject runtime state in release bundles`
 - Checklist visuale completata nel commit `ea821fc`.
 
-La localizzazione spagnola appartiene al sorgente `1.34.0`, non alla release
-pubblica `1.33.2`. Non descrivere ZIP o dist correnti come `1.34.0` finche' non
-vengono rigenerati e verificati esplicitamente.
+La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
+follow-up di hardening appartiene a `1.34.1`. Nessuna delle due versioni e'
+ancora una release pubblica: non descrivere ZIP o dist correnti come `1.34.1`
+finche' non vengono rigenerati e verificati esplicitamente.
 
 ## Hardening Da Review Profonda
 
-Il passaggio del 2026-07-21 ha corretto edge case riprodotti su OpenAQ,
+Il passaggio `1.34.1` del 2026-07-21 ha corretto edge case riprodotti su OpenAQ,
 Open-Meteo, Earthdata/VIIRS, refresh NASA AOD, cache IP, input Equipment, mese
 Catalogo e avvio con directory log non scrivibile. I refresh OpenAQ, VIIRS e AOD
 usano ora generazioni di richiesta; lo stato Open-Meteo e' isolato per thread e
@@ -977,6 +978,31 @@ Rimossi:
   `7 giorni`, retry fino a 3 tentativi con backoff sui `5xx`.
 - Il timer transitorio globale resta orario per la ISS; la cache risultati del
   motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
+
+## Validazione 1.34.1
+
+Eseguita nella venv corrente dopo il passaggio di hardening:
+
+```powershell
+.\.venv\Scripts\python.exe tools\run_checks.py --security
+# smoke QML separati it/en/es con user_preferences e runtime temporanei
+git diff --check
+```
+
+Risultati:
+
+- Gate completo con security: `816 passed`, `613 warnings`, `10 subtests
+  passed` in `143,85 s`; durata complessiva `246,5 s`.
+- Coverage runtime `84%` su `15403` statement; `pip check`, Ruff, `compileall`,
+  archivio third-party, `pip-audit`, smoke backend e smoke QML puliti.
+- Cataloghi Qt IT/EN/ES: `1670` traduzioni finite e `0` unfinished per lingua;
+  smoke QML separati italiano, inglese e spagnolo completati con exit `0`.
+- Verifica mirata post-fix: `62 passed`; `qmllint` su 30 file senza failure e
+  con le 760 warning statiche note; immagini 219 deep-sky e 9 Sistema Solare
+  verificate.
+- Bandit resta sul baseline revisionato: `0 high`, `26 medium`, `12 low`.
+- Nessuna modifica a schema, seed data, scoring o recommendation policy; nessuna
+  build o release `1.34.1` generata.
 
 ## Validazione 1.34.0
 

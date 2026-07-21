@@ -1,6 +1,6 @@
 # NightScope - Visual Review Checklist
 
-Aggiornato: 2026-07-20
+Aggiornato: 2026-07-21
 
 Questo documento registra il controllo visuale pre-release e il relativo
 passaggio unico di correzione concluso nella sorgente `1.33.1`. Le verifiche
@@ -18,7 +18,7 @@ essere ripetute dopo la prossima rigenerazione della dist.
 - [x] Smoke QML separati italiano, inglese e spagnolo superati in runtime
   temporanei; suite completa `794 passed`.
 - [ ] Eseguire la matrice visuale pagina-per-pagina in spagnolo su una nuova
-  build Windows `1.34.0`. I controlli sorgente sopra non approvano da soli un
+  build Windows `1.34.1`. I controlli sorgente sopra non approvano da soli un
   nuovo artefatto pubblico.
 
 Stati usati:

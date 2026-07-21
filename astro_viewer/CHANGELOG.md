@@ -1,6 +1,6 @@
 # Changelog
 
-## NightScope 1.34.0 - 2026-07-21
+## NightScope 1.34.1 - 2026-07-21
 
 - Il follow-up di review profonda ha corretto le distanze OpenAQ: i campi
   `distance` della API v3 sono ora interpretati sempre in metri, una stazione a
@@ -19,7 +19,23 @@
   `NaN` o infinito, il mese Catalogo iniziale segue la timezone della localita'
   e un errore di scrittura dei log passa al logging console prima della gestione
   controllata dell'avvio.
-- Aggiunta la localizzazione completa in spagnolo (Spagna): `1670` messaggi
+- Localizzate in italiano, inglese e spagnolo le nuove diagnostiche VIIRS per
+  errori di rete, autenticazione, rate limit e risposte HTTP. I cataloghi Qt
+  risultano completi con `1670` messaggi finiti e nessun messaggio incompleto.
+- Aggiunte regressioni per concorrenza dei provider, cache IP, credenziali
+  Earthdata, input numerici non finiti, mese Catalogo e fallback del logging.
+  Nessuna modifica a schema SQLite, seed data, scoring o policy delle
+  raccomandazioni.
+- Gate completo con coverage e security superato: `816 passed`, `613 warnings`
+  note e `10 subtests`; coverage runtime `84%`, smoke QML separati nelle tre
+  lingue, `pip-audit` senza vulnerabilita' note e Bandit invariato a `0 high`.
+- La versione sorgente passa a `1.34.1`; la release GitHub e il pacchetto
+  Windows pubblicati restano `1.33.2` finche' non viene eseguito un nuovo ciclo
+  esplicito di build e rilascio.
+
+## NightScope 1.34.0 - 2026-07-21
+
+- Aggiunta la localizzazione completa in spagnolo (Spagna): `1665` messaggi
   Qt/Python, contenuti strutturati di cataloghi ed Equipment e catalogo runtime
   compilato. Terminologia astronomica, ottica, provider, privacy e sicurezza
   solare sono state revisionate editorialmente, non lasciate al solo output
@@ -54,10 +70,10 @@
   revisionati, preferenze, formati locali e cambio live italiano/inglese/
   spagnolo. Nessuna modifica a scoring, Planner, Home, Equipment, Sky Compass,
   schema SQLite o logica delle raccomandazioni.
-- Gate completo con coverage e security superato: `816 passed`, `613 warnings`
-  note e `10 subtests`; cataloghi IT/EN/ES completi `1670/1670`, smoke QML separati
-  nelle tre lingue e manuale spagnolo verificato in Chromium a larghezza desktop
-  e mobile senza overflow orizzontale.
+- Gate completo senza coverage superato prima dell'hardening: `797 passed`,
+  `613 warnings` note e `7 subtests`; cataloghi IT/EN/ES completi `1665/1665`,
+  smoke QML separati nelle tre lingue e manuale spagnolo verificato in Chromium
+  a larghezza desktop e mobile senza overflow orizzontale.
 - La versione sorgente passa a `1.34.0`; la release GitHub e il pacchetto
   Windows pubblicati restano `1.33.2` finche' non viene eseguito un nuovo ciclo
   esplicito di build e rilascio.
