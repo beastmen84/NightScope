@@ -13,11 +13,14 @@
 - Aggiunto un overlay deterministico per le traduzioni TS revisionate. Gli
   updater applicano le correzioni per testo o contesto, verificano placeholder
   e riferimenti obsoleti e restano idempotenti dopo una rigenerazione.
+- Il follow-up di review ha corretto `Norma` in `Escuadra`, uniformato tutte le
+  istruzioni al registro formale, distinto `Eclipse` da `Eclipses` per contesto
+  e inserito l'applicazione dell'overlay nella sequenza di release documentata.
 - Estesi i test di localizzazione a discovery, completezza, contenuti, termini
   revisionati, preferenze, formati locali e cambio live italiano/inglese/
   spagnolo. Nessuna modifica a scoring, Planner, Home, Equipment, Sky Compass,
   schema SQLite o logica delle raccomandazioni.
-- Gate completo senza coverage superato: `794 passed`, `613 warnings` note e
+- Gate completo senza coverage superato: `795 passed`, `613 warnings` note e
   `7 subtests`; cataloghi IT/EN/ES completi `1665/1665`, smoke QML separati
   nelle tre lingue e manuale spagnolo verificato in Chromium a larghezza desktop
   e mobile senza overflow orizzontale.

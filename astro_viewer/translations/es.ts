@@ -2295,7 +2295,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1073" />
       <source>Il massimo non è osservabile localmente. Prepara binocolo o basso ingrandimento solo dopo aver verificato gli orari completi delle fasi.</source>
-      <translation>El máximo no es observable localmente. Prepara los prismáticos o un aumento bajo solo después de comprobar los horarios completos de las fases.</translation>
+      <translation>El máximo no es observable localmente. Prepare los prismáticos o una configuración de pocos aumentos solo después de comprobar los horarios completos de las fases.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1075" />
@@ -2315,7 +2315,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1081" />
       <source>Il terminatore evidenzia crateri e rilievi; usa ingrandimenti progressivi.</source>
-      <translation>El terminador resalta cráteres y relieves; aumenta progresivamente.</translation>
+      <translation>El terminador resalta cráteres y relieves; aumente la magnificación progresivamente.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1083" />
@@ -2330,7 +2330,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1087" />
       <source>Aumenta l'ingrandimento solo se il seeing della notte dell'evento mantiene il pianeta nitido.</source>
-      <translation>Aumenta el aumento solo si el seeing de la noche del evento mantiene nítido el planeta.</translation>
+      <translation>Aumente la magnificación solo si el seeing de la noche del evento mantiene nítido el planeta.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1089" />
@@ -2367,7 +2367,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1105" />
       <source>È la finestra con meno luce lunare: riservala a galassie, nebulose e ammassi deboli che perdono contrasto nelle altre notti.</source>
-      <translation>Es la ventana con menos luz lunar: resérvala para galaxias, nebulosas y cúmulos tenues que pierden contraste en otras noches.</translation>
+      <translation>Es la ventana con menos luz lunar: resérvela para galaxias, nebulosas y cúmulos tenues que pierden contraste en otras noches.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1107" />
@@ -2392,7 +2392,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1115" />
       <source>È un evento da pianificare usando protezioni certificate specifiche per l'osservazione solare.</source>
-      <translation>Planifica este evento utilizando protección certificada específica para la observación solar.</translation>
+      <translation>Este evento debe planificarse utilizando protección certificada específica para la observación solar.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1117" />
@@ -2422,7 +2422,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1127" />
       <source>Raggiungi un punto con orizzonte libero qualche minuto prima.</source>
-      <translation>Llega a un lugar con el horizonte despejado unos minutos antes.</translation>
+      <translation>Llegue a un lugar con el horizonte despejado unos minutos antes.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1129" />
@@ -2517,7 +2517,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1165" />
       <source>Aumenta l'ingrandimento a piccoli passi.</source>
-      <translation>Aumenta los aumentos poco a poco.</translation>
+      <translation>Aumente la magnificación poco a poco.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1167" />
@@ -2552,7 +2552,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1179" />
       <source>Prepara il setup prima dell'inizio dell'evento.</source>
-      <translation>Prepara la configuración antes de que comience el evento.</translation>
+      <translation>Prepare el equipo antes de que comience el evento.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1181" />
@@ -2562,12 +2562,12 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1183" />
       <source>Non considerare il solo massimo come finestra osservativa.</source>
-      <translation>No consideres únicamente el máximo como ventana de observación.</translation>
+      <translation>No considere únicamente el máximo como ventana de observación.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1185" />
       <source>Prepara lo strumento solo se almeno una fase risulta visibile.</source>
-      <translation>Prepara el instrumento solo si al menos una fase resulta visible.</translation>
+      <translation>Prepare el instrumento solo si al menos una fase resulta visible.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1187" />
@@ -2587,7 +2587,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1193" />
       <source>Non puntare binocoli, telescopi o cercatori vicino al Sole.</source>
-      <translation>No apuntes prismáticos, telescopios ni buscadores cerca del Sol.</translation>
+      <translation>No apunte prismáticos, telescopios ni buscadores cerca del Sol.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1195" />
@@ -2622,7 +2622,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1207" />
       <source>Prepara il setup in anticipo per non perdere la finestra utile.</source>
-      <translation>Prepara la configuración con antelación para no perder la ventana útil.</translation>
+      <translation>Prepare el equipo con antelación para no perder la ventana útil.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1209" />
@@ -2985,7 +2985,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1367" />
       <source>Regolo</source>
-      <translation>Retículo</translation>
+      <translation>Escuadra</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1369" />
@@ -5873,7 +5873,7 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <location filename="../app/ui/pages/CalendarPage.qml" line="325" />
       <location filename="../app/ui/pages/CalendarPage.qml" line="413" />
       <source>Eclissi</source>
-      <translation>Eclipse</translation>
+      <translation>Eclipses</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/CalendarPage.qml" line="331" />
@@ -7745,7 +7745,7 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     <message>
       <location filename="../app/ui/pages/LocationPage.qml" line="256" />
       <source>Digita una città per mostrare risultati offline.</source>
-      <translation>Escribe una ciudad para mostrar los resultados sin conexión.</translation>
+      <translation>Escriba una ciudad para mostrar los resultados sin conexión.</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/LocationPage.qml" line="267" />

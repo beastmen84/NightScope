@@ -247,6 +247,24 @@ def test_multilingual_manual_has_complete_navigation_and_current_provider_semant
     assert "No utilice filtros solares de ocular" in manual
 
 
+def test_localization_release_workflow_reapplies_reviewed_ts_overlay() -> None:
+    documentation = (PROJECT_ROOT / "docs" / "LOCALIZATION.md").read_text(
+        encoding="utf-8"
+    )
+    release_commands = documentation.split("Before a release run:", maxsplit=1)[1]
+
+    update_catalogues = release_commands.index(
+        ".\\tools\\update_translations.ps1 -UpdateOnly"
+    )
+    apply_reviews = release_commands.index(
+        ".\\.venv\\Scripts\\python.exe tools\\update_ts_translations.py"
+    )
+    compile_catalogues = release_commands.index(
+        ".\\tools\\update_translations.ps1 -CompileOnly"
+    )
+    assert update_catalogues < apply_reviews < compile_catalogues
+
+
 def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
 

@@ -145,9 +145,13 @@ rendering so their order follows the displayed language.
 
 Before a release run:
 
+The TS updater remains required even when no messages are unfinished because it
+reapplies the reviewed overlays before the catalogues are compiled.
+
 ```powershell
 .\.venv\Scripts\python.exe tools\update_content_translations.py
 .\tools\update_translations.ps1 -UpdateOnly
+.\.venv\Scripts\python.exe tools\update_ts_translations.py
 .\tools\update_translations.ps1 -CompileOnly
 .\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
 ```

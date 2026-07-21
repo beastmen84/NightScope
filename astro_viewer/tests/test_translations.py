@@ -126,11 +126,47 @@ def test_discovered_language_catalogs_are_complete_and_symmetric() -> None:
     assert catalogs["es"][("", "Aggiungi oculari per suggerimenti completi")] == (
         "Añada oculares para obtener sugerencias completas"
     )
+    assert catalogs["es"][("", "Regolo")] == "Escuadra"
+    assert catalogs["es"][("CalendarPage", "Eclissi")] == "Eclipses"
+    assert catalogs["es"][("", "Non puntare binocoli, telescopi o cercatori vicino al Sole.")] == (
+        "No apunte prismáticos, telescopios ni buscadores cerca del Sol."
+    )
+    assert catalogs["es"][
+        (
+            "",
+            "Il terminatore evidenzia crateri e rilievi; usa ingrandimenti progressivi.",
+        )
+    ] == (
+        "El terminador resalta cráteres y relieves; aumente la magnificación "
+        "progresivamente."
+    )
+    assert catalogs["es"][
+        (
+            "",
+            "È un evento da pianificare usando protezioni certificate specifiche "
+            "per l'osservazione solare.",
+        )
+    ] == (
+        "Este evento debe planificarse utilizando protección certificada específica "
+        "para la observación solar."
+    )
     spanish_messages = "\n".join(catalogs["es"].values())
     assert re.search(r"\b(?:tu|tus)\b", spanish_messages, re.IGNORECASE) is None
     for informal_instruction in (
+        "Aumenta el aumento",
+        "Aumenta los aumentos",
+        "aumenta progresivamente",
+        "Escribe una ciudad",
         "Elige un horizonte",
+        "Llega a un lugar",
+        "No apuntes",
+        "No consideres",
+        "Planifica este evento",
+        "Prepara el instrumento",
+        "Prepara la configuración",
+        "Prepara los prismáticos",
         "Prueba primero",
+        "resérvala",
         "Usa prismáticos",
         "Configura una ubicación",
     ):
@@ -298,6 +334,10 @@ def test_curated_spanish_content_uses_reviewed_astronomy_terms() -> None:
     assert catalogue["caldwell-C13"]["name"] == "NGC 457 - Cúmulo del Búho"
     assert catalogue["caldwell-C1"]["name"] == "NGC 188"
     assert catalogue["caldwell-C5"]["name"] == "IC 342"
+    assert "constelación de Escuadra" in objects["caldwell-C89"]["short_description"]
+    assert catalogue["caldwell-C89"]["description"] == (
+        "C89 (NGC 6087): cúmulo abierto en Escuadra."
+    )
     assert catalogue["caldwell-C99"]["description"] == (
         "C99 - Nebulosa oscura en la Cruz del Sur."
     )

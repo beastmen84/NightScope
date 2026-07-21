@@ -1248,7 +1248,7 @@ _SPANISH_CONSTELLATION_NAMES = {
     "Lyra": "Lira",
     "Monoceros": "Unicornio",
     "Musca": "Mosca",
-    "Norma": "Regla",
+    "Norma": "Escuadra",
     "Ophiuchus": "Ofiuco",
     "Orion": "Orión",
     "Pavo": "Pavo",
