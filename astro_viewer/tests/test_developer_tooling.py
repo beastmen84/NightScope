@@ -250,6 +250,23 @@ def test_multilingual_manual_has_complete_navigation_and_current_provider_semant
     assert "El catálogo reúne objetos del sistema solar" in manual
 
 
+def test_manual_language_switch_keeps_all_languages_on_one_row() -> None:
+    manual = (PROJECT_ROOT / "manuale.html").read_text(encoding="utf-8")
+    language_switch = re.search(
+        r"\.language-switch\s*\{(?P<declarations>.*?)\}",
+        manual,
+        flags=re.DOTALL,
+    )
+
+    assert language_switch is not None
+    declarations = language_switch.group("declarations")
+    assert re.search(
+        r"grid-template-columns:\s*repeat\(3,\s*minmax\(44px,\s*1fr\)\)",
+        declarations,
+    )
+    assert re.search(r"flex:\s*0\s+0\s+auto", declarations)
+
+
 def test_localization_release_workflow_reapplies_reviewed_ts_overlay() -> None:
     documentation = (PROJECT_ROOT / "docs" / "LOCALIZATION.md").read_text(
         encoding="utf-8"

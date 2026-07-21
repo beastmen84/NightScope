@@ -118,7 +118,8 @@
 
     .language-switch {
       display: inline-grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(44px, 1fr));
+      flex: 0 0 auto;
       padding: 3px;
       border: 1px solid var(--line-strong);
       border-radius: 7px;
@@ -139,7 +140,6 @@
     }
 
     .language-switch button {
-      min-width: 44px;
       padding: 4px 10px;
     }
 

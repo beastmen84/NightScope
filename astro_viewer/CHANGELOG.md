@@ -23,11 +23,16 @@
   descrizioni scientifiche contraddittorie di M84, M86, C51 e C53 e rimossa la
   raccomandazione di filtri a banda stretta per la nebulosa a riflessione M78.
   Override e normalizzazioni restano deterministici e coperti da regressioni.
+- Corretto il selettore lingua del manuale, rimasto su una griglia a due
+  colonne dopo l'aggiunta di `ES`: `IT`, `EN` ed `ES` restano ora sulla stessa
+  riga anche su mobile. Una regressione dedicata protegge il layout a tre
+  colonne; il rendering e' stato verificato a `390`, `621` e `1440 px` senza
+  overflow orizzontale.
 - Estesi i test di localizzazione a discovery, completezza, contenuti, termini
   revisionati, preferenze, formati locali e cambio live italiano/inglese/
   spagnolo. Nessuna modifica a scoring, Planner, Home, Equipment, Sky Compass,
   schema SQLite o logica delle raccomandazioni.
-- Gate completo senza coverage superato: `795 passed`, `613 warnings` note e
+- Gate completo senza coverage superato: `796 passed`, `613 warnings` note e
   `7 subtests`; cataloghi IT/EN/ES completi `1665/1665`, smoke QML separati
   nelle tre lingue e manuale spagnolo verificato in Chromium a larghezza desktop
   e mobile senza overflow orizzontale.

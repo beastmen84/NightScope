@@ -953,23 +953,24 @@ Eseguita nella venv corrente:
 .\tools\update_translations.ps1 -CompileOnly
 .\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_translations.py astro_viewer\tests\test_developer_tooling.py
 # smoke QML separati it/en/es con user_preferences e runtime temporanei
-# manuale es verificato in Chromium a 1440x900 e 390x844
+# manuale es verificato in Chromium a 390x844, 621x844 e 1440x900
 git diff --check
 ```
 
 Risultati:
 
-- Gate completo senza coverage: `795 passed`, `613 warnings`, `7 subtests
-  passed` in `119,31 s`; durata complessiva `193,8 s`.
+- Gate completo senza coverage: `796 passed`, `613 warnings`, `7 subtests
+  passed` in `114,38 s`; durata complessiva `194,4 s`.
 - `pip check`, Ruff, `compileall`, archivio third-party, smoke backend e smoke
   QML standard puliti.
 - Cataloghi Qt IT/EN/ES: `1665` traduzioni finite e `0` unfinished per lingua.
 - Contenuti spagnoli: `7` sezioni, `821` elementi, `2038` campi tradotti;
   overlay editoriale TS con `617` correzioni globali e `5` contestuali.
-- Test mirati localizzazione/tooling: `31 passed`; smoke QML separati italiano,
+- Test mirati localizzazione/tooling: `32 passed`; smoke QML separati italiano,
   inglese e spagnolo completati con exit `0` in runtime temporanei.
-- Manuale spagnolo: desktop e mobile senza overflow orizzontale; cambio
-  ES/EN/ES, persistenza e navigazione alle ancore verificati in Chromium.
+- Manuale spagnolo: desktop, breakpoint `621 px` e mobile senza overflow
+  orizzontale; `IT`/`EN`/`ES` restano su una sola riga. Cambio lingua,
+  persistenza e navigazione alle ancore verificati in Chromium.
 - Nessuna build o release `1.34.0`: il pacchetto pubblico resta `1.33.2` e la
   matrice visuale completa dell'app spagnola resta aperta.
 
