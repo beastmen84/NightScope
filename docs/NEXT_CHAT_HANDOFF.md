@@ -4,7 +4,7 @@ Aggiornato: 2026-07-22
 
 ## Stato Versioni
 
-- Versione sorgente: `1.34.3`
+- Versione sorgente: `1.35.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica: `v1.34.2`, tag sul commit sorgente
   `5f1cf9a83047bc005e57defb157a572b7ee5ef70`.
@@ -21,6 +21,26 @@ La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`, ora release pubblica. La review
 editoriale italiana e inglese descritta sotto appartiene al sorgente `1.34.3`.
+
+## Confine Piattaforma 1.35.0
+
+Il primo step Linux-ready introduce
+`astro_viewer.app.platform_capabilities` come unico rilevamento della famiglia
+del sistema operativo. Il valore immutabile viene costruito una sola volta da
+`sys.platform` e pubblicato come `platformCapabilities` sia nell'avvio normale
+sia nello smoke test QML.
+
+Windows conserva integralmente il comportamento precedente e resta l'unica
+piattaforma che dichiara disponibile la posizione di sistema, attraverso il
+provider gia' esistente. Linux e macOS sono riconosciuti ma riportano provider
+`none`: GeoClue, percorsi XDG, Secret Service e packaging Linux appartengono ai
+passaggi successivi. Non sono stati modificati QML visibile, preferenze,
+directory runtime, database, scoring o raccomandazioni e la distribuzione non
+e' stata rigenerata.
+
+Il gate completo `tools/run_checks.py --security` e' passato in `245,7 s`:
+`832 passed`, `613 warnings` note, `10 subtests`, coverage runtime `84%` su
+`15.465` statement, smoke backend/QML superati e nessuna vulnerabilita' nota.
 
 ## Review Editoriale Italiana E Inglese 1.34.3
 

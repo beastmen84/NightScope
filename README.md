@@ -13,10 +13,11 @@ setup?**
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
 > validated; its Italian/English source visual review and source licensing are
-> complete. Source version 1.34.3 includes the reviewed Spanish localization,
+> complete. Source version 1.35.0 includes the reviewed Spanish localization,
 > the provider/runtime and Earthdata authorization fixes released in 1.34.2,
-> and a subsequent editorial and scientific review of the Italian and English
-> catalog content.
+> the subsequent Italian and English editorial review, and the first
+> platform-capability boundary for future native Linux support. Windows runtime
+> behavior remains unchanged in this initial portability step.
 > The published Windows bundle passes automated legal,
 > Qt, backend, and QML checks; its packaged visual and live-provider release
 > matrices are not complete yet.

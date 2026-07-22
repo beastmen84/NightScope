@@ -36,6 +36,15 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 
+def _detect_platform_capabilities():
+    from astro_viewer.app.platform_capabilities import detect_platform_capabilities
+
+    return detect_platform_capabilities()
+
+
+PLATFORM_CAPABILITIES = _detect_platform_capabilities()
+
+
 def _database_paths() -> tuple[Path, Path]:
     database_path = RUNTIME_DIR / "nightscope.db"
     schema_path = _data_dir() / "schema.sql"
@@ -328,6 +337,10 @@ def run_app() -> int:
     engine.addImportPath(str(BASE_DIR / "app" / "ui"))
     engine.rootContext().setContextProperty("appController", controller)
     engine.rootContext().setContextProperty("translationManager", translation_manager)
+    engine.rootContext().setContextProperty(
+        "platformCapabilities",
+        PLATFORM_CAPABILITIES.as_qml_context(),
+    )
     engine.load(QUrl.fromLocalFile(str(BASE_DIR / "app" / "ui" / "main.qml")))
     translation_manager.attach_engine(engine)
 
@@ -358,6 +371,10 @@ def run_qml_smoke_test() -> int:
     engine.addImportPath(str(BASE_DIR / "app" / "ui"))
     engine.rootContext().setContextProperty("appController", controller)
     engine.rootContext().setContextProperty("translationManager", translation_manager)
+    engine.rootContext().setContextProperty(
+        "platformCapabilities",
+        PLATFORM_CAPABILITIES.as_qml_context(),
+    )
     engine.load(QUrl.fromLocalFile(str(BASE_DIR / "app" / "ui" / "main.qml")))
     translation_manager.attach_engine(engine)
     if not engine.rootObjects():

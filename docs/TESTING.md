@@ -95,6 +95,27 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.35.0 Platform Capability Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-22 after introducing the
+platform-capability boundary without changing current Windows behavior:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` | Passed in 245.7 s |
+| `pip check`, Ruff, `compileall`, third-party archive | Passed |
+| `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 832 passed, 613 warnings, 10 subtests passed in 141.89 s |
+| Runtime coverage | 84% across 15,465 statements; platform module 100% |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Focused platform, tooling, and location regressions | 58 passed |
+| Direct `astro_viewer/main.py --help` startup | Passed |
+| Backend and QML smoke tests | Passed in disposable runtimes |
+
+No distribution or repository database was regenerated. Windows remains the
+only platform that declares a supported system-location provider in this
+step; location execution, preferences, runtime storage, credentials, scoring,
+recommendations, and visible QML behavior are unchanged.
+
 ## Measured 1.34.3 Italian And English Editorial Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-22 after the full Italian and

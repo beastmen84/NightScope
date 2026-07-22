@@ -223,6 +223,17 @@ def test_manual_is_packaged_and_linked_from_the_sidebar() -> None:
     assert 'translationManager.languageCode' in qml
 
 
+def test_main_exposes_platform_capabilities_to_both_qml_startup_paths() -> None:
+    main_source = (PROJECT_ROOT / "astro_viewer" / "main.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert main_source.count(
+        'setContextProperty(\n        "platformCapabilities",'
+    ) == 2
+    assert main_source.count("PLATFORM_CAPABILITIES.as_qml_context()") == 2
+
+
 def test_multilingual_manual_has_complete_navigation_and_current_provider_semantics() -> None:
     manual = (PROJECT_ROOT / "manuale.html").read_text(encoding="utf-8")
     parser = _ManualStructureParser()

@@ -1,5 +1,27 @@
 # Changelog
 
+## NightScope 1.35.0 - 2026-07-22
+
+- Introdotto un confine centralizzato e immutabile per il rilevamento della
+  piattaforma, basato su `sys.platform`, con identificazione esplicita di
+  Windows, Linux, macOS e sistemi non supportati.
+- Esposte ai due percorsi di avvio QML le capacita' correnti della piattaforma:
+  famiglia, indicatori del sistema operativo e disponibilita' e provider della
+  posizione di sistema. La mappa e' costruita una sola volta all'avvio.
+- Conservato integralmente il comportamento Windows esistente. In questo primo
+  step solo il provider Windows gia' implementato risulta supportato; Linux e
+  macOS vengono riconosciuti ma non dichiarano ancora un provider di posizione.
+- Aggiunte regressioni indipendenti dall'host per rilevamento, immutabilita',
+  payload QML e inizializzazione singola. Nessuna modifica a QML visibile,
+  posizione, preferenze, directory runtime, credenziali, database, scoring o
+  raccomandazioni; la distribuzione non e' stata rigenerata.
+- Gate completo con coverage e security superato in `245,7 s`: `832 passed`,
+  `613 warnings` note e `10 subtests`; coverage runtime `84%` su `15.465`
+  statement, smoke backend/QML superati e `pip-audit` senza vulnerabilita'
+  note.
+- La versione sorgente passa a `1.35.0`; la release GitHub e il pacchetto
+  Windows pubblicati restano `1.34.2`.
+
 ## NightScope 1.34.3 - 2026-07-22
 
 - Completata una review editoriale approfondita dei contenuti strutturati in

@@ -68,6 +68,23 @@ back to console logging and continues into the normal startup error boundary.
 The portable Windows contract still requires the extracted application
 directory to be writable for its database, preferences and caches.
 
+## Platform Capability Boundary
+
+`astro_viewer.app.platform_capabilities` is the single source of truth for the
+host operating-system family and the platform features currently implemented
+by NightScope. It converts `sys.platform` into an immutable
+`PlatformCapabilities` value once during entry-point initialization. Both the
+normal application and QML smoke-test paths expose the same capability map as
+the `platformCapabilities` QML context property.
+
+Source version `1.35.0` introduces detection only. Windows, Linux and macOS are
+recognized explicitly, but system location remains declared as supported only
+on Windows because the existing WinRT/PowerShell provider is the only provider
+currently implemented. Runtime storage, credentials, location preferences and
+all visible QML continue to follow their pre-`1.35.0` behavior. Later Linux
+adapters must extend this capability boundary instead of adding independent
+`sys.platform` checks throughout services or QML.
+
 ## UI Localization
 
 `TranslationManager` is created before the controller and QML engine. It reads
