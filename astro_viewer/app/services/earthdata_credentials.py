@@ -294,29 +294,45 @@ class EarthdataConnectionTester:
                 if close:
                     close()
 
+        if (
+            response.status_code == 200
+            and "Dataset {" in response.text
+            and "AllAngle_Composite_Snow_Free" in response.text
+        ):
+            return EarthdataConnectionResult(
+                True,
+                tr("Connessione Earthdata LAADS verificata."),
+            )
+        if self._requires_laads_authorization(response):
+            logger.info(
+                "Earthdata connection test requires LAADS authorization (HTTP %s).",
+                response.status_code,
+            )
+            return EarthdataConnectionResult(
+                False,
+                tr("Autorizza l'app LAADS OPeNDAP, poi ripeti il test."),
+                authorization_required=True,
+            )
+        if self._has_invalid_credentials(response):
+            logger.info(
+                "Earthdata connection test rejected the credentials (HTTP %s).",
+                response.status_code,
+            )
+            return EarthdataConnectionResult(
+                False,
+                tr("Login Earthdata non riuscito. Verifica username e password."),
+            )
         if response.status_code != 200:
+            logger.warning(
+                "Earthdata connection test returned HTTP %s.",
+                response.status_code,
+            )
             return EarthdataConnectionResult(
                 False,
                 tr(
                     "Earthdata ha risposto con HTTP {status_code}.",
                     status_code=response.status_code,
                 ),
-            )
-        if "Dataset {" in response.text and "AllAngle_Composite_Snow_Free" in response.text:
-            return EarthdataConnectionResult(
-                True,
-                tr("Connessione Earthdata LAADS verificata."),
-            )
-        if self._requires_laads_authorization(response):
-            return EarthdataConnectionResult(
-                False,
-                tr("Autorizza l'app LAADS OPeNDAP, poi ripeti il test."),
-                authorization_required=True,
-            )
-        if "Earthdata Login" in response.text:
-            return EarthdataConnectionResult(
-                False,
-                tr("Login Earthdata non riuscito. Verifica username e password."),
             )
         return EarthdataConnectionResult(
             False,
@@ -333,6 +349,16 @@ class EarthdataConnectionTester:
             or "approve_app" in url
             or "Pre+authorization+required" in url
             or "Pre%20authorization%20required" in url
+        )
+
+    @staticmethod
+    def _has_invalid_credentials(response: requests.Response) -> bool:
+        text = (response.text or "").casefold()
+        return (
+            response.status_code == 401
+            or "earthdata login" in text
+            or "credentials (username, password) are invalid" in text
+            or "invalid username or password" in text
         )
 
     @staticmethod

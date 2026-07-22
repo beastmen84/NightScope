@@ -1,28 +1,47 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-21
+Aggiornato: 2026-07-22
 
 ## Stato Versioni
 
-- Versione sorgente: `1.34.1`
+- Versione sorgente: `1.34.2`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
-- Release pubblica: `v1.33.2`, tag sul commit sorgente
-  `9c17204f718223e83183367e9ccea078805b5a00`.
-- Asset: `NightScope-v1.33.2-windows-x64.zip`, SHA-256
-  `33424e4e8317dee951230d795e2f0de936946910ede232ba478e893c73e02967`.
-- Distribuzione Windows corrente: `1.33.2`, rigenerata dall'utente dopo il
-  commit `3baa6a6`.
+- Release pubblica: `v1.34.1`, tag sul commit sorgente
+  `4193e11f63b6b9e2fe5e86e7f96d13638d95659b`.
+- Asset: `NightScope-v1.34.1-windows-x64.zip`, SHA-256
+  `e5e5023a71a49bdad9947937f9cd0ae5689c6b89b52eeb6bfc3f05216c8adea0`.
+- Distribuzione Windows corrente: `1.34.1`, pubblicata su GitHub.
 - Audit Qt/licenze e smoke backend/QML del binario superati. L'avvio ha creato
   database, backup e log: la cartella corrente e' una copia di validazione, non
   il bundle pulito da archiviare.
 - Commit sorgente della release pubblica validato:
-  `9c17204 Reject runtime state in release bundles`
+  `4193e11 Add localized provider setup guides`
 - Checklist visuale completata nel commit `ea821fc`.
 
 La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
-follow-up di hardening appartiene a `1.34.1`. Nessuna delle due versioni e'
-ancora una release pubblica: non descrivere ZIP o dist correnti come `1.34.1`
-finche' non vengono rigenerati e verificati esplicitamente.
+follow-up di hardening e le guide provider appartengono a `1.34.1`, ora release
+pubblica. Il fix Earthdata descritto sotto appartiene al sorgente `1.34.2` e non
+e' ancora incluso nella distribuzione Windows.
+
+## Correzione Autorizzazione Earthdata 1.34.2
+
+Un test controllato con un account Earthdata nuovo ha distinto due risposte del
+flusso LAADS OPeNDAP: password errata produce `HTTP 401` con credenziali non
+valide; credenziali corrette senza autorizzazione dell'app producono `HTTP 403`
+con il segnale OAuth di pre-autorizzazione richiesta. Dopo l'autorizzazione, le
+stesse credenziali superano il test.
+
+`EarthdataConnectionTester` valuta ora il segnale di autorizzazione e il rifiuto
+delle credenziali prima del fallback HTTP generico. Il controller puo' quindi
+salvare `authorization_required=True`, mostrare lo stato `Autorizza` e abilitare
+il pulsante `Autorizza app`; `Test connessione` resta disponibile per il secondo
+controllo. Un `403` privo di segnali OAuth non viene reinterpretato. I log
+registrano soltanto classificazione e codice HTTP, mai username o password.
+
+Validazione del fix: `tools/run_checks.py --security` superato in `250,6 s`;
+`821 passed`, `613 warnings` note e `10 subtests`, coverage runtime `84%` su
+`15.410` statement, smoke backend/QML superati e nessuna vulnerabilita' nota.
+Non sono stati rigenerati database o distribuzione Windows.
 
 ## Hardening Da Review Profonda
 
@@ -72,6 +91,7 @@ Validazione conclusiva del passaggio:
 
 ## Commit Recenti
 
+- `4193e11 Add localized provider setup guides`
 - `6256d5f Bump source version to 1.34.1`
 - `1513201 Fix provider and runtime edge cases`
 - `64f3caf Fix Spanish localization review findings`

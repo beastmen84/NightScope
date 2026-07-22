@@ -159,6 +159,66 @@ class EarthdataConnectionTesterTests(unittest.TestCase):
         self.assertTrue(result.authorization_required)
         self.assertIn("Autorizza l'app LAADS OPeNDAP", result.message)
 
+    def test_reports_laads_authorization_requirement_before_http_403(self) -> None:
+        response = FakeEarthdataResponse(
+            "Access Denied by OAuth2 Provider",
+            "https://ladsweb.modaps.eosdis.nasa.gov/oauth/callback?error=Pre+authorization+required",
+            status_code=403,
+        )
+        tester = EarthdataConnectionTester()
+
+        with patch.object(EarthdataConnectionTester, "_session", return_value=FakeEarthdataSession(response)):
+            result = tester.test("astro-user", "secret-password")
+
+        self.assertFalse(result.ok)
+        self.assertTrue(result.authorization_required)
+        self.assertIn("Autorizza l'app LAADS OPeNDAP", result.message)
+
+    def test_reports_invalid_credentials_before_http_401(self) -> None:
+        response = FakeEarthdataResponse(
+            "Credentials (username, password) are invalid",
+            "https://urs.earthdata.nasa.gov/oauth/authorize",
+            status_code=401,
+        )
+        tester = EarthdataConnectionTester()
+
+        with patch.object(EarthdataConnectionTester, "_session", return_value=FakeEarthdataSession(response)):
+            result = tester.test("astro-user", "wrong-password")
+
+        self.assertFalse(result.ok)
+        self.assertFalse(result.authorization_required)
+        self.assertIn("Verifica username e password", result.message)
+
+    def test_keeps_unrecognized_http_403_generic(self) -> None:
+        response = FakeEarthdataResponse(
+            "Forbidden",
+            "https://ladsweb.modaps.eosdis.nasa.gov/opendap/resource",
+            status_code=403,
+        )
+        tester = EarthdataConnectionTester()
+
+        with patch.object(EarthdataConnectionTester, "_session", return_value=FakeEarthdataSession(response)):
+            result = tester.test("astro-user", "secret-password")
+
+        self.assertFalse(result.ok)
+        self.assertFalse(result.authorization_required)
+        self.assertIn("HTTP 403", result.message)
+
+    def test_does_not_accept_dataset_markers_without_http_200(self) -> None:
+        response = FakeEarthdataResponse(
+            "Dataset { AllAngle_Composite_Snow_Free }",
+            "https://ladsweb.modaps.eosdis.nasa.gov/opendap/resource",
+            status_code=503,
+        )
+        tester = EarthdataConnectionTester()
+
+        with patch.object(EarthdataConnectionTester, "_session", return_value=FakeEarthdataSession(response)):
+            result = tester.test("astro-user", "secret-password")
+
+        self.assertFalse(result.ok)
+        self.assertFalse(result.authorization_required)
+        self.assertIn("HTTP 503", result.message)
+
     def test_temporary_netrc_contexts_are_serialized_and_restore_environment(self) -> None:
         first_entered = Event()
         release_first = Event()

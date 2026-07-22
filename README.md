@@ -13,15 +13,16 @@ setup?**
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
 > validated; its Italian/English source visual review and source licensing are
-> complete. Source version 1.34.1 includes the reviewed Spanish localization
-> introduced in 1.34.0 and the subsequent provider/runtime hardening pass; its
-> full Spanish visual matrix and matching Windows bundle have not been completed.
+> complete. Source version 1.34.2 includes the reviewed Spanish localization,
+> the subsequent provider/runtime hardening pass, and an unpublished fix for
+> distinguishing invalid Earthdata credentials from missing LAADS application
+> authorization.
 > The published Windows bundle passes automated legal,
 > Qt, backend, and QML checks; its packaged visual and live-provider release
 > matrices are not complete yet.
 
 Current Windows package:
-[NightScope 1.33.2](https://github.com/beastmen84/NightScope/releases/tag/v1.33.2).
+[NightScope 1.34.1](https://github.com/beastmen84/NightScope/releases/tag/v1.34.1).
 Its release notes identify the corresponding source commit and publish the
 SHA-256 digest of the portable ZIP.
 

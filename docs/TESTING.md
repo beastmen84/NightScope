@@ -95,6 +95,25 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.34.2 Earthdata Authorization Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-22 after distinguishing
+invalid Earthdata credentials from missing LAADS OPeNDAP authorization:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` | Passed in 250.6 s |
+| `pip check`, Ruff, `compileall`, and third-party archive | Passed |
+| `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 821 passed, 613 warnings, 10 subtests passed in 170.93 s |
+| Runtime coverage | 84% across 15,410 statements |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Focused Earthdata and Data Providers regressions | 13 passed |
+| Backend and QML smoke tests | Passed in disposable runtimes |
+
+The live diagnostic used exactly one invalid-password attempt and one valid
+credential attempt without LAADS application authorization. No account
+credentials, cookies, tokens, or response query parameters were retained.
+
 ## Measured 1.34.1 Deep Review And Provider Guidance Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-21 after the provider,

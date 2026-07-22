@@ -1,5 +1,28 @@
 # Changelog
 
+## NightScope 1.34.2 - 2026-07-22
+
+- Corretto il test connessione Earthdata LAADS: la risposta OAuth che richiede
+  la pre-autorizzazione viene ora classificata prima dell'errore HTTP generico.
+  Lo stato passa quindi ad `Autorizza`, il messaggio indica di autorizzare
+  LAADS OPeNDAP e il relativo pulsante viene abilitato.
+- Distinto il rifiuto delle credenziali dalla mancata autorizzazione. Il flusso
+  reale restituisce `HTTP 401` e un messaggio di credenziali non valide per una
+  password errata, mentre credenziali valide senza autorizzazione restituiscono
+  `HTTP 403` con il segnale OAuth di pre-autorizzazione richiesta.
+- Aggiunta diagnostica priva di credenziali per autorizzazione richiesta,
+  credenziali respinte e codici HTTP non riconosciuti. Un `403` senza segnali
+  OAuth resta intenzionalmente un errore generico.
+- Aggiunte regressioni per il `403` OAuth, il `401` con credenziali errate e il
+  `403` generico. Nessuna modifica a schema SQLite, dati provider, scoring,
+  raccomandazioni o stringhe localizzate.
+- Gate completo con coverage e security superato: `821 passed`, `613 warnings`
+  note e `10 subtests`; coverage runtime `84%`, smoke backend/QML superati e
+  `pip-audit` senza vulnerabilita' note.
+- La versione sorgente passa a `1.34.2`; la release GitHub e il pacchetto
+  Windows pubblicati restano `1.34.1` fino a un nuovo ciclo esplicito di build
+  e rilascio.
+
 ## NightScope 1.34.1 - 2026-07-21
 
 - Il follow-up di review profonda ha corretto le distanze OpenAQ: i campi
@@ -40,8 +63,8 @@
   lingue, `pip-audit` senza vulnerabilita' note, `qmllint` su `31` file senza
   failure e Bandit invariato a `0 high`.
 - La versione sorgente passa a `1.34.1`; la release GitHub e il pacchetto
-  Windows pubblicati restano `1.33.2` finche' non viene eseguito un nuovo ciclo
-  esplicito di build e rilascio.
+  Windows `1.34.1` sono stati pubblicati successivamente dal commit sorgente
+  `4193e11`.
 
 ## NightScope 1.34.0 - 2026-07-21
 

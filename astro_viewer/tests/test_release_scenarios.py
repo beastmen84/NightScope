@@ -585,6 +585,14 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("spunta tutte le autorizzazioni richieste da LAADS OPeNDAP", qml)
         self.assertIn("scorri fino alla sezione API Keys", qml)
         self.assertIn("Layout.preferredWidth: 160", qml)
+        self.assertIn(
+            "enabled: controller.earthdataCredentialsConfigured && !controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified",
+            qml,
+        )
+        self.assertIn(
+            "enabled: controller.earthdataAuthorizationRequired && !controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified",
+            qml,
+        )
         self.assertIn("Layout.preferredWidth: 24", setup_step_qml)
         self.assertIn("Layout.preferredHeight: 24", setup_step_qml)
         self.assertIn("wrapMode: Text.WordWrap", setup_step_qml)
