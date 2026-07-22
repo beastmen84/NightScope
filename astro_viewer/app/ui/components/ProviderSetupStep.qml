@@ -6,7 +6,11 @@ RowLayout {
 
     property int stepNumber: 1
     property string description: ""
-    property color accentColor: "#65d6e8"
+    property color accentColor: theme.cyan
+
+    AppTheme {
+        id: theme
+    }
 
     Layout.fillWidth: true
     Layout.minimumWidth: 0
@@ -17,7 +21,7 @@ RowLayout {
         Layout.preferredHeight: 24
         Layout.alignment: Qt.AlignTop
         radius: 12
-        color: "#20242b"
+        color: theme.surfaceRaised
         border.color: root.accentColor
         border.width: 1
 
@@ -34,7 +38,7 @@ RowLayout {
         Layout.fillWidth: true
         Layout.minimumWidth: 0
         text: root.description
-        color: "#aeb7c4"
+        color: theme.textSecondary
         font.pixelSize: 13
         wrapMode: Text.WordWrap
         lineHeight: 1.15

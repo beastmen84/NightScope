@@ -6,7 +6,7 @@ Rectangle {
 
     property var itemData: ({})
     property string assetBaseUrl: ""
-    property color accentColor: "#8bd17c"
+    property color accentColor: theme.green
 
     signal openRequested(string objectId)
 
@@ -43,8 +43,8 @@ Rectangle {
     Layout.fillWidth: true
     implicitHeight: Math.max(108, stepLayout.implicitHeight + 18)
     radius: 8
-    color: mouseArea.containsMouse ? "#20242b" : "transparent"
-    border.color: mouseArea.containsMouse ? theme.border : "#29313b"
+    color: mouseArea.containsMouse ? theme.surfaceRaised : "transparent"
+    border.color: mouseArea.containsMouse ? theme.border : theme.borderSubtle
     border.width: 1
 
     RowLayout {
@@ -58,8 +58,8 @@ Rectangle {
             Layout.preferredHeight: 34
             Layout.alignment: Qt.AlignTop
             radius: 8
-            color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.14)
-            border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.5)
+            color: theme.withAlpha(root.accentColor, 0.14)
+            border.color: theme.withAlpha(root.accentColor, 0.5)
             border.width: 1
 
             Text {
@@ -72,18 +72,19 @@ Rectangle {
         }
 
         Rectangle {
-            Layout.preferredWidth: 52
+            visible: !theme.redNightVision
+            Layout.preferredWidth: visible ? 52 : 0
             Layout.preferredHeight: 52
             Layout.alignment: Qt.AlignVCenter
             radius: 8
-            color: "#111319"
+            color: theme.imageWell
             border.color: theme.border
             border.width: 1
 
             Image {
                 anchors.fill: parent
                 anchors.margins: 7
-                source: root.imageSource()
+                source: theme.redNightVision ? "" : root.imageSource()
                 fillMode: Image.PreserveAspectFit
                 sourceSize.width: 92
                 sourceSize.height: 92

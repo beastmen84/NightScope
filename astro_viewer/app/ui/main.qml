@@ -53,12 +53,15 @@ ApplicationWindow {
         color: theme.background
 
         Canvas {
+            id: starField
             anchors.fill: parent
-            opacity: 0.32
+            opacity: theme.redNightVision ? 0.16 : 0.32
+            property bool redNightVision: theme.redNightVision
+            onRedNightVisionChanged: requestPaint()
             onPaint: {
                 var ctx = getContext("2d")
                 ctx.clearRect(0, 0, width, height)
-                ctx.fillStyle = "#f4f7fb"
+                ctx.fillStyle = theme.textPrimary
                 for (var i = 0; i < 120; i++) {
                     var x = (i * 97) % width
                     var y = (i * 53) % height
@@ -78,8 +81,8 @@ ApplicationWindow {
         Rectangle {
             Layout.preferredWidth: 266
             Layout.fillHeight: true
-            color: "#12151a"
-            border.color: "#252b34"
+            color: theme.sidebar
+            border.color: theme.sidebarBorder
             border.width: 1
 
             ColumnLayout {
@@ -95,11 +98,11 @@ ApplicationWindow {
                         Layout.preferredWidth: 42
                         Layout.preferredHeight: 42
                         radius: 8
-                        color: "#20242b"
+                        color: theme.surfaceRaised
                         border.color: theme.cyan
                         border.width: 1
 
-                        Image {
+                        NightVisionIcon {
                             anchors.centerIn: parent
                             width: 26
                             height: 26
@@ -314,8 +317,8 @@ ApplicationWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     radius: 8
-                    color: "#171a20"
-                    border.color: "#303641"
+                    color: theme.surface
+                    border.color: theme.border
                     border.width: 1
                     implicitHeight: 112
 
@@ -363,6 +366,85 @@ ApplicationWindow {
                             wrapMode: Text.WordWrap
                             maximumLineCount: 2
                             elide: Text.ElideRight
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    implicitHeight: 40
+                    radius: 8
+                    color: theme.surface
+                    border.color: theme.border
+                    border.width: 1
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 3
+                        spacing: 3
+
+                        Button {
+                            id: normalModeButton
+                            objectName: "normalModeButton"
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            text: qsTr("Normale")
+                            Accessible.name: qsTr("Normale")
+                            Accessible.role: Accessible.RadioButton
+                            Accessible.checked: !theme.redNightVision
+                            onClicked: appearanceManager.setRedNightVisionEnabled(false)
+
+                            contentItem: Text {
+                                text: parent.text
+                                color: theme.redNightVision ? theme.textSecondary : theme.textPrimary
+                                font.pixelSize: 11
+                                font.weight: theme.redNightVision ? Font.Normal : Font.DemiBold
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                elide: Text.ElideRight
+                            }
+
+                            background: Rectangle {
+                                radius: 6
+                                color: !theme.redNightVision
+                                       ? theme.navSelected
+                                       : parent.hovered ? theme.navHover : "transparent"
+                                border.color: !theme.redNightVision
+                                              ? theme.navSelectedBorder : "transparent"
+                                border.width: 1
+                            }
+                        }
+
+                        Button {
+                            id: redNightVisionButton
+                            objectName: "redNightVisionButton"
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            text: qsTr("Visione rossa")
+                            Accessible.name: qsTr("Visione rossa")
+                            Accessible.role: Accessible.RadioButton
+                            Accessible.checked: theme.redNightVision
+                            onClicked: appearanceManager.setRedNightVisionEnabled(true)
+
+                            contentItem: Text {
+                                text: parent.text
+                                color: theme.redNightVision ? theme.textPrimary : theme.textSecondary
+                                font.pixelSize: 11
+                                font.weight: theme.redNightVision ? Font.DemiBold : Font.Normal
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                elide: Text.ElideRight
+                            }
+
+                            background: Rectangle {
+                                radius: 6
+                                color: theme.redNightVision
+                                       ? theme.navSelected
+                                       : parent.hovered ? theme.navHover : "transparent"
+                                border.color: theme.redNightVision
+                                              ? theme.navSelectedBorder : "transparent"
+                                border.width: 1
+                            }
                         }
                     }
                 }

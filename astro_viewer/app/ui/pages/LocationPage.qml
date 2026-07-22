@@ -156,7 +156,7 @@ Item {
                                 elide: Text.ElideRight
                             }
 
-                            CheckBox {
+                            DarkCheckBox {
                                 Layout.fillWidth: true
                                 text: qsTr("Rileva automaticamente")
                                 checked: controller.autoDetectLocationOnStartup
@@ -177,7 +177,7 @@ Item {
                                 elide: Text.ElideRight
                             }
 
-                            CheckBox {
+                            DarkCheckBox {
                                 Layout.fillWidth: true
                                 text: qsTr("Posizione di sistema")
                                 enabled: platformCapabilities.systemLocationSupported && controller.autoDetectLocationOnStartup && (controller.allowApproximateOnlineLocation || !controller.useSystemLocationOnStartup)
@@ -200,7 +200,7 @@ Item {
                                 elide: Text.ElideRight
                             }
 
-                            CheckBox {
+                            DarkCheckBox {
                                 Layout.fillWidth: true
                                 text: qsTr("Fallback online")
                                 enabled: controller.autoDetectLocationOnStartup && (controller.useSystemLocationOnStartup || !controller.allowApproximateOnlineLocation)
@@ -233,7 +233,7 @@ Item {
                     accentColor: theme.amber
                     contentFillsHeight: true
 
-                    TextField {
+                    DarkTextField {
                         id: locationSearch
                         Layout.fillWidth: true
                         placeholderText: qsTr("Cerca città, osservatorio o codice MPC")
@@ -244,8 +244,8 @@ Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         radius: 8
-                        color: "#15181e"
-                        border.color: "#303641"
+                        color: theme.surfaceLow
+                        border.color: theme.border
                         border.width: 1
                         clip: true
 
@@ -284,8 +284,8 @@ Item {
                                 width: ListView.view.width
                                 height: 52
                                 radius: 8
-                                color: cityMouse.containsMouse ? "#20242b" : "transparent"
-                                border.color: cityMouse.containsMouse ? "#303641" : "transparent"
+                                color: cityMouse.containsMouse ? theme.surfaceRaised : "transparent"
+                                border.color: cityMouse.containsMouse ? theme.border : "transparent"
                                 border.width: 1
 
                                 RowLayout {
@@ -365,7 +365,7 @@ Item {
                         Layout.fillWidth: true
                         visible: controller.canUseApproximateOnlineLocation
                         radius: 8
-                        color: "#20242b"
+                        color: theme.surfaceRaised
                         border.color: theme.amber
                         border.width: 1
                         implicitHeight: fallbackLayout.implicitHeight + 20
@@ -453,8 +453,9 @@ Item {
                             Layout.fillWidth: true
                             implicitHeight: 42
                             radius: 8
-                            color: recentMouse.containsMouse ? "#20242b" : "#15181e"
-                            border.color: recentMouse.containsMouse ? "#303641" : "transparent"
+                            color: recentMouse.containsMouse
+                                   ? theme.surfaceRaised : theme.surfaceLow
+                            border.color: recentMouse.containsMouse ? theme.border : "transparent"
                             border.width: 1
 
                             RowLayout {
@@ -511,7 +512,7 @@ Item {
                     subtitle: qsTr("Inserimento diretto")
                     accentColor: theme.teal
 
-                    TextField {
+                    DarkTextField {
                         id: manualLabel
                         Layout.fillWidth: true
                         placeholderText: qsTr("Nome luogo (facoltativo)")
@@ -523,14 +524,14 @@ Item {
                         columnSpacing: 10
                         rowSpacing: 8
 
-                        TextField {
+                        DarkTextField {
                             id: manualLatitude
                             Layout.fillWidth: true
                             placeholderText: qsTr("Latitudine *")
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                         }
 
-                        TextField {
+                        DarkTextField {
                             id: manualLongitude
                             Layout.fillWidth: true
                             placeholderText: qsTr("Longitudine *")

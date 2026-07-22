@@ -32,23 +32,23 @@ Button {
         radius: 8
         color: {
             if (!root.enabled)
-                return "#191d23"
+                return theme.surfaceDisabledHover
             if (root.checked)
                 return root.danger ? theme.red : root.accentColor
             if (root.down)
-                return "#2a313b"
+                return theme.surfacePressed
             if (root.hovered)
-                return "#252b34"
-            return "#20242b"
+                return theme.surfaceHover
+            return theme.surfaceRaised
         }
         border.color: {
             if (!root.enabled)
-                return "#262c35"
+                return theme.surfaceDestructiveHover
             if (root.checked)
                 return root.danger ? theme.red : root.accentColor
             if (root.danger)
-                return Qt.rgba(theme.red.r, theme.red.g, theme.red.b, 0.58)
-            return "#303641"
+                return theme.withAlpha(theme.red, 0.58)
+            return theme.border
         }
         border.width: 1
     }

@@ -174,8 +174,8 @@ Item {
         Layout.fillWidth: true
         implicitHeight: 116
         radius: 8
-        color: "#20242b"
-        border.color: "#303641"
+                        color: theme.surfaceRaised
+                        border.color: theme.border
         border.width: 1
 
         ColumnLayout {

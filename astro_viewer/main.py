@@ -141,6 +141,12 @@ def _build_translation_manager():
     )
 
 
+def _build_appearance_manager():
+    from astro_viewer.app.services.appearance_manager import AppearanceManager
+
+    return AppearanceManager(preferences_path=RUNTIME_DIR / "user_preferences.json")
+
+
 def _database_initialization_required() -> bool:
     from astro_viewer.app.database.bootstrap import database_initialization_required
 
@@ -308,6 +314,7 @@ def run_app() -> int:
     _configure_application_metadata(app)
     translation_manager = _build_translation_manager()
     translation_manager.install()
+    appearance_manager = _build_appearance_manager()
 
     try:
         initialization_required = _database_initialization_required()
@@ -345,6 +352,7 @@ def run_app() -> int:
     engine.addImportPath(str(BASE_DIR / "app" / "ui"))
     engine.rootContext().setContextProperty("appController", controller)
     engine.rootContext().setContextProperty("translationManager", translation_manager)
+    engine.rootContext().setContextProperty("appearanceManager", appearance_manager)
     engine.rootContext().setContextProperty(
         "platformCapabilities",
         PLATFORM_CAPABILITIES.as_qml_context(),
@@ -357,7 +365,7 @@ def run_app() -> int:
     return app.exec()
 
 
-def run_qml_smoke_test() -> int:
+def run_qml_smoke_test(*, red_night_vision: bool = False) -> int:
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
     try:
         from PySide6.QtCore import QTimer, QUrl
@@ -372,12 +380,16 @@ def run_qml_smoke_test() -> int:
     _configure_application_metadata(app)
     translation_manager = _build_translation_manager()
     translation_manager.install()
+    appearance_manager = _build_appearance_manager()
+    if red_night_vision:
+        appearance_manager.setRedNightVisionEnabled(True)
     controller = _build_controller()
     translation_manager.languageChanged.connect(controller.retranslatePresentation)
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(BASE_DIR / "app" / "ui"))
     engine.rootContext().setContextProperty("appController", controller)
     engine.rootContext().setContextProperty("translationManager", translation_manager)
+    engine.rootContext().setContextProperty("appearanceManager", appearance_manager)
     engine.rootContext().setContextProperty(
         "platformCapabilities",
         PLATFORM_CAPABILITIES.as_qml_context(),
@@ -388,7 +400,8 @@ def run_qml_smoke_test() -> int:
         return 1
     QTimer.singleShot(0, app.quit)
     app.exec()
-    print("QML smoke test ok")
+    mode = "red night vision" if red_night_vision else "normal"
+    print(f"QML smoke test ok ({mode})")
     return 0
 
 
@@ -403,6 +416,11 @@ def parse_args() -> argparse.Namespace:
         "--qml-smoke-test",
         action="store_true",
         help="Load the QML scene offscreen and exit.",
+    )
+    parser.add_argument(
+        "--red-night-vision",
+        action="store_true",
+        help="Enable red night vision for the QML smoke test.",
     )
     return parser.parse_args()
 
@@ -424,7 +442,7 @@ def main() -> int:
     try:
         args = parse_args()
         if args.qml_smoke_test:
-            return run_qml_smoke_test()
+            return run_qml_smoke_test(red_night_vision=args.red_night_vision)
         if args.smoke_test:
             return run_smoke_test()
         return run_app()

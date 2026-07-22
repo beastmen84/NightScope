@@ -5,11 +5,15 @@ Rectangle {
     id: root
 
     property string text: ""
-    property color accentColor: "#65d6e8"
+    property color accentColor: theme.cyan
+
+    AppTheme {
+        id: theme
+    }
 
     radius: 8
-    color: Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.14)
-    border.color: Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.45)
+    color: theme.withAlpha(accentColor, 0.14)
+    border.color: theme.withAlpha(accentColor, 0.45)
     border.width: 1
     implicitWidth: label.implicitWidth + 20
     implicitHeight: 30
@@ -25,4 +29,3 @@ Rectangle {
         maximumLineCount: 1
     }
 }
-

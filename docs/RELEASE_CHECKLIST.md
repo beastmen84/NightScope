@@ -22,6 +22,7 @@ source commit or a passing unit suite alone is not a release approval.
 - [ ] Install runtime and developer requirements in a clean virtual environment.
 - [ ] Run `python tools/run_checks.py --security`.
 - [ ] Run all translation extraction, compilation, and catalogue tests.
+- [ ] Run both normal and Red Night Vision QML smoke tests.
 - [ ] Run `qmllint` over all packaged QML files.
 - [ ] Run deep-sky and Solar System asset checks.
 - [ ] Record exact Python, dependency, test, warning, and translation counts.
@@ -47,6 +48,12 @@ Record findings and their resolution status in
   log.
 - [ ] Long names, long event titles, missing optional fields, and empty states.
 - [ ] Sidebar fits without unnecessary scrolling at minimum supported height.
+- [ ] Repeat every application page in Red Night Vision; confirm icons,
+  controls, popups, focus, hover, Canvas drawings and empty states contain no
+  bright white, green, cyan or blue output.
+- [ ] Confirm object photographs, attributions and Home plan thumbnails are
+  absent and not loaded in Red Night Vision.
+- [ ] Record a pixel-channel audit for representative normal and red renders.
 - [ ] Manual opens from the help button in the current language and works at
   desktop/mobile widths.
 

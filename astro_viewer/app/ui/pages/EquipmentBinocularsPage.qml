@@ -170,8 +170,8 @@ Item {
         Layout.fillWidth: true
         implicitHeight: 116
         radius: 8
-        color: "#20242b"
-        border.color: "#303641"
+                        color: theme.surfaceRaised
+                        border.color: theme.border
         border.width: 1
 
         ColumnLayout {
@@ -252,7 +252,7 @@ Item {
             DarkTextField { id: binocularModel; Layout.fillWidth: true; labelText: qsTr("Modello *") }
             DarkTextField { id: binocularMagnification; Layout.fillWidth: true; labelText: qsTr("Ingrandimento (x) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkTextField { id: binocularObjective; Layout.fillWidth: true; labelText: qsTr("Diametro obiettivo (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            CheckBox { id: binocularStabilized; Layout.fillWidth: true; text: qsTr("Stabilizzato") }
+            DarkCheckBox { id: binocularStabilized; Layout.fillWidth: true; text: qsTr("Stabilizzato") }
         }
 
         Text {

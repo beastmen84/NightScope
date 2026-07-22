@@ -8,7 +8,7 @@ Rectangle {
     property string title: ""
     property string subtitle: ""
     property bool subtitleWrap: false
-    property color accentColor: "#65d6e8"
+    property color accentColor: theme.cyan
     property string headerBadgeText: ""
     property color headerBadgeColor: accentColor
     property string headerActionText: ""
@@ -22,8 +22,12 @@ Rectangle {
 
     signal headerActionClicked()
 
-    color: "#171a20"
-    border.color: "#303641"
+    AppTheme {
+        id: theme
+    }
+
+    color: theme.surface
+    border.color: theme.border
     border.width: 1
     radius: 8
     implicitHeight: cardLayout.implicitHeight + 32
@@ -55,7 +59,7 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.minimumWidth: 0
                     text: root.title
-                    color: "#f4f7fb"
+            color: theme.textPrimary
                     font.pixelSize: 18
                     font.weight: Font.DemiBold
                     elide: Text.ElideRight
@@ -66,7 +70,7 @@ Rectangle {
                     Layout.minimumWidth: 0
                     visible: root.subtitle.length > 0
                     text: root.subtitle
-                    color: "#aeb7c4"
+            color: theme.textSecondary
                     font.pixelSize: 12
                     wrapMode: root.subtitleWrap ? Text.WordWrap : Text.NoWrap
                     elide: Text.ElideRight

@@ -4,7 +4,7 @@ Aggiornato: 2026-07-22
 
 ## Stato Versioni
 
-- Versione sorgente: `1.36.0`
+- Versione sorgente: `1.37.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica: `v1.34.2`, tag sul commit sorgente
   `5f1cf9a83047bc005e57defb157a572b7ee5ef70`.
@@ -21,6 +21,36 @@ La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`, ora release pubblica. La review
 editoriale italiana e inglese descritta sotto appartiene al sorgente `1.34.3`.
+
+## Red Night Vision 1.37.0
+
+La barra laterale termina con un selettore persistente `Normale` / `Visione
+rossa`, collocato sotto la card `Stasera`. `AppearanceManager` conserva
+`red_night_vision_enabled` in `user_preferences.json` senza passare da
+`AppController`; il cambio e' esclusivamente visuale e non ricalcola dati.
+
+Tutti i colori QML sono ora token di `AppTheme`. La palette rossa copre pagine,
+componenti, hover/focus, Canvas, bussola, fase lunare e icone SVG, colorate da
+`NightVisionIcon` con `QtQuick.Effects`. Le fotografie di dettaglio, i crediti
+associati e le miniature del piano Home non vengono caricati e lasciano il
+layout in modalita' rossa. Il manuale e' intenzionalmente escluso da questo
+passaggio. `DarkCheckBox` e i campi `DarkTextField` impediscono ai controlli Qt
+nativi di introdurre indicatori grigi nei form aperti durante l'uso notturno.
+
+La matrice offscreen delle 13 viste a `1240 x 820`, incluso un oggetto reale
+nel dettaglio, ha misurato nel tema rosso `G=74`, `B=61` come massimi, zero
+pixel oltre le soglie `G>90` o `B>80` e nessuna sorgente fotografica caricata;
+lo stesso render normale raggiunge `G=247`, `B=255`. Anche il layout minimo
+`1040 x 700` e il selettore spagnolo sono stati verificati. Un render con il
+backend Windows nativo conferma inoltre che le icone SVG restano visibili dopo
+la colorazione `MultiEffect`; il backend Qt `offscreen` non renderizza gli
+shader e non viene quindi usato per validare la visibilita' delle icone. Il
+runner standard include ora uno smoke QML rosso separato. Traduzioni IT/EN/ES:
+`1.693` voci complete ciascuna.
+
+Il gate completo `tools/run_checks.py --security` e' passato in `335,3 s`:
+`865 passed`, `642 warnings` note, `10 subtests`, coverage `84%` su `15.823`
+statement, `qmllint` con exit code zero e nessuna vulnerabilita' nota.
 
 ## Ricerca Localita' GeoNames E MPC 1.36.0
 

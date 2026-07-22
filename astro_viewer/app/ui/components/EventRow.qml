@@ -5,17 +5,21 @@ Rectangle {
     id: root
 
     property var eventData
-    property color accentColor: "#f6c768"
-    property color visibilityAccentColor: "#6ee7b7"
+    property color accentColor: theme.amber
+    property color visibilityAccentColor: theme.teal
     property bool hovered: false
 
     signal clicked()
 
+    AppTheme {
+        id: theme
+    }
+
     Layout.fillWidth: true
     implicitHeight: 124
     radius: 8
-    color: root.hovered ? Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.12) : "#171a20"
-    border.color: root.hovered ? Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.55) : "#303641"
+    color: root.hovered ? theme.withAlpha(root.accentColor, 0.12) : theme.surface
+    border.color: root.hovered ? theme.withAlpha(root.accentColor, 0.55) : theme.border
     border.width: 1
 
     MouseArea {
@@ -36,8 +40,8 @@ Rectangle {
             Layout.preferredWidth: 104
             Layout.preferredHeight: 72
             radius: 8
-            color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.14)
-            border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.45)
+            color: theme.withAlpha(root.accentColor, 0.14)
+            border.color: theme.withAlpha(root.accentColor, 0.45)
 
             ColumnLayout {
                 anchors.fill: parent
@@ -59,7 +63,7 @@ Rectangle {
                 Text {
                     Layout.fillWidth: true
                     text: root.eventData.compactTimingValue || root.eventData.timingValue
-                    color: "#aeb7c4"
+                color: theme.textSecondary
                     font.pixelSize: 11
                     horizontalAlignment: Text.AlignHCenter
                     elide: Text.ElideRight
@@ -75,7 +79,7 @@ Rectangle {
             Text {
                 Layout.fillWidth: true
                 text: root.eventData.title
-                color: "#f4f7fb"
+                color: theme.textPrimary
                 font.pixelSize: 15
                 font.weight: Font.DemiBold
                 elide: Text.ElideRight
@@ -103,7 +107,7 @@ Rectangle {
                 text: root.eventData.observingWindow.length > 0
                       ? root.eventData.observingWindow
                       : root.eventData.visibilityDetail
-                color: "#788391"
+                color: theme.textMuted
                 font.pixelSize: 12
                 elide: Text.ElideRight
                 maximumLineCount: 1

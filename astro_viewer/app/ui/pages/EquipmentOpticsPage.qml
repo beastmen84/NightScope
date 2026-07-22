@@ -170,8 +170,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 radius: 8
-                color: "#171a20"
-                border.color: "#303641"
+                                color: theme.surface
+                                border.color: theme.border
                 border.width: 1
 
                 ColumnLayout {
@@ -263,8 +263,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 radius: 8
-                color: "#171a20"
-                border.color: "#303641"
+                                color: theme.surface
+                                border.color: theme.border
                 border.width: 1
 
                 ColumnLayout {
@@ -359,15 +359,15 @@ Item {
         id: opticRow
         property var itemData
         property bool isBarlow: false
-        property color accent: "#65d6e8"
+                                property color accent: theme.cyan
         signal edit()
         signal deleteRequested()
 
         Layout.fillWidth: true
         implicitHeight: rowContent.implicitHeight + 22
         radius: 8
-        color: "#20242b"
-        border.color: "#303641"
+                                color: theme.surfaceRaised
+                                border.color: theme.border
         border.width: 1
 
         ColumnLayout {

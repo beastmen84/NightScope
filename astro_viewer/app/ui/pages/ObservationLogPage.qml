@@ -193,8 +193,8 @@ Item {
             Layout.rightMargin: 28
             Layout.bottomMargin: 28
             radius: 8
-            color: "#171a20"
-            border.color: "#303641"
+                    color: theme.surface
+                    border.color: theme.border
             border.width: 1
 
             ColumnLayout {
@@ -204,7 +204,7 @@ Item {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 42
-                    color: "#20242b"
+                            color: theme.surfaceRaised
                     radius: 8
 
                     RowLayout {
@@ -240,14 +240,14 @@ Item {
                         required property int index
                         width: observationList.width
                         height: 88
-                        color: index % 2 === 0 ? "#171a20" : "#1a1e25"
+                        color: index % 2 === 0 ? theme.surface : theme.surfaceAlternate
 
                         Rectangle {
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
                             height: 1
-                            color: "#252b34"
+                                color: theme.surfaceHover
                         }
 
                         RowLayout {

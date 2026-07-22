@@ -8,9 +8,13 @@ Item {
     id: root
 
     property var hourly: []
-    property color barColor: "#788391"
-    property color nightBarColor: "#63e6be"
+    property color barColor: theme.textMuted
+    property color nightBarColor: theme.weatherNight
     property int minimumColumnWidth: 44
+
+    AppTheme {
+        id: theme
+    }
 
     implicitHeight: 160
     Layout.fillWidth: true
@@ -67,7 +71,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         text: weatherBarColumn.modelData.cloudCoverLabel
-                        color: weatherBarColumn.nightHour ? root.nightBarColor : "#aeb7c4"
+                    color: weatherBarColumn.nightHour ? root.nightBarColor : theme.textSecondary
                         horizontalAlignment: Text.AlignHCenter
                         font.pixelSize: 11
                         elide: Text.ElideRight
@@ -76,7 +80,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         text: weatherBarColumn.modelData.time
-                        color: weatherBarColumn.nightHour ? root.nightBarColor : "#788391"
+                    color: weatherBarColumn.nightHour ? root.nightBarColor : theme.textMuted
                         horizontalAlignment: Text.AlignHCenter
                         font.pixelSize: 10
                         font.weight: weatherBarColumn.nightHour ? Font.DemiBold : Font.Normal

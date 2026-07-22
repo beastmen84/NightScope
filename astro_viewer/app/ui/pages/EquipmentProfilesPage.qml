@@ -339,8 +339,8 @@ Item {
         width: Math.min(260, Math.max(190, root.width > 900 ? (root.width - 112) / 3 : root.width - 88))
         height: 132
         radius: 8
-        color: "#20242b"
-        border.color: "#303641"
+                            color: theme.surfaceRaised
+                            border.color: theme.border
         border.width: 1
 
         ColumnLayout {
@@ -400,7 +400,7 @@ Item {
         property string title: ""
         property string emptyText: ""
         property var items: []
-        property color accent: "#65d6e8"
+                            property color accent: theme.cyan
 
         Layout.fillWidth: true
         Layout.minimumWidth: 0
@@ -454,14 +454,14 @@ Item {
         id: equipmentRow
         property var itemData
         property string actionText: ""
-        property color accent: "#65d6e8"
+                            property color accent: theme.cyan
         signal action()
 
         Layout.fillWidth: true
         implicitHeight: 64
         radius: 8
-        color: "#20242b"
-        border.color: "#303641"
+                            color: theme.surfaceRaised
+                            border.color: theme.border
         border.width: 1
 
         RowLayout {
@@ -509,8 +509,10 @@ Item {
         width: addEquipmentGrid.cellWidth - 10
         height: 96
         radius: 8
-        color: cardMouse.containsMouse ? "#252b34" : "#20242b"
-        border.color: itemData.assigned ? Qt.rgba(theme.green.r, theme.green.g, theme.green.b, 0.52) : "#303641"
+                                    color: cardMouse.containsMouse
+                                           ? theme.surfaceHover : theme.surfaceRaised
+                                    border.color: itemData.assigned
+                                                  ? theme.withAlpha(theme.green, 0.52) : theme.border
         border.width: 1
 
         ColumnLayout {

@@ -33,7 +33,7 @@ ComboBox {
         }
 
         background: Rectangle {
-            color: parent.highlighted ? "#252b34" : "#171a20"
+            color: parent.highlighted ? theme.surfaceHover : theme.surface
         }
     }
 
@@ -43,6 +43,8 @@ ComboBox {
         width: 10
         height: 6
         contextType: "2d"
+        property bool redNightVision: theme.redNightVision
+        onRedNightVisionChanged: requestPaint()
 
         Connections {
             target: root
@@ -75,8 +77,8 @@ ComboBox {
 
     background: Rectangle {
         radius: 8
-        color: root.enabled ? "#1c222b" : "#171a20"
-        border.color: root.activeFocus ? root.accentColor : "#303641"
+        color: root.enabled ? theme.field : theme.surface
+        border.color: root.activeFocus ? root.accentColor : theme.border
         border.width: 1
 
         Text {
@@ -111,8 +113,8 @@ ComboBox {
 
         background: Rectangle {
             radius: 8
-            color: "#171a20"
-            border.color: "#303641"
+            color: theme.surface
+            border.color: theme.border
             border.width: 1
         }
     }

@@ -516,9 +516,11 @@ class ReleaseScenarioTests(unittest.TestCase):
         plan_step_qml = (
             Path(__file__).resolve().parents[1] / "app" / "ui" / "components" / "HomePlanStepRow.qml"
         ).read_text(encoding="utf-8")
-        image_start = plan_step_qml.index("Layout.preferredWidth: 52")
+        image_start = plan_step_qml.index("visible: !theme.redNightVision")
         text_start = plan_step_qml.index("ColumnLayout {", image_start)
+        self.assertIn("Layout.preferredWidth: visible ? 52 : 0", plan_step_qml[image_start:text_start])
         self.assertIn("Layout.alignment: Qt.AlignVCenter", plan_step_qml[image_start:text_start])
+        self.assertIn('source: theme.redNightVision ? "" : root.imageSource()', plan_step_qml[image_start:text_start])
         self.assertIn("model: root.filteredNightAlternatives()", qml)
         self.assertIn("Finestra", qml)
         self.assertIn("Direzione", qml)

@@ -30,7 +30,8 @@ SpinBox {
         x: root.mirrored ? 0 : parent.width - width
         height: parent.height
         width: 34
-        color: root.up.pressed ? "#2a313b" : root.up.hovered ? "#252b34" : "transparent"
+            color: root.up.pressed ? theme.surfacePressed
+                                   : root.up.hovered ? theme.surfaceHover : "transparent"
 
         Text {
             anchors.centerIn: parent
@@ -45,7 +46,8 @@ SpinBox {
         x: root.mirrored ? parent.width - width : 0
         height: parent.height
         width: 34
-        color: root.down.pressed ? "#2a313b" : root.down.hovered ? "#252b34" : "transparent"
+            color: root.down.pressed ? theme.surfacePressed
+                                     : root.down.hovered ? theme.surfaceHover : "transparent"
 
         Text {
             anchors.centerIn: parent
@@ -58,8 +60,8 @@ SpinBox {
 
     background: Rectangle {
         radius: 8
-        color: root.enabled ? "#1c222b" : "#171a20"
-        border.color: root.activeFocus ? root.accentColor : "#303641"
+        color: root.enabled ? theme.field : theme.surface
+        border.color: root.activeFocus ? root.accentColor : theme.border
         border.width: 1
     }
 }

@@ -1,5 +1,38 @@
 # Changelog
 
+## NightScope 1.37.0 - 2026-07-22
+
+- Aggiunto in fondo alla barra laterale il selettore persistente
+  `Normale` / `Visione rossa`. Il valore predefinito resta `Normale`; il cambio
+  modifica solo la presentazione e non avvia refresh o ricalcoli applicativi.
+- Introdotto `AppearanceManager`, separato da `AppController`, che conserva la
+  preferenza `red_night_vision_enabled` in `user_preferences.json` mantenendo
+  intatte lingua, posizione e altre impostazioni.
+- Centralizzati in `AppTheme` tutti i colori QML. La palette Red Night Vision
+  usa esclusivamente neri e rossi a luminanza controllata per sfondi, testi,
+  bordi, controlli, stati, hover, focus, grafici, bussola e fase lunare.
+- Introdotto `DarkCheckBox` e sostituiti nelle pagine i `CheckBox` e
+  `TextField` con rendering nativo, evitando indicatori chiari non controllati
+  dal tema anche nei form di localita' e attrezzatura.
+- Aggiunto `NightVisionIcon`, basato su `QtQuick.Effects`, per colorare le icone
+  SVG senza duplicare gli asset. `Qt6QuickEffects.dll` e il plugin QML Effects
+  diventano parte obbligatoria dell'audit del bundle.
+- Le fotografie nelle schede oggetto e le miniature del piano Home vengono
+  nascoste, rimosse dal layout e non caricate quando la visione rossa è attiva.
+  Diagrammi e icone funzionali restano disponibili nella palette rossa.
+- Aggiunto uno smoke QML dedicato alla visione rossa. La matrice offscreen di
+  tutte le 13 viste a `1240 x 820`, incluso un dettaglio oggetto reale, non
+  contiene pixel oltre le soglie verde/blu previste: massimi misurati `G=74`,
+  `B=61`, contro `G=247`, `B=255` nel tema normale. Verificato anche il layout
+  minimo `1040 x 700` in spagnolo.
+- Aggiornate e compilate le etichette del selettore per italiano, inglese e
+  spagnolo. Il manuale non viene modificato in questo passaggio.
+- Gate completo con coverage e security superato in `335,3 s`: `865 passed`,
+  `642 warnings` note, `10 subtests`, coverage `84%` su `15.823` statement e
+  nessuna vulnerabilita' nota.
+- La versione sorgente passa a `1.37.0`; la distribuzione non è stata
+  rigenerata e la release GitHub pubblicata resta `1.34.2`.
+
 ## NightScope 1.36.0 - 2026-07-22
 
 - La card `Ricerca città` diventa `Ricerca località` e combina nello stesso

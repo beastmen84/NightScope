@@ -8,7 +8,7 @@ Item {
 
     property var controller
     property var eventData
-    property color accentColor: "#65d6e8"
+    property color accentColor: theme.cyan
     property bool hasEvent: eventData && eventData.title !== undefined && eventData.title !== ""
     readonly property string eventWindow: root.hasEvent
                                                    ? (root.eventData.observingWindow || "").toString().trim()

@@ -35,7 +35,9 @@
     "GeoNames e osservatori MPC offline": "Offline GeoNames and MPC observatories",
     "Cerca città, osservatorio o codice MPC": "Search for a city, observatory, or MPC code",
     "Digita una città, un osservatorio o un codice MPC.": "Enter a city, observatory, or MPC code.",
-    "Nessuna località trovata.": "No locations found."
+    "Nessuna località trovata.": "No locations found.",
+    "Normale": "Normal",
+    "Visione rossa": "Red night vision"
   },
   "contexts": {}
 }

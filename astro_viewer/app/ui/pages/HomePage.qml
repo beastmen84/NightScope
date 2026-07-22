@@ -307,7 +307,7 @@ Item {
                 Layout.rightMargin: 28
                 visible: controller.isLoading || controller.serviceStatus.length > 0
                 radius: 8
-                color: "#1c222b"
+                color: theme.field
                 border.color: controller.startupLocationDetectionRunning
                               ? theme.cyan
                               : (controller.serviceStatus.length > 0 ? theme.coral : theme.cyan)
@@ -393,8 +393,8 @@ Item {
                             Layout.fillWidth: true
                             Layout.preferredHeight: 82
                             radius: 8
-                            color: moonMouse.containsMouse ? "#20242b" : "transparent"
-                            border.color: moonMouse.containsMouse ? "#303641" : "transparent"
+                                color: moonMouse.containsMouse ? theme.surfaceRaised : "transparent"
+                                border.color: moonMouse.containsMouse ? theme.border : "transparent"
                             border.width: 1
 
                             RowLayout {
@@ -406,11 +406,11 @@ Item {
                                     Layout.preferredWidth: 62
                                     Layout.preferredHeight: 62
                                     radius: 8
-                                    color: "#111319"
-                                    border.color: "#303641"
+                                    color: theme.imageWell
+                                    border.color: theme.border
                                     border.width: 1
 
-                                    Image {
+                                    NightVisionIcon {
                                         anchors.centerIn: parent
                                         width: 38
                                         height: 38
@@ -418,9 +418,6 @@ Item {
                                         source: visible
                                                 ? controller.assetBaseUrl + "/resources/icons/moon.svg"
                                                 : ""
-                                        fillMode: Image.PreserveAspectFit
-                                        sourceSize.width: 64
-                                        sourceSize.height: 64
                                     }
 
                                     Text {
@@ -622,8 +619,8 @@ Item {
                             Layout.fillWidth: true
                             Layout.preferredHeight: 54
                             radius: 8
-                            color: Qt.rgba(metricColor.r, metricColor.g, metricColor.b, 0.14)
-                            border.color: Qt.rgba(metricColor.r, metricColor.g, metricColor.b, 0.5)
+                                        color: theme.withAlpha(metricColor, 0.14)
+                                        border.color: theme.withAlpha(metricColor, 0.5)
                             border.width: 1
 
                             ColumnLayout {
@@ -663,8 +660,8 @@ Item {
                             Layout.fillWidth: true
                             Layout.preferredHeight: 54
                             radius: 8
-                            color: Qt.rgba(metricColor.r, metricColor.g, metricColor.b, 0.14)
-                            border.color: Qt.rgba(metricColor.r, metricColor.g, metricColor.b, 0.5)
+                                        color: theme.withAlpha(metricColor, 0.14)
+                                        border.color: theme.withAlpha(metricColor, 0.5)
                             border.width: 1
 
                             ColumnLayout {
@@ -704,8 +701,8 @@ Item {
                             Layout.fillWidth: true
                             Layout.preferredHeight: 54
                             radius: 8
-                            color: Qt.rgba(metricColor.r, metricColor.g, metricColor.b, 0.14)
-                            border.color: Qt.rgba(metricColor.r, metricColor.g, metricColor.b, 0.5)
+                                        color: theme.withAlpha(metricColor, 0.14)
+                                        border.color: theme.withAlpha(metricColor, 0.5)
                             border.width: 1
 
                             ColumnLayout {
@@ -750,8 +747,8 @@ Item {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 132
                                 radius: 8
-                                color: "#1c222b"
-                                border.color: "#303641"
+                                    color: theme.field
+                                    border.color: theme.border
                                 border.width: 1
 
                                 ColumnLayout {
@@ -769,11 +766,10 @@ Item {
                                         Layout.fillWidth: true
                                         spacing: 3
 
-                                        Image {
+                                        NightVisionIcon {
                                             Layout.preferredWidth: 14
                                             Layout.preferredHeight: 14
                                             source: controller.assetBaseUrl + "/resources/icons/cloud.svg"
-                                            fillMode: Image.PreserveAspectFit
                                         }
 
                                         Text {
@@ -790,11 +786,10 @@ Item {
                                         Layout.fillWidth: true
                                         spacing: 3
 
-                                        Image {
+                                        NightVisionIcon {
                                             Layout.preferredWidth: 14
                                             Layout.preferredHeight: 14
                                             source: controller.assetBaseUrl + "/resources/icons/wind.svg"
-                                            fillMode: Image.PreserveAspectFit
                                         }
 
                                         Text {
@@ -811,11 +806,10 @@ Item {
                                         Layout.fillWidth: true
                                         spacing: 3
 
-                                        Image {
+                                        NightVisionIcon {
                                             Layout.preferredWidth: 14
                                             Layout.preferredHeight: 14
                                             source: controller.assetBaseUrl + "/resources/icons/rain.svg"
-                                            fillMode: Image.PreserveAspectFit
                                         }
 
                                         Text {
@@ -910,8 +904,8 @@ Item {
                                 Layout.preferredHeight: 168
                                 Layout.alignment: Qt.AlignVCenter
                                 radius: 84
-                                color: "#111820"
-                                border.color: "#26404a"
+                                color: theme.compassSurface
+                                border.color: theme.compassBorder
                                 border.width: 1
 
                                 Canvas {
@@ -921,8 +915,10 @@ Item {
                                     antialiasing: true
 
                                     property real selectedDegrees: root.skyCompassRotation(skyCompassCard.compassData.directionCode || "")
+                                    property bool redNightVision: theme.redNightVision
 
                                     onSelectedDegreesChanged: requestPaint()
+                                    onRedNightVisionChanged: requestPaint()
                                     onWidthChanged: requestPaint()
                                     onHeightChanged: requestPaint()
 
@@ -940,20 +936,20 @@ Item {
 
                                         ctx.clearRect(0, 0, width, height)
                                         ctx.lineWidth = 2
-                                        ctx.strokeStyle = "#243746"
+                                        ctx.strokeStyle = theme.compassOuter
                                         ctx.beginPath()
                                         ctx.arc(cx, cy, outerRadius, 0, Math.PI * 2, false)
                                         ctx.stroke()
 
-                                        ctx.strokeStyle = "#1f5861"
+                                        ctx.strokeStyle = theme.compassMiddle
                                         ctx.globalAlpha = 0.72
                                         ctx.beginPath()
                                         ctx.arc(cx, cy, midRadius, 0, Math.PI * 2, false)
                                         ctx.stroke()
                                         ctx.globalAlpha = 1
 
-                                        ctx.fillStyle = "rgba(67, 226, 181, 0.26)"
-                                        ctx.strokeStyle = "rgba(67, 226, 181, 0.82)"
+                                        ctx.fillStyle = theme.withAlpha(theme.teal, 0.26)
+                                        ctx.strokeStyle = theme.withAlpha(theme.teal, 0.82)
                                         ctx.lineWidth = 2
                                         ctx.beginPath()
                                         ctx.arc(cx, cy, outerRadius - 8, startAngle, endAngle, false)
@@ -963,7 +959,7 @@ Item {
                                         ctx.fill()
                                         ctx.stroke()
 
-                                        ctx.strokeStyle = "#2b6570"
+                                        ctx.strokeStyle = theme.compassTick
                                         ctx.lineWidth = 2
                                         for (var tick = 0; tick < 8; tick++) {
                                             var angle = (tick * 45 - 90) * Math.PI / 180
@@ -978,7 +974,7 @@ Item {
                                         ctx.save()
                                         ctx.translate(cx, cy)
                                         ctx.rotate(centerAngle + Math.PI / 2)
-                                        ctx.fillStyle = "rgba(67, 226, 181, 0.9)"
+                                        ctx.fillStyle = theme.withAlpha(theme.teal, 0.9)
                                         ctx.beginPath()
                                         ctx.moveTo(0, -31)
                                         ctx.lineTo(17, 17)
@@ -1129,8 +1125,8 @@ Item {
                                     Layout.preferredHeight: 26
                                     Layout.alignment: Qt.AlignTop
                                     radius: 13
-                                    color: Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.13)
-                                    border.color: Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.34)
+                                    color: theme.withAlpha(theme.teal, 0.13)
+                                    border.color: theme.withAlpha(theme.teal, 0.34)
                                     border.width: 1
 
                                     Rectangle {
@@ -1190,8 +1186,10 @@ Item {
                                     antialiasing: true
 
                                     property string iconKind: root.skyCompassTypeIconKind(modelData.typeCode)
+                                    property bool redNightVision: theme.redNightVision
 
                                     onIconKindChanged: requestPaint()
+                                    onRedNightVisionChanged: requestPaint()
                                     onWidthChanged: requestPaint()
                                     onHeightChanged: requestPaint()
 
@@ -1201,8 +1199,8 @@ Item {
                                         var cy = height / 2
                                         ctx.clearRect(0, 0, width, height)
                                         ctx.lineWidth = 2
-                                        ctx.strokeStyle = "rgba(67, 226, 181, 0.88)"
-                                        ctx.fillStyle = "rgba(67, 226, 181, 0.16)"
+                                        ctx.strokeStyle = theme.withAlpha(theme.teal, 0.88)
+                                        ctx.fillStyle = theme.withAlpha(theme.teal, 0.16)
 
                                         if (iconKind === "planet") {
                                             ctx.beginPath()
@@ -1375,11 +1373,11 @@ Item {
                             Layout.fillWidth: true
                             visible: root.nightPlanOverview.showWindow
                             radius: 8
-                            color: "#151a20"
-                            border.color: Qt.rgba(root.planAccent(root.nightPlanOverview.state || "unavailable").r,
-                                                  root.planAccent(root.nightPlanOverview.state || "unavailable").g,
-                                                  root.planAccent(root.nightPlanOverview.state || "unavailable").b,
-                                                  0.42)
+                            color: theme.surfaceDeep
+                            border.color: theme.withAlpha(
+                                              root.planAccent(
+                                                  root.nightPlanOverview.state || "unavailable"),
+                                              0.42)
                             border.width: 1
                             implicitHeight: windowLayout.implicitHeight + 18
 
@@ -1476,8 +1474,10 @@ Item {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 34
                                 radius: 8
-                                color: root.targetFilter === modelData.key ? Qt.rgba(theme.cyan.r, theme.cyan.g, theme.cyan.b, 0.16) : "#151a20"
-                                border.color: root.targetFilter === modelData.key ? Qt.rgba(theme.cyan.r, theme.cyan.g, theme.cyan.b, 0.55) : theme.border
+                            color: root.targetFilter === modelData.key
+                                   ? theme.withAlpha(theme.cyan, 0.16) : theme.surfaceDeep
+                            border.color: root.targetFilter === modelData.key
+                                          ? theme.withAlpha(theme.cyan, 0.55) : theme.border
                                 border.width: 1
 
                                 Text {
@@ -1608,8 +1608,9 @@ Item {
                             Layout.fillWidth: true
                             Layout.preferredHeight: 108
                             radius: 8
-                            color: hovered ? "#1b222a" : "#151a20"
-                            border.color: hovered ? root.eventAccent(modelData.typeCode) : "#29313b"
+                        color: hovered ? theme.surfaceDeepHover : theme.surfaceDeep
+                        border.color: hovered
+                                      ? root.eventAccent(modelData.typeCode) : theme.borderSubtle
                             border.width: 1
 
                             MouseArea {

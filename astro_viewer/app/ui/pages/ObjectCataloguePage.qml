@@ -219,7 +219,7 @@ Item {
                             Layout.fillWidth: true
                             spacing: 8
 
-                            CheckBox {
+                            DarkCheckBox {
                                 id: visibleThisMonthFilter
                                 Layout.fillWidth: true
                                 text: qsTr("Visibili nel mese")
@@ -277,8 +277,8 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
                     radius: 6
-                    color: "#20242b"
-                    border.color: "#303641"
+                    color: theme.surfaceRaised
+                    border.color: theme.border
                     border.width: 1
 
                     RowLayout {
@@ -313,8 +313,8 @@ Item {
                             Layout.fillWidth: true
                             implicitHeight: 46
                             radius: 6
-                            color: hovered ? "#252b34" : "#171a20"
-                            border.color: hovered ? theme.cyan : "#303641"
+                            color: hovered ? theme.surfaceHover : theme.surface
+                            border.color: hovered ? theme.cyan : theme.border
                             border.width: 1
 
                             RowLayout {

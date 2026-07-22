@@ -13,11 +13,12 @@ setup?**
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
 > validated; its Italian/English source visual review and source licensing are
-> complete. Source version 1.36.0 includes the reviewed Spanish localization,
+> complete. Source version 1.37.0 includes the reviewed Spanish localization,
 > the provider/runtime and Earthdata authorization fixes released in 1.34.2,
 > the subsequent Italian and English editorial review, and the first
 > platform-capability boundary for native Linux support, plus unified offline
-> search for GeoNames cities and MPC observatories. System location now
+> search for GeoNames cities and MPC observatories, plus a persistent Red Night
+> Vision interface mode. System location now
 > uses the existing providers on Windows and GeoClue 2 on Linux; the Windows
 > provider order and fallback behavior remain unchanged.
 > The published Windows bundle passes automated legal,
@@ -49,6 +50,8 @@ SHA-256 digest of the portable ZIP.
   scientific images.
 - Switches the application and its content between Italian, English, and
   Spanish at runtime.
+- Provides a persistent low-luminance red interface for use at the telescope;
+  astronomical photographs and plan thumbnails are suppressed in this mode.
 
 NightScope is a decision-support tool, not a planetarium, telescope-control
 system, or substitute for an astronomical atlas.

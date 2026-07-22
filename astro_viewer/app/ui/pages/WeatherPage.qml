@@ -116,7 +116,7 @@ Item {
                 Layout.rightMargin: 28
                 visible: controller.isLoading || controller.weatherRefreshRunning || controller.weatherStatus.length > 0
                 radius: 8
-                color: "#1c222b"
+                    color: theme.field
                 border.color: controller.weatherRefreshRunning || controller.isLoading ? theme.cyan : theme.coral
                 border.width: 1
                 implicitHeight: weatherStateText.implicitHeight + 22
@@ -391,8 +391,8 @@ Item {
                     Layout.preferredHeight: 86
                     visible: root.displayWeatherHours.length > 0
                     radius: 8
-                    color: "#15181e"
-                    border.color: "#303641"
+                    color: theme.surfaceLow
+                    border.color: theme.border
                     border.width: 1
                     clip: true
 
@@ -419,15 +419,15 @@ Item {
                             property bool selectedHour: weatherHourDelegate.index === root.selectedWeatherHourIndex()
                             property bool nightHour: Boolean(weatherHourDelegate.modelData.isObservingNight)
                             color: selectedHour
-                                   ? Qt.rgba(theme.cyan.r, theme.cyan.g, theme.cyan.b, 0.18)
+                                   ? theme.withAlpha(theme.cyan, 0.18)
                                    : nightHour
-                                     ? Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.08)
-                                   : "#1c222b"
+                                     ? theme.withAlpha(theme.teal, 0.08)
+                                     : theme.field
                             border.color: selectedHour
                                           ? theme.cyan
                                           : nightHour
-                                            ? Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.55)
-                                          : "#303641"
+                                            ? theme.withAlpha(theme.teal, 0.55)
+                                            : theme.border
                             border.width: 1
 
                             ColumnLayout {

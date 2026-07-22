@@ -214,17 +214,17 @@ Item {
         ctx.clearRect(0, 0, width, height)
 
         var glow = ctx.createRadialGradient(centerX, centerY, radius * 0.35, centerX, centerY, radius * 1.45)
-        glow.addColorStop(0, "rgba(202, 224, 244, 0.28)")
-        glow.addColorStop(1, "rgba(202, 224, 244, 0)")
+        glow.addColorStop(0, theme.withAlpha(theme.moonGlow, 0.28))
+        glow.addColorStop(1, theme.withAlpha(theme.moonGlow, 0))
         ctx.fillStyle = glow
         ctx.beginPath()
         ctx.arc(centerX, centerY, radius * 1.45, 0, Math.PI * 2)
         ctx.fill()
 
         var darkDisc = ctx.createRadialGradient(centerX - radius * 0.25, centerY - radius * 0.25, radius * 0.15, centerX, centerY, radius)
-        darkDisc.addColorStop(0, "#1d2430")
-        darkDisc.addColorStop(0.62, "#0b0f16")
-        darkDisc.addColorStop(1, "#05070b")
+        darkDisc.addColorStop(0, theme.moonDarkCenter)
+        darkDisc.addColorStop(0.62, theme.moonDarkMiddle)
+        darkDisc.addColorStop(1, theme.moonDarkEdge)
         ctx.beginPath()
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
         ctx.fillStyle = darkDisc
@@ -237,14 +237,14 @@ Item {
 
         if (angle > 2 && angle < 358) {
             var lightDisc = ctx.createRadialGradient(centerX - radius * 0.35, centerY - radius * 0.45, radius * 0.1, centerX, centerY, radius)
-            lightDisc.addColorStop(0, "#fff7db")
-            lightDisc.addColorStop(0.48, "#d7dce3")
-            lightDisc.addColorStop(1, "#9ba6b4")
+            lightDisc.addColorStop(0, theme.moonLightCenter)
+            lightDisc.addColorStop(0.48, theme.moonLightMiddle)
+            lightDisc.addColorStop(1, theme.moonLightEdge)
             ctx.fillStyle = lightDisc
             ctx.fillRect(centerX - radius, centerY - radius, radius * 2, radius * 2)
 
             ctx.globalAlpha = 0.18
-            ctx.fillStyle = "#75808d"
+            ctx.fillStyle = theme.moonTerminator
             var craters = [
                 [-0.30, -0.22, 0.10],
                 [0.22, -0.18, 0.075],
@@ -260,9 +260,9 @@ Item {
             ctx.globalAlpha = 1
 
             var shadow = ctx.createRadialGradient(centerX + radius * 0.2, centerY - radius * 0.2, radius * 0.08, centerX, centerY, radius)
-            shadow.addColorStop(0, "#151b24")
-            shadow.addColorStop(0.72, "#070a0f")
-            shadow.addColorStop(1, "#020305")
+            shadow.addColorStop(0, theme.moonShadowCenter)
+            shadow.addColorStop(0.72, theme.moonShadowMiddle)
+            shadow.addColorStop(1, theme.moonShadowEdge)
             var shadowOffset
             if (angle <= 180)
                 shadowOffset = -2 * radius * (angle / 180)
@@ -277,7 +277,7 @@ Item {
         ctx.restore()
         ctx.beginPath()
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
-        ctx.strokeStyle = "#46505f"
+        ctx.strokeStyle = theme.moonOutline
         ctx.lineWidth = 1
         ctx.stroke()
     }
@@ -341,18 +341,20 @@ Item {
                     spacing: 14
 
                     Rectangle {
+                        visible: !theme.redNightVision
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 300
+                        Layout.preferredHeight: visible ? 300 : 0
                         radius: 8
-                        color: "#111319"
-                        border.color: "#303641"
+                        color: theme.imageWell
+                        border.color: theme.border
                         border.width: 1
 
                         Image {
                             anchors.fill: parent
                             anchors.margins: 30
                             anchors.bottomMargin: observingImageCredit.visible ? 56 : 30
-                            source: root.hasObject ? root.controller.assetBaseUrl + "/" + root.objectData.image : ""
+                            source: root.hasObject && !theme.redNightVision
+                                    ? root.controller.assetBaseUrl + "/" + root.objectData.image : ""
                             fillMode: Image.PreserveAspectFit
                             sourceSize.width: 520
                             sourceSize.height: 520
@@ -360,7 +362,8 @@ Item {
 
                         Text {
                             id: observingImageCredit
-                            visible: (root.objectData.imageSourceUrl || "").length > 0
+                            visible: !theme.redNightVision
+                                     && (root.objectData.imageSourceUrl || "").length > 0
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
@@ -482,19 +485,22 @@ Item {
                 spacing: 18
 
                 Rectangle {
-                    Layout.preferredWidth: Math.min(420, Math.max(260, root.width * 0.34))
-                    Layout.preferredHeight: 300
+                    visible: !theme.redNightVision
+                    Layout.preferredWidth: visible
+                                           ? Math.min(420, Math.max(260, root.width * 0.34)) : 0
+                    Layout.preferredHeight: visible ? 300 : 0
                     Layout.alignment: Qt.AlignTop
                     radius: 8
-                    color: "#111319"
-                    border.color: "#303641"
+                    color: theme.imageWell
+                    border.color: theme.border
                     border.width: 1
 
                     Image {
                         anchors.fill: parent
                         anchors.margins: 30
                         anchors.bottomMargin: catalogueImageCredit.visible ? 56 : 30
-                        source: root.hasObject ? root.controller.assetBaseUrl + "/" + root.objectData.image : ""
+                        source: root.hasObject && !theme.redNightVision
+                                ? root.controller.assetBaseUrl + "/" + root.objectData.image : ""
                         fillMode: Image.PreserveAspectFit
                         sourceSize.width: 520
                         sourceSize.height: 520
@@ -502,7 +508,8 @@ Item {
 
                     Text {
                         id: catalogueImageCredit
-                        visible: (root.objectData.imageSourceUrl || "").length > 0
+                        visible: !theme.redNightVision
+                                 && (root.objectData.imageSourceUrl || "").length > 0
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
@@ -832,7 +839,9 @@ Item {
                                 Layout.preferredWidth: 44
                                 Layout.preferredHeight: 44
                                 property real phaseAngle: modelData.angle
+                                property bool redNightVision: theme.redNightVision
                                 onPaint: root.drawMoonPhase(getContext("2d"), width, height, phaseAngle)
+                                onRedNightVisionChanged: requestPaint()
                                 Component.onCompleted: requestPaint()
                             }
 
@@ -877,7 +886,7 @@ Item {
                         anchors.rightMargin: parent.width / 16
                         anchors.top: parent.top
                         anchors.topMargin: 2
-                        color: "#303641"
+                        color: theme.border
                     }
 
                     Canvas {
@@ -886,6 +895,7 @@ Item {
                         x: Math.max(0, Math.min(moonCycleIndicator.width - width, moonCycleIndicator.indicatorCenter - width / 2))
                         y: 2
                         property real cycleFraction: moonCycleIndicator.cycleFraction
+                        property bool redNightVision: theme.redNightVision
                         onPaint: {
                             var ctx = getContext("2d")
                             ctx.clearRect(0, 0, width, height)
@@ -898,6 +908,7 @@ Item {
                             ctx.fill()
                         }
                         onCycleFractionChanged: requestPaint()
+                        onRedNightVisionChanged: requestPaint()
                         onXChanged: requestPaint()
                         Component.onCompleted: requestPaint()
                     }

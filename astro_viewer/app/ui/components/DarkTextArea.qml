@@ -22,8 +22,8 @@ TextArea {
 
     background: Rectangle {
         radius: 8
-        color: root.enabled ? "#1c222b" : "#171a20"
-        border.color: root.activeFocus ? theme.cyan : "#303641"
+        color: root.enabled ? theme.field : theme.surface
+        border.color: root.activeFocus ? theme.cyan : theme.border
         border.width: 1
     }
 }

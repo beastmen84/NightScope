@@ -69,6 +69,16 @@ def _checks(*, include_coverage: bool, include_security: bool) -> list[Check]:
                 ("-m", "astro_viewer.main", "--qml-smoke-test"),
                 isolated_runtime=True,
             ),
+            Check(
+                "qml-red-night-vision-smoke-test",
+                (
+                    "-m",
+                    "astro_viewer.main",
+                    "--qml-smoke-test",
+                    "--red-night-vision",
+                ),
+                isolated_runtime=True,
+            ),
         ]
     )
     return checks

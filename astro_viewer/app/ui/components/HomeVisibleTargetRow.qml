@@ -32,7 +32,7 @@ Rectangle {
     implicitHeight: root.compact ? Math.max(82, compactLayout.implicitHeight + 16)
                                  : (root.headerMode ? 34 : 46)
     radius: 8
-    color: mouseArea.containsMouse && !root.headerMode ? "#20242b" : "transparent"
+    color: mouseArea.containsMouse && !root.headerMode ? theme.surfaceRaised : "transparent"
     border.color: mouseArea.containsMouse && !root.headerMode ? theme.border : "transparent"
     border.width: 1
 

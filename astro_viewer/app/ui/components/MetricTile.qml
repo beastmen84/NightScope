@@ -6,11 +6,15 @@ Rectangle {
 
     property string label: ""
     property string value: ""
-    property color accentColor: "#65d6e8"
+    property color accentColor: theme.cyan
+
+    AppTheme {
+        id: theme
+    }
 
     radius: 8
-    color: "#20242b"
-    border.color: "#303641"
+    color: theme.surfaceRaised
+    border.color: theme.border
     border.width: 1
     implicitHeight: 78
     Layout.fillWidth: true
@@ -23,7 +27,7 @@ Rectangle {
         Text {
             Layout.fillWidth: true
             text: root.label
-            color: "#aeb7c4"
+            color: theme.textSecondary
             font.pixelSize: 11
             elide: Text.ElideRight
         }
@@ -31,7 +35,7 @@ Rectangle {
         Text {
             Layout.fillWidth: true
             text: root.value
-            color: "#f4f7fb"
+        color: theme.textPrimary
             font.pixelSize: 18
             font.weight: Font.DemiBold
             elide: Text.ElideRight
@@ -46,4 +50,3 @@ Rectangle {
         }
     }
 }
-

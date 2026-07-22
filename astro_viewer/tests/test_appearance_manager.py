@@ -1,0 +1,156 @@
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+
+from astro_viewer.app.services.appearance_manager import AppearanceManager
+
+
+UI_DIR = Path(__file__).resolve().parents[1] / "app" / "ui"
+
+
+def test_appearance_defaults_to_normal_mode(tmp_path: Path) -> None:
+    manager = AppearanceManager(tmp_path / "user_preferences.json")
+
+    assert manager.redNightVisionEnabled is False
+
+
+def test_appearance_reads_persisted_red_mode(tmp_path: Path) -> None:
+    preferences_path = tmp_path / "user_preferences.json"
+    preferences_path.write_text(
+        json.dumps({"red_night_vision_enabled": True}),
+        encoding="utf-8",
+    )
+
+    manager = AppearanceManager(preferences_path)
+
+    assert manager.redNightVisionEnabled is True
+
+
+def test_appearance_update_preserves_other_preferences(tmp_path: Path) -> None:
+    preferences_path = tmp_path / "user_preferences.json"
+    preferences_path.write_text(
+        json.dumps({"language": "es", "auto_detect_location_on_startup": True}),
+        encoding="utf-8",
+    )
+    manager = AppearanceManager(preferences_path)
+    changes = []
+    manager.redNightVisionEnabledChanged.connect(lambda: changes.append(True))
+
+    assert manager.setRedNightVisionEnabled(True) is True
+
+    payload = json.loads(preferences_path.read_text(encoding="utf-8"))
+    assert payload == {
+        "language": "es",
+        "auto_detect_location_on_startup": True,
+        "red_night_vision_enabled": True,
+    }
+    assert changes == [True]
+
+
+def test_appearance_does_not_emit_when_mode_is_unchanged(tmp_path: Path) -> None:
+    manager = AppearanceManager(tmp_path / "user_preferences.json")
+    changes = []
+    manager.redNightVisionEnabledChanged.connect(lambda: changes.append(True))
+
+    assert manager.setRedNightVisionEnabled(False) is True
+
+    assert changes == []
+    assert not (tmp_path / "user_preferences.json").exists()
+
+
+def test_invalid_preferences_fall_back_to_normal_mode(tmp_path: Path) -> None:
+    preferences_path = tmp_path / "user_preferences.json"
+    preferences_path.write_text("not json", encoding="utf-8")
+
+    manager = AppearanceManager(preferences_path)
+
+    assert manager.redNightVisionEnabled is False
+
+
+def test_non_boolean_red_mode_preference_is_rejected(tmp_path: Path) -> None:
+    preferences_path = tmp_path / "user_preferences.json"
+    preferences_path.write_text(
+        json.dumps({"red_night_vision_enabled": "false"}),
+        encoding="utf-8",
+    )
+
+    manager = AppearanceManager(preferences_path)
+
+    assert manager.redNightVisionEnabled is False
+
+
+def test_qml_colors_outside_the_theme_are_semantic() -> None:
+    literal_color = re.compile(r"#[0-9a-fA-F]{6,8}|rgba\(")
+    offenders = []
+    for path in sorted(UI_DIR.rglob("*.qml")):
+        if path.name == "AppTheme.qml":
+            continue
+        if literal_color.search(path.read_text(encoding="utf-8")):
+            offenders.append(path.relative_to(UI_DIR).as_posix())
+
+    assert offenders == []
+
+
+def test_red_palette_contains_no_bright_green_blue_or_white_tokens() -> None:
+    theme = (UI_DIR / "components" / "AppTheme.qml").read_text(encoding="utf-8")
+    red_colors = re.findall(r'redNightVision \? "#([0-9a-fA-F]{6})"', theme)
+
+    assert len(red_colors) >= 30
+    for value in red_colors:
+        red, green, blue = (int(value[index : index + 2], 16) for index in (0, 2, 4))
+        assert red >= green
+        assert red >= blue
+        assert green <= 90
+        assert blue <= 80
+
+
+def test_red_mode_control_and_photo_suppression_contract() -> None:
+    main_qml = (UI_DIR / "main.qml").read_text(encoding="utf-8")
+    plan_row = (UI_DIR / "components" / "HomePlanStepRow.qml").read_text(
+        encoding="utf-8"
+    )
+    detail = (UI_DIR / "pages" / "ObjectDetailPage.qml").read_text(
+        encoding="utf-8"
+    )
+    icon = (UI_DIR / "components" / "NightVisionIcon.qml").read_text(
+        encoding="utf-8"
+    )
+
+    assert main_qml.index('text: qsTr("Stasera")') < main_qml.index(
+        'text: qsTr("Visione rossa")'
+    )
+    assert "appearanceManager.setRedNightVisionEnabled(false)" in main_qml
+    assert "appearanceManager.setRedNightVisionEnabled(true)" in main_qml
+    assert 'source: theme.redNightVision ? "" : root.imageSource()' in plan_row
+    assert detail.count("root.hasObject && !theme.redNightVision") == 2
+    assert detail.count("visible: !theme.redNightVision") >= 4
+    assert "MultiEffect" in icon
+    assert "layer.enabled: theme.redNightVision" in icon
+    assert "layer.effect: MultiEffect" in icon
+    assert "colorization: 1.0" in icon
+
+
+def test_only_suppressible_photographs_use_plain_qml_images() -> None:
+    plain_images = []
+    for path in sorted(UI_DIR.rglob("*.qml")):
+        count = len(re.findall(r"^\s*Image\s*\{", path.read_text(encoding="utf-8"), re.MULTILINE))
+        plain_images.extend([path.relative_to(UI_DIR).as_posix()] * count)
+
+    assert plain_images == [
+        "components/HomePlanStepRow.qml",
+        "components/NightVisionIcon.qml",
+        "pages/ObjectDetailPage.qml",
+        "pages/ObjectDetailPage.qml",
+    ]
+
+
+def test_pages_do_not_use_native_checkbox_or_text_field_rendering() -> None:
+    native_controls = re.compile(r"^\s*(?:CheckBox|TextField)\s*\{", re.MULTILINE)
+    offenders = []
+    for path in sorted((UI_DIR / "pages").glob("*.qml")):
+        if native_controls.search(path.read_text(encoding="utf-8")):
+            offenders.append(path.relative_to(UI_DIR).as_posix())
+
+    assert offenders == []

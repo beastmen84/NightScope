@@ -126,6 +126,33 @@ emits presentation signals only and does not recompute astronomy, weather,
 equipment, scoring or NSOM. The complete file contract and the code-free process
 for adding another language are documented in [LOCALIZATION.md](LOCALIZATION.md).
 
+## UI Appearance
+
+`AppearanceManager` owns the presentation-only
+`red_night_vision_enabled` preference and exposes it to QML independently from
+`AppController`. Its default is normal mode. Updating it merges the value into
+`user_preferences.json`, preserving language, location and other settings, and
+emits only an appearance signal: astronomy, providers, NSOM and controller read
+models are not recomputed.
+
+Every QML component derives its colors from `AppTheme`. Normal values preserve
+the existing interface, while Red Night Vision maps backgrounds, text, borders,
+semantic accents, Canvas drawings and interaction states to a controlled
+black/red palette. `NightVisionIcon` colorizes functional SVG icons through
+`QtQuick.Effects`. Full-color object photographs and Home plan thumbnails use
+an empty source and leave the layout while red mode is active; functional
+diagrams remain visible and repaint when the mode changes.
+
+Pages use themed controls such as `DarkTextField`, `DarkComboBox`,
+`DarkSpinBox` and `DarkCheckBox` instead of relying on platform-native
+indicators. This keeps modal and disabled states inside the same palette, not
+only the controls visible in the initial page state.
+
+The standard validation runner loads both normal and red QML scenes in isolated
+runtimes. Bundle validation requires Qt Quick Effects in addition to the
+existing Qt Quick modules. External windows and websites remain outside the
+application appearance boundary.
+
 ## NightScope Observation Model
 
 NightScope's scoring and planning direction is defined by

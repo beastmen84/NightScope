@@ -5,11 +5,13 @@ from pathlib import Path
 
 
 REQUIRED_DLLS = {
+    "effectsplugin.dll",
     "qt6core.dll",
     "qt6gui.dll",
     "qt6qml.dll",
     "qt6positioning.dll",
     "qt6quick.dll",
+    "qt6quickeffects.dll",
     "qt6widgets.dll",
 }
 REQUIRED_LEGAL_FILES = {

@@ -649,7 +649,9 @@
     "GeoNames e osservatori MPC offline": "GeoNames y observatorios MPC sin conexión",
     "Cerca città, osservatorio o codice MPC": "Buscar ciudad, observatorio o código MPC",
     "Digita una città, un osservatorio o un codice MPC.": "Introduzca una ciudad, un observatorio o un código MPC.",
-    "Nessuna località trovata.": "No se encontraron ubicaciones."
+    "Nessuna località trovata.": "No se encontraron ubicaciones.",
+    "Normale": "Normal",
+    "Visione rossa": "Visión roja"
   },
   "contexts": {
     "ObjectDetailPage": {

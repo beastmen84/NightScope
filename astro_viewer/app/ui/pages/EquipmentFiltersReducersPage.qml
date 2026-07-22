@@ -201,8 +201,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 radius: 8
-                color: "#171a20"
-                border.color: "#303641"
+                                color: theme.surface
+                                border.color: theme.border
                 border.width: 1
 
                 ColumnLayout {
@@ -291,8 +291,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 radius: 8
-                color: "#171a20"
-                border.color: "#303641"
+                                color: theme.surface
+                                border.color: theme.border
                 border.width: 1
 
                 ColumnLayout {
@@ -388,8 +388,8 @@ Item {
         Layout.fillWidth: true
         implicitHeight: filterContent.implicitHeight + 22
         radius: 8
-        color: "#20242b"
-        border.color: "#303641"
+                                        color: theme.surfaceRaised
+                                        border.color: theme.border
         border.width: 1
 
         ColumnLayout {
@@ -458,8 +458,8 @@ Item {
         Layout.fillWidth: true
         implicitHeight: reducerContent.implicitHeight + 22
         radius: 8
-        color: "#20242b"
-        border.color: "#303641"
+                                        color: theme.surfaceRaised
+                                        border.color: theme.border
         border.width: 1
 
         ColumnLayout {
@@ -599,9 +599,9 @@ Item {
             DarkComboBox { id: reducerSystem; Layout.fillWidth: true; labelText: qsTr("Sistema ottico *"); model: root.opticalSystemLabels }
             DarkTextField { id: reducerConnection; Layout.fillWidth: true; labelText: qsTr("Connessione (facoltativa)") }
             DarkTextField { id: reducerBackfocus; Layout.fillWidth: true; labelText: qsTr("Backfocus (mm, facoltativo)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            CheckBox { id: reducerVisual; Layout.fillWidth: true; text: qsTr("Uso visuale") }
-            CheckBox { id: reducerImaging; Layout.fillWidth: true; text: qsTr("Uso fotografico") }
-            CheckBox { id: reducerCorrected; Layout.columnSpan: 2; Layout.fillWidth: true; text: qsTr("Correzione del campo") }
+            DarkCheckBox { id: reducerVisual; Layout.fillWidth: true; text: qsTr("Uso visuale") }
+            DarkCheckBox { id: reducerImaging; Layout.fillWidth: true; text: qsTr("Uso fotografico") }
+            DarkCheckBox { id: reducerCorrected; Layout.columnSpan: 2; Layout.fillWidth: true; text: qsTr("Correzione del campo") }
             DarkTextField { id: reducerNotes; Layout.columnSpan: 2; Layout.fillWidth: true; labelText: qsTr("Note (facoltative)") }
 
             RowLayout {

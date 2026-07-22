@@ -119,6 +119,7 @@ def test_standard_check_plan_runs_one_test_suite_and_optional_security() -> None
         "pytest",
         "smoke-test",
         "qml-smoke-test",
+        "qml-red-night-vision-smoke-test",
     ]
     assert sum(check.name.startswith("pytest") for check in fast) == 1
     pytest_check = next(check for check in fast if check.name == "pytest")
@@ -135,7 +136,8 @@ def test_standard_check_plan_runs_one_test_suite_and_optional_security() -> None
     assert all(
         check.isolated_runtime
         for check in release
-        if check.name in {"smoke-test", "qml-smoke-test"}
+        if check.name
+        in {"smoke-test", "qml-smoke-test", "qml-red-night-vision-smoke-test"}
     )
 
 
@@ -233,6 +235,16 @@ def test_main_exposes_platform_capabilities_to_both_qml_startup_paths() -> None:
         'setContextProperty(\n        "platformCapabilities",'
     ) == 2
     assert main_source.count("PLATFORM_CAPABILITIES.as_qml_context()") == 2
+
+
+def test_main_exposes_appearance_manager_to_both_qml_startup_paths() -> None:
+    main_source = (PROJECT_ROOT / "astro_viewer" / "main.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert main_source.count(
+        'setContextProperty("appearanceManager", appearance_manager)'
+    ) == 2
 
 
 def test_multilingual_manual_has_complete_navigation_and_current_provider_semantics() -> None:
