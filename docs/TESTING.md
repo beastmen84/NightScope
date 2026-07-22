@@ -95,6 +95,23 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.34.2 Responsive Layout Follow-up
+
+Measured on Windows with Python 3.14.5 on 2026-07-22 after correcting the
+Earthdata credential-grid threshold and the wide ISS event-details layout:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` | Passed in 335.3 s |
+| `pip check`, Ruff, `compileall`, and third-party archive | Passed |
+| `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 821 passed, 613 warnings, 10 subtests passed in 217.12 s |
+| Runtime coverage | 84% across 15,410 statements |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Focused responsive-layout regressions | 3 passed |
+| Backend and QML smoke tests | Passed in disposable runtimes |
+| `qmllint` on the two changed QML files | Passed; known static warnings only |
+| ISS event detail offscreen render | Passed at 1600 x 1100 |
+
 ## Measured 1.34.2 Earthdata Authorization Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-22 after distinguishing

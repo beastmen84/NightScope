@@ -373,6 +373,19 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     Verificare l'allineamento sia in italiano sia in inglese; la vista compatta,
     che non mostra l'header tabellare, deve restare invariata.
 
+- [x] **VIS-037 - Provider dati - campi Earthdata troppo presto su due righe (`RISOLTA`)**
+  - La card portava la password sotto il nome utente gia' sotto `720` px,
+    nonostante due campi utilizzabili potessero ancora stare affiancati.
+  - La soglia interna e' ora `620` px; il fallback a una colonna resta attivo
+    quando lo spazio effettivo della card diventa insufficiente.
+
+- [x] **VIS-038 - Dettaglio ISS - riga Pass details incompleta (`RISOLTA`)**
+  - Nel layout desktop le tre card del corpo erano disposte in una griglia a
+    due colonne; la terza occupava solo la colonna sinistra e lasciava vuota la
+    meta' destra della pagina.
+  - La card dei dettagli estende ora la propria colonna su tutta la griglia
+    larga e torna automaticamente a una sola colonna sotto `1160` px.
+
 ## Decisioni Risolte
 
 - [x] **VIS-007 - Localita' - paese dinamico in italiano (`RISOLTA`)**

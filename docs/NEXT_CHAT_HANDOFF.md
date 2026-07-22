@@ -43,6 +43,18 @@ Validazione del fix: `tools/run_checks.py --security` superato in `250,6 s`;
 `15.410` statement, smoke backend/QML superati e nessuna vulnerabilita' nota.
 Non sono stati rigenerati database o distribuzione Windows.
 
+## Correzioni Layout 1.34.2
+
+La griglia credenziali Earthdata usa ora `620` px, non `720`, come soglia della
+singola card per mantenere affiancati nome utente e password. Nel dettaglio
+evento la card con fatti, sorgente e freschezza usa entrambe le colonne quando
+la pagina supera la soglia larga di `1160` px; sotto tale soglia resta su una
+sola colonna. Il caso ISS e' stato renderizzato offscreen a `1600x1100`: la card
+`Pass details` occupa la riga completa senza overflow o vuoti laterali.
+Il gate completo successivo alle correzioni e' passato in `335,3 s`: `821`
+test superati, `613` warning noti, `10` subtest, coverage runtime `84%`, smoke
+backend/QML superati e nessuna vulnerabilita' nota rilevata da `pip-audit`.
+
 ## Hardening Da Review Profonda
 
 Il passaggio `1.34.1` del 2026-07-21 ha corretto edge case riprodotti su OpenAQ,

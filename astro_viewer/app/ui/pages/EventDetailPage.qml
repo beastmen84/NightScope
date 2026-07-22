@@ -246,6 +246,7 @@ Item {
                              && ((root.eventData.eventFacts || []).length > 0
                                  || (root.eventData.dataSource || "").length > 0)
                     Layout.fillWidth: true
+                    Layout.columnSpan: scroll.availableWidth >= 1160 ? 2 : 1
                     Layout.minimumHeight: 244
                     title: root.hasEvent && root.eventData.typeCode === "satellite_pass"
                            ? qsTr("Dettagli del passaggio")

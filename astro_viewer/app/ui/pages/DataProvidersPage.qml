@@ -109,7 +109,7 @@ Item {
 
                     GridLayout {
                         Layout.fillWidth: true
-                        columns: earthdataCard.width >= 720 ? 2 : 1
+                        columns: earthdataCard.width >= 620 ? 2 : 1
                         columnSpacing: 12
                         rowSpacing: 10
 

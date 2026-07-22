@@ -16,6 +16,12 @@
 - Aggiunte regressioni per il `403` OAuth, il `401` con credenziali errate e il
   `403` generico. Nessuna modifica a schema SQLite, dati provider, scoring,
   raccomandazioni o stringhe localizzate.
+- Abbassata da `720` a `620` px la soglia interna della card Earthdata: nome
+  utente e password restano affiancati finche' dispongono ancora di spazio
+  sufficiente e passano su due righe soltanto nelle card realmente compatte.
+- Nel dettaglio evento, la terza card con fatti e sorgente occupa entrambe le
+  colonne del layout largo. I dettagli dei passaggi ISS non lasciano piu' vuota
+  la meta' destra della riga; il layout a colonna singola resta invariato.
 - Gate completo con coverage e security superato: `821 passed`, `613 warnings`
   note e `10 subtests`; coverage runtime `84%`, smoke backend/QML superati e
   `pip-audit` senza vulnerabilita' note.
