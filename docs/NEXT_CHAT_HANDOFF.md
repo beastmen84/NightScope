@@ -4,7 +4,7 @@ Aggiornato: 2026-07-22
 
 ## Stato Versioni
 
-- Versione sorgente: `1.35.0`
+- Versione sorgente: `1.35.1`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica: `v1.34.2`, tag sul commit sorgente
   `5f1cf9a83047bc005e57defb157a572b7ee5ef70`.
@@ -22,6 +22,32 @@ follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`, ora release pubblica. La review
 editoriale italiana e inglese descritta sotto appartiene al sorgente `1.34.3`.
 
+## Posizione Di Sistema Linux 1.35.1
+
+La posizione automatica usa ora un contratto neutro rispetto alla piattaforma.
+Su Windows `LocationService` conserva gli stessi provider preciso e
+approssimato nello stesso ordine; su Linux seleziona
+`GeoClueLocationProvider`, basato sul plugin Qt Positioning `geoclue2` e sul
+desktop ID `io.github.beastmen84.NightScope`.
+
+GeoClue richiede una singola posizione con timeout, valida coordinate e
+accuratezza e normalizza errori di permesso, servizio, timeout e plugin assente.
+Il risultato riusa reverse lookup citta' e timezonefinder offline. Il percorso
+e' coperto con sorgenti Qt simulate e test indipendenti dall'host; resta da
+eseguire il test D-Bus reale su un desktop Linux con GeoClue installato.
+
+La preferenza canonica e' `use_system_location_on_startup`; il vecchio campo
+Windows viene letto e migrato senza perdere il consenso. La pagina Localita',
+i messaggi, il manuale e i cataloghi IT/EN/ES usano `Posizione di sistema`, con
+testo specifico WinRT o GeoClue in base alle capacita'. `PySide6_Addons`,
+Qt Positioning e `Qt6Positioning.dll` fanno ora parte del contratto dipendenze,
+PyInstaller e licenze. Database, scoring, raccomandazioni e directory runtime
+non sono cambiati; la dist non e' stata rigenerata.
+
+Il gate completo `tools/run_checks.py --security` e' passato in `206,6 s`:
+`841 passed`, `613 warnings` note, `10 subtests`, coverage runtime `84%` su
+`15.615` statement, smoke backend/QML superati e nessuna vulnerabilita' nota.
+
 ## Confine Piattaforma 1.35.0
 
 Il primo step Linux-ready introduce
@@ -30,13 +56,12 @@ del sistema operativo. Il valore immutabile viene costruito una sola volta da
 `sys.platform` e pubblicato come `platformCapabilities` sia nell'avvio normale
 sia nello smoke test QML.
 
-Windows conserva integralmente il comportamento precedente e resta l'unica
-piattaforma che dichiara disponibile la posizione di sistema, attraverso il
-provider gia' esistente. Linux e macOS sono riconosciuti ma riportano provider
-`none`: GeoClue, percorsi XDG, Secret Service e packaging Linux appartengono ai
-passaggi successivi. Non sono stati modificati QML visibile, preferenze,
-directory runtime, database, scoring o raccomandazioni e la distribuzione non
-e' stata rigenerata.
+Nello step `1.35.0`, Windows conservava integralmente il comportamento
+precedente ed era l'unica piattaforma a dichiarare disponibile la posizione di
+sistema. Linux e macOS erano riconosciuti ma riportavano provider `none`:
+GeoClue, percorsi XDG, Secret Service e packaging Linux appartenevano ai
+passaggi successivi. Lo stato corrente di GeoClue e' descritto nella sezione
+`1.35.1` precedente.
 
 Il gate completo `tools/run_checks.py --security` e' passato in `245,7 s`:
 `832 passed`, `613 warnings` note, `10 subtests`, coverage runtime `84%` su

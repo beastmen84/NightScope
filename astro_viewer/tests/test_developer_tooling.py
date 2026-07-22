@@ -286,6 +286,9 @@ def test_multilingual_manual_has_complete_navigation_and_current_provider_semant
     assert "independent of recommendations" in manual
     assert manual.count("LAADS OPeNDAP") >= 3
     assert manual.count("API Keys") >= 3
+    assert "NightScope usa il provider Windows su Windows e GeoClue 2 su Linux" in manual
+    assert "NightScope uses the Windows provider on Windows and GeoClue 2 on Linux" in manual
+    assert "NightScope utiliza el proveedor de Windows en Windows y GeoClue 2 en Linux" in manual
 
 
 def test_manual_language_switch_keeps_all_languages_on_one_row() -> None:
@@ -367,7 +370,13 @@ def test_legal_files_are_current_and_windows_build_enforces_them() -> None:
     assert "THIRD_PARTY_LICENSES.txt" in build_script
     assert "audit_qt_bundle.py" in build_script
     assert "PySide6_Essentials" in requirements
+    assert "PySide6_Addons" in requirements
     assert "PySide6>=" not in requirements
+
+    spec = (PROJECT_ROOT / "packaging" / "NightScope.spec").read_text(
+        encoding="utf-8"
+    )
+    assert '"PySide6.QtPositioning"' in spec
 
 
 def test_qt_bundle_audit_rejects_gpl_only_modules(tmp_path: Path) -> None:

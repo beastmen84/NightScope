@@ -7,12 +7,17 @@ import subprocess
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Callable, Protocol
+from typing import Callable, Protocol, Sequence
 from zoneinfo import ZoneInfo
 
 import requests
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
+from astro_viewer.app.platform_capabilities import (
+    NIGHTSCOPE_DESKTOP_ID,
+    PlatformCapabilities,
+    detect_platform_capabilities,
+)
 from astro_viewer.app.services.coordinate_timezone_service import (
     DEFAULT_COORDINATE_TIMEZONE_RESOLVER,
     CoordinateTimezoneResolver,
@@ -41,6 +46,9 @@ WINDOWS_TO_IANA_TIMEZONES = {
 
 WINDOWS_LOCATION_UNAVAILABLE_MESSAGE = (
     tr("La posizione Windows non è disponibile. Scegli una città o inserisci le coordinate manualmente.")
+)
+SYSTEM_LOCATION_UNAVAILABLE_MESSAGE = (
+    tr("La posizione di sistema non è disponibile. Scegli una città o inserisci le coordinate manualmente.")
 )
 APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE = (
     tr("La posizione approssimata online non è disponibile. Scegli una città o inserisci le coordinate manualmente.")
@@ -75,7 +83,7 @@ class LocationDetectionResult:
 class LocationUnavailableError(RuntimeError):
     """Raised when a provider cannot return a usable location."""
 
-    def __init__(self, message: str = WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, reason: str = "unavailable provider"):
+    def __init__(self, message: str = SYSTEM_LOCATION_UNAVAILABLE_MESSAGE, reason: str = "unavailable provider"):
         super().__init__(message)
         self.reason = reason
 
@@ -199,6 +207,79 @@ class WindowsCoarseLocationProvider(WindowsLocationProvider):
             approximate=True,
             raw_provider_timezone=raw_timezone,
             message=tr("Posizione Windows approssimata acquisita."),
+        )
+
+
+class GeoClueLocationProvider:
+    name = "geoclue2"
+    REQUEST_TIMEOUT_MS = 15_000
+
+    def __init__(
+        self,
+        *,
+        desktop_id: str = NIGHTSCOPE_DESKTOP_ID,
+        source_factory: Callable[[str], object | None] | None = None,
+        position_requester: Callable[[object, int], object] | None = None,
+    ):
+        self._desktop_id = desktop_id
+        self._source_factory = source_factory or _create_geoclue_position_source
+        self._position_requester = position_requester or _request_qt_position
+
+    def detect(self) -> LocationDetectionResult:
+        source = self._source_factory(self._desktop_id)
+        if source is None:
+            raise LocationUnavailableError(
+                SYSTEM_LOCATION_UNAVAILABLE_MESSAGE,
+                "unavailable provider",
+            )
+
+        position = self._position_requester(source, self.REQUEST_TIMEOUT_MS)
+        if not position or not position.isValid():
+            raise LocationUnavailableError(
+                SYSTEM_LOCATION_UNAVAILABLE_MESSAGE,
+                "null coordinates",
+            )
+
+        coordinate = position.coordinate()
+        if not coordinate.isValid():
+            raise LocationUnavailableError(
+                SYSTEM_LOCATION_UNAVAILABLE_MESSAGE,
+                "null coordinates",
+            )
+
+        latitude = _validated_coordinate(
+            coordinate.latitude(),
+            -90.0,
+            90.0,
+            SYSTEM_LOCATION_UNAVAILABLE_MESSAGE,
+        )
+        longitude = _validated_coordinate(
+            coordinate.longitude(),
+            -180.0,
+            180.0,
+            SYSTEM_LOCATION_UNAVAILABLE_MESSAGE,
+        )
+        accuracy_m = _qt_horizontal_accuracy(position)
+        accuracy_label = (
+            tr("{value} m", value=format_number(accuracy_m))
+            if accuracy_m is not None
+            else tr("fornita dal sistema")
+        )
+        timezone_name = system_timezone()
+        return LocationDetectionResult(
+            location=ObserverLocation(
+                city=tr("Posizione di sistema"),
+                country="",
+                latitude=latitude,
+                longitude=longitude,
+                timezone=timezone_name,
+            ),
+            provider=self.name,
+            source="Qt Positioning geoclue2",
+            accuracy=accuracy_label,
+            approximate=False,
+            raw_provider_timezone=timezone_name,
+            message=tr("Posizione di sistema acquisita."),
         )
 
 
@@ -405,9 +486,17 @@ class LocationService:
         city_resolver: CityReverseLookup | None = None,
         timezone_resolver: CoordinateTimezoneResolver | None = None,
         cache_path: Path | None = None,
+        platform_capabilities: PlatformCapabilities | None = None,
+        system_providers: Sequence[LocationProvider] | None = None,
     ):
+        self.platform_capabilities = platform_capabilities or detect_platform_capabilities()
         self.windows_provider = windows_provider or WindowsLocationProvider()
         self.windows_coarse_provider = windows_coarse_provider or WindowsCoarseLocationProvider()
+        self.system_providers = tuple(
+            system_providers
+            if system_providers is not None
+            else self._default_system_providers()
+        )
         self.ip_provider = ip_provider or IpGeolocationProvider(cache_path)
         self.city_provider = city_provider or ManualCityProvider()
         self.coordinates_provider = coordinates_provider or ManualCoordinatesProvider()
@@ -421,7 +510,7 @@ class LocationService:
         self.last_error_reason = ""
 
     def detect_best_location(self, allow_ip: bool = False) -> LocationDetectionResult:
-        providers: list[LocationProvider] = [self.windows_provider, self.windows_coarse_provider]
+        providers = list(self.system_providers)
         if allow_ip:
             providers.append(self.ip_provider)
         errors = []
@@ -435,7 +524,27 @@ class LocationService:
             result = self._normalize_result(result)
             self.last_result = result
             return result
-        raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, "; ".join(errors) or "unavailable provider")
+        raise LocationUnavailableError(
+            SYSTEM_LOCATION_UNAVAILABLE_MESSAGE,
+            "; ".join(errors) or "unavailable provider",
+        )
+
+    def detect_system_location(self) -> LocationDetectionResult:
+        errors = []
+        for provider in self.system_providers:
+            try:
+                result = provider.detect()
+            except LocationUnavailableError as exc:
+                errors.append(f"{provider.name}: {exc.reason}")
+                self.last_error_reason = exc.reason
+                continue
+            result = self._normalize_result(result)
+            self.last_result = result
+            return result
+        raise LocationUnavailableError(
+            SYSTEM_LOCATION_UNAVAILABLE_MESSAGE,
+            "; ".join(errors) or "unavailable provider",
+        )
 
     def detect_windows_location(self) -> LocationDetectionResult:
         for provider in (self.windows_provider, self.windows_coarse_provider):
@@ -487,6 +596,9 @@ class LocationService:
     def from_windows_location(self) -> ObserverLocation:
         return self.detect_windows_location().location
 
+    def from_system_location(self) -> ObserverLocation:
+        return self.detect_system_location().location
+
     def from_ip_location(self, allow_online: bool) -> ObserverLocation:
         return self.detect_ip_location(allow_online).location
 
@@ -522,8 +634,8 @@ class LocationService:
         return system_timezone()
 
     def _normalize_result(self, result: LocationDetectionResult) -> LocationDetectionResult:
-        if result.provider in {"windows_precise", "windows_coarse"}:
-            return self._normalize_windows_result(result)
+        if result.provider in {"windows_precise", "windows_coarse", "geoclue2"}:
+            return self._normalize_system_result(result)
         if result.provider in {"manual_city", "manual_coordinates"}:
             return self._normalize_coordinate_timezone(result)
         if result.provider == "ip_geolocation":
@@ -552,14 +664,14 @@ class LocationService:
             source_suffix="coordinate timezone",
         )
 
-    def _normalize_windows_result(self, result: LocationDetectionResult) -> LocationDetectionResult:
+    def _normalize_system_result(self, result: LocationDetectionResult) -> LocationDetectionResult:
         latitude = result.location.latitude
         longitude = result.location.longitude
         raw_timezone = result.raw_provider_timezone or result.location.timezone
         coordinate_timezone = self._coordinate_timezone(latitude, longitude)
         city = (
             self._nearest_city(latitude, longitude, max_radius_km=50.0)
-            if result.provider == "windows_precise"
+            if result.provider in {"windows_precise", "geoclue2"}
             else None
         )
         if city:
@@ -568,8 +680,9 @@ class LocationService:
                 or self._provider_timezone_fallback(result)
             )
             logger.info(
-                "Windows precise location enriched from the local city database: "
-                "distance_km=%.1f coordinate_timezone=%s.",
+                "System location enriched from the local city database: "
+                "provider=%s distance_km=%.1f coordinate_timezone=%s.",
+                result.provider,
                 float(city.get("distance_km") or 0.0),
                 bool(coordinate_timezone),
             )
@@ -590,7 +703,7 @@ class LocationService:
                 country_code=str(city.get("country_code") or result.country_code),
                 raw_provider_timezone=raw_timezone,
                 message=tr(
-                    "Posizione Windows acquisita: {city}, {country}.",
+                    "Posizione di sistema acquisita: {city}, {country}.",
                     city=city["city"],
                     country=city["country"],
                 ),
@@ -599,7 +712,7 @@ class LocationService:
         timezone_name = coordinate_timezone or self._provider_timezone_fallback(result)
         if coordinate_timezone:
             logger.info(
-                "Windows location timezone resolved from coordinates: provider=%s.",
+                "System location timezone resolved from coordinates: provider=%s.",
                 result.provider,
             )
             return _with_timezone(
@@ -609,7 +722,7 @@ class LocationService:
             )
 
         logger.info(
-            "Windows location kept the provider/system timezone after coordinate lookup miss: provider=%s.",
+            "System location kept the provider/system timezone after coordinate lookup miss: provider=%s.",
             result.provider,
         )
         return _with_timezone(
@@ -617,13 +730,16 @@ class LocationService:
             timezone_name,
         )
 
+    def _normalize_windows_result(self, result: LocationDetectionResult) -> LocationDetectionResult:
+        return self._normalize_system_result(result)
+
     def _nearest_city(self, latitude: float, longitude: float, max_radius_km: float) -> dict | None:
         if self.city_resolver is None:
             return None
         try:
             return self.city_resolver.nearest_by_coordinates(latitude, longitude, max_radius_km=max_radius_km)
         except Exception:
-            logger.warning("City reverse lookup failed for Windows precise location.", exc_info=True)
+            logger.warning("City reverse lookup failed for system location.", exc_info=True)
             return None
 
     def _coordinate_timezone(self, latitude: float, longitude: float) -> str | None:
@@ -647,6 +763,13 @@ class LocationService:
             if valid_timezone:
                 return valid_timezone
         return _valid_timezone_or_none(system_timezone()) or "UTC"
+
+    def _default_system_providers(self) -> tuple[LocationProvider, ...]:
+        if self.platform_capabilities.is_windows:
+            return self.windows_provider, self.windows_coarse_provider
+        if self.platform_capabilities.is_linux:
+            return (GeoClueLocationProvider(),)
+        return ()
 
 
 def _with_timezone(
@@ -1103,6 +1226,102 @@ def _parse_provider_stdout(stdout: str) -> dict | None:
     return None
 
 
+def _create_geoclue_position_source(desktop_id: str):
+    try:
+        from PySide6.QtPositioning import QGeoPositionInfoSource
+    except ImportError:
+        logger.warning("Qt Positioning is unavailable; GeoClue cannot start.")
+        return None
+
+    if "geoclue2" not in QGeoPositionInfoSource.availableSources():
+        logger.warning("Qt Positioning does not expose the geoclue2 plugin.")
+        return None
+    return QGeoPositionInfoSource.createSource(
+        "geoclue2",
+        {"desktopId": desktop_id},
+        None,
+    )
+
+
+def _request_qt_position(source: object, timeout_ms: int):
+    from PySide6.QtCore import QEventLoop, QTimer
+
+    event_loop = QEventLoop()
+    timeout_timer = QTimer()
+    timeout_timer.setSingleShot(True)
+    state: dict[str, object] = {}
+
+    def finish_with_position(position: object) -> None:
+        if "position" in state or "reason" in state:
+            return
+        state["position"] = position
+        event_loop.quit()
+
+    def finish_with_error(error: object) -> None:
+        if "position" in state or "reason" in state:
+            return
+        state["reason"] = _qt_position_error_reason(error)
+        event_loop.quit()
+
+    def finish_with_timeout() -> None:
+        if "position" in state or "reason" in state:
+            return
+        state["reason"] = "timeout"
+        event_loop.quit()
+
+    def request_position() -> None:
+        try:
+            source.requestUpdate(timeout_ms)
+        except Exception:
+            logger.warning("Qt Positioning request failed to start.", exc_info=True)
+            finish_with_error("unavailable provider")
+
+    source.positionUpdated.connect(finish_with_position)
+    source.errorOccurred.connect(finish_with_error)
+    timeout_timer.timeout.connect(finish_with_timeout)
+    timeout_timer.start(timeout_ms + 1_000)
+    QTimer.singleShot(0, request_position)
+    event_loop.exec()
+    timeout_timer.stop()
+
+    try:
+        source.positionUpdated.disconnect(finish_with_position)
+        source.errorOccurred.disconnect(finish_with_error)
+    except (RuntimeError, TypeError):
+        pass
+
+    position = state.get("position")
+    if position is not None:
+        return position
+    raise LocationUnavailableError(
+        SYSTEM_LOCATION_UNAVAILABLE_MESSAGE,
+        str(state.get("reason") or "unavailable provider"),
+    )
+
+
+def _qt_position_error_reason(error: object) -> str:
+    name = str(getattr(error, "name", error)).lower()
+    if "access" in name:
+        return "permission denied"
+    if "closed" in name:
+        return "service disabled"
+    if "timeout" in name:
+        return "timeout"
+    return "unavailable provider"
+
+
+def _qt_horizontal_accuracy(position: object) -> float | None:
+    try:
+        from PySide6.QtPositioning import QGeoPositionInfo
+
+        accuracy = float(
+            position.attribute(QGeoPositionInfo.Attribute.HorizontalAccuracy)
+        )
+    except (AttributeError, TypeError, ValueError):
+        return None
+    return accuracy if math.isfinite(accuracy) and accuracy >= 0 else None
+
+
 def _required_coordinate(payload: dict, key: str, minimum: float, maximum: float, message: str) -> float:
     value = payload.get(key)
     if value is None:
@@ -1115,6 +1334,16 @@ def _required_coordinate(payload: dict, key: str, minimum: float, maximum: float
         raise LocationUnavailableError(message, "null coordinates") from exc
     if not math.isfinite(coordinate) or not minimum <= coordinate <= maximum:
         logger.warning("Location provider returned an out-of-range %s coordinate.", key)
+        raise LocationUnavailableError(message, "null coordinates")
+    return coordinate
+
+
+def _validated_coordinate(value: object, minimum: float, maximum: float, message: str) -> float:
+    try:
+        coordinate = float(value)
+    except (TypeError, ValueError) as exc:
+        raise LocationUnavailableError(message, "null coordinates") from exc
+    if not math.isfinite(coordinate) or not minimum <= coordinate <= maximum:
         raise LocationUnavailableError(message, "null coordinates")
     return coordinate
 
@@ -1171,20 +1400,21 @@ def _reason_from_error(error_text: str) -> str:
 
 
 def system_timezone() -> str:
-    try:
-        result = subprocess.run(
-            ["powershell", "-NoProfile", "-Command", "(Get-TimeZone).Id"],
-            capture_output=True,
-            text=True,
-            timeout=3,
-            check=False,
-            **_hidden_subprocess_kwargs(),
-        )
-        windows_timezone = result.stdout.strip()
-        if windows_timezone in WINDOWS_TO_IANA_TIMEZONES:
-            return WINDOWS_TO_IANA_TIMEZONES[windows_timezone]
-    except (OSError, subprocess.SubprocessError):
-        pass
+    if detect_platform_capabilities().is_windows:
+        try:
+            result = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", "(Get-TimeZone).Id"],
+                capture_output=True,
+                text=True,
+                timeout=3,
+                check=False,
+                **_hidden_subprocess_kwargs(),
+            )
+            windows_timezone = result.stdout.strip()
+            if windows_timezone in WINDOWS_TO_IANA_TIMEZONES:
+                return WINDOWS_TO_IANA_TIMEZONES[windows_timezone]
+        except (OSError, subprocess.SubprocessError):
+            pass
 
     local_tz = datetime.now().astimezone().tzinfo
     if isinstance(local_tz, ZoneInfo):

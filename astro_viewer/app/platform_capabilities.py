@@ -5,6 +5,9 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 
+NIGHTSCOPE_DESKTOP_ID = "io.github.beastmen84.NightScope"
+
+
 class PlatformFamily(StrEnum):
     WINDOWS = "windows"
     LINUX = "linux"
@@ -14,6 +17,7 @@ class PlatformFamily(StrEnum):
 
 class SystemLocationProvider(StrEnum):
     WINDOWS = "windows"
+    GEOCLUE2 = "geoclue2"
     NONE = "none"
 
 
@@ -60,7 +64,7 @@ def detect_platform_capabilities(platform_id: str | None = None) -> PlatformCapa
         location_provider = SystemLocationProvider.WINDOWS
     elif normalized_platform_id.startswith("linux"):
         family = PlatformFamily.LINUX
-        location_provider = SystemLocationProvider.NONE
+        location_provider = SystemLocationProvider.GEOCLUE2
     elif normalized_platform_id == "darwin":
         family = PlatformFamily.MACOS
         location_provider = SystemLocationProvider.NONE

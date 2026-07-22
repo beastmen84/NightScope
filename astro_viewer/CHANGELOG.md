@@ -1,5 +1,38 @@
 # Changelog
 
+## NightScope 1.35.1 - 2026-07-22
+
+- Generalizzata la localizzazione automatica come `Posizione di sistema`:
+  Windows conserva i provider preciso e approssimato esistenti nello stesso
+  ordine, mentre Linux usa il plugin Qt Positioning `geoclue2` tramite D-Bus.
+- Il provider GeoClue richiede una singola posizione con timeout controllato,
+  valida coordinate e accuratezza, distingue permesso negato, servizio
+  disabilitato, timeout e plugin assente e riusa la risoluzione offline di
+  citta' e fuso orario. Il desktop ID stabile e'
+  `io.github.beastmen84.NightScope`.
+- Migrata la preferenza persistita a `use_system_location_on_startup`. Il
+  vecchio campo `use_windows_location_on_startup` continua a essere letto senza
+  perdere il consenso e viene sostituito al primo aggiornamento delle
+  preferenze; proprieta' e slot Windows restano alias di compatibilita'.
+- La pagina Localita' mostra il provider Windows o GeoClue in base alle
+  capacita' della piattaforma. Titoli, azioni, fallback e messaggi di risultato
+  sono neutrali rispetto al sistema operativo e localizzati in italiano,
+  inglese e spagnolo; aggiornato anche il manuale trilingue.
+- Dichiarata la dipendenza `PySide6_Addons` per Qt Positioning, aggiunto il
+  modulo allo spec PyInstaller e reso `Qt6Positioning.dll` obbligatorio
+  nell'audit del bundle. Rigenerato l'archivio licenze e aggiornata la nota Qt.
+- Aggiunte regressioni per selezione provider, richiesta Qt asincrona, mapping
+  degli errori, desktop ID, migrazione delle preferenze, contratto QML,
+  packaging e manuale. Il backend GeoClue e' coperto deterministicamente; il
+  test reale D-Bus richiede un desktop Linux con GeoClue installato.
+- Gate completo con coverage e security superato in `206,6 s`: `841 passed`,
+  `613 warnings` note, `10 subtests`, coverage runtime `84%` su `15.615`
+  statement, smoke backend/QML superati e nessuna vulnerabilita' nota.
+- Nessuna modifica a database, schema SQLite, scoring o raccomandazioni; la
+  distribuzione non e' stata rigenerata.
+- La versione sorgente passa a `1.35.1`; la release GitHub e il pacchetto
+  Windows pubblicati restano `1.34.2`.
+
 ## NightScope 1.35.0 - 2026-07-22
 
 - Introdotto un confine centralizzato e immutabile per il rilevamento della

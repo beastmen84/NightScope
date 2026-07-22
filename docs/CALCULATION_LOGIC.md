@@ -43,9 +43,9 @@ As of `1.18.2`, NightScope keeps backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
-  Windows location or approximate online lookup. Once location exists, local
-  astronomy calculations can produce target positions, visibility and Moon
-  phase/illumination without provider data.
+  system location (Windows or GeoClue 2 on Linux), or approximate online
+  lookup. Once location exists, local astronomy calculations can produce target
+  positions, visibility and Moon phase/illumination without provider data.
 - Equipment profile data is local and optional. If no profile is active, the
   backend falls back to naked-eye/default observer assumptions before applying
   ObserverCapability or PracticalTargetValue where those concepts are used.

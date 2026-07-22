@@ -179,11 +179,11 @@ Item {
 
                             CheckBox {
                                 Layout.fillWidth: true
-                                text: qsTr("Posizione Windows precisa")
-                                enabled: controller.autoDetectLocationOnStartup && (controller.allowApproximateOnlineLocation || !controller.useWindowsLocationOnStartup)
-                                checked: controller.autoDetectLocationOnStartup && controller.useWindowsLocationOnStartup
+                                text: qsTr("Posizione di sistema")
+                                enabled: platformCapabilities.systemLocationSupported && controller.autoDetectLocationOnStartup && (controller.allowApproximateOnlineLocation || !controller.useSystemLocationOnStartup)
+                                checked: controller.autoDetectLocationOnStartup && controller.useSystemLocationOnStartup
                                 opacity: enabled || checked ? 1 : 0.55
-                                onToggled: controller.setUseWindowsLocationOnStartup(checked)
+                                onToggled: controller.setUseSystemLocationOnStartup(checked)
                             }
                         }
 
@@ -203,7 +203,7 @@ Item {
                             CheckBox {
                                 Layout.fillWidth: true
                                 text: qsTr("Fallback online")
-                                enabled: controller.autoDetectLocationOnStartup && (controller.useWindowsLocationOnStartup || !controller.allowApproximateOnlineLocation)
+                                enabled: controller.autoDetectLocationOnStartup && (controller.useSystemLocationOnStartup || !controller.allowApproximateOnlineLocation)
                                 checked: controller.autoDetectLocationOnStartup && controller.allowApproximateOnlineLocation
                                 opacity: enabled || checked ? 1 : 0.55
                                 onToggled: controller.setAllowApproximateOnlineLocation(checked)
@@ -324,13 +324,17 @@ Item {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     Layout.minimumHeight: 206
-                    title: qsTr("Posizione Windows precisa")
-                    subtitle: qsTr("Precisa con fallback Windows approssimato")
+                    title: qsTr("Posizione di sistema")
+                    subtitle: platformCapabilities.systemLocationProvider === "geoclue2"
+                              ? qsTr("Servizio GeoClue 2")
+                              : qsTr("Precisa con fallback Windows approssimato")
                     accentColor: theme.cyan
 
                     Text {
                         Layout.fillWidth: true
-                        text: qsTr("Usa i servizi di localizzazione di Windows con consenso di sistema. Se il provider preciso non risponde, NightScope tenta il fallback Windows approssimato.")
+                        text: platformCapabilities.systemLocationProvider === "geoclue2"
+                              ? qsTr("Usa GeoClue per richiedere la posizione al sistema. Disponibilità e precisione dipendono dai servizi di localizzazione configurati nella distribuzione.")
+                              : qsTr("Usa i servizi di localizzazione di Windows con consenso di sistema. Se il provider preciso non risponde, NightScope tenta il fallback Windows approssimato.")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -338,9 +342,10 @@ Item {
 
                     DarkButton {
                         Layout.alignment: Qt.AlignLeft
-                        text: qsTr("Usa posizione Windows")
+                        text: qsTr("Usa posizione di sistema")
+                        enabled: platformCapabilities.systemLocationSupported
                         accentColor: theme.cyan
-                        onClicked: controller.useWindowsLocation()
+                        onClicked: controller.useSystemLocation()
                     }
 
                     Rectangle {
@@ -360,7 +365,7 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: qsTr("La posizione Windows non è disponibile. Provare la posizione approssimata online?")
+                                text: qsTr("La posizione di sistema non è disponibile. Provare la posizione approssimata online?")
                                 color: theme.textPrimary
                                 font.pixelSize: 13
                                 wrapMode: Text.WordWrap

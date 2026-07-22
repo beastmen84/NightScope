@@ -18,9 +18,10 @@ not imply endorsement of NightScope.
 
 ## Qt And Qt For Python
 
-NightScope uses unmodified PySide6 Essentials 6.11.1, shiboken6, and the Qt
-6.11.1 libraries needed by Qt Core, GUI, Widgets, QML, Qt Quick, Qt Quick
-Controls, Layouts, Effects, Shapes, and Window. NightScope selects the
+NightScope uses unmodified PySide6 Essentials and Addons 6.11.1, shiboken6,
+and the Qt 6.11.1 libraries needed by Qt Core, GUI, Widgets, QML, Qt Quick,
+Qt Quick Controls, Layouts, Effects, Shapes, Window, and Positioning. Addons is
+used for the Qt Positioning system-location adapter. NightScope selects the
 `LGPL-3.0-only` open-source licensing option for these components. The complete
 GNU GPL 3.0 and LGPL 3.0 texts are reproduced in `THIRD_PARTY_LICENSES.txt`.
 

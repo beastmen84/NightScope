@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 from dataclasses import FrozenInstanceError
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -39,16 +40,17 @@ def test_platform_family_detection(
     assert capabilities.is_macos is is_macos
 
 
-def test_only_the_existing_windows_location_provider_is_declared_supported() -> None:
+def test_implemented_system_location_providers_are_declared_supported() -> None:
     windows = detect_platform_capabilities("win32")
     linux = detect_platform_capabilities("linux")
     macos = detect_platform_capabilities("darwin")
 
     assert windows.system_location_supported is True
     assert windows.system_location_provider is SystemLocationProvider.WINDOWS
-    for capabilities in (linux, macos):
-        assert capabilities.system_location_supported is False
-        assert capabilities.system_location_provider is SystemLocationProvider.NONE
+    assert linux.system_location_supported is True
+    assert linux.system_location_provider is SystemLocationProvider.GEOCLUE2
+    assert macos.system_location_supported is False
+    assert macos.system_location_provider is SystemLocationProvider.NONE
 
 
 def test_qml_context_has_stable_platform_neutral_keys() -> None:
@@ -60,8 +62,8 @@ def test_qml_context_has_stable_platform_neutral_keys() -> None:
         "isWindows": False,
         "isLinux": True,
         "isMacOS": False,
-        "systemLocationSupported": False,
-        "systemLocationProvider": "none",
+        "systemLocationSupported": True,
+        "systemLocationProvider": "geoclue2",
     }
 
 
@@ -74,3 +76,33 @@ def test_platform_capabilities_are_immutable() -> None:
 
 def test_main_detects_the_host_platform_once() -> None:
     assert main_module.PLATFORM_CAPABILITIES == detect_platform_capabilities(sys.platform)
+
+
+def test_linux_application_metadata_sets_the_geoclue_desktop_id() -> None:
+    app = Mock()
+
+    with patch.object(
+        main_module,
+        "PLATFORM_CAPABILITIES",
+        detect_platform_capabilities("linux"),
+    ):
+        main_module._configure_application_metadata(app)
+
+    app.setApplicationName.assert_called_once_with("NightScope")
+    app.setOrganizationName.assert_called_once_with("NightScope")
+    app.setDesktopFileName.assert_called_once_with("io.github.beastmen84.NightScope")
+
+
+def test_windows_application_metadata_does_not_change_the_desktop_file_name() -> None:
+    app = Mock()
+
+    with patch.object(
+        main_module,
+        "PLATFORM_CAPABILITIES",
+        detect_platform_capabilities("win32"),
+    ):
+        main_module._configure_application_metadata(app)
+
+    app.setApplicationName.assert_called_once_with("NightScope")
+    app.setOrganizationName.assert_called_once_with("NightScope")
+    app.setDesktopFileName.assert_not_called()

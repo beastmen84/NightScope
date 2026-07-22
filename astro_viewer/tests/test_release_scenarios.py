@@ -235,19 +235,19 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertEqual(controller.location["timezone"], "Europe/Rome")
             self.assertEqual(controller.activeLocationSource, "Online approssimata")
 
-    def test_windows_location_unavailable_keeps_current_location(self) -> None:
+    def test_system_location_unavailable_keeps_current_location(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:
             previous_location = controller.location["city"]
             with patch.object(
                 controller._location_service,
-                "detect_windows_location",
+                "detect_system_location",
                 side_effect=LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE),
             ):
                 with self.assertLogs("astro_viewer.app.viewmodels.app_controller", level="WARNING"):
-                    controller.useWindowsLocation()
+                    controller.useSystemLocation()
 
             self.assertEqual(controller.location["city"], previous_location)
-            self.assertEqual(controller.locationMessage, "La posizione Windows non è disponibile. Provare la posizione approssimata online?")
+            self.assertEqual(controller.locationMessage, "La posizione di sistema non è disponibile. Provare la posizione approssimata online?")
             self.assertTrue(controller.canUseApproximateOnlineLocation)
 
     def test_weather_not_called_without_valid_location(self) -> None:
@@ -621,10 +621,10 @@ class ReleaseScenarioTests(unittest.TestCase):
         )
         self.assertLess(
             qml.index("title: qsTr(\"Rilevamento posizione all'avvio\")"),
-            qml.index('title: qsTr("Posizione Windows precisa")'),
+            qml.index('title: qsTr("Posizione di sistema")'),
         )
         self.assertLess(
-            qml.index('title: qsTr("Posizione Windows precisa")'),
+            qml.index('title: qsTr("Posizione di sistema")'),
             qml.index('title: qsTr("Località IP (ipapi/ipwho)")'),
         )
         self.assertLess(
@@ -635,7 +635,7 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("clip: true", qml)
         city_card = qml[
             qml.index('title: qsTr("Ricerca città")') : qml.index(
-                'title: qsTr("Posizione Windows precisa")'
+                'title: qsTr("Posizione di sistema")'
             )
         ]
         self.assertIn("contentFillsHeight: true", city_card)
@@ -646,6 +646,9 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn('placeholderText: qsTr("Latitudine *")', qml)
         self.assertIn('placeholderText: qsTr("Longitudine *")', qml)
         self.assertIn("enabled: manualLatitude.text.trim().length > 0", qml)
+        self.assertIn("controller.useSystemLocation()", qml)
+        self.assertIn("controller.useSystemLocationOnStartup", qml)
+        self.assertIn('platformCapabilities.systemLocationProvider === "geoclue2"', qml)
 
     def _controller_with_weather(self, response: Mock | None = None, side_effect=None, **kwargs):
         return _ControllerContext(response=response, side_effect=side_effect, **kwargs)
@@ -723,10 +726,19 @@ class _ControllerContext:
             database_path.parent / "location_cache.json",
         )
         if self._preferences:
+            use_system_location = self._preferences.get(
+                "use_system_location_on_startup"
+            )
+            use_windows_location = (
+                None
+                if "use_system_location_on_startup" in self._preferences
+                else self._preferences.get("use_windows_location_on_startup")
+            )
             store.update_preferences(
                 auto_detect_location_on_startup=self._preferences.get("auto_detect_location_on_startup"),
                 allow_approximate_online_location=self._preferences.get("allow_approximate_online_location"),
-                use_windows_location_on_startup=self._preferences.get("use_windows_location_on_startup"),
+                use_system_location_on_startup=use_system_location,
+                use_windows_location_on_startup=use_windows_location,
             )
         if self._saved_location:
             store.save_location(

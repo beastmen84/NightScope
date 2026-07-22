@@ -95,6 +95,27 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.35.1 Linux System Location Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-22 after adding the Linux
+GeoClue 2 provider while preserving the existing Windows provider order:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` | Passed in 206.6 s |
+| `pip check`, Ruff, `compileall`, third-party archive | Passed |
+| `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 841 passed, 613 warnings, 10 subtests passed in 110.37 s |
+| Runtime coverage | 84% across 15,615 statements; platform module 100% |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Focused platform, location, translation, and tooling regressions | 87 passed |
+| Translation catalogues | IT, EN, and ES: 1,684 finished, 0 unfinished each |
+| Backend and QML smoke tests | Passed in disposable runtimes |
+
+No distribution or repository database was regenerated. The Windows system
+location path keeps the precise/coarse provider order used before `1.35.1`.
+GeoClue behavior is covered with deterministic Qt sources; a real D-Bus test
+still requires a Linux desktop with GeoClue installed and authorized.
+
 ## Measured 1.35.0 Platform Capability Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-22 after introducing the

@@ -77,13 +77,24 @@ by NightScope. It converts `sys.platform` into an immutable
 normal application and QML smoke-test paths expose the same capability map as
 the `platformCapabilities` QML context property.
 
-Source version `1.35.0` introduces detection only. Windows, Linux and macOS are
-recognized explicitly, but system location remains declared as supported only
-on Windows because the existing WinRT/PowerShell provider is the only provider
-currently implemented. Runtime storage, credentials, location preferences and
-all visible QML continue to follow their pre-`1.35.0` behavior. Later Linux
-adapters must extend this capability boundary instead of adding independent
-`sys.platform` checks throughout services or QML.
+Source version `1.35.0` introduced detection only. Version `1.35.1` extends the
+same boundary with system-location providers: Windows retains its existing
+precise/coarse WinRT sequence, while Linux uses Qt Positioning's `geoclue2`
+plugin with the stable desktop ID `io.github.beastmen84.NightScope`. The Linux
+adapter requests one position through a thread-local Qt event loop, applies a
+bounded timeout, maps Qt provider errors to the existing location failure
+reasons, and then reuses the same offline city/timezone normalization as the
+Windows provider.
+
+The persisted startup preference is now
+`use_system_location_on_startup`. Reads accept the legacy
+`use_windows_location_on_startup` field and the next location-preference update
+writes only the platform-neutral key. The old controller properties, slots,
+and Windows service method remain compatibility aliases; visible QML uses only
+the system-location contract. Runtime storage and credential behavior remain
+unchanged in this step. Further platform adapters must extend this capability
+boundary instead of adding independent `sys.platform` checks throughout
+services or QML.
 
 ## UI Localization
 

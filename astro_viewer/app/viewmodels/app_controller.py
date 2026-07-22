@@ -524,6 +524,10 @@ class AppController(QObject):
         return self._startup_location_preferences.allow_approximate_online_location
 
     @Property(bool, notify=locationChanged)
+    def useSystemLocationOnStartup(self) -> bool:
+        return self._startup_location_preferences.use_system_location_on_startup
+
+    @Property(bool, notify=locationChanged)
     def useWindowsLocationOnStartup(self) -> bool:
         return self._startup_location_preferences.use_windows_location_on_startup
 
@@ -1386,14 +1390,14 @@ class AppController(QObject):
         self.locationChanged.emit()
 
     @Slot()
-    def useWindowsLocation(self) -> None:
+    def useSystemLocation(self) -> None:
         self._cancel_startup_location_detection()
         try:
-            result = self._location_service.detect_windows_location()
+            result = self._location_service.detect_system_location()
         except LocationUnavailableError as exc:
-            logger.warning("Windows location unavailable in AppController: %s", exc.reason)
+            logger.warning("System location unavailable in AppController: %s", exc.reason)
             self._location_message = tr(
-                "La posizione Windows non è disponibile. Provare la posizione approssimata online?"
+                "La posizione di sistema non è disponibile. Provare la posizione approssimata online?"
             )
             self._offer_online_location_fallback = True
             self.locationChanged.emit()
@@ -1401,6 +1405,10 @@ class AppController(QObject):
         self._apply_location_result(result)
         self._refresh_all()
         self.locationChanged.emit()
+
+    @Slot()
+    def useWindowsLocation(self) -> None:
+        self.useSystemLocation()
 
     @Slot()
     def useApproximateOnlineLocation(self) -> None:
@@ -1436,9 +1444,13 @@ class AppController(QObject):
         self.locationChanged.emit()
 
     @Slot(bool)
-    def setUseWindowsLocationOnStartup(self, enabled: bool) -> None:
-        self._update_startup_preferences(use_windows_location_on_startup=enabled)
+    def setUseSystemLocationOnStartup(self, enabled: bool) -> None:
+        self._update_startup_preferences(use_system_location_on_startup=enabled)
         self.locationChanged.emit()
+
+    @Slot(bool)
+    def setUseWindowsLocationOnStartup(self, enabled: bool) -> None:
+        self.setUseSystemLocationOnStartup(enabled)
 
     @Slot(str, str)
     def saveEarthdataCredentials(self, username: str, password: str) -> None:
@@ -4123,16 +4135,14 @@ class AppController(QObject):
                 city=location.city,
                 country=location.country or tr("sconosciuto"),
             )
-        if result.provider == "windows_coarse":
-            return tr("Posizione Windows approssimata acquisita.")
-        if result.provider == "windows_precise":
+        if result.provider in {"windows_precise", "windows_coarse", "geoclue2"}:
             if location.country:
                 return tr(
-                    "Posizione Windows acquisita: {city}, {country}.",
+                    "Posizione di sistema acquisita: {city}, {country}.",
                     city=location.city,
                     country=location.country,
                 )
-            return tr("Posizione Windows acquisita.")
+            return tr("Posizione di sistema acquisita.")
         return result.message or tr("Posizione caricata.")
 
     def _reset_location_provider_presentations(self) -> None:
@@ -4207,11 +4217,11 @@ class AppController(QObject):
         Thread(target=run_detection, daemon=True).start()
 
     def _resolve_startup_location(self, preferences) -> tuple[LocationDetectionResult | None, bool, str]:
-        if preferences.use_windows_location_on_startup:
+        if preferences.use_system_location_on_startup:
             try:
-                return self._location_service.detect_windows_location(), True, ""
+                return self._location_service.detect_system_location(), True, ""
             except LocationUnavailableError as exc:
-                logger.info("Windows startup location detection unavailable: %s", exc.reason)
+                logger.info("System startup location detection unavailable: %s", exc.reason)
 
         if preferences.allow_approximate_online_location:
             try:
@@ -4312,11 +4322,13 @@ class AppController(QObject):
         *,
         auto_detect_location_on_startup: bool | None = None,
         allow_approximate_online_location: bool | None = None,
+        use_system_location_on_startup: bool | None = None,
         use_windows_location_on_startup: bool | None = None,
     ) -> None:
         self._startup_location_preferences = self._location_preferences.update_preferences(
             auto_detect_location_on_startup=auto_detect_location_on_startup,
             allow_approximate_online_location=allow_approximate_online_location,
+            use_system_location_on_startup=use_system_location_on_startup,
             use_windows_location_on_startup=use_windows_location_on_startup,
         )
 
@@ -4352,8 +4364,9 @@ class AppController(QObject):
     @staticmethod
     def _location_source_label(provider: str) -> str:
         labels = {
-            "windows_precise": tr("Posizione Windows precisa"),
-            "windows_coarse": tr("Windows approssimata"),
+            "windows_precise": tr("Posizione di sistema"),
+            "windows_coarse": tr("Posizione di sistema approssimata"),
+            "geoclue2": tr("Posizione di sistema"),
             "ip_geolocation": tr("Online approssimata"),
             "manual_city": tr("Città manuale"),
             "manual_coordinates": tr("Coordinate manuali"),
@@ -4369,6 +4382,7 @@ class AppController(QObject):
         labels = {
             "windows_precise": tr("precisa"),
             "windows_coarse": tr("approssimata"),
+            "geoclue2": tr("fornita dal sistema"),
             "ip_geolocation": tr("livello città"),
             "manual_city": tr("coordinate della città"),
             "manual_coordinates": tr("fornita dall'utente"),

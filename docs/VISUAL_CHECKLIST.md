@@ -87,7 +87,10 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 
 - [x] **VIS-001 - Localita' - traduzione sorgente Windows (`RISOLTA`)**
   - In inglese `Windows specifies` e' una traduzione errata di `Windows precisa`.
-  - Testo previsto: `Posizione Windows precisa` / `Precise Windows location`.
+  - Fino alla `1.35.0`, il testo previsto era `Posizione Windows precisa` /
+    `Precise Windows location`; dalla `1.35.1` il controllo deve aspettarsi
+    `Posizione di sistema` / `System location`, con descrizione specifica del
+    provider Windows o GeoClue 2.
   - La stessa sorgente compare anche nel sottotitolo della pagina Meteo, quindi
     la correzione deve aggiornare entrambe le presentazioni.
 

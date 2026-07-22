@@ -9,18 +9,27 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import requests
+from PySide6.QtCore import QCoreApplication, QDateTime, QObject, QTimer, Signal
+from PySide6.QtPositioning import QGeoCoordinate, QGeoPositionInfo, QGeoPositionInfoSource
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.city_repository import CityRepository
+from astro_viewer.app.platform_capabilities import (
+    NIGHTSCOPE_DESKTOP_ID,
+    detect_platform_capabilities,
+)
 from astro_viewer.app.services.location_service import (
     APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE,
+    GeoClueLocationProvider,
     IpGeolocationProvider,
     LocationDetectionResult,
     LocationService,
     LocationUnavailableError,
     WINDOWS_LOCATION_UNAVAILABLE_MESSAGE,
     _hidden_subprocess_kwargs,
+    _qt_position_error_reason,
+    _request_qt_position,
     _windows_diagnostics_script,
     _windows_geolocation_script,
 )
@@ -63,6 +72,16 @@ class LocationServiceWindowsTests(unittest.TestCase):
         self.assertEqual(result.provider, "windows_precise")
         self.assertEqual(result.location.latitude, 41.9028)
         self.assertEqual(result.location.longitude, 12.4964)
+
+    def test_system_provider_order_on_windows_is_unchanged(self) -> None:
+        service = LocationService(
+            platform_capabilities=detect_platform_capabilities("win32")
+        )
+
+        self.assertEqual(
+            [provider.name for provider in service.system_providers],
+            ["windows_precise", "windows_coarse"],
+        )
 
     def test_windows_location_subprocess_is_hidden_when_supported(self) -> None:
         completed = subprocess.CompletedProcess(
@@ -634,6 +653,103 @@ class LocationPreferenceStoreTests(unittest.TestCase):
         self.assertTrue(preferences.use_windows_location_on_startup)
         self.assertFalse(preferences.allow_approximate_online_location)
 
+    def test_legacy_windows_preference_is_migrated_without_losing_consent(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            preferences_path = temp_path / "preferences.json"
+            preferences_path.write_text(
+                json.dumps(
+                    {
+                        "auto_detect_location_on_startup": True,
+                        "use_windows_location_on_startup": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            store = _preference_store(temp_path)
+
+            preferences = store.preferences()
+            self.assertTrue(preferences.use_system_location_on_startup)
+            self.assertTrue(preferences.use_windows_location_on_startup)
+
+            store.update_preferences(allow_approximate_online_location=True)
+            persisted = json.loads(preferences_path.read_text(encoding="utf-8"))
+
+        self.assertTrue(persisted["use_system_location_on_startup"])
+        self.assertNotIn("use_windows_location_on_startup", persisted)
+
+
+class GeoClueLocationProviderTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls._app = QCoreApplication.instance() or QCoreApplication([])
+
+    def test_linux_uses_geoclue_as_its_system_provider(self) -> None:
+        service = LocationService(
+            platform_capabilities=detect_platform_capabilities("linux")
+        )
+
+        self.assertEqual(
+            [provider.name for provider in service.system_providers],
+            ["geoclue2"],
+        )
+
+    def test_geoclue_result_preserves_coordinates_accuracy_and_desktop_id(self) -> None:
+        position = _position_info(41.9028, 12.4964, accuracy_m=28.0)
+        desktop_ids: list[str] = []
+        provider = GeoClueLocationProvider(
+            source_factory=lambda desktop_id: desktop_ids.append(desktop_id) or object(),
+            position_requester=lambda _source, _timeout: position,
+        )
+
+        with patch(
+            "astro_viewer.app.services.location_service.system_timezone",
+            return_value="Europe/Rome",
+        ):
+            result = provider.detect()
+
+        self.assertEqual(desktop_ids, [NIGHTSCOPE_DESKTOP_ID])
+        self.assertEqual(result.provider, "geoclue2")
+        self.assertEqual(result.location.latitude, 41.9028)
+        self.assertEqual(result.location.longitude, 12.4964)
+        self.assertEqual(result.location.timezone, "Europe/Rome")
+        self.assertEqual(result.accuracy, "28 m")
+
+    def test_geoclue_missing_plugin_is_reported_as_unavailable(self) -> None:
+        provider = GeoClueLocationProvider(source_factory=lambda _desktop_id: None)
+
+        with self.assertRaises(LocationUnavailableError) as context:
+            provider.detect()
+
+        self.assertEqual(context.exception.reason, "unavailable provider")
+
+    def test_qt_single_position_request_returns_the_emitted_position(self) -> None:
+        position = _position_info(40.4168, -3.7038, accuracy_m=35.0)
+        source = _FakeQtPositionSource(position=position)
+
+        received = _request_qt_position(source, 500)
+
+        self.assertIs(received, position)
+        self.assertEqual(source.requested_timeout, 500)
+
+    def test_qt_position_errors_are_normalized(self) -> None:
+        self.assertEqual(
+            _qt_position_error_reason(QGeoPositionInfoSource.Error.AccessError),
+            "permission denied",
+        )
+        self.assertEqual(
+            _qt_position_error_reason(QGeoPositionInfoSource.Error.ClosedError),
+            "service disabled",
+        )
+        self.assertEqual(
+            _qt_position_error_reason(QGeoPositionInfoSource.Error.UpdateTimeoutError),
+            "timeout",
+        )
+        self.assertEqual(
+            _qt_position_error_reason(QGeoPositionInfoSource.Error.UnknownSourceError),
+            "unavailable provider",
+        )
+
 
 class _FakeProvider:
     def __init__(
@@ -655,6 +771,37 @@ class _FakeProvider:
         if not self._result:
             raise LocationUnavailableError("missing fake result", "test")
         return self._result
+
+
+class _FakeQtPositionSource(QObject):
+    positionUpdated = Signal(object)
+    errorOccurred = Signal(object)
+
+    def __init__(self, *, position: QGeoPositionInfo):
+        super().__init__()
+        self._position = position
+        self.requested_timeout: int | None = None
+
+    def requestUpdate(self, timeout: int) -> None:
+        self.requested_timeout = timeout
+        QTimer.singleShot(0, lambda: self.positionUpdated.emit(self._position))
+
+
+def _position_info(
+    latitude: float,
+    longitude: float,
+    *,
+    accuracy_m: float,
+) -> QGeoPositionInfo:
+    position = QGeoPositionInfo(
+        QGeoCoordinate(latitude, longitude),
+        QDateTime.currentDateTimeUtc(),
+    )
+    position.setAttribute(
+        QGeoPositionInfo.Attribute.HorizontalAccuracy,
+        accuracy_m,
+    )
+    return position
 
 
 def _preference_store(path: Path) -> LocationPreferenceStore:

@@ -18,7 +18,11 @@ logger = logging.getLogger(__name__)
 class StartupLocationPreferences:
     auto_detect_location_on_startup: bool = False
     allow_approximate_online_location: bool = False
-    use_windows_location_on_startup: bool = False
+    use_system_location_on_startup: bool = False
+
+    @property
+    def use_windows_location_on_startup(self) -> bool:
+        return self.use_system_location_on_startup
 
 
 class LocationPreferenceStore:
@@ -35,16 +39,30 @@ class LocationPreferenceStore:
         *,
         auto_detect_location_on_startup: bool | None = None,
         allow_approximate_online_location: bool | None = None,
+        use_system_location_on_startup: bool | None = None,
         use_windows_location_on_startup: bool | None = None,
     ) -> StartupLocationPreferences:
+        if (
+            use_system_location_on_startup is not None
+            and use_windows_location_on_startup is not None
+            and bool(use_system_location_on_startup)
+            != bool(use_windows_location_on_startup)
+        ):
+            raise ValueError("Conflicting system-location startup preferences.")
         payload = self._read_json(self._preferences_path)
         if auto_detect_location_on_startup is not None:
             payload["auto_detect_location_on_startup"] = bool(auto_detect_location_on_startup)
         if allow_approximate_online_location is not None:
             payload["allow_approximate_online_location"] = bool(allow_approximate_online_location)
-        if use_windows_location_on_startup is not None:
-            payload["use_windows_location_on_startup"] = bool(use_windows_location_on_startup)
+        selected_system_location = (
+            use_system_location_on_startup
+            if use_system_location_on_startup is not None
+            else use_windows_location_on_startup
+        )
+        if selected_system_location is not None:
+            payload["use_system_location_on_startup"] = bool(selected_system_location)
         self._normalize_startup_preferences(payload)
+        payload.pop("use_windows_location_on_startup", None)
         self._write_json(self._preferences_path, payload)
         return self.preferences()
 
@@ -121,22 +139,26 @@ class LocationPreferenceStore:
         return StartupLocationPreferences(
             auto_detect_location_on_startup=bool(normalized.get("auto_detect_location_on_startup", False)),
             allow_approximate_online_location=bool(normalized.get("allow_approximate_online_location", False)),
-            use_windows_location_on_startup=bool(normalized.get("use_windows_location_on_startup", False)),
+            use_system_location_on_startup=bool(normalized.get("use_system_location_on_startup", False)),
         )
 
     @staticmethod
     def _normalize_startup_preferences(payload: dict) -> None:
         auto_detect = bool(payload.get("auto_detect_location_on_startup", False))
-        use_windows = bool(payload.get("use_windows_location_on_startup", False))
+        if "use_system_location_on_startup" not in payload:
+            payload["use_system_location_on_startup"] = bool(
+                payload.get("use_windows_location_on_startup", False)
+            )
+        use_system = bool(payload.get("use_system_location_on_startup", False))
         allow_online = bool(payload.get("allow_approximate_online_location", False))
 
         if not auto_detect:
-            payload["use_windows_location_on_startup"] = False
+            payload["use_system_location_on_startup"] = False
             payload["allow_approximate_online_location"] = False
             return
 
-        if not use_windows and not allow_online:
-            payload["use_windows_location_on_startup"] = True
+        if not use_system and not allow_online:
+            payload["use_system_location_on_startup"] = True
 
     @staticmethod
     def _write_json(path: Path, payload: dict) -> None:

@@ -8,6 +8,7 @@ REQUIRED_DLLS = {
     "qt6core.dll",
     "qt6gui.dll",
     "qt6qml.dll",
+    "qt6positioning.dll",
     "qt6quick.dll",
     "qt6widgets.dll",
 }

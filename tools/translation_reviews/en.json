@@ -13,7 +13,17 @@
     "In NightScope incolla la chiave, seleziona Salva e poi Test connessione. La configurazione è completa quando lo stato diventa Verificato.": "In NightScope, paste the key, select Save, then Test connection. Setup is complete when the status shows Verified.",
     "Terminatore ben definito: filtro lunare consigliato oltre 100 mm.": "Well-defined terminator: moon filter recommended for apertures over 100 mm.",
     "nuvolosità quasi coperta": "mostly cloudy",
-    "Boote": "Boötes"
+    "Boote": "Boötes",
+    "La posizione di sistema non è disponibile. Scegli una città o inserisci le coordinate manualmente.": "System location is unavailable. Choose a city or enter coordinates manually.",
+    "fornita dal sistema": "provided by the system",
+    "Posizione di sistema": "System location",
+    "Posizione di sistema acquisita.": "System location detected.",
+    "Posizione di sistema acquisita: {city}, {country}.": "System location detected: {city}, {country}.",
+    "La posizione di sistema non è disponibile. Provare la posizione approssimata online?": "System location is unavailable. Try approximate online location?",
+    "Posizione di sistema approssimata": "Approximate system location",
+    "Servizio GeoClue 2": "GeoClue 2 service",
+    "Usa posizione di sistema": "Use system location",
+    "Usa GeoClue per richiedere la posizione al sistema. Disponibilità e precisione dipendono dai servizi di localizzazione configurati nella distribuzione.": "Use GeoClue to request the system location. Availability and accuracy depend on the location services configured in the Linux distribution."
   },
   "contexts": {}
 }

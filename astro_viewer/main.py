@@ -45,6 +45,15 @@ def _detect_platform_capabilities():
 PLATFORM_CAPABILITIES = _detect_platform_capabilities()
 
 
+def _configure_application_metadata(app) -> None:
+    app.setApplicationName(APP_NAME)
+    app.setOrganizationName(ORG_NAME)
+    if PLATFORM_CAPABILITIES.is_linux:
+        from astro_viewer.app.platform_capabilities import NIGHTSCOPE_DESKTOP_ID
+
+        app.setDesktopFileName(NIGHTSCOPE_DESKTOP_ID)
+
+
 def _database_paths() -> tuple[Path, Path]:
     database_path = RUNTIME_DIR / "nightscope.db"
     schema_path = _data_dir() / "schema.sql"
@@ -296,8 +305,7 @@ def run_app() -> int:
         return 1
 
     app = QApplication(sys.argv)
-    app.setApplicationName(APP_NAME)
-    app.setOrganizationName(ORG_NAME)
+    _configure_application_metadata(app)
     translation_manager = _build_translation_manager()
     translation_manager.install()
 
@@ -361,8 +369,7 @@ def run_qml_smoke_test() -> int:
         return 1
 
     app = QGuiApplication(sys.argv)
-    app.setApplicationName(APP_NAME)
-    app.setOrganizationName(ORG_NAME)
+    _configure_application_metadata(app)
     translation_manager = _build_translation_manager()
     translation_manager.install()
     controller = _build_controller()
