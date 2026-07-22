@@ -329,6 +329,27 @@ def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
     assert italian_catalogue["messier-M3"]["description"].endswith("Cani da Caccia.")
     assert italian_catalogue["messier-M11"]["description"].endswith("Scudo.")
     assert italian_catalogue["messier-M41"]["description"].endswith("Cane Maggiore.")
+    source_catalogue = source_content()["catalogue_objects"]
+    for object_id, localized in italian_catalogue.items():
+        italian_item = italian_descriptions.get(object_id)
+        if italian_item is None:
+            continue
+        source_name = source_catalogue[object_id]["name"]
+        if source_name == localized["name"]:
+            continue
+        rendered = "\n".join(
+            italian_item[field]
+            for field in ("short_description", "observing_notes")
+        )
+        assert source_name not in rendered
+    italian_rendered = "\n".join(
+        item[field]
+        for item in italian_descriptions.values()
+        for field in ("short_description", "observing_notes")
+    )
+    assert "prima di aumentare." not in italian_rendered
+    for alias_fragment in ("Little Dumbbell", "Southern Pinwheel", "Owl Nebula"):
+        assert alias_fragment not in italian_rendered
     assert "equipment_filters" not in italian["content"]
     english_filters = english["content"]["equipment_filters"]
     assert english_filters["astronomik::h-beta visual"]["notes"] == (

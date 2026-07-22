@@ -9,6 +9,9 @@
   `target`, indicazioni incomplete sull'ingrandimento e i separatori decimali
   nelle dimensioni angolari. Riviste inoltre le schede M17, M20, M78, M84, M86,
   M109, C51, C53 e C80.
+- Uniformati nelle schede italiane 46 soprannomi Messier con i nomi localizzati
+  gia' usati dal catalogo; rimosso da M93 il soprannome inglese non localizzato
+  e completate quattro note che terminavano senza specificare l'ingrandimento.
 - Corretti in inglese errori grammaticali, pronomi derivati dal genere
   italiano, calchi e termini impropri come `Trapeze`, `Markarian Range`,
   `globular stars`, `dotted edge` e verbi osservativi privi di complemento.
@@ -27,7 +30,7 @@
   valori seed obsoleti, preservando contenuti personalizzati. Nessuna modifica
   a schema SQLite, scoring, raccomandazioni o comportamento della UI; la dist
   non e' stata rigenerata.
-- Gate completo con coverage e security superato in `163,5 s`: `822 passed`,
+- Gate completo con coverage e security superato in `207,1 s`: `822 passed`,
   `613 warnings` note e `10 subtests`; coverage runtime `84%`, smoke backend/QML
   superati e `pip-audit` senza vulnerabilita' note.
 - La versione sorgente passa a `1.34.3`; la release GitHub e il pacchetto
