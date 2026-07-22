@@ -248,6 +248,7 @@ def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
     english = json.loads((TRANSLATIONS_DIR / "en.json").read_text(encoding="utf-8"))
     italian = json.loads((TRANSLATIONS_DIR / "it.json").read_text(encoding="utf-8"))
     descriptions = english["content"]["objects"]
+    italian_descriptions = source_content()["objects"]
 
     expected_constellations = {
         "messier-M5": "Serpens",
@@ -289,6 +290,36 @@ def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
     assert "Whirlpool Galaxy" in descriptions["messier-M51"]["short_description"]
     assert "Owl Cluster" in descriptions["caldwell-C13"]["short_description"]
     assert "Jewel Box Cluster" in descriptions["caldwell-C94"]["observing_notes"]
+    assert "coperta da nubi dense" in italian_descriptions["venus"][
+        "short_description"
+    ]
+    assert "cambiano forma e diametro" in italian_descriptions["venus"][
+        "short_description"
+    ]
+    assert "stelle di piccola massa" in italian_descriptions["messier-M12"][
+        "short_description"
+    ]
+    assert "senza filtri a banda stretta" in italian_descriptions["messier-M78"][
+        "observing_notes"
+    ]
+    assert "intermedia tra ellittica e lenticolare" in italian_descriptions[
+        "messier-M84"
+    ]["short_description"]
+    assert "galassia irregolare" in italian_descriptions["caldwell-C51"][
+        "short_description"
+    ]
+    assert "dettagli di spirale" not in italian_descriptions["caldwell-C51"][
+        "short_description"
+    ]
+    assert "galassia lenticolare" in italian_descriptions["caldwell-C53"][
+        "short_description"
+    ]
+    assert all(
+        re.search(r"\d\.\d+[′″]", value) is None
+        for item in italian_descriptions.values()
+        for field, value in item.items()
+        if field in {"short_description", "observing_notes", "curiosity_text"}
+    )
     assert all(
         "\u200b" not in path.read_text(encoding="utf-8")
         for path in TRANSLATIONS_DIR.glob("*.json")
@@ -312,6 +343,25 @@ def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
     assert english_catalogue["caldwell-C13"]["name"] == "NGC 457 - Owl Cluster"
     assert english_catalogue["caldwell-C38"]["name"] == "NGC 4565 - Needle Galaxy"
     assert english_catalogue["caldwell-C53"]["name"] == "NGC 3115 - Spindle Galaxy"
+    assert english_catalogue["caldwell-C53"]["description"].endswith(
+        "Lenticular galaxy in Sextans."
+    )
+    assert "without narrowband filters" in descriptions["messier-M78"][
+        "observing_notes"
+    ]
+    assert "intermediate between elliptical and lenticular" in descriptions[
+        "messier-M84"
+    ]["short_description"]
+    assert "Markarian's Chain" in descriptions["messier-M84"]["curiosity_text"]
+    assert "spiral details" not in descriptions["caldwell-C51"]["short_description"]
+    assert "lenticular galaxy" in descriptions["caldwell-C53"][
+        "short_description"
+    ]
+    for objects in (italian_descriptions, descriptions):
+        assert len(objects) == 228
+        for field in ("short_description", "observing_notes", "curiosity_text"):
+            values = [item[field] for item in objects.values()]
+            assert len(values) == len(set(values))
     for item in english_catalogue.values():
         assert re.search(r"\b(NGC|IC)\d", item["name"]) is None
         assert not any(
@@ -344,6 +394,21 @@ def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
         "of integrated magnitude",
         "initially retains",
         "initially preserves",
+        "before boosting",
+        "before brightening",
+        "aperture and sky impact differently",
+        "distinguish him",
+        "dotted edge",
+        "globular stars",
+        "how much collisions",
+        "it uses a field",
+        "light stars",
+        "markarian range",
+        "pointing is elegant",
+        "superficial details",
+        "that that",
+        "the markarian's chain",
+        "trapeze",
     ):
         assert forbidden not in structured_english
 
@@ -913,6 +978,12 @@ def test_curated_english_astronomy_terms_remain_technically_correct() -> None:
         "Dati riduttore non validi.": "Invalid focal reducer data.",
         "%1 di %2 riduttori": "%1 of %2 focal reducers",
         "Pupilla %1": "Exit pupil %1",
+        "Terminatore ben definito: filtro lunare consigliato oltre 100 mm.": (
+            "Well-defined terminator: moon filter recommended for apertures "
+            "over 100 mm."
+        ),
+        "nuvolosità quasi coperta": "mostly cloudy",
+        "Boote": "Boötes",
         "Altezza massima {altitude} e magnitudine {magnitude}.": (
             "Maximum altitude {altitude} and magnitude {magnitude}."
         ),

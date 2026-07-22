@@ -10,7 +10,10 @@
     "Crea un account OpenAQ e accedi.": "Create an OpenAQ account and sign in.",
     "Apri la pagina dell'account dal menu del profilo e scorri fino alla sezione API Keys.": "Open the account page from the profile menu and scroll to the API Keys section.",
     "Crea o copia la chiave API. Trattala come una password e non condividerla.": "Create or copy the API key. Treat it like a password and do not share it.",
-    "In NightScope incolla la chiave, seleziona Salva e poi Test connessione. La configurazione è completa quando lo stato diventa Verificato.": "In NightScope, paste the key, select Save, then Test connection. Setup is complete when the status changes to Verified."
+    "In NightScope incolla la chiave, seleziona Salva e poi Test connessione. La configurazione è completa quando lo stato diventa Verificato.": "In NightScope, paste the key, select Save, then Test connection. Setup is complete when the status shows Verified.",
+    "Terminatore ben definito: filtro lunare consigliato oltre 100 mm.": "Well-defined terminator: moon filter recommended for apertures over 100 mm.",
+    "nuvolosità quasi coperta": "mostly cloudy",
+    "Boote": "Boötes"
   },
   "contexts": {}
 }

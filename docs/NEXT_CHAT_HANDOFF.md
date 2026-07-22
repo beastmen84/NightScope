@@ -4,24 +4,48 @@ Aggiornato: 2026-07-22
 
 ## Stato Versioni
 
-- Versione sorgente: `1.34.2`
+- Versione sorgente: `1.34.3`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
-- Release pubblica: `v1.34.1`, tag sul commit sorgente
-  `4193e11f63b6b9e2fe5e86e7f96d13638d95659b`.
-- Asset: `NightScope-v1.34.1-windows-x64.zip`, SHA-256
-  `e5e5023a71a49bdad9947937f9cd0ae5689c6b89b52eeb6bfc3f05216c8adea0`.
-- Distribuzione Windows corrente: `1.34.1`, pubblicata su GitHub.
-- Audit Qt/licenze e smoke backend/QML del binario superati. L'avvio ha creato
-  database, backup e log: la cartella corrente e' una copia di validazione, non
-  il bundle pulito da archiviare.
+- Release pubblica: `v1.34.2`, tag sul commit sorgente
+  `5f1cf9a83047bc005e57defb157a572b7ee5ef70`.
+- Asset: `NightScope-v1.34.2-windows-x64.zip`, SHA-256
+  `3470b5b4fa4720e442907b5d0c2e4173a53ff8a3a97971068b7755889b3b3e52`.
+- Distribuzione Windows corrente: `1.34.2`, pubblicata su GitHub.
+- Metadati, tag e digest della release `1.34.2` verificati su GitHub. Il bundle
+  pubblicato non e' stato rieseguito durante il passaggio sorgente `1.34.3`.
 - Commit sorgente della release pubblica validato:
-  `4193e11 Add localized provider setup guides`
+  `5f1cf9a Fix responsive provider and ISS layouts`
 - Checklist visuale completata nel commit `ea821fc`.
 
 La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
-follow-up di hardening e le guide provider appartengono a `1.34.1`, ora release
-pubblica. Il fix Earthdata descritto sotto appartiene al sorgente `1.34.2` e non
-e' ancora incluso nella distribuzione Windows.
+follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
+Earthdata e layout appartengono a `1.34.2`, ora release pubblica. La review
+editoriale italiana e inglese descritta sotto appartiene al sorgente `1.34.3`.
+
+## Review Editoriale Italiana E Inglese 1.34.3
+
+Le `228` schede oggetto italiane e inglesi, i relativi fun fact, i cataloghi Qt
+e il manuale sono stati ricontrollati con metriche di completezza e unicita',
+LanguageTool e review manuale della terminologia. Le descrizioni e i fun fact
+restano tutti unici per lingua; la somiglianza tra alcune note osservative
+deriva da istruzioni tecnicamente condivise e non e' stata ridotta con
+riscritture artificiali.
+
+Sono stati corretti accordi e calchi italiani, separatori decimali angolari,
+grammatica e terminologia inglese e le classificazioni di M84, M86, C51 e C53.
+M78 ora evita esplicitamente filtri a banda stretta. Gli override inglesi e
+l'overlay TS sono deterministici e coperti da regressioni. Il seed descrittivo
+di C53 passa da `Elliptical galaxy` a `Lenticular galaxy`; schema SQLite,
+scoring, raccomandazioni, database binario e dist non sono stati modificati. Il
+bootstrap aggiorna un database esistente solo se tipo e descrizione di C53
+corrispondono ancora esattamente ai vecchi valori seed; una descrizione
+personalizzata viene preservata.
+
+Il gate completo `tools/run_checks.py --security` e' passato in `163,5 s`:
+`822 passed`, `613 warnings` note, `10 subtests`, coverage runtime `84%` su
+`15.413` statement, smoke backend/QML superati e nessuna vulnerabilita' nota.
+I cataloghi Qt IT/EN/ES contengono `1679` traduzioni finite e nessuna voce
+incompleta; i test mirati di localizzazione e tooling hanno chiuso `35 passed`.
 
 ## Correzione Autorizzazione Earthdata 1.34.2
 

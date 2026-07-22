@@ -25,6 +25,120 @@ TRANSLATION_CHUNK_LIMIT = 4_000
 SEPARATOR = "\n[NIGHTSCOPE_SPLIT_0001]\n"
 
 _ENGLISH_CONTENT_OVERRIDES = {
+    ("objects", "venus", "short_description"): (
+        "Venus dominates twilight with an almost unreal brightness. Through a "
+        "telescope it shows no surface detail because it is covered by dense "
+        "clouds, but it reveals elegant phases similar to the Moon's. It is also "
+        "an excellent urban target: its value lies in following how its shape and "
+        "apparent diameter change over the months. When high in the sky, it "
+        "handles moderate magnification well."
+    ),
+    ("objects", "neptune", "short_description"): (
+        "Neptune is a subtle and remote target. At the eyepiece it appears as a "
+        "tiny blue disk that can remain almost stellar in small instruments, but "
+        "knowing that the light comes from the outermost major planet in the "
+        "Solar System gives the observation a particular sense of scale. The real "
+        "achievement is identifying it with certainty and distinguishing it from "
+        "the field stars."
+    ),
+    ("objects", "messier-M12", "short_description"): (
+        "M12 is a globular cluster in Ophiuchus. It is less concentrated and more "
+        "open than M10; modern studies suggest that it lost many low-mass stars "
+        "during repeated passages through the Galaxy."
+    ),
+    ("objects", "messier-M12", "curiosity_text"): (
+        "M12 appears to have lost many low-mass stars. During repeated passages "
+        "through the Milky Way's disk, galactic tides may have stripped as many "
+        "as a million low-mass stars from the cluster."
+    ),
+    ("objects", "messier-M17", "observing_notes"): (
+        "For M17, record the effects of the filter and magnification separately; "
+        "its integrated magnitude is 6.0 and its reference extent is 11′."
+    ),
+    ("objects", "messier-M20", "short_description"): (
+        "M20, the Trifid Nebula, is a region in Sagittarius that combines "
+        "emission and reflection nebulosity, dark lanes, and a young star cluster. "
+        "It is a difficult visual target, but under a good sky it has a unique "
+        "appearance."
+    ),
+    ("objects", "messier-M22", "short_description"): (
+        "M22 is one of the brightest and most spectacular globular clusters "
+        "visible from mid-northern latitudes. It is large, relatively loosely "
+        "concentrated, and easier to resolve than many similar clusters, especially "
+        "when high above the horizon. In a medium-aperture telescope it can fill "
+        "the field with stars and shows a less compact core than M13."
+    ),
+    ("objects", "messier-M22", "observing_notes"): (
+        "Observe it near culmination at medium magnification; its broad, rich outer "
+        "regions deserve a field of view that is not too narrow."
+    ),
+    ("objects", "messier-M42", "short_description"): (
+        "M42, the Great Orion Nebula, is the most spectacular star-forming region "
+        "readily visible from the Northern Hemisphere. Even from a city it shows "
+        "a bright core around the Trapezium; under dark skies, wings, arcs, and "
+        "dark regions extend far beyond the center. It offers detail at both low "
+        "and high magnification."
+    ),
+    ("objects", "messier-M48", "short_description"): (
+        "M48 is an open cluster in Hydra. It is large, bright, and often "
+        "overlooked. At low magnification it shows a broad, loose structure that "
+        "is well suited to winter or spring skies."
+    ),
+    ("objects", "messier-M78", "observing_notes"): (
+        "Transparency is crucial: observe it without narrowband filters, at low "
+        "magnification, and under a dark sky."
+    ),
+    ("objects", "messier-M84", "short_description"): (
+        "M84 is a Virgo galaxy with a classification intermediate between "
+        "elliptical and lenticular. It belongs to Markarian's Chain and is more "
+        "significant in the context of the group than for detail visible in the "
+        "individual galaxy."
+    ),
+    ("objects", "messier-M84", "curiosity_text"): (
+        "M84 lies in Markarian's Chain and hosts an active nucleus. A relativistic "
+        "jet emerges from the region of its central black hole, although it is far "
+        "less conspicuous than the jet from nearby M87."
+    ),
+    ("objects", "messier-M86", "short_description"): (
+        "M86 is a Virgo galaxy with a classification intermediate between "
+        "elliptical and lenticular. Observing it with M84 and the other members "
+        "of Markarian's Chain gives the impression of crossing an entire galaxy "
+        "cluster."
+    ),
+    ("objects", "messier-M109", "short_description"): (
+        "M109 is a barred spiral galaxy in Ursa Major, close to Phecda. It is not "
+        "showy, but it is relatively easy to locate, and its central bar makes its "
+        "structure interesting to examine."
+    ),
+    ("objects", "caldwell-C51", "short_description"): (
+        "C51 (IC 1613) is an irregular galaxy in Cetus. It is extended and has "
+        "very low surface brightness: first look for its faint overall glow, then "
+        "scan the outer regions with averted vision. It covers about 12′ × 11′, "
+        "so magnitude 9.0 must be interpreted as an integrated brightness."
+    ),
+    ("objects", "caldwell-C51", "observing_notes"): (
+        "C51 covers about 12′ × 11′: preserve dark adaptation, use a wide field, "
+        "and examine the edges with averted vision."
+    ),
+    ("objects", "caldwell-C53", "short_description"): (
+        "C53 (NGC 3115), the Spindle Galaxy, is a lenticular galaxy in Sextans. "
+        "It has a smooth, concentrated glow without visible arms; the useful "
+        "detail is the gradient from the core to the outer halo. Magnitude 9.1 "
+        "describes the whole object, while its 8′ × 3′ extent helps estimate the "
+        "actual surface contrast."
+    ),
+    ("objects", "caldwell-C80", "short_description"): (
+        "C80, NGC 5139, Omega Centauri, is the largest and brightest globular "
+        "cluster in the Milky Way. To the naked eye it can resemble a fuzzy star; "
+        "through a telescope it becomes an enormous mass of stars, broader and "
+        "less concentrated than many other globular clusters. From low northern "
+        "latitudes, observe it near culmination. Its 36′ apparent extent calls "
+        "for a wide field, while greater aperture resolves more stars."
+    ),
+    ("objects", "caldwell-C80", "observing_notes"): (
+        "Use a field wide enough to contain the entire cluster, then apply medium "
+        "magnification to resolve its broad stellar outskirts."
+    ),
     ("objects", "messier-M16", "observing_notes"): (
         "For M16 (Eagle Nebula), integrated magnitude 6.4, alternate between "
         "direct and averted vision while keeping the same exit pupil so the "
@@ -183,6 +297,26 @@ _ENGLISH_OBJECT_TEXT_REPLACEMENTS = (
     ("it initially preserves a field wider than", "start with a field wider than"),
     ("initially retains a field wider than", "start with a field wider than"),
     ("it initially retains a wider field of", "start with a field wider than"),
+    ("before increasing.", "before increasing magnification."),
+    ("before boosting.", "before increasing magnification."),
+    ("before brightening.", "before increasing magnification."),
+    ("Markarian Range", "Markarian's Chain"),
+    ("superficial details", "surface details"),
+    ("dark fractures in the disc", "dark lanes in the disk"),
+    ("how much collisions", "how collisions"),
+    ("appear behind her", "appear behind it"),
+    ("constellation Bootes", "constellation Boötes"),
+    ("name it Trifida.", "name it the Trifid Nebula."),
+    ("exit pupil so the comparison", "exit pupil, so the comparison"),
+    ("becomes sharp and the edge", "becomes sharp, and the edge"),
+    ("noticeably deformed and the nucleus", "noticeably deformed, and the nucleus"),
+    ("In Lepus it appears", "In Lepus, it appears"),
+    ("At first it looks", "At first, it looks"),
+    ("bright core and the dotted edge", "bright core and the granular outer region"),
+    (
+        "so aperture and sky impact differently.",
+        "so both aperture and sky quality affect how much detail is visible.",
+    ),
 )
 
 _SPANISH_CONTENT_REPLACEMENTS = (

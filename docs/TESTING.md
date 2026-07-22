@@ -95,6 +95,30 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.34.3 Italian And English Editorial Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-22 after the full Italian and
+English structured-content, Qt catalogue, and manual review:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` | Passed in 163.5 s |
+| `pip check`, Ruff, `compileall`, third-party archive | Passed |
+| `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 822 passed, 613 warnings, 10 subtests passed in 107.86 s |
+| Runtime coverage | 84% across 15,413 statements |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Focused localization and developer-tooling regressions | 35 passed |
+| Translation catalogues | IT, EN, and ES: 1,679 finished, 0 unfinished each |
+| LanguageTool changed-content audit | No unresolved actionable findings |
+| LanguageTool full English audit | 2,534 entries; remaining findings manually classified as punctuation style, fragments, or proper-name false positives |
+| Backend and QML smoke tests | Passed in disposable runtimes |
+
+No distribution or repository database was regenerated. The C53 seed
+classification changed from elliptical to lenticular; an exact-match bootstrap
+correction updates the obsolete built-in row in existing databases while
+preserving customized text. SQLite schema, scoring, recommendation policy, and
+UI behavior are unchanged.
+
 ## Measured 1.34.2 Responsive Layout Follow-up
 
 Measured on Windows with Python 3.14.5 on 2026-07-22 after correcting the

@@ -1,5 +1,38 @@
 # Changelog
 
+## NightScope 1.34.3 - 2026-07-22
+
+- Completata una review editoriale approfondita dei contenuti strutturati in
+  italiano e inglese, con controllo LanguageTool e verifica manuale della
+  terminologia astronomica e osservativa.
+- Corretti in italiano accordi riferiti a Venere, `stelle leggere`, il calco
+  `target`, indicazioni incomplete sull'ingrandimento e i separatori decimali
+  nelle dimensioni angolari. Riviste inoltre le schede M17, M20, M78, M84, M86,
+  M109, C51, C53 e C80.
+- Corretti in inglese errori grammaticali, pronomi derivati dal genere
+  italiano, calchi e termini impropri come `Trapeze`, `Markarian Range`,
+  `globular stars`, `dotted edge` e verbi osservativi privi di complemento.
+  Gli override editoriali e le sostituzioni restano deterministici dopo la
+  rigenerazione del language pack.
+- Allineata la classificazione di C53/NGC 3115 a galassia lenticolare nel seed
+  catalogo e nelle presentazioni localizzate. M84 e M86 sono ora descritte con
+  la classificazione intermedia ellittica/lenticolare; C51 non contiene piu'
+  riferimenti a dettagli di spirale e M78 non raccomanda filtri a banda stretta.
+- Corrette due stringhe UI inglesi (`mostly cloudy` e il consiglio sul filtro
+  lunare), il nome `Boötes`, la preposizione nel manuale inglese e il banner del
+  manuale, ora allineato alla release pubblica `1.34.2`.
+- Aggiunte regressioni per terminologia, classificazioni, decimali italiani,
+  overlay TS, allineamento del manuale e aggiornamento del vecchio record C53.
+  Il bootstrap migra C53 solo quando tipo e descrizione coincidono ancora con i
+  valori seed obsoleti, preservando contenuti personalizzati. Nessuna modifica
+  a schema SQLite, scoring, raccomandazioni o comportamento della UI; la dist
+  non e' stata rigenerata.
+- Gate completo con coverage e security superato in `163,5 s`: `822 passed`,
+  `613 warnings` note e `10 subtests`; coverage runtime `84%`, smoke backend/QML
+  superati e `pip-audit` senza vulnerabilita' note.
+- La versione sorgente passa a `1.34.3`; la release GitHub e il pacchetto
+  Windows pubblicati restano `1.34.2`.
+
 ## NightScope 1.34.2 - 2026-07-22
 
 - Corretto il test connessione Earthdata LAADS: la risposta OAuth che richiede
@@ -26,8 +59,8 @@
   note e `10 subtests`; coverage runtime `84%`, smoke backend/QML superati e
   `pip-audit` senza vulnerabilita' note.
 - La versione sorgente passa a `1.34.2`; la release GitHub e il pacchetto
-  Windows pubblicati restano `1.34.1` fino a un nuovo ciclo esplicito di build
-  e rilascio.
+  Windows `1.34.2` sono stati pubblicati successivamente dal commit sorgente
+  `5f1cf9a`.
 
 ## NightScope 1.34.1 - 2026-07-21
 

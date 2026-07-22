@@ -3232,13 +3232,13 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1439" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1463" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1461" />
       <source>Connessione Earthdata LAADS verificata.</source>
       <translation>Connessione Earthdata LAADS verificata.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1441" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1465" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1463" />
       <source>Autorizza l'app LAADS OPeNDAP, poi ripeti il test.</source>
       <translation>Autorizza l'app LAADS OPeNDAP, poi ripeti il test.</translation>
     </message>
@@ -3269,12 +3269,12 @@
       <translation>Connessione Earthdata non riuscita: {error_type}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1461" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1467" />
       <source>Earthdata ha risposto con HTTP {status_code}.</source>
       <translation>Earthdata ha risposto con HTTP {status_code}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1467" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1465" />
       <source>Login Earthdata non riuscito. Verifica username e password.</source>
       <translation>Login Earthdata non riuscito. Verifica username e password.</translation>
     </message>
@@ -7273,38 +7273,38 @@ Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</tran
       <translation>Configurazione consigliata per l'evento</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="251" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="252" />
       <source>Dettagli del passaggio</source>
       <translation>Dettagli del passaggio</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="253" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="254" />
       <source>Dettagli della cometa</source>
       <translation>Dettagli della cometa</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="254" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="255" />
       <source>Dettagli evento</source>
       <translation>Dettagli evento</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="285" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="286" />
       <source>Fonte: %1</source>
       <translation>Fonte: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="316" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="317" />
       <source>Consigli osservativi</source>
       <translation>Consigli osservativi</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="317" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="318" />
       <source>Azioni pratiche per preparare l'evento</source>
       <translation>Azioni pratiche per preparare l'evento</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EventDetailPage.qml" line="80" />
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="352" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="353" />
       <source>Nessun evento selezionato</source>
       <translation>Nessun evento selezionato</translation>
     </message>
@@ -7334,12 +7334,12 @@ Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</tran
       <translation>Apri %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="353" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="354" />
       <source>Torna al calendario e scegli una voce dalla timeline</source>
       <translation>Torna al calendario e scegli una voce dalla timeline</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="358" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="359" />
       <source>Seleziona una scheda evento per aprire il dettaglio.</source>
       <translation>Seleziona una scheda evento per aprire il dettaglio.</translation>
     </message>

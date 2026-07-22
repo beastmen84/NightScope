@@ -108,9 +108,19 @@ so editorial terminology remains reproducible instead of depending on manual
 edits to generated XML.
 
 The current tree contains reviewed overlays for both `en` and `es`. The English
-overlay protects the provider-account instructions; the broader Spanish
-overlay also owns the reviewed UI terminology. Tests require both overlays to
-remain applicable and idempotent after catalogue regeneration.
+overlay protects provider-account instructions and reviewed UI terminology;
+the broader Spanish overlay owns the complete Spanish UI review. Reviewed
+English structured-content corrections live in deterministic overrides and
+targeted replacements in `tools/update_content_translations.py`. Tests require
+both TS overlays and the structured-content curation to remain applicable and
+idempotent after catalogue regeneration.
+
+The Italian and English object catalogues received a full editorial pass in
+source version `1.34.3`. Regression tests protect the corrected object
+classifications, reflection-nebula filter guidance, Italian angular decimal
+formatting, and known English calques. Similar observing instructions are not
+rewritten solely to make them look unique when the shared guidance is
+technically appropriate.
 
 ### Machine-Translation Provider
 

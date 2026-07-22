@@ -270,6 +270,9 @@ def test_multilingual_manual_has_complete_navigation_and_current_provider_semant
     )
     assert "complete every field, including those marked optional" in manual
     assert "complete todos los campos, también los indicados como opcionales" in manual
+    assert manual.count("NightScope 1.34.2") == 3
+    assert "independent from recommendations" not in manual
+    assert "independent of recommendations" in manual
     assert manual.count("LAADS OPeNDAP") >= 3
     assert manual.count("API Keys") >= 3
 

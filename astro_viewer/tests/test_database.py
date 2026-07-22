@@ -1369,6 +1369,68 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertEqual(preserved_description, "nota locale")
             self.assertIsNotNone(restored_object)
 
+    def test_catalogue_seed_refreshes_known_builtin_text_corrections(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute(
+                    """
+                    UPDATE CatalogueObject
+                    SET tipo = ?, descrizione = ?
+                    WHERE object_id = ?
+                    """,
+                    (
+                        "Elliptical galaxy",
+                        "C53 (NGC 3115) - Galassia ellittica nella costellazione "
+                        "di Sestante.",
+                        "caldwell-C53",
+                    ),
+                )
+                connection.commit()
+
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                refreshed = connection.execute(
+                    """
+                    SELECT tipo, descrizione
+                    FROM CatalogueObject WHERE object_id = ?
+                    """,
+                    ("caldwell-C53",),
+                ).fetchone()
+                connection.execute(
+                    "UPDATE CatalogueObject SET descrizione = ? WHERE object_id = ?",
+                    ("descrizione personalizzata", "caldwell-C53"),
+                )
+                connection.commit()
+
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                preserved = connection.execute(
+                    """
+                    SELECT tipo, descrizione
+                    FROM CatalogueObject WHERE object_id = ?
+                    """,
+                    ("caldwell-C53",),
+                ).fetchone()
+
+            self.assertEqual(
+                refreshed,
+                (
+                    "Lenticular galaxy",
+                    "C53 (NGC 3115) - Galassia lenticolare nella costellazione "
+                    "del Sestante.",
+                ),
+            )
+            self.assertEqual(
+                preserved,
+                ("Lenticular galaxy", "descrizione personalizzata"),
+            )
+
     def test_legacy_messier_table_migrates_to_generic_catalogue(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"

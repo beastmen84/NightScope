@@ -20,6 +20,15 @@ logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
 SCHEMA_VERSION = 16
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
+_CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
+    (
+        "caldwell-C53",
+        "Elliptical galaxy",
+        "C53 (NGC 3115) - Galassia ellittica nella costellazione di Sestante.",
+        "Lenticular galaxy",
+        "C53 (NGC 3115) - Galassia lenticolare nella costellazione del Sestante.",
+    ),
+)
 _LEGACY_EQUIPMENT_SEED_SOURCES = {
     "TelescopeModel": (
         "telescope",
@@ -976,6 +985,17 @@ def _seed_catalogue(
         """,
         object_rows,
     )
+    for object_id, old_type, old_description, new_type, new_description in (
+        _CATALOGUE_BUILTIN_TEXT_CORRECTIONS
+    ):
+        connection.execute(
+            """
+            UPDATE CatalogueObject
+            SET tipo = ?, descrizione = ?
+            WHERE object_id = ? AND tipo = ? AND descrizione = ?
+            """,
+            (new_type, new_description, object_id, old_type, old_description),
+        )
 
     designation_rows = [
         (
