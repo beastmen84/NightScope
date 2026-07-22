@@ -11,17 +11,24 @@ Item {
     function compactCountry() {
         if (!controller.hasValidLocation)
             return qsTr("Nessuna località configurata")
-        if (controller.location.country === undefined || controller.location.country === "")
-            return controller.location.timezone
-        return controller.location.country + "  -  " + controller.location.timezone
+        var parts = []
+        var city = controller.location.city || ""
+        var coordinates = controller.location.coordinatesLabel || ""
+        var country = controller.location.country || ""
+        var timezone = controller.location.timezone || ""
+        if (city.length > 0 && coordinates.length > 0)
+            parts.push(coordinates)
+        if (country.length > 0)
+            parts.push(country)
+        if (timezone.length > 0)
+            parts.push(timezone)
+        return parts.join("  ·  ")
     }
 
     function currentLocationTitle() {
         if (!controller.hasValidLocation)
             return qsTr("Nessuna posizione")
-        return qsTr("%1 (%2)")
-            .arg(controller.location.city)
-            .arg(controller.location.coordinatesLabel)
+        return controller.location.city || controller.location.coordinatesLabel
     }
 
     AppTheme {
@@ -101,12 +108,14 @@ Item {
                             spacing: 4
 
                             Text {
+                                objectName: "currentLocationName"
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
                                 text: root.currentLocationTitle()
                                 color: theme.textPrimary
                                 font.pixelSize: 20
                                 font.weight: Font.DemiBold
-                                elide: Text.ElideRight
+                                wrapMode: Text.WordWrap
                             }
 
                             Text {

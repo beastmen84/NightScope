@@ -46,11 +46,19 @@ backend Windows nativo conferma inoltre che le icone SVG restano visibili dopo
 la colorazione `MultiEffect`; il backend Qt `offscreen` non renderizza gli
 shader e non viene quindi usato per validare la visibilita' delle icone. Il
 runner standard include ora uno smoke QML rosso separato. Traduzioni IT/EN/ES:
-`1.693` voci complete ciascuna.
+`1.692` voci complete ciascuna.
 
-Il gate completo `tools/run_checks.py --security` e' passato in `335,3 s`:
-`865 passed`, `642 warnings` note, `10 subtests`, coverage `84%` su `15.823`
-statement, `qmllint` con exit code zero e nessuna vulnerabilita' nota.
+Il test della prima dist ha portato due correzioni sorgente: il link della
+fonte Curiosita' incorpora il token colore nel rich text e reagisce allo switch
+rosso; il nome della posizione attiva e' separato dalle coordinate e puo'
+andare a capo senza ellissi. La prova QML con il nome lungo dell'osservatorio
+Orion ha restituito `truncated=False`; il link Luna ha prodotto
+`style="color:#d94a3d"`. La rimozione della vecchia stringa combinata porta i
+cataloghi IT/EN/ES a `1.692` voci complete e zero incomplete.
+
+Il gate completo `tools/run_checks.py --security` e' stato ripetuto dopo il
+follow-up: `867 passed`, `642 warnings` note, `10 subtests`, coverage `84%` su
+`15.823` statement, `qmllint` con exit code zero e nessuna vulnerabilita' nota.
 
 ## Ricerca Localita' GeoNames E MPC 1.36.0
 

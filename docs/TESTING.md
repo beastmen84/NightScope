@@ -120,13 +120,13 @@ persistent Red Night Vision appearance mode:
 
 | Check | Result |
 | --- | --- |
-| `python tools/run_checks.py --security` | Passed in 335.3 s |
+| `python tools/run_checks.py --security` | Passed again after the distribution follow-up |
 | `pip check`, Ruff, `compileall`, third-party archive | Passed |
 | Offline MPC snapshot check | 2,683 fixed terrestrial observatories passed |
-| Final `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 865 passed, 642 warnings, 10 subtests passed in 176.55 s |
+| Final `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 867 passed, 642 warnings, 10 subtests passed in 133.26 s |
 | Runtime coverage | 84% across 15,823 statements |
 | Installed-environment `pip-audit` | No known vulnerabilities |
-| Translation catalogues | IT, EN, and ES: 1,693 finished, 0 unfinished each |
+| Translation catalogues | IT, EN, and ES: 1,692 finished, 0 unfinished each |
 | Backend, normal QML, and red QML smoke tests | Passed in disposable runtimes |
 | `qmllint` across `astro_viewer/app/ui` | Exit code 0; known static warnings only |
 | Red visual matrix | 13 views at 1240 x 820: max G=74, max B=61, 0 pixels above G>90 or B>80 |
@@ -142,6 +142,13 @@ changed for this source release. Icon visibility is checked with the native
 Windows graphics backend because Qt's `offscreen` backend does not render
 `MultiEffect`; the offscreen matrix remains the deterministic color and layout
 gate for non-shader content.
+
+The first packaged-distribution trial exposed two additional UI cases. A QML
+runtime check with the long Orion observatory label returned
+`truncated=False`; the Moon source link emitted the red inline style
+`color:#d94a3d`. Coordinates now remain in the secondary location context, and
+the rich-text anchor includes the reactive theme token instead of relying only
+on Qt's cached `linkColor` rendering.
 
 ## Measured 1.36.0 Unified Location Search Gate
 

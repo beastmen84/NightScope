@@ -30,6 +30,12 @@
 - Gate completo con coverage e security superato in `335,3 s`: `865 passed`,
   `642 warnings` note, `10 subtests`, coverage `84%` su `15.823` statement e
   nessuna vulnerabilita' nota.
+- Corretto il follow-up della prova su bundle: i link delle fonti seguono ora
+  la palette rossa anche dopo uno switch a runtime; nella card Posizione
+  attuale il nome non compete piu' con le coordinate sulla stessa riga e puo'
+  andare a capo senza ellissi.
+- Gate completo ripetuto dopo il follow-up: `867 passed`, `642 warnings` note,
+  `10 subtests`, coverage `84%` e nessuna vulnerabilita' nota.
 - La versione sorgente passa a `1.37.0`; la distribuzione non è stata
   rigenerata e la release GitHub pubblicata resta `1.34.2`.
 

@@ -154,3 +154,24 @@ def test_pages_do_not_use_native_checkbox_or_text_field_rendering() -> None:
             offenders.append(path.relative_to(UI_DIR).as_posix())
 
     assert offenders == []
+
+
+def test_red_source_link_embeds_the_reactive_theme_color() -> None:
+    detail = (UI_DIR / "pages" / "ObjectDetailPage.qml").read_text(
+        encoding="utf-8"
+    )
+
+    assert '"<a style=\\"color:" + theme.cyan.toString() + "\\" href="' in detail
+
+
+def test_current_location_keeps_name_and_coordinates_separate() -> None:
+    location = (UI_DIR / "pages" / "LocationPage.qml").read_text(encoding="utf-8")
+
+    assert "return controller.location.city || controller.location.coordinatesLabel" in location
+    assert "parts.push(coordinates)" in location
+    title_start = location.index("text: root.currentLocationTitle()")
+    title_end = location.index("}", title_start)
+    title_block = location[title_start:title_end]
+    assert "wrapMode: Text.WordWrap" in title_block
+    assert "maximumLineCount" not in title_block
+    assert "elide:" not in title_block

@@ -642,11 +642,16 @@ Item {
                 }
 
                 Text {
+                    objectName: "curiositySourceLink"
                     visible: (root.objectData.curiositySourceUrl || "").length > 0
                     Layout.fillWidth: true
                     text: qsTr("Fonte: <a href=\"%1\">%2</a>")
                           .arg(root.objectData.curiositySourceUrl || "")
                           .arg(root.objectData.curiositySourceLabel || qsTr("Apri la fonte"))
+                          .replace(
+                              "<a href=",
+                              "<a style=\"color:" + theme.cyan.toString() + "\" href="
+                          )
                     textFormat: Text.RichText
                     color: theme.textSecondary
                     linkColor: theme.cyan
