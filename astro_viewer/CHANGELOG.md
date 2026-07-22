@@ -1,5 +1,40 @@
 # Changelog
 
+## NightScope 1.36.0 - 2026-07-22
+
+- La card `Ricerca città` diventa `Ricerca località` e combina nello stesso
+  flusso città GeoNames e osservatori MPC. La ricerca accetta nome, nome breve,
+  nomi storici e codice MPC; un codice esatto ha priorità assoluta, mentre le
+  città mantengono il ranking per corrispondenza e popolazione.
+- Aggiunto uno snapshot offline ricavato dall'API ufficiale Observatory Codes
+  del Minor Planet Center: `2.683` postazioni terrestri fisse, inclusa `R50`.
+  Satelliti, osservatori mobili, geocentro e record privi di una posizione
+  terrestre utilizzabile vengono esclusi dal generatore.
+- Il generatore conserva longitudine e costanti di parallasse MPC, deriva
+  latitudine geodetica e quota sull'ellissoide WGS84 e normalizza le longitudini
+  nell'intervallo `[-180, 180)`. La verifica `--check` dello snapshot non usa la
+  rete ed è adatta al gate di release.
+- Introdotta la tabella separata `MpcObservatory`; lo schema SQLite passa a
+  `17`. Il bootstrap importa e aggiorna lo snapshot tramite `DataImportLog`,
+  migrando in-place i database esistenti senza modificare profili, osservazioni
+  o altri dati utente.
+- La selezione di un osservatorio usa le coordinate MPC e il risolutore
+  `timezonefinder` già esistente, quindi ricerca e calcolo del fuso restano
+  offline. Fonte e accuratezza sono presentate esplicitamente come MPC.
+- Aggiornati UI, cataloghi Qt italiano/inglese/spagnolo, manuale trilingue,
+  architettura, fonti dati, attribuzioni, spec PyInstaller e audit del bundle.
+  Il bundle deve contenere `mpc_observatories_seed.csv`.
+- Aggiunte regressioni per conversione WGS84, filtri del generatore, integrità
+  dello snapshot, migrazione, importazione, ranking, ricerca senza accenti,
+  selezione `R50`, fuso offline, QML, packaging e manuale.
+- Gate completo con coverage e security superato in `262,9 s`; dopo l'ultima
+  regressione sul ranking, la suite finale conta `853 passed`, `642 warnings`
+  note e `10 subtests`, con coverage runtime `84%` su `15.764` statement.
+  Snapshot MPC (`2.683` righe), smoke backend/QML e audit di sicurezza sono
+  superati, senza vulnerabilità note.
+- La versione sorgente passa a `1.36.0`; la distribuzione non è stata
+  rigenerata e la release GitHub pubblicata resta `1.34.2`.
+
 ## NightScope 1.35.1 - 2026-07-22
 
 - Generalizzata la localizzazione automatica come `Posizione di sistema`:

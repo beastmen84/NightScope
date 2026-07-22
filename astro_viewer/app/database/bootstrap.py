@@ -18,7 +18,7 @@ from astro_viewer.app.services.localization import content_key, tr
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
-SCHEMA_VERSION = 16
+SCHEMA_VERSION = 17
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 _CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
     (
@@ -83,6 +83,7 @@ _LEGACY_EQUIPMENT_SEED_SOURCES = {
 REQUIRED_TABLES = {
     "City",
     "CityAlias",
+    "MpcObservatory",
     "DataImportLog",
     "CatalogueObject",
     "CatalogueDesignation",
@@ -110,6 +111,7 @@ REQUIRED_TABLES = {
     "EquipmentProfileReducer",
 }
 SEEDED_TABLES = {
+    "MpcObservatory": "mpc_observatories_seed.csv",
     "CatalogueObject": "catalogue_objects_seed.csv",
     "CatalogueDesignation": "catalogue_designations_seed.csv",
     "TelescopeBrand": "telescope_catalog_seed.csv",
@@ -270,6 +272,8 @@ def database_initialization_required(
             geonames_source_dir = geonames_data_dir or database_path.parent
             if _geonames_import_needed(connection, geonames_source_dir):
                 return True
+            if _mpc_import_needed(connection, data_dir / "mpc_observatories_seed.csv"):
+                return True
     except sqlite3.DatabaseError:
         logger.warning("Database preflight check failed; initialization is required.", exc_info=True)
         return True
@@ -299,6 +303,10 @@ def _build_database(
             geonames_source_dir,
             warn_if_missing=geonames_source_dir == data_dir,
             progress_callback=progress_callback,
+        )
+        _import_mpc_observatories_if_available(
+            connection,
+            data_dir / "mpc_observatories_seed.csv",
         )
         _seed_catalogue(
             connection,
@@ -491,6 +499,37 @@ def _migrate_database(
         """
     )
     connection.execute("CREATE INDEX IF NOT EXISTS idx_city_alias_normalized ON CityAlias(normalized_alias)")
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS MpcObservatory (
+            mpc_code TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            short_name TEXT,
+            latitude REAL NOT NULL,
+            longitude REAL NOT NULL,
+            elevation_m REAL,
+            rho_cos_phi REAL NOT NULL,
+            rho_sin_phi REAL NOT NULL,
+            observations_type TEXT,
+            first_date TEXT,
+            last_date TEXT,
+            web_link TEXT,
+            old_names TEXT,
+            source_updated_at TEXT,
+            search_name TEXT NOT NULL
+        )
+        """
+    )
+    connection.execute(
+        "CREATE INDEX IF NOT EXISTS idx_mpc_observatory_name ON MpcObservatory(name)"
+    )
+    connection.execute(
+        "CREATE INDEX IF NOT EXISTS idx_mpc_observatory_search ON MpcObservatory(search_name)"
+    )
+    connection.execute(
+        "CREATE INDEX IF NOT EXISTS idx_mpc_observatory_coordinates "
+        "ON MpcObservatory(latitude, longitude)"
+    )
     connection.execute(
         """
         CREATE TABLE IF NOT EXISTS DataImportLog (
@@ -745,6 +784,31 @@ def _geonames_import_needed(
     )
 
 
+def _mpc_import_needed(
+    connection: sqlite3.Connection,
+    source_path: Path,
+) -> bool:
+    if not source_path.exists():
+        return False
+    if _table_count(connection, "MpcObservatory") == 0:
+        return True
+    source_stat = source_path.stat()
+    source_mtime = datetime.fromtimestamp(source_stat.st_mtime).isoformat(timespec="seconds")
+    existing_import = connection.execute(
+        """
+        SELECT source_size, source_mtime
+        FROM DataImportLog
+        WHERE source_name = ?
+        """,
+        (source_path.name,),
+    ).fetchone()
+    return not (
+        existing_import
+        and int(existing_import["source_size"]) == source_stat.st_size
+        and str(existing_import["source_mtime"]) == source_mtime
+    )
+
+
 def _backup_database(database_path: Path) -> None:
     backup_path = database_path.with_suffix(database_path.suffix + ".backup")
     try:
@@ -894,6 +958,48 @@ def _import_geonames_cities_if_available(
         ),
     )
     logger.info("GeoNames cities15000 import report: %s", json.dumps(payload, ensure_ascii=True))
+
+
+def _import_mpc_observatories_if_available(
+    connection: sqlite3.Connection,
+    source_path: Path,
+) -> None:
+    if not source_path.exists():
+        logger.warning("MPC observatory snapshot not found; observatory search is unavailable.")
+        return
+    if not _mpc_import_needed(connection, source_path):
+        return
+    from astro_viewer.app.database.mpc_observatory_importer import (
+        import_mpc_observatories,
+    )
+
+    imported_rows = import_mpc_observatories(connection, source_path)
+    source_stat = source_path.stat()
+    source_mtime = datetime.fromtimestamp(source_stat.st_mtime).isoformat(timespec="seconds")
+    connection.execute(
+        """
+        INSERT INTO DataImportLog (
+            source_name, source_path, source_size, source_mtime,
+            imported_at, report_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(source_name) DO UPDATE SET
+            source_path = excluded.source_path,
+            source_size = excluded.source_size,
+            source_mtime = excluded.source_mtime,
+            imported_at = excluded.imported_at,
+            report_json = excluded.report_json
+        """,
+        (
+            source_path.name,
+            str(source_path),
+            source_stat.st_size,
+            source_mtime,
+            datetime.now().isoformat(timespec="seconds"),
+            json.dumps({"observatories_imported": imported_rows}, ensure_ascii=True),
+        ),
+    )
+    logger.info("MPC observatory snapshot imported: %s rows.", imported_rows)
 
 
 def _first_existing_path(*paths: Path) -> Path | None:

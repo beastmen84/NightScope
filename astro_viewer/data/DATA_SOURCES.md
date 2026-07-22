@@ -24,6 +24,37 @@ GeoNames publishes these dump files under Creative Commons Attribution 4.0
 `https://download.geonames.org/export/dump/readme.txt`. A public NightScope
 artifact must retain the required GeoNames attribution.
 
+## MPC Observatory Codes
+
+`mpc_observatories_seed.csv` is the packaged offline observatory seed generated
+from the official Minor Planet Center Observatory Codes API:
+`https://data.minorplanetcenter.net/api/obscodes`.
+
+Run the updater only when intentionally refreshing the release snapshot:
+
+```powershell
+.\.venv\Scripts\python.exe astro_viewer\tools\update_mpc_observatories.py
+```
+
+Validate the checked-in snapshot without network access:
+
+```powershell
+.\.venv\Scripts\python.exe astro_viewer\tools\update_mpc_observatories.py --check
+```
+
+The 2026-07-22 snapshot contains 2,683 fixed terrestrial sites. The generator
+excludes satellite, roving, geocentric and otherwise non-surface entries. It
+preserves the MPC parallax constants and derives WGS84 geodetic latitude and
+ellipsoid height; longitudes are normalized to `[-180, 180)`. Runtime bootstrap
+imports the seed into `MpcObservatory` and records its file signature in
+`DataImportLog`. Search uses the local database only, accepts names and MPC
+codes, and resolves the selected timezone offline from the derived coordinates.
+
+MPC states that its database is freely available to the public and provides
+attribution guidance at `https://docs.minorplanetcenter.net/mpc-ops-docs/faqs/`.
+Public NightScope artifacts retain attribution to the International
+Astronomical Union Minor Planet Center in `THIRD_PARTY_NOTICES.md`.
+
 ## Coordinate Timezones
 
 NightScope uses `timezonefinder 8.2.5` to map WGS84 latitude/longitude directly

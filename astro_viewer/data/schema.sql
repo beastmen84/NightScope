@@ -29,6 +29,28 @@ CREATE TABLE IF NOT EXISTS CityAlias (
 
 CREATE INDEX IF NOT EXISTS idx_city_alias_normalized ON CityAlias(normalized_alias);
 
+CREATE TABLE IF NOT EXISTS MpcObservatory (
+    mpc_code TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    short_name TEXT,
+    latitude REAL NOT NULL,
+    longitude REAL NOT NULL,
+    elevation_m REAL,
+    rho_cos_phi REAL NOT NULL,
+    rho_sin_phi REAL NOT NULL,
+    observations_type TEXT,
+    first_date TEXT,
+    last_date TEXT,
+    web_link TEXT,
+    old_names TEXT,
+    source_updated_at TEXT,
+    search_name TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_mpc_observatory_name ON MpcObservatory(name);
+CREATE INDEX IF NOT EXISTS idx_mpc_observatory_search ON MpcObservatory(search_name);
+CREATE INDEX IF NOT EXISTS idx_mpc_observatory_coordinates ON MpcObservatory(latitude, longitude);
+
 CREATE TABLE IF NOT EXISTS DataImportLog (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     source_name TEXT NOT NULL UNIQUE,

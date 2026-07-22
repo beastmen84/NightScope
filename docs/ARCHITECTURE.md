@@ -505,12 +505,13 @@ Services hold business logic:
   from already prepared Home targets; it does not call weather, VIIRS, Planner
   or recommendation services. Direction ranking combines current altitude,
   target value and density; plan/Best flags are annotations only.
-- `LocationService`: Windows, IP and manual location providers. Geographic
+- `LocationService`: Windows, GeoClue, IP, manual and MPC-observatory location
+  providers. Geographic
   timezone resolution is separate from city metadata: `CoordinateTimezoneService`
   lazily reuses the offline `timezonefinder` polygon index to map exact WGS84
-  coordinates to an IANA timezone. Manual coordinates, manual city selection
-  and both Windows modes use that result; a valid timezone supplied by the IP
-  provider remains authoritative. The computer timezone is only a defensive
+  coordinates to an IANA timezone. Manual coordinates, manual city or MPC
+    observatory selection, and system-location modes use that result; a valid
+    timezone supplied by the IP provider remains authoritative. The computer timezone is only a defensive
   fallback when the polygon lookup is unavailable, and its PowerShell probe is
   evaluated lazily. Precise Windows positions may use a GeoNames city within
   50 km to enrich city, country and region, but that lookup neither changes the
@@ -525,6 +526,10 @@ Repositories own SQLite persistence:
 
 - `CityRepository`: offline city search and presentation-only reverse lookup;
   its GeoNames timezone field is not an operational timezone source.
+- `LocationRepository`: unified read-only search over GeoNames cities and the
+  separate `MpcObservatory` table. Exact MPC codes rank first; names and
+  accent-insensitive aliases share the same result contract without treating an
+  observatory as a city.
 - `CatalogueRepository`: physical catalogue targets and their designations.
 - `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter
   and focal-reducer CRUD plus profile assignments. Every catalogue row exposes

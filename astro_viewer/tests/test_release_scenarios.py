@@ -250,6 +250,22 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertEqual(controller.locationMessage, "La posizione di sistema non è disponibile. Provare la posizione approssimata online?")
             self.assertTrue(controller.canUseApproximateOnlineLocation)
 
+    def test_mpc_observatory_search_and_selection_are_offline(self) -> None:
+        with self._controller_with_weather(_valid_weather_response()) as controller:
+            controller.searchLocations("R50")
+
+            self.assertTrue(controller.hasLocationSearchQuery)
+            self.assertEqual(controller.locationResults[0]["kind"], "mpc_observatory")
+            self.assertEqual(controller.locationResults[0]["selection_id"], "R50")
+
+            controller.selectLocation("mpc_observatory", "R50")
+
+            self.assertAlmostEqual(controller.location["latitude"], 41.88417448)
+            self.assertAlmostEqual(controller.location["longitude"], -5.593425)
+            self.assertEqual(controller.location["timezone"], "Europe/Madrid")
+            self.assertEqual(controller.activeLocationSource, "Osservatorio MPC")
+            self.assertIn("MPC R50", controller.locationMessage)
+
     def test_weather_not_called_without_valid_location(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:
             fake_weather_service = Mock()
@@ -609,14 +625,14 @@ class ReleaseScenarioTests(unittest.TestCase):
         openaq_card = qml[qml.index('title: qsTr("OpenAQ")') :]
         self.assertNotIn("Autorizza app", openaq_card)
 
-    def test_location_page_prioritizes_city_search_layout(self) -> None:
+    def test_location_page_prioritizes_unified_location_search_layout(self) -> None:
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "LocationPage.qml").read_text(encoding="utf-8")
         self.assertLess(
             qml.index('title: qsTr("Posizione attuale")'),
-            qml.index('title: qsTr("Ricerca città")'),
+            qml.index('title: qsTr("Ricerca località")'),
         )
         self.assertLess(
-            qml.index('title: qsTr("Ricerca città")'),
+            qml.index('title: qsTr("Ricerca località")'),
             qml.index('title: qsTr("Posizioni recenti")'),
         )
         self.assertLess(
@@ -633,14 +649,18 @@ class ReleaseScenarioTests(unittest.TestCase):
         )
         self.assertIn("Layout.rowSpan: root.width > 1040 ? 2 : 1", qml)
         self.assertIn("clip: true", qml)
-        city_card = qml[
-            qml.index('title: qsTr("Ricerca città")') : qml.index(
+        location_card = qml[
+            qml.index('title: qsTr("Ricerca località")') : qml.index(
                 'title: qsTr("Posizione di sistema")'
             )
         ]
-        self.assertIn("contentFillsHeight: true", city_card)
-        self.assertIn("Layout.fillHeight: true", city_card)
-        self.assertNotIn("Layout.preferredHeight: root.width > 1040 ? 252 : 168", city_card)
+        self.assertIn("contentFillsHeight: true", location_card)
+        self.assertIn("Layout.fillHeight: true", location_card)
+        self.assertNotIn("Layout.preferredHeight: root.width > 1040 ? 252 : 168", location_card)
+        self.assertIn('subtitle: qsTr("GeoNames e osservatori MPC offline")', qml)
+        self.assertIn('placeholderText: qsTr("Cerca città, osservatorio o codice MPC")', qml)
+        self.assertIn("controller.searchLocations(text)", qml)
+        self.assertIn("controller.selectLocation(modelData.kind, modelData.selection_id)", qml)
         self.assertIn('subtitle: qsTr("Geolocalizzazione IP")', qml)
         self.assertIn('placeholderText: qsTr("Nome luogo (facoltativo)")', qml)
         self.assertIn('placeholderText: qsTr("Latitudine *")', qml)

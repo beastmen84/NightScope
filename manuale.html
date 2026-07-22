@@ -708,7 +708,7 @@
         <p>NightScope funziona anche senza account esterni. Per ottenere una prima pianificazione servono una località valida e, facoltativamente, gli strumenti che possiedi.</p>
         <ol class="steps">
           <li><strong>Avvia NightScope da una cartella scrivibile.</strong> La versione portatile salva database, preferenze e log accanto all'eseguibile.</li>
-          <li><strong>Imposta la località.</strong> Usa la posizione di sistema, cerca una città offline oppure inserisci le coordinate.</li>
+          <li><strong>Imposta la località.</strong> Usa la posizione di sistema, cerca una città o un osservatorio MPC offline oppure inserisci le coordinate.</li>
           <li><strong>Controlla il profilo Default.</strong> Aggiungi telescopi o binocoli al profilo attivo. Senza questi strumenti NightScope usa la modalità Occhio nudo.</li>
           <li><strong>Apri la Home.</strong> Leggi prima lo stato della sessione e il fattore limitante, poi il piano e le alternative.</li>
           <li><strong>Configura i provider opzionali solo se ti servono.</strong> Earthdata aggiunge VIIRS/AOD; OpenAQ aggiunge misure locali di particolato.</li>
@@ -722,8 +722,8 @@
         <dl class="term-grid">
           <dt>Posizione di sistema</dt>
           <dd>Richiede il permesso di localizzazione della piattaforma. NightScope usa il provider Windows su Windows e GeoClue 2 su Linux; calcola il fuso IANA offline e può arricchire il nome con il catalogo città locale.</dd>
-          <dt>Ricerca città</dt>
-          <dd>Usa GeoNames offline. Il nome serve alla presentazione; il fuso viene risolto dalle coordinate con i confini timezone locali.</dd>
+          <dt>Ricerca località</dt>
+          <dd>Cerca offline città GeoNames e osservatori terrestri fissi registrati nel catalogo MPC, anche tramite il codice di tre caratteri. Il fuso viene risolto dalle coordinate con i confini locali delle zone orarie.</dd>
           <dt>Coordinate manuali</dt>
           <dd>Accetta latitudine e longitudine senza obbligare a scegliere una città vicina. È il metodo più preciso per un sito remoto.</dd>
           <dt>Fallback online</dt>
@@ -905,6 +905,7 @@
             <tbody>
               <tr><td>Coordinate</td><td>SQLite/JSON locali; Open-Meteo, Earthdata e OpenAQ quando usati.</td><td>Previsioni e prodotti locali.</td></tr>
               <tr><td>Posizione di sistema</td><td>Provider Windows o GeoClue e NightScope.</td><td>Acquisizione dal sistema; nessun reverse geocoder online automatico.</td></tr>
+              <tr><td>Catalogo osservatori MPC</td><td>Snapshot incluso in NightScope e database SQLite locale.</td><td>Ricerca offline; nessuna richiesta al MPC durante l'uso.</td></tr>
               <tr><td>Fallback IP</td><td>Servizio IP scelto dopo azione esplicita.</td><td>Posizione approssimata.</td></tr>
               <tr><td>Elementi ISS/comete</td><td>Download da CelesTrak/JPL senza coordinate utente.</td><td>Propagazione locale.</td></tr>
               <tr><td>Password Earthdata / chiave OpenAQ</td><td>Vault credenziali di Windows.</td><td>Autenticazione; non vengono salvate in SQLite.</td></tr>
@@ -920,7 +921,7 @@
       <section id="it-troubleshooting">
         <h2>13. Risoluzione problemi</h2>
         <h3>La posizione di sistema non funziona</h3>
-        <p>Su Windows controlla le autorizzazioni Localizzazione; su Linux verifica che GeoClue 2 sia installato, attivo e autorizzato. In alternativa usa la ricerca città o le coordinate manuali; il fuso viene comunque calcolato offline.</p>
+        <p>Su Windows controlla le autorizzazioni Localizzazione; su Linux verifica che GeoClue 2 sia installato, attivo e autorizzato. In alternativa usa la ricerca località o le coordinate manuali; il fuso viene comunque calcolato offline.</p>
         <h3>La Home non mostra raccomandazioni</h3>
         <p>Verifica prima la località e lo stato sessione. Controlla poi il profilo attivo: senza strumenti vengono mostrati soltanto target realistici a occhio nudo. Una notte senza finestre utili può essere un risultato corretto.</p>
         <h3>Meteo non disponibile</h3>
@@ -953,7 +954,7 @@
         <p>NightScope works without external accounts. A valid location is enough for a first plan; adding the equipment you own makes the result target-specific.</p>
         <ol class="steps">
           <li><strong>Run NightScope from a writable folder.</strong> The portable build stores its database, preferences, and logs beside the executable.</li>
-          <li><strong>Set the location.</strong> Use system location, search the offline city catalogue, or enter coordinates.</li>
+          <li><strong>Set the location.</strong> Use system location, search offline for a city or MPC observatory, or enter coordinates.</li>
           <li><strong>Check the Default profile.</strong> Add telescopes or binoculars to the active profile. Without either, NightScope uses Naked eye mode.</li>
           <li><strong>Open Home.</strong> Read the session state and limiting factor first, then the plan and alternatives.</li>
           <li><strong>Configure optional providers only when needed.</strong> Earthdata adds VIIRS/AOD; OpenAQ adds local particulate measurements.</li>
@@ -967,8 +968,8 @@
         <dl class="term-grid">
           <dt>System location</dt>
           <dd>Requires platform location permission. NightScope uses the Windows provider on Windows and GeoClue 2 on Linux; it resolves the IANA timezone offline and can enrich the label from the local city catalogue.</dd>
-          <dt>City search</dt>
-          <dd>Uses offline GeoNames data. The name is presentational; the timezone is resolved from local timezone boundaries at the city's coordinates.</dd>
+          <dt>Location search</dt>
+          <dd>Searches offline GeoNames cities and fixed terrestrial observatories registered in the MPC catalogue, including by their three-character code. The timezone is resolved from local timezone boundaries at the selected coordinates.</dd>
           <dt>Manual coordinates</dt>
           <dd>Accepts latitude and longitude without requiring a nearby imported city. This is the most precise method for a remote site.</dd>
           <dt>Online fallback</dt>
@@ -1150,6 +1151,7 @@
             <tbody>
               <tr><td>Coordinates</td><td>Local SQLite/JSON; Open-Meteo, Earthdata, and OpenAQ when used.</td><td>Location-specific forecasts and products.</td></tr>
               <tr><td>System location</td><td>Windows provider or GeoClue and NightScope.</td><td>System acquisition; no automatic online reverse geocoder.</td></tr>
+              <tr><td>MPC observatory catalogue</td><td>Snapshot packaged with NightScope and the local SQLite database.</td><td>Offline search; no MPC request during use.</td></tr>
               <tr><td>IP fallback</td><td>IP service after explicit action.</td><td>Approximate location.</td></tr>
               <tr><td>ISS/comet elements</td><td>Downloaded from CelesTrak/JPL without user coordinates.</td><td>Local propagation.</td></tr>
               <tr><td>Earthdata password / OpenAQ key</td><td>Windows credential vault.</td><td>Authentication; not stored in SQLite.</td></tr>
@@ -1165,7 +1167,7 @@
       <section id="en-troubleshooting">
         <h2>13. Troubleshooting</h2>
         <h3>System location does not work</h3>
-        <p>On Windows, check Location permissions. On Linux, verify that GeoClue 2 is installed, running, and authorized. Alternatively, use city search or manual coordinates; the timezone is still calculated offline.</p>
+        <p>On Windows, check Location permissions. On Linux, verify that GeoClue 2 is installed, running, and authorized. Alternatively, use location search or manual coordinates; the timezone is still calculated offline.</p>
         <h3>Home shows no recommendations</h3>
         <p>Check location and session state first. Then confirm the active profile: without equipment, only realistic naked-eye targets are shown. A night without useful windows can be a correct result.</p>
         <h3>Weather is unavailable</h3>
@@ -1198,7 +1200,7 @@
         <p>NightScope funciona sin cuentas externas. Una ubicación válida basta para obtener un primer plan; añadir el equipo que posee permite adaptar el resultado a cada objeto.</p>
         <ol class="steps">
           <li><strong>Ejecute NightScope desde una carpeta con permiso de escritura.</strong> La versión portátil guarda la base de datos, las preferencias y los registros junto al ejecutable.</li>
-          <li><strong>Establezca la ubicación.</strong> Use la ubicación del sistema, busque en el catálogo de ciudades sin conexión o introduzca las coordenadas.</li>
+          <li><strong>Establezca la ubicación.</strong> Use la ubicación del sistema, busque sin conexión una ciudad o un observatorio MPC, o introduzca las coordenadas.</li>
           <li><strong>Compruebe el perfil Default.</strong> Añada telescopios o prismáticos al perfil activo. Si no hay ninguno, NightScope utiliza el modo A simple vista.</li>
           <li><strong>Abra Inicio.</strong> Lea primero el estado de la sesión y el factor limitante; consulte después el plan y las alternativas.</li>
           <li><strong>Configure los proveedores opcionales solo cuando los necesite.</strong> Earthdata añade VIIRS/AOD; OpenAQ añade mediciones locales de partículas.</li>
@@ -1212,8 +1214,8 @@
         <dl class="term-grid">
           <dt>Ubicación del sistema</dt>
           <dd>Requiere el permiso de ubicación de la plataforma. NightScope utiliza el proveedor de Windows en Windows y GeoClue 2 en Linux; resuelve sin conexión la zona horaria IANA y puede completar la etiqueta mediante el catálogo local de ciudades.</dd>
-          <dt>Búsqueda de ciudades</dt>
-          <dd>Utiliza los datos de GeoNames sin conexión. El nombre solo sirve para la presentación; la zona horaria se obtiene a partir de los límites horarios locales en las coordenadas de la ciudad.</dd>
+          <dt>Búsqueda de ubicaciones</dt>
+          <dd>Busca sin conexión ciudades de GeoNames y observatorios terrestres fijos registrados en el catálogo MPC, también mediante su código de tres caracteres. La zona horaria se obtiene a partir de los límites locales de las zonas horarias en las coordenadas elegidas.</dd>
           <dt>Coordenadas manuales</dt>
           <dd>Admite latitud y longitud sin exigir una ciudad importada cercana. Es el método más preciso para un emplazamiento remoto.</dd>
           <dt>Alternativa en línea</dt>
@@ -1395,6 +1397,7 @@
             <tbody>
               <tr><td>Coordenadas</td><td>SQLite/JSON local; Open-Meteo, Earthdata y OpenAQ cuando se utilizan.</td><td>Previsiones y productos específicos de la ubicación.</td></tr>
               <tr><td>Ubicación del sistema</td><td>Proveedor de Windows o GeoClue y NightScope.</td><td>Obtención desde el sistema; sin geocodificador inverso en línea automático.</td></tr>
+              <tr><td>Catálogo de observatorios MPC</td><td>Instantánea incluida en NightScope y base de datos SQLite local.</td><td>Búsqueda sin conexión; no se consulta al MPC durante el uso.</td></tr>
               <tr><td>Alternativa por IP</td><td>Servicio de IP tras una acción explícita.</td><td>Ubicación aproximada.</td></tr>
               <tr><td>Elementos de la ISS y los cometas</td><td>Descargados de CelesTrak/JPL sin las coordenadas del usuario.</td><td>Propagación local.</td></tr>
               <tr><td>Contraseña de Earthdata / clave de OpenAQ</td><td>Almacén de credenciales de Windows.</td><td>Autenticación; no se guardan en SQLite.</td></tr>
@@ -1410,7 +1413,7 @@
       <section id="es-troubleshooting">
         <h2>13. Solución de problemas</h2>
         <h3>La ubicación del sistema no funciona</h3>
-        <p>En Windows, compruebe los permisos de ubicación. En Linux, verifique que GeoClue 2 esté instalado, activo y autorizado. También puede buscar una ciudad o introducir las coordenadas manualmente; la zona horaria se seguirá calculando sin conexión.</p>
+        <p>En Windows, compruebe los permisos de ubicación. En Linux, verifique que GeoClue 2 esté instalado, activo y autorizado. También puede usar la búsqueda de ubicaciones o introducir las coordenadas manualmente; la zona horaria se seguirá calculando sin conexión.</p>
         <h3>Inicio no muestra recomendaciones</h3>
         <p>Compruebe primero la ubicación y el estado de la sesión. Confirme después el perfil activo: sin equipo solo se muestran objetos realistas a simple vista. Una noche sin ventanas útiles puede ser un resultado correcto.</p>
         <h3>Los datos meteorológicos no están disponibles</h3>

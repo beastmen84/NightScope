@@ -8,8 +8,8 @@ source commit or a passing unit suite alone is not a release approval.
 - [x] Select and add the project `LICENSE` file.
 - [x] Create a consolidated third-party notice from runtime dependencies,
   packaged data, and image metadata.
-- [x] Confirm GeoNames CC BY 4.0, timezone-boundary ODbL 1.0, survey image, and
-  NASA/JPL attribution is present where required.
+- [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
+  survey image, and NASA/JPL attribution is present where required.
 - [x] Record the public NightScope source URL and exact corresponding commit for
   the distributed MPL executable: tag `v1.33.2`, commit
   `9c17204f718223e83183367e9ccea078805b5a00`.

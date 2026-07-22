@@ -228,16 +228,16 @@ Item {
                     Layout.alignment: Qt.AlignTop
                     Layout.minimumHeight: root.width > 1040 ? 428 : 248
                     clip: true
-                    title: qsTr("Ricerca città")
-                    subtitle: qsTr("Catalogo GeoNames offline")
+                    title: qsTr("Ricerca località")
+                    subtitle: qsTr("GeoNames e osservatori MPC offline")
                     accentColor: theme.amber
                     contentFillsHeight: true
 
                     TextField {
-                        id: citySearch
+                        id: locationSearch
                         Layout.fillWidth: true
-                        placeholderText: qsTr("Cerca città")
-                        onTextChanged: controller.searchCities(text)
+                        placeholderText: qsTr("Cerca città, osservatorio o codice MPC")
+                        onTextChanged: controller.searchLocations(text)
                     }
 
                     Rectangle {
@@ -252,8 +252,8 @@ Item {
                         Text {
                             anchors.fill: parent
                             anchors.margins: 12
-                            visible: !controller.hasCitySearchQuery
-                            text: qsTr("Digita una città per mostrare risultati offline.")
+                            visible: !controller.hasLocationSearchQuery
+                            text: qsTr("Digita una città, un osservatorio o un codice MPC.")
                             color: theme.textSecondary
                             font.pixelSize: 13
                             wrapMode: Text.WordWrap
@@ -263,8 +263,8 @@ Item {
                         Text {
                             anchors.fill: parent
                             anchors.margins: 12
-                            visible: controller.hasCitySearchQuery && controller.cityResults.length === 0
-                            text: qsTr("Nessuna città trovata.")
+                            visible: controller.hasLocationSearchQuery && controller.locationResults.length === 0
+                            text: qsTr("Nessuna località trovata.")
                             color: theme.textSecondary
                             font.pixelSize: 13
                             wrapMode: Text.WordWrap
@@ -274,15 +274,15 @@ Item {
                         ListView {
                             anchors.fill: parent
                             anchors.margins: 6
-                            visible: controller.hasCitySearchQuery && controller.cityResults.length > 0
+                            visible: controller.hasLocationSearchQuery && controller.locationResults.length > 0
                             clip: true
                             boundsBehavior: Flickable.StopAtBounds
                             spacing: 4
-                            model: controller.cityResults
+                            model: controller.locationResults
 
                             delegate: Rectangle {
                                 width: ListView.view.width
-                                height: 38
+                                height: 52
                                 radius: 8
                                 color: cityMouse.containsMouse ? "#20242b" : "transparent"
                                 border.color: cityMouse.containsMouse ? "#303641" : "transparent"
@@ -293,12 +293,25 @@ Item {
                                     anchors.leftMargin: 10
                                     anchors.rightMargin: 10
 
-                                    Text {
+                                    ColumnLayout {
                                         Layout.fillWidth: true
-                                        text: modelData.city + ", " + modelData.country
-                                        color: theme.textPrimary
-                                        font.pixelSize: 13
-                                        elide: Text.ElideRight
+                                        spacing: 1
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: modelData.displayName
+                                            color: theme.textPrimary
+                                            font.pixelSize: 13
+                                            elide: Text.ElideRight
+                                        }
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: modelData.kindLabel + " · " + modelData.context
+                                            color: theme.textMuted
+                                            font.pixelSize: 11
+                                            elide: Text.ElideRight
+                                        }
                                     }
 
                                     Text {
@@ -313,7 +326,7 @@ Item {
                                     anchors.fill: parent
                                     hoverEnabled: true
                                     cursorShape: Qt.PointingHandCursor
-                                    onClicked: controller.selectCity(modelData.id)
+                                    onClicked: controller.selectLocation(modelData.kind, modelData.selection_id)
                                 }
                             }
                         }

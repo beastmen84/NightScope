@@ -305,7 +305,6 @@
     "Vento (media)": "Viento (medio)",
     "Ordinati per data": "Ordenados por fecha",
     "Attiva": "Activa",
-    "Ricerca città": "Búsqueda de ciudad",
     "Precisa con fallback Windows approssimato": "Precisa con alternativa aproximada de Windows",
     "Usa posizione approssimata online": "Usar ubicación aproximada en línea",
     "Usa": "Usar",
@@ -561,7 +560,6 @@
     "Profilo attivo: Default  ·  occhio nudo": "Perfil activo: Default · a simple vista",
     "Condizioni della sessione non confermate: usa la direzione solo come orientamento.": "Las condiciones de la sesión no están confirmadas: use la dirección solo como orientación.",
     "Seleziona una scheda evento per aprire il dettaglio.": "Seleccione una ficha de evento para abrir sus detalles.",
-    "Digita una città per mostrare risultati offline.": "Escriba una ciudad para mostrar los resultados sin conexión.",
     "Usa i servizi di localizzazione di Windows con consenso di sistema. Se il provider preciso non risponde, NightScope tenta il fallback Windows approssimato.": "Use los servicios de ubicación de Windows con el consentimiento del sistema. Si el proveedor preciso no responde, NightScope prueba la alternativa aproximada de Windows.",
     "Periodo migliore: %1": "Mejor periodo: %1",
     "Nel profilo": "En el perfil",
@@ -639,7 +637,19 @@
     "Con il tuo profilo": "Con su perfil",
     "Scegli un oggetto dalla Home, dal calendario o dal catalogo.": "Elija un objeto de Inicio, el calendario o el catálogo.",
     "Il log è vuoto. Aggiungi la prima osservazione.": "El registro está vacío. Añada la primera observación.",
-    "Il Log Osservazioni accetta soltanto osservazioni già effettuate.": "El Registro de Observaciones solo acepta observaciones pasadas."
+    "Il Log Osservazioni accetta soltanto osservazioni già effettuate.": "El Registro de Observaciones solo acepta observaciones pasadas.",
+    "coordinate MPC": "coordenadas MPC",
+    "Località impostata su {observatory} (MPC {code}).": "Ubicación establecida en {observatory} (MPC {code}).",
+    "{city}, {country}": "{city}, {country}",
+    "Città": "Ciudad",
+    "Osservatorio": "Observatorio",
+    "Osservatorio MPC selezionato.": "Observatorio MPC seleccionado.",
+    "Osservatorio MPC": "Observatorio MPC",
+    "Ricerca località": "Búsqueda de ubicaciones",
+    "GeoNames e osservatori MPC offline": "GeoNames y observatorios MPC sin conexión",
+    "Cerca città, osservatorio o codice MPC": "Buscar ciudad, observatorio o código MPC",
+    "Digita una città, un osservatorio o un codice MPC.": "Introduzca una ciudad, un observatorio o un código MPC.",
+    "Nessuna località trovata.": "No se encontraron ubicaciones."
   },
   "contexts": {
     "ObjectDetailPage": {

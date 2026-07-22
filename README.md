@@ -13,10 +13,11 @@ setup?**
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
 > validated; its Italian/English source visual review and source licensing are
-> complete. Source version 1.35.1 includes the reviewed Spanish localization,
+> complete. Source version 1.36.0 includes the reviewed Spanish localization,
 > the provider/runtime and Earthdata authorization fixes released in 1.34.2,
 > the subsequent Italian and English editorial review, and the first
-> platform-capability boundary for native Linux support. System location now
+> platform-capability boundary for native Linux support, plus unified offline
+> search for GeoNames cities and MPC observatories. System location now
 > uses the existing providers on Windows and GeoClue 2 on Linux; the Windows
 > provider order and fallback behavior remain unchanged.
 > The published Windows bundle passes automated legal,
@@ -97,6 +98,7 @@ data.
 | Open-Meteo | Hourly weather forecast | No | Yes |
 | System location (Windows/GeoClue) | OS location | No | Stays in the OS/app |
 | GeoNames | Offline city search and labels | No | No |
+| Minor Planet Center | Offline MPC observatory search | No | No; packaged snapshot |
 | timezonefinder | Offline IANA timezone lookup | No | No |
 | CelesTrak | ISS orbital elements | No | No |
 | JPL SBDB | Comet orbital elements | No | No |
@@ -196,7 +198,7 @@ the latest measured baseline are in [`docs/TESTING.md`](docs/TESTING.md).
 
 PyInstaller writes the portable application to `dist\NightScope`. The build
 includes QML, translations, the multilingual manual, catalogue seeds,
-scientific images, GeoNames data, timezone boundary data, and the local JPL
+scientific images, GeoNames and MPC observatory data, timezone boundary data, and the local JPL
 `de421` ephemeris.
 
 The application writes its database, preferences, caches, and logs beside the
@@ -224,7 +226,7 @@ astro_viewer/
     services/        Providers, caches, localization and orchestration
     ui/              QML application and reusable controls
     viewmodels/      QML-facing read models and commands
-  data/              Schemas, seeds, GeoNames and local ephemeris data
+  data/              Schemas, seeds, GeoNames, MPC sites and local ephemeris data
   resources/         Icons and credited catalogue images
   tests/             Deterministic unit, integration and presentation tests
   translations/      Runtime language packs and compiled Qt catalogues
@@ -263,7 +265,8 @@ NightScope includes data and images from sources with their own terms and
 attribution requirements. In particular, GeoNames data is distributed under
 CC BY 4.0, timezone boundary data used by `timezonefinder` is derived from
 `timezone-boundary-builder` under ODbL 1.0, and every catalogue image retains
-its source and credit metadata.
+its source and credit metadata. The offline observatory snapshot retains
+attribution to the International Astronomical Union Minor Planet Center.
 
 NightScope is Copyright 2026 Davide Marchi and is licensed under the
 [Mozilla Public License 2.0](LICENSE). The MPL applies to NightScope source

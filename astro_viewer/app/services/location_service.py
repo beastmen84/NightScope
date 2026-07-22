@@ -585,6 +585,31 @@ class LocationService:
     def from_city(self, city: dict) -> ObserverLocation:
         return self.from_city_result(city).location
 
+    def from_mpc_observatory_result(self, observatory: dict) -> LocationDetectionResult:
+        code = str(observatory["mpc_code"]).strip().upper()
+        name = str(observatory["name"]).strip()
+        result = LocationDetectionResult(
+            location=ObserverLocation(
+                city=name,
+                country="",
+                latitude=float(observatory["latitude"]),
+                longitude=float(observatory["longitude"]),
+                timezone="UTC",
+            ),
+            provider="mpc_observatory",
+            source="MPC Observatory Codes",
+            accuracy=tr("coordinate MPC"),
+            approximate=False,
+            message=tr(
+                "Località impostata su {observatory} (MPC {code}).",
+                observatory=name,
+                code=code,
+            ),
+        )
+        result = self._normalize_result(result)
+        self.last_result = result
+        return result
+
     def from_manual_coordinates(
         self,
         latitude: float,
@@ -636,7 +661,7 @@ class LocationService:
     def _normalize_result(self, result: LocationDetectionResult) -> LocationDetectionResult:
         if result.provider in {"windows_precise", "windows_coarse", "geoclue2"}:
             return self._normalize_system_result(result)
-        if result.provider in {"manual_city", "manual_coordinates"}:
+        if result.provider in {"manual_city", "manual_coordinates", "mpc_observatory"}:
             return self._normalize_coordinate_timezone(result)
         if result.provider == "ip_geolocation":
             raw_timezone = result.raw_provider_timezone.strip()

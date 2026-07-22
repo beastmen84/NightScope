@@ -4,7 +4,7 @@ Aggiornato: 2026-07-22
 
 ## Stato Versioni
 
-- Versione sorgente: `1.35.1`
+- Versione sorgente: `1.36.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica: `v1.34.2`, tag sul commit sorgente
   `5f1cf9a83047bc005e57defb157a572b7ee5ef70`.
@@ -21,6 +21,34 @@ La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`, ora release pubblica. La review
 editoriale italiana e inglese descritta sotto appartiene al sorgente `1.34.3`.
+
+## Ricerca Localita' GeoNames E MPC 1.36.0
+
+La card Localita' combina ora citta' GeoNames e osservatori MPC in una ricerca
+offline unica. `LocationRepository` mantiene i due domini separati, assegna
+priorita' al codice MPC esatto e restituisce un contratto di risultato comune.
+La selezione MPC passa a `LocationService`, che usa le coordinate del catalogo
+e risolve il fuso IANA offline con `timezonefinder`.
+
+`mpc_observatories_seed.csv` e' uno snapshot del 2026-07-22 generato dall'API
+ufficiale MPC. Contiene `2.683` postazioni terrestri fisse; satelliti, roving,
+geocentro e record non superficiali sono esclusi. Il tool
+`astro_viewer/tools/update_mpc_observatories.py` aggiorna lo snapshot e la
+modalita' `--check` lo valida senza rete. Longitudine e costanti di parallasse
+originali sono conservate; latitudine geodetica e quota sono derivate su WGS84.
+
+Lo schema passa a `17` con la tabella `MpcObservatory`. Bootstrap e preflight
+usano `DataImportLog`, quindi un database esistente viene migrato e popolato
+senza perdere dati utente. PyInstaller include il seed e l'audit della dist lo
+considera obbligatorio. UI, manuale e traduzioni IT/EN/ES sono allineati. La
+dist non e' stata rigenerata; la release pubblica resta `1.34.2`.
+
+Il gate completo `tools/run_checks.py --security` e' passato in `262,9 s`:
+snapshot MPC da `2.683` righe, smoke backend/QML e audit di sicurezza superati,
+senza vulnerabilita' note. Dopo l'ultima regressione sul ranking, la suite
+finale conta `853 passed`, `642 warnings` note, `10 subtests` e coverage runtime
+`84%` su `15.764` statement. I cataloghi IT/EN/ES contengono `1.691` traduzioni
+complete e nessuna voce incompleta.
 
 ## Posizione Di Sistema Linux 1.35.1
 

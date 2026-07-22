@@ -43,10 +43,12 @@ The runner executes, in order:
 1. `pip check`.
 2. Ruff over application, tests, and developer tools.
 3. Quiet bytecode compilation.
-4. Optional `pip-audit`.
-5. Exactly one complete pytest pass, with or without runtime-code coverage.
-6. Backend smoke test.
-7. QML smoke test.
+4. Third-party license archive validation.
+5. Offline MPC observatory snapshot validation.
+6. Optional `pip-audit`.
+7. Exactly one complete pytest pass, with or without runtime-code coverage.
+8. Backend smoke test.
+9. QML smoke test.
 
 Backend and QML smoke tests receive a fresh `NIGHTSCOPE_RUNTIME_DIR` and delete
 it after the subprocess exits. This developer/test-only override keeps the
@@ -89,11 +91,42 @@ Run the repository image checks:
 .\.venv\Scripts\python.exe astro_viewer\tools\sync_solar_system_images.py --check
 ```
 
+Validate the packaged MPC observatory snapshot without accessing the network:
+
+```powershell
+.\.venv\Scripts\python.exe astro_viewer\tools\update_mpc_observatories.py --check
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_mpc_observatories.py
+```
+
 Run `pyside6-qmllint` over every file below `astro_viewer/app/ui`. QML lint
 currently reports non-fatal `unqualified access` diagnostics for context
 properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
+
+## Measured 1.36.0 Unified Location Search Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-22 after combining the
+offline GeoNames city search with the fixed terrestrial MPC observatory
+snapshot:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` | Passed in 262.9 s |
+| `pip check`, Ruff, `compileall`, third-party archive | Passed |
+| Offline MPC snapshot check | 2,683 fixed terrestrial observatories passed |
+| Final `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 853 passed, 642 warnings, 10 subtests passed in 135.81 s |
+| Runtime coverage | 84% across 15,764 statements |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Translation catalogues | IT, EN, and ES: 1,691 finished, 0 unfinished each |
+| Backend and QML smoke tests | Passed in disposable runtimes |
+
+The SQLite schema is now version 17. Existing databases are migrated in place;
+only the derived `MpcObservatory` catalogue is imported or refreshed. No
+distribution or repository runtime database was regenerated, and the public
+Windows release remains `1.34.2`. The standard gate completed before the final
+ranking-limit regression was added; the complete coverage suite was rerun after
+that addition and produced the final count above.
 
 ## Measured 1.35.1 Linux System Location Gate
 

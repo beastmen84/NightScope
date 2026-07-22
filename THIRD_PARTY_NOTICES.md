@@ -84,6 +84,22 @@ Commons Attribution 4.0 International (`CC-BY-4.0`).
 
 NightScope packages an unmodified snapshot selected from the upstream export.
 
+### Minor Planet Center Observatory Codes
+
+`mpc_observatories_seed.csv` is a derived offline snapshot of observatory data
+made publicly available by the IAU Minor Planet Center. NightScope retains the
+MPC code, names, station metadata and parallax constants, derives WGS84
+coordinates, and excludes non-fixed or non-terrestrial entries from location
+selection.
+
+- Source API: `https://data.minorplanetcenter.net/api/obscodes`
+- API documentation: `https://docs.minorplanetcenter.net/mpc-ops-docs/apis/obscodes/`
+- Attribution guidance: `https://docs.minorplanetcenter.net/mpc-ops-docs/faqs/`
+- Attribution: International Astronomical Union Minor Planet Center
+
+The packaged snapshot was retrieved on 2026-07-22. Searching it at runtime is
+offline and does not send the user's query or coordinates to the MPC.
+
 ### Timezone Boundaries
 
 The `timezonefinder` package embeds timezone-boundary data distributed under

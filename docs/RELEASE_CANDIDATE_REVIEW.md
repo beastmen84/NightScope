@@ -40,9 +40,9 @@ Use `docs/RELEASE_CHECKLIST.md` as the release gate.
 ### Project and dependency licensing
 
 NightScope is now licensed under MPL-2.0, Copyright 2026 Davide Marchi. A
-consolidated third-party notice covers Python packages, Qt/PySide, GeoNames,
-timezone-boundary data, astronomical data, and image provenance. A generated
-archive preserves the exact installed license and copyright texts and is
+  consolidated third-party notice covers Python packages, Qt/PySide, GeoNames,
+  MPC observatory data, timezone-boundary data, astronomical data, and image
+  provenance. A generated archive preserves the exact installed license and copyright texts and is
 validated by the standard repository gate.
 
 The previous PyInstaller bundle collected every QML module installed with

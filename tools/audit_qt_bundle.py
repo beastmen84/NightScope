@@ -17,6 +17,9 @@ REQUIRED_LEGAL_FILES = {
     "THIRD_PARTY_LICENSES.txt",
     "THIRD_PARTY_NOTICES.md",
 }
+REQUIRED_DATA_FILES = {
+    "mpc_observatories_seed.csv",
+}
 FORBIDDEN_RUNTIME_ENTRIES = {
     "location_cache.json",
     "logs",
@@ -80,6 +83,10 @@ def audit_bundle(bundle_dir: Path) -> list[str]:
     )
     if missing_legal:
         errors.append("missing legal files: " + ", ".join(missing_legal))
+
+    missing_data = sorted(REQUIRED_DATA_FILES - filenames)
+    if missing_data:
+        errors.append("missing required data files: " + ", ".join(missing_data))
 
     runtime_entries = sorted(
         path.name

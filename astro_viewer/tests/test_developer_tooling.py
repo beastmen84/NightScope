@@ -14,7 +14,7 @@ from astro_viewer.app.services.logging_service import (
     LOG_HANDLER_NAME,
     configure_logging,
 )
-from tools.audit_qt_bundle import REQUIRED_DLLS, audit_bundle
+from tools.audit_qt_bundle import REQUIRED_DATA_FILES, REQUIRED_DLLS, audit_bundle
 from tools.generate_third_party_licenses import render_archive
 from tools.run_checks import Check, _checks, _run_check
 from tools.translation_provider import (
@@ -115,6 +115,7 @@ def test_standard_check_plan_runs_one_test_suite_and_optional_security() -> None
         "ruff",
         "compileall",
         "third-party-licenses",
+        "mpc-observatories",
         "pytest",
         "smoke-test",
         "qml-smoke-test",
@@ -289,6 +290,9 @@ def test_multilingual_manual_has_complete_navigation_and_current_provider_semant
     assert "NightScope usa il provider Windows su Windows e GeoClue 2 su Linux" in manual
     assert "NightScope uses the Windows provider on Windows and GeoClue 2 on Linux" in manual
     assert "NightScope utiliza el proveedor de Windows en Windows y GeoClue 2 en Linux" in manual
+    assert "osservatori terrestri fissi registrati nel catalogo MPC" in manual
+    assert "fixed terrestrial observatories registered in the MPC catalogue" in manual
+    assert "observatorios terrestres fijos registrados en el catálogo MPC" in manual
 
 
 def test_manual_language_switch_keeps_all_languages_on_one_row() -> None:
@@ -377,10 +381,15 @@ def test_legal_files_are_current_and_windows_build_enforces_them() -> None:
         encoding="utf-8"
     )
     assert '"PySide6.QtPositioning"' in spec
+    assert '"mpc_observatories_seed.csv"' in spec
+    assert "Minor Planet Center Observatory Codes" in notices
+    assert "data.minorplanetcenter.net/api/obscodes" in notices
 
 
 def test_qt_bundle_audit_rejects_gpl_only_modules(tmp_path: Path) -> None:
     for filename in REQUIRED_DLLS:
+        (tmp_path / filename).touch()
+    for filename in REQUIRED_DATA_FILES:
         (tmp_path / filename).touch()
     for filename in ("LICENSE", "THIRD_PARTY_LICENSES.txt", "THIRD_PARTY_NOTICES.md"):
         (tmp_path / filename).touch()
@@ -416,6 +425,8 @@ def test_qt_bundle_audit_rejects_gpl_only_modules(tmp_path: Path) -> None:
 
 def test_qt_bundle_audit_rejects_runtime_state(tmp_path: Path) -> None:
     for filename in REQUIRED_DLLS:
+        (tmp_path / filename).touch()
+    for filename in REQUIRED_DATA_FILES:
         (tmp_path / filename).touch()
     for filename in ("LICENSE", "THIRD_PARTY_LICENSES.txt", "THIRD_PARTY_NOTICES.md"):
         (tmp_path / filename).touch()

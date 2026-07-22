@@ -26,6 +26,7 @@ from astro_viewer.app.astronomy.skyfield_engine import (
 )
 from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.database.city_repository import CityRepository
+from astro_viewer.app.database.location_repository import LocationRepository
 from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
 from astro_viewer.app.database.object_image_repository import ObjectImageRepository
 from astro_viewer.app.database.observation_repository import ObservationRepository
@@ -230,6 +231,7 @@ class AppController(QObject):
         self.skyCompassChanged.connect(self.observingObjectDetailChanged.emit)
         self._base_dir = base_dir
         self._city_repository = CityRepository(database_path)
+        self._location_repository = LocationRepository(database_path)
         self._catalogue_repository = CatalogueRepository(database_path)
         self._equipment_catalog_repository = EquipmentCatalogRepository(database_path)
         self._sky_quality_repository = SkyQualityRepository(database_path)
@@ -614,11 +616,25 @@ class AppController(QObject):
         return bool(self._visible_planets or self._deep_sky)
 
     @Property("QVariant", notify=locationChanged)
-    def cityResults(self) -> list[dict]:
+    def locationResults(self) -> list[dict]:
         return render_payload(
             [
                 {
                     **item,
+                    "displayName": (
+                        tr(
+                            "{city}, {country}",
+                            city=item["name"],
+                            country=item["context"],
+                        )
+                        if item["kind"] == "city"
+                        else item["name"]
+                    ),
+                    "kindLabel": (
+                        tr("Città")
+                        if item["kind"] == "city"
+                        else tr("Osservatorio")
+                    ),
                     "coordinatesLabel": tr(
                         "{latitude}, {longitude}",
                         latitude=format_number(item["latitude"], decimals=2),
@@ -630,8 +646,16 @@ class AppController(QObject):
         )
 
     @Property(bool, notify=locationChanged)
-    def hasCitySearchQuery(self) -> bool:
+    def hasLocationSearchQuery(self) -> bool:
         return self._city_search_has_query
+
+    @Property("QVariant", notify=locationChanged)
+    def cityResults(self) -> list[dict]:
+        return self.locationResults
+
+    @Property(bool, notify=locationChanged)
+    def hasCitySearchQuery(self) -> bool:
+        return self.hasLocationSearchQuery
 
     @Property("QVariant", notify=locationChanged)
     def recentLocations(self) -> list[dict]:
@@ -1334,14 +1358,18 @@ class AppController(QObject):
             self.selectedObjectChanged.emit()
 
     @Slot(str)
-    def searchCities(self, query: str) -> None:
+    def searchLocations(self, query: str) -> None:
         if query.strip():
             self._city_search_has_query = True
-            self._city_results = self._city_repository.search(query, limit=20)
+            self._city_results = self._location_repository.search(query, limit=20)
         else:
             self._city_search_has_query = False
             self._city_results = []
         self.locationChanged.emit()
+
+    @Slot(str)
+    def searchCities(self, query: str) -> None:
+        self.searchLocations(query)
 
     @Slot(int)
     def selectRecentLocation(self, index: int) -> None:
@@ -1354,7 +1382,7 @@ class AppController(QObject):
 
     @Slot(int)
     def selectCity(self, city_id: int) -> None:
-        city = self._city_repository.get_by_id(city_id)
+        city = self._location_repository.get_city(city_id)
         if not city:
             return
         self._cancel_startup_location_detection()
@@ -1362,6 +1390,28 @@ class AppController(QObject):
         self._apply_location_result(result)
         self._refresh_all()
         self.locationChanged.emit()
+
+    @Slot(str)
+    def selectMpcObservatory(self, mpc_code: str) -> None:
+        observatory = self._location_repository.get_observatory(mpc_code)
+        if not observatory:
+            return
+        self._cancel_startup_location_detection()
+        result = self._location_service.from_mpc_observatory_result(observatory)
+        self._apply_location_result(result)
+        self._refresh_all()
+        self.locationChanged.emit()
+
+    @Slot(str, str)
+    def selectLocation(self, kind: str, selection_id: str) -> None:
+        if kind == "city":
+            try:
+                city_id = int(selection_id)
+            except ValueError:
+                return
+            self.selectCity(city_id)
+        elif kind == "mpc_observatory":
+            self.selectMpcObservatory(selection_id)
 
     @Slot(str, str, str)
     def setManualLocation(self, latitude: str, longitude: str, label: str) -> None:
@@ -4124,6 +4174,8 @@ class AppController(QObject):
                 latitude=format_number(location.latitude, decimals=4),
                 longitude=format_number(location.longitude, decimals=4),
             )
+        if result.provider == "mpc_observatory":
+            return result.message or tr("Osservatorio MPC selezionato.")
         if result.provider == "ip_geolocation":
             if result.source.endswith(" cached"):
                 return tr(
@@ -4369,6 +4421,7 @@ class AppController(QObject):
             "geoclue2": tr("Posizione di sistema"),
             "ip_geolocation": tr("Online approssimata"),
             "manual_city": tr("Città manuale"),
+            "mpc_observatory": tr("Osservatorio MPC"),
             "manual_coordinates": tr("Coordinate manuali"),
             "cached": tr("Posizione salvata"),
         }
@@ -4385,6 +4438,7 @@ class AppController(QObject):
             "geoclue2": tr("fornita dal sistema"),
             "ip_geolocation": tr("livello città"),
             "manual_city": tr("coordinate della città"),
+            "mpc_observatory": tr("coordinate MPC"),
             "manual_coordinates": tr("fornita dall'utente"),
             "cached": tr("salvata"),
         }

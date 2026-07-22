@@ -29,6 +29,10 @@ def _checks(*, include_coverage: bool, include_security: bool) -> list[Check]:
             "third-party-licenses",
             ("tools/generate_third_party_licenses.py", "--check"),
         ),
+        Check(
+            "mpc-observatories",
+            ("astro_viewer/tools/update_mpc_observatories.py", "--check"),
+        ),
     ]
     if include_security:
         checks.append(

@@ -23,7 +23,19 @@
     "Posizione di sistema approssimata": "Approximate system location",
     "Servizio GeoClue 2": "GeoClue 2 service",
     "Usa posizione di sistema": "Use system location",
-    "Usa GeoClue per richiedere la posizione al sistema. Disponibilità e precisione dipendono dai servizi di localizzazione configurati nella distribuzione.": "Use GeoClue to request the system location. Availability and accuracy depend on the location services configured in the Linux distribution."
+    "Usa GeoClue per richiedere la posizione al sistema. Disponibilità e precisione dipendono dai servizi di localizzazione configurati nella distribuzione.": "Use GeoClue to request the system location. Availability and accuracy depend on the location services configured in the Linux distribution.",
+    "coordinate MPC": "MPC coordinates",
+    "Località impostata su {observatory} (MPC {code}).": "Location set to {observatory} (MPC {code}).",
+    "{city}, {country}": "{city}, {country}",
+    "Città": "City",
+    "Osservatorio": "Observatory",
+    "Osservatorio MPC selezionato.": "MPC observatory selected.",
+    "Osservatorio MPC": "MPC observatory",
+    "Ricerca località": "Location search",
+    "GeoNames e osservatori MPC offline": "Offline GeoNames and MPC observatories",
+    "Cerca città, osservatorio o codice MPC": "Search for a city, observatory, or MPC code",
+    "Digita una città, un osservatorio o un codice MPC.": "Enter a city, observatory, or MPC code.",
+    "Nessuna località trovata.": "No locations found."
   },
   "contexts": {}
 }
