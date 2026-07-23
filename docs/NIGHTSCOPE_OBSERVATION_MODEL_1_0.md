@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.27.0`:
+Current runtime status for `1.40.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries use one canonical NSOM environment.
@@ -22,6 +22,10 @@ Current runtime status for `1.27.0`:
 - `RecommendationConfidence` remains parallel metadata and never modifies score.
 - Runtime consumers normalize target identity and score/count each non-empty
   object ID at most once while retaining stable first-occurrence order.
+- `1.40.1` preserves Skyfield degree-formatted altitude inputs and removes the
+  residual display-score eligibility threshold from the pre-NSOM deep-sky
+  pool. Bortle/VIIRS display conditioning and canonical NSOM sky background
+  remain separate outputs over the same astronomically eligible candidates.
 - `1.22.0` separates physical catalogue targets from their designations; this
   preserves canonical NSOM identity and does not change scoring or ranking.
 - `1.23.0` adds the 109 Caldwell targets through that identity contract. It
@@ -1201,6 +1205,16 @@ Global caps:
 - total effective-observability influence is target-class dependent, never above 60%;
 - planets should be protected from excessive transparency influence and instead
   be primarily affected by seeing and altitude.
+
+Runtime status in `1.40.1`: the AOD/PM, Moon and static-sky component caps are
+active. `max_total_visibility_influence` remains frozen reference metadata; it
+is not applied as a second aggregate floor across geometric visibility,
+horizon context and weather transparency. Enabling that aggregate limit
+mechanically would make physically unavailable or below-horizon targets retain
+artificial observability and would constrain already capped components twice.
+Any aggregate-cap policy therefore requires a separate architectural review
+that defines exactly which components it owns and adds monotonicity and
+unobservable-target tests.
 
 ## 9. Worked Examples
 

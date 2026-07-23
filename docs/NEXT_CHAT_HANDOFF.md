@@ -4,7 +4,7 @@ Aggiornato: 2026-07-23
 
 ## Stato Versioni
 
-- Versione sorgente: `1.40.0`
+- Versione sorgente: `1.40.1`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica: `v1.37.0`, tag sul commit sorgente
   `dded6a19bdef938f939676113e96ac18fa07138f`.
@@ -12,7 +12,7 @@ Aggiornato: 2026-07-23
   `063385ec01665b60232872a3b312f0f573633214f2110e495530cb399151ccb1`.
 - Distribuzione Windows corrente: `1.37.0`, pubblicata su GitHub.
 - Metadati, tag e digest della release `1.37.0` verificati su GitHub il
-  2026-07-23. Il sorgente `1.40.0` non e' ancora distribuito.
+  2026-07-23. Il sorgente `1.40.1` non e' ancora distribuito.
 - Commit sorgente della release pubblica validato:
   `dded6a1 Fix red source links and location wrapping`
 
@@ -20,6 +20,26 @@ La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
+
+## Recommendation e confine NSOM 1.40.1
+
+Il parser condiviso di `TargetObservationTraits` accetta ora direttamente il
+formato Skyfield con simbolo dei gradi. Equipment e difficolta' consumano
+quindi l'altezza runtime reale invece del fallback zero.
+
+Il contesto urbano di `ObservationConditionsService` resta una proiezione di
+presentazione con score, nota e ordinamento compatibili. Non modifica piu'
+`visible` e non esclude candidati prima dei read model: Home, Planner, Best
+Object e Sky Compass ricevono il target grezzo e applicano una sola volta il
+fattore NSOM di sky background. Le prove reali a Nairobi, Roma e Sydney hanno
+conservato rispettivamente `195/195`, `148/148` e `165/165` candidati, con tutte
+le altezze interpretate. La matrice Equipment rigenerata copre 375 combinazioni
+senza violazioni.
+
+Il gate completo `tools/run_checks.py --security` e' passato: `917 passed`,
+`642 warnings` note, `10 subtests`, coverage `84%` su `16.032` statement,
+snapshot MPC, smoke backend/QML normale/rosso e audit dipendenze superati,
+senza vulnerabilita' note.
 
 ## Backend Credenziali Linux Secret Service 1.40.0
 

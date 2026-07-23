@@ -205,7 +205,7 @@ class ObservationConditionsService:
             for item in targets
         ]
         return sorted(
-            [item for item in updated if item.target.visible],
+            updated,
             key=lambda item: item.target.score,
             reverse=True,
         )
@@ -232,7 +232,6 @@ class ObservationConditionsService:
     ) -> ConditionedTarget:
         inputs = inputs or ObservationConditionInputs()
         score = target.score
-        visible = target.visible
         notes = target.notes
         condition_flags = target.condition_flags
         moon_penalty = 0.0
@@ -273,7 +272,6 @@ class ObservationConditionsService:
                 urban_note = self.POLLUTION_CONTEXT_NOTE
                 if urban_note not in notes:
                     notes = join_text([urban_note, target.notes], " ")
-                visible = visible and score > 10
                 if pollution_penalty > 0 and self.POLLUTION_CONTEXT_FLAG not in condition_flags:
                     condition_flags = (*condition_flags, self.POLLUTION_CONTEXT_FLAG)
         else:
@@ -303,7 +301,6 @@ class ObservationConditionsService:
 
         if (
             score == target.score
-            and visible == target.visible
             and notes == target.notes
             and condition_flags == target.condition_flags
         ):
@@ -313,7 +310,6 @@ class ObservationConditionsService:
                 target,
                 score=score,
                 score_label=ObservingScoreService.score_label(score),
-                visible=visible,
                 notes=notes,
                 condition_flags=condition_flags,
             ),

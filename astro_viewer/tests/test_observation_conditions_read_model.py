@@ -64,16 +64,20 @@ def test_conditioned_target_read_model_is_frozen_and_strict_json_compatible() ->
     json.dumps(model.to_dict(), sort_keys=True, allow_nan=False)
 
 
-def test_condition_deep_sky_pollution_context_matches_legacy_display_output() -> None:
+def test_condition_deep_sky_pollution_context_preserves_raw_candidates_for_nsom() -> None:
     service = ObservationConditionsService()
     targets = [_target(f"m{i}", f"M{i}", "Galaxy", 95 - i * 3, magnitude="8.8") for i in range(12)]
+    targets.append(_target("faint", "Faint", "Galaxy", 20, magnitude="12.0"))
     sky_quality = _sky_quality(bortle=8, radiance=140.0)
 
     conditioned = service.condition_deep_sky_pollution_context(targets, sky_quality)
-    legacy_display = service.apply_deep_sky_pollution_context(targets, sky_quality)
+    display_targets = service.apply_deep_sky_pollution_context(targets, sky_quality)
 
-    assert [item.target for item in conditioned] == legacy_display
-    assert [item.original_target for item in conditioned] == targets[: len(conditioned)]
+    assert [item.target for item in conditioned] == display_targets
+    assert len(conditioned) == len(targets)
+    assert {item.original_target.id for item in conditioned} == {item.id for item in targets}
+    assert all(item.target.visible == item.original_target.visible for item in conditioned)
+    assert any(item.target.score <= 10 for item in conditioned)
 
 
 def test_app_controller_pollution_context_builds_internal_read_model_without_output_change() -> None:

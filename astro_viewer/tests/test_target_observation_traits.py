@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 
+from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
 from astro_viewer.app.models.equipment import Binocular
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
@@ -80,6 +83,29 @@ def test_traits_handle_malformed_or_missing_size() -> None:
     assert traits.angular_size_deg is None
     assert traits.apparent_size_arcmin is None
     assert traits.recommended_observation_type == "General"
+
+
+@pytest.mark.parametrize(
+    ("max_altitude", "expected"),
+    (
+        ("49°", 49.0),
+        ("49 gradi", 49.0),
+        ("-4,5°", -4.5),
+        ("n/d", 0.0),
+    ),
+)
+def test_traits_parse_runtime_altitude_formats(max_altitude: str, expected: float) -> None:
+    target = _object("messier-M31", "M31", "Galaxy", "3.4", "178 arcmin", 2.97, "WideField")
+    target = replace(target, max_altitude=max_altitude)
+
+    assert TargetObservationTraits.from_object(target).max_altitude_deg == pytest.approx(expected)
+
+
+def test_traits_consume_skyfield_altitude_label_contract() -> None:
+    target = _object("messier-M31", "M31", "Galaxy", "3.4", "178 arcmin", 2.97, "WideField")
+    target = replace(target, max_altitude=SkyfieldAstronomyEngine._degrees_label(49.25, decimals=2))
+
+    assert TargetObservationTraits.from_object(target).max_altitude_deg == pytest.approx(49.25)
 
 
 def test_scoring_and_presenter_consume_same_observation_type_traits() -> None:

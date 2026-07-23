@@ -1,5 +1,25 @@
 # Changelog
 
+## NightScope 1.40.1 - 2026-07-23
+
+- Corretto il parsing dell'altezza massima prodotta dal motore Skyfield nel
+  formato con simbolo dei gradi. Recommendation Engine e difficolta' non
+  interpretano piu' le altitudini runtime valide come zero.
+- Il contesto urbano Bortle/VIIRS conserva score, nota e ordinamento di
+  compatibilita' per la presentazione, ma non modifica piu' la visibilita'
+  astronomica e non elimina candidati prima di Home, Planner, Best Object e Sky
+  Compass. I quattro consumer continuano a ricevere il target grezzo tramite il
+  read model e applicano una sola volta il fattore NSOM di sky background.
+- Verificati tre flussi Skyfield reali al 23 luglio 2026: Nairobi mantiene
+  `195/195` candidati, Roma `148/148` e Sydney `165/165`, con tutte le altezze
+  interpretate. La matrice Equipment aggiornata copre 375 combinazioni di
+  profilo, condizioni e target senza violazioni.
+- Il gate completo con coverage e security e' passato: `917 passed`, `642`
+  warning note, `10 subtests`, coverage `84%` su `16.032` statement, snapshot
+  MPC e smoke backend/QML normale/rosso superati, nessuna vulnerabilita' nota.
+- La versione sorgente passa a `1.40.1`; la distribuzione Windows e la release
+  GitHub pubblicata restano `1.37.0`.
+
 ## NightScope 1.40.0 - 2026-07-23
 
 - Aggiunto un confine condiviso per il backend credenziali usato da Earthdata e

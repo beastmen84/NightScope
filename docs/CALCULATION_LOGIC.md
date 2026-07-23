@@ -122,9 +122,11 @@ rows and orders them first by the start of their observing window. Best time,
 category and a natural numeric name key are deterministic tie-breaks. The name
 key orders catalogue identifiers by their numeric component (`M3`, `M40`,
 `M100`, and equivalently `C2`, `C14`) instead of raw lexicographic text. Active
-Bortle/VIIRS context can penalize, reorder or remove a deep-sky target that is
-no longer useful after conditioning, but it does not truncate the surviving
-pool to a fixed count.
+Bortle/VIIRS presentation context can penalize and reorder deep-sky display
+scores, but it preserves astronomical `visible` state and candidate
+cardinality. Home, Planner, Best Object and Sky Compass receive the raw target
+through the conditioned read model and apply target-class sky-background
+sensitivity once in the canonical NSOM environment.
 
 All runtime target pools use the normalized non-empty object ID as identity.
 Whitespace and case differences do not create a second target; the first
@@ -602,9 +604,10 @@ Deep-sky recommendations depend on:
 
 Galaxies are penalized more than globular clusters under strong moonlight.
 Current Moon sensitivity is shared through `ObservationConditionsService`.
-Light-pollution presentation filtering also uses a stronger galaxy multiplier
-than globular clusters. NSOM ranking instead applies target-class sensitivity
-once through the canonical static-sky-background factor.
+The light-pollution presentation projection also uses a stronger galaxy
+multiplier than globular clusters. It cannot remove a candidate or change
+astronomical visibility. NSOM ranking applies target-class sensitivity once
+through the canonical static-sky-background factor.
 
 `ObservationConditionsService` also accepts provider-gated NASA AOD and OpenAQ
 particulate inputs, including freshness categories. AOD and PM influence the
@@ -621,7 +624,8 @@ is now part of the canonical environment without a runtime switch.
 The Home/Detail deep-sky pollution context keeps a user-facing note for
 backward compatibility and also sets an internal target condition flag. The flag
 is not exported to QML and is used only to prevent applying the same context
-penalty twice during repeated refresh passes.
+penalty twice during repeated refresh passes. Its score and note are display
+compatibility data; the associated raw target remains the NSOM input.
 
 Medium globular clusters such as M5, M92 and M15 keep the `General` observation
 mode but receive a target-profile bias toward medium magnification. This avoids

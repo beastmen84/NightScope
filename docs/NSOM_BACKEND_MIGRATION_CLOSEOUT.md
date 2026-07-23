@@ -1,6 +1,6 @@
 # NSOM Backend Closeout
 
-Status: complete for NightScope `1.21.1`.
+Status: complete and re-audited for NightScope `1.40.1`.
 
 This document is the current backend status, not a migration plan. NSOM has one
 production path. There are no runtime migration flags, shadow QML payloads or
@@ -48,6 +48,11 @@ Home, Planner, Best Object and Sky Compass use the same primitive condition
 inputs. Provider completion recomputes these consumers without repeating local
 astronomy or Moon-geometry calculations.
 
+The Bortle/VIIRS compatibility projection may adjust deep-sky display score,
+note and ordering. Since `1.40.1` it preserves astronomical visibility and the
+complete candidate set; every ranking consumer receives the associated raw
+target and owns no legacy score-based eligibility threshold.
+
 ## Condition Ownership
 
 - VIIRS/Bortle affects static sky background.
@@ -75,6 +80,8 @@ The `1.21.1` audit verifies these runtime boundaries:
   reused by generic observing-output refreshes;
 - Home, Best Object, Planner, Sky Compass, plan rows, alternatives and profile
   counts reject repeated identified inputs while preserving stable order.
+- Display-only light-pollution scores cannot remove an astronomically eligible
+  target before canonical NSOM ranking.
 
 ## Retired Migration Surfaces
 

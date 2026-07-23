@@ -202,10 +202,8 @@ def _parse_magnitude(value: str) -> float | None:
 
 
 def _parse_altitude(value: str) -> float:
-    try:
-        return float(value.split()[0].replace(",", "."))
-    except (ValueError, IndexError):
-        return 0.0
+    numbers = _numbers_from_angular_text(value.strip().lower())
+    return numbers[0] if numbers else 0.0
 
 
 def _log10(value: float) -> float:

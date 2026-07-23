@@ -1145,29 +1145,29 @@ def test_condition_target_moon_breakdown_matches_previous_implementation() -> No
     assert "light_pollution:not_requested" in breakdown.diagnostic_notes
 
 
-def test_pollution_context_matches_legacy_high_bortle_behaviour() -> None:
+def test_pollution_context_projects_high_bortle_display_scores() -> None:
     targets = _deep_sky_targets()
     sky_quality = _sky_quality(bortle=8)
     service = ObservationConditionsService()
 
-    assert service.apply_deep_sky_pollution_context(targets, sky_quality) == _legacy_pollution_context(
+    assert service.apply_deep_sky_pollution_context(targets, sky_quality) == _pollution_display_projection(
         targets,
         sky_quality,
     )
 
 
-def test_pollution_context_matches_legacy_high_viirs_behaviour() -> None:
+def test_pollution_context_projects_high_viirs_display_scores() -> None:
     targets = _deep_sky_targets()
     sky_quality = _sky_quality(bortle=5, radiance=180.0)
     service = ObservationConditionsService()
 
-    assert service.apply_deep_sky_pollution_context(targets, sky_quality) == _legacy_pollution_context(
+    assert service.apply_deep_sky_pollution_context(targets, sky_quality) == _pollution_display_projection(
         targets,
         sky_quality,
     )
 
 
-def test_condition_target_pollution_breakdown_matches_previous_implementation() -> None:
+def test_condition_target_pollution_breakdown_matches_display_projection() -> None:
     target = _target("m101", "M101", "Galaxy", 72, magnitude="9.0")
     sky_quality = _sky_quality(bortle=5, radiance=180.0)
     service = ObservationConditionsService()
@@ -1180,7 +1180,7 @@ def test_condition_target_pollution_breakdown_matches_previous_implementation() 
     breakdown = conditioned.breakdown
 
     assert breakdown.pollution_penalty == service.deep_sky_pollution_penalty(target, sky_quality)
-    assert conditioned.target == _legacy_pollution_context([target], sky_quality)[0]
+    assert conditioned.target == _pollution_display_projection([target], sky_quality)[0]
     assert breakdown.adjusted_score == conditioned.target.score
     assert breakdown.applied_components == ("light_pollution",)
     assert "sky_quality:bortle=5" in breakdown.diagnostic_notes
@@ -1270,7 +1270,7 @@ def test_pollution_context_boundary_bortle_seven_is_active() -> None:
     updated = service.apply_deep_sky_pollution_context(targets, sky_quality)
 
     assert service.is_pollution_context_active(sky_quality) is True
-    assert updated == _legacy_pollution_context(targets, sky_quality)
+    assert updated == _pollution_display_projection(targets, sky_quality)
     assert updated[0].score < targets[0].score
 
 
@@ -1282,7 +1282,7 @@ def test_pollution_context_boundary_viirs_twenty_is_active() -> None:
     updated = service.apply_deep_sky_pollution_context(targets, sky_quality)
 
     assert service.is_pollution_context_active(sky_quality) is True
-    assert updated == _legacy_pollution_context(targets, sky_quality)
+    assert updated == _pollution_display_projection(targets, sky_quality)
     assert updated[0].score < targets[0].score
 
 
@@ -1409,16 +1409,18 @@ def test_condition_target_double_moon_application_is_currently_not_guarded() -> 
     assert second.target.score < first.target.score
 
 
-def test_deep_sky_pollution_context_keeps_every_visible_target_in_score_order() -> None:
+def test_deep_sky_pollution_context_preserves_candidates_in_display_score_order() -> None:
     targets = [_target(f"m{i}", f"M{i}", "Galaxy", 95 - i * 3, magnitude="8.8") for i in range(12)]
     sky_quality = _sky_quality(bortle=8, radiance=140.0)
     service = ObservationConditionsService()
 
     updated = service.apply_deep_sky_pollution_context(targets, sky_quality)
-    legacy_top_ten = _legacy_pollution_context(targets, sky_quality)
+    expected = _pollution_display_projection(targets, sky_quality)
 
-    assert [item.id for item in updated[:10]] == [item.id for item in legacy_top_ten]
-    assert [item.id for item in updated] == [f"m{i}" for i in range(11)]
+    assert updated == expected
+    assert len(updated) == len(targets)
+    assert all(item.visible for item in updated)
+    assert any(item.score <= 10 for item in updated)
 
 
 def test_app_controller_home_detail_conditioned_object_output_matches_legacy_formula() -> None:
@@ -1438,13 +1440,13 @@ def test_app_controller_home_detail_conditioned_object_output_matches_legacy_for
     assert conditioned == expected
 
 
-def test_app_controller_deep_sky_pollution_context_matches_legacy_formula() -> None:
+def test_app_controller_deep_sky_pollution_context_is_display_only() -> None:
     controller = AppController.__new__(AppController)
     controller._conditions_service = ObservationConditionsService()
     controller._sky_quality = _sky_quality(bortle=8, radiance=120.0)
     targets = _deep_sky_targets()
 
-    assert controller._apply_deep_sky_pollution_context(targets) == _legacy_pollution_context(
+    assert controller._apply_deep_sky_pollution_context(targets) == _pollution_display_projection(
         targets,
         controller._sky_quality,
     )
@@ -1653,7 +1655,7 @@ def _seeing(score: int) -> SeeingTransparency:
     return SeeingTransparency("Average", "Average", score, 60, "fixture")
 
 
-def _legacy_pollution_context(
+def _pollution_display_projection(
     targets: list[CelestialObject],
     sky_quality: SkyQuality | None,
 ) -> list[CelestialObject]:
@@ -1696,11 +1698,10 @@ def _legacy_pollution_context(
                 item,
                 score=score,
                 score_label=ObservingScoreService.score_label(score),
-                visible=item.visible and score > 10,
                 notes=note,
             )
         )
-    return sorted([item for item in updated if item.visible], key=lambda item: item.score, reverse=True)[:10]
+    return sorted(updated, key=lambda item: item.score, reverse=True)
 
 
 def _legacy_pollution_base_penalty(sky_quality: SkyQuality) -> float:

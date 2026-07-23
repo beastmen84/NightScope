@@ -113,6 +113,34 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.40.1 Recommendation Boundary Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-23 after correcting Skyfield
+altitude parsing and removing display-score eligibility from the pre-NSOM
+deep-sky pool:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` | Passed |
+| `pip check`, Ruff, `compileall`, third-party archive | Passed |
+| Offline MPC snapshot check | 2,683 fixed terrestrial observatories passed |
+| Final `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 917 passed, 642 warnings, 10 subtests passed in 119.05 s |
+| Runtime coverage | 84% across 16,032 statements |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Backend, normal QML, and red QML smoke tests | Passed |
+| Equipment quality matrix | 375 checks across 15 profiles and 25 targets; 0 invariant violations |
+| Real Skyfield candidate checks | Nairobi 195/195, Rome 148/148, Sydney 165/165 under active urban display context |
+
+The deterministic tests connect the Skyfield degree-label producer to
+`TargetObservationTraits`, preserve low display-score targets in conditioned
+read models and verify that raw targets remain the NSOM inputs. The three
+fixed-time location probes parsed every returned maximum altitude.
+
+One intermediate parallel rerun lost an `xdist` worker to a native Qt access
+violation while starting an Update Manager background check. The affected file
+then passed `22/22` in serial execution and the following complete four-worker
+run passed `917/917`; no assertion failure was reproduced.
+
 ## Measured 1.40.0 Linux Secret Service Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-23 after introducing the

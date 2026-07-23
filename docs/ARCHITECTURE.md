@@ -972,8 +972,9 @@ The following duplication or concentration of responsibility should be tracked:
 - Moon parsing from string percentages is repeated in multiple services.
 - Light-pollution handling has two explicit outputs: display compatibility in
   `ObservationConditionsService` and physical sky background in
-  `NsomObservationEnvironmentService`. Raw target inputs prevent double
-  application in ranking.
+  `NsomObservationEnvironmentService`. The display projection preserves
+  astronomical visibility and candidate cardinality; raw target inputs prevent
+  double application in ranking.
 - Moon illumination and target geometry are composed once by
   `NsomObservationEnvironmentService`; Planner adds only observer, timing and
   session layers.
