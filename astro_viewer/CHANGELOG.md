@@ -1,5 +1,37 @@
 # Changelog
 
+## NightScope 1.39.0 - 2026-07-23
+
+- Introdotto `RuntimePaths` come contratto unico per database, configurazione,
+  cache e stato applicativo. I consumer non derivano più obbligatoriamente
+  preferenze e cache dalla cartella del database.
+- Su Linux i percorsi seguono XDG: dati in
+  `~/.local/share/NightScope`, configurazione in `~/.config/NightScope`, cache
+  in `~/.cache/NightScope` e stato/log in
+  `~/.local/state/NightScope`. Gli override assoluti `XDG_*_HOME` vengono
+  rispettati; valori relativi non validi ricadono sui default.
+- Su Windows il comportamento resta invariato: da sorgente tutti i file runtime
+  restano nella root del progetto e nella distribuzione congelata restano
+  accanto all'eseguibile. macOS e piattaforme non ancora supportate conservano
+  lo stesso layout portabile precedente.
+- `NIGHTSCOPE_RUNTIME_DIR` mantiene priorità su ogni piattaforma e co-localizza
+  dati, configurazione, cache e stato nella directory isolata, preservando gli
+  smoke test e gli strumenti di sviluppo esistenti.
+- La prima esecuzione Linux copia un eventuale runtime portabile precedente
+  nelle nuove directory: database e backup nei dati, preferenze nella
+  configurazione, cache posizione e NASA AOD nella cache. File XDG già presenti
+  non vengono sovrascritti.
+- `AppController` accetta percorsi espliciti per preferenze e cache, mantenendo
+  come fallback la disposizione co-locata usata da test e costruttori esistenti.
+  Database, schema SQLite, scoring, raccomandazioni e UI non cambiano.
+- Anche l'esecuzione diretta del bootstrap database usa il resolver canonico,
+  evitando di creare un database parallelo nella root del progetto su Linux.
+- Gate completo con coverage e security superato: `907 passed`, `642 warnings`
+  note, `10 subtests`, coverage `84%` su `16.024` statement, snapshot MPC e
+  smoke backend/QML normale/rosso superati, nessuna vulnerabilità nota.
+- La versione sorgente passa a `1.39.0`; la distribuzione Windows e la release
+  GitHub pubblicata restano `1.37.0`.
+
 ## NightScope 1.38.0 - 2026-07-23
 
 - Aggiunto un controllo non bloccante della versione all'avvio. Dopo il

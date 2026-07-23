@@ -50,24 +50,43 @@ presentation and recommendation enrichment.
 
 ## Runtime Data Ownership
 
-`astro_viewer.main` resolves one runtime directory before constructing the
-translation manager, database, controller, or logger. In a source checkout it
-is the project root; in a frozen portable build it is the directory containing
-the executable. The developer/test-only `NIGHTSCOPE_RUNTIME_DIR` environment
-variable can override it for isolated validation.
+`astro_viewer.app.runtime_paths` resolves an immutable `RuntimePaths` value
+before constructing the translation manager, database, controller or logger.
+It owns separate data, configuration, cache and state directories plus the
+canonical paths for the SQLite database, preferences and file caches.
 
-The SQLite database, JSON preferences, location cache, provider caches stored
-in SQLite, and rotating `logs/nightscope.log` file all belong to that same
-runtime directory. The application therefore never writes logs inside
-PyInstaller's bundled `_internal` data directory. The standard smoke checks use
-a fresh temporary override and remove it when each subprocess exits, so they do
-not reuse personal settings, start automatic location detection, or modify the
-checkout's runtime files.
+Windows retains the portable contract unchanged: a source checkout uses the
+project root and a frozen build uses the directory containing the executable
+for all four categories. macOS and unrecognized platforms retain that same
+fallback until they receive dedicated packaging support.
+
+Linux follows the XDG base-directory contract:
+
+- data: `$XDG_DATA_HOME/NightScope`, defaulting to
+  `~/.local/share/NightScope`;
+- configuration: `$XDG_CONFIG_HOME/NightScope`, defaulting to
+  `~/.config/NightScope`;
+- cache: `$XDG_CACHE_HOME/NightScope`, defaulting to
+  `~/.cache/NightScope`;
+- state: `$XDG_STATE_HOME/NightScope`, defaulting to
+  `~/.local/state/NightScope`.
+
+Only absolute XDG overrides are accepted. The developer/test-only
+`NIGHTSCOPE_RUNTIME_DIR` override takes priority and co-locates all four
+categories, so standard smoke checks remain isolated and remove their complete
+runtime after each subprocess.
+
+On the first XDG run, the entry point copies an existing portable database,
+database backup, preferences, location cache and NASA AOD cache into their new
+owners. Existing XDG files are never replaced. `AppController` accepts explicit
+configuration/cache paths but retains database-adjacent defaults for existing
+constructors and tests.
 
 If the rotating file logger cannot create its directory, the entry point falls
 back to console logging and continues into the normal startup error boundary.
-The portable Windows contract still requires the extracted application
-directory to be writable for its database, preferences and caches.
+The portable Windows contract still requires a writable extracted application
+directory. Linux installations require writable user XDG directories, not a
+writable installation directory.
 
 ## Platform Capability Boundary
 

@@ -13,13 +13,13 @@ setup?**
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
 > validated; its Italian/English source visual review and source licensing are
-> complete. Source version 1.38.0 includes the reviewed Spanish localization,
+> complete. Source version 1.39.0 includes the reviewed Spanish localization,
 > the provider/runtime and Earthdata authorization fixes released in 1.34.2,
 > the subsequent Italian and English editorial review, and the first
 > platform-capability boundary for native Linux support, plus unified offline
 > search for GeoNames cities and MPC observatories, plus a persistent Red Night
-> Vision interface mode and a non-blocking startup notification for newer
-> stable GitHub releases. System location now
+> Vision interface mode, a non-blocking startup notification for newer stable
+> GitHub releases, and XDG-compliant Linux runtime paths. System location now
 > uses the existing providers on Windows and GeoClue 2 on Linux; the Windows
 > provider order and fallback behavior remain unchanged.
 > The published Windows bundle passes automated legal,
@@ -128,14 +128,26 @@ for image attribution and redistribution policy.
 
 ## Privacy And Local Files
 
-NightScope does not require a NightScope account. The portable application keeps
-its runtime data next to the executable:
+NightScope does not require a NightScope account. The portable Windows
+application keeps its runtime data next to the executable:
 
 - `nightscope.db`: location, profiles, catalogues, caches, and observation log;
 - `user_preferences.json`: interface and provider state;
 - `location_cache.json`: last location acquisition result; approximate IP
   fallback data is accepted for at most 24 hours and is labelled as cached;
 - `logs/`: rotating diagnostic logs.
+
+On Linux, NightScope follows the XDG base-directory contract:
+
+- `~/.local/share/NightScope`: SQLite database and database backup;
+- `~/.config/NightScope`: interface and provider preferences;
+- `~/.cache/NightScope`: location and NASA AOD caches;
+- `~/.local/state/NightScope/logs`: rotating diagnostic logs.
+
+Absolute `XDG_DATA_HOME`, `XDG_CONFIG_HOME`, `XDG_CACHE_HOME`, and
+`XDG_STATE_HOME` values replace the corresponding defaults. The developer-only
+`NIGHTSCOPE_RUNTIME_DIR` override keeps every runtime file together in one
+isolated directory for tests and smoke checks.
 
 Exact coordinates are therefore local application data, but they are sent to a
 provider when that provider needs a location-specific result, as shown above.

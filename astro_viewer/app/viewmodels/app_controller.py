@@ -205,6 +205,9 @@ class AppController(QObject):
         base_dir: Path,
         database_path: Path,
         *,
+        preferences_path: Path | None = None,
+        location_cache_path: Path | None = None,
+        nasa_aod_cache_path: Path | None = None,
         best_object_nsom_selection_service: BestObjectNsomSelectionService | None = None,
         home_recommended_deep_sky_nsom_ranking_service: HomeRecommendedDeepSkyNsomRankingService | None = None,
         nsom_category_score_service: NsomCategoryScoreService | None = None,
@@ -230,6 +233,9 @@ class AppController(QObject):
         self.equipmentChanged.connect(self.observingObjectDetailChanged.emit)
         self.skyCompassChanged.connect(self.observingObjectDetailChanged.emit)
         self._base_dir = base_dir
+        preferences_path = preferences_path or database_path.parent / "user_preferences.json"
+        location_cache_path = location_cache_path or database_path.parent / "location_cache.json"
+        nasa_aod_cache_path = nasa_aod_cache_path or database_path.parent / "nasa_aod_cache.json"
         self._city_repository = CityRepository(database_path)
         self._location_repository = LocationRepository(database_path)
         self._catalogue_repository = CatalogueRepository(database_path)
@@ -239,17 +245,17 @@ class AppController(QObject):
         self._weather_cache_repository = WeatherCacheRepository(database_path)
         self._observation_repository = ObservationRepository(database_path)
         self._location_preferences = LocationPreferenceStore(
-            preferences_path=database_path.parent / "user_preferences.json",
-            cache_path=database_path.parent / "location_cache.json",
+            preferences_path=preferences_path,
+            cache_path=location_cache_path,
         )
         self._earthdata_credential_store = EarthdataCredentialStore(
-            preferences_path=database_path.parent / "user_preferences.json",
+            preferences_path=preferences_path,
         )
         self._earthdata_connection_tester = EarthdataConnectionTester()
         self._earthdata_credentials_state = self._earthdata_credential_store.state()
         self._earthdata_connection_test_running = False
         self._openaq_credential_store = OpenAQCredentialStore(
-            preferences_path=database_path.parent / "user_preferences.json",
+            preferences_path=preferences_path,
         )
         self._openaq_connection_tester = OpenAQConnectionTester()
         self._local_atmosphere_service = OpenAQLocalAtmosphereService()
@@ -267,7 +273,7 @@ class AppController(QObject):
         self._startup_location_preferences = self._location_preferences.preferences()
         self._location_service = LocationService(
             city_resolver=self._city_repository,
-            cache_path=database_path.parent / "location_cache.json",
+            cache_path=location_cache_path,
         )
         self._is_loading = False
         self._service_status = ""
@@ -320,7 +326,7 @@ class AppController(QObject):
         )
         self._nasa_aod_provider = NasaAodProvider(
             self._earthdata_credential_store,
-            cache_path=database_path.parent / "nasa_aod_cache.json",
+            cache_path=nasa_aod_cache_path,
         )
         self._seeing_service = SeeingTransparencyService()
         self._nsom_category_score_service = nsom_category_score_service or NsomCategoryScoreService()

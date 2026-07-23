@@ -163,10 +163,15 @@ def test_runtime_override_and_log_path_share_the_same_directory(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("NIGHTSCOPE_RUNTIME_DIR", str(tmp_path))
+    runtime_paths = main_module._resolve_runtime_paths()
     runtime_dir = main_module._resolve_runtime_dir()
     log_path = configure_logging(runtime_dir)
 
     try:
+        assert runtime_paths.data_dir == tmp_path.resolve()
+        assert runtime_paths.config_dir == tmp_path.resolve()
+        assert runtime_paths.cache_dir == tmp_path.resolve()
+        assert runtime_paths.state_dir == tmp_path.resolve()
         assert runtime_dir == tmp_path.resolve()
         assert log_path == runtime_dir / "logs" / "nightscope.log"
         assert log_path.parent.is_dir()
@@ -183,7 +188,9 @@ def test_main_falls_back_to_console_when_runtime_log_is_not_writable() -> None:
     with patch(
         "astro_viewer.app.services.logging_service.configure_logging",
         side_effect=PermissionError("read-only runtime"),
-    ), patch.object(main_module, "parse_args", return_value=args), patch.object(
+    ) as configure_logging_mock, patch.object(
+        main_module, "parse_args", return_value=args
+    ), patch.object(
         main_module,
         "run_smoke_test",
         return_value=0,
@@ -191,6 +198,9 @@ def test_main_falls_back_to_console_when_runtime_log_is_not_writable() -> None:
         result = main_module.main()
 
     assert result == 0
+    configure_logging_mock.assert_called_once_with(
+        main_module.RUNTIME_PATHS.state_dir
+    )
     smoke_test.assert_called_once_with()
 
 

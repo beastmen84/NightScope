@@ -17,18 +17,6 @@ def _resolve_base_dir() -> Path:
 
 BASE_DIR = _resolve_base_dir()
 PROJECT_ROOT = BASE_DIR.parent
-
-
-def _resolve_runtime_dir() -> Path:
-    override = os.environ.get("NIGHTSCOPE_RUNTIME_DIR", "").strip()
-    if override:
-        return Path(override).expanduser().resolve()
-    if getattr(sys, "frozen", False):
-        return Path(sys.executable).resolve().parent
-    return PROJECT_ROOT
-
-
-RUNTIME_DIR = _resolve_runtime_dir()
 APP_NAME = "NightScope"
 ORG_NAME = "NightScope"
 os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
@@ -45,6 +33,27 @@ def _detect_platform_capabilities():
 PLATFORM_CAPABILITIES = _detect_platform_capabilities()
 
 
+def _resolve_runtime_paths():
+    from astro_viewer.app.runtime_paths import resolve_runtime_paths
+
+    return resolve_runtime_paths(
+        platform_family=PLATFORM_CAPABILITIES.family,
+        project_root=PROJECT_ROOT,
+        executable_dir=Path(sys.executable).resolve().parent,
+        frozen=bool(getattr(sys, "frozen", False)),
+        override=os.environ.get("NIGHTSCOPE_RUNTIME_DIR", ""),
+    )
+
+
+def _resolve_runtime_dir() -> Path:
+    """Return the data directory retained by the legacy single-path API."""
+    return _resolve_runtime_paths().data_dir
+
+
+RUNTIME_PATHS = _resolve_runtime_paths()
+RUNTIME_DIR = RUNTIME_PATHS.data_dir
+
+
 def _configure_application_metadata(app) -> None:
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(ORG_NAME)
@@ -55,9 +64,9 @@ def _configure_application_metadata(app) -> None:
 
 
 def _database_paths() -> tuple[Path, Path]:
-    database_path = RUNTIME_DIR / "nightscope.db"
+    database_path = RUNTIME_PATHS.database_path
     schema_path = _data_dir() / "schema.sql"
-    _copy_legacy_runtime_files(database_path)
+    _copy_legacy_runtime_files()
     return database_path, schema_path
 
 
@@ -66,9 +75,16 @@ def _data_dir() -> Path:
 
 
 def _legacy_runtime_paths() -> list[Path]:
+    portable_runtime_dir = (
+        Path(sys.executable).resolve().parent
+        if getattr(sys, "frozen", False)
+        else PROJECT_ROOT
+    )
     candidates = [
         BASE_DIR / "data" / "nightscope.db",
-        RUNTIME_DIR / "data" / "nightscope.db",
+        portable_runtime_dir / "nightscope.db",
+        portable_runtime_dir / "data" / "nightscope.db",
+        RUNTIME_PATHS.data_dir / "data" / "nightscope.db",
     ]
     unique = []
     seen = set()
@@ -81,28 +97,40 @@ def _legacy_runtime_paths() -> list[Path]:
     return unique
 
 
-def _copy_legacy_runtime_files(database_path: Path) -> None:
-    if database_path.exists():
-        return
+def _copy_legacy_runtime_files() -> None:
+    database_path = RUNTIME_PATHS.database_path
     for legacy_database_path in _legacy_runtime_paths():
         if legacy_database_path == database_path or not legacy_database_path.exists():
             continue
-        database_path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(legacy_database_path, database_path)
+        if not database_path.exists():
+            database_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(legacy_database_path, database_path)
+            logging.getLogger(__name__).info(
+                "Runtime database copied from legacy location: %s",
+                legacy_database_path,
+            )
         _copy_legacy_sidecar(
             legacy_database_path.parent / "user_preferences.json",
-            database_path.parent / "user_preferences.json",
+            RUNTIME_PATHS.preferences_path,
         )
         _copy_legacy_sidecar(
             legacy_database_path.parent / "location_cache.json",
-            database_path.parent / "location_cache.json",
+            RUNTIME_PATHS.location_cache_path,
         )
-        logging.getLogger(__name__).info("Runtime database copied from legacy location: %s", legacy_database_path)
+        _copy_legacy_sidecar(
+            legacy_database_path.parent / "nasa_aod_cache.json",
+            RUNTIME_PATHS.nasa_aod_cache_path,
+        )
+        _copy_legacy_sidecar(
+            legacy_database_path.with_suffix(".db.backup"),
+            RUNTIME_PATHS.database_backup_path,
+        )
         return
 
 
 def _copy_legacy_sidecar(source: Path, target: Path) -> None:
     if source.exists() and not target.exists():
+        target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
 
 
@@ -128,6 +156,9 @@ def _build_controller(progress_callback=None):
     return AppController(
         base_dir=BASE_DIR,
         database_path=database_path,
+        preferences_path=RUNTIME_PATHS.preferences_path,
+        location_cache_path=RUNTIME_PATHS.location_cache_path,
+        nasa_aod_cache_path=RUNTIME_PATHS.nasa_aod_cache_path,
         transient_event_sources=(iss_pass_source, comet_window_source),
     )
 
@@ -137,14 +168,14 @@ def _build_translation_manager():
 
     return TranslationManager(
         translations_dir=BASE_DIR / "translations",
-        preferences_path=RUNTIME_DIR / "user_preferences.json",
+        preferences_path=RUNTIME_PATHS.preferences_path,
     )
 
 
 def _build_appearance_manager():
     from astro_viewer.app.services.appearance_manager import AppearanceManager
 
-    return AppearanceManager(preferences_path=RUNTIME_DIR / "user_preferences.json")
+    return AppearanceManager(preferences_path=RUNTIME_PATHS.preferences_path)
 
 
 def _build_update_manager():
@@ -152,7 +183,7 @@ def _build_update_manager():
 
     return UpdateManager(
         version_path=PROJECT_ROOT / "VERSION",
-        preferences_path=RUNTIME_DIR / "user_preferences.json",
+        preferences_path=RUNTIME_PATHS.preferences_path,
     )
 
 
@@ -443,7 +474,7 @@ def main() -> int:
     from astro_viewer.app.services.logging_service import configure_logging
 
     try:
-        configure_logging(RUNTIME_DIR)
+        configure_logging(RUNTIME_PATHS.state_dir)
     except OSError:
         logging.basicConfig(
             level=logging.INFO,

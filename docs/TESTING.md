@@ -113,6 +113,30 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.39.0 Linux XDG Runtime Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-23 after separating Linux
+data, configuration, cache and state directories:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` | Passed |
+| `pip check`, Ruff, `compileall`, third-party archive | Passed |
+| Offline MPC snapshot check | 2,683 fixed terrestrial observatories passed |
+| Final `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 907 passed, 642 warnings, 10 subtests passed in 114.00 s |
+| Runtime coverage | 84% across 16,024 statements |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Backend, normal QML, and red QML smoke tests | Passed with co-located disposable runtime override |
+| Focused runtime/platform/database/location/release suite | 150 passed |
+
+Deterministic resolver tests cover Linux XDG defaults, absolute environment
+overrides, invalid relative values, portable source/frozen layouts on other
+platforms and the all-path test override. The Windows-host integration asserts
+that source execution still resolves every category to the repository root.
+Migration tests verify database, backup, preference and cache placement and
+prove that existing XDG preferences are not overwritten. A real installed
+Linux package remains a later packaging gate.
+
 ## Measured 1.38.0 Startup Update Check Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-23 after adding the

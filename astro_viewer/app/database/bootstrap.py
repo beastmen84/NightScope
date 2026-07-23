@@ -1920,8 +1920,13 @@ def _seed_default_profiles(connection: sqlite3.Connection) -> None:
 
 
 if __name__ == "__main__":
-    base_dir = Path(__file__).resolve().parents[2]
-    runtime_database_path = base_dir.parent / "nightscope.db"
-    data_dir = base_dir / "data"
-    initialize_database(runtime_database_path, data_dir / "schema.sql", geonames_data_dir=data_dir)
+    from astro_viewer.main import _data_dir, _database_paths
+
+    runtime_database_path, schema_path = _database_paths()
+    data_dir = _data_dir()
+    initialize_database(
+        runtime_database_path,
+        schema_path,
+        geonames_data_dir=data_dir,
+    )
     print("Database inizializzato:", runtime_database_path)

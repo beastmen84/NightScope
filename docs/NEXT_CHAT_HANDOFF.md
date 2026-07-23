@@ -4,7 +4,7 @@ Aggiornato: 2026-07-23
 
 ## Stato Versioni
 
-- Versione sorgente: `1.38.0`
+- Versione sorgente: `1.39.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica: `v1.37.0`, tag sul commit sorgente
   `dded6a19bdef938f939676113e96ac18fa07138f`.
@@ -20,6 +20,34 @@ La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
+
+## Percorsi Runtime Linux XDG 1.39.0
+
+`RuntimePaths` separa dati, configurazione, cache e stato prima della costruzione
+dei servizi. Su Linux usa rispettivamente
+`~/.local/share/NightScope`, `~/.config/NightScope`,
+`~/.cache/NightScope` e `~/.local/state/NightScope`, rispettando soltanto
+override `XDG_*_HOME` assoluti. `NIGHTSCOPE_RUNTIME_DIR` ha priorita' e continua
+a co-localizzare tutto per test e smoke.
+
+Windows resta invariato: root del progetto da sorgente e directory
+dell'eseguibile nella dist portabile. `AppController` riceve percorsi espliciti
+per preferenze, cache posizione e cache NASA AOD, ma mantiene fallback
+database-adjacent per i costruttori esistenti.
+
+La migrazione copia da un runtime portabile precedente database, backup,
+preferenze e cache nelle nuove directory senza sovrascrivere file XDG gia'
+presenti. Database, schema, scoring, raccomandazioni e UI non cambiano. Il
+prossimo step Linux e' la verifica e dichiarazione del backend
+`keyring`/Secret Service; packaging e prova GeoClue D-Bus reale restano
+successivi.
+
+Il gate completo `tools/run_checks.py --security` e' passato: `907 passed`,
+`642 warnings` note, `10 subtests`, coverage `84%` su `16.024` statement,
+snapshot MPC da `2.683` righe, smoke backend/QML normale/rosso e audit
+dipendenze superati, senza vulnerabilita' note. La suite focalizzata su runtime,
+database, piattaforma, posizione, tooling e scenari di release aveva inoltre
+chiuso `150 passed`.
 
 ## Controllo Aggiornamenti 1.38.0
 

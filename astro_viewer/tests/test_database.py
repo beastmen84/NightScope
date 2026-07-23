@@ -1582,26 +1582,89 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
     def test_runtime_database_path_is_portable_and_copies_legacy_database(self) -> None:
         from astro_viewer import main as main_module
+        from astro_viewer.app.runtime_paths import RuntimePaths
 
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
-            runtime_dir = temp_path / "NightScope"
+            runtime_paths = RuntimePaths(
+                data_dir=temp_path / "data" / "NightScope",
+                config_dir=temp_path / "config" / "NightScope",
+                cache_dir=temp_path / "cache" / "NightScope",
+                state_dir=temp_path / "state" / "NightScope",
+            )
             base_dir = temp_path / "_internal" / "astro_viewer"
             legacy_data_dir = base_dir / "data"
             legacy_data_dir.mkdir(parents=True)
             legacy_database = legacy_data_dir / "nightscope.db"
             legacy_database.write_bytes(b"legacy-db")
+            (legacy_data_dir / "nightscope.db.backup").write_bytes(b"legacy-backup")
             (legacy_data_dir / "user_preferences.json").write_text('{"saved": true}', encoding="utf-8")
             (legacy_data_dir / "location_cache.json").write_text('{"cached": true}', encoding="utf-8")
+            (legacy_data_dir / "nasa_aod_cache.json").write_text('{"aod": true}', encoding="utf-8")
 
-            with patch.object(main_module, "RUNTIME_DIR", runtime_dir), patch.object(main_module, "BASE_DIR", base_dir):
+            with patch.object(
+                main_module,
+                "RUNTIME_PATHS",
+                runtime_paths,
+            ), patch.object(main_module, "BASE_DIR", base_dir):
                 database_path, schema_path = main_module._database_paths()
 
-            self.assertEqual(database_path, runtime_dir / "nightscope.db")
+            self.assertEqual(database_path, runtime_paths.database_path)
             self.assertEqual(schema_path, base_dir / "data" / "schema.sql")
             self.assertEqual(database_path.read_bytes(), b"legacy-db")
-            self.assertTrue((runtime_dir / "user_preferences.json").exists())
-            self.assertTrue((runtime_dir / "location_cache.json").exists())
+            self.assertEqual(
+                runtime_paths.database_backup_path.read_bytes(),
+                b"legacy-backup",
+            )
+            self.assertTrue(runtime_paths.preferences_path.exists())
+            self.assertTrue(runtime_paths.location_cache_path.exists())
+            self.assertTrue(runtime_paths.nasa_aod_cache_path.exists())
+
+    def test_runtime_migration_preserves_existing_xdg_preferences(self) -> None:
+        from astro_viewer import main as main_module
+        from astro_viewer.app.runtime_paths import RuntimePaths
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            runtime_paths = RuntimePaths(
+                data_dir=temp_path / "data" / "NightScope",
+                config_dir=temp_path / "config" / "NightScope",
+                cache_dir=temp_path / "cache" / "NightScope",
+                state_dir=temp_path / "state" / "NightScope",
+            )
+            runtime_paths.database_path.parent.mkdir(parents=True)
+            runtime_paths.database_path.write_bytes(b"current-db")
+            runtime_paths.preferences_path.parent.mkdir(parents=True)
+            runtime_paths.preferences_path.write_text(
+                '{"language": "es"}',
+                encoding="utf-8",
+            )
+            base_dir = temp_path / "_internal" / "astro_viewer"
+            legacy_data_dir = base_dir / "data"
+            legacy_data_dir.mkdir(parents=True)
+            (legacy_data_dir / "nightscope.db").write_bytes(b"legacy-db")
+            (legacy_data_dir / "user_preferences.json").write_text(
+                '{"language": "it"}',
+                encoding="utf-8",
+            )
+            (legacy_data_dir / "location_cache.json").write_text(
+                '{"cached": true}',
+                encoding="utf-8",
+            )
+
+            with patch.object(
+                main_module,
+                "RUNTIME_PATHS",
+                runtime_paths,
+            ), patch.object(main_module, "BASE_DIR", base_dir):
+                database_path, _ = main_module._database_paths()
+
+            self.assertEqual(database_path.read_bytes(), b"current-db")
+            self.assertEqual(
+                runtime_paths.preferences_path.read_text(encoding="utf-8"),
+                '{"language": "es"}',
+            )
+            self.assertTrue(runtime_paths.location_cache_path.exists())
 
     def test_corrupt_database_is_quarantined_and_rebuilt(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
