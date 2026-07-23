@@ -14,7 +14,8 @@ NightScope is organized around a small desktop application package:
   object is `AppController`.
 - `astro_viewer/app/services`: business services for astronomy, weather,
   observing quality, planning, equipment recommendations, light pollution,
-  NASA/OpenAQ data providers, seeing/transparency and logging.
+  NASA/OpenAQ data providers, seeing/transparency, update notification and
+  logging.
 - `astro_viewer/app/astronomy`: astronomy engine protocol, mock fallback,
   Skyfield-based engine and coordinate parsing helpers.
 - `astro_viewer/app/database`: SQLite bootstrap, migrations, repositories and
@@ -152,6 +153,32 @@ The standard validation runner loads both normal and red QML scenes in isolated
 runtimes. Bundle validation requires Qt Quick Effects in addition to the
 existing Qt Quick modules. External windows and websites remain outside the
 application appearance boundary.
+
+## Startup Update Check
+
+`UpdateManager` is a QML-facing service independent from `AppController`. The
+normal application path constructs it from the bundled root `VERSION` and the
+runtime `user_preferences.json`; QML smoke tests receive the same context
+property but do not start a network request.
+
+After a successful QML load, `main.py` schedules one check 750 ms later.
+`UpdateManager` performs the request on a daemon thread with a four-second
+timeout and emits only the result back to the Qt thread. Network, HTTP, JSON and
+version errors are logged below warning level and do not change startup state
+or produce user-facing errors.
+
+The service consumes GitHub's public `releases/latest` endpoint, accepts only a
+stable `major.minor.patch` version newer than the bundled version, and validates
+that `html_url` is an HTTPS release path for
+`beastmen84/NightScope`. It never downloads or installs an artifact. QML opens
+the validated release page through the operating-system browser only after an
+explicit user action.
+
+The localized `DarkDialog` can be deferred on every startup or suppressed for
+one specific release. Suppression stores `ignored_update_version` while
+preserving the other shared JSON preferences; a later release remains eligible
+for notification. The dialog uses the same normal and Red Night Vision theme
+tokens as the rest of the application.
 
 ## NightScope Observation Model
 

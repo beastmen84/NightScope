@@ -13,12 +13,13 @@ setup?**
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
 > validated; its Italian/English source visual review and source licensing are
-> complete. Source version 1.37.0 includes the reviewed Spanish localization,
+> complete. Source version 1.38.0 includes the reviewed Spanish localization,
 > the provider/runtime and Earthdata authorization fixes released in 1.34.2,
 > the subsequent Italian and English editorial review, and the first
 > platform-capability boundary for native Linux support, plus unified offline
 > search for GeoNames cities and MPC observatories, plus a persistent Red Night
-> Vision interface mode. System location now
+> Vision interface mode and a non-blocking startup notification for newer
+> stable GitHub releases. System location now
 > uses the existing providers on Windows and GeoClue 2 on Linux; the Windows
 > provider order and fallback behavior remain unchanged.
 > The published Windows bundle passes automated legal,
@@ -26,7 +27,7 @@ setup?**
 > matrices are not complete yet.
 
 Current Windows package:
-[NightScope 1.34.2](https://github.com/beastmen84/NightScope/releases/tag/v1.34.2).
+[NightScope 1.37.0](https://github.com/beastmen84/NightScope/releases/tag/v1.37.0).
 Its release notes identify the corresponding source commit and publish the
 SHA-256 digest of the portable ZIP.
 
@@ -52,6 +53,8 @@ SHA-256 digest of the portable ZIP.
   Spanish at runtime.
 - Provides a persistent low-luminance red interface for use at the telescope;
   astronomical photographs and plan thumbnails are suppressed in this mode.
+- Checks for newer stable releases after startup and links directly to the
+  official GitHub download page without downloading or installing anything.
 
 NightScope is a decision-support tool, not a planetarium, telescope-control
 system, or substitute for an astronomical atlas.

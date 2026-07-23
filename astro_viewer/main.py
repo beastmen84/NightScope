@@ -147,6 +147,15 @@ def _build_appearance_manager():
     return AppearanceManager(preferences_path=RUNTIME_DIR / "user_preferences.json")
 
 
+def _build_update_manager():
+    from astro_viewer.app.services.update_manager import UpdateManager
+
+    return UpdateManager(
+        version_path=PROJECT_ROOT / "VERSION",
+        preferences_path=RUNTIME_DIR / "user_preferences.json",
+    )
+
+
 def _database_initialization_required() -> bool:
     from astro_viewer.app.database.bootstrap import database_initialization_required
 
@@ -299,7 +308,7 @@ def _wait_for_startup_location(controller, timeout_seconds: float = 8.0) -> bool
 
 def run_app() -> int:
     try:
-        from PySide6.QtCore import QUrl
+        from PySide6.QtCore import QTimer, QUrl
         from PySide6.QtQml import QQmlApplicationEngine
         from PySide6.QtWidgets import QApplication, QMessageBox
     except ModuleNotFoundError as exc:
@@ -315,6 +324,7 @@ def run_app() -> int:
     translation_manager = _build_translation_manager()
     translation_manager.install()
     appearance_manager = _build_appearance_manager()
+    update_manager = _build_update_manager()
 
     try:
         initialization_required = _database_initialization_required()
@@ -353,6 +363,7 @@ def run_app() -> int:
     engine.rootContext().setContextProperty("appController", controller)
     engine.rootContext().setContextProperty("translationManager", translation_manager)
     engine.rootContext().setContextProperty("appearanceManager", appearance_manager)
+    engine.rootContext().setContextProperty("updateManager", update_manager)
     engine.rootContext().setContextProperty(
         "platformCapabilities",
         PLATFORM_CAPABILITIES.as_qml_context(),
@@ -362,6 +373,7 @@ def run_app() -> int:
 
     if not engine.rootObjects():
         return 1
+    QTimer.singleShot(750, update_manager.checkForUpdates)
     return app.exec()
 
 
@@ -381,6 +393,7 @@ def run_qml_smoke_test(*, red_night_vision: bool = False) -> int:
     translation_manager = _build_translation_manager()
     translation_manager.install()
     appearance_manager = _build_appearance_manager()
+    update_manager = _build_update_manager()
     if red_night_vision:
         appearance_manager.setRedNightVisionEnabled(True)
     controller = _build_controller()
@@ -390,6 +403,7 @@ def run_qml_smoke_test(*, red_night_vision: bool = False) -> int:
     engine.rootContext().setContextProperty("appController", controller)
     engine.rootContext().setContextProperty("translationManager", translation_manager)
     engine.rootContext().setContextProperty("appearanceManager", appearance_manager)
+    engine.rootContext().setContextProperty("updateManager", update_manager)
     engine.rootContext().setContextProperty(
         "platformCapabilities",
         PLATFORM_CAPABILITIES.as_qml_context(),

@@ -113,6 +113,30 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.38.0 Startup Update Check Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-23 after adding the
+non-blocking stable-release notification:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` | Passed |
+| `pip check`, Ruff, `compileall`, third-party archive | Passed |
+| Offline MPC snapshot check | 2,683 fixed terrestrial observatories passed |
+| Final `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 889 passed, 642 warnings, 10 subtests passed in 136.16 s |
+| Runtime coverage | 84% across 15,965 statements |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Translation catalogues | IT, EN, and ES: 1,697 finished, 0 unfinished each |
+| Backend, normal QML, and red QML smoke tests | Passed in disposable runtimes |
+| Live GitHub release probe | `1.36.0` found `v1.37.0`; `1.38.0` found no newer release |
+| Minimum viewport popup | Spanish Red Night Vision dialog opened centered at 560 x 204 within 1040 x 700 |
+
+The update request is not run by backend or QML smoke tests. Unit coverage uses
+mocked GitHub responses for version ordering, stable-release filtering, URL
+validation, ignored-version persistence and the one-check-per-session guard.
+The separate live probe confirms the public API contract without making the
+deterministic suite depend on network availability.
+
 ## Measured 1.37.0 Red Night Vision Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-22 after adding the

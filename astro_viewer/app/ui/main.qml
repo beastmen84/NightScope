@@ -48,6 +48,48 @@ ApplicationWindow {
         id: theme
     }
 
+    Connections {
+        target: updateManager
+
+        function onUpdateAvailable() {
+            ignoreUpdateCheck.checked = false
+            updateAvailableDialog.open()
+        }
+    }
+
+    DarkDialog {
+        id: updateAvailableDialog
+        objectName: "updateAvailableDialog"
+        parent: Overlay.overlay
+        title: qsTr("Nuova versione disponibile")
+        acceptText: qsTr("Scarica aggiornamento")
+        cancelText: qsTr("Più tardi")
+        preferredWidth: 560
+
+        onAccepted: Qt.openUrlExternally(updateManager.releaseUrl)
+        onClosed: {
+            if (ignoreUpdateCheck.checked)
+                updateManager.ignoreCurrentUpdate()
+        }
+
+        Text {
+            Layout.fillWidth: true
+            Layout.minimumWidth: 0
+            text: qsTr("È disponibile NightScope %1. Stai utilizzando la versione %2.")
+                .arg(updateManager.latestVersion)
+                .arg(updateManager.currentVersion)
+            color: theme.textPrimary
+            font.pixelSize: 14
+            wrapMode: Text.WordWrap
+        }
+
+        DarkCheckBox {
+            id: ignoreUpdateCheck
+            Layout.fillWidth: true
+            text: qsTr("Non mostrare più questa versione")
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
         color: theme.background

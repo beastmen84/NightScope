@@ -1,5 +1,31 @@
 # Changelog
 
+## NightScope 1.38.0 - 2026-07-23
+
+- Aggiunto un controllo non bloccante della versione all'avvio. Dopo il
+  caricamento della finestra, `UpdateManager` interroga in background l'endpoint
+  pubblico GitHub dell'ultima release stabile senza richiedere credenziali.
+- Il confronto usa componenti numeriche `major.minor.patch`, quindi gestisce
+  correttamente casi come `1.10.0` rispetto a `1.9.0`. Bozze, prerelease,
+  risposte malformate e URL esterni al repository ufficiale vengono ignorati.
+- Se esiste una versione più recente, un dialogo localizzato e compatibile con
+  Red Night Vision mostra versione installata e disponibile. L'utente può
+  aprire la release nel browser, rimandare oppure ignorare quella specifica
+  versione.
+- Errori di rete, timeout, limiti API e indisponibilità di GitHub restano
+  silenziosi nell'interfaccia e non bloccano né modificano l'avvio. Il controllo
+  viene eseguito al massimo una volta per sessione.
+- La preferenza `ignored_update_version` viene conservata in
+  `user_preferences.json` senza sovrascrivere lingua, modalità visiva o altre
+  impostazioni.
+- Verificato il popup a `1040 x 700` in spagnolo e Red Night Vision: dialogo
+  aperto, centrato e contenuto nella finestra a `560 x 204`.
+- Gate completo con coverage e security superato: `889 passed`, `642 warnings`
+  note, `10 subtests`, coverage `84%` su `15.965` statement, snapshot MPC e
+  smoke backend/QML normale/rosso superati, nessuna vulnerabilità nota.
+- La versione sorgente passa a `1.38.0`; la distribuzione Windows e la release
+  GitHub pubblicata restano `1.37.0`.
+
 ## NightScope 1.37.0 - 2026-07-22
 
 - Aggiunto in fondo alla barra laterale il selettore persistente
@@ -36,8 +62,8 @@
   andare a capo senza ellissi.
 - Gate completo ripetuto dopo il follow-up: `867 passed`, `642 warnings` note,
   `10 subtests`, coverage `84%` e nessuna vulnerabilita' nota.
-- La versione sorgente passa a `1.37.0`; la distribuzione non è stata
-  rigenerata e la release GitHub pubblicata resta `1.34.2`.
+- La versione sorgente passa a `1.37.0`; la distribuzione Windows e la release
+  GitHub `v1.37.0` sono state pubblicate dal commit `dded6a1`.
 
 ## NightScope 1.36.0 - 2026-07-22
 

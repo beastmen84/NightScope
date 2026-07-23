@@ -7798,83 +7798,83 @@ Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</tran
       <translation>Da configurare</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="146" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="145" />
       <source>Rilevamento posizione all'avvio</source>
       <translation>Rilevamento posizione all'avvio</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="147" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="146" />
       <source>Origini usate quando NightScope parte.</source>
       <translation>Origini usate quando NightScope parte.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="162" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="161" />
       <source>Avvio</source>
       <translation>Avvio</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="171" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="170" />
       <source>Rileva automaticamente</source>
       <translation>Rileva automaticamente</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="183" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="182" />
       <source>Origini</source>
       <translation>Origini</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="192" />
-      <location filename="../app/ui/pages/LocationPage.qml" line="350" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="191" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="349" />
       <source>Posizione di sistema</source>
       <translation>Posizione di sistema</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="206" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="205" />
       <source>Fallback</source>
       <translation>Fallback</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="215" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="214" />
       <source>Fallback online</source>
       <translation>Fallback online</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="352" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="351" />
       <source>Servizio GeoClue 2</source>
       <translation>Servizio GeoClue 2</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="368" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="367" />
       <source>Usa posizione di sistema</source>
       <translation>Usa posizione di sistema</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="391" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="390" />
       <source>La posizione di sistema non è disponibile. Provare la posizione approssimata online?</source>
       <translation>La posizione di sistema non è disponibile. Provare la posizione approssimata online?</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="411" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="410" />
       <source>Località IP (ipapi/ipwho)</source>
       <translation>Località IP (ipapi/ipwho)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="417" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="416" />
       <source>Stima città, paese, coordinate e fuso orario tramite connessione internet. Precisione limitata; non viene usata senza consenso.</source>
       <translation>Stima città, paese, coordinate e fuso orario tramite connessione internet. Precisione limitata; non viene usata senza consenso.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="528" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="527" />
       <source>Nome luogo (facoltativo)</source>
       <translation>Nome luogo (facoltativo)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="540" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="539" />
       <source>Latitudine *</source>
       <translation>Latitudine *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="547" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="546" />
       <source>Longitudine *</source>
       <translation>Longitudine *</translation>
     </message>
@@ -7885,98 +7885,98 @@ Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</tran
       <translation>Nessuna località configurata</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="133" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="132" />
       <source>Configura una località per ottenere meteo e cielo locale.</source>
       <translation>Configura una località per ottenere meteo e cielo locale.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="241" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="240" />
       <source>Ricerca località</source>
       <translation>Ricerca località</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="242" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="241" />
       <source>GeoNames e osservatori MPC offline</source>
       <translation>GeoNames e osservatori MPC offline</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="249" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="248" />
       <source>Cerca città, osservatorio o codice MPC</source>
       <translation>Cerca città, osservatorio o codice MPC</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="266" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="265" />
       <source>Digita una città, un osservatorio o un codice MPC.</source>
       <translation>Digita una città, un osservatorio o un codice MPC.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="277" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="276" />
       <source>Nessuna località trovata.</source>
       <translation>Nessuna località trovata.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="353" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="352" />
       <source>Precisa con fallback Windows approssimato</source>
       <translation>Precisa con fallback Windows approssimato</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="359" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="358" />
       <source>Usa GeoClue per richiedere la posizione al sistema. Disponibilità e precisione dipendono dai servizi di localizzazione configurati nella distribuzione.</source>
       <translation>Usa GeoClue per richiedere la posizione al sistema. Disponibilità e precisione dipendono dai servizi di localizzazione configurati nella distribuzione.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="360" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="359" />
       <source>Usa i servizi di localizzazione di Windows con consenso di sistema. Se il provider preciso non risponde, NightScope tenta il fallback Windows approssimato.</source>
       <translation>Usa i servizi di localizzazione di Windows con consenso di sistema. Se il provider preciso non risponde, NightScope tenta il fallback Windows approssimato.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="399" />
-      <location filename="../app/ui/pages/LocationPage.qml" line="425" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="398" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="424" />
       <source>Usa posizione approssimata online</source>
       <translation>Usa posizione approssimata online</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="412" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="411" />
       <source>Geolocalizzazione IP</source>
       <translation>Geolocalizzazione IP</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="433" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="432" />
       <source>Origine: %1  -  accuratezza: %2</source>
       <translation>Origine: %1  -  accuratezza: %2</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="446" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="445" />
       <source>Posizioni recenti</source>
       <translation>Posizioni recenti</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="447" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="446" />
       <source>Ultime posizioni salvate o caricate</source>
       <translation>Ultime posizioni salvate o caricate</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="453" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="452" />
       <source>Nessuna posizione recente.</source>
       <translation>Nessuna posizione recente.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="501" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="500" />
       <source>Usa</source>
       <translation>Usa</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="521" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="520" />
       <source>Coordinate manuali</source>
       <translation>Coordinate manuali</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="522" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="521" />
       <source>Inserimento diretto</source>
       <translation>Inserimento diretto</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="554" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="553" />
       <source>Imposta coordinate</source>
       <translation>Imposta coordinate</translation>
     </message>
@@ -8196,7 +8196,7 @@ Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</tran
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="473" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="474" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="475" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="816" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="817" />
       <source>n/d</source>
       <translation>n/d</translation>
     </message>
@@ -8315,12 +8315,12 @@ Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</tran
       <translation>Storia, scienza e contesto</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="668" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="669" />
       <source>Configurazione consigliata</source>
       <translation>Configurazione consigliata</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="671" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="672" />
       <source>Suggerimento operativo</source>
       <translation>Suggerimento operativo</translation>
     </message>
@@ -8360,133 +8360,133 @@ Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</tran
       <translation>Curiosità</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="647" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="648" />
       <source>Fonte: &lt;a href="%1"&gt;%2&lt;/a&gt;</source>
       <translation>Fonte: &lt;a href="%1"&gt;%2&lt;/a&gt;</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="649" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="650" />
       <source>Apri la fonte</source>
       <translation>Apri la fonte</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="670" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="671" />
       <source>Setup scelto per %1</source>
       <translation>Setup scelto per %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="686" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="687" />
       <source>Perché questa configurazione: %1</source>
       <translation>Perché questa configurazione: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="706" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="707" />
       <source>Filtro</source>
       <translation>Filtro</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="715" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="716" />
       <source>Disponibile</source>
       <translation>Disponibile</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="716" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="752" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="717" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="753" />
       <source>Non disponibile</source>
       <translation>Non disponibile</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="743" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="744" />
       <source>Riduttore fotografico</source>
       <translation>Riduttore fotografico</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="752" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="753" />
       <source>Nel profilo</source>
       <translation>Nel profilo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="813" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="814" />
       <source>Ciclo lunare</source>
       <translation>Ciclo lunare</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="814" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="815" />
       <source>%1  -  %2  -  %3</source>
       <translation>%1  -  %2  -  %3</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="815" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="816" />
       <source>Fase lunare</source>
       <translation>Fase lunare</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="826" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="827" />
       <source>Nuova</source>
       <translation>Nuova</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="827" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="828" />
       <source>Crescente</source>
       <translation>Crescente</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="828" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="829" />
       <source>Primo quarto</source>
       <translation>Primo quarto</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="829" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="830" />
       <source>Gibbosa</source>
       <translation>Gibbosa</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="830" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="831" />
       <source>Piena</source>
       <translation>Piena</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="831" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="832" />
       <source>Calante</source>
       <translation>Calante</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="832" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="833" />
       <source>Ultimo quarto</source>
       <translation>Ultimo quarto</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="833" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="834" />
       <source>Falce calante</source>
       <translation>Falce calante</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="927" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="928" />
       <source>Seleziona un oggetto</source>
       <translation>Seleziona un oggetto</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="928" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="929" />
       <source>Il dettaglio si apre dalle pagine dell'app</source>
       <translation>Il dettaglio si apre dalle pagine dell'app</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="933" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="934" />
       <source>Scegli un oggetto dalla Home, dal calendario o dal catalogo.</source>
       <translation>Scegli un oggetto dalla Home, dal calendario o dal catalogo.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="945" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="946" />
       <source>Valutazione osservativa</source>
       <translation>Valutazione osservativa</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="946" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="947" />
       <source>Geometria e condizioni locali</source>
       <translation>Geometria e condizioni locali</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="988" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="989" />
       <source>Valutazione specifica non disponibile.</source>
       <translation>Valutazione specifica non disponibile.</translation>
     </message>
@@ -8996,140 +8996,165 @@ Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</tran
     <name>main</name>
     <message>
       <location filename="../app/ui/main.qml" line="16" />
-      <location filename="../app/ui/main.qml" line="119" />
+      <location filename="../app/ui/main.qml" line="161" />
       <source>NightScope</source>
       <translation>NightScope</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="141" />
+      <location filename="../app/ui/main.qml" line="64" />
+      <source>Nuova versione disponibile</source>
+      <translation>Nuova versione disponibile</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/main.qml" line="65" />
+      <source>Scarica aggiornamento</source>
+      <translation>Scarica aggiornamento</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/main.qml" line="66" />
+      <source>Più tardi</source>
+      <translation>Più tardi</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/main.qml" line="78" />
+      <source>È disponibile NightScope %1. Stai utilizzando la versione %2.</source>
+      <translation>È disponibile NightScope %1. Stai utilizzando la versione %2.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/main.qml" line="89" />
+      <source>Non mostrare più questa versione</source>
+      <translation>Non mostrare più questa versione</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/main.qml" line="183" />
       <source>?</source>
       <translation>?</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="142" />
-      <location filename="../app/ui/main.qml" line="144" />
+      <location filename="../app/ui/main.qml" line="184" />
+      <location filename="../app/ui/main.qml" line="186" />
       <source>Apri manuale</source>
       <translation>Apri manuale</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="165" />
+      <location filename="../app/ui/main.qml" line="207" />
       <source>Home</source>
       <translation>Home</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="173" />
+      <location filename="../app/ui/main.qml" line="215" />
       <source>Calendario</source>
       <translation>Calendario</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="184" />
+      <location filename="../app/ui/main.qml" line="226" />
       <source>Log Osservazioni</source>
       <translation>Log Osservazioni</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="192" />
+      <location filename="../app/ui/main.qml" line="234" />
       <source>Meteo</source>
       <translation>Meteo</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="201" />
+      <location filename="../app/ui/main.qml" line="243" />
       <source>Configurazione</source>
       <translation>Configurazione</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="210" />
+      <location filename="../app/ui/main.qml" line="252" />
       <source>Località</source>
       <translation>Località</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="218" />
+      <location filename="../app/ui/main.qml" line="260" />
       <source>Provider dati</source>
       <translation>Provider dati</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="226" />
+      <location filename="../app/ui/main.qml" line="268" />
       <source>Profili</source>
       <translation>Profili</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="235" />
+      <location filename="../app/ui/main.qml" line="277" />
       <source>Cataloghi</source>
       <translation>Cataloghi</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="244" />
+      <location filename="../app/ui/main.qml" line="286" />
       <source>Oggetti celesti</source>
       <translation>Oggetti celesti</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="252" />
+      <location filename="../app/ui/main.qml" line="294" />
       <source>Telescopi</source>
       <translation>Telescopi</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="260" />
+      <location filename="../app/ui/main.qml" line="302" />
       <source>Oculari e Barlow</source>
       <translation>Oculari e Barlow</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="268" />
+      <location filename="../app/ui/main.qml" line="310" />
       <source>Filtri e riduttori</source>
       <translation>Filtri e riduttori</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="276" />
+      <location filename="../app/ui/main.qml" line="318" />
       <source>Binocoli</source>
       <translation>Binocoli</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="290" />
+      <location filename="../app/ui/main.qml" line="332" />
       <source>Lingua</source>
       <translation>Lingua</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="335" />
+      <location filename="../app/ui/main.qml" line="377" />
       <source>Stasera</source>
       <translation>Stasera</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="343" />
+      <location filename="../app/ui/main.qml" line="385" />
       <source>Da valutare</source>
       <translation>Da valutare</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="351" />
+      <location filename="../app/ui/main.qml" line="393" />
       <source>Finestra osservativa non disponibile</source>
       <translation>Finestra osservativa non disponibile</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="363" />
+      <location filename="../app/ui/main.qml" line="405" />
       <source>Condizioni della sessione non valutabili</source>
       <translation>Condizioni della sessione non valutabili</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="391" />
-      <location filename="../app/ui/main.qml" line="392" />
+      <location filename="../app/ui/main.qml" line="433" />
+      <location filename="../app/ui/main.qml" line="434" />
       <source>Normale</source>
       <translation>Normale</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="423" />
-      <location filename="../app/ui/main.qml" line="424" />
+      <location filename="../app/ui/main.qml" line="465" />
+      <location filename="../app/ui/main.qml" line="466" />
       <source>Visione rossa</source>
       <translation>Visione rossa</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="501" />
+      <location filename="../app/ui/main.qml" line="543" />
       <source>Torna al catalogo</source>
       <translation>Torna al catalogo</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="502" />
+      <location filename="../app/ui/main.qml" line="544" />
       <source>Torna al calendario</source>
       <translation>Torna al calendario</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="503" />
+      <location filename="../app/ui/main.qml" line="545" />
       <source>Torna alla Home</source>
       <translation>Torna alla Home</translation>
     </message>

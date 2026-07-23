@@ -1,26 +1,52 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-22
+Aggiornato: 2026-07-23
 
 ## Stato Versioni
 
-- Versione sorgente: `1.37.0`
+- Versione sorgente: `1.38.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
-- Release pubblica: `v1.34.2`, tag sul commit sorgente
-  `5f1cf9a83047bc005e57defb157a572b7ee5ef70`.
-- Asset: `NightScope-v1.34.2-windows-x64.zip`, SHA-256
-  `3470b5b4fa4720e442907b5d0c2e4173a53ff8a3a97971068b7755889b3b3e52`.
-- Distribuzione Windows corrente: `1.34.2`, pubblicata su GitHub.
-- Metadati, tag e digest della release `1.34.2` verificati su GitHub. Il bundle
-  pubblicato non e' stato rieseguito durante il passaggio sorgente `1.34.3`.
+- Release pubblica: `v1.37.0`, tag sul commit sorgente
+  `dded6a19bdef938f939676113e96ac18fa07138f`.
+- Asset: `NightScope-v1.37.0-windows-x64.zip`, SHA-256
+  `063385ec01665b60232872a3b312f0f573633214f2110e495530cb399151ccb1`.
+- Distribuzione Windows corrente: `1.37.0`, pubblicata su GitHub.
+- Metadati, tag e digest della release `1.37.0` verificati su GitHub il
+  2026-07-23. Il sorgente `1.38.0` non e' ancora distribuito.
 - Commit sorgente della release pubblica validato:
-  `5f1cf9a Fix responsive provider and ISS layouts`
-- Checklist visuale completata nel commit `ea821fc`.
+  `dded6a1 Fix red source links and location wrapping`
 
 La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
-Earthdata e layout appartengono a `1.34.2`, ora release pubblica. La review
-editoriale italiana e inglese descritta sotto appartiene al sorgente `1.34.3`.
+Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
+inglese descritta sotto appartiene al sorgente `1.34.3`.
+
+## Controllo Aggiornamenti 1.38.0
+
+`UpdateManager`, separato da `AppController`, legge il `VERSION` già incluso
+nel bundle e interroga una sola volta per sessione l'endpoint pubblico
+`releases/latest` di GitHub. Il controllo parte 750 ms dopo il caricamento QML
+su un thread daemon, usa timeout di 4 secondi e non mostra errori se rete o API
+non sono disponibili.
+
+Solo una release stabile con versione numericamente successiva e URL HTTPS del
+repository ufficiale può attivare il popup. Il dialogo mostra versione
+installata e disponibile, apre la pagina GitHub nel browser e consente di
+rimandare oppure salvare `ignored_update_version` in `user_preferences.json`.
+L'opzione di esclusione preserva tutte le altre preferenze. Il popup e'
+localizzato in italiano, inglese e spagnolo e usa i componenti tematizzati
+anche in Red Night Vision.
+
+La richiesta reale ha restituito correttamente `v1.37.0` per un client
+`1.36.0` e nessun aggiornamento per `1.38.0`. La sonda QML a `1040 x 700`, in
+spagnolo e Red Night Vision, ha aperto il dialogo al centro con geometria
+`560 x 204`. I cataloghi IT/EN/ES contengono `1.697` voci complete e zero
+incomplete.
+
+Il gate completo `tools/run_checks.py --security` e' passato: `889 passed`,
+`642 warnings` note, `10 subtests`, coverage `84%` su `15.965` statement,
+snapshot MPC da `2.683` righe, smoke backend/QML normale/rosso e audit
+dipendenze superati, senza vulnerabilita' note.
 
 ## Red Night Vision 1.37.0
 
