@@ -113,6 +113,31 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.40.0 Linux Secret Service Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-23 after introducing the
+explicit Linux credential backend:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` | Passed |
+| `pip check`, Ruff, `compileall`, third-party archive | Passed |
+| Offline MPC snapshot check | 2,683 fixed terrestrial observatories passed |
+| Final `pytest -q -n 4 astro_viewer/tests` with runtime coverage | 912 passed, 642 warnings, 10 subtests passed in 171.70 s |
+| Runtime coverage | 84% across 16,036 statements |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Backend, normal QML, and red QML smoke tests | Passed |
+| Credential backend, Earthdata, and OpenAQ focused tests | 25 passed |
+| Runtime/tooling/release extended focused tests | 84 passed, 493 known warnings |
+| Windows environment | `keyring 25.7.0`, `WinVaultKeyring` selected |
+| Linux conditional dependencies | `SecretStorage>=3.2` and `jeepney>=0.4.2` declared by installed `keyring` metadata |
+
+Deterministic tests prove that Windows retains the existing keyring dispatcher,
+Linux selects Secret Service directly, and Linux reports secure storage as
+unavailable when Secret Service cannot initialize or is not a recommended
+backend. The interactive save/read/delete test still requires a Linux desktop
+session with D-Bus and an unlocked Secret Service collection.
+
 ## Measured 1.39.0 Linux XDG Runtime Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-23 after separating Linux

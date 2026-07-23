@@ -5,12 +5,15 @@ import json
 import logging
 from dataclasses import dataclass, replace
 from pathlib import Path
-from typing import Protocol
 
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from astro_viewer.app.services.credential_backend import (
+    CredentialBackend,
+    load_system_credential_backend,
+)
 from astro_viewer.app.services.localization import tr
 
 
@@ -22,14 +25,6 @@ OPENAQ_API_KEY_ACCOUNT = "openaq_api_key"
 OPENAQ_CONFIGURED_KEY = "openaq_api_key_configured"
 OPENAQ_VERIFIED_API_KEY_HASH_KEY = "openaq_verified_api_key_hash"
 OPENAQ_CONNECTION_TEST_URL = "https://api.openaq.org/v3/parameters?limit=1"
-
-
-class CredentialBackend(Protocol):
-    def get_password(self, service_name: str, username: str) -> str | None: ...
-
-    def set_password(self, service_name: str, username: str, password: str) -> None: ...
-
-    def delete_password(self, service_name: str, username: str) -> None: ...
 
 
 @dataclass(frozen=True)
@@ -56,7 +51,7 @@ class OpenAQCredentialStore:
     ):
         self._preferences_path = preferences_path
         self._service_name = service_name
-        self._backend = backend if backend is not None else self._load_keyring_backend()
+        self._backend = backend if backend is not None else load_system_credential_backend()
 
     def state(self) -> OpenAQCredentialState:
         secure_store_available = self.secure_store_available
@@ -153,15 +148,6 @@ class OpenAQCredentialStore:
             payload.pop(OPENAQ_VERIFIED_API_KEY_HASH_KEY, None)
         self._write_json(self._preferences_path, payload)
         return replace(self.state(), message=message)
-
-    @staticmethod
-    def _load_keyring_backend() -> CredentialBackend | None:
-        try:
-            import keyring  # type: ignore[import-not-found]
-        except Exception:
-            logger.info("Python keyring is not available; OpenAQ credentials cannot be stored securely.")
-            return None
-        return keyring
 
     @staticmethod
     def _read_json(path: Path) -> dict:

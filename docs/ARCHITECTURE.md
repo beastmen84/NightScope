@@ -88,6 +88,29 @@ The portable Windows contract still requires a writable extracted application
 directory. Linux installations require writable user XDG directories, not a
 writable installation directory.
 
+## System Credential Storage
+
+`astro_viewer.app.services.credential_backend` is the common secure-storage
+boundary used by both Earthdata and OpenAQ. On Windows it preserves the
+existing `keyring` platform dispatch, which resolves to Windows Credential
+Manager in the supported environment.
+
+On Linux the boundary instantiates `keyring.backends.SecretService.Keyring`
+directly and evaluates its runtime priority. Secure storage is available only
+when the `SecretStorage` integration can reach or activate a compliant
+freedesktop.org Secret Service through the desktop D-Bus session. A missing
+dependency, missing daemon or failed D-Bus initialization returns no backend;
+the existing credential state then disables save/test workflows with the
+localized system-store-unavailable message.
+
+Direct Secret Service selection is deliberate: Linux does not honor a
+`PYTHON_KEYRING_BACKEND` or keyring configuration that redirects NightScope to
+a plaintext, null, fail or unrelated third-party backend. Usernames and
+non-secret verification markers remain in the XDG configuration JSON; Earthdata
+passwords and OpenAQ API keys remain exclusively in the system credential
+store. A native Linux package and an interactive Secret Service integration
+test remain separate release gates.
+
 ## Platform Capability Boundary
 
 `astro_viewer.app.platform_capabilities` is the single source of truth for the

@@ -13,13 +13,14 @@ setup?**
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
 > validated; its Italian/English source visual review and source licensing are
-> complete. Source version 1.39.0 includes the reviewed Spanish localization,
+> complete. Source version 1.40.0 includes the reviewed Spanish localization,
 > the provider/runtime and Earthdata authorization fixes released in 1.34.2,
 > the subsequent Italian and English editorial review, and the first
 > platform-capability boundary for native Linux support, plus unified offline
 > search for GeoNames cities and MPC observatories, plus a persistent Red Night
 > Vision interface mode, a non-blocking startup notification for newer stable
-> GitHub releases, and XDG-compliant Linux runtime paths. System location now
+> GitHub releases, XDG-compliant Linux runtime paths, and an explicit Secret
+> Service credential backend on Linux. System location now
 > uses the existing providers on Windows and GeoClue 2 on Linux; the Windows
 > provider order and fallback behavior remain unchanged.
 > The published Windows bundle passes automated legal,
@@ -151,21 +152,26 @@ isolated directory for tests and smoke checks.
 
 Exact coordinates are therefore local application data, but they are sent to a
 provider when that provider needs a location-specific result, as shown above.
-Earthdata passwords and OpenAQ API keys are stored in the Windows credential
-vault through `keyring`; they are not written to the SQLite database or JSON
-preferences. Diagnostic logs intentionally avoid coordinates and credential
-identifiers.
+Earthdata passwords and OpenAQ API keys are stored through `keyring`: Windows
+uses its credential vault, while Linux requires an available freedesktop.org
+Secret Service over the desktop D-Bus session. NightScope does not accept a
+plaintext or arbitrary fallback backend on Linux. If Secret Service is absent,
+the credential controls report secure storage as unavailable. Secrets are not
+written to the SQLite database or JSON preferences. Diagnostic logs
+intentionally avoid coordinates and credential identifiers.
 
 Back up `nightscope.db`, `user_preferences.json`, and `location_cache.json`
 before replacing or moving a development build.
 
 ## Requirements
 
-- Windows 10 or Windows 11.
+- Windows 10 or Windows 11 for the current distributed application.
 - Python 3.12 or newer for source development.
 - A writable checkout or extracted portable application directory.
 
-The current application is Windows-focused. Other desktop platforms are not a
+Linux source execution additionally requires a desktop D-Bus session and a
+Secret Service implementation for credential storage. The current distributed
+application remains Windows-focused; a native Linux package is not yet a
 tested release target.
 
 ## Run From Source

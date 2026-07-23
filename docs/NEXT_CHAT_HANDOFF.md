@@ -4,7 +4,7 @@ Aggiornato: 2026-07-23
 
 ## Stato Versioni
 
-- Versione sorgente: `1.39.0`
+- Versione sorgente: `1.40.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica: `v1.37.0`, tag sul commit sorgente
   `dded6a19bdef938f939676113e96ac18fa07138f`.
@@ -12,7 +12,7 @@ Aggiornato: 2026-07-23
   `063385ec01665b60232872a3b312f0f573633214f2110e495530cb399151ccb1`.
 - Distribuzione Windows corrente: `1.37.0`, pubblicata su GitHub.
 - Metadati, tag e digest della release `1.37.0` verificati su GitHub il
-  2026-07-23. Il sorgente `1.38.0` non e' ancora distribuito.
+  2026-07-23. Il sorgente `1.40.0` non e' ancora distribuito.
 - Commit sorgente della release pubblica validato:
   `dded6a1 Fix red source links and location wrapping`
 
@@ -20,6 +20,30 @@ La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
+
+## Backend Credenziali Linux Secret Service 1.40.0
+
+`credential_backend` e' ora il confine condiviso da Earthdata e OpenAQ.
+Windows conserva il dispatcher `keyring` esistente e nella venv verificata usa
+`WinVaultKeyring`. Su Linux NightScope costruisce direttamente
+`keyring.backends.SecretService.Keyring` e dichiara lo storage sicuro
+disponibile soltanto se Secret Service e' raggiungibile o attivabile via D-Bus.
+
+Configurazioni Linux che selezionano backend null, fail, plaintext o plugin
+arbitrari non vengono usate. In assenza di Secret Service i controlli
+credenziali riportano l'archivio di sistema come non disponibile; password e
+API key non ricadono mai su JSON o SQLite. `keyring 25.7.0` dichiara gia'
+`SecretStorage>=3.2` e `jeepney>=0.4.2` come dipendenze condizionali Linux.
+
+Il gate completo `tools/run_checks.py --security` e' passato: `912 passed`,
+`642 warnings` note, `10 subtests`, coverage `84%` su `16.036` statement,
+snapshot MPC da `2.683` righe, smoke backend/QML normale/rosso e audit
+dipendenze superati, senza vulnerabilita' note. La suite focalizzata
+credenziali ha chiuso `25 passed`; quella estesa con runtime, tooling e scenari
+di release `84 passed`.
+
+I prossimi step Linux sono il packaging nativo e le prove interattive reali di
+Secret Service e GeoClue su un desktop Linux.
 
 ## Percorsi Runtime Linux XDG 1.39.0
 

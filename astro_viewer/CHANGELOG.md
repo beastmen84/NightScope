@@ -1,5 +1,28 @@
 # Changelog
 
+## NightScope 1.40.0 - 2026-07-23
+
+- Aggiunto un confine condiviso per il backend credenziali usato da Earthdata e
+  OpenAQ, eliminando i due loader `keyring` duplicati.
+- Su Linux NightScope usa direttamente il backend
+  `keyring.backends.SecretService.Keyring` e ne verifica la disponibilita'
+  runtime tramite D-Bus. Backend null, fail, plaintext o plugin selezionati
+  tramite configurazione `keyring` non vengono accettati come archivi sicuri.
+- Se Secret Service, il daemon D-Bus o le dipendenze Linux non sono disponibili,
+  i flussi credenziali esistenti riportano l'archivio di sistema come non
+  disponibile senza scrivere password o API key in JSON o SQLite.
+- Windows conserva il comportamento precedente tramite il dispatcher
+  `keyring`; la venv verificata usa `keyring 25.7.0` con `WinVaultKeyring`.
+  `SecretStorage` e `jeepney` sono gia' dipendenze condizionali Linux di
+  `keyring` e non vengono duplicate nei requisiti NightScope.
+- Il gate completo con coverage e security e' passato: `912 passed`, `642`
+  warning note, `10 subtests`, coverage `84%` su `16.036` statement, snapshot
+  MPC e smoke backend/QML normale/rosso superati, nessuna vulnerabilita' nota.
+  Il test interattivo richiede ancora un desktop Linux con D-Bus e una
+  collezione Secret Service sbloccata.
+- La versione sorgente passa a `1.40.0`; la distribuzione Windows e la release
+  GitHub pubblicata restano `1.37.0`.
+
 ## NightScope 1.39.0 - 2026-07-23
 
 - Introdotto `RuntimePaths` come contratto unico per database, configurazione,

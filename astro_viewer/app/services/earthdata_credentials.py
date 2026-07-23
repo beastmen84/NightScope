@@ -8,12 +8,16 @@ from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from pathlib import Path
 from threading import RLock
-from typing import Iterator, Protocol
+from typing import Iterator
 
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from astro_viewer.app.services.credential_backend import (
+    CredentialBackend,
+    load_system_credential_backend,
+)
 from astro_viewer.app.services.localization import tr
 
 
@@ -64,14 +68,6 @@ def temporary_earthdata_netrc(
                     os.environ["NETRC"] = previous_netrc
 
 
-class CredentialBackend(Protocol):
-    def get_password(self, service_name: str, username: str) -> str | None: ...
-
-    def set_password(self, service_name: str, username: str, password: str) -> None: ...
-
-    def delete_password(self, service_name: str, username: str) -> None: ...
-
-
 @dataclass(frozen=True)
 class EarthdataCredentialState:
     username: str = ""
@@ -99,7 +95,7 @@ class EarthdataCredentialStore:
     ):
         self._preferences_path = preferences_path
         self._service_name = service_name
-        self._backend = backend if backend is not None else self._load_keyring_backend()
+        self._backend = backend if backend is not None else load_system_credential_backend()
 
     def state(self) -> EarthdataCredentialState:
         username = self.username()
@@ -231,15 +227,6 @@ class EarthdataCredentialStore:
             self._backend.delete_password(self._service_name, username)
         except Exception:
             logger.info("Earthdata password was not present in the secure store.")
-
-    @staticmethod
-    def _load_keyring_backend() -> CredentialBackend | None:
-        try:
-            import keyring  # type: ignore[import-not-found]
-        except Exception:
-            logger.info("Python keyring is not available; Earthdata credentials cannot be stored securely.")
-            return None
-        return keyring
 
     @staticmethod
     def _read_json(path: Path) -> dict:
