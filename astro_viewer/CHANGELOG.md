@@ -27,13 +27,26 @@
 - Aggiunto `ruff.toml` con target Python 3.12 e selezione esplicita delle regole
   storiche. Ruff 0.15 e 0.16 producono cosi' lo stesso gate senza modifiche
   automatiche massive al sorgente.
-- Il gate Ubuntu `tools/run_checks.py --fast` passa con `917 passed`, `1
+- Aggiunto `packaging/build_linux.sh`: genera la directory PyInstaller
+  `dist/NightScope`, copia gli avvisi legali, produce un archivio licenze dalla
+  closure Python Linux installata e avvia l'audit bundle multipiattaforma. Lo
+  spec include Secret Service su Linux ed esclude soltanto il backend keyring
+  Windows, che resta invariato nelle build Windows.
+- I hook Linux rimuovono Qt Virtual Keyboard, non usato e fuori dal perimetro
+  Qt selezionato, e il plugin TIFF non usato che sulla macchina di build
+  richiedeva `libtiff.so.5`. Wayland, XCB, immagini applicative e QML restano
+  presenti.
+- La dist locale `1.41.0` contiene `5.306` file per `548 MiB`; passano audit,
+  backend smoke, QML Wayland normale/rosso e QML XCB. L'archivio licenze Linux
+  copre `63` distribuzioni, incluse `jeepney` e `SecretStorage`.
+- Il gate Ubuntu `tools/run_checks.py --fast` passa con `919 passed`, `1
   skipped`, `642 warnings` note e `10 subtests`; passano inoltre `pip check`,
   Ruff 0.16.0, `compileall`, closure licenze, snapshot MPC, smoke backend/QML,
   avvio reale Wayland e sonda XCB.
 - La versione sorgente passa a `1.41.0`; la distribuzione Windows e la release
-  GitHub pubblicata restano `1.37.0`. Un pacchetto Linux nativo non e' ancora
-  stato prodotto.
+  GitHub pubblicata restano `1.37.0`. La dist Linux e' un candidate locale: non
+  e' stato pubblicato alcun archivio/installer e restano da inventariare gli
+  avvisi delle librerie ELF di sistema prima di una redistribuzione pubblica.
 
 ## NightScope 1.40.1 - 2026-07-23
 

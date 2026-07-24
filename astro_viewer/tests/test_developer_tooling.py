@@ -15,7 +15,12 @@ from astro_viewer.app.services.logging_service import (
     LOG_HANDLER_NAME,
     configure_logging,
 )
-from tools.audit_qt_bundle import REQUIRED_DATA_FILES, REQUIRED_DLLS, audit_bundle
+from tools.audit_qt_bundle import (
+    REQUIRED_DATA_FILES,
+    REQUIRED_DLLS,
+    REQUIRED_LINUX_LIBRARIES,
+    audit_bundle,
+)
 from tools.generate_third_party_licenses import render_archive
 from tools.run_checks import Check, _checks, _run_check
 from tools.translation_provider import (
@@ -430,6 +435,39 @@ def test_legal_files_are_current_and_windows_build_enforces_them() -> None:
     assert "data.minorplanetcenter.net/api/obscodes" in notices
 
 
+def test_linux_build_enforces_licenses_and_platform_bundle_audit() -> None:
+    build_script_path = PROJECT_ROOT / "packaging" / "build_linux.sh"
+    build_script = build_script_path.read_text(encoding="utf-8")
+    spec = (PROJECT_ROOT / "packaging" / "NightScope.spec").read_text(
+        encoding="utf-8"
+    )
+    qtgui_hook = (
+        PROJECT_ROOT
+        / "packaging"
+        / "pyinstaller_hooks"
+        / "hook-PySide6.QtGui.py"
+    ).read_text(encoding="utf-8")
+
+    assert build_script.startswith("#!/usr/bin/env bash\n")
+    assert "generate_third_party_licenses.py" in build_script
+    assert "THIRD_PARTY_LICENSES.txt" in build_script
+    assert "PyInstaller --clean --noconfirm" in build_script
+    assert "audit_qt_bundle.py" in build_script
+    assert "--platform linux" in build_script
+    assert '--output "$dist_dir/THIRD_PARTY_LICENSES.txt"' in build_script
+    assert "--platform-label Linux" in build_script
+    assert '"keyring.backends.Windows"' in spec
+    assert '"keyring.backends.SecretService"' in spec
+    assert 'sys.platform == "win32"' in spec
+    assert 'sys.platform.startswith("linux")' in spec
+    assert 'excludes.append("keyring.backends.Windows")' in spec
+    assert "qtvirtualkeyboardplugin" in qtgui_hook
+    assert "libqtiff.so" in qtgui_hook
+    assert "current Linux release candidate" in render_archive(
+        environment_label="Linux"
+    )
+
+
 def test_qt_bundle_audit_rejects_gpl_only_modules(tmp_path: Path) -> None:
     for filename in REQUIRED_DLLS:
         (tmp_path / filename).touch()
@@ -465,6 +503,38 @@ def test_qt_bundle_audit_rejects_gpl_only_modules(tmp_path: Path) -> None:
     timeline_errors = audit_bundle(tmp_path)
     assert len(timeline_errors) == 1
     assert "QtQuick/Timeline/qmldir" in timeline_errors[0]
+
+
+def test_qt_bundle_audit_accepts_linux_libraries_and_rejects_plugins(
+    tmp_path: Path,
+) -> None:
+    for filename in REQUIRED_LINUX_LIBRARIES:
+        (tmp_path / filename).touch()
+    for filename in REQUIRED_DATA_FILES:
+        (tmp_path / filename).touch()
+    for filename in ("LICENSE", "THIRD_PARTY_LICENSES.txt", "THIRD_PARTY_NOTICES.md"):
+        (tmp_path / filename).touch()
+
+    assert audit_bundle(tmp_path, platform_name="linux") == []
+
+    missing_library = tmp_path / "libqt6core.so.6"
+    missing_library.unlink()
+    missing_library_errors = audit_bundle(tmp_path, platform_name="linux")
+    assert missing_library_errors == [
+        "missing required Qt shared libraries: libqt6core.so.6"
+    ]
+    missing_library.touch()
+
+    plugin_dir = tmp_path / "_internal" / "PySide6" / "Qt" / "plugins"
+    plugin_dir.mkdir(parents=True)
+    (plugin_dir / "libqtvirtualkeyboardplugin.so").touch()
+    (plugin_dir / "libqtiff.so").touch()
+
+    errors = audit_bundle(tmp_path, platform_name="linux")
+
+    assert len(errors) == 2
+    assert "unexpected GPL-only Qt modules" in errors[0]
+    assert "unsupported Linux Qt plugins" in errors[1]
 
 
 def test_qt_bundle_audit_rejects_runtime_state(tmp_path: Path) -> None:

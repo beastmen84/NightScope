@@ -1,10 +1,16 @@
+import sys
+
 from PyInstaller.utils.hooks.qt import add_qt6_dependencies
 
 
 def _is_allowed_qtgui_binary(item: tuple[str, str]) -> bool:
     source, destination = item
     combined = f"{source}/{destination}".replace("\\", "/").lower()
-    return "qtvirtualkeyboardplugin.dll" not in combined
+    if "qtvirtualkeyboardplugin" in combined:
+        return False
+    if sys.platform.startswith("linux") and "/libqtiff.so" in combined:
+        return False
+    return True
 
 
 hiddenimports, binaries, datas = add_qt6_dependencies(__file__)

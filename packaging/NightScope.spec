@@ -1,10 +1,24 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import sys
 from pathlib import Path
 
 
 ROOT = Path(SPECPATH).parent
 APP_DIR = ROOT / "astro_viewer"
+
+hiddenimports = ["tzdata", "PySide6.QtPositioning"]
+excludes = [
+    "astropy.visualization",
+    "astropy.visualization.wcsaxes",
+    "matplotlib",
+    "pytest",
+]
+if sys.platform == "win32":
+    hiddenimports.append("keyring.backends.Windows")
+elif sys.platform.startswith("linux"):
+    hiddenimports.append("keyring.backends.SecretService")
+    excludes.append("keyring.backends.Windows")
 
 datas = [
     (str(ROOT / "VERSION"), "."),
@@ -37,16 +51,11 @@ a = Analysis(
     pathex=[str(ROOT)],
     binaries=[],
     datas=datas,
-    hiddenimports=["tzdata", "keyring.backends.Windows", "PySide6.QtPositioning"],
+    hiddenimports=hiddenimports,
     hookspath=[str(ROOT / "packaging" / "pyinstaller_hooks")],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[
-        "astropy.visualization",
-        "astropy.visualization.wcsaxes",
-        "matplotlib",
-        "pytest",
-    ],
+    excludes=excludes,
     noarchive=False,
     optimize=0,
 )

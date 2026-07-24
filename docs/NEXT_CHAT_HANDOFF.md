@@ -21,7 +21,7 @@ follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
 
-## Esecuzione sorgente Ubuntu 1.41.0
+## Esecuzione sorgente e dist Ubuntu 1.41.0
 
 NightScope e' stato installato ed eseguito da sorgente su Ubuntu 26.04 LTS con
 Python 3.14.4, PySide/Qt 6.11.1 e sessione GNOME/Wayland. D-Bus utente,
@@ -35,9 +35,21 @@ Python dalla standard library Linux e mantiene invariato il confronto esatto
 dell'archivio nell'ambiente Windows. Il gate Ruff ha ora una configurazione
 esplicita e resta stabile con le versioni 0.15 e 0.16.
 
-Il gate `tools/run_checks.py --fast` ha chiuso con `917 passed`, `1 skipped`,
+Il gate `tools/run_checks.py --fast` ha chiuso con `919 passed`, `1 skipped`,
 `642 warnings` note e `10 subtests`; smoke backend/QML, avvio reale Wayland e
-sonda XCB sono passati. Restano separati il packaging Linux nativo, una prova
+sonda XCB sono passati.
+
+`packaging/build_linux.sh` produce ora il candidate PyInstaller
+`dist/NightScope`. La dist locale `1.41.0` contiene `5.306` file per `548 MiB`;
+audit, backend smoke, QML Wayland normale/rosso e QML XCB sono passati. Lo spec
+include Secret Service ma non il backend keyring Windows, e i hook escludono Qt
+Virtual Keyboard e il plugin TIFF Linux irrisolvibile e non usato. L'archivio
+licenze generato nella dist copre `63` distribuzioni Python Linux, incluse
+`jeepney` e `SecretStorage`, senza sostituire l'archivio Windows committato.
+
+Prima di una pubblicazione Linux restano l'inventario e gli avvisi delle
+librerie ELF di sistema copiate da PyInstaller, la prova su una baseline glibc
+meno recente e la scelta del formato pubblico. Restano inoltre una prova
 interattiva save/read/delete di Secret Service e una richiesta GeoClue
 autorizzata con coordinate reali.
 

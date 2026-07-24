@@ -25,8 +25,9 @@ setup?**
 > separate from NSOM candidate eligibility. System location now
 > uses the existing providers on Windows and GeoClue 2 on Linux; the Windows
 > provider order and fallback behavior remain unchanged.
-> Source execution is validated on Ubuntu 26.04 LTS with GNOME/Wayland and the
-> X11/XCB fallback; a native Linux package remains a separate release target.
+> Source execution and a local portable PyInstaller bundle are validated on
+> Ubuntu 26.04 LTS with GNOME/Wayland and the X11/XCB fallback; a public Linux
+> archive or installer remains a separate release target.
 > The published Windows bundle passes automated legal,
 > Qt, backend, and QML checks; its packaged visual and live-provider release
 > matrices are not complete yet.
@@ -173,10 +174,10 @@ before replacing or moving a development build.
 - Python 3.12 or newer for source development.
 - A writable checkout or extracted portable application directory.
 
-Linux source execution additionally requires a desktop D-Bus session and a
-Secret Service implementation for credential storage. The current distributed
-application remains Windows-focused; a native Linux package is not yet a
-tested release target.
+Linux source execution and the locally built portable bundle additionally
+require a desktop D-Bus session and a Secret Service implementation for
+credential storage. The published application remains Windows-focused; no
+Linux installer or public Linux archive has been released yet.
 
 ## Run From Source
 
@@ -237,6 +238,32 @@ compilation, one parallel test-suite pass, a backend smoke test, and a QML smoke
 test. Security mode additionally runs `pip-audit`. More focused commands and
 the latest measured baseline are in [`docs/TESTING.md`](docs/TESTING.md).
 
+## Build For Linux
+
+From the repository root:
+
+```bash
+./packaging/build_linux.sh
+```
+
+PyInstaller writes the portable application to `dist/NightScope`. The build
+script copies the project notices, generates the installed Linux Python
+dependency license archive, and runs the platform-aware Qt/data/runtime-state
+audit. Test the frozen executable with an isolated runtime directory:
+
+```bash
+NIGHTSCOPE_RUNTIME_DIR=/tmp/nightscope-dist-smoke \
+  dist/NightScope/NightScope --smoke-test
+NIGHTSCOPE_RUNTIME_DIR=/tmp/nightscope-dist-smoke \
+  dist/NightScope/NightScope --qml-smoke-test
+```
+
+The bundle is native to the Linux architecture and glibc baseline on which it
+is built. It is not an AppImage, Flatpak, Snap, Debian package, or universal
+Linux binary. Before public redistribution, inventory the system ELF libraries
+copied by PyInstaller and their notices, and validate the bundle on the oldest
+Linux/glibc baseline the release intends to support.
+
 ## Build For Windows
 
 ```powershell
@@ -278,7 +305,7 @@ astro_viewer/
   tests/             Deterministic unit, integration and presentation tests
   translations/      Runtime language packs and compiled Qt catalogues
 docs/                 Architecture, model, testing and release documentation
-packaging/            PyInstaller spec and Windows build script
+packaging/            PyInstaller spec, hooks, and Windows/Linux build scripts
 tools/                Validation and localization maintenance tools
 manuale.html          Self-contained Italian/English/Spanish user manual
 ```
