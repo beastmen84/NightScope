@@ -140,7 +140,7 @@ PyInstaller 6.21.0 and glibc 2.36:
 | `.venv/bin/python tools/run_checks.py --fast` | Passed |
 | `pip check`, Ruff, `compileall`, installed license closure | Passed |
 | Offline MPC snapshot check | 2,683 fixed terrestrial observatories passed |
-| `pytest -q -n 4 astro_viewer/tests` | 923 passed, 1 skipped, 642 warnings, 10 subtests passed in 108.89 s |
+| `pytest -q -n 4 astro_viewer/tests` | 923 passed, 1 skipped, 642 warnings, 10 subtests passed in 106.41 s |
 | `./packaging/build_linux_debian12.sh` | Passed using rootless Podman |
 | Frozen bundle inventory | Version 1.41.0; 5,415 files; 575 MiB |
 | Native-component inventory | 146 ELF files; 84 binary packages; 63 Debian source packages plus CPython |
@@ -150,8 +150,8 @@ PyInstaller 6.21.0 and glibc 2.36:
 | Debian 13 frozen smoke | Backend and offscreen normal/red QML passed with the documented GL/EGL host libraries |
 | Ubuntu 26.04 frozen smoke | Backend, Wayland normal/red QML, and XCB normal QML passed |
 | Newer-host GIO isolation | XCB passed without loading the incompatible host GVFS module |
-| Deterministic release archive | `NightScope-v1.41.0-debian-12-x64.tar.gz`; 272,541,380 bytes (260 MiB) |
-| Archive SHA-256 | `3142647ffd8178c380bdc670c7e5dc50f270c84ed1629d927171c88c171d9eea` |
+| Deterministic release archive | `NightScope-v1.41.0-debian-12-x64.tar.gz`; 272,546,505 bytes (260 MiB) |
+| Archive SHA-256 | `24490604996561e90b2b3e78ed1d2be1b4530d6ec679190ca81fe32c5f396ef5` |
 | Clean archive extraction | Checksum, bundle audit, backend smoke, and normal/red QML smoke passed |
 
 This is a fast source/bundle gate without coverage or `pip-audit`. The artifact

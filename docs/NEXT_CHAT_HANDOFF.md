@@ -56,9 +56,9 @@ inventariati, entry stale, hash diversi, URL sorgente non validi o testi
 mancanti.
 
 `packaging/archive_linux.sh` ha prodotto
-`NightScope-v1.41.0-debian-12-x64.tar.gz` (`272.541.380` byte, `260 MiB`) e il
+`NightScope-v1.41.0-debian-12-x64.tar.gz` (`272.546.505` byte, `260 MiB`) e il
 checksum adiacente, SHA-256
-`3142647ffd8178c380bdc670c7e5dc50f270c84ed1629d927171c88c171d9eea`.
+`24490604996561e90b2b3e78ed1d2be1b4530d6ec679190ca81fe32c5f396ef5`.
 Il flusso documentato nel README e' stato ripetuto da una directory temporanea
 pulita con checksum, estrazione, audit, backend e QML normale/rosso passati.
 

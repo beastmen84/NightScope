@@ -68,9 +68,9 @@
   e il runtime CPython, con `64` avvisi copyright, `15` testi di licenza comuni
   e `64/64` URL Debian Sources/CPython verificati.
 - Il tar finale
-  `NightScope-v1.41.0-debian-12-x64.tar.gz` misura `272.541.380` byte
+  `NightScope-v1.41.0-debian-12-x64.tar.gz` misura `272.546.505` byte
   (`260 MiB`) e ha SHA-256
-  `3142647ffd8178c380bdc670c7e5dc50f270c84ed1629d927171c88c171d9eea`.
+  `24490604996561e90b2b3e78ed1d2be1b4530d6ec679190ca81fe32c5f396ef5`.
   Audit, backend e QML normale/rosso passano dopo estrazione pulita; la stessa
   build e' stata verificata su Debian 12, Debian 13 e Ubuntu 26.04.
 - La versione sorgente passa a `1.41.0`; la distribuzione Windows e la release
