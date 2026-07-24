@@ -3,7 +3,7 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-python="$root/.venv/bin/python"
+python="${NIGHTSCOPE_BUILD_PYTHON:-$root/.venv/bin/python}"
 bundle_dir="$root/dist/NightScope"
 version_file="$root/VERSION"
 bundle_audit="$root/tools/audit_qt_bundle.py"
@@ -14,7 +14,7 @@ if [[ "$(uname -s)" != "Linux" ]]; then
 fi
 
 if [[ ! -x "$python" ]]; then
-    echo "Python venv not found at $python" >&2
+    echo "Build Python not found or not executable at $python" >&2
     exit 1
 fi
 

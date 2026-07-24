@@ -105,20 +105,22 @@ Do not commit credentials or exact personal locations.
 
 ## 7. Linux Artifact
 
-- [x] Build on the declared Ubuntu 26.04 x86-64/glibc 2.43 baseline with
-  `packaging/build_linux.sh`.
+- [x] Build through the declared Debian 12 x86-64/glibc 2.36 container with
+  `packaging/build_linux_debian12.sh`.
 - [x] Generate the environment-specific Python license archive.
-- [x] Inventory every copied Ubuntu ELF with binary/source package versions,
-  bundle SHA-256, notice path and exact Launchpad source URL.
-- [x] Bundle all 61 source-package copyright notices and the 15 Debian/Ubuntu
+- [x] Inventory 146 copied native ELF files with binary/source versions,
+  bundle SHA-256, notice path and exact Debian Sources or CPython source URL.
+- [x] Bundle all 64 source-component copyright notices and the 15 Debian
   common-license texts they reference.
-- [x] Verify all 61 unique exact-version Launchpad source URLs return HTTP 200.
+- [x] Verify all 64 unique exact-version source URLs return HTTP success.
 - [x] Reject unmanifested/stale native files, changed hashes, missing notices,
   missing common licenses, unsupported Qt plugins and GPL-only Qt modules.
-- [x] Run backend, Wayland normal/red QML and XCB QML smoke tests against the
-  frozen executable.
+- [x] Run backend and normal/red QML smoke tests in Debian 12 and Debian 13;
+  run Wayland normal/red and XCB QML smoke tests on the Ubuntu host.
+- [x] Isolate GIO modules so newer-host GVFS plugins are not loaded against
+  the bundled Debian 12 GLib.
 - [x] Create the deterministic
-  `NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz` and adjacent SHA-256 file.
+  `NightScope-v1.41.0-debian-12-x64.tar.gz` and adjacent SHA-256 file.
 - [x] Verify checksum, extraction, audit and smoke tests from the final archive.
 - [ ] Publish the tarball and checksum as GitHub pre-release assets so Windows
   1.40.1 clients do not receive a Linux-only stable-update notification.

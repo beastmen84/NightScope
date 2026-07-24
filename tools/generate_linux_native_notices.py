@@ -4,10 +4,12 @@ import argparse
 import ast
 import csv
 import hashlib
+import platform
 import re
 import shutil
 import subprocess
 import sys
+import sysconfig
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
@@ -19,6 +21,13 @@ NOTICE_ROOT = Path("legal") / "linux-native"
 COMMON_LICENSE_PATTERN = re.compile(
     r"/usr/share/common-licenses/([A-Za-z0-9][A-Za-z0-9.+_-]*)"
 )
+COMMON_LICENSE_ALIASES = {
+    "GPL-1.0": "GPL-1",
+    "GPL-2.0": "GPL-2",
+    "GPL-3.0": "GPL-3",
+    "LGPL-2.0": "LGPL-2",
+    "LGPL-3.0": "LGPL-3",
+}
 MANIFEST_FIELDS = (
     "bundle_path",
     "sha256",
@@ -30,6 +39,10 @@ MANIFEST_FIELDS = (
     "source_url",
 )
 SYSTEM_SOURCE_ROOTS = (Path("/usr"), Path("/lib"))
+LOCAL_INSTALL_ROOT = Path("/usr/local")
+SUPPORTED_PACKAGE_ORIGINS = {"debian", "ubuntu"}
+PYTHON_RUNTIME_PACKAGE = "python.org-cpython"
+PYTHON_SOURCE_PACKAGE = "Python"
 
 
 @dataclass(frozen=True)
@@ -45,12 +58,7 @@ class PackageMetadata:
     source_package: str
     source_version: str
     copyright_path: Path
-
-    @property
-    def source_url(self) -> str:
-        package = quote(self.source_package, safe="")
-        version = quote(self.source_version, safe="")
-        return f"https://launchpad.net/ubuntu/+source/{package}/{version}"
+    source_url: str
 
 
 @dataclass(frozen=True)
@@ -74,9 +82,58 @@ class ManifestRecord:
 
 
 def _is_system_source(path: Path) -> bool:
-    return path.is_absolute() and any(
-        path == root or path.is_relative_to(root) for root in SYSTEM_SOURCE_ROOTS
+    posix_path = PurePosixPath(path.as_posix())
+    if not posix_path.is_absolute():
+        return False
+    local_install_root = PurePosixPath(LOCAL_INSTALL_ROOT.as_posix())
+    if (
+        posix_path == local_install_root
+        or posix_path.is_relative_to(local_install_root)
+    ):
+        return sys.platform.startswith("linux") and _is_unmanaged_python_runtime(path)
+    return any(
+        posix_path == PurePosixPath(root.as_posix())
+        or posix_path.is_relative_to(PurePosixPath(root.as_posix()))
+        for root in SYSTEM_SOURCE_ROOTS
     )
+
+
+def linux_package_origin(
+    os_release: dict[str, str] | None = None,
+) -> str:
+    release = os_release or platform.freedesktop_os_release()
+    identifiers = [
+        release.get("ID", ""),
+        *release.get("ID_LIKE", "").split(),
+    ]
+    for candidate in identifiers:
+        normalized = candidate.strip().lower()
+        if normalized in SUPPORTED_PACKAGE_ORIGINS:
+            return normalized
+    raise RuntimeError(
+        "Linux native-component notices support Debian- or Ubuntu-derived "
+        "build environments; /etc/os-release identifies "
+        f"{release.get('ID', 'unknown')!r}."
+    )
+
+
+def source_package_url(
+    package_origin: str,
+    source_package: str,
+    source_version: str,
+) -> str:
+    package = quote(source_package, safe="")
+    version = quote(source_version, safe="")
+    if package_origin == "ubuntu":
+        return f"https://launchpad.net/ubuntu/+source/{package}/{version}"
+    if package_origin == "debian":
+        return f"https://sources.debian.org/src/{package}/{version}/"
+    if package_origin == "python":
+        return (
+            "https://github.com/python/cpython/archive/refs/tags/"
+            f"v{version}.tar.gz"
+        )
+    raise RuntimeError(f"Unsupported Linux package origin: {package_origin}")
 
 
 def read_collected_system_binaries(collect_toc: Path) -> list[CollectedBinary]:
@@ -121,7 +178,7 @@ def read_collected_system_binaries(collect_toc: Path) -> list[CollectedBinary]:
         )
 
     if not binaries:
-        raise RuntimeError(f"No Ubuntu system binaries found in {collect_toc}")
+        raise RuntimeError(f"No Linux native binaries found in {collect_toc}")
     return sorted(binaries, key=lambda item: item.bundle_path.as_posix())
 
 
@@ -152,10 +209,16 @@ def _owning_package(source_path: Path) -> str:
             package, separator, owned_path = line.partition(": ")
             if separator and Path(owned_path) == candidate:
                 return package
-    raise RuntimeError(f"No installed Ubuntu package owns {source_path}")
+    raise RuntimeError(
+        f"No installed Debian/Ubuntu package owns {source_path}"
+    )
 
 
-def _package_metadata(package: str) -> PackageMetadata:
+def _package_metadata(
+    package: str,
+    *,
+    package_origin: str,
+) -> PackageMetadata:
     output = _run_dpkg(
         "dpkg-query",
         "--show",
@@ -172,7 +235,7 @@ def _package_metadata(package: str) -> PackageMetadata:
     copyright_path = Path("/usr/share/doc") / documentation_package / "copyright"
     if not copyright_path.is_file():
         raise RuntimeError(
-            f"Ubuntu copyright notice is missing for {binary_package}: "
+            f"Package copyright notice is missing for {binary_package}: "
             f"{copyright_path}"
         )
     return PackageMetadata(
@@ -181,6 +244,72 @@ def _package_metadata(package: str) -> PackageMetadata:
         source_package=source_package,
         source_version=source_version,
         copyright_path=copyright_path,
+        source_url=source_package_url(
+            package_origin,
+            source_package,
+            source_version,
+        ),
+    )
+
+
+def _python_license_path() -> Path:
+    candidates = tuple(
+        dict.fromkeys(
+            (
+                Path(sys.base_prefix) / "LICENSE.txt",
+                Path(sys.exec_prefix) / "LICENSE.txt",
+                Path(sysconfig.get_path("stdlib")) / "LICENSE.txt",
+            )
+        )
+    )
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    checked_paths = ", ".join(str(path) for path in candidates)
+    raise RuntimeError(
+        f"Python runtime license file not found; checked: {checked_paths}"
+    )
+
+
+def _is_unmanaged_python_runtime(source_path: Path) -> bool:
+    base_prefix = Path(sys.base_prefix).resolve()
+    if base_prefix in SYSTEM_SOURCE_ROOTS:
+        return False
+    resolved_source = source_path.resolve()
+    runtime_library_dir = Path(
+        sysconfig.get_config_var("LIBDIR") or base_prefix / "lib"
+    ).resolve()
+    runtime_library_names = {
+        str(name)
+        for name in (
+            sysconfig.get_config_var("LDLIBRARY"),
+            sysconfig.get_config_var("INSTSONAME"),
+        )
+        if name
+    }
+    if (
+        runtime_library_names
+        and resolved_source.parent == runtime_library_dir
+        and resolved_source.name in runtime_library_names
+    ):
+        return True
+
+    lib_dynload = Path(sysconfig.get_path("stdlib")).resolve() / "lib-dynload"
+    return (
+        resolved_source == lib_dynload
+        or resolved_source.is_relative_to(lib_dynload)
+    )
+
+
+def _python_runtime_metadata() -> PackageMetadata:
+    version = sys.version.split()[0]
+    return PackageMetadata(
+        binary_package=PYTHON_RUNTIME_PACKAGE,
+        binary_version=version,
+        source_package=PYTHON_SOURCE_PACKAGE,
+        source_version=version,
+        copyright_path=_python_license_path(),
+        source_url=source_package_url("python", PYTHON_SOURCE_PACKAGE, version),
     )
 
 
@@ -208,10 +337,10 @@ def _notice_text(
         return next(iter(unique_texts.values()))[1].rstrip() + "\n"
 
     sections = [
-        f"Ubuntu copyright notices for source package {source_package}",
+        f"Copyright notices for source package {source_package}",
         "=" * 72,
         "",
-        "The following sections reproduce the installed Debian/Ubuntu copyright",
+        "The following sections reproduce the installed component copyright",
         "files verbatim. Section labels identify the binary packages that supplied",
         "each distinct notice.",
     ]
@@ -234,6 +363,22 @@ def _referenced_common_licenses(text: str) -> set[str]:
     }
 
 
+def _common_license_source(
+    name: str,
+    *,
+    common_license_root: Path = Path("/usr/share/common-licenses"),
+) -> Path:
+    source = common_license_root / name
+    if source.is_file():
+        return source
+    alias = COMMON_LICENSE_ALIASES.get(name)
+    if alias:
+        aliased_source = common_license_root / alias
+        if aliased_source.is_file():
+            return aliased_source
+    raise RuntimeError(f"Referenced Linux common license is missing: {source}")
+
+
 def generate_native_notices(
     bundle_dir: Path,
     collect_toc: Path,
@@ -242,6 +387,7 @@ def generate_native_notices(
         raise RuntimeError(f"Bundle directory does not exist: {bundle_dir}")
 
     binaries = read_collected_system_binaries(collect_toc)
+    package_origin = linux_package_origin()
     metadata_cache: dict[str, PackageMetadata] = {}
     package_notices: dict[tuple[str, str], dict[str, str]] = defaultdict(dict)
     pending_records: list[tuple[CollectedBinary, PackageMetadata, str]] = []
@@ -253,9 +399,20 @@ def generate_native_notices(
                 f"System binary recorded by PyInstaller is missing: "
                 f"{binary.bundle_path}"
             )
-        owner = _owning_package(binary.source_path)
-        if owner not in metadata_cache:
-            metadata_cache[owner] = _package_metadata(owner)
+        try:
+            owner = _owning_package(binary.source_path)
+        except RuntimeError:
+            if not _is_unmanaged_python_runtime(binary.source_path):
+                raise
+            owner = PYTHON_RUNTIME_PACKAGE
+            if owner not in metadata_cache:
+                metadata_cache[owner] = _python_runtime_metadata()
+        else:
+            if owner not in metadata_cache:
+                metadata_cache[owner] = _package_metadata(
+                    owner,
+                    package_origin=package_origin,
+                )
         package = metadata_cache[owner]
         copyright_text = package.copyright_path.read_text(
             encoding="utf-8",
@@ -289,9 +446,7 @@ def generate_native_notices(
     common_license_dir = notice_root / "common-licenses"
     common_license_dir.mkdir()
     for name in sorted(common_license_names):
-        source = Path("/usr/share/common-licenses") / name
-        if not source.is_file():
-            raise RuntimeError(f"Referenced Ubuntu common license is missing: {source}")
+        source = _common_license_source(name)
         shutil.copyfile(source, common_license_dir / name)
 
     records = [
@@ -328,8 +483,8 @@ def generate_native_notices(
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Generate the manifest and bundled Ubuntu notices for system ELF "
-            "files collected by PyInstaller."
+            "Generate the manifest and bundled native-component notices for "
+            "Linux ELF files collected by PyInstaller."
         )
     )
     parser.add_argument("bundle_dir", type=Path)

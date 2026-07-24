@@ -4,7 +4,7 @@
   <img src="astro_viewer/resources/icons/telescope.svg" width="88" alt="NightScope telescope icon">
 </p>
 
-NightScope is a Windows and Ubuntu Linux desktop application for planning
+NightScope is a Windows and Linux desktop application for planning
 visual astronomy sessions. It combines local astronomical calculations, an
 observer location, weather and sky-quality data, and the equipment in the
 active profile to answer a practical question: **what is worth observing
@@ -25,9 +25,9 @@ tonight, from here, with this setup?**
 > separate from NSOM candidate eligibility. System location now
 > uses the existing providers on Windows and GeoClue 2 on Linux; the Windows
 > provider order and fallback behavior remain unchanged.
-> Source execution and the portable PyInstaller release bundle are validated
-> on Ubuntu 26.04 LTS with GNOME/Wayland and the X11/XCB fallback. The Linux
-> archive is architecture- and glibc-baseline-specific rather than a universal
+> The portable Linux release is built in a Debian 12 container so its glibc
+> baseline is not inherited from the developer workstation. The archive
+> remains architecture- and glibc-baseline-specific rather than a universal
 > Linux installer.
 > The published Windows bundle passes automated legal,
 > Qt, backend, and QML checks; its packaged visual and live-provider release
@@ -38,10 +38,9 @@ Current Windows package:
 Its release notes identify the corresponding source commit and publish the
 SHA-256 digest of the portable ZIP.
 
-Current Linux pre-release package:
+Current Linux pre-release page:
 [NightScope 1.41.0](https://github.com/beastmen84/NightScope/releases/tag/v1.41.0).
-Its portable tarball targets Ubuntu 26.04 x86-64; the release includes an
-adjacent SHA-256 file.
+Linux packages use a portable tarball plus an adjacent SHA-256 file.
 
 ## What It Does
 
@@ -177,7 +176,8 @@ before replacing or moving a development build.
 ## Requirements
 
 - Windows 10 or Windows 11 for the Windows portable application.
-- Ubuntu Desktop 26.04 x86-64 for the current Linux portable application.
+- An x86-64 Linux system with glibc 2.36 or newer for the Debian-baseline
+  portable application; see the compatibility matrix below.
 - Python 3.12 or newer for source development.
 - A writable checkout for source development; the Windows portable application
   also stores its runtime files beside the executable.
@@ -186,26 +186,49 @@ Linux source execution and the portable bundle additionally require a desktop
 D-Bus session. GeoClue and a Secret Service implementation enable automatic
 system location and secure credential storage respectively.
 
+### Linux Portable Compatibility
+
+The tarball is an x86-64 glibc build, not a distribution-specific `.deb` and
+not a universal Linux binary. These are the current compatibility expectations:
+
+| Status | Distributions |
+| --- | --- |
+| Validated by release smoke tests | Debian 12, Debian 13, Ubuntu 26.04 |
+| Expected to work, but not directly release-tested | Ubuntu 24.04 or newer, Linux Mint 22 or newer, current Fedora releases, Arch Linux and up-to-date derivatives, openSUSE Tumbleweed, and other x86-64 glibc distributions satisfying the baseline |
+| Outside the declared binary baseline | Debian 11 or older, Ubuntu 22.04, Linux Mint 21, RHEL/Rocky Linux/AlmaLinux 9, openSUSE Leap 15, Alpine Linux or another musl-based distribution, and ARM/AArch64 systems |
+
+On an unlisted distribution, check the architecture and glibc version with:
+
+```bash
+uname -m
+getconf GNU_LIBC_VERSION
+```
+
+The reported values must be `x86_64` and glibc 2.36 or newer. Meeting that
+baseline is necessary but does not replace the required desktop libraries,
+graphics drivers, D-Bus session, or a test on that distribution. Package names
+outside Debian and Ubuntu differ from the examples below.
+
 ## Install The Portable Linux Bundle
 
-The current local artifact is built and validated on Ubuntu 26.04 x86-64 with
-glibc 2.43. It does not require Python or a virtual environment. Install the
-host packages used by the validated GNOME/Wayland setup and its X11/XCB
-fallback:
+The Linux artifact is built on Debian 12 x86-64 with glibc 2.36. It does not
+require Python or a virtual environment. Install the host packages used by Qt,
+GeoClue, Secret Service, and the optional X11/XCB fallback:
 
 ```bash
 sudo apt update
 sudo apt install dbus-user-session geoclue-2.0 gnome-keyring \
   libsecret-1-0 libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0 \
-  libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1
+  libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 \
+  libxcb-shape0 libxcb-xkb1
 ```
 
 Download both release assets into the same directory, verify the checksum,
 extract the bundle, and start NightScope:
 
 ```bash
-sha256sum --check NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz.sha256
-tar -xzf NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz
+sha256sum --check NightScope-v1.41.0-debian-12-x64.tar.gz.sha256
+tar -xzf NightScope-v1.41.0-debian-12-x64.tar.gz
 ./NightScope/NightScope
 ```
 
@@ -217,9 +240,9 @@ application directory.
 
 The archive includes NightScope's MPL license, Python/Qt third-party licenses,
 the exact NightScope and Qt source links, and an audited manifest of native
-Ubuntu libraries. `LINUX_NATIVE_COMPONENTS.tsv` maps each bundled system ELF
-file to its exact binary/source package version, SHA-256, Launchpad source page,
-and notice under `legal/linux-native`.
+Linux libraries. `LINUX_NATIVE_COMPONENTS.tsv` maps each bundled system ELF
+file to its exact binary/source package version, SHA-256, Debian Sources or
+Launchpad source page, and notice under `legal/linux-native`.
 
 ## Run From Source
 
@@ -233,13 +256,14 @@ python -m venv .venv
 .\.venv\Scripts\python.exe astro_viewer\main.py
 ```
 
-On Ubuntu Desktop, install the host services used by Qt, GeoClue, Secret
-Service, and the optional X11/XCB fallback:
+On Debian or Ubuntu Desktop, install the host services used by Qt, GeoClue,
+Secret Service, and the optional X11/XCB fallback:
 
 ```bash
 sudo apt install python3-venv dbus-user-session geoclue-2.0 gnome-keyring \
   libsecret-1-0 libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0 \
-  libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1
+  libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 \
+  libxcb-shape0 libxcb-xkb1
 ```
 
 Then create or populate the virtual environment from the repository root:
@@ -282,26 +306,27 @@ the latest measured baseline are in [`docs/TESTING.md`](docs/TESTING.md).
 
 ## Build For Linux
 
-From the repository root:
+The release tarball should be built through the Debian 12 container, not on the
+developer workstation. From the repository root, with Docker or Podman
+installed:
 
 ```bash
-./packaging/build_linux.sh
+./packaging/build_linux_debian12.sh
 ```
 
-PyInstaller writes the portable application to `dist/NightScope`. The build
-script copies the project notices, generates the installed Linux Python
-dependency license archive, inventories every copied Ubuntu ELF file, bundles
-the matching Debian/Ubuntu copyright and common-license texts, and runs the
-platform-aware Qt/data/runtime-state/legal audit. Create the deterministic
-release archive and checksum with:
+The wrapper creates a Debian 12/Python 3.12 build image, runs PyInstaller, and
+writes the portable application to `dist/NightScope`. It then creates the
+deterministic release archive and checksum:
 
-```bash
-./packaging/archive_linux.sh
-```
+`dist/NightScope-v1.41.0-debian-12-x64.tar.gz` and its adjacent `.sha256`
+file. The inner build scripts copy the project notices, generate the installed
+Linux Python dependency license archive, inventory every copied Debian ELF
+file, bundle the matching copyright and common-license texts, and run the
+platform-aware Qt/data/runtime-state/legal audit.
 
-This writes
-`dist/NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz` and its adjacent
-`.sha256` file. Test the frozen executable with an isolated runtime directory:
+For a native Linux development build, `packaging/build_linux.sh` and
+`packaging/archive_linux.sh` remain available and use `.venv` by default.
+Test the frozen executable with an isolated runtime directory:
 
 ```bash
 NIGHTSCOPE_RUNTIME_DIR=/tmp/nightscope-dist-smoke \
@@ -311,9 +336,10 @@ NIGHTSCOPE_RUNTIME_DIR=/tmp/nightscope-dist-smoke \
 ```
 
 The bundle is native to the Linux architecture and glibc baseline on which it
-is built. It is not an AppImage, Flatpak, Snap, Debian package, or universal
+is built. It is a tarball, not an AppImage, Flatpak, Snap, `.deb`, or universal
 Linux binary. `tools/audit_qt_bundle.py` rejects an unmanifested native library,
-a changed digest, or a missing copyright/common-license text before archiving.
+a changed digest, an invalid Debian/Ubuntu source URL, or a missing
+copyright/common-license text before archiving.
 
 ## Build For Windows
 

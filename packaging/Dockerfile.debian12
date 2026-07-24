@@ -1,0 +1,36 @@
+FROM python:3.12-bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends \
+        binutils \
+        ca-certificates \
+        libdbus-1-3 \
+        libegl1 \
+        libgl1 \
+        libgtk-3-0 \
+        libxkbcommon-x11-0 \
+        libxcb-cursor0 \
+        libxcb-icccm4 \
+        libxcb-image0 \
+        libxcb-keysyms1 \
+        libxcb-render-util0 \
+        libxcb-shape0 \
+        libxcb-xkb1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY astro_viewer/requirements.txt /tmp/nightscope/requirements.txt
+COPY requirements-dev.txt /tmp/nightscope/requirements-dev.txt
+
+RUN python -m pip install --no-cache-dir --upgrade pip \
+    && python -m pip install --no-cache-dir \
+        --requirement /tmp/nightscope/requirements.txt \
+        --requirement /tmp/nightscope/requirements-dev.txt
+
+ENV NIGHTSCOPE_BUILD_PYTHON=/usr/local/bin/python
+
+WORKDIR /workspace

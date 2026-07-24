@@ -21,7 +21,7 @@ follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
 
-## Esecuzione sorgente e dist Ubuntu 1.41.0
+## Esecuzione sorgente e dist Linux 1.41.0
 
 NightScope e' stato installato ed eseguito da sorgente su Ubuntu 26.04 LTS con
 Python 3.14.4, PySide/Qt 6.11.1 e sessione GNOME/Wayland. D-Bus utente,
@@ -35,38 +35,39 @@ Python dalla standard library Linux e mantiene invariato il confronto esatto
 dell'archivio nell'ambiente Windows. Il gate Ruff ha ora una configurazione
 esplicita e resta stabile con le versioni 0.15 e 0.16.
 
-Il gate `tools/run_checks.py --fast` ha chiuso con `921 passed`, `1 skipped`,
+Il gate `tools/run_checks.py --fast` ha chiuso con `923 passed`, `1 skipped`,
 `642 warnings` note e `10 subtests`; smoke backend/QML, avvio reale Wayland e
 sonda XCB sono passati.
 
-`packaging/build_linux.sh` produce ora il candidate PyInstaller
-`dist/NightScope`. La dist locale `1.41.0` contiene `5.384` file per `550 MiB`;
-audit, backend smoke, QML Wayland normale/rosso e QML XCB sono passati. Lo spec
-include Secret Service ma non il backend keyring Windows, e i hook escludono Qt
-Virtual Keyboard e il plugin TIFF Linux irrisolvibile e non usato. L'archivio
-licenze generato nella dist copre `63` distribuzioni Python Linux, incluse
-`jeepney` e `SecretStorage`, senza sostituire l'archivio Windows committato.
+`packaging/build_linux_debian12.sh` usa Docker o Podman e costruisce il
+candidate PyInstaller dentro Debian 12/Python 3.12, con baseline glibc 2.36.
+La dist locale `1.41.0` contiene `5.415` file per `575 MiB`; audit, backend,
+QML normale/rosso dentro Debian 12 e Debian 13, Wayland normale/rosso e XCB
+sull'host sono passati. Il runtime hook Linux impedisce di mischiare i moduli
+GIO/GVFS dell'host recente con la GLib Debian inclusa. Lo spec include Secret
+Service ma non il backend keyring Windows.
 
 `tools/generate_linux_native_notices.py` usa il `COLLECT-00.toc` della stessa
-build e `dpkg` per inventariare `118` ELF di sistema, `84` pacchetti binari e
-`61` pacchetti sorgente. Il bundle contiene manifest con digest e URL sorgente,
-`61` avvisi copyright Ubuntu e `15` testi di licenza comuni. Tutti i `61` URL
-Launchpad unici sono stati verificati con HTTP 200. L'audit rifiuta file ELF
-non inventariati, entry stale, hash diversi o testi mancanti.
+build e `dpkg` per inventariare `146` ELF nativi, `84` pacchetti binari,
+`63` pacchetti sorgente Debian e il runtime CPython. Il bundle contiene `64`
+avvisi copyright e `15` testi di licenza comuni. Tutti i `64` URL Debian
+Sources/CPython unici sono stati verificati. L'audit rifiuta file ELF non
+inventariati, entry stale, hash diversi, URL sorgente non validi o testi
+mancanti.
 
 `packaging/archive_linux.sh` ha prodotto
-`NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz` (`263.798.525` byte, `252 MiB`) e
-il checksum adiacente. Due generazioni consecutive hanno mantenuto SHA-256
-`630ec09655a441d79564d6ac6618848dcf4c68cd3fb47b8020b6236122b24673`.
-Il flusso documentato nel README (checksum, estrazione, audit e avvio) e' stato
-ripetuto da una directory temporanea pulita con backend, Wayland normale/rosso
-e XCB tutti passati.
+`NightScope-v1.41.0-debian-12-x64.tar.gz` (`272.541.380` byte, `260 MiB`) e il
+checksum adiacente, SHA-256
+`3142647ffd8178c380bdc670c7e5dc50f270c84ed1629d927171c88c171d9eea`.
+Il flusso documentato nel README e' stato ripetuto da una directory temporanea
+pulita con checksum, estrazione, audit, backend e QML normale/rosso passati.
 
-Il formato pubblico scelto e' il tar gzip specifico per Ubuntu 26.04 x86-64,
-non un binario Linux universale. Va pubblicato come GitHub pre-release: una
-release stabile Linux-only verrebbe proposta dall'Update Manager anche ai
-client Windows 1.40.1. Prima della pubblicazione restano commit/tag e upload
-degli asset GitHub. Restano come prove opzionali una sessione
+Il formato pubblico scelto e' il tar gzip Debian 12 x86-64, non un binario
+Linux universale. La stessa build e' stata verificata anche su Debian 13 e
+Ubuntu 26.04. Va pubblicata come GitHub pre-release: una release stabile
+Linux-only verrebbe proposta dall'Update Manager anche ai client Windows
+1.40.1. Prima della pubblicazione restano commit/tag e upload degli asset
+GitHub. Restano come prove opzionali una sessione
 interattiva save/read/delete di Secret Service e una richiesta GeoClue
 autorizzata con coordinate reali.
 

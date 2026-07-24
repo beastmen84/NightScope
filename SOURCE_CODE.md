@@ -31,16 +31,18 @@ bundle. Replacement and relinking instructions are in
 `THIRD_PARTY_NOTICES.md`; the complete LGPL and GPL texts are in
 `THIRD_PARTY_LICENSES.txt`.
 
-## Ubuntu Native Components
+## Linux Native Components
 
 The Linux bundle includes `LINUX_NATIVE_COMPONENTS.tsv`. Each row identifies a
-bundled ELF file, its SHA-256 digest, the exact Ubuntu binary and source package
-versions, its bundled copyright notice, and the exact Launchpad source-package
-page. The corresponding notices and all Debian/Ubuntu common-license texts
-they reference are under `legal/linux-native`.
+bundled ELF file, its SHA-256 digest, the exact Debian or Ubuntu binary and
+source package versions, its bundled copyright notice, and the exact Debian
+Sources or Launchpad source-package page. Components supplied by the
+python.org build image instead identify the exact CPython source archive. The
+corresponding notices and all Debian/Ubuntu common-license texts they reference
+are under `legal/linux-native`.
 
-On an Ubuntu system with source repositories enabled, install `dpkg-dev` and
-retrieve the same source package with:
+On a Debian or Ubuntu system with source repositories enabled, install
+`dpkg-dev` and retrieve the same source package with:
 
 ```bash
 sudo apt install dpkg-dev

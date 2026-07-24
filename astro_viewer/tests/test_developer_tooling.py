@@ -24,7 +24,12 @@ from tools.audit_qt_bundle import (
     REQUIRED_LINUX_LIBRARIES,
     audit_bundle,
 )
-from tools.generate_linux_native_notices import read_collected_system_binaries
+from tools.generate_linux_native_notices import (
+    _common_license_source,
+    linux_package_origin,
+    read_collected_system_binaries,
+    source_package_url,
+)
 from tools.generate_third_party_licenses import render_archive
 from tools.run_checks import Check, _checks, _run_check
 from tools.translation_provider import (
@@ -382,7 +387,7 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
 
     assert readme.startswith("# NightScope\n")
-    assert "Windows and Ubuntu Linux desktop application" in readme
+    assert "Windows and Linux desktop application" in readme
     assert "pre-release" in readme
     assert "docs/RELEASE_CANDIDATE_REVIEW.md" in readme
     assert "docs/RELEASE_CHECKLIST.md" in readme
@@ -464,6 +469,13 @@ def test_linux_build_enforces_licenses_and_platform_bundle_audit() -> None:
     archive_script = (
         PROJECT_ROOT / "packaging" / "archive_linux.sh"
     ).read_text(encoding="utf-8")
+    container_script_path = (
+        PROJECT_ROOT / "packaging" / "build_linux_debian12.sh"
+    )
+    container_script = container_script_path.read_text(encoding="utf-8")
+    dockerfile = (
+        PROJECT_ROOT / "packaging" / "Dockerfile.debian12"
+    ).read_text(encoding="utf-8")
     readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
     spec = (PROJECT_ROOT / "packaging" / "NightScope.spec").read_text(
         encoding="utf-8"
@@ -486,8 +498,9 @@ def test_linux_build_enforces_licenses_and_platform_bundle_audit() -> None:
     assert "PyInstaller --clean --noconfirm" in build_script
     assert "audit_qt_bundle.py" in build_script
     assert "--platform linux" in build_script
-    assert '--output "$dist_dir/THIRD_PARTY_LICENSES.txt"' in build_script
+    assert '--output "$license_archive"' in build_script
     assert "--platform-label Linux" in build_script
+    assert "NIGHTSCOPE_BUILD_PYTHON" in build_script
     assert archive_script.startswith("#!/usr/bin/env bash\n")
     assert "audit_qt_bundle.py" in archive_script
     assert "--sort=name" in archive_script
@@ -497,15 +510,36 @@ def test_linux_build_enforces_licenses_and_platform_bundle_audit() -> None:
     assert 'chmod 0644 "$archive_path"' in archive_script
     assert 'chmod 0644 "$checksum_path"' in archive_script
     assert "NightScope-v${version}-${distribution_id}" in archive_script
+    assert "NIGHTSCOPE_BUILD_PYTHON" in archive_script
+    assert container_script.startswith("#!/usr/bin/env bash\n")
+    if sys.platform != "win32":
+        assert container_script_path.stat().st_mode & 0o111
+    assert "Dockerfile.debian12" in container_script
+    assert "command -v podman" in container_script
+    assert "command -v docker" in container_script
+    assert "./packaging/build_linux.sh" in container_script
+    assert "./packaging/archive_linux.sh" in container_script
+    assert "FROM python:3.12-bookworm" in dockerfile
+    assert "astro_viewer/requirements.txt" in dockerfile
+    assert "requirements-dev.txt" in dockerfile
     assert "## Install The Portable Linux Bundle" in readme
     assert "sudo apt install dbus-user-session geoclue-2.0 gnome-keyring" in readme
-    assert "sha256sum --check NightScope-v1.41.0-ubuntu-26.04-x64" in readme
+    assert "sha256sum --check NightScope-v1.41.0-debian-12-x64" in readme
+    assert "./packaging/build_linux_debian12.sh" in readme
     assert "./NightScope/NightScope" in readme
     assert '"keyring.backends.Windows"' in spec
     assert '"keyring.backends.SecretService"' in spec
     assert 'sys.platform == "win32"' in spec
     assert 'sys.platform.startswith("linux")' in spec
     assert 'excludes.append("keyring.backends.Windows")' in spec
+    assert '"runtime_hooks" / "linux_gio.py"' in spec
+    linux_gio_hook = (
+        PROJECT_ROOT
+        / "packaging"
+        / "runtime_hooks"
+        / "linux_gio.py"
+    ).read_text(encoding="utf-8")
+    assert 'os.environ["GIO_MODULE_DIR"]' in linux_gio_hook
     assert "qtvirtualkeyboardplugin" in qtgui_hook
     assert "libqtiff.so" in qtgui_hook
     assert "current Linux release candidate" in render_archive(
@@ -633,6 +667,16 @@ def test_linux_native_manifest_covers_files_hashes_and_common_licenses(
     common_license.touch()
     assert audit_bundle(tmp_path, platform_name="linux") == []
 
+    manifest = tmp_path / LINUX_NATIVE_MANIFEST
+    manifest.write_text(
+        manifest.read_text(encoding="utf-8").replace(
+            "https://launchpad.net/ubuntu/+source/example/1.0-1",
+            "https://sources.debian.org/src/example/1.0-1/",
+        ),
+        encoding="utf-8",
+    )
+    assert audit_bundle(tmp_path, platform_name="linux") == []
+
 
 def test_linux_native_generator_reads_only_system_collected_binaries(
     tmp_path: Path,
@@ -644,6 +688,11 @@ def test_linux_native_generator_reads_only_system_collected_binaries(
                 [
                     ("libexample.so.1", "/usr/lib/libexample.so.1", "BINARY"),
                     ("wheel.so", "/venv/site-packages/wheel.so", "BINARY"),
+                    (
+                        "local-wheel.so",
+                        "/usr/local/lib/python3.12/site-packages/local-wheel.so",
+                        "BINARY",
+                    ),
                     ("data.txt", "/usr/share/example/data.txt", "DATA"),
                 ],
             )
@@ -656,6 +705,37 @@ def test_linux_native_generator_reads_only_system_collected_binaries(
     assert len(binaries) == 1
     assert binaries[0].bundle_path.as_posix() == "_internal/libexample.so.1"
     assert binaries[0].source_path == Path("/usr/lib/libexample.so.1")
+
+
+def test_linux_native_source_urls_support_debian_ubuntu_and_python() -> None:
+    assert linux_package_origin({"ID": "debian"}) == "debian"
+    assert (
+        linux_package_origin({"ID": "linuxmint", "ID_LIKE": "ubuntu debian"})
+        == "ubuntu"
+    )
+    assert source_package_url("ubuntu", "glibc", "2.43-0ubuntu1") == (
+        "https://launchpad.net/ubuntu/+source/glibc/2.43-0ubuntu1"
+    )
+    assert source_package_url("debian", "zlib", "1:1.2.13.dfsg-1") == (
+        "https://sources.debian.org/src/zlib/1%3A1.2.13.dfsg-1/"
+    )
+    assert source_package_url("python", "Python", "3.12.11") == (
+        "https://github.com/python/cpython/archive/refs/tags/v3.12.11.tar.gz"
+    )
+    with pytest.raises(RuntimeError, match="Debian- or Ubuntu-derived"):
+        linux_package_origin({"ID": "fedora"})
+
+
+def test_linux_native_common_license_accepts_debian_version_alias(
+    tmp_path: Path,
+) -> None:
+    license_file = tmp_path / "GPL-2"
+    license_file.touch()
+
+    assert _common_license_source(
+        "GPL-2.0",
+        common_license_root=tmp_path,
+    ) == license_file
 
 
 def test_qt_bundle_audit_rejects_runtime_state(tmp_path: Path) -> None:

@@ -151,6 +151,35 @@ def _referenced_common_licenses(text: str) -> set[str]:
     }
 
 
+def _valid_linux_source_urls(
+    source_package: str,
+    source_version: str,
+) -> set[str]:
+    package = quote(source_package, safe="")
+    version = quote(source_version, safe="")
+    urls = {
+        (
+            "https://launchpad.net/ubuntu/+source/"
+            f"{package}/{version}"
+        ),
+        f"https://sources.debian.org/src/{package}/{version}/",
+    }
+    if source_package == "Python":
+        urls.update(
+            {
+                (
+                    "https://github.com/python/cpython/archive/refs/tags/"
+                    f"v{version}.tar.gz"
+                ),
+                (
+                    "https://www.python.org/ftp/python/"
+                    f"{version}/Python-{version}.tgz"
+                ),
+            }
+        )
+    return urls
+
+
 def _audit_linux_native_notices(bundle_dir: Path) -> list[str]:
     manifest_path = bundle_dir / LINUX_NATIVE_MANIFEST
     if not manifest_path.is_file():
@@ -220,13 +249,11 @@ def _audit_linux_native_notices(bundle_dir: Path) -> list[str]:
                 f"Linux native SHA-256 mismatch: {normalized_bundle_path}"
             )
 
-        expected_source_url = (
-            "https://launchpad.net/ubuntu/+source/"
-            + quote(row["source_package"], safe="")
-            + "/"
-            + quote(row["source_version"], safe="")
+        valid_source_urls = _valid_linux_source_urls(
+            row["source_package"],
+            row["source_version"],
         )
-        if row["source_url"] != expected_source_url:
+        if row["source_url"] not in valid_source_urls:
             errors.append(
                 f"invalid Linux native source URL on row {row_number}: "
                 f"{row['source_url']}"

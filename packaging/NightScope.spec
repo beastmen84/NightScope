@@ -14,11 +14,15 @@ excludes = [
     "matplotlib",
     "pytest",
 ]
+runtime_hooks = []
 if sys.platform == "win32":
     hiddenimports.append("keyring.backends.Windows")
 elif sys.platform.startswith("linux"):
     hiddenimports.append("keyring.backends.SecretService")
     excludes.append("keyring.backends.Windows")
+    runtime_hooks.append(
+        str(ROOT / "packaging" / "runtime_hooks" / "linux_gio.py")
+    )
 
 datas = [
     (str(ROOT / "VERSION"), "."),
@@ -54,7 +58,7 @@ a = Analysis(
     hiddenimports=hiddenimports,
     hookspath=[str(ROOT / "packaging" / "pyinstaller_hooks")],
     hooksconfig={},
-    runtime_hooks=[],
+    runtime_hooks=runtime_hooks,
     excludes=excludes,
     noarchive=False,
     optimize=0,

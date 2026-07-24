@@ -36,19 +36,20 @@
   Qt selezionato, e il plugin TIFF non usato che sulla macchina di build
   richiedeva `libtiff.so.5`. Wayland, XCB, immagini applicative e QML restano
   presenti.
-- La dist locale `1.41.0` contiene `5.384` file per `550 MiB`; passano audit,
-  backend smoke, QML Wayland normale/rosso e QML XCB. L'archivio licenze Linux
-  copre `63` distribuzioni, incluse `jeepney` e `SecretStorage`.
-- Aggiunto l'inventario legale delle librerie native Linux: il generatore
-  associa `118` ELF di sistema a `84` pacchetti binari e `61` pacchetti
-  sorgente Ubuntu, registra gli SHA-256 e gli URL Launchpad esatti, copia `61`
-  avvisi copyright e `15` testi canonici richiamati. Tutti i `61` URL sorgente
-  rispondono HTTP 200. L'audit blocca file non inventariati, digest modificati,
-  avvisi mancanti e riferimenti non risolti.
+- La prima dist nativa Ubuntu `1.41.0` contiene `5.384` file per `550 MiB`;
+  passano audit, backend smoke, QML Wayland normale/rosso e QML XCB. L'archivio
+  licenze Linux copre `63` distribuzioni, incluse `jeepney` e `SecretStorage`.
+- Per il candidate Ubuntu, l'inventario legale associa `118` ELF di sistema a
+  `84` pacchetti binari e `61` pacchetti sorgente, registra gli SHA-256 e gli
+  URL Launchpad esatti, copia `61` avvisi copyright e `15` testi canonici
+  richiamati. Tutti i `61` URL sorgente rispondono HTTP 200. L'audit blocca
+  file non inventariati, digest modificati, avvisi mancanti e riferimenti non
+  risolti.
 - `THIRD_PARTY_NOTICES.md` e il nuovo `SOURCE_CODE.md` coprono ora entrambi i
   bundle Windows/Linux, il tag sorgente `v1.41.0` e la sostituzione/relink delle
   librerie Qt `.dll`/`.so` senza modificare il runtime applicativo.
-- Aggiunto `packaging/archive_linux.sh`: crea in modo deterministico
+- Aggiunto `packaging/archive_linux.sh`: il primo candidate crea in modo
+  deterministico
   `NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz` e il relativo file `.sha256`.
   Il tar da `263.798.525` byte (`252 MiB`) conserva una directory radice
   `NightScope`, e dopo
@@ -59,11 +60,24 @@
   skipped`, `642 warnings` note e `10 subtests`; passano inoltre `pip check`,
   Ruff 0.16.0, `compileall`, closure licenze, snapshot MPC, smoke backend/QML,
   avvio reale Wayland e sonda XCB.
+- Aggiunto `packaging/build_linux_debian12.sh`: Docker o Podman costruiscono il
+  bundle di rilascio su Debian 12/Python 3.12 con baseline glibc 2.36, senza
+  ereditare la baseline della workstation Ubuntu.
+- La dist Debian finale contiene `5.415` file per `575 MiB`. L'inventario
+  copre `146` ELF nativi, `84` pacchetti binari, `63` pacchetti sorgente Debian
+  e il runtime CPython, con `64` avvisi copyright, `15` testi di licenza comuni
+  e `64/64` URL Debian Sources/CPython verificati.
+- Il tar finale
+  `NightScope-v1.41.0-debian-12-x64.tar.gz` misura `272.541.380` byte
+  (`260 MiB`) e ha SHA-256
+  `3142647ffd8178c380bdc670c7e5dc50f270c84ed1629d927171c88c171d9eea`.
+  Audit, backend e QML normale/rosso passano dopo estrazione pulita; la stessa
+  build e' stata verificata su Debian 12, Debian 13 e Ubuntu 26.04.
 - La versione sorgente passa a `1.41.0`; la distribuzione Windows e la release
-  GitHub stabile restano `1.40.1`. L'archivio Linux e' pronto localmente per la
-  pubblicazione come pre-release specifica per Ubuntu 26.04 x86-64, cosi' i
-  client Windows non ricevono una notifica senza asset Windows. Non e' un
-  binario Linux universale e non e' ancora stato caricato su GitHub.
+  GitHub stabile restano `1.40.1`. L'archivio Linux Debian 12 x86-64 e' pronto
+  localmente per la pubblicazione come pre-release, cosi' i client Windows non
+  ricevono una notifica senza asset Windows. Non e' un binario Linux universale
+  e non e' ancora stato caricato su GitHub.
 
 ## NightScope 1.40.1 - 2026-07-23
 

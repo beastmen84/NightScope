@@ -34,8 +34,9 @@ NightScope is organized around a small desktop application package:
 - `tools/audit_qt_bundle.py`: cross-platform Qt, data, runtime-state and legal
   bundle gate.
 - `tools/generate_linux_native_notices.py`: maps system binaries from the
-  PyInstaller COLLECT manifest to installed Ubuntu packages, exact source
-  versions and bundled copyright/license texts.
+  PyInstaller COLLECT manifest to installed Debian/Ubuntu packages or the
+  python.org runtime, exact source versions and bundled copyright/license
+  texts.
 - `tools/update_translations.ps1`: deterministic QML extraction, catalogue
   completeness validation and `.qm` compilation.
 

@@ -15,9 +15,9 @@ This notice covers software and data redistributed with the portable Windows
 and Linux applications. `THIRD_PARTY_LICENSES.txt` contains the installed
 Python component inventory and the corresponding license and copyright texts.
 Linux bundles additionally contain `LINUX_NATIVE_COMPONENTS.tsv` and the
-notices under `legal/linux-native` for ELF files copied from the Ubuntu build
-host. Component names and trademarks remain the property of their respective
-owners. Inclusion does not imply endorsement of NightScope.
+notices under `legal/linux-native` for native files copied from the Linux build
+environment. Component names and trademarks remain the property of their
+respective owners. Inclusion does not imply endorsement of NightScope.
 
 ## Qt And Qt For Python
 
@@ -78,13 +78,14 @@ describes the validated environment, not every version that could satisfy the
 requirements. The public release must use a locked environment or SBOM and
 regenerate this file from that environment.
 
-## Ubuntu Native Components
+## Linux Native Components
 
-PyInstaller copies non-glibc shared libraries and CPython extension modules
-from the Ubuntu build host when they are required by the frozen application.
-The Linux bundle records every such file in `LINUX_NATIVE_COMPONENTS.tsv`,
-including its bundle SHA-256, exact Ubuntu binary and source package versions,
-bundled notice path, and exact Launchpad source-package URL.
+PyInstaller copies non-glibc shared libraries and CPython runtime extension
+modules from the Linux build environment when they are required by the frozen
+application. The Linux bundle records every system or CPython runtime component
+in `LINUX_NATIVE_COMPONENTS.tsv`, including its bundle SHA-256, exact
+Debian/Ubuntu package versions or CPython runtime version, bundled notice path,
+and exact Debian Sources, Launchpad, or CPython source URL.
 
 The installed Debian/Ubuntu copyright files are reproduced under
 `legal/linux-native/<source-package>/copyright`. Canonical license texts that
