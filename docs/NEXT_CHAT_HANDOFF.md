@@ -6,15 +6,15 @@ Aggiornato: 2026-07-24
 
 - Versione sorgente: `1.41.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
-- Release pubblica: `v1.37.0`, tag sul commit sorgente
-  `dded6a19bdef938f939676113e96ac18fa07138f`.
-- Asset: `NightScope-v1.37.0-windows-x64.zip`, SHA-256
-  `063385ec01665b60232872a3b312f0f573633214f2110e495530cb399151ccb1`.
-- Distribuzione Windows corrente: `1.37.0`, pubblicata su GitHub.
-- Metadati, tag e digest della release `1.37.0` verificati su GitHub il
-  2026-07-23. Il sorgente `1.41.0` non e' ancora distribuito.
+- Release pubblica stabile: `v1.40.1`, tag sul commit sorgente
+  `7b6da6d358f28cacb8836b4520ae6cb407d98fc5`.
+- Asset: `NightScope-v1.40.1-windows-x64.zip`, SHA-256
+  `7001aa1aa3cee8139602e4e97cdf9955f9055456585260f1aba5b3b55c42da97`.
+- Distribuzione Windows corrente: `1.40.1`, pubblicata su GitHub.
+- Metadati, tag, asset e digest della release `1.40.1` verificati su GitHub il
+  2026-07-24. Il sorgente `1.41.0` non e' ancora distribuito come release.
 - Commit sorgente della release pubblica validato:
-  `dded6a1 Fix red source links and location wrapping`
+  `7b6da6d Fix NSOM recommendation input boundaries`
 
 La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
@@ -65,7 +65,7 @@ e XCB tutti passati.
 Il formato pubblico scelto e' il tar gzip specifico per Ubuntu 26.04 x86-64,
 non un binario Linux universale. Va pubblicato come GitHub pre-release: una
 release stabile Linux-only verrebbe proposta dall'Update Manager anche ai
-client Windows 1.37.0. Prima della pubblicazione restano commit/tag e upload
+client Windows 1.40.1. Prima della pubblicazione restano commit/tag e upload
 degli asset GitHub. Restano come prove opzionali una sessione
 interattiva save/read/delete di Secret Service e una richiesta GeoClue
 autorizzata con coordinate reali.

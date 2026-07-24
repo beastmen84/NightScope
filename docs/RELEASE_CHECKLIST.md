@@ -121,7 +121,7 @@ Do not commit credentials or exact personal locations.
   `NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz` and adjacent SHA-256 file.
 - [x] Verify checksum, extraction, audit and smoke tests from the final archive.
 - [ ] Publish the tarball and checksum as GitHub pre-release assets so Windows
-  1.37.0 clients do not receive a Linux-only stable-update notification.
+  1.40.1 clients do not receive a Linux-only stable-update notification.
 
 ## 8. Release Approval
 

@@ -60,7 +60,7 @@
   Ruff 0.16.0, `compileall`, closure licenze, snapshot MPC, smoke backend/QML,
   avvio reale Wayland e sonda XCB.
 - La versione sorgente passa a `1.41.0`; la distribuzione Windows e la release
-  GitHub stabile restano `1.37.0`. L'archivio Linux e' pronto localmente per la
+  GitHub stabile restano `1.40.1`. L'archivio Linux e' pronto localmente per la
   pubblicazione come pre-release specifica per Ubuntu 26.04 x86-64, cosi' i
   client Windows non ricevono una notifica senza asset Windows. Non e' un
   binario Linux universale e non e' ancora stato caricato su GitHub.
@@ -82,8 +82,8 @@
 - Il gate completo con coverage e security e' passato: `917 passed`, `642`
   warning note, `10 subtests`, coverage `84%` su `16.032` statement, snapshot
   MPC e smoke backend/QML normale/rosso superati, nessuna vulnerabilita' nota.
-- La versione sorgente passa a `1.40.1`; la distribuzione Windows e la release
-  GitHub pubblicata restano `1.37.0`.
+- La versione sorgente, la distribuzione Windows e la release GitHub
+  `v1.40.1` sono state pubblicate dal commit `7b6da6d`.
 
 ## NightScope 1.40.0 - 2026-07-23
 

@@ -34,7 +34,7 @@ tonight, from here, with this setup?**
 > matrices are not complete yet.
 
 Current Windows package:
-[NightScope 1.37.0](https://github.com/beastmen84/NightScope/releases/tag/v1.37.0).
+[NightScope 1.40.1](https://github.com/beastmen84/NightScope/releases/tag/v1.40.1).
 Its release notes identify the corresponding source commit and publish the
 SHA-256 digest of the portable ZIP.
 
