@@ -375,6 +375,22 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     ]
 
 
+def test_source_version_matches_current_release_documents() -> None:
+    version = (PROJECT_ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+    changelog = (PROJECT_ROOT / "astro_viewer" / "CHANGELOG.md").read_text(
+        encoding="utf-8"
+    )
+    handoff = (PROJECT_ROOT / "docs" / "NEXT_CHAT_HANDOFF.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert re.fullmatch(r"\d+\.\d+\.\d+", version)
+    assert f"Source version {version}" in readme
+    assert f"## NightScope {version} -" in changelog
+    assert f"Versione sorgente: `{version}`" in handoff
+
+
 def test_legal_files_are_current_and_windows_build_enforces_them() -> None:
     license_text = (PROJECT_ROOT / "LICENSE").read_text(encoding="utf-8")
     notices = (PROJECT_ROOT / "THIRD_PARTY_NOTICES.md").read_text(

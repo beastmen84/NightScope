@@ -128,6 +128,26 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.41.0 Ubuntu Source Execution Gate
+
+Measured on Ubuntu 26.04 LTS with Python 3.14.4, PySide/Qt 6.11.1 and
+Ruff 0.16.0 on 2026-07-24 after completing the first native Linux source run:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --fast` | Passed |
+| `pip check`, Ruff, `compileall`, installed license closure | Passed |
+| Offline MPC snapshot check | 2,683 fixed terrestrial observatories passed |
+| `pytest -q -n 4 astro_viewer/tests` | 917 passed, 1 skipped, 642 warnings, 10 subtests passed in 108.32 s |
+| Backend, normal QML, and red QML smoke tests | Passed without teardown binding errors |
+| Native Qt platform probes | Wayland selected by default; explicit XCB fallback loaded |
+| Controlled real GUI run | Wayland startup and clean automatic shutdown passed |
+| Linux desktop services | User D-Bus active; GeoClue 2 source visible; Secret Service backend priority 5 |
+
+This was a fast source-execution gate without coverage or `pip-audit`; it does
+not represent a packaged Linux release. The exact third-party archive remains
+a Windows release artifact and is still compared byte-for-byte on Windows.
+
 ## Measured 1.40.1 Recommendation Boundary Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-23 after correcting Skyfield

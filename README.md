@@ -13,7 +13,7 @@ setup?**
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
 > validated; its Italian/English source visual review and source licensing are
-> complete. Source version 1.40.1 includes the reviewed Spanish localization,
+> complete. Source version 1.41.0 includes the reviewed Spanish localization,
 > the provider/runtime and Earthdata authorization fixes released in 1.34.2,
 > the subsequent Italian and English editorial review, and the first
 > platform-capability boundary for native Linux support, plus unified offline
@@ -25,6 +25,8 @@ setup?**
 > separate from NSOM candidate eligibility. System location now
 > uses the existing providers on Windows and GeoClue 2 on Linux; the Windows
 > provider order and fallback behavior remain unchanged.
+> Source execution is validated on Ubuntu 26.04 LTS with GNOME/Wayland and the
+> X11/XCB fallback; a native Linux package remains a separate release target.
 > The published Windows bundle passes automated legal,
 > Qt, backend, and QML checks; its packaged visual and live-provider release
 > matrices are not complete yet.

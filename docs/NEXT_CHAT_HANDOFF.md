@@ -1,10 +1,10 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-23
+Aggiornato: 2026-07-24
 
 ## Stato Versioni
 
-- Versione sorgente: `1.40.1`
+- Versione sorgente: `1.41.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica: `v1.37.0`, tag sul commit sorgente
   `dded6a19bdef938f939676113e96ac18fa07138f`.
@@ -12,7 +12,7 @@ Aggiornato: 2026-07-23
   `063385ec01665b60232872a3b312f0f573633214f2110e495530cb399151ccb1`.
 - Distribuzione Windows corrente: `1.37.0`, pubblicata su GitHub.
 - Metadati, tag e digest della release `1.37.0` verificati su GitHub il
-  2026-07-23. Il sorgente `1.40.1` non e' ancora distribuito.
+  2026-07-23. Il sorgente `1.41.0` non e' ancora distribuito.
 - Commit sorgente della release pubblica validato:
   `dded6a1 Fix red source links and location wrapping`
 
@@ -20,6 +20,26 @@ La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
+
+## Esecuzione sorgente Ubuntu 1.41.0
+
+NightScope e' stato installato ed eseguito da sorgente su Ubuntu 26.04 LTS con
+Python 3.14.4, PySide/Qt 6.11.1 e sessione GNOME/Wayland. D-Bus utente,
+GeoClue 2 e Secret Service risultano disponibili; Qt seleziona `wayland` per
+l'avvio normale e carica anche il fallback `xcb` dopo l'installazione delle
+librerie native documentate nel README.
+
+Il teardown esplicito del motore QML elimina i binding verso context object
+null osservati alla chiusura su Linux. Il generatore licenze risolve la licenza
+Python dalla standard library Linux e mantiene invariato il confronto esatto
+dell'archivio nell'ambiente Windows. Il gate Ruff ha ora una configurazione
+esplicita e resta stabile con le versioni 0.15 e 0.16.
+
+Il gate `tools/run_checks.py --fast` ha chiuso con `917 passed`, `1 skipped`,
+`642 warnings` note e `10 subtests`; smoke backend/QML, avvio reale Wayland e
+sonda XCB sono passati. Restano separati il packaging Linux nativo, una prova
+interattiva save/read/delete di Secret Service e una richiesta GeoClue
+autorizzata con coordinate reali.
 
 ## Recommendation e confine NSOM 1.40.1
 

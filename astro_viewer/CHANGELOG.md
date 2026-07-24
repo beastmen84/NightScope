@@ -1,5 +1,40 @@
 # Changelog
 
+## NightScope 1.41.0 - 2026-07-24
+
+- Verificata l'esecuzione da sorgente su Ubuntu 26.04 LTS con Python 3.14.4,
+  PySide/Qt 6.11.1 e GNOME/Wayland. Il backend Wayland viene selezionato
+  automaticamente e il fallback X11/XCB carica correttamente tutte le librerie
+  native richieste.
+- Documentati i pacchetti Ubuntu e i comandi Bash per creare la venv,
+  installare le dipendenze runtime/developer e avviare NightScope.
+- Corretto il teardown QML: il `TranslationManager` rilascia il riferimento al
+  `QQmlApplicationEngine` prima della distruzione dei context object. La
+  chiusura reale Wayland e gli smoke QML normale/rosso non producono piu'
+  binding verso controller null; avvio e comportamento Windows restano
+  invariati.
+- Il generatore delle licenze risolve ora la licenza Python sia dalla root
+  dell'installazione Windows sia dalla directory standard library usata da
+  Linux. Windows conserva il confronto byte-per-byte con l'archivio di release;
+  gli altri host verificano l'intera closure installata senza confrontarla con
+  l'inventario binario Windows.
+- Il test dell'ordine dei provider Windows dichiara esplicitamente la
+  piattaforma `win32`, evitando che un host Linux sostituisca correttamente i
+  mock Windows con GeoClue. Il runtime dei provider non cambia.
+- Il test del retry meteo verifica l'intervallo configurato invece del tempo
+  residuo nativo, che Qt puo' arrotondare di pochi millisecondi su Linux. Il
+  ritardo runtime resta invariato su tutte le piattaforme.
+- Aggiunto `ruff.toml` con target Python 3.12 e selezione esplicita delle regole
+  storiche. Ruff 0.15 e 0.16 producono cosi' lo stesso gate senza modifiche
+  automatiche massive al sorgente.
+- Il gate Ubuntu `tools/run_checks.py --fast` passa con `917 passed`, `1
+  skipped`, `642 warnings` note e `10 subtests`; passano inoltre `pip check`,
+  Ruff 0.16.0, `compileall`, closure licenze, snapshot MPC, smoke backend/QML,
+  avvio reale Wayland e sonda XCB.
+- La versione sorgente passa a `1.41.0`; la distribuzione Windows e la release
+  GitHub pubblicata restano `1.37.0`. Un pacchetto Linux nativo non e' ancora
+  stato prodotto.
+
 ## NightScope 1.40.1 - 2026-07-23
 
 - Corretto il parsing dell'altezza massima prodotta dal motore Skyfield nel

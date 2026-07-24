@@ -390,7 +390,10 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertTrue(controller._weather_refresh_timer.isActive())
             self.assertTrue(controller._weather_retry_pending)
             self.assertGreater(controller._weather_refresh_timer.remainingTime(), 0)
-            self.assertLessEqual(controller._weather_refresh_timer.remainingTime(), WEATHER_RETRY_DELAY_MS)
+            self.assertEqual(
+                controller._weather_refresh_timer.interval(),
+                WEATHER_RETRY_DELAY_MS,
+            )
 
             controller._refresh_weather_from_timer()
 
