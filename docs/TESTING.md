@@ -139,7 +139,7 @@ native Linux source and frozen-bundle runs:
 | `python tools/run_checks.py --fast` | Passed |
 | `pip check`, Ruff, `compileall`, installed license closure | Passed |
 | Offline MPC snapshot check | 2,683 fixed terrestrial observatories passed |
-| `pytest -q -n 4 astro_viewer/tests` | 919 passed, 1 skipped, 642 warnings, 10 subtests passed in 106.81 s |
+| `pytest -q -n 4 astro_viewer/tests` | 919 passed, 1 skipped, 642 warnings, 10 subtests passed in 109.09 s |
 | Backend, normal QML, and red QML smoke tests | Passed without teardown binding errors |
 | Native Qt platform probes | Wayland selected by default; explicit XCB fallback loaded |
 | Controlled real GUI run | Wayland startup and clean automatic shutdown passed |
@@ -149,6 +149,9 @@ native Linux source and frozen-bundle runs:
 | Frozen bundle inventory | Version 1.41.0; 5,306 files; 548 MiB |
 | Frozen credential modules | Secret Service, SecretStorage and jeepney present; Windows keyring backend absent |
 | Linux Python license archive | 63 installed distributions covered, including SecretStorage and jeepney |
+| Deterministic release-candidate archive | `NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz`; 263,574,875 bytes (252 MiB) |
+| Archive SHA-256 | `134c79f6b4dfd5101bce231477102e56beadf6b88cd5afcf88b568d81d478d60` |
+| Clean archive extraction | Checksum, bundle audit, backend smoke, Wayland normal/red QML and XCB normal QML passed |
 
 This was a fast source/bundle gate without coverage or `pip-audit`; the frozen
 directory is a local packaging candidate, not a published Linux release. Its

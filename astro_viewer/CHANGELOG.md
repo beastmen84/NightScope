@@ -39,6 +39,12 @@
 - La dist locale `1.41.0` contiene `5.306` file per `548 MiB`; passano audit,
   backend smoke, QML Wayland normale/rosso e QML XCB. L'archivio licenze Linux
   copre `63` distribuzioni, incluse `jeepney` e `SecretStorage`.
+- Aggiunto `packaging/archive_linux.sh`: crea in modo deterministico
+  `NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz` e il relativo file `.sha256`.
+  Il tar da `252 MiB` conserva una directory radice `NightScope`, e dopo
+  verifica del digest ed estrazione pulita supera nuovamente audit e smoke
+  backend, Wayland normale/rosso e XCB. SHA-256:
+  `134c79f6b4dfd5101bce231477102e56beadf6b88cd5afcf88b568d81d478d60`.
 - Il gate Ubuntu `tools/run_checks.py --fast` passa con `919 passed`, `1
   skipped`, `642 warnings` note e `10 subtests`; passano inoltre `pip check`,
   Ruff 0.16.0, `compileall`, closure licenze, snapshot MPC, smoke backend/QML,

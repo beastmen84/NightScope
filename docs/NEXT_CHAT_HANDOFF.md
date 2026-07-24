@@ -47,6 +47,14 @@ Virtual Keyboard e il plugin TIFF Linux irrisolvibile e non usato. L'archivio
 licenze generato nella dist copre `63` distribuzioni Python Linux, incluse
 `jeepney` e `SecretStorage`, senza sostituire l'archivio Windows committato.
 
+`packaging/archive_linux.sh` ha prodotto
+`NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz` (`263.574.875` byte, `252 MiB`) e
+il checksum adiacente. Due generazioni consecutive hanno mantenuto SHA-256
+`134c79f6b4dfd5101bce231477102e56beadf6b88cd5afcf88b568d81d478d60`.
+Il flusso documentato nel README (checksum, estrazione, audit e avvio) e' stato
+ripetuto da una directory temporanea pulita con backend, Wayland normale/rosso
+e XCB tutti passati.
+
 Prima di una pubblicazione Linux restano l'inventario e gli avvisi delle
 librerie ELF di sistema copiate da PyInstaller, la prova su una baseline glibc
 meno recente e la scelta del formato pubblico. Restano inoltre una prova

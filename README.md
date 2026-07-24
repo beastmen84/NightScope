@@ -179,6 +179,35 @@ require a desktop D-Bus session and a Secret Service implementation for
 credential storage. The published application remains Windows-focused; no
 Linux installer or public Linux archive has been released yet.
 
+## Install The Portable Linux Bundle
+
+The current local artifact is built and validated on Ubuntu 26.04 x86-64 with
+glibc 2.43. It does not require Python or a virtual environment. Install the
+host packages used by the validated GNOME/Wayland setup and its X11/XCB
+fallback:
+
+```bash
+sudo apt update
+sudo apt install dbus-user-session geoclue-2.0 gnome-keyring \
+  libsecret-1-0 libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0 \
+  libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1
+```
+
+Download both release assets into the same directory, verify the checksum,
+extract the bundle, and start NightScope:
+
+```bash
+sha256sum --check NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz.sha256
+tar -xzf NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz
+./NightScope/NightScope
+```
+
+GeoClue provides automatic system location and Secret Service stores Earthdata
+and OpenAQ credentials. NightScope can still start when either desktop service
+is unavailable, but the corresponding integration is disabled. Runtime data
+uses the XDG directories documented above and is not written into the extracted
+application directory.
+
 ## Run From Source
 
 From PowerShell in the repository root:
@@ -249,7 +278,15 @@ From the repository root:
 PyInstaller writes the portable application to `dist/NightScope`. The build
 script copies the project notices, generates the installed Linux Python
 dependency license archive, and runs the platform-aware Qt/data/runtime-state
-audit. Test the frozen executable with an isolated runtime directory:
+audit. Create the deterministic release-candidate archive and checksum with:
+
+```bash
+./packaging/archive_linux.sh
+```
+
+This writes
+`dist/NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz` and its adjacent
+`.sha256` file. Test the frozen executable with an isolated runtime directory:
 
 ```bash
 NIGHTSCOPE_RUNTIME_DIR=/tmp/nightscope-dist-smoke \

@@ -438,6 +438,10 @@ def test_legal_files_are_current_and_windows_build_enforces_them() -> None:
 def test_linux_build_enforces_licenses_and_platform_bundle_audit() -> None:
     build_script_path = PROJECT_ROOT / "packaging" / "build_linux.sh"
     build_script = build_script_path.read_text(encoding="utf-8")
+    archive_script = (
+        PROJECT_ROOT / "packaging" / "archive_linux.sh"
+    ).read_text(encoding="utf-8")
+    readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
     spec = (PROJECT_ROOT / "packaging" / "NightScope.spec").read_text(
         encoding="utf-8"
     )
@@ -456,6 +460,19 @@ def test_linux_build_enforces_licenses_and_platform_bundle_audit() -> None:
     assert "--platform linux" in build_script
     assert '--output "$dist_dir/THIRD_PARTY_LICENSES.txt"' in build_script
     assert "--platform-label Linux" in build_script
+    assert archive_script.startswith("#!/usr/bin/env bash\n")
+    assert "audit_qt_bundle.py" in archive_script
+    assert "--sort=name" in archive_script
+    assert '--mtime="@0"' in archive_script
+    assert "gzip -n -9" in archive_script
+    assert "sha256sum" in archive_script
+    assert 'chmod 0644 "$archive_path"' in archive_script
+    assert 'chmod 0644 "$checksum_path"' in archive_script
+    assert "NightScope-v${version}-${distribution_id}" in archive_script
+    assert "## Install The Portable Linux Bundle" in readme
+    assert "sudo apt install dbus-user-session geoclue-2.0 gnome-keyring" in readme
+    assert "sha256sum --check NightScope-v1.41.0-ubuntu-26.04-x64" in readme
+    assert "./NightScope/NightScope" in readme
     assert '"keyring.backends.Windows"' in spec
     assert '"keyring.backends.SecretService"' in spec
     assert 'sys.platform == "win32"' in spec
