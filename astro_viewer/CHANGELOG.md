@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Ridisegnata la schermata di preparazione al primo avvio: i testi sono ora in
+  inglese e quattro step distinti mostrano database, cataloghi locali, servizi
+  applicativi e caricamento dell'interfaccia. L'avanzamento resta monotono,
+  riporta il numero di localita' importate e la schermata rimane visibile fino
+  a quando la UI QML e' effettivamente pronta.
+
 ## NightScope 1.41.0 - 2026-07-24
 
 - Verificata l'esecuzione da sorgente su Ubuntu 26.04 LTS con Python 3.14.4,

@@ -6,7 +6,29 @@ import os
 import shutil
 import sys
 import time
+from dataclasses import dataclass
 from pathlib import Path
+
+
+_STARTUP_SERVICES_MESSAGE = "Preparing application services..."
+_STARTUP_INTERFACE_MESSAGE = "Opening the interface..."
+_STARTUP_READY_MESSAGE = "NightScope is ready."
+
+
+@dataclass(frozen=True)
+class _InitializationProgressState:
+    stage: int
+    percent: int
+    detail: str
+
+
+@dataclass
+class _InitializationSplash:
+    dialog: object
+    status: object
+    progress: object
+    step_labels: tuple[object, ...]
+    step_counter: object
 
 
 def _resolve_base_dir() -> Path:
@@ -150,6 +172,8 @@ def _build_controller(progress_callback=None):
         progress_callback=progress_callback,
         geonames_data_dir=_data_dir(),
     )
+    if progress_callback:
+        progress_callback(_STARTUP_SERVICES_MESSAGE)
     orbital_cache = OrbitalElementCacheRepository(database_path)
     iss_pass_source = IssPassEventSource(orbital_cache)
     comet_window_source = CometWindowEventSource(orbital_cache)
@@ -197,106 +221,248 @@ def _database_initialization_required() -> bool:
 def _create_initialization_splash(app):
     from PySide6.QtCore import Qt
     from PySide6.QtGui import QIcon, QPixmap
-    from PySide6.QtWidgets import QDialog, QLabel, QProgressBar, QVBoxLayout
-    from astro_viewer.app.services.localization import render_text, tr
+    from PySide6.QtWidgets import (
+        QDialog,
+        QHBoxLayout,
+        QLabel,
+        QProgressBar,
+        QVBoxLayout,
+        QWidget,
+    )
 
     dialog = QDialog()
     dialog.setWindowTitle(APP_NAME)
     dialog.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
     dialog.setModal(False)
-    dialog.setFixedWidth(420)
+    dialog.setFixedWidth(520)
     dialog.setStyleSheet(
         """
         QDialog {
-            background-color: #171a20;
-            border: 1px solid #303641;
+            background-color: #14181f;
+            border: 1px solid #343c49;
             border-radius: 8px;
         }
         QLabel#appName {
             color: #f4f7fb;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 600;
         }
         QLabel#message {
-            color: #d7dee8;
-            font-size: 14px;
+            color: #cbd4df;
+            font-size: 15px;
         }
-        QLabel#secondary, QLabel#status {
-            color: #aeb7c4;
+        QLabel#secondary {
+            color: #8f9baa;
+            font-size: 12px;
+        }
+        QWidget#steps {
+            background-color: #1a2029;
+            border: 1px solid #2c3440;
+            border-radius: 6px;
+        }
+        QLabel[stepState="pending"] {
+            color: #7f8a98;
+        }
+        QLabel[stepState="active"] {
+            color: #f4f7fb;
+            font-weight: 600;
+        }
+        QLabel[stepState="complete"] {
+            color: #aeb9c6;
+        }
+        QLabel#stepBadge {
+            min-width: 24px;
+            max-width: 24px;
+            min-height: 24px;
+            max-height: 24px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        QLabel#stepBadge[stepState="pending"] {
+            color: #7f8a98;
+            background-color: #222934;
+            border: 1px solid #394351;
+        }
+        QLabel#stepBadge[stepState="active"] {
+            color: #10171d;
+            background-color: #6fd6e7;
+            border: 1px solid #8be0ed;
+        }
+        QLabel#stepBadge[stepState="complete"] {
+            color: #b9eaf1;
+            background-color: #253b43;
+            border: 1px solid #40727b;
+        }
+        QLabel#status {
+            color: #d7dee8;
+            font-size: 13px;
+        }
+        QLabel#stepCounter {
+            color: #8f9baa;
             font-size: 12px;
         }
         QProgressBar {
-            min-height: 8px;
-            border: 1px solid #303641;
-            border-radius: 4px;
-            background-color: #252b34;
+            min-height: 10px;
+            max-height: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #252c36;
         }
         QProgressBar::chunk {
-            border-radius: 4px;
-            background-color: #65d6e8;
+            border-radius: 5px;
+            background-color: #6fd6e7;
         }
         """
     )
 
     layout = QVBoxLayout(dialog)
-    layout.setContentsMargins(34, 28, 34, 28)
-    layout.setSpacing(10)
+    layout.setContentsMargins(32, 28, 32, 30)
+    layout.setSpacing(12)
 
+    header = QHBoxLayout()
+    header.setSpacing(18)
     icon_label = QLabel()
-    icon_label.setAlignment(Qt.AlignHCenter)
+    icon_label.setFixedSize(72, 72)
+    icon_label.setAlignment(Qt.AlignCenter)
     app_icon = QIcon(str(BASE_DIR / "resources" / "icons" / "nightscope.ico"))
-    icon = app_icon.pixmap(80, 80) if not app_icon.isNull() else QPixmap()
+    icon = app_icon.pixmap(64, 64) if not app_icon.isNull() else QPixmap()
     if icon.isNull():
         icon = QPixmap(str(BASE_DIR / "resources" / "icons" / "telescope.svg")).scaled(
-            80,
-            80,
+            64,
+            64,
             Qt.KeepAspectRatio,
             Qt.SmoothTransformation,
         )
     if not icon.isNull():
         icon_label.setPixmap(icon)
-    layout.addWidget(icon_label)
+    header.addWidget(icon_label)
 
+    title_layout = QVBoxLayout()
+    title_layout.setSpacing(3)
+    title_layout.addStretch()
     app_name = QLabel(APP_NAME)
     app_name.setObjectName("appName")
-    app_name.setAlignment(Qt.AlignHCenter)
-    layout.addWidget(app_name)
-
-    message = QLabel(render_text(tr("Inizializzazione database al primo avvio...")))
+    title_layout.addWidget(app_name)
+    message = QLabel("Preparing NightScope for first use")
     message.setObjectName("message")
-    message.setAlignment(Qt.AlignHCenter)
-    layout.addWidget(message)
-
-    secondary = QLabel(render_text(tr("Preparazione cataloghi e dati locali.")))
+    title_layout.addWidget(message)
+    secondary = QLabel("This one-time setup may take a minute.")
     secondary.setObjectName("secondary")
-    secondary.setAlignment(Qt.AlignHCenter)
-    layout.addWidget(secondary)
+    title_layout.addWidget(secondary)
+    title_layout.addStretch()
+    header.addLayout(title_layout, 1)
+    layout.addLayout(header)
 
-    status = QLabel(render_text(tr("Creazione database...")))
+    steps_widget = QWidget()
+    steps_widget.setObjectName("steps")
+    steps_layout = QVBoxLayout(steps_widget)
+    steps_layout.setContentsMargins(16, 12, 16, 12)
+    steps_layout.setSpacing(9)
+    step_labels = []
+    for index, label_text in enumerate(
+        ("Database", "Local catalogues", "Application services", "Interface")
+    ):
+        step_row = QHBoxLayout()
+        step_row.setSpacing(10)
+        badge = QLabel(str(index + 1))
+        badge.setObjectName("stepBadge")
+        badge.setAlignment(Qt.AlignCenter)
+        label = QLabel(label_text)
+        step_state = "active" if index == 0 else "pending"
+        badge.setProperty("stepState", step_state)
+        label.setProperty("stepState", step_state)
+        step_row.addWidget(badge)
+        step_row.addWidget(label, 1)
+        steps_layout.addLayout(step_row)
+        step_labels.append((badge, label))
+    layout.addWidget(steps_widget)
+
+    status_row = QHBoxLayout()
+    status = QLabel("Creating the local database...")
     status.setObjectName("status")
-    status.setAlignment(Qt.AlignHCenter)
-    layout.addWidget(status)
+    status_row.addWidget(status, 1)
+    step_counter = QLabel("Step 1 of 4")
+    step_counter.setObjectName("stepCounter")
+    step_counter.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+    status_row.addWidget(step_counter)
+    layout.addLayout(status_row)
 
     progress = QProgressBar()
     progress.setRange(0, 100)
-    progress.setValue(12)
+    progress.setValue(8)
     progress.setTextVisible(False)
     layout.addWidget(progress)
 
     dialog.show()
     app.processEvents()
-    return dialog, status, progress
+    return _InitializationSplash(
+        dialog=dialog,
+        status=status,
+        progress=progress,
+        step_labels=tuple(step_labels),
+        step_counter=step_counter,
+    )
 
 
-def _update_initialization_splash(app, splash, message: object) -> None:
+def _initialization_progress_state(message: object) -> _InitializationProgressState:
+    source = str(getattr(message, "source", message))
+    values = getattr(message, "values", {})
+
+    if source == "Creazione database...":
+        return _InitializationProgressState(0, 12, "Creating the local database...")
+    if source == "Ricostruzione database locale...":
+        return _InitializationProgressState(0, 14, "Rebuilding the local database...")
+    if source == "Importazione cataloghi...":
+        return _InitializationProgressState(1, 28, "Preparing the local catalogues...")
+    if source == "Importazione catalogo città... {rows} righe":
+        try:
+            rows = max(0, int(values.get("rows", 0)))
+        except (TypeError, ValueError):
+            rows = 0
+        percent = min(68, 34 + rows // 1_000)
+        return _InitializationProgressState(
+            1,
+            percent,
+            f"Importing the city catalogue - {rows:,} locations",
+        )
+    if source == "Finalizzazione...":
+        return _InitializationProgressState(1, 74, "Finalizing the local catalogues...")
+    if source == _STARTUP_SERVICES_MESSAGE:
+        return _InitializationProgressState(2, 82, source)
+    if source == _STARTUP_INTERFACE_MESSAGE:
+        return _InitializationProgressState(3, 94, source)
+    if source == _STARTUP_READY_MESSAGE:
+        return _InitializationProgressState(3, 100, source)
+    return _InitializationProgressState(0, 8, "Preparing local data...")
+
+
+def _set_initialization_step_state(splash: _InitializationSplash, active_stage: int) -> None:
+    for index, (badge, label) in enumerate(splash.step_labels):
+        step_state = (
+            "complete"
+            if index < active_stage
+            else "active"
+            if index == active_stage
+            else "pending"
+        )
+        for widget in (badge, label):
+            widget.setProperty("stepState", step_state)
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
+
+
+def _update_initialization_splash(
+    app, splash: _InitializationSplash | None, message: object
+) -> None:
     if not splash:
         return
-    _, status, progress = splash
-    from astro_viewer.app.services.localization import render_text
 
-    status.setText(render_text(message))
-    next_value = progress.value() + 9
-    progress.setValue(18 if next_value > 92 else next_value)
+    state = _initialization_progress_state(message)
+    splash.status.setText(state.detail)
+    splash.progress.setValue(max(splash.progress.value(), state.percent))
+    splash.step_counter.setText(f"Step {state.stage + 1} of {len(splash.step_labels)}")
+    _set_initialization_step_state(splash, state.stage)
     app.processEvents()
 
 
@@ -373,7 +539,7 @@ def run_app() -> int:
         error_title = tr("Impossibile inizializzare il database locale.")
         if splash:
             _update_initialization_splash(app, splash, error_title)
-            splash[0].close()
+            splash.dialog.close()
         QMessageBox.critical(
             None,
             APP_NAME,
@@ -387,7 +553,7 @@ def run_app() -> int:
         return 1
     translation_manager.languageChanged.connect(controller.retranslatePresentation)
     if splash:
-        splash[0].close()
+        _update_initialization_splash(app, splash, _STARTUP_INTERFACE_MESSAGE)
 
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(BASE_DIR / "app" / "ui"))
@@ -403,9 +569,14 @@ def run_app() -> int:
     translation_manager.attach_engine(engine)
 
     if not engine.rootObjects():
+        if splash:
+            splash.dialog.close()
         translation_manager.detach_engine()
         del engine
         return 1
+    if splash:
+        _update_initialization_splash(app, splash, _STARTUP_READY_MESSAGE)
+        splash.dialog.close()
     QTimer.singleShot(750, update_manager.checkForUpdates)
     exit_code = app.exec()
     translation_manager.detach_engine()

@@ -288,6 +288,42 @@ def test_main_exposes_appearance_manager_to_both_qml_startup_paths() -> None:
     ) == 2
 
 
+def test_first_run_progress_uses_english_stage_copy() -> None:
+    states = [
+        main_module._initialization_progress_state(message)
+        for message in (
+            "Creazione database...",
+            "Importazione cataloghi...",
+            main_module._STARTUP_SERVICES_MESSAGE,
+            main_module._STARTUP_INTERFACE_MESSAGE,
+            main_module._STARTUP_READY_MESSAGE,
+        )
+    ]
+
+    assert [state.stage for state in states] == [0, 1, 2, 3, 3]
+    assert [state.percent for state in states] == [12, 28, 82, 94, 100]
+    assert all(
+        italian_word not in " ".join(state.detail for state in states).lower()
+        for italian_word in ("creazione", "importazione", "preparazione", "finalizzazione")
+    )
+
+
+def test_first_run_city_progress_is_bounded_and_readable() -> None:
+    from astro_viewer.app.services.localization import tr
+
+    early = main_module._initialization_progress_state(
+        tr("Importazione catalogo città... {rows} righe", rows=500)
+    )
+    late = main_module._initialization_progress_state(
+        tr("Importazione catalogo città... {rows} righe", rows=50_000)
+    )
+
+    assert early.stage == late.stage == 1
+    assert early.percent < late.percent <= 68
+    assert early.detail == "Importing the city catalogue - 500 locations"
+    assert late.detail == "Importing the city catalogue - 50,000 locations"
+
+
 def test_multilingual_manual_has_complete_navigation_and_current_provider_semantics() -> None:
     manual = (PROJECT_ROOT / "manuale.html").read_text(encoding="utf-8")
     parser = _ManualStructureParser()
