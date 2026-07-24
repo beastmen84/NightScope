@@ -295,6 +295,11 @@ Item {
                         TableHeader { text: qsTr("Dimensione"); Layout.preferredWidth: 94 }
                         TableHeader { text: qsTr("Osservazione"); Layout.preferredWidth: 130 }
                         TableHeader { text: qsTr("Raggiunge ≥15°"); Layout.preferredWidth: 104 }
+                        TableHeader {
+                            text: qsTr("Home")
+                            horizontalAlignment: Text.AlignHCenter
+                            Layout.preferredWidth: 56
+                        }
                     }
                 }
 
@@ -322,6 +327,7 @@ Item {
                                 anchors.leftMargin: 10
                                 anchors.rightMargin: 10
                                 spacing: 8
+                                z: 2
 
                                 TableCell { text: itemData.catalogue_id; color: theme.cyan; font.weight: Font.DemiBold; Layout.preferredWidth: 64 }
                                 TableCell { text: itemData.name; color: theme.textPrimary; Layout.fillWidth: true; Layout.minimumWidth: 120 }
@@ -337,10 +343,70 @@ Item {
                                     horizontalAlignment: Text.AlignHCenter
                                     Layout.preferredWidth: 104
                                 }
+
+                                Item {
+                                    id: recommendationCell
+
+                                    readonly property bool recommendationEditable:
+                                        row.itemData.recommendation_editable === true
+
+                                    Layout.fillHeight: true
+                                    Layout.preferredWidth: 56
+
+                                    DarkCheckBox {
+                                        id: recommendationCheckBox
+
+                                        anchors.centerIn: parent
+                                        text: ""
+                                        checked: row.itemData.recommendation_enabled === true
+                                        enabled: recommendationCell.recommendationEditable
+                                        Accessible.name: enabled
+                                            ? qsTr("Includi nei suggerimenti automatici")
+                                            : qsTr("Sempre incluso nei suggerimenti automatici")
+                                        onToggled: controller.setCatalogueRecommendationEnabled(
+                                            row.itemData.object_id,
+                                            checked
+                                        )
+                                    }
+
+                                    MouseArea {
+                                        id: lockedRecommendationArea
+
+                                        anchors.fill: parent
+                                        enabled: !recommendationCell.recommendationEditable
+                                        hoverEnabled: true
+                                        cursorShape: Qt.ArrowCursor
+                                    }
+
+                                    ToolTip {
+                                        id: recommendationToolTip
+
+                                        visible: lockedRecommendationArea.containsMouse
+                                            || (recommendationCheckBox.enabled
+                                                && recommendationCheckBox.hovered)
+                                        delay: 500
+                                        padding: 8
+                                        text: recommendationCheckBox.Accessible.name
+
+                                        contentItem: Text {
+                                            text: recommendationToolTip.text
+                                            color: theme.textPrimary
+                                            font: recommendationToolTip.font
+                                        }
+
+                                        background: Rectangle {
+                                            color: theme.surfaceRaised
+                                            border.width: 1
+                                            border.color: theme.border
+                                            radius: 6
+                                        }
+                                    }
+                                }
                             }
 
                             MouseArea {
                                 anchors.fill: parent
+                                z: 1
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
                                 onEntered: row.hovered = true

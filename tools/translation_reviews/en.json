@@ -39,5 +39,11 @@
     "Normale": "Normal",
     "Visione rossa": "Red night vision"
   },
-  "contexts": {}
+  "contexts": {
+    "ObjectCataloguePage": {
+      "Home": "Home",
+      "Includi nei suggerimenti automatici": "Include in automatic suggestions",
+      "Sempre incluso nei suggerimenti automatici": "Always included in automatic suggestions"
+    }
+  }
 }

@@ -47,6 +47,10 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertIn("fallback_filter_class", reader.fieldnames or [])
             self.assertIn("optional_color_filter_class", reader.fieldnames or [])
             self.assertIn("imaging_reducer_recommended", reader.fieldnames or [])
+            self.assertIn(
+                "recommendation_enabled_by_default",
+                reader.fieldnames or [],
+            )
             rows = list(reader)
 
         self.assertEqual(len(rows), CATALOGUE_OBJECT_COUNT)
@@ -62,6 +66,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 row["object_id"],
             )
             self.assertIn(row["imaging_reducer_recommended"], {"0", "1"})
+            self.assertEqual(row["recommendation_enabled_by_default"], "1")
         observation_types = {
             row["object_id"]: row["recommended_observation_type"]
             for row in rows
@@ -416,6 +421,34 @@ class DatabaseBootstrapTests(unittest.TestCase):
                         ("Conflicting", "X31", "messier-M31", 31, 1),
                     )
 
+    def test_catalogue_recommendation_preference_survives_reseed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+            repository = CatalogueRepository(database_path)
+
+            initial = repository.get_by_designation("Messier", "M31")
+            self.assertIsNotNone(initial)
+            assert initial is not None
+            self.assertTrue(initial["recommendation_enabled_by_default"])
+            self.assertTrue(initial["recommendation_enabled"])
+
+            repository.set_recommendation_enabled("messier-M31", False)
+            with self.assertRaisesRegex(ValueError, "stored catalogue object"):
+                repository.set_recommendation_enabled("mars", False)
+            initialize_database(database_path, schema_path)
+
+            updated = repository.get_by_designation("Messier", "M31")
+            self.assertIsNotNone(updated)
+            assert updated is not None
+            self.assertTrue(updated["recommendation_enabled_by_default"])
+            self.assertFalse(updated["recommendation_enabled"])
+            self.assertEqual(
+                repository.recommendation_preferences(),
+                {"messier-m31": False},
+            )
+
     def test_catalogue_normalized_identity_constraints_are_enforced(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
@@ -433,7 +466,8 @@ class DatabaseBootstrapTests(unittest.TestCase):
                             max_angular_size_deg, recommended_observation_type,
                             best_filter_class, fallback_filter_class,
                             optional_color_filter_class,
-                            imaging_reducer_recommended, descrizione
+                            imaging_reducer_recommended,
+                            recommendation_enabled_by_default, descrizione
                         FROM CatalogueObject
                         WHERE object_id = 'messier-M1'
                         """

@@ -76,6 +76,8 @@ CREATE TABLE IF NOT EXISTS CatalogueObject (
     fallback_filter_class TEXT,
     optional_color_filter_class TEXT,
     imaging_reducer_recommended INTEGER NOT NULL DEFAULT 0,
+    recommendation_enabled_by_default INTEGER NOT NULL DEFAULT 1
+        CHECK (recommendation_enabled_by_default IN (0, 1)),
     descrizione TEXT
 );
 
@@ -104,6 +106,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_catalogue_designation_normalized
 ON CatalogueDesignation(LOWER(catalogue), LOWER(designation));
 CREATE UNIQUE INDEX IF NOT EXISTS idx_catalogue_object_catalogue_normalized
 ON CatalogueDesignation(object_id, LOWER(catalogue));
+
+CREATE TABLE IF NOT EXISTS CatalogueRecommendationPreference (
+    object_id TEXT PRIMARY KEY COLLATE NOCASE,
+    enabled INTEGER NOT NULL CHECK (enabled IN (0, 1))
+);
 
 CREATE TABLE IF NOT EXISTS WeatherCache (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

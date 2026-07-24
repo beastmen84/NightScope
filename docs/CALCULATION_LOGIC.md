@@ -297,6 +297,24 @@ and location, it does not reach at least 15 degrees during astronomical
 darkness. This keeps "above horizon now" separate from "usefully visible this
 month".
 
+### Catalogue Recommendation Eligibility
+
+Every persistent catalogue object has an effective recommendation-eligibility
+value. The seed supplies `recommendation_enabled_by_default`; the local
+`CatalogueRecommendationPreference` table stores the user's persistent choice.
+The 219 current Messier and Caldwell objects start enabled and can be changed;
+the same contract supports a future NGC seed. The nine synthetic Solar System
+S1-S9 entries are always enabled and cannot store an override.
+
+This value is a hard admission gate and never multiplies, caps or otherwise
+changes a target score. The controller filters cached base deep-sky targets
+before Equipment enrichment, condition projections and NSOM consumers.
+Consequently a disabled object cannot appear in Home, Best Object, Planner or
+Sky Compass and cannot receive a suggested setup. It remains available to
+catalogue search, filters, observability calculations and descriptive detail.
+Re-enabling it reuses the existing base astronomy snapshot rather than
+recalculating ephemerides.
+
 ### Object Scores
 
 `CelestialObject.score` is the compatibility/display score based on:
@@ -1016,6 +1034,13 @@ AOD/OpenAQ completion triggers:
 - local recomputation of Home, Planner, Best Object and Sky Compass using the
   cached astronomy/Moon geometry;
 - no repeated ephemeris calculation and no cumulative score subtraction.
+
+Editable catalogue recommendation changes trigger:
+
+- a persistent per-object preference update;
+- local filtering of cached base deep-sky targets;
+- Equipment, Home, Best Object, Planner and Sky Compass recomputation;
+- no astronomy, weather or provider refresh.
 
 Astronomy and VIIRS worker results carry both a monotonically increasing
 request id and the active location key. Results produced for an older request

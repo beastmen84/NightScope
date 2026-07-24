@@ -26,6 +26,7 @@ class RefreshReason(StrEnum):
     PROVIDER_CHANGED = "provider_changed"
     API_KEY_CHANGED = "api_key_changed"
     EQUIPMENT_CHANGED = "equipment_changed"
+    CATALOGUE_RECOMMENDATION_CHANGED = "catalogue_recommendation_changed"
     BORTLE_CHANGED = "bortle_changed"
     TTL_EXPIRED = "ttl_expired"
     WEATHER_TTL_EXPIRED = "weather_ttl_expired"
@@ -86,6 +87,14 @@ REFRESH_DEPENDENCIES: dict[RefreshReason, frozenset[RefreshDomain]] = {
     ),
     RefreshReason.EQUIPMENT_CHANGED: frozenset(
         {
+            RefreshDomain.EQUIPMENT,
+            RefreshDomain.PLANNER,
+            RefreshDomain.COMPASS,
+        }
+    ),
+    RefreshReason.CATALOGUE_RECOMMENDATION_CHANGED: frozenset(
+        {
+            RefreshDomain.CATALOG,
             RefreshDomain.EQUIPMENT,
             RefreshDomain.PLANNER,
             RefreshDomain.COMPASS,

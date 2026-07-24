@@ -18,7 +18,7 @@ from astro_viewer.app.services.localization import content_key, tr
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
-SCHEMA_VERSION = 17
+SCHEMA_VERSION = 18
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 _CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
     (
@@ -87,6 +87,7 @@ REQUIRED_TABLES = {
     "DataImportLog",
     "CatalogueObject",
     "CatalogueDesignation",
+    "CatalogueRecommendationPreference",
     "WeatherCache",
     "OrbitalElementCache",
     "ObservationHistory",
@@ -455,7 +456,19 @@ def _migrate_database(
             "fallback_filter_class": "TEXT",
             "optional_color_filter_class": "TEXT",
             "imaging_reducer_recommended": "INTEGER NOT NULL DEFAULT 0",
+            "recommendation_enabled_by_default": (
+                "INTEGER NOT NULL DEFAULT 1 "
+                "CHECK (recommendation_enabled_by_default IN (0, 1))"
+            ),
         },
+    )
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS CatalogueRecommendationPreference (
+            object_id TEXT PRIMARY KEY COLLATE NOCASE,
+            enabled INTEGER NOT NULL CHECK (enabled IN (0, 1))
+        )
+        """
     )
     _migrate_catalogue_tables(connection)
     _ensure_profile_binocular_table(connection)
@@ -606,13 +619,14 @@ def _migrate_catalogue_tables(connection: sqlite3.Connection) -> None:
             max_angular_size_deg, recommended_observation_type,
             best_filter_class, fallback_filter_class,
             optional_color_filter_class, imaging_reducer_recommended,
+            recommendation_enabled_by_default,
             descrizione
         )
         SELECT
             'messier-' || messier_id, nome, tipo, costellazione, magnitudine,
             ascensione_retta, declinazione, dimensione_apparente,
             max_angular_size_deg, recommended_observation_type,
-            NULL, NULL, NULL, 0, descrizione
+            NULL, NULL, NULL, 0, 1, descrizione
         FROM MessierObject
         """
     )
@@ -1066,6 +1080,7 @@ def _seed_catalogue(
             (row.get("fallback_filter_class") or "").strip().upper(),
             (row.get("optional_color_filter_class") or "").strip().upper(),
             _csv_bool(row.get("imaging_reducer_recommended", "")),
+            _csv_bool(row.get("recommendation_enabled_by_default", "")),
             row["descrizione"],
         )
         for row in source_object_rows
@@ -1078,16 +1093,19 @@ def _seed_catalogue(
             max_angular_size_deg, recommended_observation_type,
             best_filter_class, fallback_filter_class,
             optional_color_filter_class, imaging_reducer_recommended,
+            recommendation_enabled_by_default,
             descrizione
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(object_id) DO UPDATE SET
             max_angular_size_deg = excluded.max_angular_size_deg,
             recommended_observation_type = excluded.recommended_observation_type,
             best_filter_class = excluded.best_filter_class,
             fallback_filter_class = excluded.fallback_filter_class,
             optional_color_filter_class = excluded.optional_color_filter_class,
-            imaging_reducer_recommended = excluded.imaging_reducer_recommended
+            imaging_reducer_recommended = excluded.imaging_reducer_recommended,
+            recommendation_enabled_by_default =
+                excluded.recommendation_enabled_by_default
         """,
         object_rows,
     )
@@ -1167,6 +1185,13 @@ def _validate_catalogue_seed(
         if reducer_recommendation not in {"0", "1"}:
             raise ValueError(
                 f"Invalid imaging reducer recommendation for {object_id}."
+            )
+        recommendation_enabled = str(
+            row.get("recommendation_enabled_by_default") or ""
+        ).strip()
+        if recommendation_enabled not in {"0", "1"}:
+            raise ValueError(
+                f"Invalid default recommendation state for {object_id}."
             )
         max_size = _optional_float(row["max_angular_size_deg"])
         if max_size is None or max_size <= 0:

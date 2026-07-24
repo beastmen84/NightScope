@@ -1743,7 +1743,6 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="687" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3093" />
       <source>Creazione database...</source>
       <translation>Database creation...</translation>
     </message>
@@ -5815,21 +5814,11 @@ Check the weather again before preparing the session.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3089" />
-      <source>Inizializzazione database al primo avvio...</source>
-      <translation>Database initialization on first startup...</translation>
-    </message>
-    <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3091" />
-      <source>Preparazione cataloghi e dati locali.</source>
-      <translation>Preparation of catalogs and local data.</translation>
-    </message>
-    <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3095" />
       <source>Impossibile inizializzare il database locale.</source>
       <translation>Failed to initialize local database.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3097" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3091" />
       <source>Impossibile inizializzare il database locale.
 
 Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</source>
@@ -8088,7 +8077,22 @@ Check the application folder permissions and restart NightScope.</translation>
       <translation>Reaches ≥15°</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="357" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="299" />
+      <source>Home</source>
+      <translation>Home</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="365" />
+      <source>Sempre incluso nei suggerimenti automatici</source>
+      <translation>Always included in automatic suggestions</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="364" />
+      <source>Includi nei suggerimenti automatici</source>
+      <translation>Include in automatic suggestions</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="423" />
       <source>Nessun oggetto trovato.</source>
       <translation>No objects found.</translation>
     </message>

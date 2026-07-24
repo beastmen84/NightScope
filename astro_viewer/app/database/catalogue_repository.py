@@ -15,6 +15,7 @@ class CatalogueRepository:
         max_angular_size_deg, recommended_observation_type,
         best_filter_class, fallback_filter_class,
         optional_color_filter_class, imaging_reducer_recommended,
+        recommendation_enabled_by_default,
         descrizione
     """
 
@@ -133,6 +134,47 @@ class CatalogueRepository:
             ).fetchall()
         return [str(row[0]) for row in rows]
 
+    def recommendation_preferences(self) -> dict[str, bool]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT object_id, enabled
+                FROM CatalogueRecommendationPreference
+                """
+            ).fetchall()
+        return {
+            str(row["object_id"]).casefold(): bool(row["enabled"])
+            for row in rows
+        }
+
+    def set_recommendation_enabled(self, object_id: str, enabled: bool) -> None:
+        normalized = object_id.strip()
+        if not normalized:
+            raise ValueError("Catalogue recommendation preference requires an object ID.")
+        with closing(self._connect()) as connection:
+            row = connection.execute(
+                """
+                SELECT object_id
+                FROM CatalogueObject
+                WHERE LOWER(object_id) = LOWER(?)
+                """,
+                (normalized,),
+            ).fetchone()
+            if row is None:
+                raise ValueError(
+                    "Catalogue recommendation preference requires a stored "
+                    "catalogue object."
+                )
+            connection.execute(
+                """
+                INSERT INTO CatalogueRecommendationPreference (object_id, enabled)
+                VALUES (?, ?)
+                ON CONFLICT(object_id) DO UPDATE SET enabled = excluded.enabled
+                """,
+                (str(row["object_id"]), int(bool(enabled))),
+            )
+            connection.commit()
+
     def _objects_with_designations(
         self,
         connection: sqlite3.Connection,
@@ -143,6 +185,18 @@ class CatalogueRepository:
             return []
         object_ids = [item["object_id"] for item in objects]
         placeholders = ", ".join("?" for _ in object_ids)
+        preference_rows = connection.execute(
+            f"""
+            SELECT object_id, enabled
+            FROM CatalogueRecommendationPreference
+            WHERE object_id IN ({placeholders})
+            """,
+            object_ids,
+        ).fetchall()
+        preferences = {
+            str(row["object_id"]).casefold(): bool(row["enabled"])
+            for row in preference_rows
+        }
         designation_rows = connection.execute(
             f"""
             SELECT catalogue, designation, object_id, sort_index, is_primary
@@ -163,6 +217,10 @@ class CatalogueRepository:
                 }
             )
         for item in objects:
+            item["recommendation_enabled"] = preferences.get(
+                item["object_id"].casefold(),
+                item["recommendation_enabled_by_default"],
+            )
             designations = by_object_id[item["object_id"]]
             primary = next((entry for entry in designations if entry["is_primary"]), None)
             primary = primary or (designations[0] if designations else None)
@@ -209,6 +267,9 @@ class CatalogueRepository:
             "optional_color_filter_class": row["optional_color_filter_class"] or "",
             "imaging_reducer_recommended": bool(
                 row["imaging_reducer_recommended"]
+            ),
+            "recommendation_enabled_by_default": bool(
+                row["recommendation_enabled_by_default"]
             ),
             "description": row["descrizione"],
         }

@@ -147,6 +147,9 @@ CATALOGUE_ALL_FILTER = "__all__"
 CATALOGUE_SOURCE = "catalogue"
 OBSERVING_SOURCE = "observing"
 SOLAR_SYSTEM_CATALOGUE = "Sistema Solare"
+RECOMMENDATION_EDITABLE_CATALOGUES = frozenset(
+    {"Messier", "Caldwell", "NGC"}
+)
 STARTUP_LOCATION_PENDING_MESSAGE = tr("Ricerca della posizione in corso...")
 STARTUP_WEATHER_PENDING_MESSAGE = tr("Meteo in attesa della posizione.")
 WEATHER_RETRY_DELAY_MS = 5 * 60 * 1000
@@ -424,6 +427,12 @@ class AppController(QObject):
             self._object_image_repository.curiosities()
         )
         self._catalogue_objects = self._load_catalogue_objects()
+        self._recommendation_enabled_by_object_id = {
+            str(item["object_id"]).casefold(): bool(
+                item.get("recommendation_enabled", True)
+            )
+            for item in self._catalogue_objects
+        }
         self._catalogue_identifier_index = self._build_catalogue_identifier_index(
             self._catalogue_objects
         )
@@ -1305,6 +1314,37 @@ class AppController(QObject):
         item = self._catalogue_item_for_active_filter(item)
         self._selected_object = self._catalogue_item_to_detail_object(item)
         self._selected_object_source = CATALOGUE_SOURCE
+        self.selectedObjectChanged.emit()
+
+    @Slot(str, bool)
+    def setCatalogueRecommendationEnabled(
+        self,
+        object_id: str,
+        enabled: bool,
+    ) -> None:
+        item = self._catalogue_item_for_object_id(object_id)
+        if not item:
+            return
+        if not bool(item.get("recommendation_editable", False)):
+            return
+        canonical_id = str(item.get("object_id") or "").strip()
+        if not canonical_id:
+            return
+        enabled = bool(enabled)
+        if bool(item.get("recommendation_enabled", True)) == enabled:
+            return
+
+        self._catalogue_repository.set_recommendation_enabled(
+            canonical_id,
+            enabled,
+        )
+        normalized_id = canonical_id.casefold()
+        self._recommendation_enabled_by_object_id[normalized_id] = enabled
+        item["recommendation_enabled"] = enabled
+
+        self._refresh_after_catalogue_recommendation_change()
+        self.catalogueChanged.emit()
+        self.dataChanged.emit()
         self.selectedObjectChanged.emit()
 
     @Slot(str)
@@ -4121,6 +4161,41 @@ class AppController(QObject):
             RefreshDomain.COMPASS,
         )
 
+    def _refresh_after_catalogue_recommendation_change(self) -> None:
+        self._mark_refresh_dirty(RefreshReason.CATALOGUE_RECOMMENDATION_CHANGED)
+        selected_id = self._selected_object.id if self._selected_object else None
+        selected_source = self._selected_object_source
+        self._refresh_equipment_recommendations_for_current_objects()
+        self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
+        if self._weather_summary:
+            self._recalculate_observing_outputs()
+        else:
+            self._refresh_conditioned_observing_candidates()
+            self._best_object = None
+            self._night_plan = []
+            self._refresh_sky_compass()
+
+        if selected_id and selected_source == OBSERVING_SOURCE:
+            observing_objects = self._solar_system_objects + self._deep_sky
+            replacement = next(
+                (candidate for candidate in observing_objects if candidate.id == selected_id),
+                None,
+            )
+            if replacement is None:
+                suggestion_pool = self._visible_planets + self._deep_sky
+                replacement = self._best_object or next(iter(suggestion_pool), None)
+            self._selected_object = replacement
+            self._selected_object_source = (
+                OBSERVING_SOURCE if replacement is not None else ""
+            )
+
+        self._clear_refresh_domains(
+            RefreshDomain.CATALOG,
+            RefreshDomain.EQUIPMENT,
+            RefreshDomain.PLANNER,
+            RefreshDomain.COMPASS,
+        )
+
     def _emit_profile_dependent_changes(self) -> None:
         self.equipmentChanged.emit()
         self.dataChanged.emit()
@@ -4130,6 +4205,7 @@ class AppController(QObject):
     def _refresh_equipment_recommendations_for_current_objects(self) -> None:
         solar_system_source = self._base_solar_system_objects or self._solar_system_objects
         deep_sky_source = self._base_deep_sky or self._deep_sky
+        deep_sky_source = self._recommendation_eligible_objects(deep_sky_source)
         self._equipment_setup_read_models_by_object_id = {}
         self._solar_system_objects = self._apply_equipment(solar_system_source)
         self._visible_planets = [
@@ -4141,6 +4217,21 @@ class AppController(QObject):
         ]
         self._deep_sky = self._apply_equipment(deep_sky_source)
         self._refresh_conditioned_observing_candidates()
+
+    def _recommendation_eligible_objects(
+        self,
+        objects: list[CelestialObject],
+    ) -> list[CelestialObject]:
+        enabled_by_id = getattr(
+            self,
+            "_recommendation_enabled_by_object_id",
+            {},
+        )
+        return [
+            item
+            for item in objects
+            if enabled_by_id.get(item.id.strip().casefold(), True)
+        ]
 
     def _apply_location_result(self, result: LocationDetectionResult, persist: bool = True) -> None:
         self._mark_refresh_dirty(RefreshReason.LOCATION_CHANGED)
@@ -4655,10 +4746,16 @@ class AppController(QObject):
     @staticmethod
     def _catalogue_item_from_record(row: dict) -> dict:
         object_id = str(row["object_id"])
+        recommendation_enabled_by_default = bool(
+            row.get("recommendation_enabled_by_default", True)
+        )
         primary_catalogue = str(row.get("primary_catalogue") or "")
         primary_designation = str(row.get("primary_designation") or object_id)
         designations = [dict(item) for item in row.get("designations", [])]
         catalogues = [str(item) for item in row.get("catalogues", [])]
+        recommendation_editable = bool(
+            RECOMMENDATION_EDITABLE_CATALOGUES.intersection(catalogues)
+        )
         designation_labels = [
             f"{item['catalogue']} {item['designation']}".strip()
             for item in designations
@@ -4696,6 +4793,14 @@ class AppController(QObject):
             "imaging_reducer_recommended": bool(
                 row.get("imaging_reducer_recommended")
             ),
+            "recommendation_enabled_by_default": recommendation_enabled_by_default,
+            "recommendation_enabled": bool(
+                row.get(
+                    "recommendation_enabled",
+                    recommendation_enabled_by_default,
+                )
+            ),
+            "recommendation_editable": recommendation_editable,
             "description": row["description"] or "",
             "search_terms": search_terms,
             "catalogue_sort_index": row.get("primary_sort_index"),
@@ -4748,6 +4853,9 @@ class AppController(QObject):
             "fallback_filter_class": fallback_filter_class,
             "optional_color_filter_class": optional_color_filter_class,
             "imaging_reducer_recommended": False,
+            "recommendation_enabled_by_default": True,
+            "recommendation_enabled": True,
+            "recommendation_editable": False,
             "description": presentation_text(
                 description.get("short_description", ""), strip=True
             ),
@@ -5245,9 +5353,13 @@ class AppController(QObject):
         )
 
     def _solar_system_detail_source(self, object_id: str) -> CelestialObject | None:
-        for candidate in self._solar_system_objects or self._base_solar_system_objects:
-            if candidate.id == object_id:
-                return candidate
+        for candidates in (
+            self._solar_system_objects,
+            self._base_solar_system_objects,
+        ):
+            for candidate in candidates:
+                if candidate.id == object_id:
+                    return candidate
         return None
 
     @staticmethod

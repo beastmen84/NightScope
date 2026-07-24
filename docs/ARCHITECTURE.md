@@ -275,6 +275,15 @@ Current runtime status for `1.27.0`:
 - Catalogue identity is physical-object based: `CatalogueObject.object_id` is
   stable and `CatalogueDesignation` owns one or more catalogue codes. A
   secondary designation never creates another runtime target.
+- Catalogue recommendation eligibility is a candidate-admission policy, not a
+  score. `CatalogueObject.recommendation_enabled_by_default` owns the seeded
+  first-run value, while `CatalogueRecommendationPreference` owns persistent
+  user overrides for Messier, Caldwell and future NGC targets. Synthetic Solar
+  System S1-S9 entries are always enabled and expose a locked control. The
+  controller applies the effective value to base deep-sky targets before
+  Equipment enrichment; disabled targets therefore cannot reach Home, Best
+  Object, Planner or Sky Compass, while the complete catalogue and its
+  descriptive detail remain available.
 - The packaged deep-sky catalogue contains 110 Messier and 109 Caldwell
   targets. Caldwell intentionally has no Messier overlap; the same identity
   contract remains available for future catalogues that do overlap.
@@ -633,7 +642,8 @@ Repositories own SQLite persistence:
   separate `MpcObservatory` table. Exact MPC codes rank first; names and
   accent-insensitive aliases share the same result contract without treating an
   observatory as a city.
-- `CatalogueRepository`: physical catalogue targets and their designations.
+- `CatalogueRepository`: physical catalogue targets, their designations and
+  persistent per-object recommendation-eligibility overrides.
 - `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter
   and focal-reducer CRUD plus profile assignments. Every catalogue row exposes
   `is_builtin`, `seed_key` and `is_user_modified`; seeded rows can be updated
@@ -677,17 +687,21 @@ Startup flow:
 Home recommendation flow:
 
 1. Astronomy engine produces base objects.
-2. `AppController` applies active-profile equipment recommendations.
-3. Deep-sky objects may be adjusted by light-pollution context and Home/Detail
+2. `AppController` removes editable deep-sky targets whose effective catalogue
+   recommendation preference is disabled. Solar System targets always remain
+   admitted. Base astronomy data remains unchanged so a target can be
+   re-enabled without recalculating coordinates.
+3. `AppController` applies active-profile equipment recommendations.
+4. Deep-sky objects may be adjusted by light-pollution context and Home/Detail
    Moon context through `ObservationConditionsService`.
-4. `BestObjectNsomSelectionService` always selects Best Object from canonical
+5. `BestObjectNsomSelectionService` always selects Best Object from canonical
    observation opportunities. Missing provider inputs are neutral factors.
-5. `NightPlannerService` produces the observing plan unless weather is
+6. `NightPlannerService` produces the observing plan unless weather is
    blocking, using `PlannerNsomScoringService`. Up to four
    highest `ObservationOpportunity` values are selected before chronological
    ordering, using the setup telescope selected for each target.
-6. `AppController` exposes the centralized blocking state to QML.
-7. QML presents the plan, a global "Sessione da monitorare" warning with a
+7. `AppController` exposes the centralized blocking state to QML.
+8. QML presents the plan, a global "Sessione da monitorare" warning with a
    potential observing window, or a full "Sessione sconsigliata" warning when
    no useful window is expected.
 
@@ -700,7 +714,10 @@ Catalogue browsing flow:
    `catalogues` and `designations`; selecting a catalogue projects its code
    without changing `object_id`.
 3. `ObjectCataloguePage.qml` applies controller-backed search and filters for
-   catalogue, object type, constellation and observation type.
+   catalogue, object type, constellation and observation type. Its compact
+   `Home` checkbox changes the persistent recommendation preference without
+   removing the row for Messier, Caldwell and future NGC targets. Solar System
+   S1-S9 rows show the same checkbox checked and locked.
    Exact search matches are ordered before prefix and substring matches, so a
    growing catalogue does not hide a direct body/name match among aliases.
 4. `selectCatalogueObject` resolves the catalogue object and creates a

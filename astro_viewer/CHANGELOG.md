@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Aggiunta al catalogo Oggetti celesti la colonna compatta `Home`: i 219
+  oggetti Messier e Caldwell sono attivi per impostazione iniziale, restano
+  modificabili e salvano ogni scelta nel database locale; i 9 oggetti del
+  Sistema Solare S1-S9 sono invece sempre selezionati e non disattivabili. Un
+  oggetto modificabile disattivato resta consultabile nel catalogo ma viene
+  escluso, prima di qualsiasi calcolo derivato, da configurazioni Equipment,
+  Home, Best Object, Planner e Sky Compass. Lo schema SQLite passa alla
+  versione 18 mantenendo gli override utente separati dai valori predefiniti
+  del seed e predisponendo lo stesso contratto per il futuro catalogo NGC.
 - Ridisegnata la schermata di preparazione al primo avvio: i testi sono ora in
   inglese e quattro step distinti mostrano database, cataloghi locali, servizi
   applicativi e caricamento dell'interfaccia. L'avanzamento resta monotono,

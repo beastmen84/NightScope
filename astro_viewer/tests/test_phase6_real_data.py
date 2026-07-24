@@ -6,6 +6,7 @@ import re
 import tempfile
 import unittest
 from contextlib import closing
+from dataclasses import replace
 from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -1044,6 +1045,25 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("&& controller.catalogueVisibleThisMonthFilter", object_catalogue_qml)
         self.assertIn("controller.setCatalogueMonth(currentIndex + 1)", object_catalogue_qml)
         self.assertIn("controller.setCatalogueVisibleThisMonthFilter(checked)", object_catalogue_qml)
+        self.assertIn(
+            "controller.setCatalogueRecommendationEnabled(",
+            object_catalogue_qml,
+        )
+        self.assertIn(
+            "itemData.recommendation_enabled === true",
+            object_catalogue_qml,
+        )
+        self.assertIn(
+            "row.itemData.recommendation_editable === true",
+            object_catalogue_qml,
+        )
+        self.assertIn(
+            'qsTr("Sempre incluso nei suggerimenti automatici")',
+            object_catalogue_qml,
+        )
+        self.assertIn('text: qsTr("Home")', object_catalogue_qml)
+        self.assertIn("Layout.preferredWidth: 56", object_catalogue_qml)
+        self.assertNotIn("Suggerisci in Home", object_catalogue_qml)
         self.assertIn('text: qsTr("Visibili nel mese")', object_catalogue_qml)
         self.assertNotIn('FilterLabel { text: qsTr("Mese") }', object_catalogue_qml)
         self.assertLess(object_catalogue_qml.index("id: visibleThisMonthFilter"), object_catalogue_qml.index("id: monthFilter"))
@@ -1312,9 +1332,121 @@ class Phase6RealDataTests(unittest.TestCase):
                 "recommended_observation_type",
                 "recommended_observation_type_label",
                 "type_label",
+                "recommendation_enabled_by_default",
+                "recommendation_enabled",
+                "recommendation_editable",
                 "description",
             }
             self.assertTrue(required_fields.issubset(messier_objects[0]))
+            self.assertTrue(
+                all(item["recommendation_enabled"] for item in objects)
+            )
+            self.assertTrue(
+                all(
+                    item["recommendation_editable"]
+                    for item in objects
+                    if item["catalogue"] in {"Messier", "Caldwell"}
+                )
+            )
+
+    def test_catalogue_toggle_keeps_target_in_catalogue_but_removes_all_suggestions(
+        self,
+    ) -> None:
+        with _controller() as controller:
+            target = replace(
+                _object(
+                    "messier-M31",
+                    "Andromeda Galaxy",
+                    "Spiral galaxy",
+                    "3.4",
+                ),
+                visible=True,
+            )
+            controller._base_solar_system_objects = []
+            controller._base_deep_sky = [target]
+            _set_profile_equipment(
+                controller,
+                telescopes=[
+                    Telescope(
+                        "test-scope",
+                        "Test Newton 150/750",
+                        150,
+                        750,
+                        "Newton",
+                        "manuale",
+                    )
+                ],
+            )
+            controller._selected_object = target
+            controller._selected_object_source = "observing"
+            controller._weather_summary = WeatherSummary(
+                "Buono",
+                80,
+                "",
+                10,
+                0,
+                5,
+                55,
+                18.0,
+                "",
+            )
+            controller._observing_night_window = _test_night_window()
+            controller._refresh_equipment_recommendations_for_current_objects()
+            controller._deep_sky = controller._apply_deep_sky_pollution_context(
+                controller._deep_sky
+            )
+            controller._recalculate_observing_outputs()
+
+            self.assertEqual([item.id for item in controller._deep_sky], [target.id])
+            self.assertEqual(controller._best_object.id, target.id)
+            self.assertEqual(
+                [item.object_id for item in controller._night_plan],
+                [target.id],
+            )
+            self.assertEqual(
+                [item.id for item in controller._sky_compass_candidate_snapshot],
+                [target.id],
+            )
+            self.assertIn(
+                target.id,
+                controller._equipment_setup_read_models_by_object_id,
+            )
+
+            controller.setCatalogueRecommendationEnabled(target.id, False)
+
+            catalogue_item = controller._catalogue_item_for_object_id(target.id)
+            self.assertIsNotNone(catalogue_item)
+            assert catalogue_item is not None
+            self.assertFalse(catalogue_item["recommendation_enabled"])
+            self.assertEqual([item.id for item in controller._base_deep_sky], [target.id])
+            self.assertEqual(controller._deep_sky, [])
+            self.assertEqual(controller.recommendedDeepSky, [])
+            self.assertIsNone(controller._best_object)
+            self.assertEqual(controller._night_plan, [])
+            self.assertEqual(controller._sky_compass_candidate_snapshot, [])
+            self.assertNotIn(
+                target.id,
+                controller._equipment_setup_read_models_by_object_id,
+            )
+            self.assertIsNone(controller._selected_object)
+            self.assertFalse(
+                controller._catalogue_repository.get_by_object_id(target.id)[
+                    "recommendation_enabled"
+                ]
+            )
+
+            controller.selectCatalogueObject(target.id)
+            self.assertEqual(controller.selectedObject["id"], target.id)
+            self.assertTrue(controller.selectedObject["catalogueObject"])
+            self.assertEqual(controller._selected_object_source, "catalogue")
+
+            controller.setCatalogueRecommendationEnabled(target.id, True)
+            self.assertEqual([item.id for item in controller._deep_sky], [target.id])
+            self.assertTrue(
+                controller._catalogue_item_for_object_id(target.id)[
+                    "recommendation_enabled"
+                ]
+            )
 
     def test_catalogue_includes_solar_system_objects(self) -> None:
         with _controller() as controller:
@@ -1351,6 +1483,45 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(
                 {item["type"] for item in solar_objects},
                 {"Stella", "Satellite naturale", "Pianeta"},
+            )
+            self.assertTrue(
+                all(item["recommendation_enabled"] for item in solar_objects)
+            )
+            self.assertTrue(
+                all(
+                    not item["recommendation_editable"]
+                    for item in solar_objects
+                )
+            )
+
+    def test_solar_catalogue_recommendation_is_locked_and_always_admitted(
+        self,
+    ) -> None:
+        with _controller() as controller:
+            preferences_before = (
+                controller._catalogue_repository.recommendation_preferences()
+            )
+
+            controller.setCatalogueRecommendationEnabled("S5", False)
+
+            mars_item = controller._catalogue_item_for_object_id("mars")
+            self.assertIsNotNone(mars_item)
+            assert mars_item is not None
+            self.assertTrue(mars_item["recommendation_enabled"])
+            self.assertFalse(mars_item["recommendation_editable"])
+            self.assertEqual(
+                controller._catalogue_repository.recommendation_preferences(),
+                preferences_before,
+            )
+
+            controller._base_solar_system_objects = [_planet("mars", "Marte")]
+            controller._base_deep_sky = []
+            controller._recommendation_enabled_by_object_id["mars"] = False
+            controller._refresh_equipment_recommendations_for_current_objects()
+
+            self.assertEqual(
+                [item.id for item in controller._solar_system_objects],
+                ["mars"],
             )
 
     def test_catalogue_search_by_catalogue_id_and_name(self) -> None:

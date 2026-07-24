@@ -546,7 +546,6 @@
     "Campo reale {true_field}: mantiene l'oggetto nel suo contesto stellare.": "Campo real {true_field}: mantiene el objeto en su contexto estelar.",
     "Focale e campo apparente devono essere maggiori di zero.": "La distancia focal y el campo aparente deben ser mayores que cero.",
     "Telescopio attivo senza oculari: suggerimenti limitati. Aggiungi oculari per calcoli completi.": "Telescopio activo sin oculares: sugerencias limitadas. Añada oculares para realizar los cálculos completos.",
-    "Preparazione cataloghi e dati locali.": "Preparando catálogos y datos locales.",
     "Impossibile inizializzare il database locale.\n\nVerifica i permessi della cartella dell'applicazione e riavvia NightScope.": "No se pudo inicializar la base de datos local.\n\nCompruebe los permisos de la carpeta de la aplicación y reinicie NightScope.",
     "Credenziali salvate nel vault di sistema": "Credenciales guardadas en el almacén del sistema",
     "API key salvata nel vault di sistema": "Clave API guardada en el almacén del sistema",
@@ -666,6 +665,11 @@
     },
     "CalendarPage": {
       "Eclissi": "Eclipses"
+    },
+    "ObjectCataloguePage": {
+      "Home": "Inicio",
+      "Includi nei suggerimenti automatici": "Incluir en las sugerencias automáticas",
+      "Sempre incluso nei suggerimenti automatici": "Siempre incluido en las sugerencias automáticas"
     }
   }
 }

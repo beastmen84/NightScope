@@ -51,6 +51,30 @@ class RefreshManagerTest(unittest.TestCase):
         self.assertFalse(manager.is_dirty(RefreshDomain.AIR_QUALITY))
         self.assertFalse(manager.is_dirty(RefreshDomain.AOD))
 
+    def test_catalogue_recommendation_change_refreshes_only_suggestion_consumers(
+        self,
+    ) -> None:
+        manager = RefreshManager()
+
+        affected = manager.mark_dirty(
+            RefreshReason.CATALOGUE_RECOMMENDATION_CHANGED
+        )
+
+        self.assertEqual(
+            affected,
+            frozenset(
+                {
+                    RefreshDomain.CATALOG,
+                    RefreshDomain.EQUIPMENT,
+                    RefreshDomain.PLANNER,
+                    RefreshDomain.COMPASS,
+                }
+            ),
+        )
+        self.assertFalse(manager.is_dirty(RefreshDomain.ASTRONOMY))
+        self.assertFalse(manager.is_dirty(RefreshDomain.WEATHER))
+        self.assertFalse(manager.is_dirty(RefreshDomain.SKY_QUALITY))
+
     def test_live_tick_is_reserved_for_compass_only(self) -> None:
         manager = RefreshManager()
 
