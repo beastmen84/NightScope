@@ -424,7 +424,7 @@ def _initialization_progress_state(message: object) -> _InitializationProgressSt
         return _InitializationProgressState(
             1,
             percent,
-            f"Importing the city catalogue - {rows:,} locations",
+            f"Importing the city catalogue - {rows:,} rows processed",
         )
     if source == "Finalizzazione...":
         return _InitializationProgressState(1, 74, "Finalizing the local catalogues...")
@@ -464,6 +464,46 @@ def _update_initialization_splash(
     splash.step_counter.setText(f"Step {state.stage + 1} of {len(splash.step_labels)}")
     _set_initialization_step_state(splash, state.stage)
     app.processEvents()
+
+
+def _close_initialization_splash_after_first_frame(
+    app,
+    splash: _InitializationSplash,
+    root_object,
+    *,
+    fallback_ms: int = 2_000,
+) -> None:
+    from PySide6.QtCore import QTimer
+
+    frame_swapped = getattr(root_object, "frameSwapped", None)
+    completed = False
+    close_scheduled = False
+
+    def close_splash() -> None:
+        nonlocal completed
+        if completed:
+            return
+        completed = True
+        if frame_swapped is not None:
+            try:
+                frame_swapped.disconnect(schedule_close)
+            except (RuntimeError, TypeError):
+                pass
+        _update_initialization_splash(app, splash, _STARTUP_READY_MESSAGE)
+        splash.dialog.close()
+
+    def schedule_close() -> None:
+        nonlocal close_scheduled
+        if completed or close_scheduled:
+            return
+        close_scheduled = True
+        QTimer.singleShot(0, splash.dialog, close_splash)
+
+    if frame_swapped is None:
+        schedule_close()
+    else:
+        frame_swapped.connect(schedule_close)
+    QTimer.singleShot(fallback_ms, splash.dialog, close_splash)
 
 
 def run_smoke_test() -> int:
@@ -575,8 +615,11 @@ def run_app() -> int:
         del engine
         return 1
     if splash:
-        _update_initialization_splash(app, splash, _STARTUP_READY_MESSAGE)
-        splash.dialog.close()
+        _close_initialization_splash_after_first_frame(
+            app,
+            splash,
+            engine.rootObjects()[0],
+        )
     QTimer.singleShot(750, update_manager.checkForUpdates)
     exit_code = app.exec()
     translation_manager.detach_engine()

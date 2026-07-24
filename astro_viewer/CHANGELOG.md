@@ -5,8 +5,9 @@
 - Ridisegnata la schermata di preparazione al primo avvio: i testi sono ora in
   inglese e quattro step distinti mostrano database, cataloghi locali, servizi
   applicativi e caricamento dell'interfaccia. L'avanzamento resta monotono,
-  riporta il numero di localita' importate e la schermata rimane visibile fino
-  a quando la UI QML e' effettivamente pronta.
+  riporta il numero di righe elaborate durante l'importazione delle localita' e
+  la schermata attende il primo frame della UI QML prima di chiudersi, con un
+  fallback di sicurezza.
 
 ## NightScope 1.41.0 - 2026-07-24
 

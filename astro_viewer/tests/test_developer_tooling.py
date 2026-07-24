@@ -320,8 +320,89 @@ def test_first_run_city_progress_is_bounded_and_readable() -> None:
 
     assert early.stage == late.stage == 1
     assert early.percent < late.percent <= 68
-    assert early.detail == "Importing the city catalogue - 500 locations"
-    assert late.detail == "Importing the city catalogue - 50,000 locations"
+    assert early.detail == "Importing the city catalogue - 500 rows processed"
+    assert late.detail == "Importing the city catalogue - 50,000 rows processed"
+
+
+def test_first_run_splash_waits_for_first_qml_frame() -> None:
+    app = Mock()
+    dialog = Mock()
+    splash = main_module._InitializationSplash(
+        dialog=dialog,
+        status=Mock(),
+        progress=Mock(),
+        step_labels=(),
+        step_counter=Mock(),
+    )
+    frame_swapped = Mock()
+    root_object = Mock(frameSwapped=frame_swapped)
+
+    with (
+        patch.object(main_module, "_update_initialization_splash") as update_splash,
+        patch("PySide6.QtCore.QTimer.singleShot") as single_shot,
+    ):
+        main_module._close_initialization_splash_after_first_frame(
+            app,
+            splash,
+            root_object,
+            fallback_ms=1_234,
+        )
+
+        dialog.close.assert_not_called()
+        frame_callback = frame_swapped.connect.call_args.args[0]
+        frame_callback()
+        immediate_close = next(
+            call.args[2] for call in single_shot.call_args_list if call.args[0] == 0
+        )
+        immediate_close()
+
+        update_splash.assert_called_once_with(
+            app,
+            splash,
+            main_module._STARTUP_READY_MESSAGE,
+        )
+        dialog.close.assert_called_once_with()
+        frame_swapped.disconnect.assert_called_once_with(frame_callback)
+        assert any(call.args[0] == 1_234 for call in single_shot.call_args_list)
+
+
+def test_first_run_splash_has_a_readiness_fallback() -> None:
+    app = Mock()
+    dialog = Mock()
+    splash = main_module._InitializationSplash(
+        dialog=dialog,
+        status=Mock(),
+        progress=Mock(),
+        step_labels=(),
+        step_counter=Mock(),
+    )
+    frame_swapped = Mock()
+    root_object = Mock(frameSwapped=frame_swapped)
+
+    with (
+        patch.object(main_module, "_update_initialization_splash") as update_splash,
+        patch("PySide6.QtCore.QTimer.singleShot") as single_shot,
+    ):
+        main_module._close_initialization_splash_after_first_frame(
+            app,
+            splash,
+            root_object,
+            fallback_ms=1_234,
+        )
+
+        fallback_close = next(
+            call.args[2]
+            for call in single_shot.call_args_list
+            if call.args[0] == 1_234
+        )
+        fallback_close()
+
+        update_splash.assert_called_once_with(
+            app,
+            splash,
+            main_module._STARTUP_READY_MESSAGE,
+        )
+        dialog.close.assert_called_once_with()
 
 
 def test_multilingual_manual_has_complete_navigation_and_current_provider_semantics() -> None:
