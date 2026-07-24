@@ -718,6 +718,9 @@ def test_translation_manager_switches_live_and_preserves_preferences(
     assert manager.setLanguage("it")
     assert QCoreApplication.translate("main", "Calendario") == "Calendario"
     assert engine.retranslate_calls == 3
+    manager.detach_engine()
+    assert manager.setLanguage("en")
+    assert engine.retranslate_calls == 3
 
 
 def test_catalogue_choices_are_sorted_after_localization(tmp_path: Path) -> None:

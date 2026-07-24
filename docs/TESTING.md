@@ -14,6 +14,15 @@ py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 ```
 
+The equivalent commands on Linux are:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -r astro_viewer/requirements.txt
+.venv/bin/python -m pip install -r requirements-dev.txt
+```
+
 `pytest-xdist` is deliberately capped at four workers by the standard runner.
 Using `-n auto` can create one heavy PySide/Skyfield worker per logical CPU and
 cause excessive memory pressure on Windows development machines.
@@ -50,6 +59,12 @@ The runner executes, in order:
 8. Backend smoke test.
 9. Normal-mode QML smoke test.
 10. Red Night Vision QML smoke test.
+
+The committed third-party archive records the exact Windows release
+environment. On Windows the gate compares it byte-for-byte with the installed
+dependency closure. On Linux and other development hosts the same generator
+must resolve every installed runtime license, but it does not compare that
+platform-specific closure with the Windows archive.
 
 Backend and QML smoke tests receive a fresh `NIGHTSCOPE_RUNTIME_DIR` and delete
 it after the subprocess exits. This developer/test-only override keeps the

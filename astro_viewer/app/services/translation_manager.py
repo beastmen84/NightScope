@@ -92,6 +92,9 @@ class TranslationManager(QObject):
     def attach_engine(self, engine) -> None:
         self._engine = engine
 
+    def detach_engine(self) -> None:
+        self._engine = None
+
     @Slot(str, result=bool)
     def setLanguage(self, language_code: str) -> bool:
         normalized = language_code.strip().lower()

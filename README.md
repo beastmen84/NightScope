@@ -188,6 +188,25 @@ python -m venv .venv
 .\.venv\Scripts\python.exe astro_viewer\main.py
 ```
 
+On Ubuntu Desktop, install the host services used by Qt, GeoClue, Secret
+Service, and the optional X11/XCB fallback:
+
+```bash
+sudo apt install python3-venv dbus-user-session geoclue-2.0 gnome-keyring \
+  libsecret-1-0 libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0 \
+  libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1
+```
+
+Then create or populate the virtual environment from the repository root:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -r astro_viewer/requirements.txt
+.venv/bin/python -m pip install -r requirements-dev.txt
+.venv/bin/python -m astro_viewer.main
+```
+
 On first start NightScope initializes its SQLite database from the packaged
 schema and seed files. This can take longer than subsequent starts.
 

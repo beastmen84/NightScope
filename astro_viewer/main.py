@@ -403,9 +403,14 @@ def run_app() -> int:
     translation_manager.attach_engine(engine)
 
     if not engine.rootObjects():
+        translation_manager.detach_engine()
+        del engine
         return 1
     QTimer.singleShot(750, update_manager.checkForUpdates)
-    return app.exec()
+    exit_code = app.exec()
+    translation_manager.detach_engine()
+    del engine
+    return exit_code
 
 
 def run_qml_smoke_test(*, red_night_vision: bool = False) -> int:
@@ -442,9 +447,13 @@ def run_qml_smoke_test(*, red_night_vision: bool = False) -> int:
     engine.load(QUrl.fromLocalFile(str(BASE_DIR / "app" / "ui" / "main.qml")))
     translation_manager.attach_engine(engine)
     if not engine.rootObjects():
+        translation_manager.detach_engine()
+        del engine
         return 1
     QTimer.singleShot(0, app.quit)
     app.exec()
+    translation_manager.detach_engine()
+    del engine
     mode = "red night vision" if red_night_vision else "normal"
     print(f"QML smoke test ok ({mode})")
     return 0

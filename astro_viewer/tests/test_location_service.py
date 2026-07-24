@@ -583,7 +583,12 @@ class LocationServiceWindowsTests(unittest.TestCase):
         )
         coarse = _FakeProvider("coarse", calls, result=coarse_result)
         ip = _FakeProvider("ip", calls, result=coarse_result)
-        service = LocationService(windows_provider=precise, windows_coarse_provider=coarse, ip_provider=ip)
+        service = LocationService(
+            windows_provider=precise,
+            windows_coarse_provider=coarse,
+            ip_provider=ip,
+            platform_capabilities=detect_platform_capabilities("win32"),
+        )
 
         result = service.detect_best_location(allow_ip=True)
 

@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import importlib.metadata
 import sys
+import sysconfig
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
@@ -186,11 +187,22 @@ def _common_license_text(filename: str) -> str:
     return path.read_text(encoding="utf-8").lstrip("\ufeff").rstrip()
 
 
+def _python_license_candidates() -> tuple[Path, ...]:
+    candidates = (
+        Path(sys.base_prefix) / "LICENSE.txt",
+        Path(sys.exec_prefix) / "LICENSE.txt",
+        Path(sysconfig.get_path("stdlib")) / "LICENSE.txt",
+    )
+    return tuple(dict.fromkeys(candidates))
+
+
 def _python_license() -> str:
-    path = Path(sys.base_prefix) / "LICENSE.txt"
-    if not path.is_file():
-        raise RuntimeError(f"Python license file not found: {path}")
-    return path.read_text(encoding="utf-8", errors="replace").rstrip()
+    candidates = _python_license_candidates()
+    for path in candidates:
+        if path.is_file():
+            return path.read_text(encoding="utf-8", errors="replace").rstrip()
+    checked_paths = ", ".join(str(path) for path in candidates)
+    raise RuntimeError(f"Python license file not found; checked: {checked_paths}")
 
 
 def render_archive() -> str:
@@ -298,6 +310,13 @@ def main() -> int:
             return 1
         current = OUTPUT_PATH.read_text(encoding="utf-8")
         if current != rendered:
+            if sys.platform != "win32":
+                print(
+                    "Installed dependency licenses are complete. Exact archive "
+                    "comparison is skipped outside Windows because the committed "
+                    "archive records the Windows release environment."
+                )
+                return 0
             print(
                 "THIRD_PARTY_LICENSES.txt is stale; regenerate it with "
                 "tools/generate_third_party_licenses.py",
