@@ -35,29 +35,38 @@ Python dalla standard library Linux e mantiene invariato il confronto esatto
 dell'archivio nell'ambiente Windows. Il gate Ruff ha ora una configurazione
 esplicita e resta stabile con le versioni 0.15 e 0.16.
 
-Il gate `tools/run_checks.py --fast` ha chiuso con `919 passed`, `1 skipped`,
+Il gate `tools/run_checks.py --fast` ha chiuso con `921 passed`, `1 skipped`,
 `642 warnings` note e `10 subtests`; smoke backend/QML, avvio reale Wayland e
 sonda XCB sono passati.
 
 `packaging/build_linux.sh` produce ora il candidate PyInstaller
-`dist/NightScope`. La dist locale `1.41.0` contiene `5.306` file per `548 MiB`;
+`dist/NightScope`. La dist locale `1.41.0` contiene `5.384` file per `550 MiB`;
 audit, backend smoke, QML Wayland normale/rosso e QML XCB sono passati. Lo spec
 include Secret Service ma non il backend keyring Windows, e i hook escludono Qt
 Virtual Keyboard e il plugin TIFF Linux irrisolvibile e non usato. L'archivio
 licenze generato nella dist copre `63` distribuzioni Python Linux, incluse
 `jeepney` e `SecretStorage`, senza sostituire l'archivio Windows committato.
 
+`tools/generate_linux_native_notices.py` usa il `COLLECT-00.toc` della stessa
+build e `dpkg` per inventariare `118` ELF di sistema, `84` pacchetti binari e
+`61` pacchetti sorgente. Il bundle contiene manifest con digest e URL sorgente,
+`61` avvisi copyright Ubuntu e `15` testi di licenza comuni. Tutti i `61` URL
+Launchpad unici sono stati verificati con HTTP 200. L'audit rifiuta file ELF
+non inventariati, entry stale, hash diversi o testi mancanti.
+
 `packaging/archive_linux.sh` ha prodotto
-`NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz` (`263.574.875` byte, `252 MiB`) e
+`NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz` (`263.798.525` byte, `252 MiB`) e
 il checksum adiacente. Due generazioni consecutive hanno mantenuto SHA-256
-`134c79f6b4dfd5101bce231477102e56beadf6b88cd5afcf88b568d81d478d60`.
+`630ec09655a441d79564d6ac6618848dcf4c68cd3fb47b8020b6236122b24673`.
 Il flusso documentato nel README (checksum, estrazione, audit e avvio) e' stato
 ripetuto da una directory temporanea pulita con backend, Wayland normale/rosso
 e XCB tutti passati.
 
-Prima di una pubblicazione Linux restano l'inventario e gli avvisi delle
-librerie ELF di sistema copiate da PyInstaller, la prova su una baseline glibc
-meno recente e la scelta del formato pubblico. Restano inoltre una prova
+Il formato pubblico scelto e' il tar gzip specifico per Ubuntu 26.04 x86-64,
+non un binario Linux universale. Va pubblicato come GitHub pre-release: una
+release stabile Linux-only verrebbe proposta dall'Update Manager anche ai
+client Windows 1.37.0. Prima della pubblicazione restano commit/tag e upload
+degli asset GitHub. Restano come prove opzionali una sessione
 interattiva save/read/delete di Secret Service e una richiesta GeoClue
 autorizzata con coordinate reali.
 

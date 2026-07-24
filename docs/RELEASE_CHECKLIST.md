@@ -10,9 +10,8 @@ source commit or a passing unit suite alone is not a release approval.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   survey image, and NASA/JPL attribution is present where required.
-- [x] Record the public NightScope source URL and exact corresponding commit for
-  the distributed MPL executable: tag `v1.33.2`, commit
-  `9c17204f718223e83183367e9ccea078805b5a00`.
+- [ ] Create and verify the public `v1.41.0` source tag referenced by the
+  portable bundles and `SOURCE_CODE.md`.
 - [ ] Confirm version number, changelog, manual revision, and About/build
   metadata agree.
 - [ ] Freeze the release scope; defer unrelated refactors.
@@ -104,10 +103,30 @@ Do not commit credentials or exact personal locations.
 - [x] Publish a SHA-256 hash with the artifact.
 - [ ] Test extraction and first launch from a normal writable user directory.
 
-## 7. Release Approval
+## 7. Linux Artifact
+
+- [x] Build on the declared Ubuntu 26.04 x86-64/glibc 2.43 baseline with
+  `packaging/build_linux.sh`.
+- [x] Generate the environment-specific Python license archive.
+- [x] Inventory every copied Ubuntu ELF with binary/source package versions,
+  bundle SHA-256, notice path and exact Launchpad source URL.
+- [x] Bundle all 61 source-package copyright notices and the 15 Debian/Ubuntu
+  common-license texts they reference.
+- [x] Verify all 61 unique exact-version Launchpad source URLs return HTTP 200.
+- [x] Reject unmanifested/stale native files, changed hashes, missing notices,
+  missing common licenses, unsupported Qt plugins and GPL-only Qt modules.
+- [x] Run backend, Wayland normal/red QML and XCB QML smoke tests against the
+  frozen executable.
+- [x] Create the deterministic
+  `NightScope-v1.41.0-ubuntu-26.04-x64.tar.gz` and adjacent SHA-256 file.
+- [x] Verify checksum, extraction, audit and smoke tests from the final archive.
+- [ ] Publish the tarball and checksum as GitHub pre-release assets so Windows
+  1.37.0 clients do not receive a Linux-only stable-update notification.
+
+## 8. Release Approval
 
 - [ ] No unresolved severity-1 or severity-2 defect.
 - [ ] Known limitations match README and manual.
 - [ ] Changelog contains only verified results.
-- [x] Git worktree is clean and release tag points to the audited commit.
+- [ ] Git worktree is clean and release tag points to the audited commit.
 - [x] Final artifact identity and hash are recorded in the release notes.

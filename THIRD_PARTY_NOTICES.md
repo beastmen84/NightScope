@@ -6,15 +6,18 @@ Public License 2.0. The complete project license is in `LICENSE`.
 Public NightScope source repository:
 `https://github.com/beastmen84/NightScope`
 
-The NightScope 1.33.2 Windows executable corresponds to source tag `v1.33.2`
-and commit `9c17204f718223e83183367e9ccea078805b5a00`:
-`https://github.com/beastmen84/NightScope/tree/v1.33.2`
+NightScope 1.41.0 portable bundles correspond to source tag `v1.41.0`:
+`https://github.com/beastmen84/NightScope/tree/v1.41.0`. The adjacent
+`SOURCE_CODE.md` gives direct source-archive links and source-availability
+instructions.
 
 This notice covers software and data redistributed with the portable Windows
-application. `THIRD_PARTY_LICENSES.txt` contains the installed Python component
-inventory and the corresponding license and copyright texts. Component names
-and trademarks remain the property of their respective owners. Inclusion does
-not imply endorsement of NightScope.
+and Linux applications. `THIRD_PARTY_LICENSES.txt` contains the installed
+Python component inventory and the corresponding license and copyright texts.
+Linux bundles additionally contain `LINUX_NATIVE_COMPONENTS.tsv` and the
+notices under `legal/linux-native` for ELF files copied from the Ubuntu build
+host. Component names and trademarks remain the property of their respective
+owners. Inclusion does not imply endorsement of NightScope.
 
 ## Qt And Qt For Python
 
@@ -25,13 +28,15 @@ used for the Qt Positioning system-location adapter. NightScope selects the
 `LGPL-3.0-only` open-source licensing option for these components. The complete
 GNU GPL 3.0 and LGPL 3.0 texts are reproduced in `THIRD_PARTY_LICENSES.txt`.
 
-The Windows application is distributed as an `onedir` bundle. Qt/PySide DLLs,
-plugins, QML modules, and Python extension modules remain separate files under
-`_internal/PySide6`; NightScope does not cryptographically lock or verify them.
+The applications are distributed as PyInstaller `onedir` bundles. Qt/PySide
+DLLs on Windows and shared objects on Linux, together with plugins, QML modules
+and Python extension modules, remain separate files under
+`_internal/PySide6`. NightScope does not cryptographically lock or verify them.
 A recipient may replace those files with compatible, relinked or modified
-versions and run `NightScope.exe`. Keep the original relative paths and binary
-names when testing a replacement. Reverse engineering for debugging such
-modifications is not prohibited by the NightScope license.
+versions and run `NightScope.exe` on Windows or `NightScope` on Linux. Keep the
+original relative paths and binary names when testing a replacement. Reverse
+engineering for debugging such modifications is not prohibited by the
+NightScope license.
 
 Corresponding upstream source and licensing information:
 
@@ -65,10 +70,29 @@ Regenerate and verify the archive in the clean release environment:
 .\.venv\Scripts\python.exe tools\generate_third_party_licenses.py --check
 ```
 
+For a Linux build, `packaging/build_linux.sh` generates the environment-specific
+archive directly inside the bundle.
+
 Because runtime dependency ranges are not yet locked, this checked-in archive
 describes the validated environment, not every version that could satisfy the
 requirements. The public release must use a locked environment or SBOM and
 regenerate this file from that environment.
+
+## Ubuntu Native Components
+
+PyInstaller copies non-glibc shared libraries and CPython extension modules
+from the Ubuntu build host when they are required by the frozen application.
+The Linux bundle records every such file in `LINUX_NATIVE_COMPONENTS.tsv`,
+including its bundle SHA-256, exact Ubuntu binary and source package versions,
+bundled notice path, and exact Launchpad source-package URL.
+
+The installed Debian/Ubuntu copyright files are reproduced under
+`legal/linux-native/<source-package>/copyright`. Canonical license texts that
+those notices reference through `/usr/share/common-licenses` are copied under
+`legal/linux-native/common-licenses`. `SOURCE_CODE.md` explains how to retrieve
+the exact recorded source versions. The Linux build and archive audit fail if a
+native file is missing from the manifest, its digest changes, or a referenced
+notice or common-license text is absent.
 
 ## Packaged Data
 

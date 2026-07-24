@@ -4,11 +4,11 @@
   <img src="astro_viewer/resources/icons/telescope.svg" width="88" alt="NightScope telescope icon">
 </p>
 
-NightScope is a Windows desktop application for planning visual astronomy
-sessions. It combines local astronomical calculations, an observer location,
-weather and sky-quality data, and the equipment in the active profile to answer
-a practical question: **what is worth observing tonight, from here, with this
-setup?**
+NightScope is a Windows and Ubuntu Linux desktop application for planning
+visual astronomy sessions. It combines local astronomical calculations, an
+observer location, weather and sky-quality data, and the equipment in the
+active profile to answer a practical question: **what is worth observing
+tonight, from here, with this setup?**
 
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
@@ -25,9 +25,10 @@ setup?**
 > separate from NSOM candidate eligibility. System location now
 > uses the existing providers on Windows and GeoClue 2 on Linux; the Windows
 > provider order and fallback behavior remain unchanged.
-> Source execution and a local portable PyInstaller bundle are validated on
-> Ubuntu 26.04 LTS with GNOME/Wayland and the X11/XCB fallback; a public Linux
-> archive or installer remains a separate release target.
+> Source execution and the portable PyInstaller release bundle are validated
+> on Ubuntu 26.04 LTS with GNOME/Wayland and the X11/XCB fallback. The Linux
+> archive is architecture- and glibc-baseline-specific rather than a universal
+> Linux installer.
 > The published Windows bundle passes automated legal,
 > Qt, backend, and QML checks; its packaged visual and live-provider release
 > matrices are not complete yet.
@@ -36,6 +37,11 @@ Current Windows package:
 [NightScope 1.37.0](https://github.com/beastmen84/NightScope/releases/tag/v1.37.0).
 Its release notes identify the corresponding source commit and publish the
 SHA-256 digest of the portable ZIP.
+
+Current Linux pre-release package:
+[NightScope 1.41.0](https://github.com/beastmen84/NightScope/releases/tag/v1.41.0).
+Its portable tarball targets Ubuntu 26.04 x86-64; the release includes an
+adjacent SHA-256 file.
 
 ## What It Does
 
@@ -170,14 +176,15 @@ before replacing or moving a development build.
 
 ## Requirements
 
-- Windows 10 or Windows 11 for the current distributed application.
+- Windows 10 or Windows 11 for the Windows portable application.
+- Ubuntu Desktop 26.04 x86-64 for the current Linux portable application.
 - Python 3.12 or newer for source development.
-- A writable checkout or extracted portable application directory.
+- A writable checkout for source development; the Windows portable application
+  also stores its runtime files beside the executable.
 
-Linux source execution and the locally built portable bundle additionally
-require a desktop D-Bus session and a Secret Service implementation for
-credential storage. The published application remains Windows-focused; no
-Linux installer or public Linux archive has been released yet.
+Linux source execution and the portable bundle additionally require a desktop
+D-Bus session. GeoClue and a Secret Service implementation enable automatic
+system location and secure credential storage respectively.
 
 ## Install The Portable Linux Bundle
 
@@ -207,6 +214,12 @@ and OpenAQ credentials. NightScope can still start when either desktop service
 is unavailable, but the corresponding integration is disabled. Runtime data
 uses the XDG directories documented above and is not written into the extracted
 application directory.
+
+The archive includes NightScope's MPL license, Python/Qt third-party licenses,
+the exact NightScope and Qt source links, and an audited manifest of native
+Ubuntu libraries. `LINUX_NATIVE_COMPONENTS.tsv` maps each bundled system ELF
+file to its exact binary/source package version, SHA-256, Launchpad source page,
+and notice under `legal/linux-native`.
 
 ## Run From Source
 
@@ -277,8 +290,10 @@ From the repository root:
 
 PyInstaller writes the portable application to `dist/NightScope`. The build
 script copies the project notices, generates the installed Linux Python
-dependency license archive, and runs the platform-aware Qt/data/runtime-state
-audit. Create the deterministic release-candidate archive and checksum with:
+dependency license archive, inventories every copied Ubuntu ELF file, bundles
+the matching Debian/Ubuntu copyright and common-license texts, and runs the
+platform-aware Qt/data/runtime-state/legal audit. Create the deterministic
+release archive and checksum with:
 
 ```bash
 ./packaging/archive_linux.sh
@@ -297,9 +312,8 @@ NIGHTSCOPE_RUNTIME_DIR=/tmp/nightscope-dist-smoke \
 
 The bundle is native to the Linux architecture and glibc baseline on which it
 is built. It is not an AppImage, Flatpak, Snap, Debian package, or universal
-Linux binary. Before public redistribution, inventory the system ELF libraries
-copied by PyInstaller and their notices, and validate the bundle on the oldest
-Linux/glibc baseline the release intends to support.
+Linux binary. `tools/audit_qt_bundle.py` rejects an unmanifested native library,
+a changed digest, or a missing copyright/common-license text before archiving.
 
 ## Build For Windows
 

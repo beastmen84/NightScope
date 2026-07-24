@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import logging
 import re
 import sys
@@ -16,11 +17,14 @@ from astro_viewer.app.services.logging_service import (
     configure_logging,
 )
 from tools.audit_qt_bundle import (
+    LINUX_NATIVE_MANIFEST,
+    LINUX_NATIVE_MANIFEST_FIELDS,
     REQUIRED_DATA_FILES,
     REQUIRED_DLLS,
     REQUIRED_LINUX_LIBRARIES,
     audit_bundle,
 )
+from tools.generate_linux_native_notices import read_collected_system_binaries
 from tools.generate_third_party_licenses import render_archive
 from tools.run_checks import Check, _checks, _run_check
 from tools.translation_provider import (
@@ -33,6 +37,22 @@ from tools.translation_provider import (
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+REQUIRED_RELEASE_LEGAL_FILES = (
+    "LICENSE",
+    "SOURCE_CODE.md",
+    "THIRD_PARTY_LICENSES.txt",
+    "THIRD_PARTY_NOTICES.md",
+)
+
+
+def _create_release_legal_files(bundle_dir: Path, *, linux: bool = False) -> None:
+    for filename in REQUIRED_RELEASE_LEGAL_FILES:
+        (bundle_dir / filename).touch()
+    if linux:
+        (bundle_dir / LINUX_NATIVE_MANIFEST).write_text(
+            "\t".join(LINUX_NATIVE_MANIFEST_FIELDS) + "\n",
+            encoding="utf-8",
+        )
 
 
 class _ManualStructureParser(HTMLParser):
@@ -362,7 +382,7 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
 
     assert readme.startswith("# NightScope\n")
-    assert "Windows desktop application" in readme
+    assert "Windows and Ubuntu Linux desktop application" in readme
     assert "pre-release" in readme
     assert "docs/RELEASE_CANDIDATE_REVIEW.md" in readme
     assert "docs/RELEASE_CHECKLIST.md" in readme
@@ -383,6 +403,7 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
 def test_source_version_matches_current_release_documents() -> None:
     version = (PROJECT_ROOT / "VERSION").read_text(encoding="utf-8").strip()
     readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+    source_notice = (PROJECT_ROOT / "SOURCE_CODE.md").read_text(encoding="utf-8")
     changelog = (PROJECT_ROOT / "astro_viewer" / "CHANGELOG.md").read_text(
         encoding="utf-8"
     )
@@ -392,6 +413,8 @@ def test_source_version_matches_current_release_documents() -> None:
 
     assert re.fullmatch(r"\d+\.\d+\.\d+", version)
     assert f"Source version {version}" in readme
+    assert f"NightScope {version}" in source_notice
+    assert f"/v{version}" in source_notice
     assert f"## NightScope {version} -" in changelog
     assert f"Versione sorgente: `{version}`" in handoff
 
@@ -454,7 +477,12 @@ def test_linux_build_enforces_licenses_and_platform_bundle_audit() -> None:
 
     assert build_script.startswith("#!/usr/bin/env bash\n")
     assert "generate_third_party_licenses.py" in build_script
+    assert "generate_linux_native_notices.py" in build_script
+    assert "LINUX_NATIVE_COMPONENTS.tsv" in (
+        PROJECT_ROOT / "tools" / "generate_linux_native_notices.py"
+    ).read_text(encoding="utf-8")
     assert "THIRD_PARTY_LICENSES.txt" in build_script
+    assert "SOURCE_CODE.md" in build_script
     assert "PyInstaller --clean --noconfirm" in build_script
     assert "audit_qt_bundle.py" in build_script
     assert "--platform linux" in build_script
@@ -490,8 +518,7 @@ def test_qt_bundle_audit_rejects_gpl_only_modules(tmp_path: Path) -> None:
         (tmp_path / filename).touch()
     for filename in REQUIRED_DATA_FILES:
         (tmp_path / filename).touch()
-    for filename in ("LICENSE", "THIRD_PARTY_LICENSES.txt", "THIRD_PARTY_NOTICES.md"):
-        (tmp_path / filename).touch()
+    _create_release_legal_files(tmp_path)
 
     assert audit_bundle(tmp_path) == []
 
@@ -529,8 +556,7 @@ def test_qt_bundle_audit_accepts_linux_libraries_and_rejects_plugins(
         (tmp_path / filename).touch()
     for filename in REQUIRED_DATA_FILES:
         (tmp_path / filename).touch()
-    for filename in ("LICENSE", "THIRD_PARTY_LICENSES.txt", "THIRD_PARTY_NOTICES.md"):
-        (tmp_path / filename).touch()
+    _create_release_legal_files(tmp_path, linux=True)
 
     assert audit_bundle(tmp_path, platform_name="linux") == []
 
@@ -554,13 +580,90 @@ def test_qt_bundle_audit_accepts_linux_libraries_and_rejects_plugins(
     assert "unsupported Linux Qt plugins" in errors[1]
 
 
+def test_linux_native_manifest_covers_files_hashes_and_common_licenses(
+    tmp_path: Path,
+) -> None:
+    for filename in REQUIRED_LINUX_LIBRARIES:
+        (tmp_path / filename).touch()
+    for filename in REQUIRED_DATA_FILES:
+        (tmp_path / filename).touch()
+    _create_release_legal_files(tmp_path, linux=True)
+
+    native_file = tmp_path / "_internal" / "libexample.so.1"
+    native_file.parent.mkdir()
+    native_file.write_bytes(b"native-library")
+
+    errors = audit_bundle(tmp_path, platform_name="linux")
+    assert errors == [
+        "unmanifested Linux native files: _internal/libexample.so.1"
+    ]
+
+    notice_path = Path("legal/linux-native/example/copyright")
+    notice_file = tmp_path / notice_path
+    notice_file.parent.mkdir(parents=True)
+    notice_file.write_text(
+        "See /usr/share/common-licenses/LGPL-2.1\n",
+        encoding="utf-8",
+    )
+    digest = hashlib.sha256(native_file.read_bytes()).hexdigest()
+    (tmp_path / LINUX_NATIVE_MANIFEST).write_text(
+        "\t".join(LINUX_NATIVE_MANIFEST_FIELDS)
+        + "\n"
+        + "\t".join(
+            (
+                "_internal/libexample.so.1",
+                digest,
+                "libexample1:amd64",
+                "1.0-1",
+                "example",
+                "1.0-1",
+                notice_path.as_posix(),
+                "https://launchpad.net/ubuntu/+source/example/1.0-1",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    errors = audit_bundle(tmp_path, platform_name="linux")
+    assert errors == ["missing Linux native common-license texts: LGPL-2.1"]
+
+    common_license = tmp_path / "legal/linux-native/common-licenses/LGPL-2.1"
+    common_license.parent.mkdir(parents=True)
+    common_license.touch()
+    assert audit_bundle(tmp_path, platform_name="linux") == []
+
+
+def test_linux_native_generator_reads_only_system_collected_binaries(
+    tmp_path: Path,
+) -> None:
+    collect_toc = tmp_path / "COLLECT-00.toc"
+    collect_toc.write_text(
+        repr(
+            (
+                [
+                    ("libexample.so.1", "/usr/lib/libexample.so.1", "BINARY"),
+                    ("wheel.so", "/venv/site-packages/wheel.so", "BINARY"),
+                    ("data.txt", "/usr/share/example/data.txt", "DATA"),
+                ],
+            )
+        ),
+        encoding="utf-8",
+    )
+
+    binaries = read_collected_system_binaries(collect_toc)
+
+    assert len(binaries) == 1
+    assert binaries[0].bundle_path.as_posix() == "_internal/libexample.so.1"
+    assert binaries[0].source_path == Path("/usr/lib/libexample.so.1")
+
+
 def test_qt_bundle_audit_rejects_runtime_state(tmp_path: Path) -> None:
     for filename in REQUIRED_DLLS:
         (tmp_path / filename).touch()
     for filename in REQUIRED_DATA_FILES:
         (tmp_path / filename).touch()
-    for filename in ("LICENSE", "THIRD_PARTY_LICENSES.txt", "THIRD_PARTY_NOTICES.md"):
-        (tmp_path / filename).touch()
+    _create_release_legal_files(tmp_path)
 
     (tmp_path / "nightscope.db").touch()
     (tmp_path / "nightscope.db.backup").touch()

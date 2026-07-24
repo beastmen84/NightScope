@@ -6,7 +6,12 @@ $Spec = Join-Path $PSScriptRoot "NightScope.spec"
 $DistDir = Join-Path $Root "dist\NightScope"
 $LicenseCheck = Join-Path $Root "tools\generate_third_party_licenses.py"
 $QtBundleAudit = Join-Path $Root "tools\audit_qt_bundle.py"
-$LegalFiles = @("LICENSE", "THIRD_PARTY_NOTICES.md", "THIRD_PARTY_LICENSES.txt")
+$LegalFiles = @(
+    "LICENSE",
+    "SOURCE_CODE.md",
+    "THIRD_PARTY_NOTICES.md",
+    "THIRD_PARTY_LICENSES.txt"
+)
 
 if (-not (Test-Path $Python)) {
     throw "Python venv not found at $Python"

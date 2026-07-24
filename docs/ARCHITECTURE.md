@@ -29,7 +29,13 @@ NightScope is organized around a small desktop application package:
   catalogues for the Italian source UI and the English UI translation.
 - `astro_viewer/tests`: unittest/pytest-compatible regression tests.
 - `astro_viewer/tools`: one-off import, validation and packaging-support tools.
-- `packaging`: PyInstaller spec, hooks and Windows/Linux build scripts.
+- `packaging`: PyInstaller spec, hooks, platform build scripts and the
+  deterministic Linux release-archive script.
+- `tools/audit_qt_bundle.py`: cross-platform Qt, data, runtime-state and legal
+  bundle gate.
+- `tools/generate_linux_native_notices.py`: maps system binaries from the
+  PyInstaller COLLECT manifest to installed Ubuntu packages, exact source
+  versions and bundled copyright/license texts.
 - `tools/update_translations.ps1`: deterministic QML extraction, catalogue
   completeness validation and `.qm` compilation.
 
