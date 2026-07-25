@@ -255,6 +255,11 @@ Current runtime status for `1.27.0`:
   only when provider-quality gates pass.
 - Equipment remains setup-local; its current score is not replaced by an NSOM
   scalar, but ObserverCapability boundaries are explicit.
+- Astronomy cameras and camera bodies are catalogue-only in schema 20. Their
+  sensor/capture fields are not assigned to profiles and do not enter
+  `EquipmentService`, ObserverCapability, Planner, Home, Sky Compass or NSOM.
+  Their controller refresh is targeted to the two camera catalogues and does
+  not rebuild the active-profile setup.
 - Filters and focal reducers are persistent profile inventory. Separate
   presentation services can feed the score-free observing-detail read model,
   but neither accessory enters `EquipmentService`, ObserverCapability, setup
@@ -520,10 +525,13 @@ Important pages:
 - `ObjectDetailPage.qml`: selected object detail and setup alternatives.
 - `EquipmentProfilesPage.qml`, `EquipmentTelescopesPage.qml`,
   `EquipmentOpticsPage.qml`, `EquipmentBinocularsPage.qml` and
-  `EquipmentFiltersReducersPage.qml`: profile and equipment management. Seeded
-  rows expose edit but not delete actions; repository protection enforces the
-  delete boundary outside QML, while persisted user overrides prevent later
-  seed refreshes from replacing corrected values.
+  `EquipmentFiltersReducersPage.qml`: profile and visual-equipment management.
+  Seeded rows expose edit but not delete actions; repository protection
+  enforces the delete boundary outside QML, while persisted user overrides
+  prevent later seed refreshes from replacing corrected values.
+- `EquipmentCamerasPage.qml`: two-column catalogue for astronomy cameras and
+  interchangeable-lens camera bodies. Schema 20 deliberately gives these rows
+  no profile association and no visual-recommendation consumer.
 - `LocationPage.qml`, `WeatherPage.qml`, `CalendarPage.qml`,
   `EventDetailPage.qml`: location, weather, calendar list and calendar event
   detail workflows. `WeatherPage.qml` presents AOD/OpenAQ as condition data
@@ -540,6 +548,7 @@ Important pages:
 - Moon summary,
 - visible planet/deep-sky lists,
 - active profile equipment snapshot,
+- astronomy-camera and camera-body catalogue snapshots,
 - filter/reducer catalogue and assignment snapshots,
 - sky quality, seeing/transparency and NSOM category scores,
 - night plan and Sky Compass,
@@ -658,20 +667,24 @@ Repositories own SQLite persistence:
 - `CatalogueRepository`: physical catalogue targets, their designations and
   persistent per-object recommendation-eligibility overrides. Batch preference
   changes validate every requested identity before one SQLite transaction.
-- `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter
-  and focal-reducer CRUD plus profile assignments. Every catalogue row exposes
-  `is_builtin`, `seed_key` and `is_user_modified`; seeded rows can be updated
-  but not deleted, while user rows can be managed after their profile links are
-  handled. Updating a seeded row marks it as user-modified so bootstrap keeps
-  the override. Each equipment CSV owns an explicit immutable `seed_key`,
-  independent from mutable brand, model and technical fields. Bootstrap and
-  reducer-telescope compatibility resolve rows by that identifier, so a seed
-  correction updates the original row and its links instead of creating a
-  duplicate. If the corrected natural identity is already owned by a custom
-  row, the custom row is preserved and that conflicting seed update is skipped.
-  For direct upgrades from schemas without these identifiers, bootstrap uses
-  the historical built-in identity once to attach the matching explicit key;
-  normal reseeding never derives ownership from mutable display fields.
+- `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter,
+  focal-reducer, astronomy-camera and camera-body CRUD. Visual equipment keeps
+  its profile assignments; the two camera catalogues intentionally have none.
+  Every catalogue row exposes `is_builtin`, `seed_key` and `is_user_modified`;
+  seeded rows can be updated but not deleted, while user rows can be managed
+  after any applicable profile links are handled. Updating a seeded row marks
+  it as user-modified so bootstrap keeps the override. Each equipment CSV owns
+  an explicit immutable `seed_key`, independent from mutable brand, model and
+  technical fields. Bootstrap and reducer-telescope compatibility resolve rows
+  by that identifier, so a seed correction updates the original row and its
+  links instead of creating a duplicate. If the corrected natural identity is
+  already owned by a custom row, the custom row is preserved and that
+  conflicting seed update is skipped. For direct upgrades from schemas without
+  these identifiers, bootstrap uses the historical built-in identity once to
+  attach the matching explicit key; normal reseeding never derives ownership
+  from mutable display fields. Telescope mount input is a controlled code
+  taxonomy; its visual tracking projection preserves legacy coefficients while
+  retaining finer capability distinctions for future imaging logic.
   Connections enable SQLite foreign keys, usage counts operate on distinct
   valid profiles and reducer rows expose normalized exact telescope
   compatibility where available.

@@ -218,6 +218,56 @@ CREATE TABLE IF NOT EXISTS BinocularCatalog (
     UNIQUE (brand, model, magnification, objective_diameter_mm)
 );
 
+CREATE TABLE IF NOT EXISTS AstronomyCameraCatalog (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    brand TEXT NOT NULL,
+    model TEXT NOT NULL,
+    camera_class TEXT NOT NULL,
+    sensor_model TEXT NOT NULL,
+    sensor_technology TEXT NOT NULL,
+    color_mode TEXT NOT NULL,
+    sensor_width_mm REAL NOT NULL,
+    sensor_height_mm REAL NOT NULL,
+    resolution_width_px INTEGER NOT NULL,
+    resolution_height_px INTEGER NOT NULL,
+    pixel_size_um REAL NOT NULL,
+    bit_depth INTEGER NOT NULL,
+    max_fps REAL,
+    cooled INTEGER NOT NULL DEFAULT 0,
+    cooling_delta_c REAL,
+    shutter_type TEXT NOT NULL,
+    backfocus_mm REAL,
+    source_url TEXT,
+    is_builtin INTEGER NOT NULL DEFAULT 0,
+    seed_key TEXT,
+    is_user_modified INTEGER NOT NULL DEFAULT 0,
+    UNIQUE (brand, model)
+);
+
+CREATE TABLE IF NOT EXISTS CameraBodyCatalog (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    brand TEXT NOT NULL,
+    model TEXT NOT NULL,
+    body_type TEXT NOT NULL,
+    sensor_format TEXT NOT NULL,
+    lens_mount TEXT NOT NULL,
+    sensor_width_mm REAL NOT NULL,
+    sensor_height_mm REAL NOT NULL,
+    resolution_width_px INTEGER NOT NULL,
+    resolution_height_px INTEGER NOT NULL,
+    raw_bit_depth INTEGER NOT NULL,
+    max_video_width_px INTEGER,
+    max_video_height_px INTEGER,
+    max_video_fps REAL,
+    live_view INTEGER NOT NULL DEFAULT 1,
+    bulb_mode INTEGER NOT NULL DEFAULT 1,
+    source_url TEXT,
+    is_builtin INTEGER NOT NULL DEFAULT 0,
+    seed_key TEXT,
+    is_user_modified INTEGER NOT NULL DEFAULT 0,
+    UNIQUE (brand, model)
+);
+
 CREATE TABLE IF NOT EXISTS FilterCatalog (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     brand TEXT NOT NULL,

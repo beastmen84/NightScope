@@ -307,6 +307,14 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
+                        text: qsTr("Cameras")
+                        iconSource: appController.assetBaseUrl + "/resources/icons/equipment.svg"
+                        selected: window.currentPage === "equipmentCameras"
+                        onClicked: window.currentPage = "equipmentCameras"
+                    }
+
+                    NavButton {
+                        Layout.fillWidth: true
                         text: qsTr("Filtri e riduttori")
                         iconSource: appController.assetBaseUrl + "/resources/icons/equipment.svg"
                         selected: window.currentPage === "equipmentFiltersReducers"
@@ -508,6 +516,7 @@ ApplicationWindow {
                 if (window.currentPage === "objectCatalogue") return objectCataloguePage
                 if (window.currentPage === "equipmentTelescopes") return equipmentTelescopesPage
                 if (window.currentPage === "equipmentOptics") return equipmentOpticsPage
+                if (window.currentPage === "equipmentCameras") return equipmentCamerasPage
                 if (window.currentPage === "equipmentFiltersReducers") return equipmentFiltersReducersPage
                 if (window.currentPage === "equipmentBinoculars") return equipmentBinocularsPage
                 return homePage
@@ -627,6 +636,13 @@ ApplicationWindow {
     Component {
         id: equipmentOpticsPage
         EquipmentOpticsPage {
+            controller: appController
+        }
+    }
+
+    Component {
+        id: equipmentCamerasPage
+        EquipmentCamerasPage {
             controller: appController
         }
     }

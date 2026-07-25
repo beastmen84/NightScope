@@ -75,7 +75,8 @@ authoritative.
 
 `telescope_catalog_seed.csv`, `eyepiece_catalog_seed.csv`,
 `barlow_catalog_seed.csv`, `binocular_catalog_seed.csv`,
-`filter_catalog_seed.csv`, `reducer_catalog_seed.csv` and
+`filter_catalog_seed.csv`, `reducer_catalog_seed.csv`,
+`astronomy_camera_catalog_seed.csv`, `camera_body_catalog_seed.csv` and
 `reducer_telescope_compatibility_seed.csv` are the canonical seed source for
 equipment catalogs. Runtime bootstrap reads these CSVs directly; equipment
 seed rows are not hardcoded in Python. Every catalogue row owns an explicit,
@@ -115,6 +116,42 @@ against current manufacturer catalog pages and manuals. Primary references:
   `https://support.williamoptics.com/guides/flattener-back-focus-adjustment`
 - Sky-Watcher matched ED reducers:
   `https://www.skywatcher.com/series/imaging-accessories/`
+
+The camera catalogues were assembled from official manufacturer specifications
+on 2026-07-25. The astronomy-camera seed contains 17 representative cooled and
+uncooled, color and monochrome models from ZWO, QHYCCD, Player One Astronomy
+and Atik. The camera-body seed contains 15 mirrorless and DSLR models from
+Canon, Nikon, Sony, Fujifilm, Panasonic, OM System and Pentax. Every row keeps
+its exact official product or specification URL; primary manufacturer
+collections include:
+
+- ZWO, QHYCCD, Player One Astronomy and Atik:
+  `https://www.zwoastro.com/`, `https://www.qhyccd.com/`,
+  `https://player-one-astronomy.com/` and
+  `https://www.atik-cameras.com/`
+- Canon, Nikon and Sony:
+  `https://www.usa.canon.com/cameras/eos`,
+  `https://www.nikonusa.com/c/cameras` and
+  `https://electronics.sony.com/imaging/interchangeable-lens-cameras/`
+- Fujifilm, Panasonic, OM System and Pentax:
+  `https://www.fujifilm-x.com/global/products/cameras/`,
+  `https://shop.panasonic.com/pages/cameras-camcorders`,
+  `https://explore.omsystem.com/` and
+  `https://us.ricoh-imaging.com/product-category/cameras/`
+
+Only stable fields needed by a later imaging engine are modeled: physical
+sensor size, pixel pitch or derived pixel pitch, resolution, bit depth, sensor
+and shutter type, cooling, frame rate, live view, Bulb support, lens mount and
+source URL. Cameras are catalogue-only in schema 20: there are no profile
+association tables and no visual recommendation consumer.
+
+Telescope mount values are normalized to stable codes covering optical-tube
+only, manual/GoTo/PushTo alt-azimuth, manual/tracking equatorial, GoTo fork and
+manual/GoTo/PushTo Dobsonian configurations. Legacy seed labels are mapped to
+those codes during bootstrap; the historical generic `manuale` value maps to
+an explicit unspecified-manual compatibility code. The visual
+tracking-capability projection keeps its previous values; the finer taxonomy
+is reserved for later imaging logic.
 
 The packaged filter set contains 48 unique visual night-observation products;
 eyepiece solar filters are intentionally excluded. Barrel size is not modeled:
@@ -176,7 +213,7 @@ uses distinct `caldwell-C1` through `caldwell-C109` target IDs rather than
 inventing overlaps with Messier:
 `https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/`.
 
-The packaged
+The repository-only
 `sources/openngc-36cb178a0f69dba8bfc03a99c10512831edf1c6b-ngc.csv.gz`
 snapshot is a reproducibly compressed copy of OpenNGC's `NGC.csv` at commit
 `36cb178a0f69dba8bfc03a99c10512831edf1c6b`. Its uncompressed SHA-256 is
@@ -210,6 +247,10 @@ OpenNGC is redistributed under Creative Commons Attribution-ShareAlike 4.0
 International. The complete license is in the repository and bundles as
 `OPENNGC_LICENSE.txt`; exact provenance is also recorded in
 `sources/README.md` and `THIRD_PARTY_NOTICES.md`.
+
+Portable bundles contain the derived runtime catalogue seeds plus the required
+OpenNGC license and attribution. They intentionally do not contain the
+repository-only compressed source snapshot or its source-maintenance README.
 
 Regenerate or verify the derived seeds without network access:
 

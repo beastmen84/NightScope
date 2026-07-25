@@ -13,12 +13,13 @@ from pathlib import Path
 from typing import Callable
 
 from astro_viewer.app.models.filtering import FILTER_CLASS_CODES
+from astro_viewer.app.services.equipment_taxonomy import canonical_mount_type
 from astro_viewer.app.services.localization import content_key, tr
 
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
-SCHEMA_VERSION = 19
+SCHEMA_VERSION = 20
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 _CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
     (
@@ -99,6 +100,8 @@ REQUIRED_TABLES = {
     "EyepieceCatalog",
     "BarlowCatalog",
     "BinocularCatalog",
+    "AstronomyCameraCatalog",
+    "CameraBodyCatalog",
     "FilterCatalog",
     "ReducerCatalog",
     "ReducerTelescopeCompatibility",
@@ -123,6 +126,8 @@ SEEDED_TABLES = {
     "EyepieceCatalog": "eyepiece_catalog_seed.csv",
     "BarlowCatalog": "barlow_catalog_seed.csv",
     "BinocularCatalog": "binocular_catalog_seed.csv",
+    "AstronomyCameraCatalog": "astronomy_camera_catalog_seed.csv",
+    "CameraBodyCatalog": "camera_body_catalog_seed.csv",
     "FilterCatalog": "filter_catalog_seed.csv",
     "ReducerCatalog": "reducer_catalog_seed.csv",
     "ReducerTelescopeCompatibility": "reducer_telescope_compatibility_seed.csv",
@@ -324,6 +329,11 @@ def _build_database(
             data_dir / "barlow_catalog_seed.csv",
         )
         _seed_binocular_catalog(connection, data_dir / "binocular_catalog_seed.csv")
+        _seed_camera_catalogs(
+            connection,
+            data_dir / "astronomy_camera_catalog_seed.csv",
+            data_dir / "camera_body_catalog_seed.csv",
+        )
         _seed_filters_reducers_catalog(
             connection,
             data_dir / "filter_catalog_seed.csv",
@@ -434,6 +444,8 @@ def _migrate_database(
         ("EyepieceCatalog", "idx_eyepiece_catalog_seed_key"),
         ("BarlowCatalog", "idx_barlow_catalog_seed_key"),
         ("BinocularCatalog", "idx_binocular_catalog_seed_key"),
+        ("AstronomyCameraCatalog", "idx_astronomy_camera_catalog_seed_key"),
+        ("CameraBodyCatalog", "idx_camera_body_catalog_seed_key"),
         ("FilterCatalog", "idx_filter_catalog_seed_key"),
         ("ReducerCatalog", "idx_reducer_catalog_seed_key"),
     ):
@@ -1380,7 +1392,10 @@ def _legacy_equipment_seed_row_id(
     table_name: str,
     seed_key: str,
 ) -> int | None:
-    kind, query = _LEGACY_EQUIPMENT_SEED_SOURCES[table_name]
+    legacy_source = _LEGACY_EQUIPMENT_SEED_SOURCES.get(table_name)
+    if legacy_source is None:
+        return None
+    kind, query = legacy_source
     for row in connection.execute(query).fetchall():
         row_id, *legacy_identity = tuple(row)
         if f"{kind}::{content_key(*legacy_identity)}" == seed_key:
@@ -1507,7 +1522,7 @@ def _telescope_catalog_rows(catalog_path: Path | None) -> list[tuple]:
             int(float(row["aperture_mm"])),
             int(float(row["focal_length_mm"])),
             _optional_float(row.get("focal_ratio", "")),
-            row["mount_type"],
+            canonical_mount_type(row["mount_type"]),
             row.get("notes", ""),
             seed_key,
         )
@@ -1697,6 +1712,167 @@ def _binocular_catalog_rows(binocular_path: Path | None) -> list[tuple]:
             binocular_path,
             "binocular",
             "binocular",
+        )
+    ]
+
+
+def _seed_camera_catalogs(
+    connection: sqlite3.Connection,
+    astronomy_camera_path: Path | None = None,
+    camera_body_path: Path | None = None,
+) -> None:
+    for row in _astronomy_camera_catalog_rows(astronomy_camera_path):
+        values = row[:-1]
+        seed_key = row[-1]
+        brand, model, *_ = values
+        if not _prepare_equipment_seed_row(
+            connection,
+            "AstronomyCameraCatalog",
+            seed_key,
+            "brand = ? AND model = ?",
+            (brand, model),
+        ):
+            continue
+        connection.execute(
+            """
+            INSERT INTO AstronomyCameraCatalog (
+                brand, model, camera_class, sensor_model, sensor_technology,
+                color_mode, sensor_width_mm, sensor_height_mm,
+                resolution_width_px, resolution_height_px, pixel_size_um,
+                bit_depth, max_fps, cooled, cooling_delta_c, shutter_type,
+                backfocus_mm, source_url, is_builtin, seed_key,
+                is_user_modified
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0)
+            ON CONFLICT(seed_key) DO UPDATE SET
+                brand = excluded.brand,
+                model = excluded.model,
+                camera_class = excluded.camera_class,
+                sensor_model = excluded.sensor_model,
+                sensor_technology = excluded.sensor_technology,
+                color_mode = excluded.color_mode,
+                sensor_width_mm = excluded.sensor_width_mm,
+                sensor_height_mm = excluded.sensor_height_mm,
+                resolution_width_px = excluded.resolution_width_px,
+                resolution_height_px = excluded.resolution_height_px,
+                pixel_size_um = excluded.pixel_size_um,
+                bit_depth = excluded.bit_depth,
+                max_fps = excluded.max_fps,
+                cooled = excluded.cooled,
+                cooling_delta_c = excluded.cooling_delta_c,
+                shutter_type = excluded.shutter_type,
+                backfocus_mm = excluded.backfocus_mm,
+                source_url = excluded.source_url,
+                is_builtin = 1
+            WHERE AstronomyCameraCatalog.is_user_modified = 0
+            """,
+            values + (seed_key,),
+        )
+
+    for row in _camera_body_catalog_rows(camera_body_path):
+        values = row[:-1]
+        seed_key = row[-1]
+        brand, model, *_ = values
+        if not _prepare_equipment_seed_row(
+            connection,
+            "CameraBodyCatalog",
+            seed_key,
+            "brand = ? AND model = ?",
+            (brand, model),
+        ):
+            continue
+        connection.execute(
+            """
+            INSERT INTO CameraBodyCatalog (
+                brand, model, body_type, sensor_format, lens_mount,
+                sensor_width_mm, sensor_height_mm, resolution_width_px,
+                resolution_height_px, raw_bit_depth, max_video_width_px,
+                max_video_height_px, max_video_fps, live_view, bulb_mode,
+                source_url, is_builtin, seed_key, is_user_modified
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0)
+            ON CONFLICT(seed_key) DO UPDATE SET
+                brand = excluded.brand,
+                model = excluded.model,
+                body_type = excluded.body_type,
+                sensor_format = excluded.sensor_format,
+                lens_mount = excluded.lens_mount,
+                sensor_width_mm = excluded.sensor_width_mm,
+                sensor_height_mm = excluded.sensor_height_mm,
+                resolution_width_px = excluded.resolution_width_px,
+                resolution_height_px = excluded.resolution_height_px,
+                raw_bit_depth = excluded.raw_bit_depth,
+                max_video_width_px = excluded.max_video_width_px,
+                max_video_height_px = excluded.max_video_height_px,
+                max_video_fps = excluded.max_video_fps,
+                live_view = excluded.live_view,
+                bulb_mode = excluded.bulb_mode,
+                source_url = excluded.source_url,
+                is_builtin = 1
+            WHERE CameraBodyCatalog.is_user_modified = 0
+            """,
+            values + (seed_key,),
+        )
+
+
+def _astronomy_camera_catalog_rows(
+    astronomy_camera_path: Path | None,
+) -> list[tuple]:
+    return [
+        (
+            row["brand"],
+            row["model"],
+            row["camera_class"],
+            row["sensor_model"],
+            row["sensor_technology"],
+            row["color_mode"],
+            float(row["sensor_width_mm"]),
+            float(row["sensor_height_mm"]),
+            int(row["resolution_width_px"]),
+            int(row["resolution_height_px"]),
+            float(row["pixel_size_um"]),
+            int(row["bit_depth"]),
+            _optional_float(row.get("max_fps", "")),
+            _csv_bool(row.get("cooled", "")),
+            _optional_float(row.get("cooling_delta_c", "")),
+            row["shutter_type"],
+            _optional_float(row.get("backfocus_mm", "")),
+            row.get("source_url", ""),
+            seed_key,
+        )
+        for row, seed_key in _equipment_catalog_source_rows(
+            astronomy_camera_path,
+            "astronomy camera",
+            "astro-camera",
+        )
+    ]
+
+
+def _camera_body_catalog_rows(camera_body_path: Path | None) -> list[tuple]:
+    return [
+        (
+            row["brand"],
+            row["model"],
+            row["body_type"],
+            row["sensor_format"],
+            row["lens_mount"],
+            float(row["sensor_width_mm"]),
+            float(row["sensor_height_mm"]),
+            int(row["resolution_width_px"]),
+            int(row["resolution_height_px"]),
+            int(row["raw_bit_depth"]),
+            _optional_int(row.get("max_video_width_px", "")),
+            _optional_int(row.get("max_video_height_px", "")),
+            _optional_float(row.get("max_video_fps", "")),
+            _csv_bool(row.get("live_view", "")),
+            _csv_bool(row.get("bulb_mode", "")),
+            row.get("source_url", ""),
+            seed_key,
+        )
+        for row, seed_key in _equipment_catalog_source_rows(
+            camera_body_path,
+            "camera body",
+            "camera-body",
         )
     ]
 

@@ -62,6 +62,15 @@ from astro_viewer.app.services.earthdata_credentials import (
     EarthdataConnectionTester,
     EarthdataCredentialStore,
 )
+from astro_viewer.app.services.equipment_taxonomy import (
+    ASTRONOMY_CAMERA_CLASS_OPTIONS,
+    CAMERA_BODY_TYPE_OPTIONS,
+    CAMERA_SENSOR_FORMAT_OPTIONS,
+    MOUNT_TYPE_OPTIONS,
+    SENSOR_COLOR_MODE_OPTIONS,
+    SENSOR_SHUTTER_OPTIONS,
+    SENSOR_TECHNOLOGY_OPTIONS,
+)
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.equipment_setup_read_model import (
     EquipmentSetupReadModel,
@@ -262,6 +271,7 @@ class AppController(QObject):
     locationChanged = Signal()
     weatherChanged = Signal()
     equipmentChanged = Signal()
+    cameraCatalogChanged = Signal()
     observationChanged = Signal()
     skyCompassChanged = Signal()
     homeNightPlanChanged = Signal()
@@ -501,6 +511,10 @@ class AppController(QObject):
         self._catalog_binoculars = self._localized_equipment_catalog_rows(
             self._equipment_catalog_repository.binoculars(), "binoculars"
         )
+        self._astronomy_camera_catalog = (
+            self._equipment_catalog_repository.astronomy_cameras()
+        )
+        self._camera_body_catalog = self._equipment_catalog_repository.camera_bodies()
         self._catalog_filters = self._localized_equipment_catalog_rows(
             self._equipment_catalog_repository.filters(), "filters"
         )
@@ -562,6 +576,7 @@ class AppController(QObject):
         self._selected_telescope_index = self._initial_telescope_index()
         self._barlow = 1.0
         self._equipment_message = self._equipment_status_message()
+        self._camera_catalog_message: object = ""
 
         self._refresh_manager.mark_dirty(RefreshReason.STARTUP)
         self._initialize_startup_location()
@@ -1247,6 +1262,12 @@ class AppController(QObject):
         return render_payload(self._telescope_catalog_models)
 
     @Property("QVariant", notify=equipmentChanged)
+    def telescopeMountTypeOptions(self) -> list[dict[str, str]]:
+        return render_payload(
+            [{"code": code, "label": label} for code, label in MOUNT_TYPE_OPTIONS]
+        )
+
+    @Property("QVariant", notify=equipmentChanged)
     def eyepieceCatalog(self) -> list[dict]:
         return render_payload(self._catalog_eyepieces)
 
@@ -1257,6 +1278,68 @@ class AppController(QObject):
     @Property("QVariant", notify=equipmentChanged)
     def binocularCatalog(self) -> list[dict]:
         return render_payload(self._catalog_binoculars)
+
+    @Property("QVariant", notify=cameraCatalogChanged)
+    def astronomyCameraCatalog(self) -> list[dict]:
+        return render_payload(self._astronomy_camera_catalog)
+
+    @Property("QVariant", notify=cameraCatalogChanged)
+    def cameraBodyCatalog(self) -> list[dict]:
+        return render_payload(self._camera_body_catalog)
+
+    @Property("QVariant", notify=cameraCatalogChanged)
+    def astronomyCameraClassOptions(self) -> list[dict[str, str]]:
+        return render_payload(
+            [
+                {"code": code, "label": label}
+                for code, label in ASTRONOMY_CAMERA_CLASS_OPTIONS
+            ]
+        )
+
+    @Property("QVariant", notify=cameraCatalogChanged)
+    def sensorTechnologyOptions(self) -> list[dict[str, str]]:
+        return render_payload(
+            [
+                {"code": code, "label": label}
+                for code, label in SENSOR_TECHNOLOGY_OPTIONS
+            ]
+        )
+
+    @Property("QVariant", notify=cameraCatalogChanged)
+    def sensorColorModeOptions(self) -> list[dict[str, str]]:
+        return render_payload(
+            [
+                {"code": code, "label": label}
+                for code, label in SENSOR_COLOR_MODE_OPTIONS
+            ]
+        )
+
+    @Property("QVariant", notify=cameraCatalogChanged)
+    def sensorShutterOptions(self) -> list[dict[str, str]]:
+        return render_payload(
+            [
+                {"code": code, "label": label}
+                for code, label in SENSOR_SHUTTER_OPTIONS
+            ]
+        )
+
+    @Property("QVariant", notify=cameraCatalogChanged)
+    def cameraBodyTypeOptions(self) -> list[dict[str, str]]:
+        return render_payload(
+            [
+                {"code": code, "label": label}
+                for code, label in CAMERA_BODY_TYPE_OPTIONS
+            ]
+        )
+
+    @Property("QVariant", notify=cameraCatalogChanged)
+    def cameraSensorFormatOptions(self) -> list[dict[str, str]]:
+        return render_payload(
+            [
+                {"code": code, "label": label}
+                for code, label in CAMERA_SENSOR_FORMAT_OPTIONS
+            ]
+        )
 
     @Property("QVariant", notify=equipmentChanged)
     def filterCatalog(self) -> list[dict]:
@@ -1366,6 +1449,16 @@ class AppController(QObject):
             self._equipment_message = ""
             self.equipmentChanged.emit()
 
+    @Property(str, notify=cameraCatalogChanged)
+    def cameraCatalogMessage(self) -> str:
+        return render_text(self._camera_catalog_message)
+
+    @Slot()
+    def clearCameraCatalogMessage(self) -> None:
+        if self._camera_catalog_message:
+            self._camera_catalog_message = ""
+            self.cameraCatalogChanged.emit()
+
     @Property("QVariant", notify=equipmentChanged)
     def currentSetup(self) -> dict:
         return render_payload(self._current_telescope().to_qml())
@@ -1433,6 +1526,7 @@ class AppController(QObject):
         self.openaqCredentialsChanged.emit()
         self.catalogueChanged.emit()
         self.equipmentChanged.emit()
+        self.cameraCatalogChanged.emit()
         self.observationChanged.emit()
         self.dataChanged.emit()
         self.weatherChanged.emit()
@@ -2239,6 +2333,70 @@ class AppController(QObject):
     def deleteTelescopeModel(self, model_id: int, force: bool) -> None:
         ok, message = self._equipment_catalog_repository.delete_telescope_model(model_id, remove_from_profiles=force)
         self._after_catalog_change(message, ok)
+
+    @Slot("QVariantMap", result=bool)
+    def addAstronomyCameraModel(self, payload: Mapping[str, object]) -> bool:
+        parsed = self._parse_astronomy_camera_inputs(payload)
+        if parsed is None:
+            return False
+        ok, message = self._equipment_catalog_repository.add_astronomy_camera(
+            *parsed
+        )
+        self._after_camera_catalog_change(message, ok)
+        return ok
+
+    @Slot(int, "QVariantMap", result=bool)
+    def updateAstronomyCameraModel(
+        self,
+        camera_id: int,
+        payload: Mapping[str, object],
+    ) -> bool:
+        parsed = self._parse_astronomy_camera_inputs(payload)
+        if parsed is None:
+            return False
+        ok, message = self._equipment_catalog_repository.update_astronomy_camera(
+            camera_id,
+            *parsed,
+        )
+        self._after_camera_catalog_change(message, ok)
+        return ok
+
+    @Slot(int)
+    def deleteAstronomyCameraModel(self, camera_id: int) -> None:
+        ok, message = self._equipment_catalog_repository.delete_astronomy_camera(
+            camera_id
+        )
+        self._after_camera_catalog_change(message, ok)
+
+    @Slot("QVariantMap", result=bool)
+    def addCameraBodyModel(self, payload: Mapping[str, object]) -> bool:
+        parsed = self._parse_camera_body_inputs(payload)
+        if parsed is None:
+            return False
+        ok, message = self._equipment_catalog_repository.add_camera_body(*parsed)
+        self._after_camera_catalog_change(message, ok)
+        return ok
+
+    @Slot(int, "QVariantMap", result=bool)
+    def updateCameraBodyModel(
+        self,
+        camera_id: int,
+        payload: Mapping[str, object],
+    ) -> bool:
+        parsed = self._parse_camera_body_inputs(payload)
+        if parsed is None:
+            return False
+        ok, message = self._equipment_catalog_repository.update_camera_body(
+            camera_id,
+            *parsed,
+        )
+        self._after_camera_catalog_change(message, ok)
+        return ok
+
+    @Slot(int)
+    def deleteCameraBodyModel(self, camera_id: int) -> None:
+        ok, message = self._equipment_catalog_repository.delete_camera_body(camera_id)
+        self._after_camera_catalog_change(message, ok)
 
     @Slot(str, str, str, str, str, str, str, str, str, str, result=bool)
     def addEyepieceModel(
@@ -7946,7 +8104,7 @@ class AppController(QObject):
             "reducers": ("brand", "model", "reduction_factor"),
         }
         content_fields = {
-            "telescopes": ("optical_type", "mount_type", "notes"),
+            "telescopes": ("optical_type", "notes"),
             "eyepieces": ("notes",),
             "barlows": ("notes",),
             "binoculars": (),
@@ -7982,6 +8140,10 @@ class AppController(QObject):
             self._equipment_catalog_repository.barlows(), "barlows"
         )
         self._catalog_binoculars = self._equipment_catalog_repository.binoculars()
+        self._astronomy_camera_catalog = (
+            self._equipment_catalog_repository.astronomy_cameras()
+        )
+        self._camera_body_catalog = self._equipment_catalog_repository.camera_bodies()
         self._catalog_filters = self._localized_equipment_catalog_rows(
             self._equipment_catalog_repository.filters(), "filters"
         )
@@ -8004,6 +8166,12 @@ class AppController(QObject):
         self._binoculars = [self._binocular_from_catalog_row(row) for row in self._catalog_binoculars]
         self._profile_equipment = self._initial_profile_equipment()
 
+    def _refresh_camera_catalogs(self) -> None:
+        self._astronomy_camera_catalog = (
+            self._equipment_catalog_repository.astronomy_cameras()
+        )
+        self._camera_body_catalog = self._equipment_catalog_repository.camera_bodies()
+
     def _after_catalog_change(self, message: str, ok: bool) -> None:
         self._equipment_message = message
         if ok:
@@ -8024,6 +8192,99 @@ class AppController(QObject):
         if ok:
             self._refresh_equipment_catalogs()
         self.equipmentChanged.emit()
+
+    def _after_camera_catalog_change(self, message: str, ok: bool) -> None:
+        self._camera_catalog_message = message
+        if ok:
+            self._refresh_camera_catalogs()
+        self.cameraCatalogChanged.emit()
+
+    def _parse_astronomy_camera_inputs(
+        self,
+        payload: Mapping[str, object],
+    ) -> tuple | None:
+        try:
+            sensor_width = self._required_float_input(payload.get("sensor_width_mm"))
+            sensor_height = self._required_float_input(payload.get("sensor_height_mm"))
+            resolution_width = self._positive_int(str(payload.get("resolution_width_px") or ""))
+            resolution_height = self._positive_int(str(payload.get("resolution_height_px") or ""))
+            pixel_size = self._required_float_input(payload.get("pixel_size_um"))
+            bit_depth = self._positive_int(str(payload.get("bit_depth") or ""))
+            max_fps = self._optional_float_input(str(payload.get("max_fps") or ""))
+            cooling_delta = self._optional_float_input(
+                str(payload.get("cooling_delta_c") or "")
+            )
+            backfocus = self._optional_float_input(
+                str(payload.get("backfocus_mm") or "")
+            )
+        except (TypeError, ValueError):
+            self._camera_catalog_message = tr(
+                "Dati della camera astronomica non validi."
+            )
+            self.cameraCatalogChanged.emit()
+            return None
+        return (
+            str(payload.get("brand") or ""),
+            str(payload.get("model") or ""),
+            str(payload.get("camera_class") or ""),
+            str(payload.get("sensor_model") or ""),
+            str(payload.get("sensor_technology") or ""),
+            str(payload.get("color_mode") or ""),
+            sensor_width,
+            sensor_height,
+            resolution_width,
+            resolution_height,
+            pixel_size,
+            bit_depth,
+            max_fps,
+            bool(payload.get("cooled")),
+            cooling_delta,
+            str(payload.get("shutter_type") or ""),
+            backfocus,
+            str(payload.get("source_url") or ""),
+        )
+
+    def _parse_camera_body_inputs(
+        self,
+        payload: Mapping[str, object],
+    ) -> tuple | None:
+        try:
+            sensor_width = self._required_float_input(payload.get("sensor_width_mm"))
+            sensor_height = self._required_float_input(payload.get("sensor_height_mm"))
+            resolution_width = self._positive_int(str(payload.get("resolution_width_px") or ""))
+            resolution_height = self._positive_int(str(payload.get("resolution_height_px") or ""))
+            raw_bit_depth = self._positive_int(str(payload.get("raw_bit_depth") or ""))
+            video_width = self._optional_positive_int_input(
+                payload.get("max_video_width_px")
+            )
+            video_height = self._optional_positive_int_input(
+                payload.get("max_video_height_px")
+            )
+            video_fps = self._optional_float_input(
+                str(payload.get("max_video_fps") or "")
+            )
+        except (TypeError, ValueError):
+            self._camera_catalog_message = tr("Dati del corpo macchina non validi.")
+            self.cameraCatalogChanged.emit()
+            return None
+        return (
+            str(payload.get("brand") or ""),
+            str(payload.get("model") or ""),
+            str(payload.get("body_type") or ""),
+            str(payload.get("sensor_format") or ""),
+            str(payload.get("lens_mount") or ""),
+            sensor_width,
+            sensor_height,
+            resolution_width,
+            resolution_height,
+            raw_bit_depth,
+            video_width,
+            video_height,
+            video_fps,
+            bool(payload.get("live_view")),
+            bool(payload.get("bulb_mode")),
+            str(payload.get("source_url") or ""),
+        )
 
     def _parse_filter_inputs(
         self,
@@ -8081,6 +8342,18 @@ class AppController(QObject):
         if not math.isfinite(parsed):
             raise ValueError
         return parsed
+
+    @staticmethod
+    def _required_float_input(value: object) -> float:
+        parsed = float(str(value or "").strip().replace(",", "."))
+        if not math.isfinite(parsed):
+            raise ValueError
+        return parsed
+
+    @classmethod
+    def _optional_positive_int_input(cls, value: object) -> int | None:
+        clean_value = str(value or "").strip()
+        return cls._positive_int(clean_value) if clean_value else None
 
     def _parse_binocular_inputs(
         self,

@@ -16,6 +16,18 @@ Item {
         return isFinite(number) && number > 0 && Math.floor(number) === number
     }
 
+    function optionIndex(options, value, fallbackCode) {
+        for (var index = 0; index < options.length; index += 1) {
+            if (options[index].code === value)
+                return index
+        }
+        for (var fallbackIndex = 0; fallbackIndex < options.length; fallbackIndex += 1) {
+            if (options[fallbackIndex].code === fallbackCode)
+                return fallbackIndex
+        }
+        return 0
+    }
+
     function openEditDialog(item) {
         editModel = item
         telescopeBrand.text = item.brand || ""
@@ -23,7 +35,11 @@ Item {
         telescopeType.text = item.optical_type || ""
         telescopeAperture.text = String(item.aperture_mm || "")
         telescopeFocal.text = String(item.focal_length_mm || "")
-        telescopeMount.text = item.mount_type || ""
+        telescopeMount.currentIndex = root.optionIndex(
+            controller.telescopeMountTypeOptions,
+            item.mount_type || "",
+            "OTHER"
+        )
         telescopeNotes.text = item.notes || ""
         telescopeDialog.title = qsTr("Modifica modello")
         telescopeDialog.open()
@@ -36,7 +52,7 @@ Item {
         telescopeType.text = ""
         telescopeAperture.text = ""
         telescopeFocal.text = ""
-        telescopeMount.text = ""
+        telescopeMount.currentIndex = 0
         telescopeNotes.text = ""
         telescopeDialog.title = qsTr("Aggiungi modello")
         telescopeDialog.open()
@@ -218,7 +234,8 @@ Item {
 
             Text {
                 Layout.fillWidth: true
-                text: itemData.optical_type + "  -  " + itemData.mount_type
+                text: itemData.optical_type + "  -  "
+                    + (itemData.mount_type_label || itemData.mount_type)
                 color: theme.textSecondary
                 font.pixelSize: 12
                 elide: Text.ElideRight
@@ -249,14 +266,14 @@ Item {
             && telescopeType.text.trim().length > 0
             && root.isPositiveInteger(telescopeAperture.text)
             && root.isPositiveInteger(telescopeFocal.text)
-            && telescopeMount.text.trim().length > 0
+            && String(telescopeMount.currentValue || "").length > 0
         onOpened: controller.clearEquipmentMessage()
         onAccepted: {
             var saved
             if (root.editModel.id !== undefined) {
-                saved = controller.updateTelescopeModel(root.editModel.id, telescopeBrand.text, telescopeName.text, telescopeType.text, telescopeAperture.text, telescopeFocal.text, telescopeMount.text, telescopeNotes.text)
+                saved = controller.updateTelescopeModel(root.editModel.id, telescopeBrand.text, telescopeName.text, telescopeType.text, telescopeAperture.text, telescopeFocal.text, String(telescopeMount.currentValue || ""), telescopeNotes.text)
             } else {
-                saved = controller.addTelescopeModel(telescopeBrand.text, telescopeName.text, telescopeType.text, telescopeAperture.text, telescopeFocal.text, telescopeMount.text, telescopeNotes.text)
+                saved = controller.addTelescopeModel(telescopeBrand.text, telescopeName.text, telescopeType.text, telescopeAperture.text, telescopeFocal.text, String(telescopeMount.currentValue || ""), telescopeNotes.text)
             }
             if (saved)
                 telescopeDialog.close()
@@ -273,7 +290,14 @@ Item {
             DarkTextField { id: telescopeType; Layout.fillWidth: true; labelText: qsTr("Tipo ottico *") }
             DarkTextField { id: telescopeAperture; Layout.fillWidth: true; labelText: qsTr("Apertura (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkTextField { id: telescopeFocal; Layout.fillWidth: true; labelText: qsTr("Focale (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: telescopeMount; Layout.fillWidth: true; labelText: qsTr("Montatura *") }
+            DarkComboBox {
+                id: telescopeMount
+                Layout.fillWidth: true
+                labelText: qsTr("Montatura *")
+                model: controller.telescopeMountTypeOptions
+                textRole: "label"
+                valueRole: "code"
+            }
             DarkTextField { id: telescopeNotes; Layout.columnSpan: 2; Layout.fillWidth: true; labelText: qsTr("Note (facoltative)") }
         }
 

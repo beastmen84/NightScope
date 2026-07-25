@@ -21,6 +21,40 @@ follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
 
+## Fondazione catalogo Cameras
+
+La sidebar espone ora `Cameras`, una pagina a due colonne indipendenti:
+17 camere astronomiche di ZWO, QHYCCD, Player One Astronomy e Atik, e
+15 corpi mirrorless/DSLR di Canon, Nikon, Sony, Fujifilm, Panasonic, OM System
+e Pentax. I seed conservano le fonti ufficiali per modello e soltanto i dati
+stabili utili al futuro motore fotografico: sensore, pixel, risoluzione,
+profondita', frame rate, raffreddamento, otturatore, live view, Bulb e
+baionetta. Le voci integrate sono modificabili ma non eliminabili; quelle
+utente hanno CRUD completo.
+
+Lo schema 20 aggiunge `AstronomyCameraCatalog` e `CameraBodyCatalog`, senza
+tabelle di associazione ai profili. Il refresh dei due cataloghi e' mirato e
+non ricostruisce il profilo attivo: camere e body non entrano ancora in
+Equipment, Home, Planner, Sky Compass, NSOM o raccomandazioni visuali. Il passo
+successivo concordato e' progettare separatamente collegamento ai profili e
+motore fotografico.
+
+La montatura telescopio e' ora un menu con codici stabili per OTA,
+altazimutale, equatoriale, forcella e Dobson, distinguendo manuale,
+motorizzata, GoTo e PushTo. Il bootstrap normalizza i vecchi valori testuali;
+il generico storico `manuale` diventa il codice controllato manuale non
+specificato. La proiezione di tracking visuale conserva esattamente i
+coefficienti precedenti, lasciando le distinzioni piu' fini al futuro motore
+fotografico.
+
+Il gate finale `tools/run_checks.py --fast` passa con 974 test, 643 warning
+Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale e
+Red Night Vision. `EquipmentCamerasPage.qml` passa QML lint senza warning. Il
+rendering nativo Windows a `1040 × 700` e' stato controllato in entrambe le
+modalita'; in Red Night Vision i massimi sono verde 74 e blu 61, senza pixel
+oltre soglia. I cataloghi Qt IT/EN/ES contengono 1.854 voci finite e zero
+incomplete.
+
 ## Catalogo NGC e ammissione raccomandazioni
 
 Il catalogo canonico contiene ora 7.585 target deep-sky fisici. Il snapshot
@@ -73,9 +107,10 @@ circa 80-110 ms con localita' configurata e circa 150 ms senza localita'; il
 singolo M31 resta tra 10 e 28 ms. Il layout minimo e Red Night Vision sono stati
 controllati con rendering QML.
 
-Il snapshot, l'hash, l'attribuzione OpenNGC e il testo completo
-CC-BY-SA-4.0 sono inclusi nei sorgenti e nei bundle. I cataloghi Qt IT/EN/ES
-contengono 1.743 voci finite e zero incomplete.
+Il snapshot compresso e il relativo hash restano nei soli sorgenti del
+repository. I bundle contengono invece i seed runtime derivati, l'attribuzione
+OpenNGC e il testo completo CC-BY-SA-4.0. I cataloghi Qt IT/EN/ES contengono
+1.854 voci finite e zero incomplete.
 
 Sul sorgente finale il gate `tools/run_checks.py --fast` passa con 966 test,
 643 warning Skyfield/NumPy gia' noti, 10 subtest, smoke backend, QML normale e

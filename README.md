@@ -58,6 +58,10 @@ Linux packages use a portable tarball plus an adjacent SHA-256 file.
   multi-night comet windows in one calendar.
 - Provides live directional guidance through Sky Compass.
 - Stores observation logs and user-maintained equipment locally.
+- Provides a separate two-column Cameras catalogue for astronomy cameras and
+  interchangeable-lens camera bodies. Its sensor and capture specifications
+  are ready for a future imaging recommendation path but are not yet assigned
+  to profiles or consumed by the visual engine.
 - Includes an offline celestial catalogue with 7,585 distinct deep-sky
   targets, 7,839 NGC designations deduplicated across physical identities,
   and nine Solar System targets. The 219 curated Messier/Caldwell targets and
@@ -106,6 +110,11 @@ estimate rather than a precise promise.
 Filters and focal reducers are also presentation guidance only. They do not
 change target ranking. Reducer suggestions require an exact, normalized match
 to the target-specific telescope and are intended for imaging context.
+
+Telescope mount types use stable controlled codes instead of free text. This
+preserves the existing visual recommendation behavior while keeping manual,
+tracking, GoTo, PushTo, fork, alt-azimuth and equatorial capabilities distinct
+for future imaging calculations.
 
 The full model and its boundaries are documented in
 [`docs/CALCULATION_LOGIC.md`](docs/CALCULATION_LOGIC.md) and

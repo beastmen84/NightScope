@@ -18,6 +18,7 @@ from astro_viewer.app.models.recommendation_candidate import RecommendationCandi
 from astro_viewer.app.services.nsom_runtime_builders import (
     build_observer_capability_profile_from_recommendation,
 )
+from astro_viewer.app.services.equipment_taxonomy import mount_tracking_capability
 
 
 @dataclass(frozen=True)
@@ -226,9 +227,4 @@ def _clamp_unit(value: object) -> float:
 
 
 def _tracking_capability(value: object) -> float:
-    text = str(value).lower()
-    if any(token in text for token in ("goto", "go-to", "computer", "eq", "tracking", "motoriz")):
-        return 0.8
-    if any(token in text for token in ("dob", "altaz", "manual")):
-        return 0.2
-    return 0.4
+    return mount_tracking_capability(value)

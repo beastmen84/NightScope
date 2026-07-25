@@ -1,0 +1,16 @@
+seed_key,brand,model,body_type,sensor_format,lens_mount,sensor_width_mm,sensor_height_mm,resolution_width_px,resolution_height_px,raw_bit_depth,max_video_width_px,max_video_height_px,max_video_fps,live_view,bulb_mode,source_url
+camera-body::canon::eos r5 mark ii,Canon,EOS R5 Mark II,MIRRORLESS,FULL_FRAME,Canon RF,36,24,8192,5464,14,8192,4320,60,1,1,https://www.canon-europe.com/cameras/eos-r5-mark-ii/specifications/
+camera-body::canon::eos r6 mark ii,Canon,EOS R6 Mark II,MIRRORLESS,FULL_FRAME,Canon RF,35.9,23.9,6000,4000,14,3840,2160,60,1,1,https://www.canon-europe.com/cameras/eos-r6-mark-ii/specifications/
+camera-body::canon::eos 90d,Canon,EOS 90D,DSLR,APS_C,Canon EF/EF-S,22.3,14.8,6960,4640,14,3840,2160,30,1,1,https://www.canon-europe.com/cameras/eos-90d/specifications/
+camera-body::nikon::z8,Nikon,Z8,MIRRORLESS,FULL_FRAME,Nikon Z,35.9,23.9,8256,5504,14,7680,4320,60,1,1,https://www.nikonusa.com/p/z-8/2045/overview
+camera-body::nikon::z6iii,Nikon,Z6III,MIRRORLESS,FULL_FRAME,Nikon Z,35.9,23.9,6048,4032,14,6048,3402,60,1,1,https://www.nikonusa.com/p/z6iii/1890/overview
+camera-body::nikon::d850,Nikon,D850,DSLR,FULL_FRAME,Nikon F,35.9,23.9,8256,5504,14,3840,2160,30,1,1,https://www.nikonusa.com/p/d850/1585/overview
+camera-body::sony::alpha 7 iv,Sony,Alpha 7 IV,MIRRORLESS,FULL_FRAME,Sony E,35.9,23.9,7008,4672,14,3840,2160,60,1,1,https://electronics.sony.com/imaging/interchangeable-lens-cameras/all-interchangeable-lens-cameras/p/ilce7m4-b
+camera-body::sony::alpha 7s iii,Sony,Alpha 7S III,MIRRORLESS,FULL_FRAME,Sony E,35.6,23.8,4240,2832,14,3840,2160,120,1,1,https://electronics.sony.com/imaging/interchangeable-lens-cameras/all-interchangeable-lens-cameras/p/ilce7sm3-b
+camera-body::sony::alpha 6700,Sony,Alpha 6700,MIRRORLESS,APS_C,Sony E,23.3,15.5,6192,4128,14,3840,2160,120,1,1,https://electronics.sony.com/imaging/interchangeable-lens-cameras/aps-c/p/ilce6700-b
+camera-body::fujifilm::x-t5,Fujifilm,X-T5,MIRRORLESS,APS_C,Fujifilm X,23.5,15.7,7728,5152,14,6240,3510,30,1,1,https://www.fujifilm-x.com/global/products/cameras/x-t5/specifications/
+camera-body::fujifilm::x-h2s,Fujifilm,X-H2S,MIRRORLESS,APS_C,Fujifilm X,23.5,15.6,6240,4160,14,6240,4160,30,1,1,https://www.fujifilm-x.com/global/products/cameras/x-h2s/specifications/
+camera-body::panasonic::lumix s5ii,Panasonic,Lumix S5II,MIRRORLESS,FULL_FRAME,L-Mount,35.6,23.8,6000,4000,14,5952,3968,30,1,1,https://www.panasonic.com/uk/consumer/cameras-camcorders/lumix-mirrorless-cameras/lumix-s-full-frame-cameras/dc-s5m2.specs.html
+camera-body::panasonic::lumix gh7,Panasonic,Lumix GH7,MIRRORLESS,MICRO_FOUR_THIRDS,Micro Four Thirds,17.3,13,5776,4336,14,5760,4320,60,1,1,https://help.na.panasonic.com/answers/features-and-specifications-lumix-g-series-model-dc-gh7/
+camera-body::om system::om-1 mark ii,OM System,OM-1 Mark II,MIRRORLESS,MICRO_FOUR_THIRDS,Micro Four Thirds,17.3,13,5184,3888,12,4096,2160,60,1,1,https://explore.omsystem.com/gb/en/om-1-mark-ii
+camera-body::pentax::k-1 mark ii,Pentax,K-1 Mark II,DSLR,FULL_FRAME,Pentax KAF2,35.9,24,7360,4912,14,1920,1080,30,1,1,https://us.ricoh-imaging.com/product/pentax-k-1-ii/

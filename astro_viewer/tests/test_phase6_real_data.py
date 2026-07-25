@@ -976,12 +976,115 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(len(controller.filterCatalog), initial_filter_count)
             self.assertEqual(len(controller.reducerCatalog), initial_reducer_count)
 
+    def test_camera_controller_crud_stays_outside_profiles_and_visual_setup(self) -> None:
+        with _controller() as controller:
+            initial_astronomy_count = len(controller.astronomyCameraCatalog)
+            initial_body_count = len(controller.cameraBodyCatalog)
+            profile_snapshot = controller.equipmentProfiles
+            setup_snapshot = controller.currentSetup
+            equipment_notifications = []
+            home_notifications = []
+            camera_notifications = []
+            controller.equipmentChanged.connect(
+                lambda: equipment_notifications.append(True)
+            )
+            controller.homeNightPlanChanged.connect(
+                lambda: home_notifications.append(True)
+            )
+            controller.cameraCatalogChanged.connect(
+                lambda: camera_notifications.append(True)
+            )
+
+            astronomy_payload = {
+                "brand": "NightScope",
+                "model": "Camera controller",
+                "camera_class": "ALL_ROUND",
+                "sensor_model": "Test CMOS",
+                "sensor_technology": "CMOS",
+                "color_mode": "COLOR",
+                "sensor_width_mm": "11,2",
+                "sensor_height_mm": "6,3",
+                "resolution_width_px": "3856",
+                "resolution_height_px": "2180",
+                "pixel_size_um": "2,9",
+                "bit_depth": "12",
+                "max_fps": "47",
+                "cooled": True,
+                "cooling_delta_c": "35",
+                "shutter_type": "ROLLING",
+                "backfocus_mm": "17,5",
+                "source_url": "",
+            }
+            body_payload = {
+                "brand": "NightScope",
+                "model": "Body controller",
+                "body_type": "MIRRORLESS",
+                "sensor_format": "APS_C",
+                "lens_mount": "Test mount",
+                "sensor_width_mm": "23,5",
+                "sensor_height_mm": "15,7",
+                "resolution_width_px": "6000",
+                "resolution_height_px": "4000",
+                "raw_bit_depth": "14",
+                "max_video_width_px": "3840",
+                "max_video_height_px": "2160",
+                "max_video_fps": "60",
+                "live_view": True,
+                "bulb_mode": True,
+                "source_url": "",
+            }
+
+            with patch.object(
+                controller,
+                "_refresh_active_profile_dependencies",
+            ) as refresh:
+                self.assertTrue(
+                    controller.addAstronomyCameraModel(astronomy_payload)
+                )
+                self.assertTrue(controller.addCameraBodyModel(body_payload))
+
+            refresh.assert_not_called()
+            self.assertEqual(equipment_notifications, [])
+            self.assertEqual(home_notifications, [])
+            self.assertEqual(len(camera_notifications), 2)
+            self.assertEqual(
+                len(controller.astronomyCameraCatalog),
+                initial_astronomy_count + 1,
+            )
+            self.assertEqual(
+                len(controller.cameraBodyCatalog),
+                initial_body_count + 1,
+            )
+            self.assertEqual(controller.equipmentProfiles, profile_snapshot)
+            self.assertEqual(controller.currentSetup, setup_snapshot)
+
+            astronomy_camera = next(
+                item
+                for item in controller.astronomyCameraCatalog
+                if item["brand"] == "NightScope"
+            )
+            camera_body = next(
+                item
+                for item in controller.cameraBodyCatalog
+                if item["brand"] == "NightScope"
+            )
+            controller.deleteAstronomyCameraModel(astronomy_camera["id"])
+            controller.deleteCameraBodyModel(camera_body["id"])
+            self.assertEqual(
+                len(controller.astronomyCameraCatalog),
+                initial_astronomy_count,
+            )
+            self.assertEqual(len(controller.cameraBodyCatalog), initial_body_count)
+
     def test_sidebar_navigation_groups_configuration_and_catalogs(self) -> None:
         ui_dir = Path(__file__).resolve().parents[1] / "app" / "ui"
         main_qml = (ui_dir / "main.qml").read_text(encoding="utf-8")
         binoculars_qml = (ui_dir / "pages" / "EquipmentBinocularsPage.qml").read_text(encoding="utf-8")
         telescopes_qml = (ui_dir / "pages" / "EquipmentTelescopesPage.qml").read_text(encoding="utf-8")
         optics_qml = (ui_dir / "pages" / "EquipmentOpticsPage.qml").read_text(encoding="utf-8")
+        cameras_qml = (
+            ui_dir / "pages" / "EquipmentCamerasPage.qml"
+        ).read_text(encoding="utf-8")
         filters_reducers_qml = (
             ui_dir / "pages" / "EquipmentFiltersReducersPage.qml"
         ).read_text(encoding="utf-8")
@@ -1006,6 +1109,7 @@ class Phase6RealDataTests(unittest.TestCase):
             'text: qsTr("Oggetti celesti")',
             'text: qsTr("Telescopi")',
             'text: qsTr("Oculari e Barlow")',
+            'text: qsTr("Cameras")',
             'text: qsTr("Filtri e riduttori")',
             'text: qsTr("Binocoli")',
         ]
@@ -1018,6 +1122,7 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("objectCatalogue", main_qml)
         self.assertIn("equipmentTelescopes", main_qml)
         self.assertIn("equipmentOptics", main_qml)
+        self.assertIn("equipmentCameras", main_qml)
         self.assertIn("equipmentFiltersReducers", main_qml)
         self.assertIn("equipmentBinoculars", main_qml)
         self.assertIn("DataProvidersPage", main_qml)
@@ -1027,8 +1132,11 @@ class Phase6RealDataTests(unittest.TestCase):
 
         self.assertIn("EquipmentTelescopesPage", main_qml)
         self.assertIn("EquipmentOpticsPage", main_qml)
+        self.assertIn("EquipmentCamerasPage", main_qml)
         self.assertIn("EquipmentFiltersReducersPage", main_qml)
         self.assertIn("EquipmentBinocularsPage", main_qml)
+        self.assertIn("controller.astronomyCameraCatalog", cameras_qml)
+        self.assertIn("controller.cameraBodyCatalog", cameras_qml)
         self.assertIn("appController.homeObservingOverview", main_qml)
         self.assertIn("sidebarSession", main_qml)
         self.assertIn("limitingFactor", main_qml)

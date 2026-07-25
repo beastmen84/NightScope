@@ -8,6 +8,17 @@ from contextlib import closing
 from pathlib import Path
 
 from astro_viewer.app.models.filtering import FILTER_CLASS_LABELS
+from astro_viewer.app.services.equipment_taxonomy import (
+    ASTRONOMY_CAMERA_CLASS_LABELS,
+    CAMERA_BODY_TYPE_LABELS,
+    CAMERA_SENSOR_FORMAT_LABELS,
+    MOUNT_TYPE_LABELS,
+    SENSOR_COLOR_MODE_LABELS,
+    SENSOR_SHUTTER_LABELS,
+    SENSOR_TECHNOLOGY_LABELS,
+    canonical_mount_type,
+    mount_type_label,
+)
 from astro_viewer.app.services.localization import (
     format_compact_number,
     format_number,
@@ -147,9 +158,11 @@ class EquipmentCatalogRepository:
         if not clean_brand or not clean_name:
             return False, tr("Marca e modello sono obbligatori.")
         clean_optical_type = optical_type.strip()
-        clean_mount_type = mount_type.strip()
+        clean_mount_type = canonical_mount_type(mount_type, preserve_unknown=False)
         if not clean_optical_type or not clean_mount_type:
             return False, tr("Tipo ottico e montatura sono obbligatori.")
+        if clean_mount_type not in MOUNT_TYPE_LABELS:
+            return False, tr("Tipo di montatura non valido.")
         if not _all_finite(aperture_mm, focal_length_mm) or aperture_mm <= 0 or focal_length_mm <= 0:
             return False, tr("Apertura e focale devono essere maggiori di zero.")
         with closing(self._connect()) as connection:
@@ -199,9 +212,11 @@ class EquipmentCatalogRepository:
         if not clean_brand or not clean_name:
             return False, tr("Marca e modello sono obbligatori.")
         clean_optical_type = optical_type.strip()
-        clean_mount_type = mount_type.strip()
+        clean_mount_type = canonical_mount_type(mount_type, preserve_unknown=False)
         if not clean_optical_type or not clean_mount_type:
             return False, tr("Tipo ottico e montatura sono obbligatori.")
+        if clean_mount_type not in MOUNT_TYPE_LABELS:
+            return False, tr("Tipo di montatura non valido.")
         if not _all_finite(aperture_mm, focal_length_mm) or aperture_mm <= 0 or focal_length_mm <= 0:
             return False, tr("Apertura e focale devono essere maggiori di zero.")
         with closing(self._connect()) as connection:
@@ -664,6 +679,372 @@ class EquipmentCatalogRepository:
             connection.execute("DELETE FROM BinocularCatalog WHERE id = ?", (binocular_id,))
             connection.commit()
         return True, tr("Binocolo eliminato.")
+
+    def astronomy_cameras(self) -> list[dict]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT id, brand, model, camera_class, sensor_model,
+                       sensor_technology, color_mode, sensor_width_mm,
+                       sensor_height_mm, resolution_width_px,
+                       resolution_height_px, pixel_size_um, bit_depth,
+                       max_fps, cooled, cooling_delta_c, shutter_type,
+                       backfocus_mm, source_url, is_builtin, seed_key,
+                       is_user_modified
+                FROM AstronomyCameraCatalog
+                ORDER BY brand, model
+                """
+            ).fetchall()
+        return [self._astronomy_camera_model(row) for row in rows]
+
+    def add_astronomy_camera(
+        self,
+        brand: str,
+        model: str,
+        camera_class: str,
+        sensor_model: str,
+        sensor_technology: str,
+        color_mode: str,
+        sensor_width_mm: float,
+        sensor_height_mm: float,
+        resolution_width_px: int,
+        resolution_height_px: int,
+        pixel_size_um: float,
+        bit_depth: int,
+        max_fps: float | None,
+        cooled: bool,
+        cooling_delta_c: float | None,
+        shutter_type: str,
+        backfocus_mm: float | None,
+        source_url: str = "",
+    ) -> tuple[bool, str]:
+        values, error = self._validated_astronomy_camera_values(
+            brand,
+            model,
+            camera_class,
+            sensor_model,
+            sensor_technology,
+            color_mode,
+            sensor_width_mm,
+            sensor_height_mm,
+            resolution_width_px,
+            resolution_height_px,
+            pixel_size_um,
+            bit_depth,
+            max_fps,
+            cooled,
+            cooling_delta_c,
+            shutter_type,
+            backfocus_mm,
+            source_url,
+        )
+        if error:
+            return False, error
+        with closing(self._connect()) as connection:
+            duplicate = connection.execute(
+                """
+                SELECT id FROM AstronomyCameraCatalog
+                WHERE brand = ? AND model = ?
+                """,
+                values[:2],
+            ).fetchone()
+            if duplicate:
+                return False, tr("Questa camera astronomica è già presente nel catalogo.")
+            connection.execute(
+                """
+                INSERT INTO AstronomyCameraCatalog (
+                    brand, model, camera_class, sensor_model,
+                    sensor_technology, color_mode, sensor_width_mm,
+                    sensor_height_mm, resolution_width_px,
+                    resolution_height_px, pixel_size_um, bit_depth, max_fps,
+                    cooled, cooling_delta_c, shutter_type, backfocus_mm,
+                    source_url
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                values,
+            )
+            connection.commit()
+        return True, tr("Camera astronomica aggiunta.")
+
+    def update_astronomy_camera(
+        self,
+        camera_id: int,
+        brand: str,
+        model: str,
+        camera_class: str,
+        sensor_model: str,
+        sensor_technology: str,
+        color_mode: str,
+        sensor_width_mm: float,
+        sensor_height_mm: float,
+        resolution_width_px: int,
+        resolution_height_px: int,
+        pixel_size_um: float,
+        bit_depth: int,
+        max_fps: float | None,
+        cooled: bool,
+        cooling_delta_c: float | None,
+        shutter_type: str,
+        backfocus_mm: float | None,
+        source_url: str = "",
+    ) -> tuple[bool, str]:
+        values, error = self._validated_astronomy_camera_values(
+            brand,
+            model,
+            camera_class,
+            sensor_model,
+            sensor_technology,
+            color_mode,
+            sensor_width_mm,
+            sensor_height_mm,
+            resolution_width_px,
+            resolution_height_px,
+            pixel_size_um,
+            bit_depth,
+            max_fps,
+            cooled,
+            cooling_delta_c,
+            shutter_type,
+            backfocus_mm,
+            source_url,
+        )
+        if error:
+            return False, error
+        with closing(self._connect()) as connection:
+            existing = connection.execute(
+                "SELECT id FROM AstronomyCameraCatalog WHERE id = ?",
+                (camera_id,),
+            ).fetchone()
+            if not existing:
+                return False, tr("Camera astronomica non trovata.")
+            duplicate = connection.execute(
+                """
+                SELECT id FROM AstronomyCameraCatalog
+                WHERE brand = ? AND model = ? AND id <> ?
+                """,
+                values[:2] + (camera_id,),
+            ).fetchone()
+            if duplicate:
+                return False, tr("Questa camera astronomica è già presente nel catalogo.")
+            connection.execute(
+                """
+                UPDATE AstronomyCameraCatalog
+                SET brand = ?, model = ?, camera_class = ?, sensor_model = ?,
+                    sensor_technology = ?, color_mode = ?,
+                    sensor_width_mm = ?, sensor_height_mm = ?,
+                    resolution_width_px = ?, resolution_height_px = ?,
+                    pixel_size_um = ?, bit_depth = ?, max_fps = ?, cooled = ?,
+                    cooling_delta_c = ?, shutter_type = ?, backfocus_mm = ?,
+                    source_url = ?,
+                    is_user_modified = CASE
+                        WHEN is_builtin = 1 THEN 1 ELSE is_user_modified
+                    END
+                WHERE id = ?
+                """,
+                values + (camera_id,),
+            )
+            connection.commit()
+        return True, tr("Camera astronomica aggiornata.")
+
+    def delete_astronomy_camera(self, camera_id: int) -> tuple[bool, str]:
+        with closing(self._connect()) as connection:
+            existing = connection.execute(
+                """
+                SELECT id, is_builtin
+                FROM AstronomyCameraCatalog
+                WHERE id = ?
+                """,
+                (camera_id,),
+            ).fetchone()
+            if not existing:
+                return False, tr("Camera astronomica non trovata.")
+            if bool(existing["is_builtin"]):
+                return False, tr("Gli elementi integrati non possono essere eliminati.")
+            connection.execute(
+                "DELETE FROM AstronomyCameraCatalog WHERE id = ?",
+                (camera_id,),
+            )
+            connection.commit()
+        return True, tr("Camera astronomica eliminata.")
+
+    def camera_bodies(self) -> list[dict]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT id, brand, model, body_type, sensor_format, lens_mount,
+                       sensor_width_mm, sensor_height_mm, resolution_width_px,
+                       resolution_height_px, raw_bit_depth,
+                       max_video_width_px, max_video_height_px,
+                       max_video_fps, live_view, bulb_mode, source_url,
+                       is_builtin, seed_key, is_user_modified
+                FROM CameraBodyCatalog
+                ORDER BY brand, model
+                """
+            ).fetchall()
+        return [self._camera_body_model(row) for row in rows]
+
+    def add_camera_body(
+        self,
+        brand: str,
+        model: str,
+        body_type: str,
+        sensor_format: str,
+        lens_mount: str,
+        sensor_width_mm: float,
+        sensor_height_mm: float,
+        resolution_width_px: int,
+        resolution_height_px: int,
+        raw_bit_depth: int,
+        max_video_width_px: int | None,
+        max_video_height_px: int | None,
+        max_video_fps: float | None,
+        live_view: bool,
+        bulb_mode: bool,
+        source_url: str = "",
+    ) -> tuple[bool, str]:
+        values, error = self._validated_camera_body_values(
+            brand,
+            model,
+            body_type,
+            sensor_format,
+            lens_mount,
+            sensor_width_mm,
+            sensor_height_mm,
+            resolution_width_px,
+            resolution_height_px,
+            raw_bit_depth,
+            max_video_width_px,
+            max_video_height_px,
+            max_video_fps,
+            live_view,
+            bulb_mode,
+            source_url,
+        )
+        if error:
+            return False, error
+        with closing(self._connect()) as connection:
+            duplicate = connection.execute(
+                """
+                SELECT id FROM CameraBodyCatalog
+                WHERE brand = ? AND model = ?
+                """,
+                values[:2],
+            ).fetchone()
+            if duplicate:
+                return False, tr("Questo corpo macchina è già presente nel catalogo.")
+            connection.execute(
+                """
+                INSERT INTO CameraBodyCatalog (
+                    brand, model, body_type, sensor_format, lens_mount,
+                    sensor_width_mm, sensor_height_mm, resolution_width_px,
+                    resolution_height_px, raw_bit_depth, max_video_width_px,
+                    max_video_height_px, max_video_fps, live_view, bulb_mode,
+                    source_url
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                values,
+            )
+            connection.commit()
+        return True, tr("Corpo macchina aggiunto.")
+
+    def update_camera_body(
+        self,
+        camera_id: int,
+        brand: str,
+        model: str,
+        body_type: str,
+        sensor_format: str,
+        lens_mount: str,
+        sensor_width_mm: float,
+        sensor_height_mm: float,
+        resolution_width_px: int,
+        resolution_height_px: int,
+        raw_bit_depth: int,
+        max_video_width_px: int | None,
+        max_video_height_px: int | None,
+        max_video_fps: float | None,
+        live_view: bool,
+        bulb_mode: bool,
+        source_url: str = "",
+    ) -> tuple[bool, str]:
+        values, error = self._validated_camera_body_values(
+            brand,
+            model,
+            body_type,
+            sensor_format,
+            lens_mount,
+            sensor_width_mm,
+            sensor_height_mm,
+            resolution_width_px,
+            resolution_height_px,
+            raw_bit_depth,
+            max_video_width_px,
+            max_video_height_px,
+            max_video_fps,
+            live_view,
+            bulb_mode,
+            source_url,
+        )
+        if error:
+            return False, error
+        with closing(self._connect()) as connection:
+            existing = connection.execute(
+                "SELECT id FROM CameraBodyCatalog WHERE id = ?",
+                (camera_id,),
+            ).fetchone()
+            if not existing:
+                return False, tr("Corpo macchina non trovato.")
+            duplicate = connection.execute(
+                """
+                SELECT id FROM CameraBodyCatalog
+                WHERE brand = ? AND model = ? AND id <> ?
+                """,
+                values[:2] + (camera_id,),
+            ).fetchone()
+            if duplicate:
+                return False, tr("Questo corpo macchina è già presente nel catalogo.")
+            connection.execute(
+                """
+                UPDATE CameraBodyCatalog
+                SET brand = ?, model = ?, body_type = ?, sensor_format = ?,
+                    lens_mount = ?, sensor_width_mm = ?,
+                    sensor_height_mm = ?, resolution_width_px = ?,
+                    resolution_height_px = ?, raw_bit_depth = ?,
+                    max_video_width_px = ?, max_video_height_px = ?,
+                    max_video_fps = ?, live_view = ?, bulb_mode = ?,
+                    source_url = ?,
+                    is_user_modified = CASE
+                        WHEN is_builtin = 1 THEN 1 ELSE is_user_modified
+                    END
+                WHERE id = ?
+                """,
+                values + (camera_id,),
+            )
+            connection.commit()
+        return True, tr("Corpo macchina aggiornato.")
+
+    def delete_camera_body(self, camera_id: int) -> tuple[bool, str]:
+        with closing(self._connect()) as connection:
+            existing = connection.execute(
+                """
+                SELECT id, is_builtin
+                FROM CameraBodyCatalog
+                WHERE id = ?
+                """,
+                (camera_id,),
+            ).fetchone()
+            if not existing:
+                return False, tr("Corpo macchina non trovato.")
+            if bool(existing["is_builtin"]):
+                return False, tr("Gli elementi integrati non possono essere eliminati.")
+            connection.execute(
+                "DELETE FROM CameraBodyCatalog WHERE id = ?",
+                (camera_id,),
+            )
+            connection.commit()
+        return True, tr("Corpo macchina eliminato.")
 
     def filters(self) -> list[dict]:
         with closing(self._connect()) as connection:
@@ -1209,7 +1590,8 @@ class EquipmentCatalogRepository:
                 if row["focal_ratio"] is not None
                 else ""
             ),
-            "mount_type": row["mount_type"],
+            "mount_type": canonical_mount_type(row["mount_type"]),
+            "mount_type_label": mount_type_label(row["mount_type"]),
             "notes": row["notes"] or "",
             "is_builtin": bool(row["is_builtin"]),
             "seed_key": row["seed_key"] or "",
@@ -1296,6 +1678,178 @@ class EquipmentCatalogRepository:
             "objective_diameter_mm": row["objective_diameter_mm"],
             "image_stabilized": bool(row["image_stabilized"]),
             "spec_label": f"{row['magnification']}×{row['objective_diameter_mm']}",
+            "is_builtin": bool(row["is_builtin"]),
+            "seed_key": row["seed_key"] or "",
+            "is_user_modified": bool(row["is_user_modified"]),
+        }
+
+    @staticmethod
+    def _astronomy_camera_model(row: sqlite3.Row) -> dict:
+        camera_class = str(row["camera_class"] or "").strip().upper()
+        sensor_technology = str(row["sensor_technology"] or "").strip().upper()
+        color_mode = str(row["color_mode"] or "").strip().upper()
+        shutter_type = str(row["shutter_type"] or "").strip().upper()
+        cooled = bool(row["cooled"])
+        cooling_delta = row["cooling_delta_c"]
+        return {
+            "id": row["id"],
+            "catalog_id": f"catalog-astronomy-camera-{row['id']}",
+            "brand": row["brand"],
+            "model": row["model"],
+            "display_name": f"{row['brand']} {row['model']}",
+            "camera_class": camera_class,
+            "camera_class_label": ASTRONOMY_CAMERA_CLASS_LABELS.get(
+                camera_class,
+                camera_class,
+            ),
+            "sensor_model": row["sensor_model"],
+            "sensor_technology": sensor_technology,
+            "sensor_technology_label": SENSOR_TECHNOLOGY_LABELS.get(
+                sensor_technology,
+                sensor_technology,
+            ),
+            "color_mode": color_mode,
+            "color_mode_label": SENSOR_COLOR_MODE_LABELS.get(
+                color_mode,
+                color_mode,
+            ),
+            "sensor_width_mm": row["sensor_width_mm"],
+            "sensor_height_mm": row["sensor_height_mm"],
+            "sensor_size_label": tr(
+                "{width} × {height} mm",
+                width=format_compact_number(row["sensor_width_mm"]),
+                height=format_compact_number(row["sensor_height_mm"]),
+            ),
+            "resolution_width_px": row["resolution_width_px"],
+            "resolution_height_px": row["resolution_height_px"],
+            "resolution_label": tr(
+                "{width} × {height} px",
+                width=format_number(row["resolution_width_px"]),
+                height=format_number(row["resolution_height_px"]),
+            ),
+            "pixel_size_um": row["pixel_size_um"],
+            "pixel_size_label": tr(
+                "{value} µm",
+                value=format_compact_number(row["pixel_size_um"]),
+            ),
+            "bit_depth": row["bit_depth"],
+            "bit_depth_label": tr(
+                "{value} bit",
+                value=format_number(row["bit_depth"]),
+            ),
+            "max_fps": row["max_fps"],
+            "max_fps_label": (
+                tr(
+                    "{value} fps",
+                    value=format_compact_number(row["max_fps"]),
+                )
+                if row["max_fps"] is not None
+                else ""
+            ),
+            "cooled": cooled,
+            "cooling_delta_c": cooling_delta,
+            "cooling_label": (
+                tr(
+                    "Raffreddata (ΔT {value} °C)",
+                    value=format_compact_number(cooling_delta),
+                )
+                if cooled and cooling_delta is not None
+                else tr("Raffreddata")
+                if cooled
+                else tr("Non raffreddata")
+            ),
+            "shutter_type": shutter_type,
+            "shutter_type_label": SENSOR_SHUTTER_LABELS.get(
+                shutter_type,
+                shutter_type,
+            ),
+            "backfocus_mm": row["backfocus_mm"],
+            "backfocus_label": (
+                tr(
+                    "Backfocus {value} mm",
+                    value=format_compact_number(row["backfocus_mm"]),
+                )
+                if row["backfocus_mm"] is not None
+                else ""
+            ),
+            "source_url": row["source_url"] or "",
+            "is_builtin": bool(row["is_builtin"]),
+            "seed_key": row["seed_key"] or "",
+            "is_user_modified": bool(row["is_user_modified"]),
+        }
+
+    @staticmethod
+    def _camera_body_model(row: sqlite3.Row) -> dict:
+        body_type = str(row["body_type"] or "").strip().upper()
+        sensor_format = str(row["sensor_format"] or "").strip().upper()
+        pixel_width_um = (
+            float(row["sensor_width_mm"]) * 1000.0
+            / int(row["resolution_width_px"])
+        )
+        pixel_height_um = (
+            float(row["sensor_height_mm"]) * 1000.0
+            / int(row["resolution_height_px"])
+        )
+        pixel_size_um = round((pixel_width_um + pixel_height_um) / 2.0, 3)
+        video_available = (
+            row["max_video_width_px"] is not None
+            and row["max_video_height_px"] is not None
+            and row["max_video_fps"] is not None
+        )
+        return {
+            "id": row["id"],
+            "catalog_id": f"catalog-camera-body-{row['id']}",
+            "brand": row["brand"],
+            "model": row["model"],
+            "display_name": f"{row['brand']} {row['model']}",
+            "body_type": body_type,
+            "body_type_label": CAMERA_BODY_TYPE_LABELS.get(body_type, body_type),
+            "sensor_format": sensor_format,
+            "sensor_format_label": CAMERA_SENSOR_FORMAT_LABELS.get(
+                sensor_format,
+                sensor_format,
+            ),
+            "lens_mount": row["lens_mount"],
+            "sensor_width_mm": row["sensor_width_mm"],
+            "sensor_height_mm": row["sensor_height_mm"],
+            "sensor_size_label": tr(
+                "{width} × {height} mm",
+                width=format_compact_number(row["sensor_width_mm"]),
+                height=format_compact_number(row["sensor_height_mm"]),
+            ),
+            "resolution_width_px": row["resolution_width_px"],
+            "resolution_height_px": row["resolution_height_px"],
+            "resolution_label": tr(
+                "{width} × {height} px",
+                width=format_number(row["resolution_width_px"]),
+                height=format_number(row["resolution_height_px"]),
+            ),
+            "pixel_size_um": pixel_size_um,
+            "pixel_size_label": tr(
+                "{value} µm",
+                value=format_compact_number(pixel_size_um),
+            ),
+            "raw_bit_depth": row["raw_bit_depth"],
+            "raw_bit_depth_label": tr(
+                "RAW {value} bit",
+                value=format_number(row["raw_bit_depth"]),
+            ),
+            "max_video_width_px": row["max_video_width_px"],
+            "max_video_height_px": row["max_video_height_px"],
+            "max_video_fps": row["max_video_fps"],
+            "max_video_label": (
+                tr(
+                    "{width} × {height} @ {fps} fps",
+                    width=format_number(row["max_video_width_px"]),
+                    height=format_number(row["max_video_height_px"]),
+                    fps=format_compact_number(row["max_video_fps"]),
+                )
+                if video_available
+                else ""
+            ),
+            "live_view": bool(row["live_view"]),
+            "bulb_mode": bool(row["bulb_mode"]),
+            "source_url": row["source_url"] or "",
             "is_builtin": bool(row["is_builtin"]),
             "seed_key": row["seed_key"] or "",
             "is_user_modified": bool(row["is_user_modified"]),
@@ -1445,6 +1999,173 @@ class EquipmentCatalogRepository:
             barrel_size.strip(),
             zoom_click_positions_mm.strip(),
             notes.strip(),
+        ), ""
+
+    @staticmethod
+    def _validated_astronomy_camera_values(
+        brand: str,
+        model: str,
+        camera_class: str,
+        sensor_model: str,
+        sensor_technology: str,
+        color_mode: str,
+        sensor_width_mm: float,
+        sensor_height_mm: float,
+        resolution_width_px: int,
+        resolution_height_px: int,
+        pixel_size_um: float,
+        bit_depth: int,
+        max_fps: float | None,
+        cooled: bool,
+        cooling_delta_c: float | None,
+        shutter_type: str,
+        backfocus_mm: float | None,
+        source_url: str,
+    ) -> tuple[tuple, str]:
+        clean_brand = brand.strip()
+        clean_model = model.strip()
+        clean_camera_class = camera_class.strip().upper()
+        clean_sensor_model = sensor_model.strip()
+        clean_sensor_technology = sensor_technology.strip().upper()
+        clean_color_mode = color_mode.strip().upper()
+        clean_shutter_type = shutter_type.strip().upper()
+        clean_source_url = source_url.strip()
+        if not clean_brand or not clean_model:
+            return (), tr("Marca e modello sono obbligatori.")
+        if not clean_sensor_model:
+            return (), tr("Il modello del sensore è obbligatorio.")
+        if clean_camera_class not in ASTRONOMY_CAMERA_CLASS_LABELS:
+            return (), tr("Impiego della camera non valido.")
+        if clean_sensor_technology not in SENSOR_TECHNOLOGY_LABELS:
+            return (), tr("Tecnologia del sensore non valida.")
+        if clean_color_mode not in SENSOR_COLOR_MODE_LABELS:
+            return (), tr("Tipo colore del sensore non valido.")
+        if clean_shutter_type not in SENSOR_SHUTTER_LABELS:
+            return (), tr("Tipo di otturatore non valido.")
+        if not _all_finite(
+            sensor_width_mm,
+            sensor_height_mm,
+            pixel_size_um,
+            max_fps,
+            cooling_delta_c,
+            backfocus_mm,
+        ):
+            return (), tr("Dati della camera astronomica non validi.")
+        if sensor_width_mm <= 0 or sensor_height_mm <= 0 or pixel_size_um <= 0:
+            return (), tr("Dimensioni del sensore e pixel devono essere maggiori di zero.")
+        if resolution_width_px <= 0 or resolution_height_px <= 0:
+            return (), tr("La risoluzione deve essere maggiore di zero.")
+        if bit_depth <= 0 or bit_depth > 32:
+            return (), tr("La profondità in bit non è valida.")
+        if max_fps is not None and max_fps <= 0:
+            return (), tr("Il frame rate deve essere maggiore di zero.")
+        if cooling_delta_c is not None and cooling_delta_c <= 0:
+            return (), tr("Il delta di raffreddamento deve essere maggiore di zero.")
+        if not cooled:
+            cooling_delta_c = None
+        if backfocus_mm is not None and backfocus_mm <= 0:
+            return (), tr("Il backfocus deve essere maggiore di zero.")
+        if clean_source_url and not clean_source_url.startswith(("https://", "http://")):
+            return (), tr("Il collegamento alla fonte non è valido.")
+        return (
+            clean_brand,
+            clean_model,
+            clean_camera_class,
+            clean_sensor_model,
+            clean_sensor_technology,
+            clean_color_mode,
+            sensor_width_mm,
+            sensor_height_mm,
+            resolution_width_px,
+            resolution_height_px,
+            pixel_size_um,
+            bit_depth,
+            max_fps,
+            1 if cooled else 0,
+            cooling_delta_c,
+            clean_shutter_type,
+            backfocus_mm,
+            clean_source_url,
+        ), ""
+
+    @staticmethod
+    def _validated_camera_body_values(
+        brand: str,
+        model: str,
+        body_type: str,
+        sensor_format: str,
+        lens_mount: str,
+        sensor_width_mm: float,
+        sensor_height_mm: float,
+        resolution_width_px: int,
+        resolution_height_px: int,
+        raw_bit_depth: int,
+        max_video_width_px: int | None,
+        max_video_height_px: int | None,
+        max_video_fps: float | None,
+        live_view: bool,
+        bulb_mode: bool,
+        source_url: str,
+    ) -> tuple[tuple, str]:
+        clean_brand = brand.strip()
+        clean_model = model.strip()
+        clean_body_type = body_type.strip().upper()
+        clean_sensor_format = sensor_format.strip().upper()
+        clean_lens_mount = lens_mount.strip()
+        clean_source_url = source_url.strip()
+        if not clean_brand or not clean_model:
+            return (), tr("Marca e modello sono obbligatori.")
+        if clean_body_type not in CAMERA_BODY_TYPE_LABELS:
+            return (), tr("Tipo di corpo macchina non valido.")
+        if clean_sensor_format not in CAMERA_SENSOR_FORMAT_LABELS:
+            return (), tr("Formato del sensore non valido.")
+        if not clean_lens_mount:
+            return (), tr("La baionetta è obbligatoria.")
+        if not _all_finite(sensor_width_mm, sensor_height_mm, max_video_fps):
+            return (), tr("Dati del corpo macchina non validi.")
+        if sensor_width_mm <= 0 or sensor_height_mm <= 0:
+            return (), tr("Le dimensioni del sensore devono essere maggiori di zero.")
+        if resolution_width_px <= 0 or resolution_height_px <= 0:
+            return (), tr("La risoluzione deve essere maggiore di zero.")
+        if raw_bit_depth <= 0 or raw_bit_depth > 32:
+            return (), tr("La profondità RAW non è valida.")
+        video_values = (
+            max_video_width_px,
+            max_video_height_px,
+            max_video_fps,
+        )
+        if any(value is not None for value in video_values) and not all(
+            value is not None for value in video_values
+        ):
+            return (), tr("Completa tutti i dati video oppure lasciali vuoti.")
+        if all(value is not None for value in video_values) and (
+            max_video_width_px is None
+            or max_video_height_px is None
+            or max_video_fps is None
+            or max_video_width_px <= 0
+            or max_video_height_px <= 0
+            or max_video_fps <= 0
+        ):
+            return (), tr("I dati video devono essere maggiori di zero.")
+        if clean_source_url and not clean_source_url.startswith(("https://", "http://")):
+            return (), tr("Il collegamento alla fonte non è valido.")
+        return (
+            clean_brand,
+            clean_model,
+            clean_body_type,
+            clean_sensor_format,
+            clean_lens_mount,
+            sensor_width_mm,
+            sensor_height_mm,
+            resolution_width_px,
+            resolution_height_px,
+            raw_bit_depth,
+            max_video_width_px,
+            max_video_height_px,
+            max_video_fps,
+            1 if live_view else 0,
+            1 if bulb_mode else 0,
+            clean_source_url,
         ), ""
 
     @staticmethod

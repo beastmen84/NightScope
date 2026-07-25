@@ -957,6 +957,8 @@ class DatabaseBootstrapTests(unittest.TestCase):
             "eyepiece_catalog_seed.csv": "eyepiece",
             "barlow_catalog_seed.csv": "barlow",
             "binocular_catalog_seed.csv": "binocular",
+            "astronomy_camera_catalog_seed.csv": "astro-camera",
+            "camera_body_catalog_seed.csv": "camera-body",
             "filter_catalog_seed.csv": "filter",
             "reducer_catalog_seed.csv": "reducer",
         }
@@ -1981,6 +1983,8 @@ class DatabaseBootstrapTests(unittest.TestCase):
         self.assertIn("catalogue_objects_seed.csv", spec)
         self.assertIn("catalogue_designations_seed.csv", spec)
         self.assertIn("binocular_catalog_seed.csv", spec)
+        self.assertIn("astronomy_camera_catalog_seed.csv", spec)
+        self.assertIn("camera_body_catalog_seed.csv", spec)
         self.assertIn("filter_catalog_seed.csv", spec)
         self.assertIn("reducer_catalog_seed.csv", spec)
         self.assertIn("reducer_telescope_compatibility_seed.csv", spec)
