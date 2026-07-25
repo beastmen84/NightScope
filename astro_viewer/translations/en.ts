@@ -6899,7 +6899,7 @@ Check the application folder permissions and restart NightScope.</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="174" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="676" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="677" />
       <source>Aggiungi corpo macchina</source>
       <translation>Add camera body</translation>
     </message>
@@ -6970,188 +6970,188 @@ Check the application folder permissions and restart NightScope.</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="501" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="763" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="793" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="765" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="795" />
       <source>Elimina</source>
       <translation>Delete</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="573" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="677" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="678" />
       <source>Salva</source>
       <translation>Save</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="597" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="701" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="598" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="703" />
       <source>Marca *</source>
       <translation>Brand *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="598" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="702" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="599" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="704" />
       <source>Modello *</source>
       <translation>Model *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="602" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="603" />
       <source>Impiego *</source>
       <translation>Intended use *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="608" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="609" />
       <source>Sensore *</source>
       <translation>Sensor *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="612" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="613" />
       <source>Tecnologia *</source>
       <translation>Technology *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="620" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="621" />
       <source>Tipo sensore *</source>
       <translation>Sensor type *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="626" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="723" />
-      <source>Sensore larghezza (mm) *</source>
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="627" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="725" />
+      <source>Larghezza sensore (mm) *</source>
       <translation>Sensor width (mm) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="627" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="724" />
-      <source>Sensore altezza (mm) *</source>
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="628" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="726" />
+      <source>Altezza sensore (mm) *</source>
       <translation>Sensor height (mm) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="628" />
-      <source>Pixel (µm) *</source>
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="629" />
+      <source>Passo pixel (µm) *</source>
       <translation>Pixel size (µm) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="630" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="727" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="631" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="729" />
       <source>Risoluzione larghezza (px) *</source>
       <translation>Resolution width (px) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="631" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="728" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="632" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="730" />
       <source>Risoluzione altezza (px) *</source>
       <translation>Resolution height (px) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="632" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="633" />
       <source>Profondità (bit) *</source>
       <translation>Bit depth *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="634" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="635" />
       <source>FPS massimi (facoltativo)</source>
       <translation>Maximum FPS (optional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="638" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="639" />
       <source>Otturatore *</source>
       <translation>Shutter *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="643" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="644" />
       <source>Backfocus (mm; facoltativo)</source>
       <translation>Back focus (mm; optional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="645" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="646" />
       <source>Raffreddata</source>
       <translation>Cooled</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="650" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="651" />
       <source>Delta raffreddamento (°C)</source>
       <translation>Cooling delta (°C)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="659" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="743" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="660" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="745" />
       <source>Scheda tecnica URL (facoltativa)</source>
       <translation>Datasheet URL (optional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="706" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="708" />
       <source>Tipo corpo *</source>
       <translation>Body type *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="715" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="717" />
       <source>Formato sensore *</source>
       <translation>Sensor format *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="720" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="722" />
       <source>Baionetta *</source>
       <translation>Lens mount *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="721" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="723" />
       <source>Profondità RAW (bit) *</source>
       <translation>RAW bit depth *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="731" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="733" />
       <source>Video larghezza (px)</source>
       <translation>Video width (px)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="732" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="734" />
       <source>Video altezza (px)</source>
       <translation>Video height (px)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="733" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="735" />
       <source>Video FPS massimi</source>
       <translation>Maximum video FPS</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="735" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="737" />
       <source>Live View</source>
       <translation>Live View</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="736" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="738" />
       <source>Posa Bulb</source>
       <translation>Bulb mode</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="759" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="761" />
       <source>Elimina camera astronomica</source>
       <translation>Delete astronomy camera</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="763" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="793" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="765" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="795" />
       <source>Rimuovi dai profili e continua</source>
       <translation>Remove from profiles and continue</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="779" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="809" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="781" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="811" />
       <source>Questo elemento è utilizzato da uno o più profili.</source>
       <translation>This item is used by one or more profiles.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="780" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="782" />
       <source>Eliminare la camera astronomica dal catalogo?</source>
       <translation>Delete the astronomy camera from the catalog?</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="789" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="791" />
       <source>Elimina corpo macchina</source>
       <translation>Delete camera body</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="810" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="812" />
       <source>Eliminare il corpo macchina dal catalogo?</source>
       <translation>Delete the camera body from the catalog?</translation>
     </message>
@@ -7664,7 +7664,7 @@ Check the application folder permissions and restart NightScope.</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="175" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="623" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="681" />
       <source>Rinomina</source>
       <translation>Rename</translation>
     </message>
@@ -7675,7 +7675,7 @@ Check the application folder permissions and restart NightScope.</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="194" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="609" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="667" />
       <source>Aggiungi profilo</source>
       <translation>Add profile</translation>
     </message>
@@ -7773,13 +7773,13 @@ Check the application folder permissions and restart NightScope.</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="285" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="635" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="693" />
       <source>Aggiungi equipaggiamento</source>
       <translation>Add equipment</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="292" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="709" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="767" />
       <source>Rimuovi equipaggiamento</source>
       <translation>Remove equipment</translation>
     </message>
@@ -7794,18 +7794,18 @@ Check the application folder permissions and restart NightScope.</translation>
       <translation>Exit pupil</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="454" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="480" />
       <source>✓</source>
       <translation>✓</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="584" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="642" />
       <source>Già assegnato</source>
       <translation>Already assigned</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="616" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="629" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="674" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="687" />
       <source>Nome profilo *</source>
       <translation>Profile name *</translation>
     </message>
@@ -7902,53 +7902,53 @@ Check the application folder permissions and restart NightScope.</translation>
       <translation>IS</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="584" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="642" />
       <source>Assegna</source>
       <translation>Assign</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="610" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="668" />
       <source>Aggiungi</source>
       <translation>Add</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="622" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="680" />
       <source>Rinomina profilo</source>
       <translation>Rename profile</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="638" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="711" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="696" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="769" />
       <source>Chiudi</source>
       <translation>Close</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="642" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="700" />
       <source>Cerca equipaggiamento...</source>
       <translation>Search equipment...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="671" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="729" />
       <source>1 risultato</source>
       <translation>1 result</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="672" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="730" />
       <source>%1 risultati</source>
       <translation>%1 results</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="700" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="758" />
       <source>Nessun elemento trovato.</source>
       <translation>No items found.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="724" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="782" />
       <source>Cerca...</source>
       <translation>Search...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="733" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="791" />
       <source>Rimuovi dal profilo</source>
       <translation>Remove from profile</translation>
     </message>

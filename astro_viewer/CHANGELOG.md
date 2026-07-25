@@ -26,6 +26,11 @@
   capacita' e' esplicitamente visuale. Un segnale dedicato aggiorna soltanto
   l'inventario: camere e body non attivano Equipment, raccomandazioni visuali,
   Planner, Home, dettaglio oggetto, Sky Compass o NSOM.
+- Rifinita la resa visuale dei profili dopo il controllo sull'interfaccia
+  reale: i gruppi della griglia restano allineati in alto, i tag delle camere
+  rimangono a destra quando lo spazio e' sufficiente e scendono su una seconda
+  riga soltanto nelle celle strette. I dialoghi Cameras usano tre colonne
+  uniformi e diciture piu' naturali per dimensioni del sensore e passo pixel.
 - La montatura dei telescopi usa ora una tassonomia stabile selezionata da menu:
   OTA, altazimutale, equatoriale, forcella e Dobson, con varianti manuale,
   motorizzata, GoTo e PushTo dove pertinenti. I valori storici dei seed vengono

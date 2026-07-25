@@ -427,6 +427,7 @@ Item {
         Layout.fillWidth: true
         Layout.minimumWidth: 0
         Layout.preferredWidth: 1
+        Layout.alignment: Qt.AlignTop
         spacing: 8
 
         Text {
@@ -454,6 +455,20 @@ Item {
                 readonly property bool cameraItem:
                     modelData.kind === "astronomy_camera"
                     || modelData.kind === "camera_body"
+                readonly property bool hasSecondaryBadge:
+                    (modelData.secondaryBadge || "").length > 0
+                readonly property real inlineCameraWidth:
+                    30 + 8
+                    + Math.min(
+                        220,
+                        Math.max(120, assignedName.implicitWidth)
+                    )
+                    + 8 + assignedDetails.implicitWidth
+                    + (hasSecondaryBadge
+                       ? 8 + assignedSecondary.implicitWidth
+                       : 0)
+                readonly property bool cameraTagsInline:
+                    !cameraItem || width >= inlineCameraWidth
 
                 Layout.fillWidth: true
                 spacing: 5
@@ -465,6 +480,7 @@ Item {
                     StatusPill { text: qsTr("✓"); accentColor: theme.green }
 
                     Text {
+                        id: assignedName
                         Layout.fillWidth: true
                         text: assignedItem.modelData.name
                         color: theme.textPrimary
@@ -477,14 +493,16 @@ Item {
                     }
 
                     StatusPill {
-                        visible: !assignedItem.cameraItem
+                        id: assignedDetails
+                        visible: assignedItem.cameraTagsInline
                         text: assignedItem.modelData.details
                         accentColor: group.accent
                     }
 
                     StatusPill {
-                        visible: !assignedItem.cameraItem
-                                 && (assignedItem.modelData.secondaryBadge || "").length > 0
+                        id: assignedSecondary
+                        visible: assignedItem.cameraTagsInline
+                                 && assignedItem.hasSecondaryBadge
                         text: assignedItem.modelData.secondaryBadge || ""
                         accentColor: theme.violet
                     }
@@ -494,6 +512,7 @@ Item {
                     Layout.fillWidth: true
                     Layout.leftMargin: 42
                     visible: assignedItem.cameraItem
+                             && !assignedItem.cameraTagsInline
                     spacing: 8
 
                     StatusPill {

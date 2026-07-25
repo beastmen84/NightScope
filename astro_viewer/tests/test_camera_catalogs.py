@@ -659,6 +659,12 @@ def test_camera_navigation_profile_ui_and_packaging_are_wired() -> None:
     assert '"camera_body"' in profiles_qml
     assert "Capacità visuali del profilo" in profiles_qml
     assert "root.width > 1500 ? 4" in profiles_qml
+    assert "Layout.alignment: Qt.AlignTop" in profiles_qml
+    assert "cameraTagsInline" in profiles_qml
+    assert cameras_qml.count("uniformCellWidths: true") == 2
+    assert "Larghezza sensore (mm) *" in cameras_qml
+    assert "Altezza sensore (mm) *" in cameras_qml
+    assert "Passo pixel (µm) *" in cameras_qml
     assert "telescopeMountTypeOptions" in telescopes_qml
     assert "DarkComboBox" in telescopes_qml
     assert "astronomy_camera_catalog_seed.csv" in spec

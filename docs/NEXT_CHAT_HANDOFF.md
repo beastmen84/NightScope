@@ -46,6 +46,12 @@ assegnazioni sono persistenti, separate per profilo e visibili nella pagina
 due a larghezza intermedia e una sui layout stretti. La cancellazione di un
 modello utente assegnato richiede la rimozione esplicita dai profili.
 
+Il follow-up visuale sull'interfaccia reale allinea in alto tutti i gruppi
+dell'inventario. I tag delle camere condividono la riga del nome quando la
+larghezza effettiva lo consente e passano automaticamente sotto soltanto nelle
+celle strette. I due dialoghi Cameras hanno colonne uniformi e label italiane
+piu' naturali per larghezza/altezza sensore e passo pixel.
+
 Il collegamento e' deliberatamente solo inventario. Il segnale
 `profileInventoryChanged` aggiorna la pagina senza emettere `equipmentChanged`
 e quindi senza notificare Home o dettaglio osservativo; camere e body non
@@ -67,7 +73,9 @@ Red Night Vision. `EquipmentCamerasPage.qml` passa QML lint senza warning. La
 pagina Profili con camere assegnate e' stata controllata nativamente a
 `1040 × 700` e `1709 × 1047` in entrambe le modalita'; in Red Night Vision i
 massimi sono verde 74 e blu 61, senza pixel oltre soglia. I cataloghi Qt
-IT/EN/ES contengono 1.864 voci finite e zero incomplete.
+IT/EN/ES contengono 1.864 voci finite e zero incomplete. Il follow-up visuale
+mantiene lo stesso gate e aggiunge la verifica del posizionamento responsivo
+dei tag e delle colonne uniformi nei dialoghi.
 
 ## Catalogo NGC e ammissione raccomandazioni
 

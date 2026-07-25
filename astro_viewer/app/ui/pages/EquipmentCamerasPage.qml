@@ -591,6 +591,7 @@ Item {
         GridLayout {
             Layout.fillWidth: true
             columns: 3
+            uniformCellWidths: true
             columnSpacing: 8
             rowSpacing: 8
 
@@ -623,9 +624,9 @@ Item {
                 valueRole: "code"
             }
 
-            DarkTextField { id: astronomySensorWidth; Layout.fillWidth: true; labelText: qsTr("Sensore larghezza (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: astronomySensorHeight; Layout.fillWidth: true; labelText: qsTr("Sensore altezza (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: astronomyPixelSize; Layout.fillWidth: true; labelText: qsTr("Pixel (µm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: astronomySensorWidth; Layout.fillWidth: true; labelText: qsTr("Larghezza sensore (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: astronomySensorHeight; Layout.fillWidth: true; labelText: qsTr("Altezza sensore (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: astronomyPixelSize; Layout.fillWidth: true; labelText: qsTr("Passo pixel (µm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
 
             DarkTextField { id: astronomyResolutionWidth; Layout.fillWidth: true; labelText: qsTr("Risoluzione larghezza (px) *"); inputMethodHints: Qt.ImhDigitsOnly }
             DarkTextField { id: astronomyResolutionHeight; Layout.fillWidth: true; labelText: qsTr("Risoluzione altezza (px) *"); inputMethodHints: Qt.ImhDigitsOnly }
@@ -695,6 +696,7 @@ Item {
         GridLayout {
             Layout.fillWidth: true
             columns: 3
+            uniformCellWidths: true
             columnSpacing: 8
             rowSpacing: 8
 
@@ -720,8 +722,8 @@ Item {
             DarkTextField { id: cameraLensMount; Layout.fillWidth: true; labelText: qsTr("Baionetta *") }
             DarkTextField { id: cameraRawBitDepth; Layout.fillWidth: true; labelText: qsTr("Profondità RAW (bit) *"); inputMethodHints: Qt.ImhDigitsOnly }
 
-            DarkTextField { id: cameraSensorWidth; Layout.fillWidth: true; labelText: qsTr("Sensore larghezza (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: cameraSensorHeight; Layout.fillWidth: true; labelText: qsTr("Sensore altezza (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: cameraSensorWidth; Layout.fillWidth: true; labelText: qsTr("Larghezza sensore (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: cameraSensorHeight; Layout.fillWidth: true; labelText: qsTr("Altezza sensore (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
 
             DarkTextField { id: cameraResolutionWidth; Layout.fillWidth: true; labelText: qsTr("Risoluzione larghezza (px) *"); inputMethodHints: Qt.ImhDigitsOnly }
