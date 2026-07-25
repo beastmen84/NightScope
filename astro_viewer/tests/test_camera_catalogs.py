@@ -42,12 +42,13 @@ def test_camera_seeds_are_structured_representative_and_source_linked() -> None:
         astronomy_cameras = repository.astronomy_cameras()
         camera_bodies = repository.camera_bodies()
 
-        assert len(astronomy_cameras) == 17
-        assert len(camera_bodies) == 15
+        assert len(astronomy_cameras) == 37
+        assert len(camera_bodies) == 40
         assert {item["brand"] for item in astronomy_cameras} == {
             "Atik",
             "Player One Astronomy",
             "QHYCCD",
+            "SVBONY",
             "ZWO",
         }
         assert {item["brand"] for item in camera_bodies} == {
@@ -57,8 +58,15 @@ def test_camera_seeds_are_structured_representative_and_source_linked() -> None:
             "OM System",
             "Panasonic",
             "Pentax",
+            "Sigma",
             "Sony",
         }
+        assert sum(
+            item["brand"] == "SVBONY" for item in astronomy_cameras
+        ) == 7
+        assert sum(
+            item["body_type"] == "MIRRORLESS" for item in camera_bodies
+        ) == 33
         assert {item["camera_class"] for item in astronomy_cameras} == set(
             ASTRONOMY_CAMERA_CLASS_LABELS
         )
@@ -77,6 +85,15 @@ def test_camera_seeds_are_structured_representative_and_source_linked() -> None:
         assert all(item["source_url"].startswith("https://") for item in astronomy_cameras)
         assert all(item["source_url"].startswith("https://") for item in camera_bodies)
         assert all(item["pixel_size_um"] > 0 for item in camera_bodies)
+        for item in astronomy_cameras:
+            expected_width = (
+                item["resolution_width_px"] * item["pixel_size_um"] / 1000.0
+            )
+            expected_height = (
+                item["resolution_height_px"] * item["pixel_size_um"] / 1000.0
+            )
+            assert abs(item["sensor_width_mm"] - expected_width) < 0.15
+            assert abs(item["sensor_height_mm"] - expected_height) < 0.15
 
         with closing(sqlite3.connect(database_path)) as connection:
             assert connection.execute("PRAGMA user_version").fetchone()[0] == SCHEMA_VERSION
@@ -155,6 +172,11 @@ def test_camera_seed_files_have_explicit_unique_keys_and_expected_fields() -> No
         seed_keys = [row["seed_key"] for row in rows]
         assert all(seed_key.startswith(prefix) for seed_key in seed_keys)
         assert len(seed_keys) == len(set(seed_keys))
+        identities = [
+            (row["brand"].casefold(), row["model"].casefold())
+            for row in rows
+        ]
+        assert len(identities) == len(set(identities))
 
 
 def test_schema_19_upgrade_adds_camera_catalogs_without_changing_profiles() -> None:
@@ -170,8 +192,8 @@ def test_schema_19_upgrade_adds_camera_catalogs_without_changing_profiles() -> N
         initialize_database(database_path, SCHEMA_PATH)
         upgraded = EquipmentCatalogRepository(database_path)
 
-        assert len(upgraded.astronomy_cameras()) == 17
-        assert len(upgraded.camera_bodies()) == 15
+        assert len(upgraded.astronomy_cameras()) == 37
+        assert len(upgraded.camera_bodies()) == 40
         assert upgraded.profiles() == profile_snapshot
         with closing(sqlite3.connect(database_path)) as connection:
             assert connection.execute("PRAGMA user_version").fetchone()[0] == 20

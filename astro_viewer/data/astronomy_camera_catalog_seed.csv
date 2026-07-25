@@ -1,18 +1,38 @@
 seed_key,brand,model,camera_class,sensor_model,sensor_technology,color_mode,sensor_width_mm,sensor_height_mm,resolution_width_px,resolution_height_px,pixel_size_um,bit_depth,max_fps,cooled,cooling_delta_c,shutter_type,backfocus_mm,source_url
 astro-camera::zwo::asi2600mc pro,ZWO,ASI2600MC Pro,DEEP_SKY,Sony IMX571,CMOS,COLOR,23.5,15.7,6248,4176,3.76,16,3.51,1,35,ROLLING,17.5,https://www.zwoastro.com/product/new-asi2600mm-mc-pro/
 astro-camera::zwo::asi2600mm pro,ZWO,ASI2600MM Pro,DEEP_SKY,Sony IMX571,CMOS,MONO,23.5,15.7,6248,4176,3.76,16,3.51,1,35,ROLLING,17.5,https://www.zwoastro.com/product/new-asi2600mm-mc-pro/
-astro-camera::zwo::asi533mc pro,ZWO,ASI533MC Pro,DEEP_SKY,Sony IMX533,CMOS,COLOR,11.3,11.3,3008,3008,3.76,14,20,1,35,ROLLING,6.5,https://www.zwoastro.com/compare/
-astro-camera::zwo::asi533mm pro,ZWO,ASI533MM Pro,DEEP_SKY,Sony IMX533,CMOS,MONO,11.3,11.3,3008,3008,3.76,14,20,1,35,ROLLING,6.5,https://www.zwoastro.com/compare/
-astro-camera::zwo::asi585mc pro,ZWO,ASI585MC Pro,ALL_ROUND,Sony IMX585,CMOS,COLOR,11.1,6.3,3840,2160,2.9,12,46.9,1,35,ROLLING,6.5,https://www.zwoastro.com/compare/
+astro-camera::zwo::asi533mc pro,ZWO,ASI533MC Pro,DEEP_SKY,Sony IMX533,CMOS,COLOR,11.3,11.3,3008,3008,3.76,14,20,1,35,ROLLING,6.5,https://i.zwoastro.com/wp-content/uploads/2024/07/9f26af0bec5c60ea84107dfec8314859.pdf
+astro-camera::zwo::asi533mm pro,ZWO,ASI533MM Pro,DEEP_SKY,Sony IMX533,CMOS,MONO,11.3,11.3,3008,3008,3.76,14,20,1,35,ROLLING,6.5,https://i.zwoastro.com/wp-content/uploads/2024/07/9f26af0bec5c60ea84107dfec8314859.pdf
+astro-camera::zwo::asi585mc pro,ZWO,ASI585MC Pro,ALL_ROUND,Sony IMX585,CMOS,COLOR,11.1,6.3,3840,2160,2.9,12,47,1,35,ROLLING,6.5,https://www.zwoastro.com/product/asi585mc-mm-pro/
 astro-camera::zwo::asi678mc,ZWO,ASI678MC,PLANETARY,Sony IMX678,CMOS,COLOR,7.68,4.32,3840,2160,2.0,12,47.5,0,,ROLLING,12.5,https://www.zwoastro.com/product/zwo-asi678mc/
 astro-camera::zwo::asi662mc,ZWO,ASI662MC,PLANETARY,Sony IMX662,CMOS,COLOR,5.57,3.13,1920,1080,2.9,12,107.6,0,,ROLLING,12.5,https://www.zwoastro.com/product/asi662mc/
-astro-camera::qhyccd::qhy268c,QHYCCD,QHY268C,DEEP_SKY,Sony IMX571,CMOS,COLOR,23.5,15.7,6252,4176,3.76,16,6.8,1,35,ROLLING,12.5,https://www.qhyccd.com/astronomical-camera-qhy268/
+astro-camera::zwo::asi6200mc pro,ZWO,ASI6200MC Pro,DEEP_SKY,Sony IMX455,CMOS,COLOR,36,24,9576,6388,3.76,16,2.05,1,35,ROLLING,17.5,https://www.zwoastro.com/product/asi6200/
+astro-camera::zwo::asi6200mm pro,ZWO,ASI6200MM Pro,DEEP_SKY,Sony IMX455,CMOS,MONO,36,24,9576,6388,3.76,16,2.05,1,35,ROLLING,17.5,https://www.zwoastro.com/product/asi6200/
+astro-camera::zwo::asi294mc pro,ZWO,ASI294MC Pro,DEEP_SKY,Sony IMX294,CMOS,COLOR,19.2,13,4144,2822,4.63,14,19,1,35,ROLLING,6.5,https://www.zwoastro.com/product/asi294/
+astro-camera::zwo::asi294mm pro,ZWO,ASI294MM Pro,DEEP_SKY,Sony IMX492,CMOS,MONO,19.2,13,4144,2822,4.63,14,19,1,35,ROLLING,6.5,https://www.zwoastro.com/product/asi294/
+astro-camera::qhyccd::qhy268c,QHYCCD,QHY268C,DEEP_SKY,Sony IMX571,CMOS,COLOR,23.5,15.7,6252,4176,3.76,16,6.8,1,35,ROLLING,14.5,https://www.qhyccd.com/astronomical-camera-qhy268/
+astro-camera::qhyccd::qhy268m,QHYCCD,QHY268M,DEEP_SKY,Sony IMX571,CMOS,MONO,23.5,15.7,6252,4176,3.76,16,6.8,1,35,ROLLING,14.5,https://www.qhyccd.com/astronomical-camera-qhy268/
 astro-camera::qhyccd::qhy533c,QHYCCD,QHY533C,DEEP_SKY,Sony IMX533,CMOS,COLOR,11.31,11.31,3008,3028,3.76,14,26.5,1,35,ROLLING,17,https://www.qhyccd.com/astronomical-camera-qhy533/
 astro-camera::qhyccd::qhy533m,QHYCCD,QHY533M,DEEP_SKY,Sony IMX533,CMOS,MONO,11.31,11.31,3008,3028,3.76,14,26.5,1,35,ROLLING,14,https://www.qhyccd.com/astronomical-camera-qhy533/
 astro-camera::qhyccd::qhy600ph-c,QHYCCD,QHY600PH-C,DEEP_SKY,Sony IMX455,CMOS,COLOR,36,24,9576,6388,3.76,16,4,1,35,ROLLING,23.5,https://www.qhyccd.com/astronomical-camera-qhy600/
+astro-camera::qhyccd::qhy600ph-m,QHYCCD,QHY600PH-M,DEEP_SKY,Sony IMX455,CMOS,MONO,36,24,9576,6388,3.76,16,4,1,35,ROLLING,23.5,https://www.qhyccd.com/astronomical-camera-qhy600/
 astro-camera::qhyccd::qhy5iii585c,QHYCCD,QHY5III585C,PLANETARY,Sony IMX585,CMOS,COLOR,11.2,6.3,3856,2180,2.9,12,41.5,0,,ROLLING,17,https://www.qhyccd.com/qhy5iii585/
+astro-camera::qhyccd::qhy5iii715c,QHYCCD,QHY5III715C,PLANETARY,Sony IMX715,CMOS,COLOR,5.6,3.2,3840,2192,1.45,12,42,0,,ROLLING,8,https://www.qhyccd.com/qhy5iii715c/
+astro-camera::qhyccd::qhy183c,QHYCCD,QHY183C,ALL_ROUND,Sony IMX183,CMOS,COLOR,13.3,8.87,5544,3684,2.4,12,19,1,40,ROLLING,17.5,https://www.qhyccd.com/astronomical-camera-qhy183/
+astro-camera::qhyccd::qhy183m,QHYCCD,QHY183M,ALL_ROUND,Sony IMX183,CMOS,MONO,13.3,8.87,5544,3684,2.4,12,19,1,40,ROLLING,17.5,https://www.qhyccd.com/astronomical-camera-qhy183/
 astro-camera::player one astronomy::poseidon-c pro,Player One Astronomy,Poseidon-C Pro,DEEP_SKY,Sony IMX571,CMOS,COLOR,23.5,15.7,6252,4176,3.76,16,15,1,40,ROLLING,17.5,https://player-one-astronomy.com/download/Product%20specification%20manual/Poseidon-C%20Pro%20camera%20Manual.pdf
+astro-camera::player one astronomy::poseidon-m pro,Player One Astronomy,Poseidon-M Pro,DEEP_SKY,Sony IMX571,CMOS,MONO,23.5,15.7,6252,4176,3.76,16,15,1,40,ROLLING,17.5,https://player-one-astronomy.com/download/Product%20specification%20manual/Poseidon-M%20Pro%20camera%20Manual.pdf
 astro-camera::player one astronomy::ares-c pro,Player One Astronomy,Ares-C Pro,DEEP_SKY,Sony IMX533,CMOS,COLOR,11.31,11.31,3008,3008,3.76,14,43,1,40,ROLLING,17.5,https://player-one-astronomy.com/download/Product%20specification%20manual/Ares-C%20Pro%20camera%20Manual.pdf
+astro-camera::player one astronomy::ares-m pro,Player One Astronomy,Ares-M Pro,DEEP_SKY,Sony IMX533,CMOS,MONO,11.31,11.31,3008,3008,3.76,14,43,1,40,ROLLING,17.5,https://player-one-astronomy.com/product/ares-m-pro-usb3-0-mono-camera-imx533/
 astro-camera::player one astronomy::uranus-c pro,Player One Astronomy,Uranus-C Pro,ALL_ROUND,Sony IMX585,CMOS,COLOR,11.2,6.3,3856,2180,2.9,12,47,1,40,ROLLING,17.5,https://player-one-astronomy.com/product/uranus-c-pro-usb3-0-color-camera-imx585/
 astro-camera::atik::apx26 colour,Atik,Apx26 Colour,DEEP_SKY,Sony IMX571,CMOS,COLOR,23.5,15.7,6248,4176,3.76,16,4,1,35,ROLLING,17.5,https://www.atik-cameras.com/products/apx26/
 astro-camera::atik::apx26 mono,Atik,Apx26 Mono,DEEP_SKY,Sony IMX571,CMOS,MONO,23.5,15.7,6248,4176,3.76,16,4,1,35,ROLLING,17.5,https://www.atik-cameras.com/products/apx26/
+astro-camera::atik::apx60 colour,Atik,Apx60 Colour,DEEP_SKY,Sony IMX455,CMOS,COLOR,36,24,9576,6380,3.76,16,3.1,1,35,ROLLING,17.5,https://www.atik-cameras.com/products/apx60/
+astro-camera::atik::apx60 mono,Atik,Apx60 Mono,DEEP_SKY,Sony IMX455,CMOS,MONO,36,24,9576,6380,3.76,16,3.1,1,35,ROLLING,17.5,https://www.atik-cameras.com/products/apx60/
+astro-camera::svbony::sv605cc,SVBONY,SV605CC,DEEP_SKY,Sony IMX533,CMOS,COLOR,11.31,11.31,3008,3008,3.76,14,20,1,30,ROLLING,6.5,https://www.svbony.com/products/sv605cc-camera
+astro-camera::svbony::sv605mc,SVBONY,SV605MC,DEEP_SKY,Sony IMX533,CMOS,MONO,11.31,11.31,3008,3008,3.76,14,20,1,30,ROLLING,6.5,https://www.svbony.com/products/svbony-sv605mc-mono-cooled-camera
+astro-camera::svbony::sv405cc,SVBONY,SV405CC,DEEP_SKY,Sony IMX294,CMOS,COLOR,19.2,13,4144,2822,4.63,14,19,1,30,ROLLING,6.5,https://www.svbony.com/products/sv405cc-cooled-color-osc-camera
+astro-camera::svbony::sv705c,SVBONY,SV705C,ALL_ROUND,Sony IMX585,CMOS,COLOR,11.2,6.3,3856,2180,2.9,12,45,0,,ROLLING,6.5,https://www.svbony.com/products/sv705c-color-planetary-camera-imx585
+astro-camera::svbony::sv505c,SVBONY,SV505C,PLANETARY,Sony IMX464,CMOS,COLOR,7.9,4.5,2712,1538,2.9,12,93,0,,ROLLING,6.5,https://www.svbony.com/products/svbony-sv505c-color-planetary-camera-for-astronomy
+astro-camera::svbony::sc715c,SVBONY,SC715C,PLANETARY,Sony IMX715,CMOS,COLOR,5.57,3.13,3840,2160,1.45,12,45.1,0,,ROLLING,,https://www.svbony.com/products/sc715c-planetary-camera
+astro-camera::svbony::sc432m,SVBONY,SC432M,PLANETARY,Sony IMX432,CMOS,MONO,14.5,9.9,1608,1104,9,12,120,0,,GLOBAL,7.5,https://www.svbony.com/products/sc432m-mono-solar-camera

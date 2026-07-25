@@ -24,13 +24,20 @@ inglese descritta sotto appartiene al sorgente `1.34.3`.
 ## Fondazione catalogo Cameras
 
 La sidebar espone ora `Cameras`, una pagina a due colonne indipendenti:
-17 camere astronomiche di ZWO, QHYCCD, Player One Astronomy e Atik, e
-15 corpi mirrorless/DSLR di Canon, Nikon, Sony, Fujifilm, Panasonic, OM System
-e Pentax. I seed conservano le fonti ufficiali per modello e soltanto i dati
-stabili utili al futuro motore fotografico: sensore, pixel, risoluzione,
-profondita', frame rate, raffreddamento, otturatore, live view, Bulb e
-baionetta. Le voci integrate sono modificabili ma non eliminabili; quelle
-utente hanno CRUD completo.
+37 camere astronomiche di ZWO, QHYCCD, Player One Astronomy, Atik e SVBONY, e
+40 corpi mirrorless/DSLR di Canon, Nikon, Sony, Fujifilm, Panasonic, OM System,
+Pentax e Sigma. La selezione comprende 7 modelli SVBONY e 33 mirrorless. I seed
+conservano le fonti ufficiali per modello e soltanto i dati stabili utili al
+futuro motore fotografico: sensore, pixel, risoluzione, profondita', frame rate,
+raffreddamento, otturatore, live view, Bulb e baionetta. Le voci integrate sono
+modificabili ma non eliminabili; quelle utente hanno CRUD completo.
+
+La review successiva alla prima fondazione ha confermato isolamento dal motore
+visuale, persistenza degli override utente e reseed incrementale sui database
+esistenti. Ha inoltre corretto il modo massimo 5.8K della Panasonic GH7 a 30p,
+il backfocus della QHY268C e i riferimenti ZWO generici. I test controllano
+anche unicita' marca/modello e coerenza fisica fra risoluzione, passo pixel e
+dimensioni del sensore delle camere astronomiche.
 
 Lo schema 20 aggiunge `AstronomyCameraCatalog` e `CameraBodyCatalog`, senza
 tabelle di associazione ai profili. Il refresh dei due cataloghi e' mirato e

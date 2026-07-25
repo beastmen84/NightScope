@@ -117,33 +117,39 @@ against current manufacturer catalog pages and manuals. Primary references:
 - Sky-Watcher matched ED reducers:
   `https://www.skywatcher.com/series/imaging-accessories/`
 
-The camera catalogues were assembled from official manufacturer specifications
-on 2026-07-25. The astronomy-camera seed contains 17 representative cooled and
-uncooled, color and monochrome models from ZWO, QHYCCD, Player One Astronomy
-and Atik. The camera-body seed contains 15 mirrorless and DSLR models from
-Canon, Nikon, Sony, Fujifilm, Panasonic, OM System and Pentax. Every row keeps
-its exact official product or specification URL; primary manufacturer
-collections include:
+The camera catalogues were assembled and reviewed against official manufacturer
+specifications on 2026-07-25. The astronomy-camera seed contains 37
+representative cooled and uncooled, color and monochrome models from ZWO,
+QHYCCD, Player One Astronomy, Atik and SVBONY. The camera-body seed contains 40
+mirrorless and DSLR models from Canon, Nikon, Sony, Fujifilm, Panasonic,
+OM System, Pentax and Sigma. Every row keeps its exact official product,
+manual or specification URL; primary manufacturer collections include:
 
-- ZWO, QHYCCD, Player One Astronomy and Atik:
+- ZWO, QHYCCD, Player One Astronomy, Atik and SVBONY:
   `https://www.zwoastro.com/`, `https://www.qhyccd.com/`,
-  `https://player-one-astronomy.com/` and
-  `https://www.atik-cameras.com/`
+  `https://player-one-astronomy.com/`, `https://www.atik-cameras.com/` and
+  `https://www.svbony.com/`
 - Canon, Nikon and Sony:
   `https://www.usa.canon.com/cameras/eos`,
   `https://www.nikonusa.com/c/cameras` and
   `https://electronics.sony.com/imaging/interchangeable-lens-cameras/`
-- Fujifilm, Panasonic, OM System and Pentax:
+- Fujifilm, Panasonic, OM System, Pentax and Sigma:
   `https://www.fujifilm-x.com/global/products/cameras/`,
   `https://shop.panasonic.com/pages/cameras-camcorders`,
-  `https://explore.omsystem.com/` and
-  `https://us.ricoh-imaging.com/product-category/cameras/`
+  `https://explore.omsystem.com/`,
+  `https://us.ricoh-imaging.com/product-category/cameras/` and
+  `https://www.sigma-global.com/en/cameras/`
 
 Only stable fields needed by a later imaging engine are modeled: physical
 sensor size, pixel pitch or derived pixel pitch, resolution, bit depth, sensor
 and shutter type, cooling, frame rate, live view, Bulb support, lens mount and
-source URL. Cameras are catalogue-only in schema 20: there are no profile
-association tables and no visual recommendation consumer.
+source URL. The camera-body video tuple records the highest-resolution native
+mode and the frame rate available at that same resolution, rather than an
+unrelated lower-resolution peak rate. Gain-dependent values such as quantum
+efficiency, read noise and full-well capacity remain intentionally deferred
+until the imaging engine defines a comparable operating mode. Cameras are
+catalogue-only in schema 20: there are no profile association tables and no
+visual recommendation consumer.
 
 Telescope mount values are normalized to stable codes covering optical-tube
 only, manual/GoTo/PushTo alt-azimuth, manual/tracking equatorial, GoTo fork and

@@ -3,11 +3,17 @@
 ## Unreleased
 
 - Aggiunta la pagina `Cameras`, organizzata in due cataloghi indipendenti:
-  17 camere astronomiche di ZWO, QHYCCD, Player One Astronomy e Atik, e
-  15 corpi macchina di Canon, Nikon, Sony, Fujifilm, Panasonic, OM System e
-  Pentax. I campi persistiti descrivono sensore, pixel, risoluzione, profondita'
-  in bit, frame rate e funzioni fotografiche utili al futuro motore, con fonti
-  tecniche ufficiali per ogni modello.
+  37 camere astronomiche di ZWO, QHYCCD, Player One Astronomy, Atik e SVBONY,
+  e 40 corpi macchina di Canon, Nikon, Sony, Fujifilm, Panasonic, OM System,
+  Pentax e Sigma. La selezione comprende 7 SVBONY e 33 mirrorless; i campi
+  persistiti descrivono sensore, pixel, risoluzione, profondita' in bit, frame
+  rate e funzioni fotografiche utili al futuro motore, con fonti tecniche
+  ufficiali per ogni modello.
+- La review dei seed Cameras corregge il frame rate del formato massimo 5.8K
+  della Panasonic GH7, il backfocus della QHY268C e i riferimenti ZWO prima
+  generici. I test verificano ora anche identita' marca/modello univoche e
+  coerenza fra risoluzione, passo pixel e dimensioni fisiche dei sensori
+  astronomici.
 - Lo schema SQLite passa alla versione 20 con `AstronomyCameraCatalog` e
   `CameraBodyCatalog`. I modelli integrati possono essere corretti ma non
   eliminati; i modelli utente hanno CRUD completo. Questa prima fase e'

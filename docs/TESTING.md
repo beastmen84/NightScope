@@ -144,8 +144,8 @@ Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-25:
 | Check | Result |
 | --- | --- |
 | `python tools/run_checks.py --fast` on the final source state | Passed |
-| Complete deterministic suite | 974 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 276.11 s |
-| Camera seed/bootstrap | 17 astronomy cameras and 15 camera bodies; schema 19-to-20 upgrade passed |
+| Complete deterministic suite | 974 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 249.00 s |
+| Camera seed/bootstrap | 37 astronomy cameras and 40 camera bodies; schema 19-to-20 upgrade, unique identities and sensor geometry checks passed |
 | Catalogue-only boundary | Camera CRUD emits only `cameraCatalogChanged`; profiles, visual setup and Home signals remain unchanged |
 | Mount compatibility | Controlled taxonomy plus legacy `manuale` mapping preserve the prior visual tracking coefficients |
 | Translation catalogues | IT, EN, and ES: 1,854 finished, 0 unfinished each |
