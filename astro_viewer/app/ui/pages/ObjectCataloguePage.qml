@@ -8,7 +8,7 @@ Item {
 
     property var controller
     property string allFilter: "__all__"
-    signal openObject(string objectId)
+    signal openObject(string objectId, string catalogue, string designation)
 
     function optionModel(key) {
         var options = controller.catalogueFilterOptions || {}
@@ -303,20 +303,30 @@ Item {
                     }
                 }
 
-                ColumnLayout {
+                ListView {
+                    id: catalogueList
+
                     Layout.fillWidth: true
+                    Layout.preferredHeight: Math.min(contentHeight, 640)
+                    Layout.minimumHeight: count > 0 ? 46 : 0
                     spacing: 4
+                    clip: true
+                    reuseItems: true
+                    cacheBuffer: 92
+                    boundsBehavior: Flickable.StopAtBounds
+                    model: controller.catalogueObjects
 
-                    Repeater {
-                        model: controller.catalogueObjects
+                    ScrollBar.vertical: ScrollBar {
+                        policy: ScrollBar.AsNeeded
+                    }
 
-                        delegate: Rectangle {
+                    delegate: Rectangle {
                             id: row
                             property var itemData: modelData
                             property bool hovered: false
 
-                            Layout.fillWidth: true
-                            implicitHeight: 46
+                            width: catalogueList.width
+                            height: 46
                             radius: 6
                             color: hovered ? theme.surfaceHover : theme.surface
                             border.color: hovered ? theme.cyan : theme.border
@@ -411,10 +421,13 @@ Item {
                                 cursorShape: Qt.PointingHandCursor
                                 onEntered: row.hovered = true
                                 onExited: row.hovered = false
-                                onClicked: root.openObject(row.itemData.object_id)
+                                onClicked: root.openObject(
+                                    row.itemData.object_id,
+                                    row.itemData.catalogue,
+                                    row.itemData.catalogue_id
+                                )
                             }
                         }
-                    }
                 }
 
                 Text {

@@ -64,6 +64,24 @@ def test_traits_identify_supernova_remnant_as_deep_sky() -> None:
     assert traits.is_wide_field
 
 
+def test_traits_identify_ngc_stellar_and_unclassified_targets_as_deep_sky() -> None:
+    for object_type in ("Star", "Optical double", "Unclassified object"):
+        traits = TargetObservationTraits.from_object(
+            _object(
+                "ngc-test",
+                "NGC test",
+                object_type,
+                "n/d",
+                "",
+                None,
+                "General",
+            ),
+        )
+
+        assert traits.is_deep_sky
+        assert not traits.is_planetary_or_lunar
+
+
 def test_traits_fallback_to_object_type_and_textual_size() -> None:
     traits = TargetObservationTraits.from_object(
         _object("messier-M44", "M44", "Open cluster", "3.1", "95 arcmin", None, ""),

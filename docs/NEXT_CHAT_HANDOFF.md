@@ -1,6 +1,6 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-24
+Aggiornato: 2026-07-25
 
 ## Stato Versioni
 
@@ -20,6 +20,46 @@ La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
+
+## Catalogo NGC e ammissione raccomandazioni
+
+Il catalogo canonico contiene ora 7.585 target deep-sky fisici. Il snapshot
+OpenNGC al commit `36cb178a` fornisce 7.839 designazioni NGC utilizzabili,
+risolte in 7.571 target fisici: 205 identita' riusano oggetti
+Messier/Caldwell e 7.366 sono nuovi target NGC-only. `NGC 412`, marcato
+`NonEx`, non viene importato. Alias dello stesso catalogo, inclusi NGC 6/20 e
+NGC 650/651, condividono identita', preferenza e calcoli.
+
+I 7.366 target NGC-only partono con `Home` disattivato; le identita'
+Messier/Caldwell mantengono il default attivo anche sotto designazione NGC. Le
+scelte utente restano in `CatalogueRecommendationPreference`. Lo schema 19
+rimuove il vecchio vincolo un target/una designazione per catalogo e la
+migrazione da schema 18 conserva gli override. Descrizione e curiosita' NGC-only
+mostrano `Work in progress`; non sono state create migliaia di traduzioni o
+fonti editoriali fittizie.
+
+`CatalogueRepository` applica il flag effettivo in SQL prima che Skyfield legga
+coordinate o calcoli visibilita'. Raccomandazioni, visibilita' mensile e
+geometria lunare dei target fissi usano batch NumPy/Skyfield con fallback
+scalare identico su Windows e Linux. La join delle preferenze usa la chiave
+`NOCASE` indicizzata: la query tutto-attivo scende da circa 18,9 s a 0,15 s.
+Nel benchmark Windows end-to-end, il profilo con i 219 default richiede 7,55 s;
+il caso estremo con tutti i 7.585 target attivi richiede 12,45 s, inclusi
+catalogo mensile, eventi, Equipment, NSOM, Planner e Sky Compass. L'incremento
+di circa 4,9 s resta nel worker esistente; non e' stato introdotto
+multiprocesso.
+
+La pagina catalogo usa una `ListView` virtualizzata, espande tutte le 7.839
+designazioni sotto il filtro NGC, mantiene l'alias esatto nel dettaglio e
+accetta codici compatti come `NGC1` senza far coincidere `C23` con `NGC 23`.
+Il snapshot, l'hash, l'attribuzione OpenNGC e il testo completo
+CC-BY-SA-4.0 sono inclusi nei sorgenti e nei bundle. I cataloghi Qt IT/EN/ES
+contengono 1.730 voci finite e zero incomplete.
+
+Sul sorgente finale il gate `tools/run_checks.py --fast` passa con 950 test,
+642 warning Skyfield/NumPy gia' noti, 10 subtest, smoke backend, QML normale e
+Red Night Vision. Il gate di sicurezza immediatamente precedente ha riportato
+84% di copertura su 16.429 statement runtime e nessuna vulnerabilita' nota.
 
 ## Esecuzione sorgente e dist Linux 1.41.0
 

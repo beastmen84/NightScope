@@ -67,6 +67,11 @@ def target_class_from_runtime_target(target: Any) -> NsomTargetClass | None:
         return NsomTargetClass.PLANETARY_NEBULA
     if target_id in _SOLAR_SYSTEM_IDS or "pianeta" in text or "planet" in text:
         return NsomTargetClass.PLANET
+    if (
+        object_type in {"star", "unclassified object"}
+        or "stella singola" in text
+    ):
+        return NsomTargetClass.DOUBLE_STAR
     if "double star" in text or "optical double" in text or "stella doppia" in text:
         return NsomTargetClass.DOUBLE_STAR
     if "globular" in text or "globulare" in text:
@@ -79,6 +84,8 @@ def target_class_from_runtime_target(target: Any) -> NsomTargetClass | None:
         or "asterismo" in text
     ):
         return NsomTargetClass.OPEN_CLUSTER
+    if "galaxy" in object_type or "galassia" in object_type:
+        return NsomTargetClass.GALAXY
     if is_supernova_remnant_type(text):
         return NsomTargetClass.DIFFUSE_NEBULA
     if "nebula" in text or "nebulosa" in text:

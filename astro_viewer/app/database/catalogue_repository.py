@@ -51,6 +51,24 @@ class CatalogueRepository:
             ).fetchall()
             return self._objects_with_designations(connection, rows)
 
+    def list_recommendation_objects(self) -> list[dict]:
+        """Return only targets admitted by defaults and persistent overrides."""
+
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                f"""
+                SELECT {self._qualified_object_columns('object')}
+                FROM CatalogueObject object
+                LEFT JOIN CatalogueRecommendationPreference preference
+                  ON preference.object_id = object.object_id COLLATE NOCASE
+                WHERE COALESCE(
+                    preference.enabled,
+                    object.recommendation_enabled_by_default
+                ) = 1
+                """
+            ).fetchall()
+            return self._objects_with_designations(connection, rows)
+
     def get_by_object_id(self, object_id: str) -> dict | None:
         normalized = object_id.strip()
         if not normalized:

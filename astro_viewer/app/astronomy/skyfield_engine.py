@@ -10,6 +10,7 @@ from itertools import combinations
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+import numpy as np
 from skyfield import almanac, eclipselib, magnitudelib, searchlib
 from skyfield.api import Loader, Star, wgs84
 
@@ -154,6 +155,10 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             tuple[datetime, ObservingNightWindow],
         ] = {}
         self._catalogue_star_cache: dict[str, Star | None] = {}
+        self._catalogue_coordinate_cache: dict[
+            str,
+            tuple[float, float] | None,
+        ] = {}
         self._transient_event_results: dict[int, _TransientEventResult] = {}
 
     def _load_ephemeris(self):
@@ -304,20 +309,59 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         now = self._now(location)
         night_window = self.observing_night_window(location, reference=now)
         candidates = []
-        rows = self._catalogue_repository.list_objects() if self._catalogue_repository else []
+        rows = self._recommendation_catalogue_rows()
+        coordinate_cache = getattr(
+            self,
+            "_catalogue_coordinate_cache",
+            None,
+        )
+        if coordinate_cache is None:
+            coordinate_cache = {}
+            self._catalogue_coordinate_cache = coordinate_cache
         for row in rows:
             try:
+                ra_hours = parse_ra_hours(row["ra"])
                 dec_degrees = parse_dec_degrees(row["dec"])
                 theoretical_max_altitude = 90.0 - abs(location.latitude - dec_degrees)
                 if theoretical_max_altitude < 12.0:
                     continue
                 magnitude = row["magnitude"] if row["magnitude"] is not None else 10.0
                 cheap_score = self._object_score(theoretical_max_altitude, magnitude, row["object_type"], True)
-                candidates.append((cheap_score, row, dec_degrees))
+                candidates.append(
+                    (
+                        cheap_score,
+                        row,
+                        ra_hours,
+                        dec_degrees,
+                    )
+                )
+                coordinate_cache[str(row["object_id"])] = (
+                    ra_hours,
+                    dec_degrees,
+                )
             except ValueError:
                 continue
+        ordered = sorted(
+            candidates,
+            key=lambda item: item[0],
+            reverse=True,
+        )
+        if not ordered or not night_window.has_observing_window:
+            return []
+        try:
+            return self._catalogue_details_batch(
+                ordered,
+                location,
+                now=now,
+                night_window=night_window,
+            )
+        except Exception:
+            logger.warning(
+                "Batched deep-sky calculation failed; using scalar fallback.",
+                exc_info=True,
+            )
         objects = []
-        for _, row, dec_degrees in sorted(candidates, key=lambda item: item[0], reverse=True):
+        for _, row, _ra_hours, dec_degrees in ordered:
             try:
                 objects.append(
                     self._catalogue_details(
@@ -332,6 +376,119 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 continue
         visible = [item for item in objects if item.visible]
         return sorted(visible, key=lambda item: item.score, reverse=True)
+
+    def _recommendation_catalogue_rows(self) -> list[dict]:
+        repository = self._catalogue_repository
+        if repository is None:
+            return []
+        enabled_method = getattr(
+            repository,
+            "list_recommendation_objects",
+            None,
+        )
+        if callable(enabled_method):
+            return list(enabled_method())
+        return list(repository.list_objects())
+
+    def _catalogue_details_batch(
+        self,
+        candidates: list[tuple[int, dict, float, float]],
+        location: ObserverLocation,
+        *,
+        now: datetime,
+        night_window: ObservingNightWindow,
+    ) -> list[CelestialObject]:
+        rows = [candidate[1] for candidate in candidates]
+        right_ascensions = np.asarray(
+            [candidate[2] for candidate in candidates],
+            dtype=float,
+        )
+        declinations = np.asarray(
+            [candidate[3] for candidate in candidates],
+            dtype=float,
+        )
+        stars = Star(
+            ra_hours=right_ascensions,
+            dec_degrees=declinations,
+        )
+        observer = self._observer(location)
+        current_apparent = (
+            observer.at(self._to_skyfield_time(now))
+            .observe(stars)
+            .apparent()
+        )
+        current_altitude, current_azimuth, _ = current_apparent.altaz()
+        current_altitudes = np.atleast_1d(
+            np.asarray(current_altitude.degrees, dtype=float)
+        )
+        current_azimuths = np.atleast_1d(
+            np.asarray(current_azimuth.degrees, dtype=float)
+        )
+
+        sample_times = self._window_datetime_samples(
+            night_window.start,
+            night_window.end,
+            step_minutes=30,
+        )
+        skyfield_times = self._timescale.from_datetimes(
+            [sample.astimezone(UTC) for sample in sample_times]
+        )
+        altitude_matrix = np.empty(
+            (len(sample_times), len(rows)),
+            dtype=float,
+        )
+        for sample_index in range(len(sample_times)):
+            altitude = (
+                observer.at(skyfield_times[sample_index])
+                .observe(stars)
+                .apparent()
+                .altaz()[0]
+            )
+            altitude_matrix[sample_index] = np.atleast_1d(
+                np.asarray(altitude.degrees, dtype=float)
+            )
+
+        usable_altitudes = (
+            altitude_matrix[:-1]
+            if len(sample_times) > 1
+            else altitude_matrix
+        )
+        visible_indices = np.flatnonzero(
+            np.max(usable_altitudes, axis=0)
+            >= DEEP_SKY_USEFUL_ALTITUDE_DEG
+        )
+        objects = []
+        for object_index in visible_indices:
+            samples = list(
+                zip(
+                    sample_times,
+                    (
+                        float(value)
+                        for value in altitude_matrix[:, object_index]
+                    ),
+                )
+            )
+            max_altitude, best_dt, observing_window = self._sample_summary(
+                samples,
+                threshold=DEEP_SKY_USEFUL_ALTITUDE_DEG,
+            )
+            objects.append(
+                self._catalogue_object_from_geometry(
+                    rows[object_index],
+                    current_altitude=float(
+                        current_altitudes[object_index]
+                    ),
+                    current_azimuth=float(
+                        current_azimuths[object_index]
+                    ),
+                    max_altitude=max_altitude,
+                    best_dt=best_dt,
+                    observing_window=observing_window,
+                    now=now,
+                    night_window=night_window,
+                )
+            )
+        return sorted(objects, key=lambda item: item.score, reverse=True)
 
     def refresh_current_positions(
         self,
@@ -393,19 +550,41 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         return float(altitude.degrees), float(azimuth.degrees)
 
     def _star_for_current_position(self, item: CelestialObject):
-        repository = self._catalogue_repository
-        if repository is None:
-            return None
         cached = self._catalogue_star_cache.get(item.id)
         if item.id in self._catalogue_star_cache:
             return cached
-        row = repository.get_by_object_id(item.id)
-        if not row:
+        coordinates = self._catalogue_coordinates(item.id)
+        if coordinates is None:
             self._catalogue_star_cache[item.id] = None
             return None
-        star = Star(ra_hours=parse_ra_hours(row["ra"]), dec_degrees=parse_dec_degrees(row["dec"]))
+        star = Star(
+            ra_hours=coordinates[0],
+            dec_degrees=coordinates[1],
+        )
         self._catalogue_star_cache[item.id] = star
         return star
+
+    def _catalogue_coordinates(
+        self,
+        object_id: str,
+    ) -> tuple[float, float] | None:
+        cached = self._catalogue_coordinate_cache.get(object_id)
+        if object_id in self._catalogue_coordinate_cache:
+            return cached
+        repository = self._catalogue_repository
+        if repository is None:
+            self._catalogue_coordinate_cache[object_id] = None
+            return None
+        row = repository.get_by_object_id(object_id)
+        if not row:
+            self._catalogue_coordinate_cache[object_id] = None
+            return None
+        coordinates = (
+            parse_ra_hours(row["ra"]),
+            parse_dec_degrees(row["dec"]),
+        )
+        self._catalogue_coordinate_cache[object_id] = coordinates
+        return coordinates
 
     def _geometry_target_body(self, target: CelestialObject):
         body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
@@ -450,6 +629,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         daylight_samples = self._month_day_samples(year, month, zone, step_minutes=CATALOGUE_MONTH_SAMPLE_MINUTES)
         visibility: dict[str, bool] = {}
         body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
+        fixed_targets: list[tuple[str, float, float]] = []
 
         for item in catalogue_objects:
             object_key = self._catalogue_visibility_key(item)
@@ -478,14 +658,84 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             theoretical_max_altitude = 90.0 - abs(location.latitude - dec_degrees)
             if theoretical_max_altitude < altitude_threshold:
                 continue
-            star = Star(ra_hours=ra_hours, dec_degrees=dec_degrees)
-            visibility[object_key] = self._reaches_altitude_threshold(
-                observer,
-                star,
-                samples,
-                threshold=altitude_threshold,
+            fixed_targets.append(
+                (
+                    object_key,
+                    ra_hours,
+                    dec_degrees,
+                )
             )
+        if fixed_targets and samples:
+            try:
+                visibility.update(
+                    self._fixed_catalogue_visibility_batch(
+                        observer,
+                        fixed_targets,
+                        samples,
+                        altitude_threshold,
+                    )
+                )
+            except Exception:
+                logger.warning(
+                    "Batched catalogue visibility failed; using scalar fallback.",
+                    exc_info=True,
+                )
+                for object_key, ra_hours, dec_degrees in fixed_targets:
+                    star = Star(
+                        ra_hours=ra_hours,
+                        dec_degrees=dec_degrees,
+                    )
+                    visibility[object_key] = (
+                        self._reaches_altitude_threshold(
+                            observer,
+                            star,
+                            samples,
+                            threshold=altitude_threshold,
+                        )
+                    )
         return visibility
+
+    def _fixed_catalogue_visibility_batch(
+        self,
+        observer,
+        targets: list[tuple[str, float, float]],
+        samples: list[datetime],
+        threshold: float,
+    ) -> dict[str, bool]:
+        stars = Star(
+            ra_hours=np.asarray(
+                [target[1] for target in targets],
+                dtype=float,
+            ),
+            dec_degrees=np.asarray(
+                [target[2] for target in targets],
+                dtype=float,
+            ),
+        )
+        times = self._timescale.from_datetimes(
+            [sample.astimezone(UTC) for sample in samples]
+        )
+        reaches_threshold = np.zeros(len(targets), dtype=bool)
+        for sample_index in range(len(samples)):
+            altitudes = (
+                observer.at(times[sample_index])
+                .observe(stars)
+                .apparent()
+                .altaz()[0]
+                .degrees
+            )
+            reaches_threshold |= (
+                np.atleast_1d(
+                    np.asarray(altitudes, dtype=float)
+                )
+                >= threshold
+            )
+            if bool(np.all(reaches_threshold)):
+                break
+        return {
+            object_key: bool(reaches_threshold[index])
+            for index, (object_key, _ra, _dec) in enumerate(targets)
+        }
 
     def moon_summary(self, location: ObserverLocation) -> MoonSummary:
         now = self._now(location)
@@ -549,11 +799,45 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             zip(samples, [float(value) for value in moon_apparent.altaz()[0].degrees])
         )
 
+        body_configs = {
+            config.object_id: config
+            for config in self.BODY_CONFIGS
+        }
+        fixed_targets: list[
+            tuple[CelestialObject, float, float]
+        ] = []
+        dynamic_targets: list[
+            tuple[CelestialObject, object]
+        ] = []
         for target in targets:
             try:
-                target_body = self._geometry_target_body(target)
-                if target_body is None:
+                config = body_configs.get(target.id)
+                if config is not None:
+                    dynamic_targets.append(
+                        (
+                            target,
+                            self._ephemeris[config.body_key],
+                        )
+                    )
                     continue
+                coordinates = self._catalogue_coordinates(target.id)
+                if coordinates is not None:
+                    fixed_targets.append(
+                        (
+                            target,
+                            coordinates[0],
+                            coordinates[1],
+                        )
+                    )
+            except Exception:
+                logger.debug(
+                    "Moon geometry target preparation skipped %s.",
+                    target.id,
+                    exc_info=True,
+                )
+
+        for target, target_body in dynamic_targets:
+            try:
                 target_apparent = observer_at.observe(target_body).apparent()
                 target_altitudes = dict(
                     zip(samples, [float(value) for value in target_apparent.altaz()[0].degrees])
@@ -573,7 +857,139 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 )
             except Exception:
                 logger.debug("Moon geometry batch skipped target %s.", target.id, exc_info=True)
+
+        if fixed_targets:
+            try:
+                self._fixed_moon_geometry_batch(
+                    results,
+                    fixed_targets,
+                    observer,
+                    times,
+                    moon_apparent,
+                    samples,
+                    moon_altitudes,
+                )
+            except Exception:
+                logger.warning(
+                    "Batched fixed-target Moon geometry failed; using "
+                    "scalar fallback.",
+                    exc_info=True,
+                )
+                for target, ra_hours, dec_degrees in fixed_targets:
+                    try:
+                        target_body = Star(
+                            ra_hours=ra_hours,
+                            dec_degrees=dec_degrees,
+                        )
+                        target_apparent = (
+                            observer_at.observe(target_body).apparent()
+                        )
+                        target_altitudes = dict(
+                            zip(
+                                samples,
+                                [
+                                    float(value)
+                                    for value in target_apparent.altaz()[
+                                        0
+                                    ].degrees
+                                ],
+                            )
+                        )
+                        separations = dict(
+                            zip(
+                                samples,
+                                [
+                                    float(value)
+                                    for value in moon_apparent.separation_from(
+                                        target_apparent
+                                    ).degrees
+                                ],
+                            )
+                        )
+                        results[target.id] = (
+                            self._moon_geometry_summary_from_samples(
+                                target,
+                                samples,
+                                moon_altitudes,
+                                target_altitudes,
+                                separations,
+                            )
+                        )
+                    except Exception:
+                        logger.debug(
+                            "Moon geometry fallback skipped target %s.",
+                            target.id,
+                            exc_info=True,
+                        )
         return results
+
+    def _fixed_moon_geometry_batch(
+        self,
+        results: dict[str, MoonGeometrySummary | None],
+        targets: list[tuple[CelestialObject, float, float]],
+        observer,
+        times,
+        moon_apparent,
+        samples: list[datetime],
+        moon_altitudes: dict[datetime, float],
+    ) -> None:
+        stars = Star(
+            ra_hours=np.asarray(
+                [target[1] for target in targets],
+                dtype=float,
+            ),
+            dec_degrees=np.asarray(
+                [target[2] for target in targets],
+                dtype=float,
+            ),
+        )
+        altitude_matrix = np.empty(
+            (len(samples), len(targets)),
+            dtype=float,
+        )
+        separation_matrix = np.empty_like(altitude_matrix)
+        for sample_index in range(len(samples)):
+            target_apparent = (
+                observer.at(times[sample_index])
+                .observe(stars)
+                .apparent()
+            )
+            altitude_matrix[sample_index] = np.atleast_1d(
+                np.asarray(
+                    target_apparent.altaz()[0].degrees,
+                    dtype=float,
+                )
+            )
+            separation_matrix[sample_index] = np.atleast_1d(
+                np.asarray(
+                    moon_apparent[sample_index]
+                    .separation_from(target_apparent)
+                    .degrees,
+                    dtype=float,
+                )
+            )
+        for target_index, (
+            target,
+            _ra_hours,
+            _dec_degrees,
+        ) in enumerate(targets):
+            target_altitudes = {
+                sample: float(altitude_matrix[sample_index, target_index])
+                for sample_index, sample in enumerate(samples)
+            }
+            separations = {
+                sample: float(
+                    separation_matrix[sample_index, target_index]
+                )
+                for sample_index, sample in enumerate(samples)
+            }
+            results[target.id] = self._moon_geometry_summary_from_samples(
+                target,
+                samples,
+                moon_altitudes,
+                target_altitudes,
+                separations,
+            )
 
     def _moon_geometry_summary_from_samples(
         self,
@@ -1343,12 +1759,35 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             else []
         )
         max_altitude, best_dt, observing_window = self._sample_summary(sample, threshold=DEEP_SKY_USEFUL_ALTITUDE_DEG)
+        return self._catalogue_object_from_geometry(
+            row,
+            current_altitude=float(altitude.degrees),
+            current_azimuth=float(azimuth.degrees),
+            max_altitude=max_altitude,
+            best_dt=best_dt,
+            observing_window=observing_window,
+            now=now,
+            night_window=night_window,
+        )
+
+    def _catalogue_object_from_geometry(
+        self,
+        row: dict,
+        *,
+        current_altitude: float,
+        current_azimuth: float,
+        max_altitude: float,
+        best_dt: datetime | None,
+        observing_window: str,
+        now: datetime,
+        night_window: ObservingNightWindow,
+    ) -> CelestialObject:
         magnitude = row["magnitude"]
         visible = max_altitude >= DEEP_SKY_USEFUL_ALTITUDE_DEG
         observable_now = self._is_observable_now(
             night_window,
             now,
-            altitude.degrees,
+            current_altitude,
             threshold=DEEP_SKY_USEFUL_ALTITUDE_DEG,
         )
         score = self._object_score(max_altitude, magnitude, row["object_type"], visible)
@@ -1385,7 +1824,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             magnitude=self._format_magnitude(magnitude),
             distance=catalogue_label,
             max_altitude=self._degrees_label(max_altitude),
-            direction=self._azimuth_direction(azimuth.degrees),
+            direction=self._azimuth_direction(current_azimuth),
             best_time=self._format_dt(best_dt) if best_dt else tr("n/d"),
             observing_window=observing_window,
             notes=content_text(
@@ -1396,17 +1835,17 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             ),
             recommended_setup=setup,
             visibility_class=self._deep_sky_visibility_class(magnitude),
-            azimuth=self._degrees_label(float(azimuth.degrees)),
+            azimuth=self._degrees_label(current_azimuth),
             time_above_horizon=self._window_duration(observing_window),
             visible=visible,
             rise_time=tr("calcolato da finestra"),
             set_time=tr("calcolato da finestra"),
             culmination_time=self._format_dt(best_dt) if best_dt else tr("n/d"),
-            current_altitude=self._degrees_label(float(altitude.degrees), decimals=1),
-            current_azimuth=self._degrees_label(float(azimuth.degrees), decimals=1),
+            current_altitude=self._degrees_label(current_altitude, decimals=1),
+            current_azimuth=self._degrees_label(current_azimuth, decimals=1),
             observable_now=observable_now,
-            current_altitude_degrees=float(altitude.degrees),
-            current_azimuth_degrees=float(azimuth.degrees),
+            current_altitude_degrees=current_altitude,
+            current_azimuth_degrees=current_azimuth,
             score=score,
             intrinsic_score=intrinsic_score,
             score_label=self._score_label(score),

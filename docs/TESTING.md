@@ -54,11 +54,12 @@ The runner executes, in order:
 3. Quiet bytecode compilation.
 4. Third-party license archive validation.
 5. Offline MPC observatory snapshot validation.
-6. Optional `pip-audit`.
-7. Exactly one complete pytest pass, with or without runtime-code coverage.
-8. Backend smoke test.
-9. Normal-mode QML smoke test.
-10. Red Night Vision QML smoke test.
+6. Offline OpenNGC snapshot and derived-seed validation.
+7. Optional `pip-audit`.
+8. Exactly one complete pytest pass, with or without runtime-code coverage.
+9. Backend smoke test.
+10. Normal-mode QML smoke test.
+11. Red Night Vision QML smoke test.
 
 The committed third-party archive records the exact Windows release
 environment. On Windows the gate compares it byte-for-byte with the installed
@@ -122,11 +123,42 @@ Validate the packaged MPC observatory snapshot without accessing the network:
 .\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_mpc_observatories.py
 ```
 
+Validate the pinned OpenNGC snapshot, identity deduplication and generated
+catalogue seeds without accessing the network:
+
+```powershell
+.\.venv\Scripts\python.exe astro_viewer\tools\update_ngc_catalogue.py --check
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_ngc_catalogue.py
+```
+
 Run `pyside6-qmllint` over every file below `astro_viewer/app/ui`. QML lint
 currently reports non-fatal `unqualified access` diagnostics for context
 properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
+
+## Measured Unreleased NGC Catalogue Gate
+
+Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-25
+after the full OpenNGC import, identity deduplication, indexed recommendation
+eligibility and fixed-target vectorization:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --fast` on the final source state | Passed |
+| `pip check`, Ruff, `compileall`, third-party archive, MPC and OpenNGC checks | Passed |
+| `pytest -q -n 4 astro_viewer/tests` | 950 passed, 642 warnings, 10 subtests passed in 254.16 s |
+| OpenNGC derived seed | 7,839 usable designations; 7,571 physical NGC targets; 7,366 new NGC-only targets; 1 nonexistent entry excluded |
+| Translation catalogues | IT, EN, and ES: 1,730 finished, 0 unfinished each |
+| All-enabled indexed repository query | About 0.15 s for 7,585 physical targets |
+| Controlled Windows end-to-end refresh | 7.55 s with 219 defaults; 12.45 s with all 7,585 targets enabled |
+| Backend and normal/Red Night Vision QML smoke tests | Passed in disposable runtimes |
+| Immediately preceding security gate | 84% coverage across 16,429 runtime statements; no known installed-package vulnerabilities |
+
+The final indexed-join micro-fix and its performance regression test were
+followed by the complete fast gate above. The coverage and `pip-audit` values
+come from the immediately preceding complete security gate on the same feature
+set.
 
 ## Measured 1.41.0 Debian Portable Bundle Gate
 

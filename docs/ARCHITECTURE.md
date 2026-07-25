@@ -26,7 +26,8 @@ NightScope is organized around a small desktop application package:
 - `astro_viewer/resources`: icons, images and themes consumed by QML and build
   packaging.
 - `astro_viewer/translations`: Qt Linguist source (`.ts`) and compiled (`.qm`)
-  catalogues for the Italian source UI and the English UI translation.
+  catalogues for the Italian source UI and the English and Spanish
+  translations.
 - `astro_viewer/tests`: unittest/pytest-compatible regression tests.
 - `astro_viewer/tools`: one-off import, validation and packaging-support tools.
 - `packaging`: PyInstaller spec, hooks, platform build scripts and the
@@ -273,38 +274,50 @@ Current runtime status for `1.27.0`:
   Object, Planner and Sky Compass keep the first occurrence before scoring;
   lower-Home plan/alternative counts use the same invariant.
 - Catalogue identity is physical-object based: `CatalogueObject.object_id` is
-  stable and `CatalogueDesignation` owns one or more catalogue codes. A
-  secondary designation never creates another runtime target.
+  stable and `CatalogueDesignation` owns one or more catalogue codes,
+  including multiple historical aliases from the same catalogue. A secondary
+  designation never creates another runtime target.
 - Catalogue recommendation eligibility is a candidate-admission policy, not a
   score. `CatalogueObject.recommendation_enabled_by_default` owns the seeded
   first-run value, while `CatalogueRecommendationPreference` owns persistent
-  user overrides for Messier, Caldwell and future NGC targets. Synthetic Solar
-  System S1-S9 entries are always enabled and expose a locked control. The
-  controller applies the effective value to base deep-sky targets before
-  Equipment enrichment; disabled targets therefore cannot reach Home, Best
-  Object, Planner or Sky Compass, while the complete catalogue and its
-  descriptive detail remain available.
-- The packaged deep-sky catalogue contains 110 Messier and 109 Caldwell
-  targets. Caldwell intentionally has no Messier overlap; the same identity
-  contract remains available for future catalogues that do overlap.
+  user overrides. Synthetic Solar System S1-S9 entries are always enabled and
+  expose a locked control. `CatalogueRepository.list_recommendation_objects`
+  resolves the effective value in SQL before Skyfield parses coordinates or
+  calculates visibility. The controller repeats the admission check when
+  reusing a cached snapshot so disabling is immediate. Disabled targets
+  therefore cannot reach Equipment, Home, Best Object, Planner or Sky Compass,
+  while the complete catalogue and its descriptive detail remain available.
+- The packaged deep-sky catalogue contains 7,585 physical targets: the 110
+  Messier and 109 Caldwell targets plus 7,366 NGC-only targets. OpenNGC adds
+  7,839 usable NGC designations representing 7,571 physical targets; 205 map
+  to existing Messier/Caldwell identities and duplicate or compound codes
+  share an `object_id`. NGC-only targets start disabled, while an overlapping
+  curated target retains its Messier/Caldwell default.
 - Every current catalogue type maps to an existing NSOM class. Planetary
   nebulae are classified before the generic planet token; supernova remnants
   map explicitly to `DIFFUSE_NEBULA` across environment and legacy condition
-  boundaries. Equipment continues to consume each target's explicit observing
-  metadata, so Caldwell introduces no separate equipment category.
-- `ObjectDescription`, `ObjectCuriosity` and `ObjectImages` cover all 228
-  selectable deep-sky and Solar System targets: every target has a
-  dedicated local `512 x 512` JPEG, with survey cutouts for deep sky and
-  normalized NASA/JPL PIA observations for Solar System bodies. Source URL,
-  attribution and usage metadata travel with the presentation payload but do
-  not enter ranking.
+  boundaries. Point-like or unclassified OpenNGC types use the conservative
+  existing point-source class; explicit galaxy types take precedence over a
+  common name containing words such as “Nebula”. Equipment continues to
+  consume each target's explicit observing metadata, without introducing
+  catalogue-specific equipment categories.
+- `ObjectDescription`, `ObjectCuriosity` and `ObjectImages` retain the complete
+  curated presentation for 228 targets: 219 Messier/Caldwell objects and nine
+  Solar System bodies. Each has a dedicated local `512 x 512` JPEG, with
+  survey cutouts for deep sky and normalized NASA/JPL PIA observations for
+  Solar System bodies. NGC-only objects deliberately use a type-specific
+  fallback image and the localized `Work in progress` description/curiosity
+  until they are enriched individually. Source URL, attribution and usage
+  metadata do not enter ranking.
 - `ObjectCuriosity` remains a separate presentation table and has no NSOM,
   Equipment or observability role. Seeded descriptions and curiosities are
   managed through `is_builtin`; bootstrap refreshes them, while content
   imported by the user is marked custom and preserved.
-- The 228 seeded Solar System and deep-sky descriptions keep identity, season
+- The 228 curated Solar System and deep-sky descriptions keep identity, season
   and difficulty metadata separate from `short_description` and
-  `observing_notes`. The seed remains UTF-8 without BOM because bootstrap reads
+  `observing_notes`. NGC-only placeholder text remains in the physical
+  catalogue seed and is excluded from the structured-content translation
+  generator. The seeds remain UTF-8 without BOM because bootstrap reads
   canonical CSV headers with the standard `utf-8` codec.
 - If Sky Compass ranking raises unexpectedly, the controller logs the failure
   and uses a geometry-only payload. Missing sky-quality input is neutral inside
@@ -686,12 +699,15 @@ Startup flow:
 
 Home recommendation flow:
 
-1. Astronomy engine produces base objects.
-2. `AppController` removes editable deep-sky targets whose effective catalogue
-   recommendation preference is disabled. Solar System targets always remain
-   admitted. Base astronomy data remains unchanged so a target can be
-   re-enabled without recalculating coordinates.
-3. `AppController` applies active-profile equipment recommendations.
+1. `CatalogueRepository` returns only physical deep-sky targets whose seeded
+   default or persistent user override admits them to recommendations.
+2. The astronomy engine parses and prefilters only those rows, then uses
+   NumPy-backed Skyfield batches for fixed-target nightly geometry. It retains
+   scalar fallbacks without multiprocessing or platform-specific process
+   sharing.
+3. `AppController` applies the same admission map defensively to cached data
+   and then adds active-profile equipment recommendations. Disabling is
+   immediate; enabling starts a deep-sky-only background astronomy refresh.
 4. Deep-sky objects may be adjusted by light-pollution context and Home/Detail
    Moon context through `ObservationConditionsService`.
 5. `BestObjectNsomSelectionService` always selects Best Object from canonical
@@ -708,19 +724,24 @@ Home recommendation flow:
 Catalogue browsing flow:
 
 1. `AppController` loads one row per physical target from repository-backed
-   local data.
+   local data. The unfiltered view therefore shows 7,585 deep-sky rows plus
+   nine Solar System rows.
 2. `CatalogueRepository` attaches every designation to that target. The
    presentation keeps compatibility fields `catalogue` and `catalogue_id`, plus
    `catalogues` and `designations`; selecting a catalogue projects its code
-   without changing `object_id`.
+   without changing `object_id`. The NGC filter expands same-target aliases and
+   therefore exposes all 7,839 usable NGC designations.
 3. `ObjectCataloguePage.qml` applies controller-backed search and filters for
-   catalogue, object type, constellation and observation type. Its compact
-   `Home` checkbox changes the persistent recommendation preference without
-   removing the row for Messier, Caldwell and future NGC targets. Solar System
-   S1-S9 rows show the same checkbox checked and locked.
+   catalogue, object type, constellation and observation type through a
+   virtualized `ListView`. Its compact `Home` checkbox changes the persistent
+   recommendation preference without removing the row for Messier, Caldwell
+   or NGC targets. Solar System S1-S9 rows show the same checkbox checked and
+   locked.
    Exact search matches are ordered before prefix and substring matches, so a
-   growing catalogue does not hide a direct body/name match among aliases.
-4. `selectCatalogueObject` resolves the catalogue object and creates a
+   growing catalogue does not hide a direct body/name match among aliases;
+   compact codes such as `NGC1` are normalized without making `C23` match
+   `NGC 23`.
+4. `selectCatalogueDesignation` preserves the exact opened alias and creates a
    detail-compatible object without invoking weather, equipment suggestions,
    best-object scoring, planner ranking or `recommended_deep_sky()`.
 5. Object Detail is reused for click-through, with back navigation returning

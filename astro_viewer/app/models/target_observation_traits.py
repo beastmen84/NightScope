@@ -70,6 +70,10 @@ class TargetObservationTraits:
                     "cluster",
                     "ammasso",
                     "globular",
+                    "asterism",
+                    "star",
+                    "double",
+                    "unclassified object",
                 )
             )
         )

@@ -13,6 +13,13 @@ def test_catalogue_object_types_have_italian_display_labels() -> None:
     assert catalogue_object_type_label("Irregular galaxy") == "Galassia irregolare"
     assert catalogue_object_type_label("Peculiar galaxy") == "Galassia peculiare"
     assert catalogue_object_type_label("Seyfert galaxy") == "Galassia di Seyfert"
+    assert catalogue_object_type_label("Galaxy pair") == "Coppia di galassie"
+    assert catalogue_object_type_label("Emission nebula") == "Nebulosa a emissione"
+    assert catalogue_object_type_label("Star") == "Stella"
+    assert (
+        catalogue_object_type_label("Unclassified object")
+        == "Oggetto non classificato"
+    )
 
 
 def test_catalogue_observation_types_have_italian_display_labels() -> None:

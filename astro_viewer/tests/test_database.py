@@ -4,6 +4,7 @@ import csv
 import sqlite3
 import shutil
 import tempfile
+import time
 import unittest
 from collections import Counter
 from contextlib import closing
@@ -33,7 +34,15 @@ from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
 
 MESSIER_OBJECT_COUNT = 110
 CALDWELL_OBJECT_COUNT = 109
-CATALOGUE_OBJECT_COUNT = MESSIER_OBJECT_COUNT + CALDWELL_OBJECT_COUNT
+CURATED_DEEP_SKY_OBJECT_COUNT = (
+    MESSIER_OBJECT_COUNT + CALDWELL_OBJECT_COUNT
+)
+NGC_DESIGNATION_COUNT = 7_839
+NGC_PHYSICAL_OBJECT_COUNT = 7_571
+NGC_ONLY_OBJECT_COUNT = 7_366
+CATALOGUE_OBJECT_COUNT = (
+    CURATED_DEEP_SKY_OBJECT_COUNT + NGC_ONLY_OBJECT_COUNT
+)
 
 
 class DatabaseBootstrapTests(unittest.TestCase):
@@ -55,7 +64,12 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
         self.assertEqual(len(rows), CATALOGUE_OBJECT_COUNT)
         for row in rows:
-            self.assertGreater(float(row["max_angular_size_deg"]), 0.0, row["object_id"])
+            if row["max_angular_size_deg"]:
+                self.assertGreater(
+                    float(row["max_angular_size_deg"]),
+                    0.0,
+                    row["object_id"],
+                )
             self.assertGreaterEqual(parse_ra_hours(row["ascensione_retta"]), 0.0)
             self.assertLess(parse_ra_hours(row["ascensione_retta"]), 24.0)
             self.assertGreaterEqual(parse_dec_degrees(row["declinazione"]), -90.0)
@@ -66,7 +80,13 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 row["object_id"],
             )
             self.assertIn(row["imaging_reducer_recommended"], {"0", "1"})
-            self.assertEqual(row["recommendation_enabled_by_default"], "1")
+            expected_default = (
+                "0" if row["object_id"].startswith("ngc-") else "1"
+            )
+            self.assertEqual(
+                row["recommendation_enabled_by_default"],
+                expected_default,
+            )
         observation_types = {
             row["object_id"]: row["recommended_observation_type"]
             for row in rows
@@ -98,7 +118,10 @@ class DatabaseBootstrapTests(unittest.TestCase):
             "r", encoding="utf-8", newline=""
         ) as file:
             designations = list(csv.DictReader(file))
-        self.assertEqual(len(designations), CATALOGUE_OBJECT_COUNT)
+        self.assertEqual(
+            len(designations),
+            CURATED_DEEP_SKY_OBJECT_COUNT + NGC_DESIGNATION_COUNT,
+        )
         self.assertEqual(
             sum(row["catalogue"] == "Messier" for row in designations),
             MESSIER_OBJECT_COUNT,
@@ -106,6 +129,10 @@ class DatabaseBootstrapTests(unittest.TestCase):
         self.assertEqual(
             sum(row["catalogue"] == "Caldwell" for row in designations),
             CALDWELL_OBJECT_COUNT,
+        )
+        self.assertEqual(
+            sum(row["catalogue"] == "NGC" for row in designations),
+            NGC_DESIGNATION_COUNT,
         )
         self.assertEqual(len({row["object_id"] for row in designations}), CATALOGUE_OBJECT_COUNT)
 
@@ -139,17 +166,39 @@ class DatabaseBootstrapTests(unittest.TestCase):
         ) as file:
             image_rows = list(csv.DictReader(file))
 
-        object_ids = {row["object_id"] for row in object_rows}
+        object_ids = {
+            row["object_id"]
+            for row in object_rows
+            if not row["object_id"].startswith("ngc-")
+        }
+        ngc_only_rows = [
+            row
+            for row in object_rows
+            if row["object_id"].startswith("ngc-")
+        ]
         descriptions = {row["object_id"]: row for row in description_rows}
         images = {row["object_id"]: row for row in image_rows}
-        self.assertEqual(len(object_ids), CATALOGUE_OBJECT_COUNT)
+        self.assertEqual(
+            len(object_ids),
+            CURATED_DEEP_SKY_OBJECT_COUNT,
+        )
+        self.assertEqual(len(ngc_only_rows), NGC_ONLY_OBJECT_COUNT)
+        self.assertTrue(
+            all(
+                row["descrizione"] == "Work in progress"
+                for row in ngc_only_rows
+            )
+        )
         self.assertTrue(object_ids.issubset(descriptions))
         self.assertTrue(object_ids.issubset(images))
         catalogue_image_paths = {images[object_id]["image_path"] for object_id in object_ids}
-        self.assertEqual(len(catalogue_image_paths), CATALOGUE_OBJECT_COUNT)
+        self.assertEqual(
+            len(catalogue_image_paths),
+            CURATED_DEEP_SKY_OBJECT_COUNT,
+        )
         self.assertEqual(
             len({images[object_id]["source_url"] for object_id in object_ids}),
-            CATALOGUE_OBJECT_COUNT,
+            CURATED_DEEP_SKY_OBJECT_COUNT,
         )
         for object_id in object_ids:
             image = images[object_id]
@@ -361,9 +410,11 @@ class DatabaseBootstrapTests(unittest.TestCase):
             objects = repository.list_objects()
             messier = repository.list_objects("Messier")
             caldwell = repository.list_objects("Caldwell")
+            ngc = repository.list_objects("NGC")
             self.assertEqual(len(objects), CATALOGUE_OBJECT_COUNT)
             self.assertEqual(len(messier), MESSIER_OBJECT_COUNT)
             self.assertEqual(len(caldwell), CALDWELL_OBJECT_COUNT)
+            self.assertEqual(len(ngc), NGC_PHYSICAL_OBJECT_COUNT)
             self.assertEqual(messier[0]["primary_designation"], "M1")
             self.assertEqual(messier[0]["max_angular_size_deg"], 0.117)
             self.assertEqual(messier[-1]["primary_designation"], "M110")
@@ -374,6 +425,18 @@ class DatabaseBootstrapTests(unittest.TestCase):
             assert c23 is not None
             self.assertEqual(c23["object_id"], "caldwell-C23")
             self.assertEqual(c23["name"], "NGC 891")
+            ngc_224 = repository.get_by_designation("NGC", "NGC 224")
+            self.assertIsNotNone(ngc_224)
+            assert ngc_224 is not None
+            self.assertEqual(ngc_224["object_id"], "messier-M31")
+            ngc_1 = repository.get_by_designation("NGC", "NGC 1")
+            self.assertIsNotNone(ngc_1)
+            assert ngc_1 is not None
+            self.assertFalse(ngc_1["recommendation_enabled_by_default"])
+            self.assertFalse(ngc_1["recommendation_enabled"])
+            self.assertIsNone(
+                repository.get_by_designation("NGC", "NGC 412")
+            )
 
     def test_catalogue_repository_keeps_one_object_for_multiple_designations(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -403,10 +466,13 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertIsNotNone(by_designation)
             assert by_designation is not None
             self.assertEqual(by_designation["object_id"], "messier-M31")
-            self.assertEqual(by_designation["catalogues"], ["Messier", "Secondary"])
+            self.assertEqual(
+                by_designation["catalogues"],
+                ["Messier", "NGC", "Secondary"],
+            )
             self.assertEqual(
                 [item["designation"] for item in by_designation["designations"]],
-                ["M31", "S31"],
+                ["M31", "NGC 224", "S31"],
             )
 
             with closing(sqlite3.connect(database_path)) as connection:
@@ -420,6 +486,112 @@ class DatabaseBootstrapTests(unittest.TestCase):
                         """,
                         ("Conflicting", "X31", "messier-M31", 31, 1),
                     )
+
+    def test_catalogue_repository_resolves_same_catalogue_aliases(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = (
+                Path(__file__).resolve().parents[1]
+                / "data"
+                / "schema.sql"
+            )
+            initialize_database(database_path, schema_path)
+            repository = CatalogueRepository(database_path)
+
+            ngc_6 = repository.get_by_designation("NGC", "NGC 6")
+            ngc_20 = repository.get_by_designation("NGC", "NGC 20")
+
+            self.assertIsNotNone(ngc_6)
+            self.assertIsNotNone(ngc_20)
+            assert ngc_6 is not None and ngc_20 is not None
+            self.assertEqual(ngc_6["object_id"], "ngc-NGC6")
+            self.assertEqual(ngc_20["object_id"], "ngc-NGC6")
+            self.assertEqual(
+                [
+                    item["designation"]
+                    for item in ngc_6["designations"]
+                    if item["catalogue"] == "NGC"
+                ],
+                ["NGC 6", "NGC 20"],
+            )
+
+    def test_schema_18_catalogue_migrates_ngc_aliases_and_keeps_preferences(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = (
+                Path(__file__).resolve().parents[1]
+                / "data"
+                / "schema.sql"
+            )
+            initialize_database(database_path, schema_path)
+            CatalogueRepository(database_path).set_recommendation_enabled(
+                "messier-M31",
+                False,
+            )
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute(
+                    "DELETE FROM CatalogueDesignation WHERE catalogue = 'NGC'"
+                )
+                connection.execute(
+                    "DELETE FROM CatalogueObject WHERE object_id LIKE 'ngc-%'"
+                )
+                connection.executescript(
+                    """
+                    CREATE TABLE CatalogueDesignation_v18 (
+                        catalogue TEXT NOT NULL,
+                        designation TEXT NOT NULL,
+                        object_id TEXT NOT NULL,
+                        sort_index INTEGER,
+                        is_primary INTEGER NOT NULL DEFAULT 0,
+                        PRIMARY KEY (catalogue, designation),
+                        UNIQUE (object_id, catalogue),
+                        FOREIGN KEY (object_id)
+                            REFERENCES CatalogueObject(object_id)
+                            ON DELETE CASCADE
+                    );
+                    INSERT INTO CatalogueDesignation_v18 (
+                        catalogue, designation, object_id,
+                        sort_index, is_primary
+                    )
+                    SELECT
+                        catalogue, designation, object_id,
+                        sort_index, is_primary
+                    FROM CatalogueDesignation;
+                    DROP TABLE CatalogueDesignation;
+                    ALTER TABLE CatalogueDesignation_v18
+                    RENAME TO CatalogueDesignation;
+                    PRAGMA user_version = 18;
+                    """
+                )
+                connection.commit()
+
+            initialize_database(database_path, schema_path)
+            repository = CatalogueRepository(database_path)
+            ngc_6 = repository.get_by_designation("NGC", "NGC 6")
+            ngc_20 = repository.get_by_designation("NGC", "NGC 20")
+            m31 = repository.get_by_designation("Messier", "M31")
+
+            self.assertIsNotNone(ngc_6)
+            self.assertIsNotNone(ngc_20)
+            self.assertIsNotNone(m31)
+            assert ngc_6 is not None and ngc_20 is not None
+            assert m31 is not None
+            self.assertEqual(ngc_6["object_id"], ngc_20["object_id"])
+            self.assertFalse(m31["recommendation_enabled"])
+            self.assertEqual(
+                len(repository.list_objects()),
+                CATALOGUE_OBJECT_COUNT,
+            )
+            with closing(sqlite3.connect(database_path)) as connection:
+                self.assertEqual(
+                    connection.execute(
+                        "PRAGMA user_version"
+                    ).fetchone()[0],
+                    SCHEMA_VERSION,
+                )
 
     def test_catalogue_recommendation_preference_survives_reseed(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -447,6 +619,76 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertEqual(
                 repository.recommendation_preferences(),
                 {"messier-m31": False},
+            )
+
+    def test_recommendation_query_filters_ngc_before_astronomy(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = (
+                Path(__file__).resolve().parents[1]
+                / "data"
+                / "schema.sql"
+            )
+            initialize_database(database_path, schema_path)
+            repository = CatalogueRepository(database_path)
+
+            initial = repository.list_recommendation_objects()
+            self.assertEqual(
+                len(initial),
+                CURATED_DEEP_SKY_OBJECT_COUNT,
+            )
+            self.assertNotIn(
+                "ngc-NGC1",
+                {item["object_id"] for item in initial},
+            )
+
+            repository.set_recommendation_enabled("ngc-NGC1", True)
+
+            updated = repository.list_recommendation_objects()
+            self.assertEqual(
+                len(updated),
+                CURATED_DEEP_SKY_OBJECT_COUNT + 1,
+            )
+            self.assertIn(
+                "ngc-NGC1",
+                {item["object_id"] for item in updated},
+            )
+
+    def test_all_enabled_recommendation_query_keeps_indexed_lookup_cost(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = (
+                Path(__file__).resolve().parents[1]
+                / "data"
+                / "schema.sql"
+            )
+            initialize_database(database_path, schema_path)
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute(
+                    """
+                    INSERT OR REPLACE INTO
+                        CatalogueRecommendationPreference (
+                            object_id, enabled
+                        )
+                    SELECT object_id, 1
+                    FROM CatalogueObject
+                    """
+                )
+                connection.commit()
+
+            started = time.perf_counter()
+            rows = CatalogueRepository(
+                database_path
+            ).list_recommendation_objects()
+            elapsed = time.perf_counter() - started
+
+            self.assertEqual(len(rows), CATALOGUE_OBJECT_COUNT)
+            self.assertLess(
+                elapsed,
+                8.0,
+                "The all-enabled eligibility lookup lost its indexed join.",
             )
 
     def test_catalogue_normalized_identity_constraints_are_enforced(self) -> None:

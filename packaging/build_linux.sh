@@ -10,7 +10,7 @@ license_check="$root/tools/generate_third_party_licenses.py"
 native_notice_generator="$root/tools/generate_linux_native_notices.py"
 qt_bundle_audit="$root/tools/audit_qt_bundle.py"
 collect_toc="$root/build/NightScope/COLLECT-00.toc"
-legal_files=("LICENSE" "SOURCE_CODE.md" "THIRD_PARTY_NOTICES.md")
+legal_files=("LICENSE" "OPENNGC_LICENSE.txt" "SOURCE_CODE.md" "THIRD_PARTY_NOTICES.md")
 license_archive=""
 
 if [[ "$(uname -s)" != "Linux" ]]; then

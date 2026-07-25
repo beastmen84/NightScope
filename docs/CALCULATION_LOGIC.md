@@ -244,11 +244,17 @@ than a silent `18:00-07:00` fallback.
 
 ### Deep-Sky Objects
 
-Deep-sky objects come from the generic physical-object catalogue: currently 110
-Messier plus 109 Caldwell targets. The engine evaluates each `object_id` once
-even when it has multiple catalogue designations, performs a cheap
-maximum-altitude prefilter using declination and observer latitude, then
-computes detailed visibility for the best candidates.
+Deep-sky objects come from the generic physical-object catalogue: 7,585 unique
+targets comprising 110 Messier, 109 Caldwell and 7,366 NGC-only objects.
+OpenNGC contributes 7,839 usable designations that resolve to 7,571 physical
+targets; overlaps and aliases therefore do not duplicate calculations.
+
+Before parsing coordinates, `CatalogueRepository` returns only targets whose
+effective recommendation preference is enabled. The engine then evaluates each
+admitted `object_id` once, performs a cheap maximum-altitude prefilter using
+declination and observer latitude, and computes detailed visibility in a
+NumPy-backed Skyfield batch. A scalar fallback preserves behavior if the batch
+path fails.
 
 Deep-sky visibility uses:
 
@@ -302,18 +308,40 @@ month".
 Every persistent catalogue object has an effective recommendation-eligibility
 value. The seed supplies `recommendation_enabled_by_default`; the local
 `CatalogueRecommendationPreference` table stores the user's persistent choice.
-The 219 current Messier and Caldwell objects start enabled and can be changed;
-the same contract supports a future NGC seed. The nine synthetic Solar System
-S1-S9 entries are always enabled and cannot store an override.
+The 219 Messier and Caldwell objects start enabled and can be changed. The
+7,366 NGC-only physical targets start disabled; the 205 NGC identities already
+represented by Messier or Caldwell retain the curated object's default. The
+nine synthetic Solar System S1-S9 entries are always enabled and cannot store
+an override.
 
 This value is a hard admission gate and never multiplies, caps or otherwise
-changes a target score. The controller filters cached base deep-sky targets
-before Equipment enrichment, condition projections and NSOM consumers.
+changes a target score. The repository resolves it in SQL before coordinate,
+nightly visibility and Moon-geometry calculations. The controller repeats the
+filter when reusing cached base deep-sky targets, before Equipment enrichment,
+condition projections and NSOM consumers.
 Consequently a disabled object cannot appear in Home, Best Object, Planner or
 Sky Compass and cannot receive a suggested setup. It remains available to
 catalogue search, filters, observability calculations and descriptive detail.
-Re-enabling it reuses the existing base astronomy snapshot rather than
-recalculating ephemerides.
+Re-enabling a target starts a deep-sky-only astronomy refresh so it can enter
+the current suggestion pool immediately; disabling removes it from downstream
+pools immediately.
+
+Fixed-target nightly visibility, monthly catalogue visibility and Moon
+separation use vectorized Skyfield/NumPy batches with scalar fallbacks. The
+preference join uses the indexed `NOCASE` primary key; applying `LOWER()` to
+both sides would disable that lookup and make an all-enabled query quadratic.
+This design is the same in Windows and Linux and does not share Qt or SQLite
+state across processes.
+
+On the 2026-07-25 Windows development benchmark, the indexed eligibility query
+for all 7,585 targets took about 0.15 seconds instead of 18.9 seconds. A
+controlled end-to-end refresh at Bologna took about 7.55 seconds with the 219
+default targets and 12.45 seconds with all 7,585 targets enabled. The latter
+includes nightly and monthly astronomy, annual events, Moon geometry,
+Equipment enrichment, NSOM, Planner and Sky Compass; 5,384 deep-sky targets
+were useful in that test. The extreme case therefore adds about 4.9 seconds
+inside the existing background worker. Multiprocessing is not part of the
+current design.
 
 ### Object Scores
 

@@ -93,7 +93,6 @@ CREATE TABLE IF NOT EXISTS CatalogueDesignation (
     sort_index INTEGER,
     is_primary INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (catalogue, designation),
-    UNIQUE (object_id, catalogue),
     FOREIGN KEY (object_id) REFERENCES CatalogueObject(object_id) ON DELETE CASCADE
 );
 
@@ -104,7 +103,7 @@ ON CatalogueDesignation(object_id)
 WHERE is_primary = 1;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_catalogue_designation_normalized
 ON CatalogueDesignation(LOWER(catalogue), LOWER(designation));
-CREATE UNIQUE INDEX IF NOT EXISTS idx_catalogue_object_catalogue_normalized
+CREATE INDEX IF NOT EXISTS idx_catalogue_object_catalogue_normalized
 ON CatalogueDesignation(object_id, LOWER(catalogue));
 
 CREATE TABLE IF NOT EXISTS CatalogueRecommendationPreference (

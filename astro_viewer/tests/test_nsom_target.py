@@ -21,6 +21,11 @@ CATALOGUE_TYPE_CLASSES = {
     "Diffuse nebula": NsomTargetClass.DIFFUSE_NEBULA,
     "Dwarf elliptical galaxy": NsomTargetClass.GALAXY,
     "Elliptical galaxy": NsomTargetClass.GALAXY,
+    "Emission nebula": NsomTargetClass.DIFFUSE_NEBULA,
+    "Galaxy": NsomTargetClass.GALAXY,
+    "Galaxy group": NsomTargetClass.GALAXY,
+    "Galaxy pair": NsomTargetClass.GALAXY,
+    "Galaxy triplet": NsomTargetClass.GALAXY,
     "Globular cluster": NsomTargetClass.GLOBULAR_CLUSTER,
     "H II region nebula": NsomTargetClass.DIFFUSE_NEBULA,
     "H II region nebula (part of the Orion Nebula)": NsomTargetClass.DIFFUSE_NEBULA,
@@ -32,12 +37,16 @@ CATALOGUE_TYPE_CLASSES = {
     "Nebula with cluster": NsomTargetClass.DIFFUSE_NEBULA,
     "Open cluster": NsomTargetClass.OPEN_CLUSTER,
     "Optical Double": NsomTargetClass.DOUBLE_STAR,
+    "Optical double": NsomTargetClass.DOUBLE_STAR,
     "Peculiar galaxy": NsomTargetClass.GALAXY,
     "Planetary nebula": NsomTargetClass.PLANETARY_NEBULA,
+    "Reflection nebula": NsomTargetClass.DIFFUSE_NEBULA,
     "Seyfert galaxy": NsomTargetClass.GALAXY,
     "Spiral galaxy": NsomTargetClass.GALAXY,
     "Starburst galaxy": NsomTargetClass.GALAXY,
+    "Star": NsomTargetClass.DOUBLE_STAR,
     "Supernova remnant": NsomTargetClass.DIFFUSE_NEBULA,
+    "Unclassified object": NsomTargetClass.DOUBLE_STAR,
 }
 
 
@@ -51,7 +60,7 @@ def test_shared_target_classifier_covers_every_catalogue_type(
     assert target_class_from_runtime_target(target) is expected
 
 
-def test_catalogue_seed_has_no_unclassified_or_unverified_types() -> None:
+def test_catalogue_seed_types_all_map_to_nsom_classes() -> None:
     seed_path = Path(__file__).resolve().parents[1] / "data" / "catalogue_objects_seed.csv"
     with seed_path.open(encoding="utf-8", newline="") as source:
         rows = tuple(csv.DictReader(source))

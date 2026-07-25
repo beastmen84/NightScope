@@ -160,7 +160,8 @@ No API keys or vendor-specific private data are included.
 `catalogue_objects_seed.csv` is the canonical source for physical deep-sky
 targets. `catalogue_designations_seed.csv` associates each physical `object_id`
 with one or more catalogue designations and marks exactly one primary
-designation. The current dataset contains 110 Messier and 109 Caldwell targets.
+designation. The current dataset contains 7,585 physical targets: 110 Messier,
+109 Caldwell and 7,366 NGC-only objects.
 
 The Caldwell rows use the Astronomical League's Caldwell Program Object List,
 whose positions are J2000.0. The imported fields are designation, NGC/IC or
@@ -175,11 +176,37 @@ uses distinct `caldwell-C1` through `caldwell-C109` target IDs rather than
 inventing overlaps with Messier:
 `https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/`.
 
-The split is intentional: a future secondary designation can point to an
-existing physical target without creating a second object, a second astronomy
-calculation or an inflated catalogue count. Existing `messier-Mxx` IDs remain
-stable for backward compatibility with images, descriptions and persisted
-references.
+The packaged
+`sources/openngc-36cb178a0f69dba8bfc03a99c10512831edf1c6b-ngc.csv.gz`
+snapshot is a reproducibly compressed copy of OpenNGC's `NGC.csv` at commit
+`36cb178a0f69dba8bfc03a99c10512831edf1c6b`. Its uncompressed SHA-256 is
+`e4acd595ed13888f888273fc5cb47c7934430a13348a294abdc8879b1d66fef7`.
+The offline generator preserves 7,839 usable canonical NGC designations,
+excludes the one entry marked non-existent, and resolves them to 7,571 physical
+targets. Of these, 205 reuse existing Messier/Caldwell identities and 7,366
+create new NGC-only objects. Duplicate codes and compound objects can therefore
+attach multiple NGC designations to one `object_id`.
+
+The split is intentional: a secondary designation points to an existing
+physical target without creating a second object, a second astronomy
+calculation or an inflated physical count. Existing `messier-Mxx` and
+`caldwell-Cxx` IDs remain stable for backward compatibility with images,
+descriptions and persisted references. NGC-only targets default to disabled
+for automatic suggestions and use the explicit `Work in progress` editorial
+placeholder; existing curated targets keep their default even when they also
+have an NGC designation.
+
+OpenNGC is redistributed under Creative Commons Attribution-ShareAlike 4.0
+International. The complete license is in the repository and bundles as
+`OPENNGC_LICENSE.txt`; exact provenance is also recorded in
+`sources/README.md` and `THIRD_PARTY_NOTICES.md`.
+
+Regenerate or verify the derived seeds without network access:
+
+```powershell
+.\.venv\Scripts\python.exe astro_viewer\tools\update_ngc_catalogue.py
+.\.venv\Scripts\python.exe astro_viewer\tools\update_ngc_catalogue.py --check
+```
 
 ## Light Pollution
 
@@ -203,7 +230,7 @@ Marble information: `https://blackmarble.gsfc.nasa.gov/`
 
 ## Object Images, Descriptions And Curiosities
 
-`object_images_seed.csv` contains an explicit row for all 228 selectable targets.
+`object_images_seed.csv` contains an explicit row for the 228 curated targets.
 The 219 Messier/Caldwell targets have dedicated local `512 x 512` JPEG cutouts
 from the 2MASS, Pan-STARRS1 or SkyMapper scientific surveys, generated through
 CDS `hips2fits`. The nine Solar System targets use normalized NASA/JPL
@@ -215,7 +242,7 @@ in Object Detail. The full selection and redistribution rules are documented in
 defensive compatibility assets and are not used by current target rows.
 
 `object_descriptions_seed.csv` contains NightScope-style descriptions and
-separate observing notes for all 228 selectable targets: Sun, Moon, the seven
+separate observing notes for the same 228 curated targets: Sun, Moon, the seven
 displayed planets, all 110 Messier entries and all 109 Caldwell entries. The
 Sun entry requires a certified full-aperture front-mounted solar filter and
 explicitly excludes eyepiece solar filters. Caldwell observing copy is derived
@@ -229,7 +256,7 @@ such as Uranus (`https://science.nasa.gov/uranus/`) and the NASA Sun facts page
 (`https://science.nasa.gov/sun/facts/`).
 
 `object_curiosities_seed.csv` is a separate, source-backed presentation layer
-for the same 228 selectable targets. Every row contains an object-specific
+for the same 228 curated targets. Every row contains an object-specific
 historical or scientific fact, a visible source label and an HTTPS source URL.
 The primary
 references are NASA's Hubble Messier and Caldwell catalogues and NASA Solar
@@ -238,6 +265,11 @@ linked Wikipedia article as a secondary factual reference. All 227 distinct
 URLs were checked successfully on 2026-07-12. The seed deliberately remains
 separate from observing notes and does not participate in NSOM, Equipment or
 ranking calculations.
+
+NGC-only targets do not fabricate entries in these three editorial/image
+seeds. Their catalogue detail uses a type-specific compatibility image and the
+localized `Work in progress` placeholder for description and curiosity until
+individual source-backed content is added.
 
 `ObjectDescription` and `ObjectCuriosity` rows supplied by these seeds are
 managed content (`is_builtin = 1`) and receive editorial corrections during

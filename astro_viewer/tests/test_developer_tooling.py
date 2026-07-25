@@ -44,6 +44,7 @@ from tools.translation_provider import (
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 REQUIRED_RELEASE_LEGAL_FILES = (
     "LICENSE",
+    "OPENNGC_LICENSE.txt",
     "SOURCE_CODE.md",
     "THIRD_PARTY_LICENSES.txt",
     "THIRD_PARTY_NOTICES.md",
@@ -147,6 +148,7 @@ def test_standard_check_plan_runs_one_test_suite_and_optional_security() -> None
         "compileall",
         "third-party-licenses",
         "mpc-observatories",
+        "ngc-catalogue",
         "pytest",
         "smoke-test",
         "qml-smoke-test",
@@ -566,6 +568,7 @@ def test_legal_files_are_current_and_windows_build_enforces_them() -> None:
         assert rendered_archive.startswith("NightScope Third-Party License Archive")
         assert "Python runtime license" in rendered_archive
     assert "THIRD_PARTY_LICENSES.txt" in build_script
+    assert "OPENNGC_LICENSE.txt" in build_script
     assert "audit_qt_bundle.py" in build_script
     assert "PySide6_Essentials" in requirements
     assert "PySide6_Addons" in requirements
@@ -578,6 +581,13 @@ def test_legal_files_are_current_and_windows_build_enforces_them() -> None:
     assert '"mpc_observatories_seed.csv"' in spec
     assert "Minor Planet Center Observatory Codes" in notices
     assert "data.minorplanetcenter.net/api/obscodes" in notices
+    assert "### OpenNGC" in notices
+    assert "CC-BY-SA-4.0" in notices
+    assert (
+        PROJECT_ROOT / "OPENNGC_LICENSE.txt"
+    ).read_text(encoding="utf-8").startswith(
+        "Creative Commons Attribution-ShareAlike 4.0 International"
+    )
 
 
 def test_linux_build_enforces_licenses_and_platform_bundle_audit() -> None:
@@ -612,6 +622,7 @@ def test_linux_build_enforces_licenses_and_platform_bundle_audit() -> None:
     ).read_text(encoding="utf-8")
     assert "THIRD_PARTY_LICENSES.txt" in build_script
     assert "SOURCE_CODE.md" in build_script
+    assert "OPENNGC_LICENSE.txt" in build_script
     assert "PyInstaller --clean --noconfirm" in build_script
     assert "audit_qt_bundle.py" in build_script
     assert "--platform linux" in build_script

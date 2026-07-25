@@ -551,8 +551,12 @@ ApplicationWindow {
         id: objectCataloguePage
         ObjectCataloguePage {
             controller: appController
-            onOpenObject: function(objectId) {
-                appController.selectCatalogueObject(objectId)
+            onOpenObject: function(objectId, catalogue, designation) {
+                appController.selectCatalogueDesignation(
+                    objectId,
+                    catalogue,
+                    designation
+                )
                 window.detailBackTarget = "objectCatalogue"
                 window.currentPage = "detail"
             }

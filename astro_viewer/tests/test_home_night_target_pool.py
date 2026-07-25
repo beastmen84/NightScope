@@ -91,6 +91,7 @@ def test_skyfield_recommended_deep_sky_does_not_cap_the_visible_catalogue_to_ten
         {
             "object_id": f"messier-M{index}",
             "primary_designation": f"M{index}",
+            "ra": "0",
             "dec": "0",
             "magnitude": 6.0,
             "object_type": "Open cluster",
@@ -100,13 +101,24 @@ def test_skyfield_recommended_deep_sky_does_not_cap_the_visible_catalogue_to_ten
     engine = SkyfieldAstronomyEngine.__new__(SkyfieldAstronomyEngine)
     engine._catalogue_repository = _CatalogueRows(rows)
     engine._object_score = lambda *_args: 80
-    engine.observing_night_window = lambda *_args, **_kwargs: ObservingNightWindow.unavailable()
-    engine._catalogue_details = lambda row, _location, dec_degrees=None, **_kwargs: _target(
-        row["object_id"],
-        row["primary_designation"],
-        row["object_type"],
-        "22:00",
-        80,
+    zone = ZoneInfo("UTC")
+    engine.observing_night_window = (
+        lambda *_args, **_kwargs: ObservingNightWindow.bounded(
+            datetime(2026, 7, 1, 18, tzinfo=zone),
+            datetime(2026, 7, 2, 6, tzinfo=zone),
+        )
+    )
+    engine._catalogue_details_batch = (
+        lambda candidates, _location, **_kwargs: [
+            _target(
+                row["object_id"],
+                row["primary_designation"],
+                row["object_type"],
+                "22:00",
+                80,
+            )
+            for _score, row, _ra, _dec in candidates
+        ]
     )
 
     targets = engine.recommended_deep_sky(

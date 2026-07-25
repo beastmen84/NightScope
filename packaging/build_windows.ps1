@@ -8,6 +8,7 @@ $LicenseCheck = Join-Path $Root "tools\generate_third_party_licenses.py"
 $QtBundleAudit = Join-Path $Root "tools\audit_qt_bundle.py"
 $LegalFiles = @(
     "LICENSE",
+    "OPENNGC_LICENSE.txt",
     "SOURCE_CODE.md",
     "THIRD_PARTY_NOTICES.md",
     "THIRD_PARTY_LICENSES.txt"

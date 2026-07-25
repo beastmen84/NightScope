@@ -2102,6 +2102,8 @@ def source_content() -> dict[str, dict[str, dict[str, str]]]:
     catalogue_objects: dict[str, dict[str, str]] = OrderedDict()
     for row in _read_csv("catalogue_objects_seed.csv"):
         object_id = row["object_id"].strip()
+        if object_id.startswith("ngc-"):
+            continue
         if object_id in catalogue_objects:
             raise ValueError(f"Duplicate catalogue translation key: {object_id}")
         name = row["nome"].strip()

@@ -2,15 +2,53 @@
 
 ## Unreleased
 
+- Importato l'intero intervallo canonico NGC 1-7840 dal snapshot OpenNGC
+  bloccato al commit `36cb178a`: 7.839 designazioni utilizzabili risolvono
+  7.571 target fisici, 205 identita' Messier/Caldwell gia' esistenti vengono
+  riusate e 7.366 nuovi target NGC-only portano il catalogo deep-sky a 7.585
+  oggetti unici. `NGC 412`, marcato non esistente dalla sorgente, viene
+  escluso; alias e oggetti composti come NGC 6/20 e NGC 650/651 non duplicano
+  calcoli o preferenze.
+- I target NGC-only partono esclusi dai suggerimenti automatici ma possono
+  essere attivati singolarmente e mantengono la scelta nel database locale.
+  Gli oggetti gia' curati come Messier o Caldwell conservano il proprio valore
+  iniziale anche quando possiedono designazioni NGC. Descrizione e curiosita'
+  dei nuovi oggetti mostrano esplicitamente `Work in progress`, in attesa
+  dell'arricchimento editoriale graduale.
+- Lo schema SQLite passa alla versione 19: `CatalogueDesignation` ammette piu'
+  alias dello stesso catalogo per un solo target, continuando a imporre
+  designazioni normalizzate uniche e una sola designazione primaria. La
+  migrazione da schema 18 conserva le preferenze utente.
+- L'ammissione ai suggerimenti viene risolta in SQL prima di coordinate,
+  visibilita' e geometria lunare. Skyfield elabora inoltre in batch NumPy i
+  target fissi per raccomandazioni, visibilita' mensile e separazione dalla
+  Luna, con fallback scalare multipiattaforma. La join delle preferenze usa la
+  chiave `NOCASE` indicizzata invece di applicare `LOWER()` riga per riga: nel
+  caso tutto attivo la sola query passa da circa `18,9 s` a `0,15 s`. Nel
+  benchmark Windows end-to-end il refresh controllato passa da `7,55 s` con i
+  219 default a `12,45 s` con tutti i 7.585 target attivi, incluso catalogo
+  mensile, eventi, Equipment, NSOM, Planner e Sky Compass. Il lavoro resta nel
+  worker esistente e non e' stato introdotto multiprocesso.
+- La pagina Oggetti celesti usa ora una lista virtualizzata adatta a migliaia
+  di righe, conserva la designazione NGC esatta nel dettaglio anche per gli
+  alias e accetta ricerche compatte come `NGC1` senza confonderle con codici
+  Caldwell come `C23`. Aggiunti attribuzione, licenza completa
+  `CC-BY-SA-4.0`, snapshot riproducibile e controllo offline OpenNGC; aggiornate
+  le traduzioni IT/EN/ES e i bundle Windows/Linux.
+- Il gate finale `tools/run_checks.py --fast` passa con 950 test, 642 warning
+  Skyfield/NumPy gia' noti, 10 subtest, smoke backend, QML normale e Red Night
+  Vision. Il gate di sicurezza precedente ha inoltre confermato 84% di
+  copertura su 16.429 statement runtime e nessuna vulnerabilita' nota
+  nell'ambiente installato.
 - Aggiunta al catalogo Oggetti celesti la colonna compatta `Home`: i 219
   oggetti Messier e Caldwell sono attivi per impostazione iniziale, restano
   modificabili e salvano ogni scelta nel database locale; i 9 oggetti del
   Sistema Solare S1-S9 sono invece sempre selezionati e non disattivabili. Un
   oggetto modificabile disattivato resta consultabile nel catalogo ma viene
-  escluso, prima di qualsiasi calcolo derivato, da configurazioni Equipment,
+  escluso, prima dei calcoli di raccomandazione, da configurazioni Equipment,
   Home, Best Object, Planner e Sky Compass. Lo schema SQLite passa alla
   versione 18 mantenendo gli override utente separati dai valori predefiniti
-  del seed e predisponendo lo stesso contratto per il futuro catalogo NGC.
+  del seed.
 - Ridisegnata la schermata di preparazione al primo avvio: i testi sono ora in
   inglese e quattro step distinti mostrano database, cataloghi locali, servizi
   applicativi e caricamento dell'interfaccia. L'avanzamento resta monotono,

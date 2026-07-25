@@ -157,6 +157,9 @@ CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG = DEEP_SKY_USEFUL_ALTITUDE_DEG
 ASTRONOMY_REFRESH_FULL = "full_refresh"
 ASTRONOMY_REFRESH_NIGHT_ROLLOVER = "night_rollover"
 ASTRONOMY_REFRESH_VIIRS_DEEP_SKY = "viirs_deep_sky"
+ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION = (
+    "catalogue_recommendation"
+)
 
 
 @dataclass(frozen=True)
@@ -391,6 +394,7 @@ class AppController(QObject):
         self._sky_compass_candidate_snapshot: list[CelestialObject] = []
         self._selected_object: CelestialObject | None = None
         self._selected_object_source = ""
+        self._selected_catalogue_item: dict | None = None
         self._best_object: CelestialObject | None = None
         self._observation_rows = self._observation_repository.list_all()
         self._observation_log = self._observation_log_service.build_entries(self._observation_rows)
@@ -766,7 +770,16 @@ class AppController(QObject):
 
     @Property(int, notify=catalogueChanged)
     def catalogueTotalCount(self) -> int:
-        return len(self._catalogue_objects)
+        catalogue = self._catalogue_filters.get(
+            "catalogue",
+            CATALOGUE_ALL_FILTER,
+        )
+        if catalogue == CATALOGUE_ALL_FILTER:
+            return len(self._catalogue_objects)
+        return sum(
+            len(self._catalogue_items_for_catalogue(item, catalogue))
+            for item in self._catalogue_objects
+        )
 
     @Property(int, notify=catalogueChanged)
     def catalogueFilteredCount(self) -> int:
@@ -1303,6 +1316,7 @@ class AppController(QObject):
             if item.id == object_id:
                 self._selected_object = item
                 self._selected_object_source = OBSERVING_SOURCE
+                self._selected_catalogue_item = None
                 self.selectedObjectChanged.emit()
                 return
 
@@ -1312,7 +1326,32 @@ class AppController(QObject):
         if not item:
             return
         item = self._catalogue_item_for_active_filter(item)
+        self._selected_catalogue_item = dict(item)
         self._selected_object = self._catalogue_item_to_detail_object(item)
+        self._selected_object_source = CATALOGUE_SOURCE
+        self.selectedObjectChanged.emit()
+
+    @Slot(str, str, str)
+    def selectCatalogueDesignation(
+        self,
+        object_id: str,
+        catalogue: str,
+        designation: str,
+    ) -> None:
+        item = self._catalogue_item_for_object_id(object_id)
+        if not item:
+            return
+        projected = self._catalogue_item_for_designation(
+            item,
+            catalogue,
+            designation,
+        )
+        if projected is None:
+            projected = self._catalogue_item_for_active_filter(item)
+        self._selected_catalogue_item = dict(projected)
+        self._selected_object = self._catalogue_item_to_detail_object(
+            projected
+        )
         self._selected_object_source = CATALOGUE_SOURCE
         self.selectedObjectChanged.emit()
 
@@ -1343,6 +1382,15 @@ class AppController(QObject):
         item["recommendation_enabled"] = enabled
 
         self._refresh_after_catalogue_recommendation_change()
+        if enabled and self._has_valid_location():
+            if not self._start_astronomy_refresh(
+                ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION
+            ):
+                snapshot = self._calculate_astronomy_snapshot(
+                    self._location,
+                    ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION,
+                )
+                self._finish_catalogue_recommendation_refresh(snapshot)
         self.catalogueChanged.emit()
         self.dataChanged.emit()
         self.selectedObjectChanged.emit()
@@ -2752,7 +2800,10 @@ class AppController(QObject):
     ) -> AstronomyRefreshSnapshot:
         try:
             with self._astronomy_engine_lock_instance():
-                if purpose == ASTRONOMY_REFRESH_VIIRS_DEEP_SKY:
+                if purpose in {
+                    ASTRONOMY_REFRESH_VIIRS_DEEP_SKY,
+                    ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION,
+                }:
                     return AstronomyRefreshSnapshot(
                         deep_sky=tuple(self._astronomy_engine.recommended_deep_sky(location)),
                     )
@@ -2838,6 +2889,9 @@ class AppController(QObject):
 
         if purpose == ASTRONOMY_REFRESH_VIIRS_DEEP_SKY:
             self._finish_viirs_deep_sky_refresh(snapshot, context or "")
+            return
+        if purpose == ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION:
+            self._finish_catalogue_recommendation_refresh(snapshot)
             return
 
         self._apply_astronomy_snapshot(snapshot)
@@ -3951,6 +4005,34 @@ class AppController(QObject):
             RefreshDomain.COMPASS,
         )
 
+    def _finish_catalogue_recommendation_refresh(
+        self,
+        snapshot: AstronomyRefreshSnapshot,
+    ) -> None:
+        if not snapshot.failed:
+            try:
+                self._base_deep_sky = list(snapshot.deep_sky)
+                self._refresh_equipment_recommendations_for_current_objects()
+                self._deep_sky = self._apply_deep_sky_pollution_context(
+                    self._deep_sky
+                )
+            except Exception:
+                logger.warning(
+                    "Deep-sky refresh after catalogue eligibility change "
+                    "failed.",
+                    exc_info=True,
+                )
+        self._recalculate_observing_outputs()
+        self.dataChanged.emit()
+        self.weatherChanged.emit()
+        self.selectedObjectChanged.emit()
+        self._clear_refresh_domains(
+            RefreshDomain.ASTRONOMY,
+            RefreshDomain.EQUIPMENT,
+            RefreshDomain.PLANNER,
+            RefreshDomain.COMPASS,
+        )
+
     def _schedule_nasa_aod_refresh(self) -> None:
         if not self._has_valid_location():
             self._nasa_aod_result = NasaAodResult.no_location()
@@ -4762,7 +4844,6 @@ class AppController(QObject):
         ]
         search_terms = " ".join(
             (
-                object_id,
                 str(row.get("name") or ""),
                 *designation_labels,
                 *(str(item.get("designation") or "") for item in designations),
@@ -4900,7 +4981,9 @@ class AppController(QObject):
             objects = [
                 item
                 for item in objects
-                if query in item["catalogue_id"].casefold()
+                if self._catalogue_query_matches_designation(item, query)
+                or query
+                == str(item.get("object_id", "")).casefold()
                 or query in render_text(item["name"]).casefold()
                 or query
                 in render_text(
@@ -4919,8 +5002,10 @@ class AppController(QObject):
             objects = [
                 projected
                 for item in objects
-                if (projected := self._catalogue_item_for_catalogue(item, catalogue_filter))
-                is not None
+                for projected in self._catalogue_items_for_catalogue(
+                    item,
+                    catalogue_filter,
+                )
             ]
 
         for filter_name, field_name in (
@@ -4956,33 +5041,107 @@ class AppController(QObject):
             ),
         ]
         normalized = [candidate.casefold() for candidate in candidates if candidate]
-        if query in normalized:
+        compact_query = cls._compact_catalogue_designation(query)
+        compact_candidates = [
+            cls._compact_catalogue_designation(candidate)
+            for candidate in normalized
+        ]
+        if query in normalized or compact_query in compact_candidates:
             match_rank = 0
-        elif any(candidate.startswith(query) for candidate in normalized):
+        elif any(candidate.startswith(query) for candidate in normalized) or any(
+            candidate.startswith(compact_query)
+            for candidate in compact_candidates
+        ):
             match_rank = 1
         else:
             match_rank = 2
         catalogue, numeric_id, catalogue_id = cls._catalogue_sort_key(item)
         return match_rank, catalogue, numeric_id, catalogue_id
 
+    @classmethod
+    def _catalogue_query_matches_designation(
+        cls,
+        item: dict,
+        query: str,
+    ) -> bool:
+        designations = [
+            str(item.get("catalogue_id") or ""),
+            *(
+                str(designation.get("designation") or "")
+                for designation in item.get("designations", [])
+            ),
+        ]
+        if any(query in designation.casefold() for designation in designations):
+            return True
+        compact_query = cls._compact_catalogue_designation(query)
+        return bool(compact_query) and any(
+            cls._compact_catalogue_designation(designation).startswith(
+                compact_query
+            )
+            for designation in designations
+            if designation
+        )
+
+    @staticmethod
+    def _compact_catalogue_designation(value: str) -> str:
+        return re.sub(r"[\s_-]+", "", value.casefold())
+
     @staticmethod
     def _catalogue_item_for_catalogue(item: dict, catalogue: str) -> dict | None:
-        normalized = catalogue.strip().casefold()
-        designation = next(
-            (
-                candidate
-                for candidate in item.get("designations", [])
-                if str(candidate.get("catalogue", "")).strip().casefold() == normalized
-            ),
-            None,
+        projected = AppController._catalogue_items_for_catalogue(
+            item,
+            catalogue,
         )
-        if designation is None:
-            return None
-        projected = dict(item)
-        projected["catalogue"] = str(designation.get("catalogue") or "")
-        projected["catalogue_id"] = str(designation.get("designation") or "")
-        projected["catalogue_sort_index"] = designation.get("sort_index")
-        return projected
+        return projected[0] if projected else None
+
+    @staticmethod
+    def _catalogue_items_for_catalogue(
+        item: dict,
+        catalogue: str,
+    ) -> list[dict]:
+        normalized = catalogue.strip().casefold()
+        result = []
+        for designation in item.get("designations", []):
+            if (
+                str(designation.get("catalogue", "")).strip().casefold()
+                != normalized
+            ):
+                continue
+            projected = dict(item)
+            projected["catalogue"] = str(
+                designation.get("catalogue") or ""
+            )
+            projected["catalogue_id"] = str(
+                designation.get("designation") or ""
+            )
+            projected["catalogue_sort_index"] = designation.get(
+                "sort_index"
+            )
+            result.append(projected)
+        return result
+
+    @staticmethod
+    def _catalogue_item_for_designation(
+        item: dict,
+        catalogue: str,
+        designation: str,
+    ) -> dict | None:
+        normalized_catalogue = catalogue.strip().casefold()
+        normalized_designation = designation.strip().casefold()
+        for projected in AppController._catalogue_items_for_catalogue(
+            item,
+            catalogue,
+        ):
+            if (
+                str(projected.get("catalogue", "")).strip().casefold()
+                == normalized_catalogue
+                and str(
+                    projected.get("catalogue_id", "")
+                ).strip().casefold()
+                == normalized_designation
+            ):
+                return projected
+        return None
 
     def _catalogue_item_with_visibility(
         self,
@@ -5260,7 +5419,11 @@ class AppController(QObject):
                 id=item["object_id"],
                 name=display_name,
                 object_type=item["type"],
-                image="resources/images/m13.svg",
+                image=SkyfieldAstronomyEngine._catalogue_image(
+                    str(item["object_id"]),
+                    str(item["catalogue_id"]),
+                    str(item["type"]),
+                ),
                 magnitude=self._format_catalogue_number(item["magnitude"]),
                 distance=tr("n/d"),
                 max_altitude=tr("n/d"),
@@ -5634,9 +5797,16 @@ class AppController(QObject):
         data["bestSeen"] = presentation_text(
             description.get("best_seen", ""), strip=True
         )
-        data["curiosityText"] = presentation_text(
+        curiosity_text = presentation_text(
             curiosity.get("curiosity_text", ""), strip=True
         )
+        if (
+            not curiosity_text
+            and item.id.startswith("ngc-")
+            and self._is_catalogue_detail_object(item)
+        ):
+            curiosity_text = tr("Work in progress")
+        data["curiosityText"] = curiosity_text
         data["curiositySourceLabel"] = curiosity.get("source_label", "").strip()
         data["curiositySourceUrl"] = curiosity.get("source_url", "").strip()
         data["curiosityVerified"] = bool(curiosity.get("verified", False))
@@ -5734,7 +5904,25 @@ class AppController(QObject):
         catalogue_item = self._catalogue_item_for_object_id(item.id)
         if catalogue_item:
             if getattr(self, "_selected_object_source", "") == CATALOGUE_SOURCE:
-                catalogue_item = self._catalogue_item_for_active_filter(catalogue_item)
+                selected_catalogue_item = getattr(
+                    self,
+                    "_selected_catalogue_item",
+                    None,
+                )
+                if (
+                    selected_catalogue_item
+                    and str(
+                        selected_catalogue_item.get("object_id", "")
+                    )
+                    == item.id
+                ):
+                    catalogue_item = selected_catalogue_item
+                else:
+                    catalogue_item = (
+                        self._catalogue_item_for_active_filter(
+                            catalogue_item
+                        )
+                    )
             constellation = str(catalogue_item.get("constellation") or "")
             if self._is_solar_system_catalogue_item(catalogue_item) and not constellation:
                 constellation = "—"

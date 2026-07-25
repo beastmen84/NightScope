@@ -125,6 +125,27 @@ selection.
 The packaged snapshot was retrieved on 2026-07-22. Searching it at runtime is
 offline and does not send the user's query or coordinates to the MPC.
 
+### OpenNGC
+
+The NGC designations, coordinates, classifications, magnitudes and angular
+sizes in `catalogue_objects_seed.csv` and `catalogue_designations_seed.csv`
+are derived from OpenNGC and redistributed under Creative Commons
+Attribution-ShareAlike 4.0 International (`CC-BY-SA-4.0`).
+
+- Project and attribution: OpenNGC by Mattia Verga and contributors,
+  `https://github.com/mattiaverga/OpenNGC`
+- Source snapshot: OpenNGC commit
+  `36cb178a0f69dba8bfc03a99c10512831edf1c6b`
+- Source file:
+  `https://github.com/mattiaverga/OpenNGC/blob/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv`
+- License: `https://creativecommons.org/licenses/by-sa/4.0/`
+
+NightScope selects the canonical NGC 1-7840 range, excludes the one entry
+marked non-existent, resolves duplicate and multi-catalogue codes to physical
+target identities, normalizes presentation types and constellation names, and
+adds NightScope recommendation defaults and editorial placeholders. The
+complete license text is redistributed as `OPENNGC_LICENSE.txt`.
+
 ### Timezone Boundaries
 
 The `timezonefinder` package embeds timezone-boundary data distributed under

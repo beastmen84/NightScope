@@ -46,7 +46,8 @@ Linux packages use a portable tarball plus an adjacent SHA-256 file.
 
 - Builds a local observing night from sunset to sunrise for the selected
   location and IANA timezone.
-- Calculates Sun, Moon, planet, Messier, and Caldwell visibility with Skyfield.
+- Calculates Sun, Moon, planet, Messier, Caldwell, and enabled NGC visibility
+  with Skyfield.
 - Produces a short observing plan and target-specific alternatives instead of
   exposing internal raw scores.
 - Evaluates every telescope or binocular in the active profile for each target;
@@ -57,9 +58,12 @@ Linux packages use a portable tarball plus an adjacent SHA-256 file.
   multi-night comet windows in one calendar.
 - Provides live directional guidance through Sky Compass.
 - Stores observation logs and user-maintained equipment locally.
-- Includes offline catalogues for 110 Messier objects, 109 Caldwell objects,
-  nine Solar System targets, cities, equipment, descriptions, and credited
-  scientific images.
+- Includes an offline celestial catalogue with 7,585 distinct deep-sky
+  targets, 7,839 NGC designations deduplicated across physical identities,
+  and nine Solar System targets. The 219 curated Messier/Caldwell targets and
+  Solar System objects retain their complete descriptions, facts, and credited
+  scientific images; NGC-only editorial content is explicitly marked as work
+  in progress.
 - Switches the application and its content between Italian, English, and
   Spanish at runtime.
 - Provides a persistent low-luminance red interface for use at the telescope;

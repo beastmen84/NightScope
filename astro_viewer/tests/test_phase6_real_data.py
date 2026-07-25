@@ -35,9 +35,18 @@ from astro_viewer.app.services.equipment_setup_read_model import (
 )
 from astro_viewer.app.services.light_pollution_service import LightPollutionService, NasaViirsBlackMarbleProvider
 from astro_viewer.app.services.location_service import LocationDetectionResult
+from astro_viewer.app.services.localization import activate_language_pack
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.viewmodels.app_controller import AppController
 from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
+
+
+CATALOGUE_PHYSICAL_OBJECT_COUNT = 7_585
+CATALOGUE_WITH_SOLAR_SYSTEM_COUNT = (
+    CATALOGUE_PHYSICAL_OBJECT_COUNT + 9
+)
+NGC_DESIGNATION_COUNT = 7_839
+NGC_ONLY_OBJECT_COUNT = 7_366
 
 
 class Phase6RealDataTests(unittest.TestCase):
@@ -1024,7 +1033,9 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertNotIn("appController.weatherSummary.alert", main_qml)
         self.assertIn('window.detailBackTarget === "objectCatalogue" ? qsTr("Torna al catalogo")', main_qml)
         self.assertIn("controller.catalogueObjects", object_catalogue_qml)
-        self.assertIn("appController.selectCatalogueObject", main_qml)
+        self.assertIn("appController.selectCatalogueDesignation", main_qml)
+        self.assertIn("ListView {", object_catalogue_qml)
+        self.assertIn("reuseItems: true", object_catalogue_qml)
         self.assertEqual(
             main_qml.count('onOpenLocation: window.currentPage = "location"'),
             3,
@@ -1291,10 +1302,22 @@ class Phase6RealDataTests(unittest.TestCase):
             objects = controller.catalogueObjects
             messier_objects = [item for item in objects if item["catalogue"] == "Messier"]
             caldwell_objects = [item for item in objects if item["catalogue"] == "Caldwell"]
+            ngc_only_objects = [
+                item
+                for item in objects
+                if item["catalogue"] == "NGC"
+            ]
 
-            self.assertEqual(len(objects), 228)
+            self.assertEqual(
+                len(objects),
+                CATALOGUE_WITH_SOLAR_SYSTEM_COUNT,
+            )
             self.assertEqual(len(messier_objects), 110)
             self.assertEqual(len(caldwell_objects), 109)
+            self.assertEqual(
+                len(ngc_only_objects),
+                NGC_ONLY_OBJECT_COUNT,
+            )
             self.assertEqual([item["catalogue_id"] for item in messier_objects[:5]], ["M1", "M2", "M3", "M4", "M5"])
             self.assertEqual(messier_objects[-1]["catalogue_id"], "M110")
             self.assertEqual([item["catalogue_id"] for item in caldwell_objects[:5]], ["C1", "C2", "C3", "C4", "C5"])
@@ -1339,7 +1362,16 @@ class Phase6RealDataTests(unittest.TestCase):
             }
             self.assertTrue(required_fields.issubset(messier_objects[0]))
             self.assertTrue(
-                all(item["recommendation_enabled"] for item in objects)
+                all(
+                    item["recommendation_enabled"]
+                    for item in messier_objects + caldwell_objects
+                )
+            )
+            self.assertTrue(
+                all(
+                    not item["recommendation_enabled"]
+                    for item in ngc_only_objects
+                )
             )
             self.assertTrue(
                 all(
@@ -1465,7 +1497,7 @@ class Phase6RealDataTests(unittest.TestCase):
             )
             self.assertEqual(
                 controller.catalogueFilterOptions["catalogues"],
-                ["Caldwell", "Messier", "Sistema Solare"],
+                ["Caldwell", "Messier", "NGC", "Sistema Solare"],
             )
             self.assertIn(
                 {"value": "Open cluster", "label": "Ammasso aperto"},
@@ -1492,6 +1524,63 @@ class Phase6RealDataTests(unittest.TestCase):
                     not item["recommendation_editable"]
                     for item in solar_objects
                 )
+            )
+
+    def test_ngc_filter_projects_aliases_without_duplicate_targets(self) -> None:
+        with _controller() as controller:
+            self.assertEqual(
+                controller.catalogueTotalCount,
+                CATALOGUE_WITH_SOLAR_SYSTEM_COUNT,
+            )
+
+            controller.setCatalogueFilter("catalogue", "NGC")
+            objects = controller.catalogueObjects
+            by_designation = {
+                item["catalogue_id"]: item
+                for item in objects
+            }
+
+            self.assertEqual(len(objects), NGC_DESIGNATION_COUNT)
+            self.assertEqual(
+                controller.catalogueTotalCount,
+                NGC_DESIGNATION_COUNT,
+            )
+            self.assertEqual(
+                by_designation["NGC 6"]["object_id"],
+                "ngc-NGC6",
+            )
+            self.assertEqual(
+                by_designation["NGC 20"]["object_id"],
+                "ngc-NGC6",
+            )
+            self.assertFalse(
+                by_designation["NGC 20"][
+                    "recommendation_enabled"
+                ]
+            )
+            self.assertTrue(
+                by_designation["NGC 20"][
+                    "recommendation_editable"
+                ]
+            )
+
+            controller.selectCatalogueDesignation(
+                "ngc-NGC6",
+                "NGC",
+                "NGC 20",
+            )
+            selected = controller.selectedObject
+
+            self.assertEqual(selected["id"], "ngc-NGC6")
+            self.assertEqual(selected["catalogue"], "NGC")
+            self.assertEqual(selected["catalogueId"], "NGC 20")
+            self.assertEqual(
+                selected["descriptionText"],
+                "Work in progress",
+            )
+            self.assertEqual(
+                selected["curiosityText"],
+                "Work in progress",
             )
 
     def test_solar_catalogue_recommendation_is_locked_and_always_admitted(
@@ -1557,6 +1646,13 @@ class Phase6RealDataTests(unittest.TestCase):
             by_caldwell_id = controller.catalogueObjects
             self.assertEqual([item["object_id"] for item in by_caldwell_id], ["caldwell-C23"])
 
+            controller.searchCatalogue("NGC1")
+            by_compact_ngc_id = controller.catalogueObjects
+            self.assertEqual(
+                by_compact_ngc_id[0]["catalogue_id"],
+                "NGC 1",
+            )
+
             controller.searchCatalogue("NGC 891")
             by_ngc_id = controller.catalogueObjects
             self.assertEqual([item["catalogue_id"] for item in by_ngc_id], ["C23"])
@@ -1565,7 +1661,7 @@ class Phase6RealDataTests(unittest.TestCase):
         with _controller() as controller:
             self.assertEqual(
                 controller.catalogueFilterOptions["catalogues"],
-                ["Caldwell", "Messier", "Sistema Solare"],
+                ["Caldwell", "Messier", "NGC", "Sistema Solare"],
             )
 
             controller.setCatalogueFilter("catalogue", "Caldwell")
@@ -1591,7 +1687,16 @@ class Phase6RealDataTests(unittest.TestCase):
             controller.setCatalogueFilter("type", "Supernova remnant")
             self.assertEqual(
                 [item["catalogue_id"] for item in controller.catalogueObjects],
-                ["C33", "C34", "M1"],
+                [
+                    "C33",
+                    "C34",
+                    "M1",
+                    "NGC 1918",
+                    "NGC 2060",
+                    "NGC 6334",
+                    "NGC 6974",
+                    "NGC 6979",
+                ],
             )
 
             controller.clearCatalogueFilters()
@@ -1757,7 +1862,10 @@ class Phase6RealDataTests(unittest.TestCase):
             controller._invalidate_catalogue_visibility_cache()
 
             objects = controller.catalogueObjects
-            self.assertEqual(len(objects), 228)
+            self.assertEqual(
+                len(objects),
+                CATALOGUE_WITH_SOLAR_SYSTEM_COUNT,
+            )
             self.assertEqual(astronomy.catalogue_month_visibility.call_count, 0)
             self.assertEqual(
                 [item["visible_this_month_label"] for item in objects if item["catalogue_id"] in {"M13", "M31"}],
@@ -1931,7 +2039,10 @@ class Phase6RealDataTests(unittest.TestCase):
             controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
             controller._invalidate_catalogue_visibility_cache()
 
-            self.assertEqual(len(controller.catalogueObjects), 228)
+            self.assertEqual(
+                len(controller.catalogueObjects),
+                CATALOGUE_WITH_SOLAR_SYSTEM_COUNT,
+            )
             controller.searchCatalogue("M31")
             self.assertEqual([item["catalogue_id"] for item in controller.catalogueObjects], ["M31"])
             controller.setCatalogueFilter("catalogue", "Messier")
@@ -2603,6 +2714,9 @@ class _temp_database:
 
 class _controller:
     def __enter__(self) -> AppController:
+        # Keep this integration helper independent from translation tests that
+        # intentionally mutate the process-wide active content pack.
+        activate_language_pack({})
         self._db_context = _temp_database()
         database_path = self._db_context.__enter__()
         base_dir = Path(__file__).resolve().parents[1]

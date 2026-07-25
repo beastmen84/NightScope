@@ -33,6 +33,10 @@ def _checks(*, include_coverage: bool, include_security: bool) -> list[Check]:
             "mpc-observatories",
             ("astro_viewer/tools/update_mpc_observatories.py", "--check"),
         ),
+        Check(
+            "ngc-catalogue",
+            ("astro_viewer/tools/update_ngc_catalogue.py", "--check"),
+        ),
     ]
     if include_security:
         checks.append(

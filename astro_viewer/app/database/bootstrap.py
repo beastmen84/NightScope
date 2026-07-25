@@ -18,7 +18,7 @@ from astro_viewer.app.services.localization import content_key, tr
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
-SCHEMA_VERSION = 18
+SCHEMA_VERSION = 19
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 _CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
     (
@@ -471,6 +471,8 @@ def _migrate_database(
         """
     )
     _migrate_catalogue_tables(connection)
+    if existing_schema_version < 19:
+        _migrate_catalogue_designation_aliases(connection)
     _ensure_profile_binocular_table(connection)
     _remove_orphan_profile_assignments(connection)
     _add_columns(connection, "SkyQualityEstimate", {"confidence": "TEXT"})
@@ -642,6 +644,72 @@ def _migrate_catalogue_tables(connection: sqlite3.Connection) -> None:
         """
     )
     connection.execute("DROP TABLE MessierObject")
+
+
+def _migrate_catalogue_designation_aliases(
+    connection: sqlite3.Connection,
+) -> None:
+    """Allow several historical codes from one catalogue to share a target."""
+
+    connection.execute("DROP TABLE IF EXISTS CatalogueDesignation_v19")
+    connection.execute(
+        """
+        CREATE TABLE CatalogueDesignation_v19 (
+            catalogue TEXT NOT NULL,
+            designation TEXT NOT NULL,
+            object_id TEXT NOT NULL,
+            sort_index INTEGER,
+            is_primary INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (catalogue, designation),
+            FOREIGN KEY (object_id)
+                REFERENCES CatalogueObject(object_id) ON DELETE CASCADE
+        )
+        """
+    )
+    connection.execute(
+        """
+        INSERT INTO CatalogueDesignation_v19 (
+            catalogue, designation, object_id, sort_index, is_primary
+        )
+        SELECT catalogue, designation, object_id, sort_index, is_primary
+        FROM CatalogueDesignation
+        """
+    )
+    connection.execute("DROP TABLE CatalogueDesignation")
+    connection.execute(
+        "ALTER TABLE CatalogueDesignation_v19 RENAME TO CatalogueDesignation"
+    )
+    connection.execute(
+        """
+        CREATE INDEX idx_catalogue_designation_object
+        ON CatalogueDesignation(object_id)
+        """
+    )
+    connection.execute(
+        """
+        CREATE INDEX idx_catalogue_designation_catalogue
+        ON CatalogueDesignation(catalogue, sort_index)
+        """
+    )
+    connection.execute(
+        """
+        CREATE UNIQUE INDEX idx_catalogue_designation_primary
+        ON CatalogueDesignation(object_id)
+        WHERE is_primary = 1
+        """
+    )
+    connection.execute(
+        """
+        CREATE UNIQUE INDEX idx_catalogue_designation_normalized
+        ON CatalogueDesignation(LOWER(catalogue), LOWER(designation))
+        """
+    )
+    connection.execute(
+        """
+        CREATE INDEX idx_catalogue_object_catalogue_normalized
+        ON CatalogueDesignation(object_id, LOWER(catalogue))
+        """
+    )
 
 
 def _table_exists(connection: sqlite3.Connection, table_name: str) -> bool:
@@ -1194,11 +1262,10 @@ def _validate_catalogue_seed(
                 f"Invalid default recommendation state for {object_id}."
             )
         max_size = _optional_float(row["max_angular_size_deg"])
-        if max_size is None or max_size <= 0:
+        if max_size is not None and max_size <= 0:
             raise ValueError(f"Invalid angular size for {object_id}.")
 
     normalized_designations: set[tuple[str, str]] = set()
-    object_catalogues: set[tuple[str, str]] = set()
     primary_counts: Counter[str] = Counter()
     designation_counts: Counter[str] = Counter()
     sort_indices: set[tuple[str, int]] = set()
@@ -1213,10 +1280,6 @@ def _validate_catalogue_seed(
         if not catalogue or not designation or normalized_key in normalized_designations:
             raise ValueError(f"Duplicate or empty catalogue designation: {catalogue} {designation}")
         normalized_designations.add(normalized_key)
-        object_catalogue_key = (normalized_object_id, catalogue.casefold())
-        if object_catalogue_key in object_catalogues:
-            raise ValueError(f"Object {object_id} has multiple {catalogue} designations.")
-        object_catalogues.add(object_catalogue_key)
         designation_counts[normalized_object_id] += 1
 
         sort_index_text = row["sort_index"].strip()
