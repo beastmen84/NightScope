@@ -187,6 +187,16 @@ targets. Of these, 205 reuse existing Messier/Caldwell identities and 7,366
 create new NGC-only objects. Duplicate codes and compound objects can therefore
 attach multiple NGC designations to one `object_id`.
 
+Cross-catalogue identities are read from the explicit NGC references in the
+curated object descriptions, so numerals in common names such as `47 Tucanae`
+cannot become catalogue codes. An OpenNGC duplicate attached to a curated
+target also assigns that identity to its physical source unless the source has
+a different explicit curated identity. This keeps NGC 6882/6885 together as
+Caldwell C37 while preserving the intentional Caldwell C49/NGC 2239 and
+Caldwell C50/NGC 2244 distinction. Existing databases merge the obsolete
+NGC-only identity into C37 and retain its user preference unless C37 already
+has an explicit preference.
+
 The split is intentional: a secondary designation points to an existing
 physical target without creating a second object, a second astronomy
 calculation or an inflated physical count. Existing `messier-Mxx` and

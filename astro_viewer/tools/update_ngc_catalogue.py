@@ -215,6 +215,12 @@ def build_catalogue_rows(
 
     base_object_ids = {row["object_id"] for row in base_objects}
     curated_identity = _curated_ngc_identity_map(base_objects)
+    curated_duplicate_target_identity = (
+        _curated_duplicate_target_identity_map(
+            canonical_rows,
+            curated_identity,
+        )
+    )
     source_identity: dict[str, str] = {}
     source_row_by_new_object: dict[str, dict[str, str]] = {}
 
@@ -222,6 +228,8 @@ def build_catalogue_rows(
         if row["Type"] in {"Dup", "NonEx"}:
             continue
         object_id = curated_identity.get(number)
+        if object_id is None:
+            object_id = curated_duplicate_target_identity.get(row["Name"])
         if object_id is None and row["M"].strip():
             object_id = f"messier-M{int(row['M'])}"
         if object_id is None:
@@ -414,8 +422,7 @@ def _curated_ngc_identity_map(
 ) -> dict[int, str]:
     identity: dict[int, str] = {}
     for row in base_objects:
-        text = f"{row['nome']} | {row['descrizione']}"
-        for match in _NGC_REFERENCE.finditer(text):
+        for match in _NGC_REFERENCE.finditer(row["descrizione"]):
             start = int(match.group(1))
             numbers = [start]
             if match.group(3):
@@ -432,6 +439,31 @@ def _curated_ngc_identity_map(
                         f"{existing} and {row['object_id']}."
                     )
                 identity[number] = row["object_id"]
+    return identity
+
+
+def _curated_duplicate_target_identity_map(
+    canonical_rows: dict[int, dict[str, str]],
+    curated_identity: dict[int, str],
+) -> dict[str, str]:
+    identity: dict[str, str] = {}
+    for number, object_id in curated_identity.items():
+        row = canonical_rows[number]
+        if row["Type"] != "Dup":
+            continue
+        target_name = f"NGC{row['NGC'].strip()}"
+        target_match = _CANONICAL_NAME.fullmatch(target_name)
+        if target_match is not None:
+            direct_identity = curated_identity.get(int(target_match.group(1)))
+            if direct_identity is not None and direct_identity != object_id:
+                continue
+        existing = identity.get(target_name)
+        if existing is not None and existing != object_id:
+            raise ValueError(
+                f"Curated duplicate target {target_name} conflicts between "
+                f"{existing} and {object_id}."
+            )
+        identity[target_name] = object_id
     return identity
 
 

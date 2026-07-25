@@ -80,9 +80,25 @@ def test_ngc_seed_defaults_and_editorial_placeholders_are_explicit() -> None:
         row["object_id"]
         for row in ngc_designations
     )
+    designation_identity = {
+        row["designation"]: row["object_id"]
+        for row in ngc_designations
+    }
     assert designation_counts["ngc-NGC6"] == 2
+    assert designation_counts["ngc-NGC47"] == 2
     assert designation_counts["messier-M76"] == 2
+    assert designation_counts["caldwell-C37"] == 2
     assert designation_counts["caldwell-C49"] == 3
+    assert designation_counts["caldwell-C106"] == 1
+    assert "ngc-NGC6882" not in designation_counts
+
+    assert designation_identity["NGC 47"] == "ngc-NGC47"
+    assert designation_identity["NGC 58"] == "ngc-NGC47"
+    assert designation_identity["NGC 104"] == "caldwell-C106"
+    assert designation_identity["NGC 2239"] == "caldwell-C49"
+    assert designation_identity["NGC 2244"] == "caldwell-C50"
+    assert designation_identity["NGC 6882"] == "caldwell-C37"
+    assert designation_identity["NGC 6885"] == "caldwell-C37"
 
 
 def test_openngc_attribution_and_complete_license_are_redistributed() -> None:

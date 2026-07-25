@@ -29,6 +29,9 @@ _CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
         "C53 (NGC 3115) - Galassia lenticolare nella costellazione del Sestante.",
     ),
 )
+_CATALOGUE_BUILTIN_IDENTITY_MERGES = (
+    ("ngc-NGC6882", "caldwell-C37"),
+)
 _LEGACY_EQUIPMENT_SEED_SOURCES = {
     "TelescopeModel": (
         "telescope",
@@ -1212,6 +1215,42 @@ def _seed_catalogue(
         """,
         designation_rows,
     )
+    _merge_catalogue_builtin_identities(connection)
+
+
+def _merge_catalogue_builtin_identities(
+    connection: sqlite3.Connection,
+) -> None:
+    for obsolete_object_id, canonical_object_id in (
+        _CATALOGUE_BUILTIN_IDENTITY_MERGES
+    ):
+        connection.execute(
+            """
+            UPDATE CatalogueDesignation
+            SET object_id = ?, is_primary = 0
+            WHERE object_id = ?
+            """,
+            (canonical_object_id, obsolete_object_id),
+        )
+        connection.execute(
+            """
+            INSERT OR IGNORE INTO CatalogueRecommendationPreference (
+                object_id, enabled
+            )
+            SELECT ?, enabled
+            FROM CatalogueRecommendationPreference
+            WHERE object_id = ?
+            """,
+            (canonical_object_id, obsolete_object_id),
+        )
+        connection.execute(
+            "DELETE FROM CatalogueRecommendationPreference WHERE object_id = ?",
+            (obsolete_object_id,),
+        )
+        connection.execute(
+            "DELETE FROM CatalogueObject WHERE object_id = ?",
+            (obsolete_object_id,),
+        )
 
 
 def _validate_catalogue_seed(

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Corrette due identita' incrociate nel seed NGC: il numero nel nome comune
+  `47 Tucanae` non viene piu' interpretato come `NGC 47`, quindi NGC 47/58
+  formano il proprio target NGC-only mentre solo NGC 104 riusa Caldwell C106.
+  Inoltre NGC 6882/6885 risolvono entrambe a Caldwell C37; resta intenzionale
+  la distinzione editoriale tra Caldwell C49/NGC 2239 e Caldwell C50/NGC 2244.
+  I database gia' inizializzati eliminano il vecchio target NGC 6882 isolato
+  e ne trasferiscono l'eventuale preferenza utente a C37.
 - Importato l'intero intervallo canonico NGC 1-7840 dal snapshot OpenNGC
   bloccato al commit `36cb178a`: 7.839 designazioni utilizzabili risolvono
   7.571 target fisici, 205 identita' Messier/Caldwell gia' esistenti vengono
@@ -35,7 +42,7 @@
   Caldwell come `C23`. Aggiunti attribuzione, licenza completa
   `CC-BY-SA-4.0`, snapshot riproducibile e controllo offline OpenNGC; aggiornate
   le traduzioni IT/EN/ES e i bundle Windows/Linux.
-- Il gate finale `tools/run_checks.py --fast` passa con 950 test, 642 warning
+- Il gate finale `tools/run_checks.py --fast` passa con 951 test, 642 warning
   Skyfield/NumPy gia' noti, 10 subtest, smoke backend, QML normale e Red Night
   Vision. Il gate di sicurezza precedente ha inoltre confermato 84% di
   copertura su 16.429 statement runtime e nessuna vulnerabilita' nota

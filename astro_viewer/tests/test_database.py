@@ -621,6 +621,86 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 {"messier-m31": False},
             )
 
+    def test_catalogue_identity_merge_migrates_obsolete_ngc_preference(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = (
+                Path(__file__).resolve().parents[1]
+                / "data"
+                / "schema.sql"
+            )
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute(
+                    """
+                    INSERT INTO CatalogueObject (
+                        object_id, nome, tipo, costellazione, magnitudine,
+                        ascensione_retta, declinazione, dimensione_apparente,
+                        max_angular_size_deg, recommended_observation_type,
+                        best_filter_class, fallback_filter_class,
+                        optional_color_filter_class,
+                        imaging_reducer_recommended,
+                        recommendation_enabled_by_default, descrizione
+                    )
+                    SELECT
+                        'ngc-NGC6882', 'NGC 6882', tipo, costellazione,
+                        magnitudine, ascensione_retta, declinazione,
+                        dimensione_apparente, max_angular_size_deg,
+                        recommended_observation_type, best_filter_class,
+                        fallback_filter_class, optional_color_filter_class,
+                        imaging_reducer_recommended, 0, 'Work in progress'
+                    FROM CatalogueObject
+                    WHERE object_id = 'caldwell-C37'
+                    """
+                )
+                connection.execute(
+                    """
+                    UPDATE CatalogueDesignation
+                    SET object_id = 'ngc-NGC6882', is_primary = 1
+                    WHERE catalogue = 'NGC' AND designation = 'NGC 6882'
+                    """
+                )
+                connection.execute(
+                    """
+                    INSERT INTO CatalogueRecommendationPreference (
+                        object_id, enabled
+                    )
+                    VALUES ('ngc-NGC6882', 0)
+                    """
+                )
+                connection.commit()
+
+            initialize_database(database_path, schema_path)
+            repository = CatalogueRepository(database_path)
+            merged = repository.get_by_designation("NGC", "NGC 6882")
+
+            self.assertIsNotNone(merged)
+            assert merged is not None
+            self.assertEqual(merged["object_id"], "caldwell-C37")
+            self.assertFalse(merged["recommendation_enabled"])
+            with closing(sqlite3.connect(database_path)) as connection:
+                self.assertIsNone(
+                    connection.execute(
+                        """
+                        SELECT object_id
+                        FROM CatalogueObject
+                        WHERE object_id = 'ngc-NGC6882'
+                        """
+                    ).fetchone()
+                )
+                self.assertIsNone(
+                    connection.execute(
+                        """
+                        SELECT object_id
+                        FROM CatalogueRecommendationPreference
+                        WHERE object_id = 'ngc-NGC6882'
+                        """
+                    ).fetchone()
+                )
+
     def test_recommendation_query_filters_ngc_before_astronomy(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
