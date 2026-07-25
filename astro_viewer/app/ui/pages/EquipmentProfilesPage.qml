@@ -19,7 +19,9 @@ Item {
         { "label": qsTr("Barlow"), "value": "barlow" },
         { "label": qsTr("Binocoli"), "value": "binocular" },
         { "label": qsTr("Filtri"), "value": "filter" },
-        { "label": qsTr("Riduttori"), "value": "reducer" }
+        { "label": qsTr("Riduttori"), "value": "reducer" },
+        { "label": qsTr("Camere astronomiche"), "value": "astronomy_camera" },
+        { "label": qsTr("Corpi macchina"), "value": "camera_body" }
     ]
 
     function matchesFilter(item, filter, searchText) {
@@ -51,6 +53,10 @@ Item {
             return theme.green
         if (item.kind === "reducer")
             return theme.coral
+        if (item.kind === "astronomy_camera")
+            return theme.cyan
+        if (item.kind === "camera_body")
+            return theme.amber
         return theme.amber
     }
 
@@ -116,7 +122,7 @@ Item {
                     visible: controller.equipmentProfiles.length !== 1
                     Layout.fillWidth: true
                     title: qsTr("Profilo attivo")
-                    subtitle: qsTr("Configurazione usata dalle raccomandazioni")
+                    subtitle: qsTr("Configurazione visuale usata dalle raccomandazioni")
                     accentColor: theme.green
 
                     Text {
@@ -196,12 +202,12 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: qsTr("Equipaggiamento assegnato")
-                subtitle: qsTr("Elementi catalogo assegnati al profilo attivo")
+                subtitle: qsTr("Inventario visuale e fotografico del profilo attivo")
                 accentColor: theme.amber
 
                 GridLayout {
                     Layout.fillWidth: true
-                    columns: root.width > 1180 ? 3 : 1
+                    columns: root.width > 1500 ? 4 : root.width > 820 ? 2 : 1
                     columnSpacing: 16
                     rowSpacing: 16
 
@@ -252,6 +258,22 @@ Item {
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "reducer" })
                         accent: theme.coral
                     }
+
+                    EquipmentGroup {
+                        Layout.preferredWidth: 1
+                        title: qsTr("Camere astronomiche")
+                        emptyText: qsTr("Nessuna camera astronomica assegnata.")
+                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "astronomy_camera" })
+                        accent: theme.cyan
+                    }
+
+                    EquipmentGroup {
+                        Layout.preferredWidth: 1
+                        title: qsTr("Corpi macchina")
+                        emptyText: qsTr("Nessun corpo macchina assegnato.")
+                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "camera_body" })
+                        accent: theme.amber
+                    }
                 }
 
                 RowLayout {
@@ -277,7 +299,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: qsTr("Capacità del profilo")
+                title: qsTr("Capacità visuali del profilo")
                 subtitle: controller.telescopeCapabilities.name
                 accentColor: theme.violet
 
@@ -426,25 +448,66 @@ Item {
 
         Repeater {
             model: items
-            delegate: RowLayout {
+            delegate: ColumnLayout {
+                id: assignedItem
+                required property var modelData
+                readonly property bool cameraItem:
+                    modelData.kind === "astronomy_camera"
+                    || modelData.kind === "camera_body"
+
                 Layout.fillWidth: true
-                spacing: 8
-                StatusPill { text: qsTr("✓"); accentColor: theme.green }
-                Text {
+                spacing: 5
+
+                RowLayout {
                     Layout.fillWidth: true
-                    text: modelData.name
-                    color: theme.textPrimary
-                    font.pixelSize: 13
-                    font.weight: Font.DemiBold
-                    wrapMode: Text.WordWrap
-                    elide: Text.ElideRight
-                    maximumLineCount: modelData.kind === "reducer" ? 2 : 1
+                    spacing: 8
+
+                    StatusPill { text: qsTr("✓"); accentColor: theme.green }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: assignedItem.modelData.name
+                        color: theme.textPrimary
+                        font.pixelSize: 13
+                        font.weight: Font.DemiBold
+                        wrapMode: Text.WordWrap
+                        elide: Text.ElideRight
+                        maximumLineCount: assignedItem.modelData.kind === "reducer"
+                                          || assignedItem.cameraItem ? 2 : 1
+                    }
+
+                    StatusPill {
+                        visible: !assignedItem.cameraItem
+                        text: assignedItem.modelData.details
+                        accentColor: group.accent
+                    }
+
+                    StatusPill {
+                        visible: !assignedItem.cameraItem
+                                 && (assignedItem.modelData.secondaryBadge || "").length > 0
+                        text: assignedItem.modelData.secondaryBadge || ""
+                        accentColor: theme.violet
+                    }
                 }
-                StatusPill { text: modelData.details; accentColor: group.accent }
-                StatusPill {
-                    visible: (modelData.secondaryBadge || "").length > 0
-                    text: modelData.secondaryBadge || ""
-                    accentColor: theme.violet
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 42
+                    visible: assignedItem.cameraItem
+                    spacing: 8
+
+                    StatusPill {
+                        text: assignedItem.modelData.details
+                        accentColor: group.accent
+                    }
+
+                    StatusPill {
+                        visible: (assignedItem.modelData.secondaryBadge || "").length > 0
+                        text: assignedItem.modelData.secondaryBadge || ""
+                        accentColor: theme.violet
+                    }
+
+                    Item { Layout.fillWidth: true }
                 }
             }
         }
@@ -532,7 +595,9 @@ Item {
                     font.weight: Font.DemiBold
                     wrapMode: Text.WordWrap
                     elide: Text.ElideRight
-                    maximumLineCount: itemData.kind === "reducer" ? 2 : 1
+                    maximumLineCount: itemData.kind === "reducer"
+                                      || itemData.kind === "astronomy_camera"
+                                      || itemData.kind === "camera_body" ? 2 : 1
                 }
 
                 StatusPill {
@@ -628,7 +693,9 @@ Item {
                     text: modelData.label
                     checkable: false
                     checked: root.addFilter === modelData.value
-                    accentColor: modelData.value === "telescope" ? theme.cyan : modelData.value === "eyepiece" ? theme.teal : modelData.value === "barlow" ? theme.amber : modelData.value === "binocular" ? theme.cyan : modelData.value === "filter" ? theme.green : modelData.value === "reducer" ? theme.coral : theme.violet
+                    accentColor: modelData.value === "all"
+                                 ? theme.violet
+                                 : root.equipmentAccent({ "kind": modelData.value })
                     onClicked: {
                         if (root.addFilter !== modelData.value)
                             root.addFilter = modelData.value

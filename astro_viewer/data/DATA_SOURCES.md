@@ -147,9 +147,10 @@ source URL. The camera-body video tuple records the highest-resolution native
 mode and the frame rate available at that same resolution, rather than an
 unrelated lower-resolution peak rate. Gain-dependent values such as quantum
 efficiency, read noise and full-well capacity remain intentionally deferred
-until the imaging engine defines a comparable operating mode. Cameras are
-catalogue-only in schema 20: there are no profile association tables and no
-visual recommendation consumer.
+until the imaging engine defines a comparable operating mode. Schema 21 stores
+astronomy-camera and camera-body assignments as profile inventory through
+dedicated association tables. Those links still have no visual recommendation
+consumer and do not alter any observing score, setup choice or ranking.
 
 Telescope mount values are normalized to stable codes covering optical-tube
 only, manual/GoTo/PushTo alt-azimuth, manual/tracking equatorial, GoTo fork and

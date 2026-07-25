@@ -796,6 +796,145 @@ class Phase6RealDataTests(unittest.TestCase):
             )
             self.assertEqual(controller.telescopeCapabilities, before_capabilities)
 
+    def test_cameras_are_profile_inventory_without_visual_refresh(self) -> None:
+        with _controller() as controller:
+            astronomy_camera = next(
+                item
+                for item in controller.astronomyCameraCatalog
+                if item["brand"] == "SVBONY"
+            )
+            camera_body = next(
+                item
+                for item in controller.cameraBodyCatalog
+                if item["body_type"] == "MIRRORLESS"
+            )
+            before_capabilities = dict(controller.telescopeCapabilities)
+            events = {
+                "equipment": 0,
+                "profile": 0,
+                "data": 0,
+                "weather": 0,
+                "selected": 0,
+            }
+            controller.equipmentChanged.connect(
+                lambda: events.__setitem__(
+                    "equipment",
+                    events["equipment"] + 1,
+                )
+            )
+            controller.profileInventoryChanged.connect(
+                lambda: events.__setitem__(
+                    "profile",
+                    events["profile"] + 1,
+                )
+            )
+            controller.dataChanged.connect(
+                lambda: events.__setitem__("data", events["data"] + 1)
+            )
+            controller.weatherChanged.connect(
+                lambda: events.__setitem__("weather", events["weather"] + 1)
+            )
+            controller.selectedObjectChanged.connect(
+                lambda: events.__setitem__(
+                    "selected",
+                    events["selected"] + 1,
+                )
+            )
+
+            with patch.object(
+                controller,
+                "_refresh_active_profile_dependencies",
+            ) as refresh:
+                controller.assignEquipmentToActiveProfile(
+                    "astronomy_camera",
+                    astronomy_camera["catalog_id"],
+                )
+                controller.assignEquipmentToActiveProfile(
+                    "camera_body",
+                    camera_body["catalog_id"],
+                )
+
+            refresh.assert_not_called()
+            assigned = controller.profileAssignedEquipment
+            assigned_astronomy_camera = next(
+                item
+                for item in assigned
+                if item["kind"] == "astronomy_camera"
+            )
+            assigned_camera_body = next(
+                item
+                for item in assigned
+                if item["kind"] == "camera_body"
+            )
+            self.assertEqual(
+                assigned_astronomy_camera["id"],
+                astronomy_camera["catalog_id"],
+            )
+            self.assertEqual(
+                assigned_astronomy_camera["secondaryBadge"],
+                astronomy_camera["color_mode_label"],
+            )
+            self.assertEqual(
+                assigned_camera_body["id"],
+                camera_body["catalog_id"],
+            )
+            self.assertEqual(
+                assigned_camera_body["secondaryBadge"],
+                camera_body["lens_mount"],
+            )
+            catalog_items = controller.profileEquipmentCatalog
+            self.assertTrue(
+                next(
+                    item
+                    for item in catalog_items
+                    if item["id"] == astronomy_camera["catalog_id"]
+                )["assigned"]
+            )
+            self.assertTrue(
+                next(
+                    item
+                    for item in catalog_items
+                    if item["id"] == camera_body["catalog_id"]
+                )["assigned"]
+            )
+            self.assertEqual(controller.telescopeCapabilities, before_capabilities)
+            self.assertEqual(events["equipment"], 0)
+            self.assertEqual(events["profile"], 2)
+            self.assertEqual(events["data"], 0)
+            self.assertEqual(events["weather"], 0)
+            self.assertEqual(events["selected"], 0)
+            self.assertIn(
+                "raccomandazioni visuali restano invariate",
+                controller.equipmentMessage,
+            )
+
+            with patch.object(
+                controller,
+                "_refresh_active_profile_dependencies",
+            ) as refresh:
+                controller.removeEquipmentFromActiveProfile(
+                    "astronomy_camera",
+                    astronomy_camera["catalog_id"],
+                )
+                controller.removeEquipmentFromActiveProfile(
+                    "camera_body",
+                    camera_body["catalog_id"],
+                )
+
+            refresh.assert_not_called()
+            self.assertFalse(
+                any(
+                    item["kind"] in {"astronomy_camera", "camera_body"}
+                    for item in controller.profileAssignedEquipment
+                )
+            )
+            self.assertEqual(controller.telescopeCapabilities, before_capabilities)
+            self.assertEqual(events["equipment"], 0)
+            self.assertEqual(events["profile"], 4)
+            self.assertEqual(events["data"], 0)
+            self.assertEqual(events["weather"], 0)
+            self.assertEqual(events["selected"], 0)
+
     def test_owned_filter_recommendation_reaches_home_observing_detail(self) -> None:
         with _controller() as controller:
             optical_filter = next(
@@ -976,17 +1115,21 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(len(controller.filterCatalog), initial_filter_count)
             self.assertEqual(len(controller.reducerCatalog), initial_reducer_count)
 
-    def test_camera_controller_crud_stays_outside_profiles_and_visual_setup(self) -> None:
+    def test_camera_controller_crud_refreshes_profile_inventory_only(self) -> None:
         with _controller() as controller:
             initial_astronomy_count = len(controller.astronomyCameraCatalog)
             initial_body_count = len(controller.cameraBodyCatalog)
             profile_snapshot = controller.equipmentProfiles
             setup_snapshot = controller.currentSetup
             equipment_notifications = []
+            profile_notifications = []
             home_notifications = []
             camera_notifications = []
             controller.equipmentChanged.connect(
                 lambda: equipment_notifications.append(True)
+            )
+            controller.profileInventoryChanged.connect(
+                lambda: profile_notifications.append(True)
             )
             controller.homeNightPlanChanged.connect(
                 lambda: home_notifications.append(True)
@@ -1045,6 +1188,7 @@ class Phase6RealDataTests(unittest.TestCase):
 
             refresh.assert_not_called()
             self.assertEqual(equipment_notifications, [])
+            self.assertEqual(len(profile_notifications), 2)
             self.assertEqual(home_notifications, [])
             self.assertEqual(len(camera_notifications), 2)
             self.assertEqual(
@@ -1068,13 +1212,17 @@ class Phase6RealDataTests(unittest.TestCase):
                 for item in controller.cameraBodyCatalog
                 if item["brand"] == "NightScope"
             )
-            controller.deleteAstronomyCameraModel(astronomy_camera["id"])
-            controller.deleteCameraBodyModel(camera_body["id"])
+            controller.deleteAstronomyCameraModel(astronomy_camera["id"], False)
+            controller.deleteCameraBodyModel(camera_body["id"], False)
             self.assertEqual(
                 len(controller.astronomyCameraCatalog),
                 initial_astronomy_count,
             )
             self.assertEqual(len(controller.cameraBodyCatalog), initial_body_count)
+            self.assertEqual(equipment_notifications, [])
+            self.assertEqual(len(profile_notifications), 4)
+            self.assertEqual(home_notifications, [])
+            self.assertEqual(controller.currentSetup, setup_snapshot)
 
     def test_sidebar_navigation_groups_configuration_and_catalogs(self) -> None:
         ui_dir = Path(__file__).resolve().parents[1] / "app" / "ui"

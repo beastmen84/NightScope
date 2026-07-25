@@ -255,11 +255,12 @@ Current runtime status for `1.27.0`:
   only when provider-quality gates pass.
 - Equipment remains setup-local; its current score is not replaced by an NSOM
   scalar, but ObserverCapability boundaries are explicit.
-- Astronomy cameras and camera bodies are catalogue-only in schema 20. Their
-  sensor/capture fields are not assigned to profiles and do not enter
+- Astronomy cameras and camera bodies are persistent profile inventory in
+  schema 21. Their sensor/capture fields and assignments do not enter
   `EquipmentService`, ObserverCapability, Planner, Home, Sky Compass or NSOM.
-  Their controller refresh is targeted to the two camera catalogues and does
-  not rebuild the active-profile setup.
+  Catalogue edits and profile links notify `profileInventoryChanged`; they do
+  not rebuild the visual active-profile setup or emit its downstream Home and
+  observing-detail signals.
 - Filters and focal reducers are persistent profile inventory. Separate
   presentation services can feed the score-free observing-detail read model,
   but neither accessory enters `EquipmentService`, ObserverCapability, setup
@@ -530,8 +531,9 @@ Important pages:
   enforces the delete boundary outside QML, while persisted user overrides
   prevent later seed refreshes from replacing corrected values.
 - `EquipmentCamerasPage.qml`: two-column catalogue for astronomy cameras and
-  interchangeable-lens camera bodies. Schema 20 deliberately gives these rows
-  no profile association and no visual-recommendation consumer.
+  interchangeable-lens camera bodies. The rows can be assigned from
+  `EquipmentProfilesPage.qml`, while remaining outside the visual
+  recommendation consumer.
 - `LocationPage.qml`, `WeatherPage.qml`, `CalendarPage.qml`,
   `EventDetailPage.qml`: location, weather, calendar list and calendar event
   detail workflows. `WeatherPage.qml` presents AOD/OpenAQ as condition data
@@ -669,7 +671,9 @@ Repositories own SQLite persistence:
   changes validate every requested identity before one SQLite transaction.
 - `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter,
   focal-reducer, astronomy-camera and camera-body CRUD. Visual equipment keeps
-  its profile assignments; the two camera catalogues intentionally have none.
+  its profile assignments; schema 21 also stores camera assignments as
+  inventory for the future imaging engine, without projecting them into visual
+  equipment models.
   Every catalogue row exposes `is_builtin`, `seed_key` and `is_user_modified`;
   seeded rows can be updated but not deleted, while user rows can be managed
   after any applicable profile links are handled. Updating a seeded row marks

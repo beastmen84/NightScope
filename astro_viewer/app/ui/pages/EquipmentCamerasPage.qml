@@ -278,7 +278,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: qsTr("Camere dedicate e corpi macchina, pronti per il futuro motore fotografico")
+                    text: qsTr("Camere assegnabili ai profili, predisposte per il futuro motore fotografico")
                     color: theme.textSecondary
                     font.pixelSize: 14
                     wrapMode: Text.WordWrap
@@ -757,15 +757,27 @@ Item {
     DarkDialog {
         id: deleteAstronomyCameraDialog
         title: qsTr("Elimina camera astronomica")
-        acceptText: qsTr("Elimina")
+        acceptText: root.controller.equipmentUsage(
+            "astronomy_camera",
+            root.deleteAstronomyCamera.catalog_id || ""
+        ) > 0 ? qsTr("Rimuovi dai profili e continua") : qsTr("Elimina")
         acceptDanger: true
         onAccepted: root.controller.deleteAstronomyCameraModel(
-            root.deleteAstronomyCamera.id
+            root.deleteAstronomyCamera.id,
+            root.controller.equipmentUsage(
+                "astronomy_camera",
+                root.deleteAstronomyCamera.catalog_id || ""
+            ) > 0
         )
 
         Text {
             Layout.fillWidth: true
-            text: qsTr("Eliminare la camera astronomica dal catalogo?")
+            text: root.controller.equipmentUsage(
+                "astronomy_camera",
+                root.deleteAstronomyCamera.catalog_id || ""
+            ) > 0
+                ? qsTr("Questo elemento è utilizzato da uno o più profili.")
+                : qsTr("Eliminare la camera astronomica dal catalogo?")
             color: theme.textPrimary
             font.pixelSize: 14
             wrapMode: Text.WordWrap
@@ -775,13 +787,27 @@ Item {
     DarkDialog {
         id: deleteCameraBodyDialog
         title: qsTr("Elimina corpo macchina")
-        acceptText: qsTr("Elimina")
+        acceptText: root.controller.equipmentUsage(
+            "camera_body",
+            root.deleteCameraBody.catalog_id || ""
+        ) > 0 ? qsTr("Rimuovi dai profili e continua") : qsTr("Elimina")
         acceptDanger: true
-        onAccepted: root.controller.deleteCameraBodyModel(root.deleteCameraBody.id)
+        onAccepted: root.controller.deleteCameraBodyModel(
+            root.deleteCameraBody.id,
+            root.controller.equipmentUsage(
+                "camera_body",
+                root.deleteCameraBody.catalog_id || ""
+            ) > 0
+        )
 
         Text {
             Layout.fillWidth: true
-            text: qsTr("Eliminare il corpo macchina dal catalogo?")
+            text: root.controller.equipmentUsage(
+                "camera_body",
+                root.deleteCameraBody.catalog_id || ""
+            ) > 0
+                ? qsTr("Questo elemento è utilizzato da uno o più profili.")
+                : qsTr("Eliminare il corpo macchina dal catalogo?")
             color: theme.textPrimary
             font.pixelSize: 14
             wrapMode: Text.WordWrap

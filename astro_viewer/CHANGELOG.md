@@ -14,11 +14,18 @@
   generici. I test verificano ora anche identita' marca/modello univoche e
   coerenza fra risoluzione, passo pixel e dimensioni fisiche dei sensori
   astronomici.
-- Lo schema SQLite passa alla versione 20 con `AstronomyCameraCatalog` e
-  `CameraBodyCatalog`. I modelli integrati possono essere corretti ma non
-  eliminati; i modelli utente hanno CRUD completo. Questa prima fase e'
-  intenzionalmente solo catalogo: non crea legami con i profili e non modifica
-  Equipment, raccomandazioni visuali, Planner, Home o NSOM.
+- Lo schema SQLite passa alla versione 21: la versione 20 introduce
+  `AstronomyCameraCatalog` e `CameraBodyCatalog`, mentre la 21 aggiunge le
+  associazioni persistenti delle due categorie ai profili. I modelli integrati
+  possono essere corretti ma non eliminati; i modelli utente hanno CRUD
+  completo e, se assegnati, richiedono conferma prima della rimozione anche dai
+  profili.
+- La pagina `Profili` mostra ora camere astronomiche e corpi macchina
+  nell'inventario assegnato e nei dialoghi di aggiunta/rimozione. La griglia
+  passa in modo responsivo fra quattro, due e una colonna; la sezione delle
+  capacita' e' esplicitamente visuale. Un segnale dedicato aggiorna soltanto
+  l'inventario: camere e body non attivano Equipment, raccomandazioni visuali,
+  Planner, Home, dettaglio oggetto, Sky Compass o NSOM.
 - La montatura dei telescopi usa ora una tassonomia stabile selezionata da menu:
   OTA, altazimutale, equatoriale, forcella e Dobson, con varianti manuale,
   motorizzata, GoTo e PushTo dove pertinenti. I valori storici dei seed vengono
@@ -26,11 +33,12 @@
   conserva un codice esplicito non specificato. L'adattatore visuale mantiene
   gli stessi coefficienti precedenti, mentre i codici distinti restano
   disponibili al futuro motore fotografico.
-- Il gate finale `tools/run_checks.py --fast` passa con 974 test, 643 warning
+- Il gate finale `tools/run_checks.py --fast` passa con 978 test, 643 warning
   Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale
-  e Red Night Vision. La nuova pagina ha inoltre QML lint senza warning e
-  rendering nativo Windows verificato a `1040 × 700` in entrambe le modalita';
-  la scena rossa non presenta pixel oltre le soglie verde/blu.
+  e Red Night Vision. Il catalogo Cameras ha inoltre QML lint senza warning; la
+  pagina Profili con camere assegnate e' stata verificata nativamente a
+  `1040 × 700` e `1709 × 1047` in entrambe le modalita'. La scena rossa non
+  presenta pixel oltre le soglie verde/blu.
 - Aggiunti nel catalogo i comandi `Attiva risultati` e
   `Disattiva risultati`: operano sull'intero risultato filtrato corrente,
   mostrano il numero esatto di target coinvolti e chiedono conferma prima

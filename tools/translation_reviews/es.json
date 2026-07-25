@@ -269,9 +269,7 @@
     "Binocoli del profilo": "Prismáticos del perfil",
     "Capacità derivate dai binocoli assegnati": "Capacidades derivadas de los prismáticos asignados",
     "Pupilla d’uscita": "Pupila de salida",
-    "Elementi catalogo assegnati al profilo attivo": "Elementos del catálogo asignados al perfil activo",
     "Nessuna Barlow assegnata.": "No hay ninguna Barlow asignada.",
-    "Capacità del profilo": "Capacidades del perfil",
     "Focale": "Distancia focal",
     "Cerca equipaggiamento...": "Buscar equipo...",
     "Nessun elemento trovato.": "No se encontró ningún elemento.",
@@ -710,7 +708,13 @@
     "Altra montatura": "Otra montura",
     "Planetaria, lunare e solare": "Planetaria, lunar y solar",
     "Polivalente": "Polivalente",
-    "Monocromatica": "Monocroma"
+    "Monocromatica": "Monocroma",
+    "Camera assegnata al profilo. Le raccomandazioni visuali restano invariate.": "Cámara asignada al perfil. Las recomendaciones visuales no cambian.",
+    "Camera rimossa dal profilo. Le raccomandazioni visuali restano invariate.": "Cámara eliminada del perfil. Las recomendaciones visuales no cambian.",
+    "Camera astronomica": "Cámara astronómica",
+    "Corpo macchina": "Cuerpo de cámara",
+    "Rimuovi dai profili e continua": "Quitar de los perfiles y continuar",
+    "Questo elemento è utilizzato da uno o più profili.": "Este elemento se utiliza en uno o más perfiles."
   },
   "contexts": {
     "ObjectDetailPage": {
@@ -718,7 +722,14 @@
       "Gibbosa": "Gibosa creciente"
     },
     "EquipmentProfilesPage": {
-      "IS": "IS"
+      "IS": "IS",
+      "Camere astronomiche": "Cámaras astronómicas",
+      "Corpi macchina": "Cuerpos de cámara",
+      "Configurazione visuale usata dalle raccomandazioni": "Configuración visual utilizada en las recomendaciones",
+      "Inventario visuale e fotografico del profilo attivo": "Inventario visual y fotográfico del perfil activo",
+      "Nessuna camera astronomica assegnata.": "No hay ninguna cámara astronómica asignada.",
+      "Nessun corpo macchina assegnato.": "No hay ningún cuerpo de cámara asignado.",
+      "Capacità visuali del profilo": "Capacidades visuales del perfil"
     },
     "EquipmentBinocularsPage": {
       "IS": "IS"
@@ -737,7 +748,7 @@
       "Modifica corpo macchina": "Editar cuerpo de cámara",
       "Aggiungi corpo macchina": "Añadir cuerpo de cámara",
       "Catalogo Cameras": "Catálogo de cámaras",
-      "Camere dedicate e corpi macchina, pronti per il futuro motore fotografico": "Cámaras astronómicas dedicadas y cuerpos de cámara, preparados para el futuro motor de recomendaciones fotográficas",
+      "Camere assegnabili ai profili, predisposte per il futuro motore fotografico": "Cámaras asignables a los perfiles, preparadas para el futuro motor de recomendaciones fotográficas",
       "Cerca camera, sensore o formato...": "Buscar cámara, sensor o formato...",
       "Camere astronomiche": "Cámaras astronómicas",
       "%1 di %2 camere": "%1 de %2 cámaras",

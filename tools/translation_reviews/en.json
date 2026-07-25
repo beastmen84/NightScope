@@ -97,7 +97,13 @@
     "Altra montatura": "Other mount",
     "Planetaria, lunare e solare": "Planetary, lunar and solar",
     "Polivalente": "All-round",
-    "Monocromatica": "Monochrome"
+    "Monocromatica": "Monochrome",
+    "Camera assegnata al profilo. Le raccomandazioni visuali restano invariate.": "Camera assigned to the profile. Visual recommendations remain unchanged.",
+    "Camera rimossa dal profilo. Le raccomandazioni visuali restano invariate.": "Camera removed from the profile. Visual recommendations remain unchanged.",
+    "Camera astronomica": "Astronomy camera",
+    "Corpo macchina": "Camera body",
+    "Rimuovi dai profili e continua": "Remove from profiles and continue",
+    "Questo elemento è utilizzato da uno o più profili.": "This item is used by one or more profiles."
   },
   "contexts": {
     "ObjectCataloguePage": {
@@ -105,13 +111,22 @@
       "Includi nei suggerimenti automatici": "Include in automatic suggestions",
       "Sempre incluso nei suggerimenti automatici": "Always included in automatic suggestions"
     },
+    "EquipmentProfilesPage": {
+      "Camere astronomiche": "Astronomy cameras",
+      "Corpi macchina": "Camera bodies",
+      "Configurazione visuale usata dalle raccomandazioni": "Visual configuration used for recommendations",
+      "Inventario visuale e fotografico del profilo attivo": "Visual and imaging equipment assigned to the active profile",
+      "Nessuna camera astronomica assegnata.": "No astronomy camera assigned.",
+      "Nessun corpo macchina assegnato.": "No camera body assigned.",
+      "Capacità visuali del profilo": "Visual profile capabilities"
+    },
     "EquipmentCamerasPage": {
       "Modifica camera astronomica": "Edit astronomy camera",
       "Aggiungi camera astronomica": "Add astronomy camera",
       "Modifica corpo macchina": "Edit camera body",
       "Aggiungi corpo macchina": "Add camera body",
       "Catalogo Cameras": "Camera catalog",
-      "Camere dedicate e corpi macchina, pronti per il futuro motore fotografico": "Dedicated astronomy cameras and camera bodies, ready for the future imaging recommendation engine",
+      "Camere assegnabili ai profili, predisposte per il futuro motore fotografico": "Cameras assignable to profiles, ready for the future imaging recommendation engine",
       "Cerca camera, sensore o formato...": "Search cameras, sensors, or formats...",
       "Camere astronomiche": "Astronomy cameras",
       "%1 di %2 camere": "%1 of %2 cameras",

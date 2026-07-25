@@ -271,6 +271,7 @@ class AppController(QObject):
     locationChanged = Signal()
     weatherChanged = Signal()
     equipmentChanged = Signal()
+    profileInventoryChanged = Signal()
     cameraCatalogChanged = Signal()
     observationChanged = Signal()
     skyCompassChanged = Signal()
@@ -321,6 +322,7 @@ class AppController(QObject):
         self.dataChanged.connect(self.homeNightPlanChanged.emit)
         self.weatherChanged.connect(self.homeNightPlanChanged.emit)
         self.equipmentChanged.connect(self.homeNightPlanChanged.emit)
+        self.equipmentChanged.connect(self.profileInventoryChanged.emit)
         self.selectedObjectChanged.connect(self.observingObjectDetailChanged.emit)
         self.weatherChanged.connect(self.observingObjectDetailChanged.emit)
         self.equipmentChanged.connect(self.observingObjectDetailChanged.emit)
@@ -1395,7 +1397,7 @@ class AppController(QObject):
     def ownedBarlows(self) -> list[dict]:
         return render_payload([barlow.to_qml() for barlow in self._barlows])
 
-    @Property("QVariant", notify=equipmentChanged)
+    @Property("QVariant", notify=profileInventoryChanged)
     def profileEquipmentCatalog(self) -> list[dict]:
         assigned_ids = {item["id"] for item in self._profile_assigned_equipment()}
         items = self._equipment_catalog_items()
@@ -1403,7 +1405,7 @@ class AppController(QObject):
             item["assigned"] = item["id"] in assigned_ids
         return render_payload(items)
 
-    @Property("QVariant", notify=equipmentChanged)
+    @Property("QVariant", notify=profileInventoryChanged)
     def profileAssignedEquipment(self) -> list[dict]:
         return render_payload(self._profile_assigned_equipment())
 
@@ -1439,7 +1441,7 @@ class AppController(QObject):
     def canUseEyepieces(self) -> bool:
         return self._equipment_service.can_use_eyepieces(self._current_telescope())
 
-    @Property(str, notify=equipmentChanged)
+    @Property(str, notify=profileInventoryChanged)
     def equipmentMessage(self) -> str:
         return render_text(self._equipment_message)
 
@@ -1447,7 +1449,7 @@ class AppController(QObject):
     def clearEquipmentMessage(self) -> None:
         if self._equipment_message:
             self._equipment_message = ""
-            self.equipmentChanged.emit()
+            self.profileInventoryChanged.emit()
 
     @Property(str, notify=cameraCatalogChanged)
     def cameraCatalogMessage(self) -> str:
@@ -2258,6 +2260,82 @@ class AppController(QObject):
         self._equipment_message = self._equipment_status_message()
         self.equipmentChanged.emit()
 
+    @Slot(str)
+    def assignAstronomyCameraToActiveProfile(self, camera_id: str) -> None:
+        if not self._find_astronomy_camera(camera_id):
+            return
+        state = self._active_profile_state()
+        if camera_id not in state["astronomy_camera_ids"]:
+            state["astronomy_camera_ids"].append(camera_id)
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.assign_profile_astronomy_camera(
+                int(profile["id"]),
+                camera_id,
+            )
+        self._equipment_message = tr(
+            "Camera assegnata al profilo. "
+            "Le raccomandazioni visuali restano invariate."
+        )
+        self.profileInventoryChanged.emit()
+
+    @Slot(str)
+    def removeAstronomyCameraFromActiveProfile(self, camera_id: str) -> None:
+        state = self._active_profile_state()
+        state["astronomy_camera_ids"] = [
+            item
+            for item in state["astronomy_camera_ids"]
+            if item != camera_id
+        ]
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.remove_profile_astronomy_camera(
+                int(profile["id"]),
+                camera_id,
+            )
+        self._equipment_message = tr(
+            "Camera rimossa dal profilo. "
+            "Le raccomandazioni visuali restano invariate."
+        )
+        self.profileInventoryChanged.emit()
+
+    @Slot(str)
+    def assignCameraBodyToActiveProfile(self, camera_id: str) -> None:
+        if not self._find_camera_body(camera_id):
+            return
+        state = self._active_profile_state()
+        if camera_id not in state["camera_body_ids"]:
+            state["camera_body_ids"].append(camera_id)
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.assign_profile_camera_body(
+                int(profile["id"]),
+                camera_id,
+            )
+        self._equipment_message = tr(
+            "Camera assegnata al profilo. "
+            "Le raccomandazioni visuali restano invariate."
+        )
+        self.profileInventoryChanged.emit()
+
+    @Slot(str)
+    def removeCameraBodyFromActiveProfile(self, camera_id: str) -> None:
+        state = self._active_profile_state()
+        state["camera_body_ids"] = [
+            item for item in state["camera_body_ids"] if item != camera_id
+        ]
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.remove_profile_camera_body(
+                int(profile["id"]),
+                camera_id,
+            )
+        self._equipment_message = tr(
+            "Camera rimossa dal profilo. "
+            "Le raccomandazioni visuali restano invariate."
+        )
+        self.profileInventoryChanged.emit()
+
     @Slot(float)
     def setBarlow(self, barlow: float) -> None:
         if not self.canUseEyepieces:
@@ -2283,6 +2361,10 @@ class AppController(QObject):
             self.assignFilterToActiveProfile(item_id)
         elif kind == "reducer":
             self.assignReducerToActiveProfile(item_id)
+        elif kind == "astronomy_camera":
+            self.assignAstronomyCameraToActiveProfile(item_id)
+        elif kind == "camera_body":
+            self.assignCameraBodyToActiveProfile(item_id)
 
     @Slot(str, str)
     def removeEquipmentFromActiveProfile(self, kind: str, item_id: str) -> None:
@@ -2298,6 +2380,10 @@ class AppController(QObject):
             self.removeFilterFromActiveProfile(item_id)
         elif kind == "reducer":
             self.removeReducerFromActiveProfile(item_id)
+        elif kind == "astronomy_camera":
+            self.removeAstronomyCameraFromActiveProfile(item_id)
+        elif kind == "camera_body":
+            self.removeCameraBodyFromActiveProfile(item_id)
 
     @Slot(str, str, result=int)
     def equipmentUsage(self, kind: str, item_id: str) -> int:
@@ -2361,10 +2447,11 @@ class AppController(QObject):
         self._after_camera_catalog_change(message, ok)
         return ok
 
-    @Slot(int)
-    def deleteAstronomyCameraModel(self, camera_id: int) -> None:
+    @Slot(int, bool)
+    def deleteAstronomyCameraModel(self, camera_id: int, force: bool) -> None:
         ok, message = self._equipment_catalog_repository.delete_astronomy_camera(
-            camera_id
+            camera_id,
+            remove_from_profiles=force,
         )
         self._after_camera_catalog_change(message, ok)
 
@@ -2393,9 +2480,12 @@ class AppController(QObject):
         self._after_camera_catalog_change(message, ok)
         return ok
 
-    @Slot(int)
-    def deleteCameraBodyModel(self, camera_id: int) -> None:
-        ok, message = self._equipment_catalog_repository.delete_camera_body(camera_id)
+    @Slot(int, bool)
+    def deleteCameraBodyModel(self, camera_id: int, force: bool) -> None:
+        ok, message = self._equipment_catalog_repository.delete_camera_body(
+            camera_id,
+            remove_from_profiles=force,
+        )
         self._after_camera_catalog_change(message, ok)
 
     @Slot(str, str, str, str, str, str, str, str, str, str, result=bool)
@@ -8197,7 +8287,10 @@ class AppController(QObject):
         self._camera_catalog_message = message
         if ok:
             self._refresh_camera_catalogs()
+            self._profile_equipment = self._initial_profile_equipment()
         self.cameraCatalogChanged.emit()
+        if ok:
+            self.profileInventoryChanged.emit()
 
     def _parse_astronomy_camera_inputs(
         self,
@@ -8570,6 +8663,15 @@ class AppController(QObject):
                 "binocular_ids": self._equipment_catalog_repository.profile_binocular_ids(profile_id),
                 "filter_ids": self._equipment_catalog_repository.profile_filter_ids(profile_id),
                 "reducer_ids": self._equipment_catalog_repository.profile_reducer_ids(profile_id),
+                "astronomy_camera_ids": (
+                    self._equipment_catalog_repository
+                    .profile_astronomy_camera_ids(profile_id)
+                ),
+                "camera_body_ids": (
+                    self._equipment_catalog_repository.profile_camera_body_ids(
+                        profile_id
+                    )
+                ),
             }
         return equipment
 
@@ -8608,6 +8710,8 @@ class AppController(QObject):
             "binocular_ids": [],
             "filter_ids": [],
             "reducer_ids": [],
+            "astronomy_camera_ids": [],
+            "camera_body_ids": [],
         }
 
     @staticmethod
@@ -8619,6 +8723,8 @@ class AppController(QObject):
             "binocular_ids",
             "filter_ids",
             "reducer_ids",
+            "astronomy_camera_ids",
+            "camera_body_ids",
         ):
             state.setdefault(key, [])
 
@@ -8681,6 +8787,26 @@ class AppController(QObject):
 
     def _find_reducer(self, reducer_id: str) -> FocalReducer | None:
         return next((item for item in self._reducers if item.id == reducer_id), None)
+
+    def _find_astronomy_camera(self, camera_id: str) -> dict | None:
+        return next(
+            (
+                item
+                for item in self._astronomy_camera_catalog
+                if item["catalog_id"] == camera_id
+            ),
+            None,
+        )
+
+    def _find_camera_body(self, camera_id: str) -> dict | None:
+        return next(
+            (
+                item
+                for item in self._camera_body_catalog
+                if item["catalog_id"] == camera_id
+            ),
+            None,
+        )
 
     def _index_for_telescope(self, telescope_id: str) -> int:
         for index, telescope in enumerate(self._telescopes):
@@ -8784,6 +8910,45 @@ class AppController(QObject):
                     "secondaryBadge": self._reducer_use_label(reducer),
                 }
             )
+        for camera in self._astronomy_camera_catalog:
+            items.append(
+                {
+                    "kind": "astronomy_camera",
+                    "id": camera["catalog_id"],
+                    "name": camera["display_name"],
+                    "badge": tr("Camera astronomica"),
+                    "details": join_text(
+                        [
+                            camera["camera_class_label"],
+                            camera["sensor_model"],
+                        ]
+                    ),
+                    "type": join_text(
+                        [
+                            camera["sensor_technology_label"],
+                            camera["color_mode_label"],
+                        ]
+                    ),
+                    "secondaryBadge": camera["color_mode_label"],
+                }
+            )
+        for camera in self._camera_body_catalog:
+            items.append(
+                {
+                    "kind": "camera_body",
+                    "id": camera["catalog_id"],
+                    "name": camera["display_name"],
+                    "badge": tr("Corpo macchina"),
+                    "details": join_text(
+                        [
+                            camera["body_type_label"],
+                            camera["sensor_format_label"],
+                        ]
+                    ),
+                    "type": camera["lens_mount"],
+                    "secondaryBadge": camera["lens_mount"],
+                }
+            )
         return items
 
     def _profile_assigned_equipment(self) -> list[dict]:
@@ -8871,6 +9036,48 @@ class AppController(QObject):
                         ]
                     ),
                     "secondaryBadge": self._reducer_use_label(reducer),
+                }
+            )
+        assigned_astronomy_camera_ids = set(
+            self._active_profile_state()["astronomy_camera_ids"]
+        )
+        for camera in self._astronomy_camera_catalog:
+            if camera["catalog_id"] not in assigned_astronomy_camera_ids:
+                continue
+            items.append(
+                {
+                    "kind": "astronomy_camera",
+                    "id": camera["catalog_id"],
+                    "name": camera["display_name"],
+                    "badge": tr("Camera astronomica"),
+                    "details": join_text(
+                        [
+                            camera["camera_class_label"],
+                            camera["sensor_model"],
+                        ]
+                    ),
+                    "secondaryBadge": camera["color_mode_label"],
+                }
+            )
+        assigned_camera_body_ids = set(
+            self._active_profile_state()["camera_body_ids"]
+        )
+        for camera in self._camera_body_catalog:
+            if camera["catalog_id"] not in assigned_camera_body_ids:
+                continue
+            items.append(
+                {
+                    "kind": "camera_body",
+                    "id": camera["catalog_id"],
+                    "name": camera["display_name"],
+                    "badge": tr("Corpo macchina"),
+                    "details": join_text(
+                        [
+                            camera["body_type_label"],
+                            camera["sensor_format_label"],
+                        ]
+                    ),
+                    "secondaryBadge": camera["lens_mount"],
                 }
             )
         return items

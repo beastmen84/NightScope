@@ -39,12 +39,19 @@ il backfocus della QHY268C e i riferimenti ZWO generici. I test controllano
 anche unicita' marca/modello e coerenza fisica fra risoluzione, passo pixel e
 dimensioni del sensore delle camere astronomiche.
 
-Lo schema 20 aggiunge `AstronomyCameraCatalog` e `CameraBodyCatalog`, senza
-tabelle di associazione ai profili. Il refresh dei due cataloghi e' mirato e
-non ricostruisce il profilo attivo: camere e body non entrano ancora in
-Equipment, Home, Planner, Sky Compass, NSOM o raccomandazioni visuali. Il passo
-successivo concordato e' progettare separatamente collegamento ai profili e
-motore fotografico.
+Lo schema 21 aggiunge `EquipmentProfileAstronomyCamera` e
+`EquipmentProfileCameraBody` sopra ai cataloghi introdotti dallo schema 20. Le
+assegnazioni sono persistenti, separate per profilo e visibili nella pagina
+`Profili`; la griglia dell'inventario usa quattro colonne sui display larghi,
+due a larghezza intermedia e una sui layout stretti. La cancellazione di un
+modello utente assegnato richiede la rimozione esplicita dai profili.
+
+Il collegamento e' deliberatamente solo inventario. Il segnale
+`profileInventoryChanged` aggiorna la pagina senza emettere `equipmentChanged`
+e quindi senza notificare Home o dettaglio osservativo; camere e body non
+entrano in Equipment, Planner, Sky Compass, NSOM o raccomandazioni visuali. Il
+passo successivo concordato resta la progettazione separata del motore
+fotografico.
 
 La montatura telescopio e' ora un menu con codici stabili per OTA,
 altazimutale, equatoriale, forcella e Dobson, distinguendo manuale,
@@ -54,13 +61,13 @@ specificato. La proiezione di tracking visuale conserva esattamente i
 coefficienti precedenti, lasciando le distinzioni piu' fini al futuro motore
 fotografico.
 
-Il gate finale `tools/run_checks.py --fast` passa con 974 test, 643 warning
+Il gate finale `tools/run_checks.py --fast` passa con 978 test, 643 warning
 Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale e
-Red Night Vision. `EquipmentCamerasPage.qml` passa QML lint senza warning. Il
-rendering nativo Windows a `1040 × 700` e' stato controllato in entrambe le
-modalita'; in Red Night Vision i massimi sono verde 74 e blu 61, senza pixel
-oltre soglia. I cataloghi Qt IT/EN/ES contengono 1.854 voci finite e zero
-incomplete.
+Red Night Vision. `EquipmentCamerasPage.qml` passa QML lint senza warning. La
+pagina Profili con camere assegnate e' stata controllata nativamente a
+`1040 × 700` e `1709 × 1047` in entrambe le modalita'; in Red Night Vision i
+massimi sono verde 74 e blu 61, senza pixel oltre soglia. I cataloghi Qt
+IT/EN/ES contengono 1.864 voci finite e zero incomplete.
 
 ## Catalogo NGC e ammissione raccomandazioni
 

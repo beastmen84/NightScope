@@ -105,8 +105,8 @@ def test_camera_seeds_are_structured_representative_and_source_linked() -> None:
             }
         assert "AstronomyCameraCatalog" in tables
         assert "CameraBodyCatalog" in tables
-        assert "EquipmentProfileAstronomyCamera" not in tables
-        assert "EquipmentProfileCameraBody" not in tables
+        assert "EquipmentProfileAstronomyCamera" in tables
+        assert "EquipmentProfileCameraBody" in tables
     finally:
         temporary_directory.cleanup()
 
@@ -179,7 +179,7 @@ def test_camera_seed_files_have_explicit_unique_keys_and_expected_fields() -> No
         assert len(identities) == len(set(identities))
 
 
-def test_schema_19_upgrade_adds_camera_catalogs_without_changing_profiles() -> None:
+def test_schema_19_upgrade_adds_camera_catalogs_and_profile_links() -> None:
     temporary_directory, database_path, repository = _database()
     try:
         profile_snapshot = repository.profiles()
@@ -196,12 +196,43 @@ def test_schema_19_upgrade_adds_camera_catalogs_without_changing_profiles() -> N
         assert len(upgraded.camera_bodies()) == 40
         assert upgraded.profiles() == profile_snapshot
         with closing(sqlite3.connect(database_path)) as connection:
-            assert connection.execute("PRAGMA user_version").fetchone()[0] == 20
+            assert connection.execute("PRAGMA user_version").fetchone()[0] == 21
+            tables = {
+                row[0]
+                for row in connection.execute(
+                    "SELECT name FROM sqlite_master WHERE type = 'table'"
+                ).fetchall()
+            }
+        assert "EquipmentProfileAstronomyCamera" in tables
+        assert "EquipmentProfileCameraBody" in tables
     finally:
         temporary_directory.cleanup()
 
 
-def test_custom_camera_crud_is_catalog_only() -> None:
+def test_schema_20_upgrade_preserves_profiles_and_adds_empty_camera_links() -> None:
+    temporary_directory, database_path, repository = _database()
+    try:
+        profile_snapshot = repository.profiles()
+        with closing(sqlite3.connect(database_path)) as connection:
+            connection.execute("DROP TABLE EquipmentProfileAstronomyCamera")
+            connection.execute("DROP TABLE EquipmentProfileCameraBody")
+            connection.execute("PRAGMA user_version = 20")
+            connection.commit()
+
+        initialize_database(database_path, SCHEMA_PATH)
+        upgraded = EquipmentCatalogRepository(database_path)
+        profile_id = int(upgraded.profiles()[0]["id"])
+
+        assert upgraded.profiles() == profile_snapshot
+        assert upgraded.profile_astronomy_camera_ids(profile_id) == []
+        assert upgraded.profile_camera_body_ids(profile_id) == []
+        with closing(sqlite3.connect(database_path)) as connection:
+            assert connection.execute("PRAGMA user_version").fetchone()[0] == 21
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_custom_camera_crud_preserves_unrelated_profiles() -> None:
     temporary_directory, _, repository = _database()
     try:
         profile_snapshot = repository.profiles()
@@ -324,6 +355,148 @@ def test_custom_camera_crud_is_catalog_only() -> None:
         assert repository.profiles() == profile_snapshot
         assert repository.delete_astronomy_camera(camera["id"])[0]
         assert repository.delete_camera_body(body["id"])[0]
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_camera_profile_assignments_are_persistent_and_profile_scoped() -> None:
+    temporary_directory, database_path, repository = _database()
+    try:
+        active_profile = repository.active_profile()
+        assert active_profile is not None
+        active_profile_id = int(active_profile["id"])
+        astronomy_camera = next(
+            item
+            for item in repository.astronomy_cameras()
+            if item["brand"] == "SVBONY"
+        )
+        camera_body = next(
+            item
+            for item in repository.camera_bodies()
+            if item["body_type"] == "MIRRORLESS"
+        )
+
+        repository.assign_profile_astronomy_camera(
+            active_profile_id,
+            astronomy_camera["catalog_id"],
+        )
+        repository.assign_profile_camera_body(
+            active_profile_id,
+            camera_body["catalog_id"],
+        )
+        repository.add_profile("Secondario", "preset:naked-eye")
+        secondary = next(
+            item
+            for item in repository.profiles()
+            if item["profile_name"] == "Secondario"
+        )
+        secondary_id = int(secondary["id"])
+
+        reopened = EquipmentCatalogRepository(database_path)
+        assert reopened.profile_astronomy_camera_ids(active_profile_id) == [
+            astronomy_camera["catalog_id"]
+        ]
+        assert reopened.profile_camera_body_ids(active_profile_id) == [
+            camera_body["catalog_id"]
+        ]
+        assert reopened.profile_astronomy_camera_ids(secondary_id) == []
+        assert reopened.profile_camera_body_ids(secondary_id) == []
+        assert reopened.profile_usage_count(
+            "astronomy_camera",
+            astronomy_camera["catalog_id"],
+        ) == 1
+        assert reopened.profile_usage_count(
+            "camera_body",
+            camera_body["catalog_id"],
+        ) == 1
+
+        reopened.remove_profile_astronomy_camera(
+            active_profile_id,
+            astronomy_camera["catalog_id"],
+        )
+        reopened.remove_profile_camera_body(
+            active_profile_id,
+            camera_body["catalog_id"],
+        )
+        assert reopened.profile_astronomy_camera_ids(active_profile_id) == []
+        assert reopened.profile_camera_body_ids(active_profile_id) == []
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_custom_camera_delete_requires_explicit_profile_cleanup() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        profile = repository.active_profile()
+        assert profile is not None
+        profile_id = int(profile["id"])
+        assert repository.add_astronomy_camera(
+            "NightScope",
+            "Profile camera",
+            "DEEP_SKY",
+            "Test CMOS",
+            "CMOS",
+            "COLOR",
+            12.0,
+            8.0,
+            3000,
+            2000,
+            4.0,
+            16,
+            12.5,
+            True,
+            35.0,
+            "GLOBAL",
+            17.5,
+        )[0]
+        assert repository.add_camera_body(
+            "NightScope",
+            "Profile body",
+            "MIRRORLESS",
+            "APS_C",
+            "Test mount",
+            23.5,
+            15.7,
+            6000,
+            4000,
+            14,
+            None,
+            None,
+            None,
+            True,
+            True,
+        )[0]
+        astronomy_camera = next(
+            item
+            for item in repository.astronomy_cameras()
+            if item["model"] == "Profile camera"
+        )
+        camera_body = next(
+            item
+            for item in repository.camera_bodies()
+            if item["model"] == "Profile body"
+        )
+        repository.assign_profile_astronomy_camera(
+            profile_id,
+            astronomy_camera["catalog_id"],
+        )
+        repository.assign_profile_camera_body(
+            profile_id,
+            camera_body["catalog_id"],
+        )
+
+        assert not repository.delete_astronomy_camera(astronomy_camera["id"])[0]
+        assert not repository.delete_camera_body(camera_body["id"])[0]
+        assert repository.delete_astronomy_camera(
+            astronomy_camera["id"],
+            remove_from_profiles=True,
+        )[0]
+        assert repository.delete_camera_body(
+            camera_body["id"],
+            remove_from_profiles=True,
+        )[0]
+        assert repository.profile_astronomy_camera_ids(profile_id) == []
+        assert repository.profile_camera_body_ids(profile_id) == []
     finally:
         temporary_directory.cleanup()
 
@@ -461,12 +634,15 @@ def test_mount_taxonomy_normalizes_seed_aliases_without_visual_score_drift() -> 
         temporary_directory.cleanup()
 
 
-def test_camera_page_navigation_and_packaging_are_wired_without_profile_controls() -> None:
+def test_camera_navigation_profile_ui_and_packaging_are_wired() -> None:
     cameras_qml = (
         APP_DIR / "app" / "ui" / "pages" / "EquipmentCamerasPage.qml"
     ).read_text(encoding="utf-8")
     telescopes_qml = (
         APP_DIR / "app" / "ui" / "pages" / "EquipmentTelescopesPage.qml"
+    ).read_text(encoding="utf-8")
+    profiles_qml = (
+        APP_DIR / "app" / "ui" / "pages" / "EquipmentProfilesPage.qml"
     ).read_text(encoding="utf-8")
     main_qml = (APP_DIR / "app" / "ui" / "main.qml").read_text(encoding="utf-8")
     spec = (APP_DIR.parent / "packaging" / "NightScope.spec").read_text(
@@ -479,6 +655,10 @@ def test_camera_page_navigation_and_packaging_are_wired_without_profile_controls
     assert "cameraBodyCatalog" in cameras_qml
     assert "assignEquipmentToActiveProfile" not in cameras_qml
     assert "activeEquipmentProfile" not in cameras_qml
+    assert '"astronomy_camera"' in profiles_qml
+    assert '"camera_body"' in profiles_qml
+    assert "Capacità visuali del profilo" in profiles_qml
+    assert "root.width > 1500 ? 4" in profiles_qml
     assert "telescopeMountTypeOptions" in telescopes_qml
     assert "DarkComboBox" in telescopes_qml
     assert "astronomy_camera_catalog_seed.csv" in spec

@@ -847,7 +847,11 @@ class EquipmentCatalogRepository:
             connection.commit()
         return True, tr("Camera astronomica aggiornata.")
 
-    def delete_astronomy_camera(self, camera_id: int) -> tuple[bool, str]:
+    def delete_astronomy_camera(
+        self,
+        camera_id: int,
+        remove_from_profiles: bool = False,
+    ) -> tuple[bool, str]:
         with closing(self._connect()) as connection:
             existing = connection.execute(
                 """
@@ -861,6 +865,20 @@ class EquipmentCatalogRepository:
                 return False, tr("Camera astronomica non trovata.")
             if bool(existing["is_builtin"]):
                 return False, tr("Gli elementi integrati non possono essere eliminati.")
+            catalog_id = f"catalog-astronomy-camera-{camera_id}"
+            used = self._profile_usage_count(
+                connection,
+                "astronomy_camera",
+                catalog_id,
+            )
+            if used and not remove_from_profiles:
+                return False, tr("Questo elemento è utilizzato da uno o più profili.")
+            if remove_from_profiles:
+                self._remove_from_profiles(
+                    connection,
+                    "astronomy_camera",
+                    catalog_id,
+                )
             connection.execute(
                 "DELETE FROM AstronomyCameraCatalog WHERE id = ?",
                 (camera_id,),
@@ -1025,7 +1043,11 @@ class EquipmentCatalogRepository:
             connection.commit()
         return True, tr("Corpo macchina aggiornato.")
 
-    def delete_camera_body(self, camera_id: int) -> tuple[bool, str]:
+    def delete_camera_body(
+        self,
+        camera_id: int,
+        remove_from_profiles: bool = False,
+    ) -> tuple[bool, str]:
         with closing(self._connect()) as connection:
             existing = connection.execute(
                 """
@@ -1039,6 +1061,20 @@ class EquipmentCatalogRepository:
                 return False, tr("Corpo macchina non trovato.")
             if bool(existing["is_builtin"]):
                 return False, tr("Gli elementi integrati non possono essere eliminati.")
+            catalog_id = f"catalog-camera-body-{camera_id}"
+            used = self._profile_usage_count(
+                connection,
+                "camera_body",
+                catalog_id,
+            )
+            if used and not remove_from_profiles:
+                return False, tr("Questo elemento è utilizzato da uno o più profili.")
+            if remove_from_profiles:
+                self._remove_from_profiles(
+                    connection,
+                    "camera_body",
+                    catalog_id,
+                )
             connection.execute(
                 "DELETE FROM CameraBodyCatalog WHERE id = ?",
                 (camera_id,),
@@ -1507,6 +1543,22 @@ class EquipmentCatalogRepository:
     def profile_reducer_ids(self, profile_id: int) -> list[str]:
         return self._profile_item_ids("EquipmentProfileReducer", "reducer_id", profile_id)
 
+    def profile_astronomy_camera_ids(self, profile_id: int) -> list[str]:
+        return self._profile_camera_item_ids(
+            "EquipmentProfileAstronomyCamera",
+            "astronomy_camera_id",
+            "catalog-astronomy-camera-",
+            profile_id,
+        )
+
+    def profile_camera_body_ids(self, profile_id: int) -> list[str]:
+        return self._profile_camera_item_ids(
+            "EquipmentProfileCameraBody",
+            "camera_body_id",
+            "catalog-camera-body-",
+            profile_id,
+        )
+
     def assign_profile_telescope(self, profile_id: int, telescope_id: str) -> None:
         self._assign_profile_item("EquipmentProfileTelescope", "telescope_id", profile_id, telescope_id)
 
@@ -1543,6 +1595,58 @@ class EquipmentCatalogRepository:
     def remove_profile_reducer(self, profile_id: int, reducer_id: str) -> None:
         self._remove_profile_item("EquipmentProfileReducer", "reducer_id", profile_id, reducer_id)
 
+    def assign_profile_astronomy_camera(
+        self,
+        profile_id: int,
+        camera_id: str,
+    ) -> None:
+        self._assign_profile_camera_item(
+            "EquipmentProfileAstronomyCamera",
+            "astronomy_camera_id",
+            "catalog-astronomy-camera-",
+            profile_id,
+            camera_id,
+        )
+
+    def remove_profile_astronomy_camera(
+        self,
+        profile_id: int,
+        camera_id: str,
+    ) -> None:
+        self._remove_profile_camera_item(
+            "EquipmentProfileAstronomyCamera",
+            "astronomy_camera_id",
+            "catalog-astronomy-camera-",
+            profile_id,
+            camera_id,
+        )
+
+    def assign_profile_camera_body(
+        self,
+        profile_id: int,
+        camera_id: str,
+    ) -> None:
+        self._assign_profile_camera_item(
+            "EquipmentProfileCameraBody",
+            "camera_body_id",
+            "catalog-camera-body-",
+            profile_id,
+            camera_id,
+        )
+
+    def remove_profile_camera_body(
+        self,
+        profile_id: int,
+        camera_id: str,
+    ) -> None:
+        self._remove_profile_camera_item(
+            "EquipmentProfileCameraBody",
+            "camera_body_id",
+            "catalog-camera-body-",
+            profile_id,
+            camera_id,
+        )
+
     def profile_usage_count(self, kind: str, item_id: str) -> int:
         with closing(self._connect()) as connection:
             return self._profile_usage_count(connection, kind, item_id)
@@ -1555,15 +1659,90 @@ class EquipmentCatalogRepository:
             ).fetchall()
         return [row[id_column] for row in rows]
 
-    def _assign_profile_item(self, table: str, id_column: str, profile_id: int, item_id: str) -> None:
+    def _profile_camera_item_ids(
+        self,
+        table: str,
+        id_column: str,
+        prefix: str,
+        profile_id: int,
+    ) -> list[str]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                f"""
+                SELECT {id_column}
+                FROM {table}
+                WHERE profile_id = ?
+                ORDER BY {id_column}
+                """,
+                (profile_id,),
+            ).fetchall()
+        return [f"{prefix}{int(row[id_column])}" for row in rows]
+
+    def _assign_profile_item(
+        self,
+        table: str,
+        id_column: str,
+        profile_id: int,
+        item_id: str | int,
+    ) -> None:
         with closing(self._connect()) as connection:
             connection.execute(f"INSERT OR IGNORE INTO {table} (profile_id, {id_column}) VALUES (?, ?)", (profile_id, item_id))
             connection.commit()
 
-    def _remove_profile_item(self, table: str, id_column: str, profile_id: int, item_id: str) -> None:
+    def _remove_profile_item(
+        self,
+        table: str,
+        id_column: str,
+        profile_id: int,
+        item_id: str | int,
+    ) -> None:
         with closing(self._connect()) as connection:
             connection.execute(f"DELETE FROM {table} WHERE profile_id = ? AND {id_column} = ?", (profile_id, item_id))
             connection.commit()
+
+    def _assign_profile_camera_item(
+        self,
+        table: str,
+        id_column: str,
+        prefix: str,
+        profile_id: int,
+        item_id: str,
+    ) -> None:
+        database_id = self._camera_catalog_database_id(item_id, prefix)
+        if database_id is None:
+            return
+        self._assign_profile_item(
+            table,
+            id_column,
+            profile_id,
+            database_id,
+        )
+
+    def _remove_profile_camera_item(
+        self,
+        table: str,
+        id_column: str,
+        prefix: str,
+        profile_id: int,
+        item_id: str,
+    ) -> None:
+        database_id = self._camera_catalog_database_id(item_id, prefix)
+        if database_id is None:
+            return
+        self._remove_profile_item(
+            table,
+            id_column,
+            profile_id,
+            database_id,
+        )
+
+    @staticmethod
+    def _camera_catalog_database_id(item_id: str, prefix: str) -> int | None:
+        raw_id = str(item_id or "").removeprefix(prefix)
+        if not str(item_id or "").startswith(prefix) or not raw_id.isdigit():
+            return None
+        database_id = int(raw_id)
+        return database_id if database_id > 0 else None
 
     @staticmethod
     def _telescope_model(row: sqlite3.Row) -> dict:
@@ -2340,6 +2519,36 @@ class EquipmentCatalogRepository:
         return bool(row and row["is_builtin"])
 
     def _profile_usage_count(self, connection: sqlite3.Connection, kind: str, item_id: str, legacy_id: str | None = None) -> int:
+        camera_assignments = {
+            "astronomy_camera": (
+                "EquipmentProfileAstronomyCamera",
+                "astronomy_camera_id",
+                "catalog-astronomy-camera-",
+            ),
+            "camera_body": (
+                "EquipmentProfileCameraBody",
+                "camera_body_id",
+                "catalog-camera-body-",
+            ),
+        }
+        camera_assignment = camera_assignments.get(kind)
+        if camera_assignment is not None:
+            table_name, id_column, prefix = camera_assignment
+            database_id = self._camera_catalog_database_id(item_id, prefix)
+            if database_id is None:
+                return 0
+            return int(
+                connection.execute(
+                    f"""
+                    SELECT COUNT(DISTINCT assignment.profile_id)
+                    FROM {table_name} assignment
+                    JOIN EquipmentProfile profile
+                      ON profile.id = assignment.profile_id
+                    WHERE assignment.{id_column} = ?
+                    """,
+                    (database_id,),
+                ).fetchone()[0]
+            )
         ids = [item_id]
         if legacy_id and legacy_id != item_id:
             ids.append(legacy_id)
@@ -2404,3 +2613,29 @@ class EquipmentCatalogRepository:
             connection.execute(f"DELETE FROM EquipmentProfileFilter WHERE filter_id IN ({placeholders})", ids)
         elif kind == "reducer":
             connection.execute(f"DELETE FROM EquipmentProfileReducer WHERE reducer_id IN ({placeholders})", ids)
+        elif kind == "astronomy_camera":
+            database_id = EquipmentCatalogRepository._camera_catalog_database_id(
+                item_id,
+                "catalog-astronomy-camera-",
+            )
+            if database_id is not None:
+                connection.execute(
+                    """
+                    DELETE FROM EquipmentProfileAstronomyCamera
+                    WHERE astronomy_camera_id = ?
+                    """,
+                    (database_id,),
+                )
+        elif kind == "camera_body":
+            database_id = EquipmentCatalogRepository._camera_catalog_database_id(
+                item_id,
+                "catalog-camera-body-",
+            )
+            if database_id is not None:
+                connection.execute(
+                    """
+                    DELETE FROM EquipmentProfileCameraBody
+                    WHERE camera_body_id = ?
+                    """,
+                    (database_id,),
+                )

@@ -407,3 +407,21 @@ CREATE TABLE IF NOT EXISTS EquipmentProfileReducer (
     PRIMARY KEY (profile_id, reducer_id),
     FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS EquipmentProfileAstronomyCamera (
+    profile_id INTEGER NOT NULL,
+    astronomy_camera_id INTEGER NOT NULL,
+    PRIMARY KEY (profile_id, astronomy_camera_id),
+    FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE,
+    FOREIGN KEY (astronomy_camera_id)
+        REFERENCES AstronomyCameraCatalog(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS EquipmentProfileCameraBody (
+    profile_id INTEGER NOT NULL,
+    camera_body_id INTEGER NOT NULL,
+    PRIMARY KEY (profile_id, camera_body_id),
+    FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE,
+    FOREIGN KEY (camera_body_id)
+        REFERENCES CameraBodyCatalog(id) ON DELETE CASCADE
+);

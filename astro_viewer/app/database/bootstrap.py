@@ -19,7 +19,7 @@ from astro_viewer.app.services.localization import content_key, tr
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
-SCHEMA_VERSION = 20
+SCHEMA_VERSION = 21
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 _CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
     (
@@ -116,6 +116,8 @@ REQUIRED_TABLES = {
     "EquipmentProfileBinocular",
     "EquipmentProfileFilter",
     "EquipmentProfileReducer",
+    "EquipmentProfileAstronomyCamera",
+    "EquipmentProfileCameraBody",
 }
 SEEDED_TABLES = {
     "MpcObservatory": "mpc_observatories_seed.csv",
@@ -489,6 +491,7 @@ def _migrate_database(
     if existing_schema_version < 19:
         _migrate_catalogue_designation_aliases(connection)
     _ensure_profile_binocular_table(connection)
+    _ensure_profile_camera_tables(connection)
     _remove_orphan_profile_assignments(connection)
     _add_columns(connection, "SkyQualityEstimate", {"confidence": "TEXT"})
     _add_columns(
@@ -742,6 +745,8 @@ def _remove_orphan_profile_assignments(connection: sqlite3.Connection) -> None:
         "EquipmentProfileBinocular",
         "EquipmentProfileFilter",
         "EquipmentProfileReducer",
+        "EquipmentProfileAstronomyCamera",
+        "EquipmentProfileCameraBody",
     ):
         connection.execute(
             f"""
@@ -825,6 +830,35 @@ def _ensure_profile_binocular_table(connection: sqlite3.Connection) -> None:
             binocular_id TEXT NOT NULL,
             PRIMARY KEY (profile_id, binocular_id),
             FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+
+def _ensure_profile_camera_tables(connection: sqlite3.Connection) -> None:
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS EquipmentProfileAstronomyCamera (
+            profile_id INTEGER NOT NULL,
+            astronomy_camera_id INTEGER NOT NULL,
+            PRIMARY KEY (profile_id, astronomy_camera_id),
+            FOREIGN KEY (profile_id)
+                REFERENCES EquipmentProfile(id) ON DELETE CASCADE,
+            FOREIGN KEY (astronomy_camera_id)
+                REFERENCES AstronomyCameraCatalog(id) ON DELETE CASCADE
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS EquipmentProfileCameraBody (
+            profile_id INTEGER NOT NULL,
+            camera_body_id INTEGER NOT NULL,
+            PRIMARY KEY (profile_id, camera_body_id),
+            FOREIGN KEY (profile_id)
+                REFERENCES EquipmentProfile(id) ON DELETE CASCADE,
+            FOREIGN KEY (camera_body_id)
+                REFERENCES CameraBodyCatalog(id) ON DELETE CASCADE
         )
         """
     )

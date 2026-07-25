@@ -137,20 +137,21 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
-## Measured Unreleased Camera Catalogue Gate
+## Measured Unreleased Camera Catalogue And Profile Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-25:
 
 | Check | Result |
 | --- | --- |
 | `python tools/run_checks.py --fast` on the final source state | Passed |
-| Complete deterministic suite | 974 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 249.00 s |
-| Camera seed/bootstrap | 37 astronomy cameras and 40 camera bodies; schema 19-to-20 upgrade, unique identities and sensor geometry checks passed |
-| Catalogue-only boundary | Camera CRUD emits only `cameraCatalogChanged`; profiles, visual setup and Home signals remain unchanged |
+| Complete deterministic suite | 978 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 247.36 s |
+| Camera seed/bootstrap | 37 astronomy cameras and 40 camera bodies; schema 19-to-21 and 20-to-21 upgrades, unique identities and sensor geometry checks passed |
+| Profile persistence | Astronomy-camera and camera-body links persist independently per profile; assigned user rows require explicit profile cleanup before deletion |
+| Visual-engine boundary | Assignments and camera CRUD use `profileInventoryChanged`; no Equipment refresh or Home, weather, selected-object and observing-detail notification is emitted |
 | Mount compatibility | Controlled taxonomy plus legacy `manuale` mapping preserve the prior visual tracking coefficients |
-| Translation catalogues | IT, EN, and ES: 1,854 finished, 0 unfinished each |
+| Translation catalogues | IT, EN, and ES: 1,864 finished, 0 unfinished each |
 | `EquipmentCamerasPage.qml` lint | Passed with zero warnings |
-| Native minimum-layout review | Windows `1040 × 700`, normal and Red Night Vision passed |
+| Native profile-layout review | Windows `1040 × 700` and `1709 × 1047`, assigned cameras visible, normal and Red Night Vision passed |
 | Red Night Vision pixel probe | Maximum green 74, maximum blue 61, zero threshold violations |
 | Backend and normal/Red Night Vision QML smoke tests | Passed in disposable runtimes |
 
