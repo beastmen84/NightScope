@@ -1061,6 +1061,19 @@ class Phase6RealDataTests(unittest.TestCase):
             object_catalogue_qml,
         )
         self.assertIn(
+            "onClicked: root.setCatalogueRecommendationEnabled(",
+            object_catalogue_qml,
+        )
+        self.assertNotIn(
+            "onToggled: controller.setCatalogueRecommendationEnabled(",
+            object_catalogue_qml,
+        )
+        self.assertIn(
+            "root.restoreCatalogueScrollPosition(previousPosition)",
+            object_catalogue_qml,
+        )
+        self.assertIn("Qt.callLater(function()", object_catalogue_qml)
+        self.assertIn(
             "itemData.recommendation_enabled === true",
             object_catalogue_qml,
         )
@@ -1075,6 +1088,21 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('text: qsTr("Home")', object_catalogue_qml)
         self.assertIn("Layout.preferredWidth: 56", object_catalogue_qml)
         self.assertNotIn("Suggerisci in Home", object_catalogue_qml)
+        self.assertIn(
+            "readonly property int constellationColumnWidth: 120",
+            object_catalogue_qml,
+        )
+        self.assertEqual(
+            object_catalogue_qml.count(
+                "Layout.preferredWidth: root.constellationColumnWidth"
+            ),
+            2,
+        )
+        self.assertIn("contentFillsHeight: true", object_catalogue_qml)
+        self.assertNotIn(
+            "Layout.preferredHeight: Math.min(contentHeight, 640)",
+            object_catalogue_qml,
+        )
         self.assertIn('text: qsTr("Visibili nel mese")', object_catalogue_qml)
         self.assertNotIn('FilterLabel { text: qsTr("Mese") }', object_catalogue_qml)
         self.assertLess(object_catalogue_qml.index("id: visibleThisMonthFilter"), object_catalogue_qml.index("id: monthFilter"))
@@ -1443,6 +1471,11 @@ class Phase6RealDataTests(unittest.TestCase):
                 target.id,
                 controller._equipment_setup_read_models_by_object_id,
             )
+            catalogue_ids_before = [
+                item["object_id"]
+                for item in controller.catalogueObjects
+            ]
+            filter_state_before = dict(controller.catalogueFilterState)
 
             controller.setCatalogueRecommendationEnabled(target.id, False)
 
@@ -1461,6 +1494,17 @@ class Phase6RealDataTests(unittest.TestCase):
                 controller._equipment_setup_read_models_by_object_id,
             )
             self.assertIsNone(controller._selected_object)
+            self.assertEqual(
+                [
+                    item["object_id"]
+                    for item in controller.catalogueObjects
+                ],
+                catalogue_ids_before,
+            )
+            self.assertEqual(
+                controller.catalogueFilterState,
+                filter_state_before,
+            )
             self.assertFalse(
                 controller._catalogue_repository.get_by_object_id(target.id)[
                     "recommendation_enabled"

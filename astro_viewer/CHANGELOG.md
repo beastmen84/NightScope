@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Rifinita la tabella `Oggetti celesti`: l'area delle righe occupa soltanto lo
+  spazio verticale disponibile, evitando il secondo scroll dell'intera pagina;
+  la colonna Costellazione guadagna 8 px senza troncare il nome esteso di M17.
+  Cambiare il flag `Home` conserva inoltre posizione e filtri della lista,
+  invece di riportarla apparentemente a un altro gruppo di oggetti.
 - Corrette due identita' incrociate nel seed NGC: il numero nel nome comune
   `47 Tucanae` non viene piu' interpretato come `NGC 47`, quindi NGC 47/58
   formano il proprio target NGC-only mentre solo NGC 104 riusa Caldwell C106.
