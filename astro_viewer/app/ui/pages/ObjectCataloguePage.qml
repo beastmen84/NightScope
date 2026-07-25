@@ -8,7 +8,12 @@ Item {
 
     property var controller
     property string allFilter: "__all__"
+    property bool pendingBulkRecommendationEnabled: true
     readonly property int constellationColumnWidth: 120
+    readonly property int pendingBulkRecommendationCount:
+        pendingBulkRecommendationEnabled
+            ? controller.catalogueBulkEnableCount
+            : controller.catalogueBulkDisableCount
     signal openObject(string objectId, string catalogue, string designation)
 
     function optionModel(key) {
@@ -74,6 +79,24 @@ Item {
 
     function setCatalogueRecommendationEnabled(objectId, enabled) {
         controller.setCatalogueRecommendationEnabled(objectId, enabled)
+    }
+
+    function requestBulkRecommendationChange(enabled) {
+        pendingBulkRecommendationEnabled = enabled
+        if (pendingBulkRecommendationCount > 0)
+            bulkRecommendationDialog.open()
+    }
+
+    function bulkRecommendationConfirmationText() {
+        var count = pendingBulkRecommendationCount
+        if (pendingBulkRecommendationEnabled) {
+            return count === 1
+                ? qsTr("Attivare il risultato filtrato nei suggerimenti Home?")
+                : qsTr("Attivare %1 risultati filtrati nei suggerimenti Home?").arg(count)
+        }
+        return count === 1
+            ? qsTr("Disattivare il risultato filtrato dai suggerimenti Home?")
+            : qsTr("Disattivare %1 risultati filtrati dai suggerimenti Home?").arg(count)
     }
 
     AppTheme { id: theme }
@@ -242,25 +265,74 @@ Item {
                 }
             }
 
-            RowLayout {
+            GridLayout {
                 Layout.fillWidth: true
-                spacing: 10
+                columns: root.width > 1040 ? 2 : 1
+                columnSpacing: 16
+                rowSpacing: 8
 
-                Text {
+                RowLayout {
                     Layout.fillWidth: true
-                    text: qsTr("%1 di %2 oggetti")
-                        .arg(controller.catalogueFilteredCount)
-                        .arg(controller.catalogueTotalCount)
-                    color: theme.textSecondary
-                    font.pixelSize: 13
-                    font.weight: Font.DemiBold
-                    elide: Text.ElideRight
+                    spacing: 12
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: qsTr("%1 di %2 oggetti")
+                            .arg(controller.catalogueFilteredCount)
+                            .arg(controller.catalogueTotalCount)
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        font.weight: Font.DemiBold
+                        elide: Text.ElideRight
+                    }
+
+                    Text {
+                        visible: root.controller.catalogueRecommendationRefreshActive
+                        text: qsTr("Aggiornamento raccomandazioni in corso…")
+                        color: theme.cyan
+                        font.pixelSize: 12
+                        font.weight: Font.DemiBold
+                        elide: Text.ElideRight
+                    }
                 }
 
-                DarkButton {
-                    text: qsTr("Pulisci filtri")
-                    accentColor: theme.teal
-                    onClicked: root.clearFilters()
+                GridLayout {
+                    Layout.fillWidth: root.width <= 1040
+                    Layout.alignment: Qt.AlignRight
+                    columns: 3
+                    columnSpacing: 10
+
+                    DarkButton {
+                        Layout.fillWidth: root.width <= 1040
+                        Layout.minimumWidth: 0
+                        enabled: root.controller.catalogueBulkEnableCount > 0
+                        text: qsTr("Attiva risultati")
+                        accentColor: theme.teal
+                        Accessible.name: qsTr(
+                            "Attiva tutti gli oggetti modificabili nei risultati filtrati"
+                        )
+                        onClicked: root.requestBulkRecommendationChange(true)
+                    }
+
+                    DarkButton {
+                        Layout.fillWidth: root.width <= 1040
+                        Layout.minimumWidth: 0
+                        enabled: root.controller.catalogueBulkDisableCount > 0
+                        text: qsTr("Disattiva risultati")
+                        danger: true
+                        Accessible.name: qsTr(
+                            "Disattiva tutti gli oggetti modificabili nei risultati filtrati"
+                        )
+                        onClicked: root.requestBulkRecommendationChange(false)
+                    }
+
+                    DarkButton {
+                        Layout.fillWidth: root.width <= 1040
+                        Layout.minimumWidth: 0
+                        text: qsTr("Pulisci filtri")
+                        accentColor: theme.teal
+                        onClicked: root.clearFilters()
+                    }
                 }
             }
         }
@@ -444,6 +516,41 @@ Item {
         }
 
         Item { Layout.fillWidth: true; Layout.preferredHeight: 28 }
+    }
+
+    DarkDialog {
+        id: bulkRecommendationDialog
+        objectName: "bulkRecommendationDialog"
+        parent: root
+        title: root.pendingBulkRecommendationEnabled
+            ? qsTr("Attiva risultati")
+            : qsTr("Disattiva risultati")
+        acceptText: root.pendingBulkRecommendationEnabled
+            ? qsTr("Attiva")
+            : qsTr("Disattiva")
+        acceptDanger: !root.pendingBulkRecommendationEnabled
+        acceptEnabled: root.pendingBulkRecommendationCount > 0
+        preferredWidth: 560
+        onAccepted: root.controller.setFilteredCatalogueRecommendationsEnabled(
+            root.pendingBulkRecommendationEnabled
+        )
+
+        Text {
+            Layout.fillWidth: true
+            text: root.bulkRecommendationConfirmationText()
+            color: theme.textPrimary
+            font.pixelSize: 14
+            font.weight: Font.DemiBold
+            wrapMode: Text.WordWrap
+        }
+
+        Text {
+            Layout.fillWidth: true
+            text: qsTr("Gli oggetti del Sistema solare restano sempre attivi. Verrà avviato un solo aggiornamento delle raccomandazioni.")
+            color: theme.textSecondary
+            font.pixelSize: 13
+            wrapMode: Text.WordWrap
+        }
     }
 
     component TableHeader: Text {

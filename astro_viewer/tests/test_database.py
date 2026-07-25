@@ -621,6 +621,56 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 {"messier-m31": False},
             )
 
+    def test_catalogue_recommendation_bulk_write_is_deduplicated_and_atomic(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = (
+                Path(__file__).resolve().parents[1]
+                / "data"
+                / "schema.sql"
+            )
+            initialize_database(database_path, schema_path)
+            repository = CatalogueRepository(database_path)
+
+            repository.set_recommendations_enabled(
+                (
+                    "messier-M31",
+                    "MESSIER-m31",
+                    "ngc-NGC1",
+                ),
+                False,
+            )
+
+            self.assertEqual(
+                repository.recommendation_preferences(),
+                {
+                    "messier-m31": False,
+                    "ngc-ngc1": False,
+                },
+            )
+
+            with self.assertRaisesRegex(
+                ValueError,
+                "missing-target",
+            ):
+                repository.set_recommendations_enabled(
+                    (
+                        "messier-M31",
+                        "missing-target",
+                    ),
+                    True,
+                )
+
+            self.assertEqual(
+                repository.recommendation_preferences(),
+                {
+                    "messier-m31": False,
+                    "ngc-ngc1": False,
+                },
+            )
+
     def test_catalogue_identity_merge_migrates_obsolete_ngc_preference(
         self,
     ) -> None:

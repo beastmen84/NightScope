@@ -8141,126 +8141,188 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
   <context>
     <name>ObjectCataloguePage</name>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="17" />
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="26" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="22" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="31" />
       <source>Tutti</source>
       <translation>Todos</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="47" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="52" />
       <source>%1°</source>
       <translation>%1°</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="63" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="68" />
       <source>Sì</source>
       <translation>Sí</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="100" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="94" />
+      <source>Attivare il risultato filtrato nei suggerimenti Home?</source>
+      <translation>¿Activar el resultado filtrado en las sugerencias de Inicio?</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="95" />
+      <source>Attivare %1 risultati filtrati nei suggerimenti Home?</source>
+      <translation>¿Activar %1 resultados filtrados en las sugerencias de Inicio?</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="98" />
+      <source>Disattivare il risultato filtrato dai suggerimenti Home?</source>
+      <translation>¿Desactivar el resultado filtrado en las sugerencias de Inicio?</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="99" />
+      <source>Disattivare %1 risultati filtrati dai suggerimenti Home?</source>
+      <translation>¿Desactivar %1 resultados filtrados en las sugerencias de Inicio?</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="123" />
       <source>Oggetti celesti</source>
       <translation>Objetos celestes</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="109" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="132" />
       <source>Esplora gli oggetti astronomici disponibili nel catalogo.</source>
       <translation>Explora los objetos astronómicos disponibles en el catálogo.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="137" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="160" />
       <source>Ricerca</source>
       <translation>Buscar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="142" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="165" />
       <source>Cerca ID o nome...</source>
       <translation>Buscar por ID o nombre...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="151" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="174" />
       <source>Catalogo</source>
       <translation>Catálogo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="167" />
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="295" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="190" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="367" />
       <source>Tipo</source>
       <translation>Tipo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="183" />
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="296" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="206" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="368" />
       <source>Costellazione</source>
       <translation>Constelación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="199" />
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="299" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="222" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="371" />
       <source>Osservazione</source>
       <translation>Observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="216" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="239" />
       <source>Visibilità</source>
       <translation>Visibilidad</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="225" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="248" />
       <source>Visibili nel mese</source>
       <translation>Visibles este mes</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="251" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="280" />
       <source>%1 di %2 oggetti</source>
       <translation>%1 de %2 objetos</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="261" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="291" />
+      <source>Aggiornamento raccomandazioni in corso…</source>
+      <translation>Actualizando recomendaciones…</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="309" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="526" />
+      <source>Attiva risultati</source>
+      <translation>Activar resultados</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="311" />
+      <source>Attiva tutti gli oggetti modificabili nei risultati filtrati</source>
+      <translation>Activar todos los objetos modificables de los resultados filtrados</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="321" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="527" />
+      <source>Disattiva risultati</source>
+      <translation>Desactivar resultados</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="323" />
+      <source>Disattiva tutti gli oggetti modificabili nei risultati filtrati</source>
+      <translation>Desactivar todos los objetos modificables de los resultados filtrados</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="332" />
       <source>Pulisci filtri</source>
       <translation>Limpiar filtros</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="293" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="365" />
       <source>ID</source>
       <translation>ID</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="294" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="366" />
       <source>Nome</source>
       <translation>Nombre</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="297" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="369" />
       <source>Magnitudine</source>
       <translation>Magnitud</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="298" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="370" />
       <source>Dimensione</source>
       <translation>Tamaño</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="300" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="372" />
       <source>Raggiunge ≥15°</source>
       <translation>Alcanza ≥15°</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="302" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="374" />
       <source>Home</source>
       <translation>Inicio</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="378" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="450" />
       <source>Sempre incluso nei suggerimenti automatici</source>
       <translation>Siempre incluido en las sugerencias automáticas</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="377" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="529" />
+      <source>Attiva</source>
+      <translation>Activa</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="530" />
+      <source>Disattiva</source>
+      <translation>Desactiva</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="549" />
+      <source>Gli oggetti del Sistema solare restano sempre attivi. Verrà avviato un solo aggiornamento delle raccomandazioni.</source>
+      <translation>Los objetos del Sistema Solar permanecen siempre activos. Solo se iniciará una actualización de las recomendaciones.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="449" />
       <source>Includi nei suggerimenti automatici</source>
       <translation>Incluir en las sugerencias automáticas</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="439" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="511" />
       <source>Nessun oggetto trovato.</source>
       <translation>No se encontraron objetos.</translation>
     </message>

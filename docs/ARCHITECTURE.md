@@ -656,7 +656,8 @@ Repositories own SQLite persistence:
   accent-insensitive aliases share the same result contract without treating an
   observatory as a city.
 - `CatalogueRepository`: physical catalogue targets, their designations and
-  persistent per-object recommendation-eligibility overrides.
+  persistent per-object recommendation-eligibility overrides. Batch preference
+  changes validate every requested identity before one SQLite transaction.
 - `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter
   and focal-reducer CRUD plus profile assignments. Every catalogue row exposes
   `is_builtin`, `seed_key` and `is_user_modified`; seeded rows can be updated
@@ -741,17 +742,26 @@ Catalogue browsing flow:
     checkbox changes the persistent recommendation preference without removing
     the row for Messier, Caldwell or NGC targets. Solar System S1-S9 rows show
     the same checkbox checked and locked.
+    `Attiva risultati` and `Disattiva risultati` operate on the complete
+    filtered model, not only instantiated delegates. The confirmation reports
+    the exact number of editable physical targets; multiple catalogue aliases
+    count once and locked Solar System rows are excluded.
     Exact search matches are ordered before prefix and substring matches, so a
     growing catalogue does not hide a direct body/name match among aliases;
     compact codes such as `NGC1` are normalized without making `C23` match
     `NGC 23`.
-4. Preference persistence and the row update complete synchronously. With a
-   valid location, a 200 ms single-shot timer coalesces successive changes into
-   the newest generation. At most one recommendation worker runs; a change
-   made during that run requests one replacement calculation rather than
-   queuing every intermediate state. Request generation, location key and a
-   signature of equipment/condition inputs prevent stale results from being
-   published.
+4. Preference persistence and the row update complete synchronously. A bulk
+   action case-insensitively deduplicates physical IDs, validates the complete
+   set, writes it with one `executemany` transaction, updates canonical and
+   projected model state in one pass, and queues one recommendation refresh.
+   Large `dataChanged` sets are coalesced into one range without resetting the
+   list or its scroll position. With a valid location, a 200 ms single-shot
+   timer coalesces successive changes into the newest generation. At most one
+   recommendation worker runs; a change made during that run requests one
+   replacement calculation rather than queuing every intermediate state.
+   Request generation, location key and a signature of equipment/condition
+   inputs prevent stale results from being published. QML exposes the pending
+   or running state without waiting on the calculation.
 5. The worker calculates fixed-target geometry and Moon geometry, then prepares
    Equipment projections, pollution context, conditioned read models, NSOM
    ranking, Best Object, Planner and Sky Compass from captured immutable

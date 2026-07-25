@@ -258,6 +258,7 @@ class AppController(QObject):
     selectedObjectChanged = Signal()
     observingObjectDetailChanged = Signal()
     catalogueChanged = Signal()
+    catalogueRecommendationStateChanged = Signal()
     locationChanged = Signal()
     weatherChanged = Signal()
     equipmentChanged = Signal()
@@ -795,6 +796,39 @@ class AppController(QObject):
     @Property(QObject, constant=True)
     def catalogueObjectModel(self) -> CatalogueObjectListModel:
         return self._catalogue_object_model
+
+    @Property(int, notify=catalogueRecommendationStateChanged)
+    def catalogueBulkEnableCount(self) -> int:
+        model = getattr(self, "_catalogue_object_model", None)
+        return (
+            model.recommendation_change_count(True)
+            if model is not None
+            else 0
+        )
+
+    @Property(int, notify=catalogueRecommendationStateChanged)
+    def catalogueBulkDisableCount(self) -> int:
+        model = getattr(self, "_catalogue_object_model", None)
+        return (
+            model.recommendation_change_count(False)
+            if model is not None
+            else 0
+        )
+
+    @Property(bool, notify=catalogueRecommendationStateChanged)
+    def catalogueRecommendationRefreshActive(self) -> bool:
+        return bool(
+            getattr(
+                self,
+                "_catalogue_recommendation_refresh_pending",
+                False,
+            )
+            or getattr(
+                self,
+                "_catalogue_recommendation_refresh_running",
+                False,
+            )
+        )
 
     @Property("QVariant", notify=catalogueChanged)
     def catalogueFilterOptions(self) -> dict:
@@ -1472,16 +1506,69 @@ class AppController(QObject):
             canonical_id,
             enabled,
         )
-        normalized_id = canonical_id.casefold()
-        self._recommendation_enabled_by_object_id[normalized_id] = enabled
-        item["recommendation_enabled"] = enabled
-        self._catalogue_object_model.update_recommendation_enabled(
-            canonical_id,
+        self._apply_catalogue_recommendation_changes(
+            (canonical_id,),
             enabled,
         )
 
-        self._refresh_after_catalogue_recommendation_change(
-            canonical_id,
+    @Slot(bool)
+    def setFilteredCatalogueRecommendationsEnabled(
+        self,
+        enabled: bool,
+    ) -> None:
+        enabled = bool(enabled)
+        object_ids = (
+            self._catalogue_object_model.recommendation_object_ids_requiring(
+                enabled
+            )
+        )
+        if not object_ids:
+            return
+        self._catalogue_repository.set_recommendations_enabled(
+            object_ids,
+            enabled,
+        )
+        self._apply_catalogue_recommendation_changes(
+            object_ids,
+            enabled,
+        )
+
+    def _apply_catalogue_recommendation_changes(
+        self,
+        object_ids: Sequence[str],
+        enabled: bool,
+    ) -> None:
+        canonical_ids = []
+        applied_ids = set()
+        for object_id in object_ids:
+            if not object_id.strip():
+                continue
+            item = self._catalogue_item_for_object_id(object_id)
+            if item is None:
+                continue
+            canonical_id = str(item.get("object_id") or "").strip()
+            normalized_id = canonical_id.casefold()
+            if (
+                not normalized_id
+                or normalized_id in applied_ids
+                or not bool(item.get("recommendation_editable", False))
+            ):
+                continue
+            applied_ids.add(normalized_id)
+            item["recommendation_enabled"] = enabled
+            self._recommendation_enabled_by_object_id[
+                normalized_id
+            ] = enabled
+            canonical_ids.append(canonical_id)
+        if not canonical_ids:
+            return
+
+        self._catalogue_object_model.update_recommendations_enabled(
+            canonical_ids,
+            enabled,
+        )
+        self._refresh_after_catalogue_recommendation_changes(
+            canonical_ids,
             enabled,
         )
         self._queue_catalogue_recommendation_refresh()
@@ -2829,11 +2916,13 @@ class AppController(QObject):
         self._catalogue_recommendation_refresh_generation += 1
         if not self._has_valid_location():
             self._catalogue_recommendation_refresh_pending = False
+            self.catalogueRecommendationStateChanged.emit()
             return
         self._catalogue_recommendation_refresh_pending = True
         self._catalogue_recommendation_refresh_timer.start(
             CATALOGUE_RECOMMENDATION_REFRESH_DEBOUNCE_MS
         )
+        self.catalogueRecommendationStateChanged.emit()
 
     @Slot()
     def _start_pending_catalogue_recommendation_refresh(self) -> None:
@@ -2844,6 +2933,7 @@ class AppController(QObject):
             return
         if not self._has_valid_location():
             self._catalogue_recommendation_refresh_pending = False
+            self.catalogueRecommendationStateChanged.emit()
             return
 
         generation = self._catalogue_recommendation_refresh_generation
@@ -2855,6 +2945,7 @@ class AppController(QObject):
         self._catalogue_recommendation_refresh_pending = False
         self._catalogue_recommendation_refresh_running = True
         self._catalogue_recommendation_refresh_active_generation = generation
+        self.catalogueRecommendationStateChanged.emit()
 
         def run_refresh() -> None:
             snapshot = self._calculate_prepared_catalogue_recommendation_snapshot(
@@ -2871,6 +2962,7 @@ class AppController(QObject):
             self._start_background_task(run_refresh)
         except Exception:
             self._catalogue_recommendation_refresh_running = False
+            self.catalogueRecommendationStateChanged.emit()
             logger.warning(
                 "Catalogue recommendation worker could not start.",
                 exc_info=True,
@@ -2917,12 +3009,14 @@ class AppController(QObject):
         if self._catalogue_recommendation_refresh_pending:
             if not self._catalogue_recommendation_refresh_timer.isActive():
                 self._catalogue_recommendation_refresh_timer.start(0)
+            self.catalogueRecommendationStateChanged.emit()
             return
         if not is_current:
             self._clear_refresh_domains(
                 RefreshDomain.ASTRONOMY,
                 RefreshDomain.EQUIPMENT,
             )
+        self.catalogueRecommendationStateChanged.emit()
 
     def _cancel_catalogue_recommendation_refresh(self) -> None:
         self._catalogue_recommendation_refresh_generation += 1
@@ -2930,6 +3024,7 @@ class AppController(QObject):
         timer = getattr(self, "_catalogue_recommendation_refresh_timer", None)
         if timer is not None:
             timer.stop()
+        self.catalogueRecommendationStateChanged.emit()
 
     def _catalogue_recommendation_preparation_context(
         self,
@@ -5054,16 +5149,16 @@ class AppController(QObject):
             RefreshDomain.COMPASS,
         )
 
-    def _refresh_after_catalogue_recommendation_change(
+    def _refresh_after_catalogue_recommendation_changes(
         self,
-        object_id: str,
+        object_ids: Sequence[str],
         enabled: bool,
     ) -> None:
         self._mark_refresh_dirty(RefreshReason.CATALOGUE_RECOMMENDATION_CHANGED)
         if self._has_valid_location():
             if not enabled:
-                self._remove_catalogue_object_from_current_recommendations(
-                    object_id
+                self._remove_catalogue_objects_from_current_recommendations(
+                    object_ids
                 )
             return
 
@@ -5100,12 +5195,16 @@ class AppController(QObject):
             RefreshDomain.COMPASS,
         )
 
-    def _remove_catalogue_object_from_current_recommendations(
+    def _remove_catalogue_objects_from_current_recommendations(
         self,
-        object_id: str,
+        object_ids: Sequence[str],
     ) -> None:
-        normalized_id = object_id.strip().casefold()
-        if not normalized_id:
+        normalized_ids = {
+            object_id.strip().casefold()
+            for object_id in object_ids
+            if object_id.strip()
+        }
+        if not normalized_ids:
             return
 
         def keep_target(target: object) -> bool:
@@ -5113,7 +5212,7 @@ class AppController(QObject):
                 getattr(target, "id", None)
                 or getattr(target, "object_id", "")
             ).strip().casefold()
-            return target_id != normalized_id
+            return target_id not in normalized_ids
 
         self._deep_sky = [
             target for target in self._deep_sky if keep_target(target)
@@ -5147,8 +5246,20 @@ class AppController(QObject):
         self._night_plan = [
             step for step in self._night_plan if keep_target(step)
         ]
-        self._equipment_setup_read_models_by_object_id.pop(object_id, None)
-        self._deep_sky_raw_condition_input_by_id.pop(object_id, None)
+        self._equipment_setup_read_models_by_object_id = {
+            object_id: model
+            for object_id, model in (
+                self._equipment_setup_read_models_by_object_id.items()
+            )
+            if object_id.strip().casefold() not in normalized_ids
+        }
+        self._deep_sky_raw_condition_input_by_id = {
+            object_id: target
+            for object_id, target in (
+                self._deep_sky_raw_condition_input_by_id.items()
+            )
+            if object_id.strip().casefold() not in normalized_ids
+        }
 
         if self._best_object and not keep_target(self._best_object):
             self._best_object = None
@@ -5904,6 +6015,7 @@ class AppController(QObject):
         if model is None:
             return
         model.replace_items(self._filtered_catalogue_objects())
+        self.catalogueRecommendationStateChanged.emit()
 
     def _filtered_catalogue_objects(self) -> list[dict]:
         query = self._catalogue_search_query.casefold()

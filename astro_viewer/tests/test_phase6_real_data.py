@@ -1084,6 +1084,36 @@ class Phase6RealDataTests(unittest.TestCase):
             "row.itemData.recommendation_editable === true",
             object_catalogue_qml,
         )
+        self.assertIn('text: qsTr("Attiva risultati")', object_catalogue_qml)
+        self.assertIn(
+            'text: qsTr("Disattiva risultati")',
+            object_catalogue_qml,
+        )
+        self.assertIn(
+            "controller.catalogueBulkEnableCount",
+            object_catalogue_qml,
+        )
+        self.assertIn(
+            "controller.catalogueBulkDisableCount",
+            object_catalogue_qml,
+        )
+        self.assertIn(
+            "controller.setFilteredCatalogueRecommendationsEnabled(",
+            object_catalogue_qml,
+        )
+        self.assertIn(
+            "controller.catalogueRecommendationRefreshActive",
+            object_catalogue_qml,
+        )
+        self.assertIn("id: bulkRecommendationDialog", object_catalogue_qml)
+        self.assertIn(
+            'objectName: "bulkRecommendationDialog"',
+            object_catalogue_qml,
+        )
+        self.assertIn(
+            "columns: root.width > 1040 ? 2 : 1",
+            object_catalogue_qml,
+        )
         self.assertIn(
             'qsTr("Sempre incluso nei suggerimenti automatici")',
             object_catalogue_qml,
@@ -1554,6 +1584,162 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(catalogue_emissions, [])
             self.assertEqual(len(changed_rows), 1)
             self.assertFalse(model.item(changed_rows[0])["recommendation_enabled"])
+
+    def test_catalogue_bulk_counts_deduplicate_targets_and_lock_solar_system(
+        self,
+    ) -> None:
+        with _controller() as controller:
+            self.assertEqual(
+                controller.catalogueBulkEnableCount,
+                NGC_ONLY_OBJECT_COUNT,
+            )
+            self.assertEqual(controller.catalogueBulkDisableCount, 219)
+
+            controller.setCatalogueFilter("catalogue", "NGC")
+            ngc_model = controller.catalogueObjectModel
+            ngc_ids = (
+                ngc_model.recommendation_object_ids_requiring(True)
+                + ngc_model.recommendation_object_ids_requiring(False)
+            )
+            self.assertEqual(
+                len(ngc_ids),
+                len({object_id.casefold() for object_id in ngc_ids}),
+            )
+            self.assertGreater(ngc_model.rowCount(), len(ngc_ids))
+
+            controller.setCatalogueFilter(
+                "catalogue",
+                "Sistema Solare",
+            )
+            self.assertEqual(controller.catalogueBulkEnableCount, 0)
+            self.assertEqual(controller.catalogueBulkDisableCount, 0)
+            solar_objects = controller.catalogueObjects
+            self.assertEqual(len(solar_objects), 9)
+            self.assertTrue(
+                all(
+                    item["recommendation_enabled"]
+                    and not item["recommendation_editable"]
+                    for item in solar_objects
+                )
+            )
+
+            batch_write = Mock(
+                side_effect=AssertionError(
+                    "locked objects must not be persisted"
+                )
+            )
+            controller._catalogue_repository.set_recommendations_enabled = (
+                batch_write
+            )
+            controller.setFilteredCatalogueRecommendationsEnabled(False)
+            controller.setFilteredCatalogueRecommendationsEnabled(True)
+
+            batch_write.assert_not_called()
+
+    def test_filtered_catalogue_bulk_change_is_atomic_and_queues_one_refresh(
+        self,
+    ) -> None:
+        with _controller() as controller:
+            controller.setCatalogueFilter("catalogue", "Messier")
+            model = controller.catalogueObjectModel
+            object_ids = model.recommendation_object_ids_requiring(False)
+            before_state = {
+                item["object_id"].casefold(): item[
+                    "recommendation_enabled"
+                ]
+                for item in controller._catalogue_objects
+            }
+            self.assertEqual(len(object_ids), 110)
+            self.assertEqual(controller.catalogueBulkEnableCount, 0)
+            self.assertEqual(controller.catalogueBulkDisableCount, 110)
+
+            controller._location = ObserverLocation(
+                "Roma",
+                "Italia",
+                41.9,
+                12.5,
+                "Europe/Rome",
+            )
+            controller._catalogue_recommendation_refresh_timer = Mock()
+            controller._refresh_equipment_recommendations_for_current_objects = Mock(
+                side_effect=AssertionError(
+                    "full refresh must be deferred"
+                )
+            )
+            controller._recalculate_observing_outputs = Mock(
+                side_effect=AssertionError(
+                    "full refresh must be deferred"
+                )
+            )
+            batch_write = Mock(
+                wraps=(
+                    controller._catalogue_repository
+                    .set_recommendations_enabled
+                )
+            )
+            controller._catalogue_repository.set_recommendations_enabled = (
+                batch_write
+            )
+            model_resets: list[object] = []
+            changed_ranges: list[tuple[int, int]] = []
+            state_emissions: list[object] = []
+            model.modelReset.connect(
+                lambda: model_resets.append(object())
+            )
+            model.dataChanged.connect(
+                lambda first, last, _roles: changed_ranges.append(
+                    (first.row(), last.row())
+                )
+            )
+            controller.catalogueRecommendationStateChanged.connect(
+                lambda: state_emissions.append(object())
+            )
+
+            controller.setFilteredCatalogueRecommendationsEnabled(False)
+
+            batch_write.assert_called_once_with(object_ids, False)
+            self.assertEqual(model_resets, [])
+            self.assertEqual(changed_ranges, [(0, 109)])
+            self.assertEqual(len(state_emissions), 1)
+            self.assertEqual(model.rowCount(), 110)
+            self.assertEqual(
+                controller.catalogueFilterState["catalogue"],
+                "Messier",
+            )
+            self.assertEqual(controller.catalogueBulkEnableCount, 110)
+            self.assertEqual(controller.catalogueBulkDisableCount, 0)
+            self.assertTrue(controller.catalogueRecommendationRefreshActive)
+            controller._catalogue_recommendation_refresh_timer.start.assert_called_once_with(
+                CATALOGUE_RECOMMENDATION_REFRESH_DEBOUNCE_MS
+            )
+
+            changed_ids = {
+                object_id.casefold()
+                for object_id in object_ids
+            }
+            for item in controller._catalogue_objects:
+                normalized_id = item["object_id"].casefold()
+                expected = (
+                    False
+                    if normalized_id in changed_ids
+                    else before_state[normalized_id]
+                )
+                self.assertEqual(
+                    item["recommendation_enabled"],
+                    expected,
+                )
+            self.assertEqual(
+                controller._catalogue_repository.recommendation_preferences(),
+                {
+                    object_id.casefold(): False
+                    for object_id in object_ids
+                },
+            )
+
+            controller._cancel_catalogue_recommendation_refresh()
+            self.assertFalse(
+                controller.catalogueRecommendationRefreshActive
+            )
 
     def test_valid_location_toggle_defers_full_recommendation_recalculation(
         self,

@@ -113,10 +113,12 @@ def test_catalogue_recommendation_refresh_coalesces_to_the_latest_generation() -
 
     controller._queue_catalogue_recommendation_refresh()
     controller._queue_catalogue_recommendation_refresh()
+    assert controller.catalogueRecommendationRefreshActive is True
     controller._start_pending_catalogue_recommendation_refresh()
 
     assert len(tasks) == 1
     assert controller._catalogue_recommendation_refresh_running is True
+    assert controller.catalogueRecommendationRefreshActive is True
 
     controller._queue_catalogue_recommendation_refresh()
     controller._queue_catalogue_recommendation_refresh()
@@ -130,6 +132,7 @@ def test_catalogue_recommendation_refresh_coalesces_to_the_latest_generation() -
     controller._finish_catalogue_recommendation_refresh.assert_not_called()
     assert controller._catalogue_recommendation_refresh_running is False
     assert controller._catalogue_recommendation_refresh_pending is True
+    assert controller.catalogueRecommendationRefreshActive is True
 
     controller._start_pending_catalogue_recommendation_refresh()
     assert len(tasks) == 2
@@ -138,6 +141,7 @@ def test_catalogue_recommendation_refresh_coalesces_to_the_latest_generation() -
 
     assert engine.deep_sky_calls == 2
     controller._finish_catalogue_recommendation_refresh.assert_called_once()
+    assert controller.catalogueRecommendationRefreshActive is False
     prepared = (
         controller._finish_catalogue_recommendation_refresh.call_args.args[0]
     )

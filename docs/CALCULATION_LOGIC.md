@@ -326,6 +326,13 @@ Re-enabling a target starts a deep-sky-only astronomy refresh so it can enter
 the current suggestion pool immediately; disabling removes it from downstream
 pools immediately.
 
+The catalogue bulk controls apply the same gate to the complete current filter
+result. They deduplicate aliases by normalized physical `object_id`, skip the
+locked Solar System rows, validate the complete request before a single SQLite
+transaction, update the virtualized model without a reset, and enqueue one
+latest-state recommendation refresh. They do not introduce another score,
+ranking path, worker type or platform-specific multiprocessing behavior.
+
 Fixed-target nightly visibility, monthly catalogue visibility and Moon
 separation use vectorized Skyfield/NumPy batches with scalar fallbacks. The
 preference join uses the indexed `NOCASE` primary key; applying `LOWER()` to

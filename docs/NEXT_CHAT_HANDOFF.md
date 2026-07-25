@@ -62,11 +62,22 @@ calcolato. Nel benchmark tutto-attivo, con 5.452 target osservabili correnti,
 il click impiega circa 27 ms, il worker circa 3,2 s e l'applicazione UI circa
 6 ms. Thread e segnali sono condivisi da Windows e Linux.
 
+La pagina espone anche `Attiva risultati` e `Disattiva risultati`, a sinistra
+di `Pulisci filtri`. I comandi usano tutto il risultato filtrato e non soltanto
+le righe visibili nel viewport; la conferma mostra il numero esatto di target
+fisici. Alias come NGC 6/20 contano una volta, mentre S1-S9 sono ignorati perche'
+sempre attivi. Il repository valida l'intero insieme prima di una sola
+transazione SQLite, il modello aggiorna le righe senza reset e il controller
+accoda un solo refresh. Nel benchmark Windows, 7.366-7.585 modifiche richiedono
+circa 80-110 ms con localita' configurata e circa 150 ms senza localita'; il
+singolo M31 resta tra 10 e 28 ms. Il layout minimo e Red Night Vision sono stati
+controllati con rendering QML.
+
 Il snapshot, l'hash, l'attribuzione OpenNGC e il testo completo
 CC-BY-SA-4.0 sono inclusi nei sorgenti e nei bundle. I cataloghi Qt IT/EN/ES
-contengono 1.731 voci finite e zero incomplete.
+contengono 1.743 voci finite e zero incomplete.
 
-Sul sorgente finale il gate `tools/run_checks.py --fast` passa con 960 test,
+Sul sorgente finale il gate `tools/run_checks.py --fast` passa con 966 test,
 643 warning Skyfield/NumPy gia' noti, 10 subtest, smoke backend, QML normale e
 Red Night Vision. Il gate di sicurezza immediatamente precedente ha riportato
 84% di copertura su 16.429 statement runtime e nessuna vulnerabilita' nota.

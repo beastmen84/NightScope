@@ -65,6 +65,8 @@ Linux packages use a portable tarball plus an adjacent SHA-256 file.
   scientific images; NGC-only editorial content is explicitly marked as work
   in progress. Per-target Home eligibility is persistent; row updates are
   immediate and recommendation recalculations are coalesced in the background.
+  Filtered results can also be enabled or disabled in one confirmed, atomic
+  operation; catalogue aliases count once and Solar System objects stay locked.
 - Switches the application and its content between Italian, English, and
   Spanish at runtime.
 - Provides a persistent low-luminance red interface for use at the telescope;

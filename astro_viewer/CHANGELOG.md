@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- Aggiunti nel catalogo i comandi `Attiva risultati` e
+  `Disattiva risultati`: operano sull'intero risultato filtrato corrente,
+  mostrano il numero esatto di target coinvolti e chiedono conferma prima
+  della modifica. Gli alias vengono deduplicati per oggetto fisico e i nove
+  oggetti del Sistema Solare restano attivi e non modificabili.
+- La modifica massiva valida tutti i target prima di scrivere, usa una sola
+  transazione SQLite, aggiorna il modello senza reset e avvia un solo refresh
+  delle raccomandazioni. Le notifiche di migliaia di righe vengono accorpate e
+  la UI mostra lo stato del refresh in background. Nel benchmark Windows,
+  attivare o disattivare 7.366-7.585 target richiede circa 80-110 ms con una
+  localita' configurata e circa 150 ms senza localita'; il singolo flag resta
+  entro circa 10-28 ms. I controlli sono verificati al layout minimo sia in
+  modalita' normale sia in Red Night Vision.
 - Eliminato il blocco dell'interfaccia quando si cambia il flag `Home` nel
   catalogo esteso: un `QAbstractListModel` aggiorna soltanto le righe dello
   stesso target fisico, senza ricreare tutte le 7.594 righe o perdere la
@@ -61,7 +74,7 @@
   Caldwell come `C23`. Aggiunti attribuzione, licenza completa
   `CC-BY-SA-4.0`, snapshot riproducibile e controllo offline OpenNGC; aggiornate
   le traduzioni IT/EN/ES e i bundle Windows/Linux.
-- Il gate finale `tools/run_checks.py --fast` passa con 960 test, 643 warning
+- Il gate finale `tools/run_checks.py --fast` passa con 966 test, 643 warning
   Skyfield/NumPy gia' noti, 10 subtest, smoke backend, QML normale e Red Night
   Vision. Il test asincrono dell'Update Manager attende ora la consegna del
   segnale Qt prima del teardown, eliminando la relativa race del runner

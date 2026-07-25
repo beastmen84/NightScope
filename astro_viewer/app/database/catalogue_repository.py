@@ -193,6 +193,53 @@ class CatalogueRepository:
             )
             connection.commit()
 
+    def set_recommendations_enabled(
+        self,
+        object_ids: Iterable[str],
+        enabled: bool,
+    ) -> None:
+        normalized_ids: dict[str, str] = {}
+        for object_id in object_ids:
+            clean_id = object_id.strip()
+            if clean_id:
+                normalized_ids.setdefault(clean_id.casefold(), clean_id)
+        if not normalized_ids:
+            raise ValueError("Catalogue recommendation preference requires an object ID.")
+
+        with closing(self._connect()) as connection:
+            stored_rows = connection.execute(
+                """
+                SELECT object_id
+                FROM CatalogueObject
+                """
+            ).fetchall()
+            stored_ids = {
+                str(row["object_id"]).casefold(): str(row["object_id"])
+                for row in stored_rows
+            }
+            missing_ids = [
+                requested_id
+                for normalized_id, requested_id in normalized_ids.items()
+                if normalized_id not in stored_ids
+            ]
+            if missing_ids:
+                raise ValueError(
+                    "Catalogue recommendation preference requires a stored "
+                    f"catalogue object: {', '.join(missing_ids)}."
+                )
+            connection.executemany(
+                """
+                INSERT INTO CatalogueRecommendationPreference (object_id, enabled)
+                VALUES (?, ?)
+                ON CONFLICT(object_id) DO UPDATE SET enabled = excluded.enabled
+                """,
+                (
+                    (stored_ids[normalized_id], int(bool(enabled)))
+                    for normalized_id in normalized_ids
+                ),
+            )
+            connection.commit()
+
     def _objects_with_designations(
         self,
         connection: sqlite3.Connection,
