@@ -190,6 +190,7 @@ def test_ignoring_update_preserves_other_preferences(tmp_path: Path) -> None:
 
 
 def test_update_manager_starts_only_one_background_check(tmp_path: Path) -> None:
+    app = QCoreApplication.instance() or QCoreApplication([])
     version_path = tmp_path / "VERSION"
     version_path.write_text("1.37.0", encoding="utf-8")
     request_started = Event()
@@ -204,11 +205,29 @@ def test_update_manager_starts_only_one_background_check(tmp_path: Path) -> None
         preferences_path=tmp_path / "user_preferences.json",
         http_get=release_request,
     )
+    loop = QEventLoop()
+    timeout = QTimer()
+    timeout.setSingleShot(True)
+    finished = []
+
+    def finish_test(_release: object) -> None:
+        finished.append(True)
+        loop.quit()
+
+    timeout.timeout.connect(loop.quit)
+    manager._checkFinished.connect(finish_test)
 
     manager.checkForUpdates()
     manager.checkForUpdates()
 
     assert request_started.wait(timeout=2)
+    if not finished:
+        timeout.start(2_000)
+        loop.exec()
+        timeout.stop()
+
+    assert app is QCoreApplication.instance()
+    assert finished == [True]
     assert release_request.call_count == 1
 
 

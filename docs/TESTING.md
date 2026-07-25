@@ -147,18 +147,25 @@ eligibility and fixed-target vectorization:
 | --- | --- |
 | `python tools/run_checks.py --fast` on the final source state | Passed |
 | `pip check`, Ruff, `compileall`, third-party archive, MPC and OpenNGC checks | Passed |
-| `pytest -q -n 4 astro_viewer/tests` | 950 passed, 642 warnings, 10 subtests passed in 254.16 s |
+| `pytest -q -n 4 astro_viewer/tests` | 960 passed, 643 warnings, 10 subtests passed in 289.62 s |
 | OpenNGC derived seed | 7,839 usable designations; 7,571 physical NGC targets; 7,366 new NGC-only targets; 1 nonexistent entry excluded |
-| Translation catalogues | IT, EN, and ES: 1,730 finished, 0 unfinished each |
+| Translation catalogues | IT, EN, and ES: 1,731 finished, 0 unfinished each |
 | All-enabled indexed repository query | About 0.15 s for 7,585 physical targets |
 | Controlled Windows end-to-end refresh | 7.55 s with 219 defaults; 12.45 s with all 7,585 targets enabled |
+| All-enabled `Home` toggle micro-benchmark | About 27 ms for the UI slot with 5,452 current deep-sky results; about 3.2 s worker preparation; about 6 ms atomic UI application |
 | Backend and normal/Red Night Vision QML smoke tests | Passed in disposable runtimes |
 | Immediately preceding security gate | 84% coverage across 16,429 runtime statements; no known installed-package vulnerabilities |
 
-The final indexed-join micro-fix and its performance regression test were
-followed by the complete fast gate above. The coverage and `pip-audit` values
-come from the immediately preceding complete security gate on the same feature
-set.
+The final catalogue-toggle responsiveness work and its performance regressions
+were followed by the complete fast gate above. The coverage and `pip-audit`
+values come from the immediately preceding complete security gate on the same
+feature set.
+
+The `Home` toggle regression checks also verify that the catalogue model emits
+targeted row updates without a model reset, rapid generations produce at most
+one active plus one latest-state refresh, stale context is not published, Moon
+geometry is prepared in the worker, and applying the prepared result does not
+call Equipment, condition or NSOM recomputation on the Qt thread.
 
 ## Measured 1.41.0 Debian Portable Bundle Gate
 

@@ -46,18 +46,28 @@ scalare identico su Windows e Linux. La join delle preferenze usa la chiave
 Nel benchmark Windows end-to-end, il profilo con i 219 default richiede 7,55 s;
 il caso estremo con tutti i 7.585 target attivi richiede 12,45 s, inclusi
 catalogo mensile, eventi, Equipment, NSOM, Planner e Sky Compass. L'incremento
-di circa 4,9 s resta nel worker esistente; non e' stato introdotto
-multiprocesso.
+di circa 4,9 s resta compatibile con il worker esistente; non e' stato
+introdotto multiprocesso.
 
 La pagina catalogo usa una `ListView` virtualizzata, espande tutte le 7.839
 designazioni sotto il filtro NGC, mantiene l'alias esatto nel dettaglio e
 accetta codici compatti come `NGC1` senza far coincidere `C23` con `NGC 23`.
+Il flag `Home` usa ora un `QAbstractListModel`: il click aggiorna soltanto le
+righe che condividono l'`object_id`, senza ricostruire 7.594 mappe QML. Un
+debounce da 200 ms conserva soltanto lo stato piu' recente, ammette un solo
+worker e scarta snapshot con generazione, localita' o input runtime obsoleti.
+Il worker prepara anche Equipment, inquinamento luminoso, geometria lunare,
+NSOM, Best Object, Planner e Sky Compass; la UI applica lo snapshot gia'
+calcolato. Nel benchmark tutto-attivo, con 5.452 target osservabili correnti,
+il click impiega circa 27 ms, il worker circa 3,2 s e l'applicazione UI circa
+6 ms. Thread e segnali sono condivisi da Windows e Linux.
+
 Il snapshot, l'hash, l'attribuzione OpenNGC e il testo completo
 CC-BY-SA-4.0 sono inclusi nei sorgenti e nei bundle. I cataloghi Qt IT/EN/ES
-contengono 1.730 voci finite e zero incomplete.
+contengono 1.731 voci finite e zero incomplete.
 
-Sul sorgente finale il gate `tools/run_checks.py --fast` passa con 950 test,
-642 warning Skyfield/NumPy gia' noti, 10 subtest, smoke backend, QML normale e
+Sul sorgente finale il gate `tools/run_checks.py --fast` passa con 960 test,
+643 warning Skyfield/NumPy gia' noti, 10 subtest, smoke backend, QML normale e
 Red Night Vision. Il gate di sicurezza immediatamente precedente ha riportato
 84% di copertura su 16.429 statement runtime e nessuna vulnerabilita' nota.
 

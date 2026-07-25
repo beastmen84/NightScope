@@ -17,11 +17,14 @@ from astro_viewer.app.models.observing import (
 from astro_viewer.app.services.observation_conditions_service import MoonGeometryConditionInput
 from astro_viewer.app.services.refresh_lifecycle import RefreshManager
 from astro_viewer.app.viewmodels.app_controller import (
+    ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION,
     ASTRONOMY_REFRESH_FULL,
     ASTRONOMY_REFRESH_NIGHT_ROLLOVER,
     ASTRONOMY_REFRESH_VIIRS_DEEP_SKY,
+    CATALOGUE_RECOMMENDATION_REFRESH_DEBOUNCE_MS,
     AppController,
     AstronomyRefreshSnapshot,
+    PreparedCatalogueRecommendationSnapshot,
 )
 
 
@@ -85,6 +88,102 @@ def test_astronomy_refresh_discards_stale_request_result() -> None:
     tasks[1]()
     controller._finish_viirs_deep_sky_refresh.assert_called_once()
     assert controller._finish_viirs_deep_sky_refresh.call_args.args[1] == "new"
+
+
+def test_catalogue_recommendation_refresh_coalesces_to_the_latest_generation() -> None:
+    controller, engine = _controller()
+    tasks = []
+    controller._start_background_task = tasks.append
+    controller._finish_catalogue_recommendation_refresh = Mock()
+    controller._catalogue_recommendation_preparation_context = Mock(
+        return_value=object()
+    )
+    controller._catalogue_recommendation_runtime_signature = Mock(
+        return_value=("test",)
+    )
+    controller._calculate_prepared_catalogue_recommendation_snapshot = (
+        lambda location, _context: PreparedCatalogueRecommendationSnapshot(
+            runtime_signature=("test",),
+            astronomy=controller._calculate_astronomy_snapshot(
+                location,
+                ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION,
+            )
+        )
+    )
+
+    controller._queue_catalogue_recommendation_refresh()
+    controller._queue_catalogue_recommendation_refresh()
+    controller._start_pending_catalogue_recommendation_refresh()
+
+    assert len(tasks) == 1
+    assert controller._catalogue_recommendation_refresh_running is True
+
+    controller._queue_catalogue_recommendation_refresh()
+    controller._queue_catalogue_recommendation_refresh()
+    controller._start_pending_catalogue_recommendation_refresh()
+
+    assert len(tasks) == 1
+
+    tasks[0]()
+
+    assert engine.deep_sky_calls == 1
+    controller._finish_catalogue_recommendation_refresh.assert_not_called()
+    assert controller._catalogue_recommendation_refresh_running is False
+    assert controller._catalogue_recommendation_refresh_pending is True
+
+    controller._start_pending_catalogue_recommendation_refresh()
+    assert len(tasks) == 2
+
+    tasks[1]()
+
+    assert engine.deep_sky_calls == 2
+    controller._finish_catalogue_recommendation_refresh.assert_called_once()
+    prepared = (
+        controller._finish_catalogue_recommendation_refresh.call_args.args[0]
+    )
+    assert prepared.astronomy.deep_sky[0].id == "messier-M13"
+    assert prepared.astronomy.moon_geometry[0][0] == "messier-M13"
+
+
+def test_catalogue_recommendation_refresh_requeues_stale_runtime_context() -> None:
+    controller, _engine = _controller()
+    controller._catalogue_recommendation_refresh_generation = 1
+    controller._catalogue_recommendation_refresh_active_generation = 1
+    controller._catalogue_recommendation_refresh_running = True
+    controller._catalogue_recommendation_runtime_signature = Mock(
+        return_value=("new",)
+    )
+    controller._finish_catalogue_recommendation_refresh = Mock()
+
+    controller._finish_catalogue_recommendation_worker(
+        1,
+        "41.900:12.500:roma",
+        PreparedCatalogueRecommendationSnapshot(
+            runtime_signature=("old",)
+        ),
+    )
+
+    controller._finish_catalogue_recommendation_refresh.assert_not_called()
+    assert controller._catalogue_recommendation_refresh_running is False
+    assert controller._catalogue_recommendation_refresh_generation == 2
+    assert controller._catalogue_recommendation_refresh_pending is True
+    assert [
+        call.args[0]
+        for call in controller._catalogue_recommendation_refresh_timer.start.call_args_list
+    ] == [CATALOGUE_RECOMMENDATION_REFRESH_DEBOUNCE_MS, 0]
+
+
+def test_catalogue_recommendation_calculation_preloads_moon_geometry() -> None:
+    controller, _engine = _controller()
+
+    snapshot = controller._calculate_astronomy_snapshot(
+        controller._location,
+        ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION,
+    )
+
+    assert snapshot.deep_sky[0].id == "messier-M13"
+    assert snapshot.moon_geometry[0][0] == "messier-M13"
+    assert isinstance(snapshot.moon_geometry[0][1], MoonGeometrySummary)
 
 
 def test_full_astronomy_refresh_builds_snapshot_before_weather_continuation() -> None:
@@ -281,6 +380,9 @@ def _controller() -> tuple[AppController, _AstronomyEngine]:
     controller = AppController.__new__(AppController)
     QObject.__init__(controller)
     controller._astronomyRefreshFinished.connect(controller._finish_astronomy_refresh)
+    controller._catalogueRecommendationRefreshFinished.connect(
+        controller._finish_catalogue_recommendation_worker
+    )
     controller._transientEventsRefreshFinished.connect(
         controller._finish_transient_event_refresh
     )
@@ -288,6 +390,14 @@ def _controller() -> tuple[AppController, _AstronomyEngine]:
     controller._astronomy_engine = _AstronomyEngine()
     controller._astronomy_refresh_running = False
     controller._astronomy_refresh_request_id = 0
+    controller._catalogue_recommendation_refresh_generation = 0
+    controller._catalogue_recommendation_refresh_active_generation = 0
+    controller._catalogue_recommendation_refresh_running = False
+    controller._catalogue_recommendation_refresh_pending = False
+    controller._catalogue_recommendation_refresh_timer = Mock()
+    controller._catalogue_recommendation_refresh_timer.isActive.return_value = (
+        False
+    )
     controller._transient_event_refresh_running = False
     controller._transient_event_refresh_request_id = 0
     controller._transient_event_refresh_timer = Mock()

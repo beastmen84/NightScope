@@ -72,28 +72,8 @@ Item {
         controller.clearCatalogueFilters()
     }
 
-    // catalogueChanged rebuilds the QVariant list model and resets ListView.contentY.
-    function restoreCatalogueScrollPosition(position) {
-        var minimumPosition = catalogueList.originY
-        var maximumPosition = Math.max(
-            minimumPosition,
-            catalogueList.originY
-                + catalogueList.contentHeight
-                - catalogueList.height
-        )
-        catalogueList.contentY = Math.max(
-            minimumPosition,
-            Math.min(position, maximumPosition)
-        )
-    }
-
     function setCatalogueRecommendationEnabled(objectId, enabled) {
-        var previousPosition = catalogueList.contentY
         controller.setCatalogueRecommendationEnabled(objectId, enabled)
-        root.restoreCatalogueScrollPosition(previousPosition)
-        Qt.callLater(function() {
-            root.restoreCatalogueScrollPosition(previousPosition)
-        })
     }
 
     AppTheme { id: theme }
@@ -337,7 +317,7 @@ Item {
                 reuseItems: true
                 cacheBuffer: 92
                 boundsBehavior: Flickable.StopAtBounds
-                model: controller.catalogueObjects
+                model: controller.catalogueObjectModel
 
                 ScrollBar.vertical: ScrollBar {
                     policy: ScrollBar.AsNeeded
@@ -345,7 +325,7 @@ Item {
 
                 delegate: Rectangle {
                         id: row
-                        property var itemData: modelData
+                        property var itemData: model.itemData
                         property bool hovered: false
 
                         width: catalogueList.width

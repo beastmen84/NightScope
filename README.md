@@ -63,7 +63,8 @@ Linux packages use a portable tarball plus an adjacent SHA-256 file.
   and nine Solar System targets. The 219 curated Messier/Caldwell targets and
   Solar System objects retain their complete descriptions, facts, and credited
   scientific images; NGC-only editorial content is explicitly marked as work
-  in progress.
+  in progress. Per-target Home eligibility is persistent; row updates are
+  immediate and recommendation recalculations are coalesced in the background.
 - Switches the application and its content between Italian, English, and
   Spanish at runtime.
 - Provides a persistent low-luminance red interface for use at the telescope;

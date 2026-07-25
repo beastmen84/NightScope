@@ -37,7 +37,10 @@ from astro_viewer.app.services.light_pollution_service import LightPollutionServ
 from astro_viewer.app.services.location_service import LocationDetectionResult
 from astro_viewer.app.services.localization import activate_language_pack
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
-from astro_viewer.app.viewmodels.app_controller import AppController
+from astro_viewer.app.viewmodels.app_controller import (
+    CATALOGUE_RECOMMENDATION_REFRESH_DEBOUNCE_MS,
+    AppController,
+)
 from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
 
 
@@ -1032,7 +1035,7 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertNotIn("appController.weatherSummary.scoreValue", main_qml)
         self.assertNotIn("appController.weatherSummary.alert", main_qml)
         self.assertIn('window.detailBackTarget === "objectCatalogue" ? qsTr("Torna al catalogo")', main_qml)
-        self.assertIn("controller.catalogueObjects", object_catalogue_qml)
+        self.assertIn("controller.catalogueObjectModel", object_catalogue_qml)
         self.assertIn("appController.selectCatalogueDesignation", main_qml)
         self.assertIn("ListView {", object_catalogue_qml)
         self.assertIn("reuseItems: true", object_catalogue_qml)
@@ -1068,11 +1071,11 @@ class Phase6RealDataTests(unittest.TestCase):
             "onToggled: controller.setCatalogueRecommendationEnabled(",
             object_catalogue_qml,
         )
-        self.assertIn(
-            "root.restoreCatalogueScrollPosition(previousPosition)",
+        self.assertNotIn(
+            "restoreCatalogueScrollPosition",
             object_catalogue_qml,
         )
-        self.assertIn("Qt.callLater(function()", object_catalogue_qml)
+        self.assertIn("property var itemData: model.itemData", object_catalogue_qml)
         self.assertIn(
             "itemData.recommendation_enabled === true",
             object_catalogue_qml,
@@ -1524,6 +1527,242 @@ class Phase6RealDataTests(unittest.TestCase):
                 ]
             )
 
+    def test_catalogue_toggle_updates_the_existing_model_without_resetting_it(
+        self,
+    ) -> None:
+        with _controller() as controller:
+            model = controller.catalogueObjectModel
+            model_resets: list[object] = []
+            changed_rows: list[int] = []
+            catalogue_emissions: list[object] = []
+            model.modelReset.connect(lambda: model_resets.append(object()))
+            model.dataChanged.connect(
+                lambda first, _last, _roles: changed_rows.append(first.row())
+            )
+            controller.catalogueChanged.connect(
+                lambda: catalogue_emissions.append(object())
+            )
+            row_count = model.rowCount()
+
+            controller.setCatalogueRecommendationEnabled(
+                "messier-M31",
+                False,
+            )
+
+            self.assertEqual(model.rowCount(), row_count)
+            self.assertEqual(model_resets, [])
+            self.assertEqual(catalogue_emissions, [])
+            self.assertEqual(len(changed_rows), 1)
+            self.assertFalse(model.item(changed_rows[0])["recommendation_enabled"])
+
+    def test_valid_location_toggle_defers_full_recommendation_recalculation(
+        self,
+    ) -> None:
+        with _controller() as controller:
+            controller._location = ObserverLocation(
+                "Roma",
+                "Italia",
+                41.9,
+                12.5,
+                "Europe/Rome",
+            )
+            target = replace(
+                _object(
+                    "messier-M31",
+                    "Andromeda Galaxy",
+                    "Spiral galaxy",
+                    "3.4",
+                ),
+                visible=True,
+            )
+            controller._base_deep_sky = [target]
+            controller._deep_sky = [target]
+            controller._conditioned_deep_sky = [target]
+            controller._conditioned_home_objects = [target]
+            controller._catalogue_recommendation_refresh_timer = Mock()
+            controller._refresh_equipment_recommendations_for_current_objects = Mock(
+                side_effect=AssertionError("full refresh must be deferred")
+            )
+            controller._recalculate_observing_outputs = Mock(
+                side_effect=AssertionError("full refresh must be deferred")
+            )
+
+            controller.setCatalogueRecommendationEnabled(target.id, False)
+
+            self.assertEqual(controller._base_deep_sky, [target])
+            self.assertEqual(controller._deep_sky, [])
+            self.assertEqual(controller._conditioned_deep_sky, [])
+            self.assertTrue(controller._catalogue_recommendation_refresh_pending)
+            self.assertEqual(
+                controller._sky_compass["reason"],
+                "catalogue_refresh_pending",
+            )
+            controller._catalogue_recommendation_refresh_timer.start.assert_called_once_with(
+                CATALOGUE_RECOMMENDATION_REFRESH_DEBOUNCE_MS
+            )
+            controller._cancel_catalogue_recommendation_refresh()
+
+    def test_prepared_catalogue_refresh_matches_the_synchronous_outputs(
+        self,
+    ) -> None:
+        with _controller() as controller:
+            location = ObserverLocation(
+                "Roma",
+                "Italia",
+                41.9,
+                12.5,
+                "Europe/Rome",
+            )
+            fixed_now = datetime(
+                2026,
+                7,
+                25,
+                22,
+                0,
+                tzinfo=ZoneInfo("Europe/Rome"),
+            )
+            controller._location = location
+            controller._astronomy_engine._now = (
+                lambda _location: fixed_now
+            )
+            controller._observing_night_window = (
+                controller._astronomy_engine.observing_night_window(
+                    location,
+                    reference=fixed_now,
+                )
+            )
+            controller._weather_summary = WeatherSummary(
+                "Buono",
+                80,
+                "",
+                10,
+                0,
+                5,
+                55,
+                18.0,
+                "",
+            )
+            solar_system_ids = {
+                item.id
+                for item in controller._solar_system_objects
+            }
+            existing_solar_setup_ids = solar_system_ids.intersection(
+                controller._equipment_setup_read_models_by_object_id
+            )
+            context = (
+                controller._catalogue_recommendation_preparation_context()
+            )
+
+            prepared = (
+                controller._calculate_prepared_catalogue_recommendation_snapshot(
+                    location,
+                    context,
+                )
+            )
+
+            self.assertFalse(prepared.failed)
+            prepared_conditioned_ids = [
+                item.id
+                for item in prepared.conditioned_deep_sky
+            ]
+            prepared_best_id = (
+                prepared.best_object.id
+                if prepared.best_object
+                else None
+            )
+            prepared_plan_ids = [
+                item.object_id
+                for item in prepared.night_plan
+            ]
+            prepared_compass_ids = [
+                item.id
+                for item in prepared.sky_compass_candidates
+            ]
+            self.assertEqual(
+                solar_system_ids.intersection(
+                    dict(prepared.equipment_setup_models)
+                ),
+                existing_solar_setup_ids,
+            )
+
+            with patch.object(
+                controller,
+                "_refresh_equipment_recommendations_for_current_objects",
+                side_effect=AssertionError(
+                    "prepared results must not be rebuilt on the UI thread"
+                ),
+            ), patch.object(
+                controller,
+                "_apply_deep_sky_pollution_context",
+                side_effect=AssertionError(
+                    "prepared results must not be reconditioned on the UI thread"
+                ),
+            ), patch.object(
+                controller,
+                "_recalculate_observing_outputs",
+                side_effect=AssertionError(
+                    "prepared results must not be reranked on the UI thread"
+                ),
+            ):
+                controller._finish_catalogue_recommendation_refresh(
+                    prepared
+                )
+
+            self.assertEqual(
+                prepared_conditioned_ids,
+                [
+                    item.id
+                    for item in controller._conditioned_deep_sky
+                ],
+            )
+            self.assertEqual(
+                prepared_plan_ids,
+                [
+                    item.object_id
+                    for item in controller._night_plan
+                ],
+            )
+            self.assertEqual(
+                solar_system_ids.intersection(
+                    controller._equipment_setup_read_models_by_object_id
+                ),
+                existing_solar_setup_ids,
+            )
+
+            controller._finish_catalogue_recommendation_refresh_fallback(
+                prepared.astronomy
+            )
+
+            self.assertEqual(
+                prepared_conditioned_ids,
+                [
+                    item.id
+                    for item in controller._conditioned_deep_sky
+                ],
+            )
+            self.assertEqual(
+                prepared_best_id,
+                (
+                    controller._best_object.id
+                    if controller._best_object
+                    else None
+                ),
+            )
+            self.assertEqual(
+                prepared_plan_ids,
+                [
+                    item.object_id
+                    for item in controller._night_plan
+                ],
+            )
+            self.assertEqual(
+                prepared_compass_ids,
+                [
+                    item.id
+                    for item in controller._sky_compass_candidate_snapshot
+                ],
+            )
+
     def test_catalogue_includes_solar_system_objects(self) -> None:
         with _controller() as controller:
             objects = controller.catalogueObjects
@@ -1953,7 +2192,17 @@ class Phase6RealDataTests(unittest.TestCase):
             controller.setCatalogueVisibleThisMonthFilter(True)
             controller._invalidate_catalogue_month_visibility_cache()
             self.assertEqual(controller.selectedObject["catalogueVisibleCurrentMonthLabel"], "No")
-            astronomy.catalogue_month_visibility.assert_called_once()
+            self.assertEqual(astronomy.catalogue_month_visibility.call_count, 2)
+            list_call_args = astronomy.catalogue_month_visibility.call_args_list[
+                1
+            ].args
+            self.assertEqual(
+                list_call_args[2:4],
+                (
+                    controller._catalogue_year,
+                    controller._catalogue_selected_month,
+                ),
+            )
 
     def test_catalogue_detail_current_month_visibility_is_unknown_without_location(self) -> None:
         with _controller() as controller:

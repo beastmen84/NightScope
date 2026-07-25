@@ -50,7 +50,12 @@ from astro_viewer.app.models.observing import (
     MoonGeometrySummary,
     MoonSummary,
 )
-from astro_viewer.app.models.sky import ObservingCategoryScores, SeeingTransparency, SkyQuality
+from astro_viewer.app.models.sky import (
+    NightPlanItem,
+    ObservingCategoryScores,
+    SeeingTransparency,
+    SkyQuality,
+)
 from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlockingStatus, WeatherHour, WeatherSummary
 from astro_viewer.app.services.earthdata_credentials import (
     EARTHDATA_LAADS_AUTHORIZATION_URL,
@@ -139,6 +144,9 @@ from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshMa
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
 from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE, OpenMeteoWeatherService
+from astro_viewer.app.viewmodels.catalogue_object_list_model import (
+    CatalogueObjectListModel,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -153,6 +161,7 @@ RECOMMENDATION_EDITABLE_CATALOGUES = frozenset(
 STARTUP_LOCATION_PENDING_MESSAGE = tr("Ricerca della posizione in corso...")
 STARTUP_WEATHER_PENDING_MESSAGE = tr("Meteo in attesa della posizione.")
 WEATHER_RETRY_DELAY_MS = 5 * 60 * 1000
+CATALOGUE_RECOMMENDATION_REFRESH_DEBOUNCE_MS = 200
 CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG = DEEP_SKY_USEFUL_ALTITUDE_DEG
 ASTRONOMY_REFRESH_FULL = "full_refresh"
 ASTRONOMY_REFRESH_NIGHT_ROLLOVER = "night_rollover"
@@ -181,6 +190,69 @@ class TransientEventRefreshSnapshot:
     failed: bool = False
 
 
+@dataclass(frozen=True)
+class CatalogueRecommendationPreparationContext:
+    runtime_signature: tuple[object, ...]
+    telescopes: tuple[Telescope, ...]
+    eyepieces: tuple[Eyepiece, ...]
+    barlows: tuple[Barlow, ...]
+    binoculars: tuple[Binocular, ...]
+    seeing_transparency: SeeingTransparency | None
+    sky_quality: SkyQuality | None
+    object_image_map: dict[str, dict]
+    object_descriptions: dict[str, dict]
+    catalogue_identifier_index: dict[str, dict]
+    visible_planets: tuple[CelestialObject, ...]
+    solar_setup_models: tuple[tuple[str, EquipmentSetupReadModel], ...]
+    moon_geometry_by_object_id: tuple[
+        tuple[str, MoonGeometryConditionInput | None],
+        ...,
+    ]
+    condition_inputs: ObservationConditionInputs
+    pollution_condition_inputs: ObservationConditionInputs
+    weather_summary: WeatherSummary | None
+    current_telescope: Telescope
+    observing_night_window: ObservingNightWindow
+    telescopes_by_id: tuple[tuple[str, Telescope], ...]
+    use_target_equipment: bool
+    sky_compass_caution_text: str
+
+
+@dataclass(frozen=True)
+class PreparedCatalogueRecommendationSnapshot:
+    runtime_signature: tuple[object, ...] = ()
+    astronomy: AstronomyRefreshSnapshot = AstronomyRefreshSnapshot()
+    deep_sky: tuple[CelestialObject, ...] = ()
+    equipment_setup_models: tuple[
+        tuple[str, EquipmentSetupReadModel],
+        ...,
+    ] = ()
+    deep_sky_pollution_read_model: tuple[
+        ObservationConditionedTargetReadModel,
+        ...,
+    ] = ()
+    deep_sky_raw_condition_inputs: tuple[
+        tuple[str, CelestialObject],
+        ...,
+    ] = ()
+    conditioned_deep_sky: tuple[CelestialObject, ...] = ()
+    conditioned_home_objects: tuple[CelestialObject, ...] = ()
+    conditioned_deep_sky_read_model: tuple[
+        ObservationConditionedTargetReadModel,
+        ...,
+    ] = ()
+    conditioned_home_read_model: tuple[
+        ObservationConditionedTargetReadModel,
+        ...,
+    ] = ()
+    category_scores: ObservingCategoryScores | None = None
+    best_object: CelestialObject | None = None
+    night_plan: tuple[NightPlanItem, ...] = ()
+    sky_compass: dict | None = None
+    sky_compass_candidates: tuple[CelestialObject, ...] = ()
+    failed: bool = False
+
+
 class AppController(QObject):
     dataChanged = Signal()
     selectedObjectChanged = Signal()
@@ -204,6 +276,7 @@ class AppController(QObject):
     _nasaAodRefreshFinished = Signal(int, str, object)
     _skyCompassLiveRefreshFinished = Signal(int, str, object)
     _astronomyRefreshFinished = Signal(int, str, str, object, object)
+    _catalogueRecommendationRefreshFinished = Signal(int, str, object)
     _transientEventsRefreshFinished = Signal(int, str, object)
 
     def __init__(
@@ -230,6 +303,9 @@ class AppController(QObject):
         self._nasaAodRefreshFinished.connect(self._finish_nasa_aod_refresh)
         self._skyCompassLiveRefreshFinished.connect(self._finish_sky_compass_live_refresh)
         self._astronomyRefreshFinished.connect(self._finish_astronomy_refresh)
+        self._catalogueRecommendationRefreshFinished.connect(
+            self._finish_catalogue_recommendation_worker
+        )
         self._transientEventsRefreshFinished.connect(self._finish_transient_event_refresh)
         self.dataChanged.connect(self.homeNightPlanChanged.emit)
         self.weatherChanged.connect(self.homeNightPlanChanged.emit)
@@ -291,12 +367,21 @@ class AppController(QObject):
         self._astronomy_engine_lock = RLock()
         self._astronomy_refresh_running = False
         self._astronomy_refresh_request_id = 0
+        self._catalogue_recommendation_refresh_generation = 0
+        self._catalogue_recommendation_refresh_active_generation = 0
+        self._catalogue_recommendation_refresh_running = False
+        self._catalogue_recommendation_refresh_pending = False
         self._transient_event_refresh_running = False
         self._transient_event_refresh_request_id = 0
         self._transient_events_location_key = ""
         self._weather_refresh_timer = QTimer(self)
         self._weather_refresh_timer.setSingleShot(True)
         self._weather_refresh_timer.timeout.connect(self._refresh_weather_from_timer)
+        self._catalogue_recommendation_refresh_timer = QTimer(self)
+        self._catalogue_recommendation_refresh_timer.setSingleShot(True)
+        self._catalogue_recommendation_refresh_timer.timeout.connect(
+            self._start_pending_catalogue_recommendation_refresh
+        )
         self._transient_event_refresh_timer = QTimer(self)
         self._transient_event_refresh_timer.setSingleShot(True)
         self._transient_event_refresh_timer.timeout.connect(
@@ -459,6 +544,9 @@ class AppController(QObject):
             tuple[float, float, str, float],
             dict[str, dict[str, bool | None]],
         ] = {}
+        self._catalogue_object_model = CatalogueObjectListModel(self)
+        self.catalogueChanged.connect(self._refresh_catalogue_object_model)
+        self._refresh_catalogue_object_model()
         self._telescopes: list[Telescope] = self._initial_telescopes()
         self._eyepieces: list[Eyepiece] = [self._eyepiece_from_catalog_row(row) for row in self._catalog_eyepieces]
         self._barlows: list[Barlow] = [self._barlow_from_catalog_row(row) for row in self._catalog_barlows]
@@ -704,6 +792,10 @@ class AppController(QObject):
     def catalogueObjects(self) -> list[dict]:
         return render_payload(self._filtered_catalogue_objects())
 
+    @Property(QObject, constant=True)
+    def catalogueObjectModel(self) -> CatalogueObjectListModel:
+        return self._catalogue_object_model
+
     @Property("QVariant", notify=catalogueChanged)
     def catalogueFilterOptions(self) -> dict:
         object_types = self._catalogue_option_values("type")
@@ -783,6 +875,9 @@ class AppController(QObject):
 
     @Property(int, notify=catalogueChanged)
     def catalogueFilteredCount(self) -> int:
+        model = getattr(self, "_catalogue_object_model", None)
+        if model is not None:
+            return model.rowCount()
         return len(self._filtered_catalogue_objects())
 
     @Property("QVariant", notify=dataChanged)
@@ -1380,18 +1475,16 @@ class AppController(QObject):
         normalized_id = canonical_id.casefold()
         self._recommendation_enabled_by_object_id[normalized_id] = enabled
         item["recommendation_enabled"] = enabled
+        self._catalogue_object_model.update_recommendation_enabled(
+            canonical_id,
+            enabled,
+        )
 
-        self._refresh_after_catalogue_recommendation_change()
-        if enabled and self._has_valid_location():
-            if not self._start_astronomy_refresh(
-                ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION
-            ):
-                snapshot = self._calculate_astronomy_snapshot(
-                    self._location,
-                    ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION,
-                )
-                self._finish_catalogue_recommendation_refresh(snapshot)
-        self.catalogueChanged.emit()
+        self._refresh_after_catalogue_recommendation_change(
+            canonical_id,
+            enabled,
+        )
+        self._queue_catalogue_recommendation_refresh()
         self.dataChanged.emit()
         self.selectedObjectChanged.emit()
 
@@ -2633,6 +2726,7 @@ class AppController(QObject):
 
     def _refresh_no_location_context(self) -> None:
         self._cancel_astronomy_refresh()
+        self._cancel_catalogue_recommendation_refresh()
         self._cancel_transient_event_refresh()
         self._weather_refresh_timer.stop()
         self._weather_retry_pending = False
@@ -2731,6 +2825,597 @@ class AppController(QObject):
         self._start_transient_event_refresh()
         self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
 
+    def _queue_catalogue_recommendation_refresh(self) -> None:
+        self._catalogue_recommendation_refresh_generation += 1
+        if not self._has_valid_location():
+            self._catalogue_recommendation_refresh_pending = False
+            return
+        self._catalogue_recommendation_refresh_pending = True
+        self._catalogue_recommendation_refresh_timer.start(
+            CATALOGUE_RECOMMENDATION_REFRESH_DEBOUNCE_MS
+        )
+
+    @Slot()
+    def _start_pending_catalogue_recommendation_refresh(self) -> None:
+        if (
+            not self._catalogue_recommendation_refresh_pending
+            or self._catalogue_recommendation_refresh_running
+        ):
+            return
+        if not self._has_valid_location():
+            self._catalogue_recommendation_refresh_pending = False
+            return
+
+        generation = self._catalogue_recommendation_refresh_generation
+        location = self._location
+        location_key = LightPollutionService._location_key(location)
+        preparation_context = (
+            self._catalogue_recommendation_preparation_context()
+        )
+        self._catalogue_recommendation_refresh_pending = False
+        self._catalogue_recommendation_refresh_running = True
+        self._catalogue_recommendation_refresh_active_generation = generation
+
+        def run_refresh() -> None:
+            snapshot = self._calculate_prepared_catalogue_recommendation_snapshot(
+                location,
+                preparation_context,
+            )
+            self._catalogueRecommendationRefreshFinished.emit(
+                generation,
+                location_key,
+                snapshot,
+            )
+
+        try:
+            self._start_background_task(run_refresh)
+        except Exception:
+            self._catalogue_recommendation_refresh_running = False
+            logger.warning(
+                "Catalogue recommendation worker could not start.",
+                exc_info=True,
+            )
+            self._clear_refresh_domains(
+                RefreshDomain.ASTRONOMY,
+                RefreshDomain.EQUIPMENT,
+            )
+
+    @Slot(int, str, object)
+    def _finish_catalogue_recommendation_worker(
+        self,
+        generation: int,
+        location_key: str,
+        snapshot: object,
+    ) -> None:
+        if generation != self._catalogue_recommendation_refresh_active_generation:
+            return
+
+        self._catalogue_recommendation_refresh_running = False
+        is_current = (
+            generation == self._catalogue_recommendation_refresh_generation
+            and self._has_valid_location()
+            and location_key
+            == LightPollutionService._location_key(self._location)
+        )
+        if is_current:
+            if not isinstance(
+                snapshot,
+                PreparedCatalogueRecommendationSnapshot,
+            ):
+                snapshot = PreparedCatalogueRecommendationSnapshot(
+                    failed=True
+                )
+            elif (
+                snapshot.runtime_signature
+                != self._catalogue_recommendation_runtime_signature()
+            ):
+                self._queue_catalogue_recommendation_refresh()
+                is_current = False
+        if is_current:
+            self._finish_catalogue_recommendation_refresh(snapshot)
+
+        if self._catalogue_recommendation_refresh_pending:
+            if not self._catalogue_recommendation_refresh_timer.isActive():
+                self._catalogue_recommendation_refresh_timer.start(0)
+            return
+        if not is_current:
+            self._clear_refresh_domains(
+                RefreshDomain.ASTRONOMY,
+                RefreshDomain.EQUIPMENT,
+            )
+
+    def _cancel_catalogue_recommendation_refresh(self) -> None:
+        self._catalogue_recommendation_refresh_generation += 1
+        self._catalogue_recommendation_refresh_pending = False
+        timer = getattr(self, "_catalogue_recommendation_refresh_timer", None)
+        if timer is not None:
+            timer.stop()
+
+    def _catalogue_recommendation_preparation_context(
+        self,
+    ) -> CatalogueRecommendationPreparationContext:
+        solar_system_ids = {
+            item.id
+            for item in self._solar_system_objects
+        }
+        setup_models = tuple(
+            (object_id, model)
+            for object_id, model in self._equipment_setup_read_models_by_object_id.items()
+            if object_id in solar_system_ids
+        )
+        return CatalogueRecommendationPreparationContext(
+            runtime_signature=(
+                self._catalogue_recommendation_runtime_signature()
+            ),
+            telescopes=tuple(self._active_profile_telescopes()),
+            eyepieces=tuple(self._active_profile_eyepieces()),
+            barlows=tuple(self._active_profile_barlows()),
+            binoculars=tuple(self._active_profile_binoculars()),
+            seeing_transparency=self._seeing_transparency,
+            sky_quality=self._sky_quality,
+            object_image_map=dict(self._object_image_map),
+            object_descriptions=dict(self._object_descriptions),
+            catalogue_identifier_index=dict(
+                self._catalogue_identifier_index
+            ),
+            visible_planets=tuple(self._visible_planets),
+            solar_setup_models=setup_models,
+            moon_geometry_by_object_id=tuple(
+                self._moon_geometry_condition_cache.items()
+            ),
+            condition_inputs=self._build_observation_condition_inputs(),
+            pollution_condition_inputs=(
+                self._build_observation_condition_inputs(
+                    include_moon=False
+                )
+            ),
+            weather_summary=self._weather_summary,
+            current_telescope=self._current_telescope(),
+            observing_night_window=self._observing_night_window,
+            telescopes_by_id=tuple(
+                (telescope.id, telescope)
+                for telescope in self._telescopes
+            ),
+            use_target_equipment=bool(
+                getattr(
+                    self._night_planner_service,
+                    "uses_target_equipment",
+                    False,
+                )
+            ),
+            sky_compass_caution_text=self._sky_compass_caution_text(),
+        )
+
+    def _catalogue_recommendation_runtime_signature(
+        self,
+    ) -> tuple[object, ...]:
+        night_window = getattr(
+            self,
+            "_observing_night_window",
+            ObservingNightWindow.unavailable(),
+        )
+        return (
+            tuple(self._active_profile_telescopes()),
+            tuple(self._active_profile_eyepieces()),
+            tuple(self._active_profile_barlows()),
+            tuple(self._active_profile_binoculars()),
+            id(getattr(self, "_seeing_transparency", None)),
+            id(getattr(self, "_sky_quality", None)),
+            id(getattr(self, "_weather_summary", None)),
+            id(getattr(self, "_moon", None)),
+            id(getattr(self, "_nasa_aod_result", None)),
+            id(getattr(self, "_local_atmosphere", None)),
+            night_window.start,
+            night_window.end,
+            tuple(getattr(self, "_solar_system_objects", ())),
+            tuple(getattr(self, "_visible_planets", ())),
+        )
+
+    def _calculate_prepared_catalogue_recommendation_snapshot(
+        self,
+        location: ObserverLocation,
+        context: CatalogueRecommendationPreparationContext,
+    ) -> PreparedCatalogueRecommendationSnapshot:
+        astronomy = self._calculate_astronomy_snapshot(
+            location,
+            ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION,
+        )
+        if astronomy.failed:
+            return PreparedCatalogueRecommendationSnapshot(
+                runtime_signature=context.runtime_signature,
+                astronomy=astronomy,
+                failed=True,
+            )
+        try:
+            return self._prepare_catalogue_recommendation_snapshot(
+                astronomy,
+                context,
+            )
+        except Exception:
+            logger.exception(
+                "Catalogue recommendation preparation failed."
+            )
+            return PreparedCatalogueRecommendationSnapshot(
+                runtime_signature=context.runtime_signature,
+                astronomy=astronomy,
+                failed=True,
+            )
+
+    def _prepare_catalogue_recommendation_snapshot(
+        self,
+        astronomy: AstronomyRefreshSnapshot,
+        context: CatalogueRecommendationPreparationContext,
+    ) -> PreparedCatalogueRecommendationSnapshot:
+        deep_sky, deep_sky_setup_models = (
+            self._prepare_catalogue_recommendation_equipment(
+                astronomy.deep_sky,
+                context,
+            )
+        )
+        setup_models = dict(context.solar_setup_models)
+        setup_models.update(deep_sky_setup_models)
+        raw_deep_sky_by_id = {
+            item.id: item
+            for item in deep_sky
+        }
+
+        conditioned_pollution = (
+            self._conditions_service.condition_deep_sky_pollution_context(
+                list(deep_sky),
+                context.sky_quality,
+                context.pollution_condition_inputs,
+            )
+        )
+        read_model_builder = ObservationConditionsReadModelBuilder()
+        pollution_read_models = (
+            read_model_builder.from_conditioned_targets(
+                conditioned_pollution,
+                source="deep_sky_pollution_context",
+                raw_targets_by_id=raw_deep_sky_by_id,
+            )
+        )
+        pollution_adjusted_deep_sky = tuple(
+            model.display_target
+            for model in pollution_read_models
+        )
+
+        moon_geometry_by_id = dict(
+            context.moon_geometry_by_object_id
+        )
+        moon_geometry_by_id.update(
+            (
+                object_id,
+                self._moon_geometry_summary_to_condition_input(summary),
+            )
+            for object_id, summary in astronomy.moon_geometry
+        )
+        home_deep_sky = self._home_visible_objects_for_window(
+            pollution_adjusted_deep_sky,
+            context.observing_night_window,
+        )
+        candidate_read_models = read_model_builder.from_display_targets(
+            list(home_deep_sky),
+            source="home_recommended_deep_sky_nsom_raw_observable_order",
+            raw_targets_by_id=raw_deep_sky_by_id,
+        )
+        ranked_nsom_targets = (
+            self._home_recommended_deep_sky_nsom_ranking_service.rank_by_observable_target_value(
+                [
+                    model.nsom_target_input
+                    for model in candidate_read_models
+                ],
+                condition_inputs=context.condition_inputs,
+                moon_geometry_by_object_id=moon_geometry_by_id,
+            )
+        )
+        models_by_raw_id = {
+            model.nsom_target_input.id: model
+            for model in candidate_read_models
+        }
+        conditioned_deep_sky_read_models = tuple(
+            models_by_raw_id[target.id]
+            for target in ranked_nsom_targets
+            if target.id in models_by_raw_id
+        )
+        conditioned_deep_sky = tuple(
+            model.qml_display_target
+            for model in conditioned_deep_sky_read_models
+        )
+
+        visible_planets = self._home_visible_objects_for_window(
+            context.visible_planets,
+            context.observing_night_window,
+        )
+        raw_targets_by_id = dict(raw_deep_sky_by_id)
+        raw_targets_by_id.update(
+            (item.id, item)
+            for item in context.visible_planets
+        )
+        visible_planet_read_models = (
+            read_model_builder.from_display_targets(
+                list(visible_planets),
+                source="home_observing_candidates_planets",
+                raw_targets_by_id=raw_targets_by_id,
+            )
+        )
+        conditioned_home_read_models = tuple(
+            unique_targets_by_id(
+                (
+                    *visible_planet_read_models,
+                    *conditioned_deep_sky_read_models,
+                )
+            )
+        )
+        conditioned_home_objects = tuple(
+            unique_targets_by_id(
+                (*visible_planets, *conditioned_deep_sky)
+            )
+        )
+
+        category_scores = self._nsom_category_score_service.scores(
+            context.condition_inputs
+        )
+        planning_objects = list(
+            self._home_visible_objects_for_window(
+                (*context.visible_planets, *pollution_adjusted_deep_sky),
+                context.observing_night_window,
+            )
+        )
+        if not planning_objects:
+            planning_objects = list(
+                unique_targets_by_id(
+                    (
+                        *context.visible_planets,
+                        *pollution_adjusted_deep_sky,
+                    )
+                )
+            )
+
+        telescopes_by_id = dict(context.telescopes_by_id)
+        planner_telescopes = {}
+        for target in planning_objects:
+            setup = setup_models.get(target.id)
+            if (
+                setup is None
+                or setup.equipment_type != "Telescope"
+                or not setup.telescope_id
+            ):
+                continue
+            telescope = telescopes_by_id.get(setup.telescope_id)
+            if telescope is not None:
+                planner_telescopes[target.id] = telescope
+
+        existing_models = {
+            model.object_id: model
+            for model in conditioned_home_read_models
+        }
+        missing_objects = [
+            item
+            for item in planning_objects
+            if item.id not in existing_models
+        ]
+        if missing_objects:
+            fallback_models = read_model_builder.from_display_targets(
+                missing_objects,
+                source="best_object_nsom_raw_observable_order_fallback",
+                raw_targets_by_id=raw_targets_by_id,
+            )
+            existing_models.update(
+                (model.object_id, model)
+                for model in fallback_models
+            )
+        best_object_read_models = tuple(
+            existing_models[item.id]
+            for item in planning_objects
+            if item.id in existing_models
+        )
+
+        best_object = None
+        night_plan: tuple[NightPlanItem, ...] = ()
+        if context.weather_summary is not None:
+            selected_raw_target = (
+                self._best_object_nsom_selection_service.best_object(
+                    [
+                        model.nsom_target_input
+                        for model in best_object_read_models
+                    ],
+                    weather=context.weather_summary,
+                    telescope=context.current_telescope,
+                    condition_inputs=context.condition_inputs,
+                    moon_geometry_by_object_id=moon_geometry_by_id,
+                    telescope_by_object_id=planner_telescopes,
+                )
+            )
+            if selected_raw_target is not None:
+                display_targets_by_raw_id = {
+                    model.nsom_target_input.id: model.qml_display_target
+                    for model in best_object_read_models
+                }
+                best_object = display_targets_by_raw_id.get(
+                    selected_raw_target.id,
+                    selected_raw_target,
+                )
+
+            planner_kwargs = {
+                "condition_inputs": context.condition_inputs,
+                "moon_geometry_by_object_id": moon_geometry_by_id,
+            }
+            if context.use_target_equipment:
+                planner_kwargs["telescope_by_object_id"] = (
+                    planner_telescopes
+                )
+            if context.observing_night_window.has_observing_window:
+                planner_kwargs["night_window"] = (
+                    context.observing_night_window
+                )
+            night_plan = tuple(
+                self._night_planner_service.plan(
+                    planning_objects,
+                    context.weather_summary,
+                    context.current_telescope,
+                    **planner_kwargs,
+                )
+            )
+
+        sky_compass_candidates = tuple(
+            unique_targets_by_id(
+                (*visible_planets, *conditioned_deep_sky)
+            )
+        )
+        conditioned_models_by_id = {
+            model.object_id: model
+            for model in conditioned_home_read_models
+        }
+        observable_targets_by_id = {}
+        for display_target in sky_compass_candidates:
+            model = conditioned_models_by_id.get(display_target.id)
+            raw_target = (
+                model.nsom_target_input
+                if model is not None
+                else raw_targets_by_id.get(
+                    display_target.id,
+                    display_target,
+                )
+            )
+            observable_targets_by_id[display_target.id] = (
+                self._sky_compass_observable_target(
+                    raw_target,
+                    display_target,
+                )
+            )
+        try:
+            sky_compass = self._sky_compass_service.compass(
+                list(sky_compass_candidates),
+                list(night_plan),
+                best_object,
+                has_location=True,
+                caution_text=context.sky_compass_caution_text,
+                observable_objects_by_id=observable_targets_by_id,
+                condition_inputs=context.condition_inputs,
+                moon_geometry_by_object_id=moon_geometry_by_id,
+            )
+        except Exception:
+            logger.warning(
+                "NSOM Sky Compass selection failed; using geometry fallback.",
+                exc_info=True,
+            )
+            sky_compass = self._sky_compass_service.compass(
+                list(sky_compass_candidates),
+                list(night_plan),
+                best_object,
+                has_location=True,
+                caution_text=context.sky_compass_caution_text,
+            )
+
+        return PreparedCatalogueRecommendationSnapshot(
+            runtime_signature=context.runtime_signature,
+            astronomy=astronomy,
+            deep_sky=pollution_adjusted_deep_sky,
+            equipment_setup_models=tuple(setup_models.items()),
+            deep_sky_pollution_read_model=tuple(
+                pollution_read_models
+            ),
+            deep_sky_raw_condition_inputs=tuple(
+                raw_deep_sky_by_id.items()
+            ),
+            conditioned_deep_sky=conditioned_deep_sky,
+            conditioned_home_objects=conditioned_home_objects,
+            conditioned_deep_sky_read_model=(
+                conditioned_deep_sky_read_models
+            ),
+            conditioned_home_read_model=(
+                conditioned_home_read_models
+            ),
+            category_scores=category_scores,
+            best_object=best_object,
+            night_plan=night_plan,
+            sky_compass=sky_compass,
+            sky_compass_candidates=sky_compass_candidates,
+        )
+
+    def _prepare_catalogue_recommendation_equipment(
+        self,
+        objects: tuple[CelestialObject, ...],
+        context: CatalogueRecommendationPreparationContext,
+    ) -> tuple[
+        tuple[CelestialObject, ...],
+        dict[str, EquipmentSetupReadModel],
+    ]:
+        updated = []
+        setup_models = {}
+        telescopes = list(context.telescopes)
+        eyepieces = list(context.eyepieces)
+        barlows = list(context.barlows)
+        binoculars = list(context.binoculars)
+        for item in objects:
+            suggestion = self._equipment_service.suggest_for_profile(
+                item,
+                telescopes,
+                eyepieces,
+                barlows,
+                context.seeing_transparency,
+                context.sky_quality,
+                binoculars,
+            )
+            setup_read_model = (
+                self._equipment_setup_read_model_builder.from_suggestion(
+                    item,
+                    suggestion,
+                )
+            )
+            setup_models[item.id] = setup_read_model
+            naked_eye_blocked = (
+                not telescopes
+                and not binoculars
+                and setup_read_model.requires_optical_instrument
+            )
+            setup_updates = (
+                setup_read_model.to_celestial_object_updates()
+            )
+            updated.append(
+                self._apply_object_content_from_sources(
+                    replace(
+                        item,
+                        visible=item.visible and not naked_eye_blocked,
+                        score=(
+                            max(0, item.score - 45)
+                            if naked_eye_blocked
+                            else item.score
+                        ),
+                        **setup_updates,
+                    ),
+                    context.object_image_map,
+                    context.object_descriptions,
+                    context.catalogue_identifier_index,
+                )
+            )
+        return tuple(updated), setup_models
+
+    @classmethod
+    def _home_visible_objects_for_window(
+        cls,
+        objects: Sequence[CelestialObject],
+        night_window: ObservingNightWindow | None,
+    ) -> tuple[CelestialObject, ...]:
+        def has_useful_time(value: str) -> bool:
+            times = cls._all_times(value)
+            if night_window is None:
+                return bool(times)
+            return any(
+                night_window.datetime_for_clock(hour, minute)
+                is not None
+                for hour, minute in times
+            )
+
+        return tuple(
+            unique_targets_by_id(
+                item
+                for item in objects
+                if has_useful_time(item.best_time)
+                or has_useful_time(item.observing_window)
+            )
+        )
+
     def _start_astronomy_refresh(
         self,
         purpose: str,
@@ -2800,12 +3485,30 @@ class AppController(QObject):
     ) -> AstronomyRefreshSnapshot:
         try:
             with self._astronomy_engine_lock_instance():
-                if purpose in {
-                    ASTRONOMY_REFRESH_VIIRS_DEEP_SKY,
-                    ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION,
-                }:
+                if purpose == ASTRONOMY_REFRESH_VIIRS_DEEP_SKY:
                     return AstronomyRefreshSnapshot(
                         deep_sky=tuple(self._astronomy_engine.recommended_deep_sky(location)),
+                    )
+                if purpose == ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION:
+                    deep_sky = tuple(
+                        self._astronomy_engine.recommended_deep_sky(location)
+                    )
+                    geometry_method = getattr(
+                        self._astronomy_engine,
+                        "moon_geometry_batch",
+                        None,
+                    )
+                    moon_geometry = (
+                        geometry_method(location, list(deep_sky))
+                        if callable(geometry_method)
+                        else {}
+                    )
+                    return AstronomyRefreshSnapshot(
+                        deep_sky=deep_sky,
+                        moon_geometry=tuple(
+                            (target.id, moon_geometry.get(target.id))
+                            for target in deep_sky
+                        ),
                     )
 
                 night_method = getattr(self._astronomy_engine, "observing_night_window", None)
@@ -2891,7 +3594,9 @@ class AppController(QObject):
             self._finish_viirs_deep_sky_refresh(snapshot, context or "")
             return
         if purpose == ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION:
-            self._finish_catalogue_recommendation_refresh(snapshot)
+            self._finish_catalogue_recommendation_refresh_fallback(
+                snapshot
+            )
             return
 
         self._apply_astronomy_snapshot(snapshot)
@@ -4007,14 +4712,120 @@ class AppController(QObject):
 
     def _finish_catalogue_recommendation_refresh(
         self,
-        snapshot: AstronomyRefreshSnapshot,
+        snapshot: PreparedCatalogueRecommendationSnapshot,
     ) -> None:
-        if not snapshot.failed:
+        if snapshot.failed:
+            self._finish_catalogue_recommendation_refresh_fallback(
+                snapshot.astronomy
+            )
+            return
+
+        astronomy = snapshot.astronomy
+        selected_id = (
+            self._selected_object.id
+            if self._selected_object
+            and self._selected_object_source == OBSERVING_SOURCE
+            else ""
+        )
+        self._base_deep_sky = list(astronomy.deep_sky)
+        for object_id, summary in astronomy.moon_geometry:
+            self._moon_geometry_condition_cache[object_id] = (
+                self._moon_geometry_summary_to_condition_input(summary)
+            )
+        self._deep_sky = list(snapshot.deep_sky)
+        self._equipment_setup_read_models_by_object_id = dict(
+            snapshot.equipment_setup_models
+        )
+        self._deep_sky_pollution_read_model = list(
+            snapshot.deep_sky_pollution_read_model
+        )
+        self._deep_sky_raw_condition_input_by_id = dict(
+            snapshot.deep_sky_raw_condition_inputs
+        )
+        self._conditioned_deep_sky = list(
+            snapshot.conditioned_deep_sky
+        )
+        self._conditioned_home_objects = list(
+            snapshot.conditioned_home_objects
+        )
+        self._conditioned_deep_sky_read_model = list(
+            snapshot.conditioned_deep_sky_read_model
+        )
+        self._conditioned_home_read_model = list(
+            snapshot.conditioned_home_read_model
+        )
+        self._category_scores = snapshot.category_scores
+        self._best_object = snapshot.best_object
+        self._night_plan = list(snapshot.night_plan)
+        self._cancel_sky_compass_live_refresh()
+        self._sky_compass_candidate_snapshot = list(
+            snapshot.sky_compass_candidates
+        )
+        self._set_sky_compass(
+            snapshot.sky_compass
+            or SkyCompassService.empty(
+                "no_targets",
+                tr("Nessun oggetto osservabile in questo momento."),
+            )
+        )
+
+        if selected_id:
+            observing_objects = (
+                self._solar_system_objects + self._deep_sky
+            )
+            replacement = next(
+                (
+                    candidate
+                    for candidate in observing_objects
+                    if candidate.id == selected_id
+                ),
+                None,
+            )
+            if replacement is None:
+                suggestion_pool = (
+                    self._visible_planets + self._deep_sky
+                )
+                replacement = self._best_object or next(
+                    iter(suggestion_pool),
+                    None,
+                )
+            self._selected_object = replacement
+            self._selected_object_source = (
+                OBSERVING_SOURCE
+                if replacement is not None
+                else ""
+            )
+
+        self.dataChanged.emit()
+        self.weatherChanged.emit()
+        self.selectedObjectChanged.emit()
+        self._clear_refresh_domains(
+            RefreshDomain.ASTRONOMY,
+            RefreshDomain.EQUIPMENT,
+            RefreshDomain.PLANNER,
+            RefreshDomain.COMPASS,
+        )
+
+    def _finish_catalogue_recommendation_refresh_fallback(
+        self,
+        astronomy: AstronomyRefreshSnapshot,
+    ) -> None:
+        if not astronomy.failed:
             try:
-                self._base_deep_sky = list(snapshot.deep_sky)
-                self._refresh_equipment_recommendations_for_current_objects()
-                self._deep_sky = self._apply_deep_sky_pollution_context(
-                    self._deep_sky
+                self._base_deep_sky = list(astronomy.deep_sky)
+                for object_id, summary in astronomy.moon_geometry:
+                    self._moon_geometry_condition_cache[object_id] = (
+                        self._moon_geometry_summary_to_condition_input(
+                            summary
+                        )
+                    )
+                self._refresh_equipment_recommendations_for_current_objects(
+                    refresh_conditioned=False
+                )
+                self._deep_sky = (
+                    self._apply_deep_sky_pollution_context(
+                        self._deep_sky
+                    )
                 )
             except Exception:
                 logger.warning(
@@ -4243,8 +5054,19 @@ class AppController(QObject):
             RefreshDomain.COMPASS,
         )
 
-    def _refresh_after_catalogue_recommendation_change(self) -> None:
+    def _refresh_after_catalogue_recommendation_change(
+        self,
+        object_id: str,
+        enabled: bool,
+    ) -> None:
         self._mark_refresh_dirty(RefreshReason.CATALOGUE_RECOMMENDATION_CHANGED)
+        if self._has_valid_location():
+            if not enabled:
+                self._remove_catalogue_object_from_current_recommendations(
+                    object_id
+                )
+            return
+
         selected_id = self._selected_object.id if self._selected_object else None
         selected_source = self._selected_object_source
         self._refresh_equipment_recommendations_for_current_objects()
@@ -4278,13 +5100,92 @@ class AppController(QObject):
             RefreshDomain.COMPASS,
         )
 
+    def _remove_catalogue_object_from_current_recommendations(
+        self,
+        object_id: str,
+    ) -> None:
+        normalized_id = object_id.strip().casefold()
+        if not normalized_id:
+            return
+
+        def keep_target(target: object) -> bool:
+            target_id = str(
+                getattr(target, "id", None)
+                or getattr(target, "object_id", "")
+            ).strip().casefold()
+            return target_id != normalized_id
+
+        self._deep_sky = [
+            target for target in self._deep_sky if keep_target(target)
+        ]
+        self._conditioned_deep_sky = [
+            target
+            for target in self._conditioned_deep_sky
+            if keep_target(target)
+        ]
+        self._conditioned_home_objects = [
+            target
+            for target in self._conditioned_home_objects
+            if keep_target(target)
+        ]
+        self._conditioned_deep_sky_read_model = [
+            model
+            for model in self._conditioned_deep_sky_read_model
+            if keep_target(model)
+        ]
+        self._conditioned_home_read_model = [
+            model
+            for model in self._conditioned_home_read_model
+            if keep_target(model)
+        ]
+        self._deep_sky_pollution_read_model = [
+            model
+            for model in self._deep_sky_pollution_read_model
+            if keep_target(model)
+        ]
+        self._sky_compass_candidate_snapshot = []
+        self._night_plan = [
+            step for step in self._night_plan if keep_target(step)
+        ]
+        self._equipment_setup_read_models_by_object_id.pop(object_id, None)
+        self._deep_sky_raw_condition_input_by_id.pop(object_id, None)
+
+        if self._best_object and not keep_target(self._best_object):
+            self._best_object = None
+
+        if (
+            self._selected_object
+            and self._selected_object_source == OBSERVING_SOURCE
+            and not keep_target(self._selected_object)
+        ):
+            suggestion_pool = self._visible_planets + self._deep_sky
+            self._selected_object = self._best_object or next(
+                iter(suggestion_pool),
+                None,
+            )
+            self._selected_object_source = (
+                OBSERVING_SOURCE if self._selected_object is not None else ""
+            )
+
+        self._cancel_sky_compass_live_refresh()
+        self._set_sky_compass(
+            SkyCompassService.empty(
+                "catalogue_refresh_pending",
+                tr("Aggiornamento suggerimenti in corso."),
+            )
+        )
+
     def _emit_profile_dependent_changes(self) -> None:
         self.equipmentChanged.emit()
         self.dataChanged.emit()
         self.weatherChanged.emit()
         self.selectedObjectChanged.emit()
 
-    def _refresh_equipment_recommendations_for_current_objects(self) -> None:
+    def _refresh_equipment_recommendations_for_current_objects(
+        self,
+        *,
+        refresh_conditioned: bool = True,
+    ) -> None:
         solar_system_source = self._base_solar_system_objects or self._solar_system_objects
         deep_sky_source = self._base_deep_sky or self._deep_sky
         deep_sky_source = self._recommendation_eligible_objects(deep_sky_source)
@@ -4298,7 +5199,8 @@ class AppController(QObject):
             and self._solar_system_monthly_visible_for_home(item)
         ]
         self._deep_sky = self._apply_equipment(deep_sky_source)
-        self._refresh_conditioned_observing_candidates()
+        if refresh_conditioned:
+            self._refresh_conditioned_observing_candidates()
 
     def _recommendation_eligible_objects(
         self,
@@ -4318,6 +5220,7 @@ class AppController(QObject):
     def _apply_location_result(self, result: LocationDetectionResult, persist: bool = True) -> None:
         self._mark_refresh_dirty(RefreshReason.LOCATION_CHANGED)
         self._cancel_astronomy_refresh()
+        self._cancel_catalogue_recommendation_refresh()
         self._cancel_sky_compass_live_refresh()
         previous_location = self._location
         self._location_detection_result = result
@@ -4664,19 +5567,41 @@ class AppController(QObject):
         return updated
 
     def _apply_object_content(self, item: CelestialObject) -> CelestialObject:
-        image = self._object_image_map.get(item.id)
-        description = self._object_descriptions.get(item.id)
-        catalogue_item = self._catalogue_item_for_object_id(item.id)
-        if not image and catalogue_item and not self._is_solar_system_catalogue_item(catalogue_item):
+        return self._apply_object_content_from_sources(
+            item,
+            self._object_image_map,
+            self._object_descriptions,
+            getattr(self, "_catalogue_identifier_index", {}),
+        )
+
+    @staticmethod
+    def _apply_object_content_from_sources(
+        item: CelestialObject,
+        object_image_map: Mapping[str, dict],
+        object_descriptions: Mapping[str, dict],
+        catalogue_identifier_index: Mapping[str, dict],
+    ) -> CelestialObject:
+        image = object_image_map.get(item.id)
+        description = object_descriptions.get(item.id)
+        catalogue_item = catalogue_identifier_index.get(
+            item.id.strip().casefold()
+        )
+        if (
+            not image
+            and catalogue_item
+            and not AppController._is_solar_system_catalogue_item(
+                catalogue_item
+            )
+        ):
             if "galaxy" in item.object_type.lower() or "galassia" in item.object_type.lower():
-                image = self._object_image_map.get("messier-default-galaxy")
+                image = object_image_map.get("messier-default-galaxy")
             elif any(
                 fragment in item.object_type.lower()
                 for fragment in ("nebula", "nebul", "remnant")
             ):
-                image = self._object_image_map.get("messier-default-nebula")
+                image = object_image_map.get("messier-default-nebula")
             else:
-                image = self._object_image_map.get("messier-default-cluster")
+                image = object_image_map.get("messier-default-cluster")
         notes = item.notes
         if description:
             observing_notes = presentation_text(
@@ -4973,6 +5898,12 @@ class AppController(QObject):
         else:
             numeric_id = 999_999
         return (str(item.get("catalogue", "")).casefold(), numeric_id, catalogue_id.casefold())
+
+    def _refresh_catalogue_object_model(self) -> None:
+        model = getattr(self, "_catalogue_object_model", None)
+        if model is None:
+            return
+        model.replace_items(self._filtered_catalogue_objects())
 
     def _filtered_catalogue_objects(self) -> list[dict]:
         query = self._catalogue_search_query.casefold()

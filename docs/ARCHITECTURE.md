@@ -732,20 +732,40 @@ Catalogue browsing flow:
    without changing `object_id`. The NGC filter expands same-target aliases and
    therefore exposes all 7,839 usable NGC designations.
 3. `ObjectCataloguePage.qml` applies controller-backed search and filters for
-   catalogue, object type, constellation and observation type through a
-   virtualized `ListView`. Its compact `Home` checkbox changes the persistent
-   recommendation preference without removing the row for Messier, Caldwell
-   or NGC targets. Solar System S1-S9 rows show the same checkbox checked and
-   locked.
-   Exact search matches are ordered before prefix and substring matches, so a
-   growing catalogue does not hide a direct body/name match among aliases;
-   compact codes such as `NGC1` are normalized without making `C23` match
-   `NGC 23`.
-4. `selectCatalogueDesignation` preserves the exact opened alias and creates a
-   detail-compatible object without invoking weather, equipment suggestions,
-   best-object scoring, planner ranking or `recommended_deep_sky()`.
-5. Object Detail is reused for click-through, with back navigation returning
-   to the catalogue page when that was the source.
+    catalogue, object type, constellation and observation type through a
+    virtualized `ListView` backed by `CatalogueObjectListModel`, a
+    `QAbstractListModel` with one map role. Filter changes reset the projected
+    model, while a `Home` change emits `dataChanged` only for rows sharing the
+    physical `object_id`; aliases therefore stay synchronized without
+    rebuilding or serializing the other catalogue rows. Its compact `Home`
+    checkbox changes the persistent recommendation preference without removing
+    the row for Messier, Caldwell or NGC targets. Solar System S1-S9 rows show
+    the same checkbox checked and locked.
+    Exact search matches are ordered before prefix and substring matches, so a
+    growing catalogue does not hide a direct body/name match among aliases;
+    compact codes such as `NGC1` are normalized without making `C23` match
+    `NGC 23`.
+4. Preference persistence and the row update complete synchronously. With a
+   valid location, a 200 ms single-shot timer coalesces successive changes into
+   the newest generation. At most one recommendation worker runs; a change
+   made during that run requests one replacement calculation rather than
+   queuing every intermediate state. Request generation, location key and a
+   signature of equipment/condition inputs prevent stale results from being
+   published.
+5. The worker calculates fixed-target geometry and Moon geometry, then prepares
+   Equipment projections, pollution context, conditioned read models, NSOM
+   ranking, Best Object, Planner and Sky Compass from captured immutable
+   inputs. The Qt thread only swaps the prepared collections and emits their
+   presentation signals. Disabling a target removes it immediately from the
+   current recommendation collections and temporarily clears Sky Compass until
+   the prepared snapshot arrives. This uses the existing Python thread and Qt
+   queued-signal boundary on Windows and Linux; no process-specific or
+   fork-dependent behavior is required.
+6. `selectCatalogueDesignation` preserves the exact opened alias and creates a
+    detail-compatible object without invoking weather, equipment suggestions,
+    best-object scoring, planner ranking or `recommended_deep_sky()`.
+7. Object Detail is reused for click-through, with back navigation returning
+    to the catalogue page when that was the source.
 
 Object detail flow:
 

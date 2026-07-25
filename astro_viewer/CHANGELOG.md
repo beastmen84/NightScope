@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Eliminato il blocco dell'interfaccia quando si cambia il flag `Home` nel
+  catalogo esteso: un `QAbstractListModel` aggiorna soltanto le righe dello
+  stesso target fisico, senza ricreare tutte le 7.594 righe o perdere la
+  posizione di scroll. La preferenza SQLite resta immediata, mentre un debounce
+  da 200 ms accorpa click ravvicinati secondo lo stato piu' recente e mantiene
+  un solo worker attivo, senza accodare calcoli ormai superati.
+- Il refresh del flag `Home` prepara ora nel worker anche Equipment, contesto
+  di inquinamento luminoso, geometria lunare, ranking NSOM, Best Object,
+  Planner e Sky Compass. Generazione, localita' e firma degli input scartano
+  risultati obsoleti; il thread UI applica soltanto lo snapshot finale. Nel
+  benchmark Windows con tutto attivo il click passa a circa 27 ms, la
+  preparazione di 5.452 target osservabili richiede circa 3,2 s in background
+  e l'applicazione grafica finale circa 6 ms. La soluzione usa thread e segnali
+  Qt/Python compatibili con Windows e Linux, senza multiprocesso.
 - Rifinita la tabella `Oggetti celesti`: l'area delle righe occupa soltanto lo
   spazio verticale disponibile, evitando il secondo scroll dell'intera pagina;
   la colonna Costellazione guadagna 8 px senza troncare il nome esteso di M17.
@@ -47,9 +61,11 @@
   Caldwell come `C23`. Aggiunti attribuzione, licenza completa
   `CC-BY-SA-4.0`, snapshot riproducibile e controllo offline OpenNGC; aggiornate
   le traduzioni IT/EN/ES e i bundle Windows/Linux.
-- Il gate finale `tools/run_checks.py --fast` passa con 951 test, 642 warning
+- Il gate finale `tools/run_checks.py --fast` passa con 960 test, 643 warning
   Skyfield/NumPy gia' noti, 10 subtest, smoke backend, QML normale e Red Night
-  Vision. Il gate di sicurezza precedente ha inoltre confermato 84% di
+  Vision. Il test asincrono dell'Update Manager attende ora la consegna del
+  segnale Qt prima del teardown, eliminando la relativa race del runner
+  parallelo. Il gate di sicurezza precedente ha inoltre confermato 84% di
   copertura su 16.429 statement runtime e nessuna vulnerabilita' nota
   nell'ambiente installato.
 - Aggiunta al catalogo Oggetti celesti la colonna compatta `Home`: i 219
