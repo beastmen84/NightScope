@@ -601,7 +601,12 @@ Services hold business logic:
 - `ImagingRecommendationService`: additive static still/video suitability over
   photographic target traits and imaging trains. Its data-completeness
   metadata has zero score effect; the service has no runtime, visual-engine or
-  QML registration and does not estimate exposure.
+  QML registration. Solar configurations require an explicit exact set of
+  telescope IDs from the caller.
+- `ImagingExposureAdvisor`: score-neutral broadband planning ranges for one
+  still candidate. It consumes only a typed `ImagingSessionConditions`
+  snapshot, emits inspectable multipliers, sub-exposure/total-integration
+  intervals and confidence metadata, and remains outside runtime and QML.
 - `FilterRecommendationService`: presentation-only matching between target
   filter preferences, the aperture of the target-specific telescope, the
   complete filter catalogue and products assigned to the active profile. It

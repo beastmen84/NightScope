@@ -212,7 +212,7 @@ def test_target_traits_choose_still_or_video_without_visual_scores() -> None:
     )
 
 
-def test_moon_gets_a_full_disk_size_and_sun_is_safely_unsupported() -> None:
+def test_moon_and_authorized_sun_get_safe_full_disk_traits() -> None:
     moon = ImagingTargetTraitsAdapter.from_object(
         _target(
             target_id="moon",
@@ -234,6 +234,10 @@ def test_moon_gets_a_full_disk_size_and_sun_is_safely_unsupported() -> None:
         reducer_preferred=False,
     )
     sun = ImagingTargetTraitsAdapter.from_object(sun_target)
+    authorized_sun = ImagingTargetTraitsAdapter.from_object(
+        sun_target,
+        full_aperture_solar_filter_available=True,
+    )
 
     assert moon.target_class is ImagingTargetClass.MOON
     assert moon.angular_size_major_deg == pytest.approx(0.52)
@@ -243,9 +247,155 @@ def test_moon_gets_a_full_disk_size_and_sun_is_safely_unsupported() -> None:
     assert sun.recommendation_supported is False
     assert sun.recommended_capture_mode is None
     assert sun.unsupported_reason_code == (
-        "certified_solar_filter_not_modeled"
+        "certified_full_aperture_solar_filter_required"
     )
+    assert authorized_sun.recommendation_supported is True
+    assert authorized_sun.recommended_capture_mode is (
+        ImagingCaptureMode.VIDEO
+    )
+    assert authorized_sun.angular_size_major_deg == pytest.approx(0.53)
+    assert authorized_sun.angular_size_minor_deg == pytest.approx(0.53)
     assert _rank(sun_target, [_telescope()], [_camera()]) == []
+
+
+def test_sun_is_ranked_only_for_the_exact_solar_filter_telescope() -> None:
+    sun_target = _target(
+        target_id="sun",
+        name="Sole",
+        object_type="Stella",
+        magnitude="-26.7",
+        apparent_size="",
+        max_size_deg=None,
+        reducer_preferred=False,
+    )
+    configurations = ImagingTrainBuilder().build(
+        [
+            _telescope(telescope_id="scope-filtered"),
+            _telescope(telescope_id="scope-unfiltered"),
+        ],
+        [
+            _camera(
+                camera_id="solar-camera",
+                camera_class="PLANETARY",
+                full_resolution_fps=120,
+                cooled=False,
+            )
+        ],
+    )
+    service = ImagingRecommendationService()
+
+    assert service.rank(sun_target, configurations) == []
+    assert (
+        service.rank(
+            sun_target,
+            configurations,
+            full_aperture_solar_filter_telescope_ids=(
+                "scope-missing",
+            ),
+        )
+        == []
+    )
+
+    candidates = service.rank(
+        sun_target,
+        configurations,
+        full_aperture_solar_filter_telescope_ids=(
+            value
+            for value in ("", " scope-filtered ", "scope-filtered")
+        ),
+    )
+
+    assert candidates
+    assert all(
+        candidate.capture_mode is ImagingCaptureMode.VIDEO
+        and candidate.target.target_class is ImagingTargetClass.SUN
+        and candidate.configuration.telescope.id == "scope-filtered"
+        for candidate in candidates
+    )
+    assert (
+        service.best(
+            sun_target,
+            configurations,
+            full_aperture_solar_filter_telescope_ids=(
+                "scope-filtered",
+            ),
+        )
+        == candidates[0]
+    )
+
+
+def test_persisted_profile_solar_ids_match_the_scorer_contract(
+    tmp_path: Path,
+) -> None:
+    database_path = tmp_path / "nightscope.db"
+    initialize_database(database_path, SCHEMA_PATH)
+    repository = EquipmentCatalogRepository(database_path)
+    profile_id = int(
+        next(
+            profile
+            for profile in repository.profiles()
+            if profile["active"]
+        )["id"]
+    )
+    models = repository.models()[:2]
+    telescopes = [
+        Telescope(
+            id=str(model["catalog_id"]),
+            name=f"{model['brand']} {model['name']}",
+            aperture_mm=int(model["aperture_mm"]),
+            focal_length_mm=int(model["focal_length_mm"]),
+            optical_type=str(model["optical_type"]),
+            mount=str(model["mount_type"]),
+        )
+        for model in models
+    ]
+    for telescope in telescopes:
+        repository.assign_profile_telescope(
+            profile_id,
+            telescope.id,
+        )
+    assert repository.set_profile_full_aperture_solar_filter(
+        profile_id,
+        telescopes[0].id,
+        True,
+    )
+    configurations = ImagingTrainBuilder().build(
+        telescopes,
+        [
+            _camera(
+                camera_id="profile-solar-camera",
+                camera_class="PLANETARY",
+                full_resolution_fps=120,
+                cooled=False,
+            )
+        ],
+    )
+    sun_target = _target(
+        target_id="sun",
+        name="Sole",
+        object_type="Stella",
+        magnitude="-26.7",
+        apparent_size="",
+        max_size_deg=None,
+        reducer_preferred=False,
+    )
+
+    candidates = ImagingRecommendationService().rank(
+        sun_target,
+        configurations,
+        full_aperture_solar_filter_telescope_ids=(
+            repository
+            .profile_full_aperture_solar_filter_telescope_ids(
+                profile_id
+            )
+        ),
+    )
+
+    assert candidates
+    assert {
+        candidate.configuration.telescope.id
+        for candidate in candidates
+    } == {telescopes[0].id}
 
 
 def test_wide_galaxy_prefers_reducer_that_actually_fits_the_frame() -> None:

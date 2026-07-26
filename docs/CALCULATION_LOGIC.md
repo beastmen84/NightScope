@@ -841,7 +841,8 @@ Photographic optical-train foundation:
 - `ImagingCameraAdapter` converts astronomy-camera and camera-body catalogue
   rows into one immutable `ImagingCamera` contract. Astronomy-camera
   full-resolution FPS and camera-body video FPS remain separate fields so the
-  future scorer cannot compare unlike capture modes as if they were identical.
+  photographic scorer cannot compare unlike capture modes as if they were
+  identical.
 - `ImagingTrainBuilder` is target-agnostic. From only the telescopes, cameras,
   reducers and Barlows supplied by its caller it emits prime-focus trains,
   trains with one exact telescope-linked imaging reducer, and trains with one
@@ -877,11 +878,11 @@ Photographic target and static configuration scoring:
   NSOM values.
 - Moon and planets select `video`; catalogue targets, comets and unknown
   non-solar targets select `still`. The Moon uses a `0.52°` whole-disc planning
-  diameter when no runtime diameter is available. Schema 22 can persist a
-  user-declared certified full-aperture solar filter for an exact
-  profile-to-telescope assignment, but the unregistered static scorer does not
-  yet receive that runtime capability. The Sun therefore still returns no
-  candidates at this stage.
+  diameter when no runtime diameter is available. The Sun defaults to
+  unsupported; when the caller explicitly supplies the exact telescope IDs
+  with a declared full-aperture solar filter, only matching configurations are
+  admitted as whole-disc `video` candidates using a nominal `0.53°` diameter.
+  No telescope-model or camera-class inference can bypass this requirement.
 - Catalogue major/minor axes are normalized to degrees. A canonical major axis
   remains authoritative while the textual dimensions preserve its aspect
   ratio. Framing accepts sensor rotation by 90°, keeps a 5% edge margin and
@@ -916,8 +917,9 @@ Photographic target and static configuration scoring:
   `f_ratio = N * pixel_pitch_um / (1.22 * wavelength_um)`. With three samples
   across the diffraction feature and a nominal `0.5 µm` wavelength this is
   approximately `5 * pixel_pitch_um`. Whole-disc lunar video uses the more
-  conservative `2.5 * pixel_pitch_um` planning policy, while its independent
-  framing component strongly penalizes a cropped disc.
+  conservative `2.5 * pixel_pitch_um` planning policy; whole-disc solar video
+  uses the same sampling reference. Their independent framing component
+  strongly penalizes a cropped disc.
 - Astronomy-camera full-resolution FPS and camera-body FPS at the declared
   video resolution use separate scoring curves. Cooling affects long-exposure
   still suitability, not short-frame video suitability. Body Bulb capability
@@ -934,8 +936,109 @@ Photographic target and static configuration scoring:
   tracking accuracy, mechanical connection, image circle and any unavailable
   target, FPS or backfocus values.
 - Scores are rounded to six decimals before deterministic ID tie-breaking.
-  The service remains unregistered with runtime controllers and QML. It does
-  not estimate sub-exposure or total integration time.
+  The service remains unregistered with runtime controllers and QML.
+
+Photographic still-exposure planning:
+
+- `ImagingExposureAdvisor` accepts one
+  `ImagingRecommendationCandidate` and an optional immutable
+  `ImagingSessionConditions`. It returns `None` for `video`, invalid focal
+  ratio or invalid pixel scale. It never changes or rescales the candidate
+  suitability score.
+- The output policy is `imaging_exposure_v1`. It contains rounded ranges for
+  one sub-exposure and total stacked integration, an indicative minimum/maximum
+  frame count, the conservative tracking limit, input completeness, confidence
+  and stable assumption/warning/limitation codes.
+- Every result is explicitly a broadband, unfiltered planning range. It is not
+  a sensor calibration. Gain/ISO, camera read noise, autoguiding, measured
+  tracking accuracy and filter passband remain unmodeled limitations. Even
+  with every currently accepted input, confidence is therefore capped at
+  `medium`.
+- The optical-speed multiplier, clamped to `[0.25, 4.0]`, is:
+
+  `optical = (effective_focal_ratio / 5.0)^2`
+
+- SQM in `[16.0, 23.5] mag/arcsec²` is authoritative. Otherwise Bortle 1-9 is
+  mapped respectively to `21.9, 21.7, 21.5, 20.9, 20.3, 19.5, 18.9, 18.3,
+  17.8 mag/arcsec²`. Without either input, the named neutral default is `20.5`.
+  The sky multipliers are:
+
+  `sub_sky = clamp(10^(0.4 * (SQM - 21.2)), 0.15, 2.5)`
+
+  `total_sky = clamp(10^(0.2 * (21.2 - SQM)), 0.55, 3.0)`
+
+  Darker sky therefore permits longer individual subs while requiring less
+  total integration than bright sky for the same planning target.
+- Transparency `T` is a score from 0 to 100. Missing transparency uses the
+  named neutral value 75. Its total-integration multiplier is:
+
+  `transparency = clamp(75 / max(30, T), 0.75, 2.0)`
+
+- Moonlight is neutral when the Moon is explicitly outside the target window,
+  below the horizon or has zero illumination. Otherwise illumination fraction
+  `I`, altitude `h` and target separation `d` must all be known:
+
+  `altitude = clamp((h + 5) / 60, 0, 1)`
+
+  `separation = clamp((120 - d) / 100, 0, 1)`
+
+  `moon = clamp(I * altitude * (0.25 + 0.75 * separation), 0, 1)`
+
+  `sub_moon = 1 / (1 + 2 * moon)`
+
+  `total_moon = 1 + 1.5 * moon`
+
+  Incomplete Moon geometry uses a named neutral assumption and reduces
+  completeness rather than inventing an angle or illumination.
+- Extended targets use the existing surface-brightness proxy:
+
+  `target = clamp(10^(0.10 * (surface_brightness - 13.5)), 0.60, 2.50)`
+
+  When that proxy is unavailable, integrated magnitude is an explicit,
+  incomplete fallback. Compact/open/globular/stellar targets use integrated
+  magnitude against a class reference:
+
+  `target = clamp(10^(0.08 * (magnitude - class_reference)), 0.60, 2.50)`
+
+- Base total-integration ranges are:
+
+  | Target class | Minutes |
+  | --- | ---: |
+  | comet | 30-60 |
+  | galaxy | 120-240 |
+  | diffuse nebula | 150-300 |
+  | planetary nebula | 60-150 |
+  | open cluster | 45-90 |
+  | globular cluster | 60-120 |
+  | stellar | 20-60 |
+  | unknown | 90-180 |
+
+  Both bounds are multiplied by `optical * total_sky * transparency *
+  total_moon * target`, rounded to five minutes and clamped to `15-900`
+  minutes.
+- The nominal single-sub reference is 120 seconds for a cooled astronomy
+  camera, 60 seconds for an uncooled astronomy camera or a body with Bulb, and
+  15 seconds for a body without Bulb. Comet, planetary-nebula, open-cluster,
+  globular and stellar references receive factors `0.35, 0.75, 0.55, 0.70,
+  0.45`; other still classes use 1.0. The desired sub is multiplied by
+  `optical * sub_sky * sub_moon`, then converted to a 65%-135% interval.
+- The mount limit starts at 90 seconds for equatorial tracking, 30 for fork
+  GoTo, 20 for alt-azimuth GoTo, 12 for Dobsonian GoTo, 3 for manual
+  equatorial, 2 for PushTo alt-azimuth, 1 for other manual/PushTo/OTA states
+  and 5 for `OTHER`. It is multiplied by
+  `clamp(pixel_scale / 1.5, 0.40, 1.50)`. Camera bodies without Bulb are capped
+  at 30 seconds and comets at 60. These are conservative planning caps, not
+  proof of tracking performance; field rotation and manual tracking remain
+  explicit warnings.
+- Indicative frame counts are:
+
+  `minimum_frames = ceil(total_min_minutes * 60 / sub_max_seconds)`
+
+  `maximum_frames = ceil(total_max_minutes * 60 / sub_min_seconds)`
+
+- The advisor and session DTO remain unregistered with `AppController`,
+  `EquipmentService`, QML, Home, Planner, Sky Compass and NSOM. No current
+  runtime path invokes these formulas.
 
 Zoom eyepieces:
 

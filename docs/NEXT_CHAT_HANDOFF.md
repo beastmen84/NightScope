@@ -28,7 +28,7 @@ La sidebar espone ora `Cameras`, una pagina a due colonne indipendenti:
 40 corpi mirrorless/DSLR di Canon, Nikon, Sony, Fujifilm, Panasonic, OM System,
 Pentax e Sigma. La selezione comprende 7 modelli SVBONY e 33 mirrorless. I seed
 conservano le fonti ufficiali per modello e soltanto i dati stabili utili al
-futuro motore fotografico: sensore, pixel, risoluzione, profondita', frame rate,
+backend fotografico separato: sensore, pixel, risoluzione, profondita', frame rate,
 raffreddamento, otturatore, live view, Bulb e baionetta. Le voci integrate sono
 modificabili ma non eliminabili; quelle utente hanno CRUD completo.
 
@@ -84,9 +84,11 @@ Il secondo passo backend e' ora implementato ma resta fuori dal runtime.
 foto e sceglie video per Luna e pianeti. Conserva le due dimensioni angolari,
 la magnitudine e il flag reducer. La pagina Profili permette ora di dichiarare
 un filtro solare certificato a tutta apertura sullo specifico telescopio, senza
-emettere segnali del motore visuale; il Sole continua a non produrre candidati
-finche' il prossimo collegamento runtime non passera' questa associazione esatta
-allo scorer.
+emettere segnali del motore visuale. Lo scorer mantiene il default sicuro senza
+Sole, ma accetta ora un insieme esplicito di ID telescopio filtrati e conserva
+soltanto le configurazioni corrispondenti. Con il flag esplicito, il Sole usa
+video e pianificazione a disco intero da 0,53 gradi; il runtime non passa ancora
+questo insieme.
 
 `ImagingRecommendationService` usa uno score additivo distinto per foto e
 video. Inquadratura, campionamento, ruolo della camera, montatura, efficienza e
@@ -98,19 +100,33 @@ la tagliano. I punteggi visuali, Home, NSOM e osservabilita' non entrano mai.
 
 Completezza e input mancanti restano metadati paralleli a effetto score zero.
 Seeing, fondo cielo, precisione d'inseguimento, connessione meccanica e cerchio
-d'immagine rimangono quindi dichiaratamente non verificati. Il prossimo passo
-backend e' la guida ai tempi di posa basata anche sulle condizioni di sessione;
-il collegamento alle pagine Detail resta l'ultima fase.
+d'immagine rimangono quindi dichiaratamente non verificati.
+
+Il terzo passo backend e' ora `ImagingExposureAdvisor`, ancora fuori dal
+runtime. Per un candidato foto produce intervalli di posa singola e integrazione
+totale, numero indicativo di frame e limite prudenziale della montatura. Usa
+rapporto focale, luminosita' del target, SQM o fallback Bortle, trasparenza e
+geometria lunare completa; video non riceve tempi di posa still. Le formule e
+ogni moltiplicatore sono esposti dalla policy `imaging_exposure_v1`.
+
+Il risultato e' deliberatamente un intervallo broadband di pianificazione, non
+una calibrazione della camera. Gain/ISO, rumore di lettura, autoguida, precisione
+d'inseguimento e banda del filtro restano limiti espliciti; gli input mancanti
+usano assunzioni neutrali nominate e abbassano la confidenza senza modificare lo
+score di idoneita'. Il prossimo passo e' un assembler runtime che legga
+l'inventario del profilo, costruisca i treni, passi gli ID solari esatti e
+adatti le condizioni correnti. DTO e presentazione nelle pagine Detail restano
+l'ultima fase.
 
 La montatura telescopio e' ora un menu con codici stabili per OTA,
 altazimutale, equatoriale, forcella e Dobson, distinguendo manuale,
 motorizzata, GoTo e PushTo. Il bootstrap normalizza i vecchi valori testuali;
 il generico storico `manuale` diventa il codice controllato manuale non
 specificato. La proiezione di tracking visuale conserva esattamente i
-coefficienti precedenti, lasciando le distinzioni piu' fini al futuro motore
-fotografico.
+coefficienti precedenti, lasciando le distinzioni piu' fini al backend
+fotografico separato.
 
-Il gate finale `tools/run_checks.py --fast` passa con 1.009 test, 643 warning
+Il gate finale `tools/run_checks.py --fast` passa con 1.025 test, 643 warning
 Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale e
 Red Night Vision. `EquipmentCamerasPage.qml` passa QML lint senza warning. La
 pagina Profili con camere assegnate e' stata controllata nativamente a

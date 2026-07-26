@@ -7,7 +7,7 @@
   e 40 corpi macchina di Canon, Nikon, Sony, Fujifilm, Panasonic, OM System,
   Pentax e Sigma. La selezione comprende 7 SVBONY e 33 mirrorless; i campi
   persistiti descrivono sensore, pixel, risoluzione, profondita' in bit, frame
-  rate e funzioni fotografiche utili al futuro motore, con fonti tecniche
+  rate e funzioni fotografiche utili al motore separato, con fonti tecniche
   ufficiali per ogni modello.
 - La review dei seed Cameras corregge il frame rate del formato massimo 5.8K
   della Panasonic GH7, il backfocus della QHY268C e i riferimenti ZWO prima
@@ -45,7 +45,7 @@
   sotto ambiente, montatura obiettivo e modalita' Bulb sono ora distinti senza
   traduzioni letterali. Gli overlay editoriali e un test multilingua dedicato
   proteggono anche `Rolling shutter` dall'errata resa spagnola come tapparella.
-- Introdotta la prima fondazione backend del futuro motore fotografico, ancora
+- Introdotta la prima fondazione backend del motore fotografico, ancora
   non collegata al runtime: `ImagingCamera` normalizza senza confonderli i dati
   delle camere astronomiche e dei corpi macchina, mentre
   `ImagingTrainConfiguration` descrive il treno telescopio-camera a fuoco
@@ -62,21 +62,29 @@
   acquisizione. Le camere planetarie ad alto frame rate, le camere raffreddate
   da cielo profondo, i body con Bulb, reducer e Barlow vengono confrontati con
   regole distinte e senza riusare score visuali, Home o NSOM.
+- Aggiunto il terzo strato backend fotografico, ancora non registrato nel
+  runtime: `ImagingExposureAdvisor` produce per il candidato foto un intervallo
+  di posa singola, un intervallo di integrazione totale e il numero indicativo
+  di frame. La policy e' auditabile e usa rapporto focale, luminosita' del
+  target, SQM o fallback Bortle, trasparenza, geometria lunare e un limite
+  prudenziale distinto per montatura; video non riceve tempi di posa still.
 - Completezza e limiti restano metadati paralleli e non modificano il punteggio:
   seeing, fondo cielo, precisione d'inseguimento, connessione meccanica e cerchio
-  d'immagine non vengono inventati. Il profilo puo' ora dichiarare la presenza
-  del filtro solare per lo specifico telescopio, ma lo scorer statico mantiene
-  deliberatamente escluso il Sole finche' il futuro collegamento runtime non
-  gli passera' questa associazione esatta. Tempi di posa, condizioni runtime,
-  segnali, DTO QML e pagina Detail non sono ancora collegati.
+  d'immagine non vengono inventati. Gain/ISO, rumore di lettura, autoguida,
+  precisione d'inseguimento e banda del filtro restano limiti espliciti
+  dell'advisor e non vengono sostituiti con valori sintetici. Lo scorer ammette
+  il Sole in modalita' video soltanto per gli ID telescopio che il chiamante
+  dichiara dotati del filtro solare a tutta apertura; l'insieme vuoto resta il
+  default sicuro. Condizioni e inventario runtime, segnali, DTO QML e pagina
+  Detail non sono ancora collegati.
 - La montatura dei telescopi usa ora una tassonomia stabile selezionata da menu:
   OTA, altazimutale, equatoriale, forcella e Dobson, con varianti manuale,
   motorizzata, GoTo e PushTo dove pertinenti. I valori storici dei seed vengono
   normalizzati durante il bootstrap; il vecchio valore generico `manuale`
   conserva un codice esplicito non specificato. L'adattatore visuale mantiene
   gli stessi coefficienti precedenti, mentre i codici distinti restano
-  disponibili al futuro motore fotografico.
-- Il gate finale `tools/run_checks.py --fast` passa con 1.009 test, 643 warning
+  disponibili al backend fotografico separato.
+- Il gate finale `tools/run_checks.py --fast` passa con 1.025 test, 643 warning
   Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale
   e Red Night Vision. Il catalogo Cameras ha inoltre QML lint senza warning; la
   pagina Profili con camere assegnate e' stata verificata nativamente a

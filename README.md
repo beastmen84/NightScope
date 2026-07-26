@@ -61,12 +61,12 @@ Linux packages use a portable tarball plus an adjacent SHA-256 file.
 - Provides a separate two-column Cameras catalogue for astronomy cameras and
   interchangeable-lens camera bodies. Its sensor and capture specifications
   can be assigned to profiles and feed a typed, backend-only photographic
-  configuration scorer; that scorer is not yet connected to Object Detail or
-  consumed by the visual engine.
+  configuration scorer plus a conservative still-exposure advisor; neither is
+  connected to Object Detail or consumed by the visual engine.
 - Lets each profile record, for each assigned telescope, whether the user has
   declared a certified full-aperture solar filter secured in front of the
-  instrument. This photographic safety capability is persistent but is not yet
-  consumed by the unregistered scorer and never changes visual ranking.
+  instrument. The unregistered scorer accepts this capability only as an exact
+  caller-supplied telescope set, and it never changes visual ranking.
 - Includes an offline celestial catalogue with 7,585 distinct deep-sky
   targets, 7,839 NGC designations deduplicated across physical identities,
   and nine Solar System targets. The 219 curated Messier/Caldwell targets and
@@ -115,8 +115,10 @@ estimate rather than a precise promise.
 In the current UI, filters and focal reducers remain presentation guidance and
 do not change visual target ranking. The separate, unregistered photographic
 backend can enumerate an exactly linked imaging reducer and recalculate its
-camera field, sampling and static configuration suitability; it does not
-change Home, Planner, Equipment, Sky Compass or NSOM.
+camera field, sampling and static configuration suitability. For still
+candidates it can also return broadband sub-exposure and total-integration
+ranges from explicit sky, transparency and Moon inputs. These planning ranges
+do not change Home, Planner, Equipment, Sky Compass or NSOM.
 
 Telescope mount types use stable controlled codes instead of free text. This
 preserves the existing visual recommendation behavior while keeping manual,
@@ -126,8 +128,9 @@ for the separate photographic scorer.
 Solar-filter availability belongs to the profile-to-telescope assignment, not
 to the global telescope model. It defaults to disabled, is isolated between
 profiles and instruments, and changes only photographic inventory state. The
-current static scorer still returns no Sun candidate until a later runtime
-integration passes this exact capability into the selected photographic train.
+static scorer now defaults to no Sun candidate and admits only configurations
+whose telescope ID is explicitly supplied as filtered. The current runtime
+does not yet make that call, so application behavior remains unchanged.
 
 The full model and its boundaries are documented in
 [`docs/CALCULATION_LOGIC.md`](docs/CALCULATION_LOGIC.md) and
@@ -432,7 +435,9 @@ remaining release work are tracked in
 - Current UI reducer guidance does not model a complete camera train. The
   backend photographic foundation calculates sensor geometry and known
   backfocus spacing, but still cannot prove adapters, image circle, tracking
-  accuracy or vignetting.
+  accuracy or vignetting. Its exposure output is a broadband planning range,
+  not a camera calibration: gain/ISO, read noise, autoguiding and filter
+  passband remain explicit limitations.
 - There is no installer, automatic updater, or artifact signature. The current
   portable release publishes its SHA-256 digest.
 - The final manual and application visual matrix still requires a human pass on

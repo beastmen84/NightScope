@@ -702,9 +702,9 @@ known.
 The builder always emits the prime-focus train. It additionally emits only
 reducers explicitly marked for imaging and exactly linked to the telescope,
 plus the supplied Barlows as separate alternatives. Reducers and Barlows are
-never stacked. The caller owns inventory scope, so the future photographic
-service can pass active-profile equipment without the builder ever reading
-catalogues or profile state itself.
+never stacked. The caller owns inventory scope, so the next runtime assembler
+can pass active-profile equipment without the builder ever
+reading catalogues or profile state itself.
 
 The builder deliberately does not classify targets, score candidates, choose
 between still imaging and video, estimate exposure, serialize a UI DTO or
@@ -733,8 +733,10 @@ ImagingTrainConfiguration ------------+
 `ImagingTargetTraits` owns photographic class, still/video choice, physical
 angular dimensions and the curated reducer preference. It does not consume the
 visual target score, observability, Home rank or NSOM values. Solar
-recommendations are deliberately unsupported until a certified solar-filter
-capability exists.
+recommendations default to unsupported. The scorer accepts a caller-supplied
+set of full-aperture-solar-filter telescope IDs and retains only the exact
+matching configurations; it does not infer safety capability from telescope
+models or camera classes.
 
 The scorer is additive rather than multiplicative. Its explicit components
 cover framing, sampling, camera role, mount capability and capture behavior;
@@ -750,9 +752,40 @@ accessory-compatibility condition that removes a candidate at this layer;
 non-positive or non-finite optical geometry is also rejected.
 
 The service is still absent from `AppController`, `EquipmentService`, QML,
-Home, Planner, Sky Compass and NSOM. The next backend boundary is
-session-aware exposure guidance; presentation on Object Detail remains the
-last stage.
+Home, Planner, Sky Compass and NSOM.
+
+### Photographic Exposure Planning
+
+The third backend-only layer starts from one already-scored still candidate:
+
+```text
+ImagingRecommendationCandidate + ImagingSessionConditions
+                             |
+                             v
+                 ImagingExposureAdvisor
+                             |
+                             v
+                  ImagingExposureAdvice
+```
+
+The advisor returns ranges for one sub-exposure and total stacked integration,
+an indicative frame-count range, the conservative mount limit and every
+multiplier used by policy version `imaging_exposure_v1`. It never changes the
+candidate score and returns no still-exposure advice for video targets.
+
+The policy consumes effective focal ratio, target brightness, explicit SQM or
+a Bortle fallback, transparency and complete Moon geometry. Mount taxonomy
+caps the sub-exposure, with stricter limits for field rotation and manual
+tracking. Missing inputs use named neutral assumptions and reduce confidence.
+Gain/ISO, read noise, autoguiding, measured tracking accuracy and filter
+passband remain explicit unmodeled limitations, so the result is a conservative
+broadband planning interval rather than camera calibration.
+
+This layer is also absent from `AppController`, `EquipmentService`, QML, Home,
+Planner, Sky Compass and NSOM. The next boundary is a runtime assembler that
+supplies active-profile trains, the exact solar-filter telescope IDs and
+current session conditions; presentation on Object Detail remains the last
+stage.
 
 ### Filters
 

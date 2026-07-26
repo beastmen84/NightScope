@@ -37,7 +37,8 @@ _PLANET_IDS = frozenset(
 )
 _ANGULAR_NUMBER_PATTERN = re.compile(r"\d+(?:[.,]\d+)?")
 _DEFAULT_MOON_DIAMETER_DEG = 0.52
-_SOLAR_FILTER_REASON = "certified_solar_filter_not_modeled"
+_DEFAULT_SUN_DIAMETER_DEG = 0.53
+_SOLAR_FILTER_REASON = "certified_full_aperture_solar_filter_required"
 
 
 class ImagingTargetTraitsAdapter:
@@ -47,6 +48,8 @@ class ImagingTargetTraitsAdapter:
     def from_object(
         cls,
         target: CelestialObject,
+        *,
+        full_aperture_solar_filter_available: bool = False,
     ) -> ImagingTargetTraits:
         observation_traits = TargetObservationTraits.from_object(target)
         target_class = cls._target_class(target)
@@ -57,14 +60,24 @@ class ImagingTargetTraitsAdapter:
         if target_class is ImagingTargetClass.MOON and major_deg is None:
             major_deg = _DEFAULT_MOON_DIAMETER_DEG
             minor_deg = _DEFAULT_MOON_DIAMETER_DEG
+        elif target_class is ImagingTargetClass.SUN and major_deg is None:
+            major_deg = _DEFAULT_SUN_DIAMETER_DEG
+            minor_deg = _DEFAULT_SUN_DIAMETER_DEG
 
-        supported = target_class is not ImagingTargetClass.SUN
+        supported = (
+            target_class is not ImagingTargetClass.SUN
+            or full_aperture_solar_filter_available
+        )
         capture_mode = (
             None
             if not supported
             else ImagingCaptureMode.VIDEO
             if target_class
-            in {ImagingTargetClass.MOON, ImagingTargetClass.PLANET}
+            in {
+                ImagingTargetClass.SUN,
+                ImagingTargetClass.MOON,
+                ImagingTargetClass.PLANET,
+            }
             else ImagingCaptureMode.STILL
         )
         return ImagingTargetTraits(

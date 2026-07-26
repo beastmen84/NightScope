@@ -58,16 +58,41 @@ class ImagingRecommendationService:
         self,
         target: CelestialObject,
         configurations: Iterable[ImagingTrainConfiguration],
+        *,
+        full_aperture_solar_filter_telescope_ids: Iterable[str] = (),
     ) -> list[ImagingRecommendationCandidate]:
-        traits = ImagingTargetTraitsAdapter.from_object(target)
+        unique_configurations = self._unique_configurations(
+            configurations
+        )
+        solar_filter_telescope_ids = frozenset(
+            telescope_id
+            for value in full_aperture_solar_filter_telescope_ids
+            if (telescope_id := str(value).strip())
+        )
+        solar_filter_available = any(
+            configuration.telescope.id
+            in solar_filter_telescope_ids
+            for configuration in unique_configurations
+        )
+        traits = ImagingTargetTraitsAdapter.from_object(
+            target,
+            full_aperture_solar_filter_available=(
+                solar_filter_available
+            ),
+        )
         capture_mode = traits.recommended_capture_mode
         if not traits.recommendation_supported or capture_mode is None:
             return []
 
         candidates = [
             self._candidate(traits, configuration, capture_mode)
-            for configuration in self._unique_configurations(configurations)
+            for configuration in unique_configurations
             if self._configuration_is_usable(configuration)
+            and (
+                traits.target_class is not ImagingTargetClass.SUN
+                or configuration.telescope.id
+                in solar_filter_telescope_ids
+            )
         ]
         candidates.sort(
             key=lambda candidate: (
@@ -81,8 +106,16 @@ class ImagingRecommendationService:
         self,
         target: CelestialObject,
         configurations: Iterable[ImagingTrainConfiguration],
+        *,
+        full_aperture_solar_filter_telescope_ids: Iterable[str] = (),
     ) -> ImagingRecommendationCandidate | None:
-        candidates = self.rank(target, configurations)
+        candidates = self.rank(
+            target,
+            configurations,
+            full_aperture_solar_filter_telescope_ids=(
+                full_aperture_solar_filter_telescope_ids
+            ),
+        )
         return candidates[0] if candidates else None
 
     def _candidate(
@@ -179,7 +212,10 @@ class ImagingRecommendationService:
         traits: ImagingTargetTraits,
         configuration: ImagingTrainConfiguration,
     ) -> float:
-        if traits.target_class is ImagingTargetClass.MOON:
+        if traits.target_class in {
+            ImagingTargetClass.MOON,
+            ImagingTargetClass.SUN,
+        }:
             return cls._known_target_framing(
                 traits,
                 configuration,
@@ -273,7 +309,8 @@ class ImagingRecommendationService:
     ) -> float:
         critical_factor = (
             _LUNAR_WHOLE_DISC_FOCAL_RATIO_PER_PIXEL
-            if traits.target_class is ImagingTargetClass.MOON
+            if traits.target_class
+            in {ImagingTargetClass.MOON, ImagingTargetClass.SUN}
             else _PLANETARY_CRITICAL_FOCAL_RATIO_PER_PIXEL
         )
         target_focal_ratio = (
