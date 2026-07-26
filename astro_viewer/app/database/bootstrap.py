@@ -19,7 +19,7 @@ from astro_viewer.app.services.localization import content_key, tr
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
-SCHEMA_VERSION = 21
+SCHEMA_VERSION = 22
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 _CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
     (
@@ -490,6 +490,16 @@ def _migrate_database(
     _migrate_catalogue_tables(connection)
     if existing_schema_version < 19:
         _migrate_catalogue_designation_aliases(connection)
+    _add_columns(
+        connection,
+        "EquipmentProfileTelescope",
+        {
+            "has_full_aperture_solar_filter": (
+                "INTEGER NOT NULL DEFAULT 0 "
+                "CHECK (has_full_aperture_solar_filter IN (0, 1))"
+            ),
+        },
+    )
     _ensure_profile_binocular_table(connection)
     _ensure_profile_camera_tables(connection)
     _remove_orphan_profile_assignments(connection)

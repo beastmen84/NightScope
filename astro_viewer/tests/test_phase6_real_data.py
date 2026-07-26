@@ -408,8 +408,20 @@ class Phase6RealDataTests(unittest.TestCase):
             controller._refresh_active_profile_dependencies()
 
             before_detail = controller.selectedObject
-            events = {"equipment": 0, "data": 0, "weather": 0, "selected": 0}
+            events = {
+                "equipment": 0,
+                "profile": 0,
+                "data": 0,
+                "weather": 0,
+                "selected": 0,
+            }
             controller.equipmentChanged.connect(lambda: events.__setitem__("equipment", events["equipment"] + 1))
+            controller.profileInventoryChanged.connect(
+                lambda: events.__setitem__(
+                    "profile",
+                    events["profile"] + 1,
+                )
+            )
             controller.dataChanged.connect(lambda: events.__setitem__("data", events["data"] + 1))
             controller.weatherChanged.connect(lambda: events.__setitem__("weather", events["weather"] + 1))
             controller.selectedObjectChanged.connect(lambda: events.__setitem__("selected", events["selected"] + 1))
@@ -427,6 +439,7 @@ class Phase6RealDataTests(unittest.TestCase):
                 )
             )
             self.assertGreaterEqual(events["equipment"], 1)
+            self.assertGreaterEqual(events["profile"], 1)
             self.assertGreaterEqual(events["data"], 1)
             self.assertGreaterEqual(events["weather"], 1)
             self.assertGreaterEqual(events["selected"], 1)
@@ -437,8 +450,20 @@ class Phase6RealDataTests(unittest.TestCase):
             profile = next(
                 item for item in controller.equipmentProfiles if item["profile_name"] == "Profilo switch refresh"
             )
-            events = {"equipment": 0, "data": 0, "weather": 0, "selected": 0}
+            events = {
+                "equipment": 0,
+                "profile": 0,
+                "data": 0,
+                "weather": 0,
+                "selected": 0,
+            }
             controller.equipmentChanged.connect(lambda: events.__setitem__("equipment", events["equipment"] + 1))
+            controller.profileInventoryChanged.connect(
+                lambda: events.__setitem__(
+                    "profile",
+                    events["profile"] + 1,
+                )
+            )
             controller.dataChanged.connect(lambda: events.__setitem__("data", events["data"] + 1))
             controller.weatherChanged.connect(lambda: events.__setitem__("weather", events["weather"] + 1))
             controller.selectedObjectChanged.connect(lambda: events.__setitem__("selected", events["selected"] + 1))
@@ -446,6 +471,7 @@ class Phase6RealDataTests(unittest.TestCase):
             controller.setActiveEquipmentProfile(int(profile["id"]))
 
             self.assertGreaterEqual(events["equipment"], 1)
+            self.assertGreaterEqual(events["profile"], 1)
             self.assertGreaterEqual(events["data"], 1)
             self.assertGreaterEqual(events["weather"], 1)
             self.assertGreaterEqual(events["selected"], 1)
@@ -759,6 +785,10 @@ class Phase6RealDataTests(unittest.TestCase):
                 item for item in controller.reducerCatalog if item["visual_compatible"]
             )
             before_capabilities = dict(controller.telescopeCapabilities)
+            profile_notifications = []
+            controller.profileInventoryChanged.connect(
+                lambda: profile_notifications.append(True)
+            )
 
             with patch.object(controller, "_refresh_active_profile_dependencies") as refresh:
                 controller.assignEquipmentToActiveProfile("filter", optical_filter["catalog_id"])
@@ -773,6 +803,7 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(controller.profileFilters[0]["id"], optical_filter["catalog_id"])
             self.assertEqual(controller.profileReducers[0]["id"], reducer["catalog_id"])
             self.assertEqual(controller.telescopeCapabilities, before_capabilities)
+            self.assertEqual(len(profile_notifications), 2)
             self.assertEqual(
                 controller._equipment_catalog_repository.profile_usage_count(
                     "filter",
@@ -795,6 +826,7 @@ class Phase6RealDataTests(unittest.TestCase):
                 any(item["kind"] in {"filter", "reducer"} for item in controller.profileAssignedEquipment)
             )
             self.assertEqual(controller.telescopeCapabilities, before_capabilities)
+            self.assertEqual(len(profile_notifications), 4)
 
     def test_cameras_are_profile_inventory_without_visual_refresh(self) -> None:
         with _controller() as controller:
@@ -934,6 +966,114 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(events["data"], 0)
             self.assertEqual(events["weather"], 0)
             self.assertEqual(events["selected"], 0)
+
+    def test_solar_filter_capability_is_profile_telescope_inventory_only(
+        self,
+    ) -> None:
+        with _controller() as controller:
+            telescope_id = controller.availableProfileTelescopes[0]["id"]
+            controller.assignTelescopeToActiveProfile(telescope_id)
+            before_capabilities = dict(controller.telescopeCapabilities)
+            before_setup = dict(controller.currentSetup)
+            events = {
+                "equipment": 0,
+                "profile": 0,
+                "data": 0,
+                "weather": 0,
+                "selected": 0,
+            }
+            controller.equipmentChanged.connect(
+                lambda: events.__setitem__(
+                    "equipment",
+                    events["equipment"] + 1,
+                )
+            )
+            controller.profileInventoryChanged.connect(
+                lambda: events.__setitem__(
+                    "profile",
+                    events["profile"] + 1,
+                )
+            )
+            controller.dataChanged.connect(
+                lambda: events.__setitem__("data", events["data"] + 1)
+            )
+            controller.weatherChanged.connect(
+                lambda: events.__setitem__(
+                    "weather",
+                    events["weather"] + 1,
+                )
+            )
+            controller.selectedObjectChanged.connect(
+                lambda: events.__setitem__(
+                    "selected",
+                    events["selected"] + 1,
+                )
+            )
+
+            with patch.object(
+                controller,
+                "_refresh_active_profile_dependencies",
+            ) as refresh:
+                controller.setTelescopeSolarFilterAvailable(
+                    telescope_id,
+                    True,
+                )
+
+            refresh.assert_not_called()
+            telescope = next(
+                item
+                for item in controller.profileAssignedEquipment
+                if item["kind"] == "telescope"
+                and item["id"] == telescope_id
+            )
+            self.assertTrue(
+                telescope["hasFullApertureSolarFilter"]
+            )
+            profile_id = int(controller.activeEquipmentProfile["id"])
+            self.assertEqual(
+                controller._equipment_catalog_repository
+                .profile_full_aperture_solar_filter_telescope_ids(
+                    profile_id
+                ),
+                [telescope_id],
+            )
+            self.assertEqual(controller.telescopeCapabilities, before_capabilities)
+            self.assertEqual(controller.currentSetup, before_setup)
+            self.assertEqual(
+                events,
+                {
+                    "equipment": 0,
+                    "profile": 1,
+                    "data": 0,
+                    "weather": 0,
+                    "selected": 0,
+                },
+            )
+            self.assertIn(
+                "raccomandazioni visuali restano invariate",
+                controller.equipmentMessage,
+            )
+
+            controller.setTelescopeSolarFilterAvailable(
+                telescope_id,
+                False,
+            )
+            telescope = next(
+                item
+                for item in controller.profileAssignedEquipment
+                if item["kind"] == "telescope"
+                and item["id"] == telescope_id
+            )
+            self.assertFalse(
+                telescope["hasFullApertureSolarFilter"]
+            )
+            self.assertEqual(events["profile"], 2)
+
+            controller.setTelescopeSolarFilterAvailable(
+                telescope_id,
+                False,
+            )
+            self.assertEqual(events["profile"], 2)
 
     def test_owned_filter_recommendation_reaches_home_observing_detail(self) -> None:
         with _controller() as controller:
@@ -3375,6 +3515,7 @@ def _set_profile_equipment(
     controller._binoculars.extend(binocular for binocular in binoculars if not controller._find_binocular(binocular.id))
     state = controller._active_profile_state()
     state["telescope_ids"] = [telescope.id for telescope in telescopes]
+    state["full_aperture_solar_filter_telescope_ids"] = []
     state["eyepiece_ids"] = [eyepiece.id for eyepiece in eyepieces]
     state["barlow_ids"] = [barlow.id for barlow in barlows]
     state["binocular_ids"] = [binocular.id for binocular in binoculars]

@@ -63,6 +63,10 @@ Linux packages use a portable tarball plus an adjacent SHA-256 file.
   can be assigned to profiles and feed a typed, backend-only photographic
   configuration scorer; that scorer is not yet connected to Object Detail or
   consumed by the visual engine.
+- Lets each profile record, for each assigned telescope, whether the user has
+  declared a certified full-aperture solar filter secured in front of the
+  instrument. This photographic safety capability is persistent but is not yet
+  consumed by the unregistered scorer and never changes visual ranking.
 - Includes an offline celestial catalogue with 7,585 distinct deep-sky
   targets, 7,839 NGC designations deduplicated across physical identities,
   and nine Solar System targets. The 219 curated Messier/Caldwell targets and
@@ -118,6 +122,12 @@ Telescope mount types use stable controlled codes instead of free text. This
 preserves the existing visual recommendation behavior while keeping manual,
 tracking, GoTo, PushTo, fork, alt-azimuth and equatorial capabilities distinct
 for the separate photographic scorer.
+
+Solar-filter availability belongs to the profile-to-telescope assignment, not
+to the global telescope model. It defaults to disabled, is isolated between
+profiles and instruments, and changes only photographic inventory state. The
+current static scorer still returns no Sun candidate until a later runtime
+integration passes this exact capability into the selected photographic train.
 
 The full model and its boundaries are documented in
 [`docs/CALCULATION_LOGIC.md`](docs/CALCULATION_LOGIC.md) and

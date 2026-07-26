@@ -12,6 +12,9 @@ Item {
     property string removeFilter: "all"
     property string addSearch: ""
     property string removeSearch: ""
+    readonly property string solarFilterSafetyText: qsTr(
+        "Solo filtri solari certificati fissati davanti all'obiettivo; mai filtri solari da oculare."
+    )
     readonly property var equipmentFilterOptions: [
         { "label": qsTr("Tutti"), "value": "all" },
         { "label": qsTr("Telescopi"), "value": "telescope" },
@@ -527,6 +530,30 @@ Item {
                     }
 
                     Item { Layout.fillWidth: true }
+                }
+
+                DarkCheckBox {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 42
+                    visible: assignedItem.modelData.kind === "telescope"
+                    text: qsTr("Filtro solare a tutta apertura disponibile")
+                    checked: assignedItem.modelData.hasFullApertureSolarFilter === true
+                    accentColor: theme.amber
+                    Accessible.description: root.solarFilterSafetyText
+                    onToggled: root.controller.setTelescopeSolarFilterAvailable(
+                        assignedItem.modelData.id,
+                        checked
+                    )
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 42
+                    visible: assignedItem.modelData.kind === "telescope"
+                    text: root.solarFilterSafetyText
+                    color: theme.textMuted
+                    font.pixelSize: 11
+                    wrapMode: Text.WordWrap
                 }
             }
         }

@@ -40,11 +40,13 @@ anche unicita' marca/modello e coerenza fisica fra risoluzione, passo pixel e
 dimensioni del sensore delle camere astronomiche.
 
 Lo schema 21 aggiunge `EquipmentProfileAstronomyCamera` e
-`EquipmentProfileCameraBody` sopra ai cataloghi introdotti dallo schema 20. Le
-assegnazioni sono persistenti, separate per profilo e visibili nella pagina
-`Profili`; la griglia dell'inventario usa quattro colonne sui display larghi,
-due a larghezza intermedia e una sui layout stretti. La cancellazione di un
-modello utente assegnato richiede la rimozione esplicita dai profili.
+`EquipmentProfileCameraBody` sopra ai cataloghi introdotti dallo schema 20. Lo
+schema 22 aggiunge `has_full_aperture_solar_filter` alla relazione
+`EquipmentProfileTelescope`: il valore parte disattivato ed e' persistente e
+indipendente per profilo e telescopio. Le assegnazioni sono visibili nella
+pagina `Profili`; la griglia dell'inventario usa quattro colonne sui display
+larghi, due a larghezza intermedia e una sui layout stretti. La cancellazione
+di un modello utente assegnato richiede la rimozione esplicita dai profili.
 
 Il follow-up visuale sull'interfaccia reale allinea in alto tutti i gruppi
 dell'inventario. I tag delle camere condividono la riga del nome quando la
@@ -80,8 +82,11 @@ non legge profili o cataloghi, non sceglie un target e non produce punteggi.
 Il secondo passo backend e' ora implementato ma resta fuori dal runtime.
 `ImagingTargetTraitsAdapter` classifica tutti i 7.585 target di catalogo come
 foto e sceglie video per Luna e pianeti. Conserva le due dimensioni angolari,
-la magnitudine e il flag reducer; il Sole non produce candidati finche' non
-esiste un dato affidabile per un filtro solare certificato.
+la magnitudine e il flag reducer. La pagina Profili permette ora di dichiarare
+un filtro solare certificato a tutta apertura sullo specifico telescopio, senza
+emettere segnali del motore visuale; il Sole continua a non produrre candidati
+finche' il prossimo collegamento runtime non passera' questa associazione esatta
+allo scorer.
 
 `ImagingRecommendationService` usa uno score additivo distinto per foto e
 video. Inquadratura, campionamento, ruolo della camera, montatura, efficienza e
@@ -105,13 +110,16 @@ specificato. La proiezione di tracking visuale conserva esattamente i
 coefficienti precedenti, lasciando le distinzioni piu' fini al futuro motore
 fotografico.
 
-Il gate finale `tools/run_checks.py --fast` passa con 1.005 test, 643 warning
+Il gate finale `tools/run_checks.py --fast` passa con 1.009 test, 643 warning
 Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale e
 Red Night Vision. `EquipmentCamerasPage.qml` passa QML lint senza warning. La
 pagina Profili con camere assegnate e' stata controllata nativamente a
 `1040 × 700` e `1709 × 1047` in entrambe le modalita'; in Red Night Vision i
 massimi sono verde 74 e blu 61, senza pixel oltre soglia. I cataloghi Qt
-IT/EN/ES contengono 1.864 voci finite e zero incomplete. Il follow-up visuale
+IT/EN/ES contengono 1.868 voci finite e zero incomplete. Il controllo del
+filtro solare, selezionato e accompagnato dall'avviso di sicurezza, e' stato
+verificato nativamente a `1400 × 900` in modalita' normale e notturna con gli
+stessi limiti cromatici. Il follow-up visuale
 mantiene lo stesso gate e aggiunge la verifica del posizionamento responsivo
 dei tag e delle colonne uniformi nei dialoghi. L'audit terminologico aggiunge
 31 test mirati verdi e una verifica nativa dei dialoghi IT/EN/ES, incluso il

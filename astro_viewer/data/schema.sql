@@ -369,6 +369,8 @@ CREATE INDEX IF NOT EXISTS idx_equipment_profile_active ON EquipmentProfile(acti
 CREATE TABLE IF NOT EXISTS EquipmentProfileTelescope (
     profile_id INTEGER NOT NULL,
     telescope_id TEXT NOT NULL,
+    has_full_aperture_solar_filter INTEGER NOT NULL DEFAULT 0
+        CHECK (has_full_aperture_solar_filter IN (0, 1)),
     PRIMARY KEY (profile_id, telescope_id),
     FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE
 );

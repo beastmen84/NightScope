@@ -196,7 +196,10 @@ def test_schema_19_upgrade_adds_camera_catalogs_and_profile_links() -> None:
         assert len(upgraded.camera_bodies()) == 40
         assert upgraded.profiles() == profile_snapshot
         with closing(sqlite3.connect(database_path)) as connection:
-            assert connection.execute("PRAGMA user_version").fetchone()[0] == 21
+            assert (
+                connection.execute("PRAGMA user_version").fetchone()[0]
+                == SCHEMA_VERSION
+            )
             tables = {
                 row[0]
                 for row in connection.execute(
@@ -227,7 +230,154 @@ def test_schema_20_upgrade_preserves_profiles_and_adds_empty_camera_links() -> N
         assert upgraded.profile_astronomy_camera_ids(profile_id) == []
         assert upgraded.profile_camera_body_ids(profile_id) == []
         with closing(sqlite3.connect(database_path)) as connection:
-            assert connection.execute("PRAGMA user_version").fetchone()[0] == 21
+            assert (
+                connection.execute("PRAGMA user_version").fetchone()[0]
+                == SCHEMA_VERSION
+            )
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_profile_telescope_solar_filter_is_exact_and_persistent() -> None:
+    temporary_directory, database_path, repository = _database()
+    try:
+        profiles = repository.profiles()
+        active_profile_id = int(
+            next(profile for profile in profiles if profile["active"])["id"]
+        )
+        telescope_id = repository.models()[0]["catalog_id"]
+        repository.assign_profile_telescope(active_profile_id, telescope_id)
+
+        assert (
+            repository.profile_full_aperture_solar_filter_telescope_ids(
+                active_profile_id
+            )
+            == []
+        )
+        assert repository.set_profile_full_aperture_solar_filter(
+            active_profile_id,
+            telescope_id,
+            True,
+        )
+
+        repository.add_profile(
+            "Second profile",
+            "preset:naked-eye",
+            active=False,
+        )
+        second_profile_id = int(
+            next(
+                profile
+                for profile in repository.profiles()
+                if profile["profile_name"] == "Second profile"
+            )["id"]
+        )
+        repository.assign_profile_telescope(second_profile_id, telescope_id)
+
+        assert (
+            repository.profile_full_aperture_solar_filter_telescope_ids(
+                active_profile_id
+            )
+            == [telescope_id]
+        )
+        assert (
+            repository.profile_full_aperture_solar_filter_telescope_ids(
+                second_profile_id
+            )
+            == []
+        )
+        assert not repository.set_profile_full_aperture_solar_filter(
+            second_profile_id,
+            "catalog-telescope-999999",
+            True,
+        )
+
+        initialize_database(database_path, SCHEMA_PATH)
+        reopened = EquipmentCatalogRepository(database_path)
+        assert (
+            reopened.profile_full_aperture_solar_filter_telescope_ids(
+                active_profile_id
+            )
+            == [telescope_id]
+        )
+
+        reopened.remove_profile_telescope(active_profile_id, telescope_id)
+        reopened.assign_profile_telescope(active_profile_id, telescope_id)
+        assert (
+            reopened.profile_full_aperture_solar_filter_telescope_ids(
+                active_profile_id
+            )
+            == []
+        )
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_schema_21_upgrade_adds_profile_telescope_solar_filter_state() -> None:
+    temporary_directory, database_path, repository = _database()
+    try:
+        profile_id = int(repository.profiles()[0]["id"])
+        telescope_id = repository.models()[0]["catalog_id"]
+        repository.assign_profile_telescope(profile_id, telescope_id)
+
+        with closing(sqlite3.connect(database_path)) as connection:
+            connection.executescript(
+                """
+                ALTER TABLE EquipmentProfileTelescope
+                RENAME TO EquipmentProfileTelescope_v22;
+
+                CREATE TABLE EquipmentProfileTelescope (
+                    profile_id INTEGER NOT NULL,
+                    telescope_id TEXT NOT NULL,
+                    PRIMARY KEY (profile_id, telescope_id),
+                    FOREIGN KEY (profile_id)
+                        REFERENCES EquipmentProfile(id) ON DELETE CASCADE
+                );
+
+                INSERT INTO EquipmentProfileTelescope (
+                    profile_id, telescope_id
+                )
+                SELECT profile_id, telescope_id
+                FROM EquipmentProfileTelescope_v22;
+
+                DROP TABLE EquipmentProfileTelescope_v22;
+                PRAGMA user_version = 21;
+                """
+            )
+            connection.commit()
+
+        initialize_database(database_path, SCHEMA_PATH)
+        upgraded = EquipmentCatalogRepository(database_path)
+        assert upgraded.profile_telescope_ids(profile_id) == [telescope_id]
+        assert (
+            upgraded.profile_full_aperture_solar_filter_telescope_ids(
+                profile_id
+            )
+            == []
+        )
+        with closing(sqlite3.connect(database_path)) as connection:
+            columns = {
+                row[1]
+                for row in connection.execute(
+                    "PRAGMA table_info(EquipmentProfileTelescope)"
+                ).fetchall()
+            }
+            version = connection.execute("PRAGMA user_version").fetchone()[0]
+        assert "has_full_aperture_solar_filter" in columns
+        assert version == SCHEMA_VERSION
+
+        assert upgraded.set_profile_full_aperture_solar_filter(
+            profile_id,
+            telescope_id,
+            True,
+        )
+        initialize_database(database_path, SCHEMA_PATH)
+        assert (
+            EquipmentCatalogRepository(
+                database_path
+            ).profile_full_aperture_solar_filter_telescope_ids(profile_id)
+            == [telescope_id]
+        )
     finally:
         temporary_directory.cleanup()
 
@@ -661,6 +811,10 @@ def test_camera_navigation_profile_ui_and_packaging_are_wired() -> None:
     assert "root.width > 1500 ? 4" in profiles_qml
     assert "Layout.alignment: Qt.AlignTop" in profiles_qml
     assert "cameraTagsInline" in profiles_qml
+    assert "setTelescopeSolarFilterAvailable" in profiles_qml
+    assert "hasFullApertureSolarFilter" in profiles_qml
+    assert "Filtro solare a tutta apertura disponibile" in profiles_qml
+    assert "mai filtri solari da oculare" in profiles_qml
     assert cameras_qml.count("uniformCellWidths: true") == 2
     assert "Larghezza sensore (mm) *" in cameras_qml
     assert "Altezza sensore (mm) *" in cameras_qml

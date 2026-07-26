@@ -1217,6 +1217,67 @@ def test_curated_camera_terminology_is_technically_consistent() -> None:
     assert "persiana enrollable" not in spanish_text.casefold()
 
 
+def test_profile_solar_filter_terminology_is_technically_consistent() -> None:
+    sources = {
+        "label": "Filtro solare a tutta apertura disponibile",
+        "safety": (
+            "Solo filtri solari certificati fissati davanti all'obiettivo; "
+            "mai filtri solari da oculare."
+        ),
+        "available": (
+            "Filtro solare a tutta apertura disponibile per {name}. "
+            "Le raccomandazioni visuali restano invariate."
+        ),
+        "unavailable": (
+            "Filtro solare a tutta apertura non disponibile per {name}. "
+            "Le raccomandazioni visuali restano invariate."
+        ),
+    }
+    expected = {
+        "en": {
+            ("EquipmentProfilesPage", sources["label"]): (
+                "Full-aperture solar filter available"
+            ),
+            ("EquipmentProfilesPage", sources["safety"]): (
+                "Only certified solar filters secured in front of the "
+                "objective; never use eyepiece solar filters."
+            ),
+            ("", sources["available"]): (
+                "Full-aperture solar filter available for {name}. "
+                "Visual recommendations remain unchanged."
+            ),
+            ("", sources["unavailable"]): (
+                "Full-aperture solar filter unavailable for {name}. "
+                "Visual recommendations remain unchanged."
+            ),
+        },
+        "es": {
+            ("EquipmentProfilesPage", sources["label"]): (
+                "Filtro solar de apertura completa disponible"
+            ),
+            ("EquipmentProfilesPage", sources["safety"]): (
+                "Solo filtros solares certificados fijados delante del "
+                "objetivo; nunca utilice filtros solares de ocular."
+            ),
+            ("", sources["available"]): (
+                "Filtro solar de apertura completa disponible para {name}. "
+                "Las recomendaciones visuales no cambian."
+            ),
+            ("", sources["unavailable"]): (
+                "Filtro solar de apertura completa no disponible para "
+                "{name}. Las recomendaciones visuales no cambian."
+            ),
+        },
+    }
+
+    for code, expected_entries in expected.items():
+        _, entries = _catalog_entries(
+            TRANSLATIONS_DIR / f"{code}.ts"
+        )
+        for key, translation in expected_entries.items():
+            assert entries[key] == translation
+
+
 def test_catalogue_content_keeps_language_pack_metadata_through_astronomy() -> None:
     skyfield_source = (
         PROJECT_DIR / "astro_viewer" / "app" / "astronomy" / "skyfield_engine.py"

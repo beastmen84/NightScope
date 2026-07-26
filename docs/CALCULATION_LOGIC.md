@@ -877,8 +877,11 @@ Photographic target and static configuration scoring:
   NSOM values.
 - Moon and planets select `video`; catalogue targets, comets and unknown
   non-solar targets select `still`. The Moon uses a `0.52°` whole-disc planning
-  diameter when no runtime diameter is available. The Sun returns no
-  candidates until a certified solar-filter capability can be represented.
+  diameter when no runtime diameter is available. Schema 22 can persist a
+  user-declared certified full-aperture solar filter for an exact
+  profile-to-telescope assignment, but the unregistered static scorer does not
+  yet receive that runtime capability. The Sun therefore still returns no
+  candidates at this stage.
 - Catalogue major/minor axes are normalized to degrees. A canonical major axis
   remains authoritative while the textual dimensions preserve its aspect
   ratio. Framing accepts sensor rotation by 90°, keeps a 5% edge margin and

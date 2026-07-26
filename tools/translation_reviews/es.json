@@ -729,6 +729,8 @@
     "I valori video devono essere maggiori di zero.": "Los valores de vídeo deben ser mayores que cero.",
     "Camera assegnata al profilo. Le raccomandazioni visuali restano invariate.": "Cámara asignada al perfil. Las recomendaciones visuales no cambian.",
     "Camera rimossa dal profilo. Le raccomandazioni visuali restano invariate.": "Cámara eliminada del perfil. Las recomendaciones visuales no cambian.",
+    "Filtro solare a tutta apertura disponibile per {name}. Le raccomandazioni visuali restano invariate.": "Filtro solar de apertura completa disponible para {name}. Las recomendaciones visuales no cambian.",
+    "Filtro solare a tutta apertura non disponibile per {name}. Le raccomandazioni visuali restano invariate.": "Filtro solar de apertura completa no disponible para {name}. Las recomendaciones visuales no cambian.",
     "Camera astronomica": "Cámara astronómica",
     "Corpo macchina": "Cuerpo de cámara",
     "Rimuovi dai profili e continua": "Quitar de los perfiles y continuar",
@@ -747,7 +749,9 @@
       "Inventario visuale e fotografico del profilo attivo": "Inventario visual y fotográfico del perfil activo",
       "Nessuna camera astronomica assegnata.": "No hay ninguna cámara astronómica asignada.",
       "Nessun corpo macchina assegnato.": "No hay ningún cuerpo de cámara asignado.",
-      "Capacità visuali del profilo": "Capacidades visuales del perfil"
+      "Capacità visuali del profilo": "Capacidades visuales del perfil",
+      "Filtro solare a tutta apertura disponibile": "Filtro solar de apertura completa disponible",
+      "Solo filtri solari certificati fissati davanti all'obiettivo; mai filtri solari da oculare.": "Solo filtros solares certificados fijados delante del objetivo; nunca utilice filtros solares de ocular."
     },
     "EquipmentBinocularsPage": {
       "IS": "IS"

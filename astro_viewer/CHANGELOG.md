@@ -14,18 +14,26 @@
   generici. I test verificano ora anche identita' marca/modello univoche e
   coerenza fra risoluzione, passo pixel e dimensioni fisiche dei sensori
   astronomici.
-- Lo schema SQLite passa alla versione 21: la versione 20 introduce
+- Lo schema SQLite passa alla versione 22: la versione 20 introduce
   `AstronomyCameraCatalog` e `CameraBodyCatalog`, mentre la 21 aggiunge le
-  associazioni persistenti delle due categorie ai profili. I modelli integrati
-  possono essere corretti ma non eliminati; i modelli utente hanno CRUD
-  completo e, se assegnati, richiedono conferma prima della rimozione anche dai
-  profili.
+  associazioni persistenti delle due categorie ai profili. La versione 22
+  aggiunge a ogni associazione profilo-telescopio lo stato, disattivato per
+  impostazione iniziale, del filtro solare certificato a tutta apertura. I
+  modelli integrati possono essere corretti ma non eliminati; i modelli utente
+  hanno CRUD completo e, se assegnati, richiedono conferma prima della rimozione
+  anche dai profili.
 - La pagina `Profili` mostra ora camere astronomiche e corpi macchina
   nell'inventario assegnato e nei dialoghi di aggiunta/rimozione. La griglia
   passa in modo responsivo fra quattro, due e una colonna; la sezione delle
   capacita' e' esplicitamente visuale. Un segnale dedicato aggiorna soltanto
   l'inventario: camere e body non attivano Equipment, raccomandazioni visuali,
   Planner, Home, dettaglio oggetto, Sky Compass o NSOM.
+- Ogni telescopio assegnato al profilo espone ora il flag
+  `Filtro solare a tutta apertura disponibile`, persistito separatamente per
+  profilo e strumento. Il controllo ricorda esplicitamente di usare soltanto
+  filtri certificati fissati davanti all'obiettivo e mai filtri solari da
+  oculare; il suo segnale aggiorna il solo inventario e non ricalcola ne'
+  notifica il motore visuale.
 - Rifinita la resa visuale dei profili dopo il controllo sull'interfaccia
   reale: i gruppi della griglia restano allineati in alto, i tag delle camere
   rimangono a destra quando lo spazio e' sufficiente e scendono su una seconda
@@ -56,10 +64,11 @@
   regole distinte e senza riusare score visuali, Home o NSOM.
 - Completezza e limiti restano metadati paralleli e non modificano il punteggio:
   seeing, fondo cielo, precisione d'inseguimento, connessione meccanica e cerchio
-  d'immagine non vengono inventati. Il Sole resta deliberatamente escluso finche'
-  il profilo non potra' provare la presenza di un filtro solare certificato.
-  Tempi di posa, condizioni runtime, segnali, DTO QML e pagina Detail non sono
-  ancora collegati.
+  d'immagine non vengono inventati. Il profilo puo' ora dichiarare la presenza
+  del filtro solare per lo specifico telescopio, ma lo scorer statico mantiene
+  deliberatamente escluso il Sole finche' il futuro collegamento runtime non
+  gli passera' questa associazione esatta. Tempi di posa, condizioni runtime,
+  segnali, DTO QML e pagina Detail non sono ancora collegati.
 - La montatura dei telescopi usa ora una tassonomia stabile selezionata da menu:
   OTA, altazimutale, equatoriale, forcella e Dobson, con varianti manuale,
   motorizzata, GoTo e PushTo dove pertinenti. I valori storici dei seed vengono
@@ -67,12 +76,15 @@
   conserva un codice esplicito non specificato. L'adattatore visuale mantiene
   gli stessi coefficienti precedenti, mentre i codici distinti restano
   disponibili al futuro motore fotografico.
-- Il gate finale `tools/run_checks.py --fast` passa con 1.005 test, 643 warning
+- Il gate finale `tools/run_checks.py --fast` passa con 1.009 test, 643 warning
   Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale
   e Red Night Vision. Il catalogo Cameras ha inoltre QML lint senza warning; la
   pagina Profili con camere assegnate e' stata verificata nativamente a
-  `1040 × 700` e `1709 × 1047` in entrambe le modalita'. La scena rossa non
-  presenta pixel oltre le soglie verde/blu.
+  `1040 × 700` e `1709 × 1047` in entrambe le modalita'. Il nuovo controllo
+  del filtro solare e il relativo avviso di sicurezza sono stati verificati
+  nativamente a `1400 × 900`; la scena rossa raggiunge al massimo verde 74 e
+  blu 61, senza pixel oltre soglia. I cataloghi Qt IT/EN/ES contengono 1.868
+  voci finite e zero incomplete.
 - Aggiunti nel catalogo i comandi `Attiva risultati` e
   `Disattiva risultati`: operano sull'intero risultato filtrato corrente,
   mostrano il numero esatto di target coinvolti e chiedono conferma prima

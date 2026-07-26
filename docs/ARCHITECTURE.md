@@ -256,7 +256,9 @@ Current runtime status for `1.27.0`:
 - Equipment remains setup-local; its current score is not replaced by an NSOM
   scalar, but ObserverCapability boundaries are explicit.
 - Astronomy cameras and camera bodies are persistent profile inventory in
-  schema 21. Their sensor/capture fields and assignments do not enter
+  schema 21. Schema 22 additionally stores a user-declared
+  full-aperture-solar-filter capability on each profile-to-telescope
+  assignment. These photographic inventory fields do not enter
   `EquipmentService`, ObserverCapability, Planner, Home, Sky Compass or NSOM.
   Catalogue edits and profile links notify `profileInventoryChanged`; they do
   not rebuild the visual active-profile setup or emit its downstream Home and
@@ -532,6 +534,9 @@ Important pages:
   Seeded rows expose edit but not delete actions; repository protection
   enforces the delete boundary outside QML, while persisted user overrides
   prevent later seed refreshes from replacing corrected values.
+  Each assigned telescope also exposes its schema-22 full-aperture solar-filter
+  flag. The control updates `profileInventoryChanged` only and carries explicit
+  front-of-objective and no-eyepiece-filter safety copy.
 - `EquipmentCamerasPage.qml`: two-column catalogue for astronomy cameras and
   interchangeable-lens camera bodies. The rows can be assigned from
   `EquipmentProfilesPage.qml`, while remaining outside the visual
@@ -680,9 +685,10 @@ Repositories own SQLite persistence:
   changes validate every requested identity before one SQLite transaction.
 - `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter,
   focal-reducer, astronomy-camera and camera-body CRUD. Visual equipment keeps
-  its profile assignments; schema 21 also stores camera assignments as
-  inventory for the separate backend imaging engine, without projecting them
-  into visual equipment models or invoking that engine at runtime.
+  its profile assignments; schema 21 stores camera assignments and schema 22
+  stores the full-aperture-solar-filter declaration for each
+  profile-to-telescope link as inventory for the separate backend imaging
+  engine, without invoking that engine at runtime.
   Every catalogue row exposes `is_builtin`, `seed_key` and `is_user_modified`;
   seeded rows can be updated but not deleted, while user rows can be managed
   after any applicable profile links are handled. Updating a seeded row marks

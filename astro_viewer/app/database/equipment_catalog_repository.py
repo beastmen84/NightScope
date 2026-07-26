@@ -1528,6 +1528,23 @@ class EquipmentCatalogRepository:
     def profile_telescope_ids(self, profile_id: int) -> list[str]:
         return self._profile_item_ids("EquipmentProfileTelescope", "telescope_id", profile_id)
 
+    def profile_full_aperture_solar_filter_telescope_ids(
+        self,
+        profile_id: int,
+    ) -> list[str]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT telescope_id
+                FROM EquipmentProfileTelescope
+                WHERE profile_id = ?
+                  AND has_full_aperture_solar_filter = 1
+                ORDER BY telescope_id
+                """,
+                (profile_id,),
+            ).fetchall()
+        return [str(row["telescope_id"]) for row in rows]
+
     def profile_eyepiece_ids(self, profile_id: int) -> list[str]:
         return self._profile_item_ids("EquipmentProfileEyepiece", "eyepiece_id", profile_id)
 
@@ -1561,6 +1578,24 @@ class EquipmentCatalogRepository:
 
     def assign_profile_telescope(self, profile_id: int, telescope_id: str) -> None:
         self._assign_profile_item("EquipmentProfileTelescope", "telescope_id", profile_id, telescope_id)
+
+    def set_profile_full_aperture_solar_filter(
+        self,
+        profile_id: int,
+        telescope_id: str,
+        available: bool,
+    ) -> bool:
+        with closing(self._connect()) as connection:
+            cursor = connection.execute(
+                """
+                UPDATE EquipmentProfileTelescope
+                SET has_full_aperture_solar_filter = ?
+                WHERE profile_id = ? AND telescope_id = ?
+                """,
+                (1 if available else 0, profile_id, telescope_id),
+            )
+            connection.commit()
+        return cursor.rowcount == 1
 
     def remove_profile_telescope(self, profile_id: int, telescope_id: str) -> None:
         self._remove_profile_item("EquipmentProfileTelescope", "telescope_id", profile_id, telescope_id)

@@ -118,6 +118,8 @@
     "I valori video devono essere maggiori di zero.": "Video values must be greater than zero.",
     "Camera assegnata al profilo. Le raccomandazioni visuali restano invariate.": "Camera assigned to the profile. Visual recommendations remain unchanged.",
     "Camera rimossa dal profilo. Le raccomandazioni visuali restano invariate.": "Camera removed from the profile. Visual recommendations remain unchanged.",
+    "Filtro solare a tutta apertura disponibile per {name}. Le raccomandazioni visuali restano invariate.": "Full-aperture solar filter available for {name}. Visual recommendations remain unchanged.",
+    "Filtro solare a tutta apertura non disponibile per {name}. Le raccomandazioni visuali restano invariate.": "Full-aperture solar filter unavailable for {name}. Visual recommendations remain unchanged.",
     "Camera astronomica": "Astronomy camera",
     "Corpo macchina": "Camera body",
     "Rimuovi dai profili e continua": "Remove from profiles and continue",
@@ -136,7 +138,9 @@
       "Inventario visuale e fotografico del profilo attivo": "Visual and imaging equipment assigned to the active profile",
       "Nessuna camera astronomica assegnata.": "No astronomy camera assigned.",
       "Nessun corpo macchina assegnato.": "No camera body assigned.",
-      "Capacità visuali del profilo": "Visual profile capabilities"
+      "Capacità visuali del profilo": "Visual profile capabilities",
+      "Filtro solare a tutta apertura disponibile": "Full-aperture solar filter available",
+      "Solo filtri solari certificati fissati davanti all'obiettivo; mai filtri solari da oculare.": "Only certified solar filters secured in front of the objective; never use eyepiece solar filters."
     },
     "EquipmentCamerasPage": {
       "Modifica camera astronomica": "Edit astronomy camera",

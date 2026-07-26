@@ -2119,6 +2119,11 @@ class AppController(QObject):
     def removeTelescopeFromActiveProfile(self, telescope_id: str) -> None:
         state = self._active_profile_state()
         state["telescope_ids"] = [item for item in state["telescope_ids"] if item != telescope_id]
+        state["full_aperture_solar_filter_telescope_ids"] = [
+            item
+            for item in state["full_aperture_solar_filter_telescope_ids"]
+            if item != telescope_id
+        ]
         profile = self._active_profile()
         if profile:
             self._equipment_catalog_repository.remove_profile_telescope(int(profile["id"]), telescope_id)
@@ -2128,6 +2133,52 @@ class AppController(QObject):
         self._equipment_message = self._equipment_status_message()
         self._refresh_active_profile_dependencies(reload_profile_equipment=True)
         self._emit_profile_dependent_changes()
+
+    @Slot(str, bool)
+    def setTelescopeSolarFilterAvailable(
+        self,
+        telescope_id: str,
+        available: bool,
+    ) -> None:
+        telescope = self._find_telescope(telescope_id)
+        state = self._active_profile_state()
+        if telescope is None or telescope_id not in state["telescope_ids"]:
+            return
+        solar_filter_ids = state[
+            "full_aperture_solar_filter_telescope_ids"
+        ]
+        if (telescope_id in solar_filter_ids) == available:
+            return
+        profile = self._active_profile()
+        if profile is None:
+            return
+        updated = (
+            self._equipment_catalog_repository
+            .set_profile_full_aperture_solar_filter(
+                int(profile["id"]),
+                telescope_id,
+                available,
+            )
+        )
+        if not updated:
+            return
+        if available:
+            solar_filter_ids.append(telescope_id)
+            self._equipment_message = tr(
+                "Filtro solare a tutta apertura disponibile per {name}. "
+                "Le raccomandazioni visuali restano invariate.",
+                name=telescope.name,
+            )
+        else:
+            state["full_aperture_solar_filter_telescope_ids"] = [
+                item for item in solar_filter_ids if item != telescope_id
+            ]
+            self._equipment_message = tr(
+                "Filtro solare a tutta apertura non disponibile per {name}. "
+                "Le raccomandazioni visuali restano invariate.",
+                name=telescope.name,
+            )
+        self.profileInventoryChanged.emit()
 
     @Slot(str)
     def assignEyepieceToActiveProfile(self, eyepiece_id: str) -> None:
@@ -8650,6 +8701,20 @@ class AppController(QObject):
                 for telescope_id in self._equipment_catalog_repository.profile_telescope_ids(profile_id)
             ]
             telescope_ids = [telescope_id for telescope_id in telescope_ids if telescope_id]
+            solar_filter_telescope_ids = [
+                self._normalize_telescope_catalog_id(telescope_id)
+                for telescope_id in (
+                    self._equipment_catalog_repository
+                    .profile_full_aperture_solar_filter_telescope_ids(
+                        profile_id
+                    )
+                )
+            ]
+            solar_filter_telescope_ids = [
+                telescope_id
+                for telescope_id in solar_filter_telescope_ids
+                if telescope_id and telescope_id in telescope_ids
+            ]
             legacy_telescope_id = profile.get("telescope_id") or self._equipment_service.NAKED_EYE_ID
             normalized_legacy_id = self._normalize_telescope_catalog_id(legacy_telescope_id)
             if normalized_legacy_id and normalized_legacy_id != self._equipment_service.NAKED_EYE_ID and normalized_legacy_id not in telescope_ids:
@@ -8658,6 +8723,9 @@ class AppController(QObject):
                 self._equipment_catalog_repository.update_profile_telescope(profile_id, normalized_legacy_id)
             equipment[str(profile_id)] = {
                 "telescope_ids": telescope_ids,
+                "full_aperture_solar_filter_telescope_ids": (
+                    solar_filter_telescope_ids
+                ),
                 "eyepiece_ids": self._equipment_catalog_repository.profile_eyepiece_ids(profile_id),
                 "barlow_ids": self._equipment_catalog_repository.profile_barlow_ids(profile_id),
                 "binocular_ids": self._equipment_catalog_repository.profile_binocular_ids(profile_id),
@@ -8705,6 +8773,7 @@ class AppController(QObject):
     def _empty_profile_equipment_state() -> dict[str, list[str]]:
         return {
             "telescope_ids": [],
+            "full_aperture_solar_filter_telescope_ids": [],
             "eyepiece_ids": [],
             "barlow_ids": [],
             "binocular_ids": [],
@@ -8718,6 +8787,7 @@ class AppController(QObject):
     def _ensure_profile_equipment_state(state: dict[str, list[str]]) -> None:
         for key in (
             "telescope_ids",
+            "full_aperture_solar_filter_telescope_ids",
             "eyepiece_ids",
             "barlow_ids",
             "binocular_ids",
@@ -8741,6 +8811,17 @@ class AppController(QObject):
         state = self._active_profile_state()
         telescopes = [telescope for telescope_id in state["telescope_ids"] if (telescope := self._find_telescope(telescope_id))]
         return telescopes
+
+    def _active_profile_has_full_aperture_solar_filter(
+        self,
+        telescope_id: str,
+    ) -> bool:
+        return (
+            telescope_id
+            in self._active_profile_state()[
+                "full_aperture_solar_filter_telescope_ids"
+            ]
+        )
 
     def _active_profile_eyepieces(self) -> list[Eyepiece]:
         state = self._active_profile_state()
@@ -8964,6 +9045,11 @@ class AppController(QObject):
                         "{aperture} mm / {focal_length} mm",
                         aperture=format_number(telescope.aperture_mm),
                         focal_length=format_number(telescope.focal_length_mm),
+                    ),
+                    "hasFullApertureSolarFilter": (
+                        self._active_profile_has_full_aperture_solar_filter(
+                            telescope.id
+                        )
                     ),
                 }
             )
