@@ -1,6 +1,6 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-25
+Aggiornato: 2026-07-26
 
 ## Stato Versioni
 
@@ -52,6 +52,15 @@ larghezza effettiva lo consente e passano automaticamente sotto soltanto nelle
 celle strette. I due dialoghi Cameras hanno colonne uniformi e label italiane
 piu' naturali per larghezza/altezza sensore e passo pixel.
 
+Il successivo audit terminologico rende espliciti modello e tecnologia del
+sensore, modalita' colore, risoluzione orizzontale/verticale, FPS a piena
+risoluzione e Delta T massimo sotto ambiente. Il tuple video dei corpi macchina
+mostra gli FPS alla risoluzione indicata, non un picco ottenuto in un altro
+formato. Italiano, inglese e spagnolo usano un glossario fotografico controllato:
+`Rolling shutter` resta il termine tecnico anche in spagnolo, mentre montatura
+obiettivo, backfocus e modalita' Bulb non vengono tradotti letteralmente. Gli
+overlay editoriali e i test bloccano regressioni sulle nomenclature Cameras.
+
 Il collegamento e' deliberatamente solo inventario. Il segnale
 `profileInventoryChanged` aggiorna la pagina senza emettere `equipmentChanged`
 e quindi senza notificare Home o dettaglio osservativo; camere e body non
@@ -67,7 +76,7 @@ specificato. La proiezione di tracking visuale conserva esattamente i
 coefficienti precedenti, lasciando le distinzioni piu' fini al futuro motore
 fotografico.
 
-Il gate finale `tools/run_checks.py --fast` passa con 978 test, 643 warning
+Il gate finale `tools/run_checks.py --fast` passa con 979 test, 643 warning
 Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale e
 Red Night Vision. `EquipmentCamerasPage.qml` passa QML lint senza warning. La
 pagina Profili con camere assegnate e' stata controllata nativamente a
@@ -75,7 +84,10 @@ pagina Profili con camere assegnate e' stata controllata nativamente a
 massimi sono verde 74 e blu 61, senza pixel oltre soglia. I cataloghi Qt
 IT/EN/ES contengono 1.864 voci finite e zero incomplete. Il follow-up visuale
 mantiene lo stesso gate e aggiunge la verifica del posizionamento responsivo
-dei tag e delle colonne uniformi nei dialoghi.
+dei tag e delle colonne uniformi nei dialoghi. L'audit terminologico aggiunge
+31 test mirati verdi e una verifica nativa dei dialoghi IT/EN/ES, incluso il
+body spagnolo in Red Night Vision; l'etichetta localizzata piu' larga misura
+185,2 px nei 244 px disponibili e non viene elisa.
 
 ## Catalogo NGC e ammissione raccomandazioni
 

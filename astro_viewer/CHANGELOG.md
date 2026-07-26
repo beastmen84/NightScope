@@ -31,6 +31,12 @@
   rimangono a destra quando lo spazio e' sufficiente e scendono su una seconda
   riga soltanto nelle celle strette. I dialoghi Cameras usano tre colonne
   uniformi e diciture piu' naturali per dimensioni del sensore e passo pixel.
+- Revisionata la terminologia Cameras in italiano, inglese e spagnolo secondo
+  l'uso fotografico e astronomico: modello e tecnologia del sensore, modalita'
+  colore, risoluzione orizzontale/verticale, FPS a piena risoluzione, Delta T
+  sotto ambiente, montatura obiettivo e modalita' Bulb sono ora distinti senza
+  traduzioni letterali. Gli overlay editoriali e un test multilingua dedicato
+  proteggono anche `Rolling shutter` dall'errata resa spagnola come tapparella.
 - La montatura dei telescopi usa ora una tassonomia stabile selezionata da menu:
   OTA, altazimutale, equatoriale, forcella e Dobson, con varianti manuale,
   motorizzata, GoTo e PushTo dove pertinenti. I valori storici dei seed vengono
@@ -38,7 +44,7 @@
   conserva un codice esplicito non specificato. L'adattatore visuale mantiene
   gli stessi coefficienti precedenti, mentre i codici distinti restano
   disponibili al futuro motore fotografico.
-- Il gate finale `tools/run_checks.py --fast` passa con 978 test, 643 warning
+- Il gate finale `tools/run_checks.py --fast` passa con 979 test, 643 warning
   Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale
   e Red Night Vision. Il catalogo Cameras ha inoltre QML lint senza warning; la
   pagina Profili con camere assegnate e' stata verificata nativamente a

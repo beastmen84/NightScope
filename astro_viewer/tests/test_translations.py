@@ -1059,6 +1059,164 @@ def test_curated_english_astronomy_terms_remain_technically_correct() -> None:
         assert forbidden not in rendered
 
 
+def test_curated_camera_terminology_is_technically_consistent() -> None:
+    expected = {
+        "en": {
+            ("", "Rolling shutter"): "Rolling shutter",
+            ("", "Global shutter"): "Global shutter",
+            (
+                "",
+                "Modalità colore del sensore non valida.",
+            ): "Invalid sensor color mode.",
+            (
+                "",
+                "Le dimensioni del sensore e il passo pixel devono essere "
+                "maggiori di zero.",
+            ): "Sensor dimensions and pixel size must be greater than zero.",
+            (
+                "",
+                "Il ΔT massimo sotto ambiente deve essere maggiore di zero.",
+            ): "Maximum cooling ΔT below ambient must be greater than zero.",
+            (
+                "",
+                "La baionetta dell'obiettivo è obbligatoria.",
+            ): "Lens mount is required.",
+            (
+                "",
+                "Compila tutti i campi video oppure lasciali vuoti.",
+            ): "Complete all video fields or leave them blank.",
+            (
+                "",
+                "I valori video devono essere maggiori di zero.",
+            ): "Video values must be greater than zero.",
+            (
+                "EquipmentCamerasPage",
+                "Modello sensore *",
+            ): "Sensor model *",
+            (
+                "EquipmentCamerasPage",
+                "Tecnologia sensore *",
+            ): "Sensor technology *",
+            (
+                "EquipmentCamerasPage",
+                "Modalità colore *",
+            ): "Color mode *",
+            (
+                "EquipmentCamerasPage",
+                "Passo pixel (µm) *",
+            ): "Pixel size (µm) *",
+            (
+                "EquipmentCamerasPage",
+                "Risoluzione orizzontale (px) *",
+            ): "Horizontal resolution (px) *",
+            (
+                "EquipmentCamerasPage",
+                "FPS a piena risoluzione (facoltativo)",
+            ): "Max FPS at full resolution (optional)",
+            (
+                "EquipmentCamerasPage",
+                "ΔT massimo sotto ambiente (°C)",
+            ): "Max ΔT below ambient (°C)",
+            (
+                "EquipmentCamerasPage",
+                "FPS alla risoluzione video indicata",
+            ): "FPS at the specified video resolution",
+            (
+                "EquipmentCamerasPage",
+                "Baionetta *",
+            ): "Lens mount *",
+            (
+                "EquipmentCamerasPage",
+                "Modalità Bulb",
+            ): "Bulb mode",
+        },
+        "es": {
+            ("", "Rolling shutter"): "Rolling shutter",
+            ("", "Global shutter"): "Obturador global",
+            (
+                "",
+                "Modalità colore del sensore non valida.",
+            ): "Modo de color del sensor no válido.",
+            (
+                "",
+                "Le dimensioni del sensore e il passo pixel devono essere "
+                "maggiori di zero.",
+            ): (
+                "Las dimensiones del sensor y el tamaño de píxel deben ser "
+                "mayores que cero."
+            ),
+            (
+                "",
+                "Il frame rate deve essere maggiore di zero.",
+            ): "La frecuencia de imagen debe ser mayor que cero.",
+            (
+                "",
+                "Il ΔT massimo sotto ambiente deve essere maggiore di zero.",
+            ): "El ΔT máximo por debajo del ambiente debe ser mayor que cero.",
+            (
+                "",
+                "La baionetta dell'obiettivo è obbligatoria.",
+            ): "La montura del objetivo es obligatoria.",
+            (
+                "",
+                "Compila tutti i campi video oppure lasciali vuoti.",
+            ): "Complete todos los campos de vídeo o déjelos en blanco.",
+            (
+                "",
+                "I valori video devono essere maggiori di zero.",
+            ): "Los valores de vídeo deben ser mayores que cero.",
+            (
+                "EquipmentCamerasPage",
+                "Modello sensore *",
+            ): "Modelo del sensor *",
+            (
+                "EquipmentCamerasPage",
+                "Tecnologia sensore *",
+            ): "Tecnología del sensor *",
+            (
+                "EquipmentCamerasPage",
+                "Modalità colore *",
+            ): "Modo de color *",
+            (
+                "EquipmentCamerasPage",
+                "Passo pixel (µm) *",
+            ): "Tamaño de píxel (µm) *",
+            (
+                "EquipmentCamerasPage",
+                "Risoluzione orizzontale (px) *",
+            ): "Resolución horizontal (px) *",
+            (
+                "EquipmentCamerasPage",
+                "FPS a piena risoluzione (facoltativo)",
+            ): "FPS máx. a resolución completa (opcional)",
+            (
+                "EquipmentCamerasPage",
+                "ΔT massimo sotto ambiente (°C)",
+            ): "ΔT máx. por debajo del ambiente (°C)",
+            (
+                "EquipmentCamerasPage",
+                "FPS alla risoluzione video indicata",
+            ): "FPS a la resolución de vídeo indicada",
+            (
+                "EquipmentCamerasPage",
+                "Baionetta *",
+            ): "Montura del objetivo *",
+            (
+                "EquipmentCamerasPage",
+                "Modalità Bulb",
+            ): "Modo Bulb",
+        },
+    }
+
+    for code, expected_entries in expected.items():
+        _, entries = _catalog_entries(TRANSLATIONS_DIR / f"{code}.ts")
+        for key, translation in expected_entries.items():
+            assert entries[key] == translation
+
+    spanish_text = (TRANSLATIONS_DIR / "es.ts").read_text(encoding="utf-8")
+    assert "persiana enrollable" not in spanish_text.casefold()
+
+
 def test_catalogue_content_keeps_language_pack_metadata_through_astronomy() -> None:
     skyfield_source = (
         PROJECT_DIR / "astro_viewer" / "app" / "astronomy" / "skyfield_engine.py"

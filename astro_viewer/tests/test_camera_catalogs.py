@@ -665,6 +665,15 @@ def test_camera_navigation_profile_ui_and_packaging_are_wired() -> None:
     assert "Larghezza sensore (mm) *" in cameras_qml
     assert "Altezza sensore (mm) *" in cameras_qml
     assert "Passo pixel (µm) *" in cameras_qml
+    assert "Modello sensore *" in cameras_qml
+    assert "Tecnologia sensore *" in cameras_qml
+    assert "Modalità colore *" in cameras_qml
+    assert "Risoluzione orizzontale (px) *" in cameras_qml
+    assert "Risoluzione verticale (px) *" in cameras_qml
+    assert "FPS a piena risoluzione (facoltativo)" in cameras_qml
+    assert "ΔT massimo sotto ambiente (°C)" in cameras_qml
+    assert "FPS alla risoluzione video indicata" in cameras_qml
+    assert "Modalità Bulb" in cameras_qml
     assert "telescopeMountTypeOptions" in telescopes_qml
     assert "DarkComboBox" in telescopes_qml
     assert "astronomy_camera_catalog_seed.csv" in spec

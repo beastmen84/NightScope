@@ -606,11 +606,11 @@ Item {
                 valueRole: "code"
             }
 
-            DarkTextField { id: astronomySensorModel; Layout.fillWidth: true; labelText: qsTr("Sensore *") }
+            DarkTextField { id: astronomySensorModel; Layout.fillWidth: true; labelText: qsTr("Modello sensore *") }
             DarkComboBox {
                 id: astronomyTechnology
                 Layout.fillWidth: true
-                labelText: qsTr("Tecnologia *")
+                labelText: qsTr("Tecnologia sensore *")
                 model: root.controller.sensorTechnologyOptions
                 textRole: "label"
                 valueRole: "code"
@@ -618,7 +618,7 @@ Item {
             DarkComboBox {
                 id: astronomyColorMode
                 Layout.fillWidth: true
-                labelText: qsTr("Tipo sensore *")
+                labelText: qsTr("Modalità colore *")
                 model: root.controller.sensorColorModeOptions
                 textRole: "label"
                 valueRole: "code"
@@ -628,11 +628,11 @@ Item {
             DarkTextField { id: astronomySensorHeight; Layout.fillWidth: true; labelText: qsTr("Altezza sensore (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkTextField { id: astronomyPixelSize; Layout.fillWidth: true; labelText: qsTr("Passo pixel (µm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
 
-            DarkTextField { id: astronomyResolutionWidth; Layout.fillWidth: true; labelText: qsTr("Risoluzione larghezza (px) *"); inputMethodHints: Qt.ImhDigitsOnly }
-            DarkTextField { id: astronomyResolutionHeight; Layout.fillWidth: true; labelText: qsTr("Risoluzione altezza (px) *"); inputMethodHints: Qt.ImhDigitsOnly }
+            DarkTextField { id: astronomyResolutionWidth; Layout.fillWidth: true; labelText: qsTr("Risoluzione orizzontale (px) *"); inputMethodHints: Qt.ImhDigitsOnly }
+            DarkTextField { id: astronomyResolutionHeight; Layout.fillWidth: true; labelText: qsTr("Risoluzione verticale (px) *"); inputMethodHints: Qt.ImhDigitsOnly }
             DarkTextField { id: astronomyBitDepth; Layout.fillWidth: true; labelText: qsTr("Profondità (bit) *"); inputMethodHints: Qt.ImhDigitsOnly }
 
-            DarkTextField { id: astronomyMaxFps; Layout.fillWidth: true; labelText: qsTr("FPS massimi (facoltativo)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: astronomyMaxFps; Layout.fillWidth: true; labelText: qsTr("FPS a piena risoluzione (facoltativo)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkComboBox {
                 id: astronomyShutter
                 Layout.fillWidth: true
@@ -648,7 +648,7 @@ Item {
                 id: astronomyCoolingDelta
                 Layout.fillWidth: true
                 enabled: astronomyCooled.checked
-                labelText: qsTr("Delta raffreddamento (°C)")
+                labelText: qsTr("ΔT massimo sotto ambiente (°C)")
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
             }
             Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
@@ -726,16 +726,16 @@ Item {
             DarkTextField { id: cameraSensorHeight; Layout.fillWidth: true; labelText: qsTr("Altezza sensore (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
 
-            DarkTextField { id: cameraResolutionWidth; Layout.fillWidth: true; labelText: qsTr("Risoluzione larghezza (px) *"); inputMethodHints: Qt.ImhDigitsOnly }
-            DarkTextField { id: cameraResolutionHeight; Layout.fillWidth: true; labelText: qsTr("Risoluzione altezza (px) *"); inputMethodHints: Qt.ImhDigitsOnly }
+            DarkTextField { id: cameraResolutionWidth; Layout.fillWidth: true; labelText: qsTr("Risoluzione orizzontale (px) *"); inputMethodHints: Qt.ImhDigitsOnly }
+            DarkTextField { id: cameraResolutionHeight; Layout.fillWidth: true; labelText: qsTr("Risoluzione verticale (px) *"); inputMethodHints: Qt.ImhDigitsOnly }
             Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
 
-            DarkTextField { id: cameraVideoWidth; Layout.fillWidth: true; labelText: qsTr("Video larghezza (px)"); inputMethodHints: Qt.ImhDigitsOnly }
-            DarkTextField { id: cameraVideoHeight; Layout.fillWidth: true; labelText: qsTr("Video altezza (px)"); inputMethodHints: Qt.ImhDigitsOnly }
-            DarkTextField { id: cameraVideoFps; Layout.fillWidth: true; labelText: qsTr("Video FPS massimi"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: cameraVideoWidth; Layout.fillWidth: true; labelText: qsTr("Risoluzione video orizzontale (px)"); inputMethodHints: Qt.ImhDigitsOnly }
+            DarkTextField { id: cameraVideoHeight; Layout.fillWidth: true; labelText: qsTr("Risoluzione video verticale (px)"); inputMethodHints: Qt.ImhDigitsOnly }
+            DarkTextField { id: cameraVideoFps; Layout.fillWidth: true; labelText: qsTr("FPS alla risoluzione video indicata"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
 
             DarkCheckBox { id: cameraLiveView; Layout.fillWidth: true; text: qsTr("Live View") }
-            DarkCheckBox { id: cameraBulbMode; Layout.fillWidth: true; text: qsTr("Posa Bulb") }
+            DarkCheckBox { id: cameraBulbMode; Layout.fillWidth: true; text: qsTr("Modalità Bulb") }
             Item { Layout.fillWidth: true; Layout.preferredHeight: 1 }
 
             DarkTextField {

@@ -1977,6 +1977,36 @@
       <translation>El rango AFOV no es válido.</translation>
     </message>
     <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="959" />
+      <source>Modalità colore del sensore non valida.</source>
+      <translation>Modo de color del sensor no válido.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="965" />
+      <source>Le dimensioni del sensore e il passo pixel devono essere maggiori di zero.</source>
+      <translation>Las dimensiones del sensor y el tamaño de píxel deben ser mayores que cero.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="973" />
+      <source>Il ΔT massimo sotto ambiente deve essere maggiore di zero.</source>
+      <translation>El ΔT máximo por debajo del ambiente debe ser mayor que cero.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="985" />
+      <source>La baionetta dell'obiettivo è obbligatoria.</source>
+      <translation>La montura del objetivo es obligatoria.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="995" />
+      <source>Compila tutti i campi video oppure lasciali vuoti.</source>
+      <translation>Complete todos los campos de vídeo o déjelos en blanco.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="997" />
+      <source>I valori video devono essere maggiori di zero.</source>
+      <translation>Los valores de vídeo deben ser mayores que cero.</translation>
+    </message>
+    <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1003" />
       <source>Tipo di filtro non valido.</source>
       <translation>Tipo de filtro no válido.</translation>
@@ -2015,7 +2045,7 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="975" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1019" />
       <source>Il backfocus deve essere maggiore di zero.</source>
-      <translation>El backfocus debe ser mayor que cero.</translation>
+      <translation>La distancia de backfocus debe ser mayor que cero.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1021" />
@@ -3782,12 +3812,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="957" />
       <source>Tecnologia del sensore non valida.</source>
-      <translation>Tecnología de sensor no válida.</translation>
-    </message>
-    <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="959" />
-      <source>Tipo colore del sensore non valido.</source>
-      <translation>Tipo de color de sensor no válido.</translation>
+      <translation>Tecnología del sensor no válida.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="961" />
@@ -3798,12 +3823,7 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="963" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3241" />
       <source>Dati della camera astronomica non validi.</source>
-      <translation>Datos de cámara astronómica no válidos.</translation>
-    </message>
-    <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="965" />
-      <source>Dimensioni del sensore e pixel devono essere maggiori di zero.</source>
-      <translation>El tamaño del sensor y los píxeles deben ser mayores que cero.</translation>
+      <translation>Datos de la cámara astronómica no válidos.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="967" />
@@ -3819,12 +3839,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="971" />
       <source>Il frame rate deve essere maggiore di zero.</source>
-      <translation>La velocidad de cuadros debe ser mayor que cero.</translation>
-    </message>
-    <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="973" />
-      <source>Il delta di raffreddamento deve essere maggiore di zero.</source>
-      <translation>El delta de enfriamiento debe ser mayor que cero.</translation>
+      <translation>La frecuencia de imagen debe ser mayor que cero.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="977" />
@@ -3835,17 +3850,12 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="981" />
       <source>Tipo di corpo macchina non valido.</source>
-      <translation>Tipo de cuerpo no válido.</translation>
+      <translation>Tipo de cuerpo de cámara no válido.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="983" />
       <source>Formato del sensore non valido.</source>
-      <translation>Formato de sensor no válido.</translation>
-    </message>
-    <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="985" />
-      <source>La baionetta è obbligatoria.</source>
-      <translation>La bayoneta es obligatoria.</translation>
+      <translation>Formato del sensor no válido.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="987" />
@@ -3861,17 +3871,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="993" />
       <source>La profondità RAW non è valida.</source>
-      <translation>La profundidad RAW no es válida.</translation>
-    </message>
-    <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="995" />
-      <source>Completa tutti i dati video oppure lasciali vuoti.</source>
-      <translation>Complete todos los datos del video o déjelo en blanco.</translation>
-    </message>
-    <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="997" />
-      <source>I dati video devono essere maggiori di zero.</source>
-      <translation>Los datos de vídeo deben ser mayores que cero.</translation>
+      <translation>La profundidad de bits RAW no es válida.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1791" />
@@ -3956,7 +3956,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1825" />
       <source>Rolling shutter</source>
-      <translation>persiana enrollable</translation>
+      <translation>Rolling shutter</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1827" />
@@ -7000,18 +7000,60 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="609" />
-      <source>Sensore *</source>
-      <translation>Sensor *</translation>
+      <source>Modello sensore *</source>
+      <translation>Modelo del sensor *</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="613" />
-      <source>Tecnologia *</source>
-      <translation>Tecnología *</translation>
+      <source>Tecnologia sensore *</source>
+      <translation>Tecnología del sensor *</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="621" />
-      <source>Tipo sensore *</source>
-      <translation>Tipo de sensor *</translation>
+      <source>Modalità colore *</source>
+      <translation>Modo de color *</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="631" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="729" />
+      <source>Risoluzione orizzontale (px) *</source>
+      <translation>Resolución horizontal (px) *</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="632" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="730" />
+      <source>Risoluzione verticale (px) *</source>
+      <translation>Resolución vertical (px) *</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="635" />
+      <source>FPS a piena risoluzione (facoltativo)</source>
+      <translation>FPS máx. a resolución completa (opcional)</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="651" />
+      <source>ΔT massimo sotto ambiente (°C)</source>
+      <translation>ΔT máx. por debajo del ambiente (°C)</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="733" />
+      <source>Risoluzione video orizzontale (px)</source>
+      <translation>Resolución horizontal de vídeo (px)</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="734" />
+      <source>Risoluzione video verticale (px)</source>
+      <translation>Resolución vertical de vídeo (px)</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="735" />
+      <source>FPS alla risoluzione video indicata</source>
+      <translation>FPS a la resolución de vídeo indicada</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="738" />
+      <source>Modalità Bulb</source>
+      <translation>Modo Bulb</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="627" />
@@ -7031,26 +7073,9 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>Tamaño de píxel (µm) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="631" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="729" />
-      <source>Risoluzione larghezza (px) *</source>
-      <translation>Resolución horizontal (px) *</translation>
-    </message>
-    <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="632" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="730" />
-      <source>Risoluzione altezza (px) *</source>
-      <translation>Resolución vertical (px) *</translation>
-    </message>
-    <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="633" />
       <source>Profondità (bit) *</source>
       <translation>Profundidad de bits *</translation>
-    </message>
-    <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="635" />
-      <source>FPS massimi (facoltativo)</source>
-      <translation>FPS máximos (opcional)</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="639" />
@@ -7066,11 +7091,6 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="646" />
       <source>Raffreddata</source>
       <translation>Refrigerada</translation>
-    </message>
-    <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="651" />
-      <source>Delta raffreddamento (°C)</source>
-      <translation>Delta de refrigeración (°C)</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="660" />
@@ -7099,29 +7119,9 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>Profundidad de bits RAW *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="733" />
-      <source>Video larghezza (px)</source>
-      <translation>Anchura de vídeo (px)</translation>
-    </message>
-    <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="734" />
-      <source>Video altezza (px)</source>
-      <translation>Altura de vídeo (px)</translation>
-    </message>
-    <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="735" />
-      <source>Video FPS massimi</source>
-      <translation>FPS máximos de vídeo</translation>
-    </message>
-    <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="737" />
       <source>Live View</source>
       <translation>Vista en directo</translation>
-    </message>
-    <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="738" />
-      <source>Posa Bulb</source>
-      <translation>Modo Bulb</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="761" />

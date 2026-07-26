@@ -2218,7 +2218,7 @@ class EquipmentCatalogRepository:
         if clean_sensor_technology not in SENSOR_TECHNOLOGY_LABELS:
             return (), tr("Tecnologia del sensore non valida.")
         if clean_color_mode not in SENSOR_COLOR_MODE_LABELS:
-            return (), tr("Tipo colore del sensore non valido.")
+            return (), tr("Modalità colore del sensore non valida.")
         if clean_shutter_type not in SENSOR_SHUTTER_LABELS:
             return (), tr("Tipo di otturatore non valido.")
         if not _all_finite(
@@ -2231,7 +2231,10 @@ class EquipmentCatalogRepository:
         ):
             return (), tr("Dati della camera astronomica non validi.")
         if sensor_width_mm <= 0 or sensor_height_mm <= 0 or pixel_size_um <= 0:
-            return (), tr("Dimensioni del sensore e pixel devono essere maggiori di zero.")
+            return (), tr(
+                "Le dimensioni del sensore e il passo pixel devono essere "
+                "maggiori di zero."
+            )
         if resolution_width_px <= 0 or resolution_height_px <= 0:
             return (), tr("La risoluzione deve essere maggiore di zero.")
         if bit_depth <= 0 or bit_depth > 32:
@@ -2239,7 +2242,9 @@ class EquipmentCatalogRepository:
         if max_fps is not None and max_fps <= 0:
             return (), tr("Il frame rate deve essere maggiore di zero.")
         if cooling_delta_c is not None and cooling_delta_c <= 0:
-            return (), tr("Il delta di raffreddamento deve essere maggiore di zero.")
+            return (), tr(
+                "Il ΔT massimo sotto ambiente deve essere maggiore di zero."
+            )
         if not cooled:
             cooling_delta_c = None
         if backfocus_mm is not None and backfocus_mm <= 0:
@@ -2299,7 +2304,7 @@ class EquipmentCatalogRepository:
         if clean_sensor_format not in CAMERA_SENSOR_FORMAT_LABELS:
             return (), tr("Formato del sensore non valido.")
         if not clean_lens_mount:
-            return (), tr("La baionetta è obbligatoria.")
+            return (), tr("La baionetta dell'obiettivo è obbligatoria.")
         if not _all_finite(sensor_width_mm, sensor_height_mm, max_video_fps):
             return (), tr("Dati del corpo macchina non validi.")
         if sensor_width_mm <= 0 or sensor_height_mm <= 0:
@@ -2316,7 +2321,7 @@ class EquipmentCatalogRepository:
         if any(value is not None for value in video_values) and not all(
             value is not None for value in video_values
         ):
-            return (), tr("Completa tutti i dati video oppure lasciali vuoti.")
+            return (), tr("Compila tutti i campi video oppure lasciali vuoti.")
         if all(value is not None for value in video_values) and (
             max_video_width_px is None
             or max_video_height_px is None
@@ -2325,7 +2330,7 @@ class EquipmentCatalogRepository:
             or max_video_height_px <= 0
             or max_video_fps <= 0
         ):
-            return (), tr("I dati video devono essere maggiori di zero.")
+            return (), tr("I valori video devono essere maggiori di zero.")
         if clean_source_url and not clean_source_url.startswith(("https://", "http://")):
             return (), tr("Il collegamento alla fonte non è valido.")
         return (

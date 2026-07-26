@@ -122,6 +122,33 @@ formatting, and known English calques. Similar observing instructions are not
 rewritten solely to make them look unique when the shared guidance is
 technically appropriate.
 
+### Technical Terminology
+
+Technical UI copy is translated by domain meaning, not word by word. Product
+names, standards and established loanwords remain unchanged when that is how
+camera and astronomy documentation identifies them. Persisted codes such as
+`ROLLING`, `GLOBAL`, `COLOR` and `MONO` remain language-neutral; only their
+presentation labels are localized.
+
+The Cameras glossary currently protects these representative terms:
+
+| Concept | Italian source | English | Spanish (`es_ES`) |
+| --- | --- | --- | --- |
+| Sensor identifier | Modello sensore | Sensor model | Modelo del sensor |
+| Sensor construction | Tecnologia sensore | Sensor technology | Tecnología del sensor |
+| Color/mono selection | Modalità colore | Color mode | Modo de color |
+| Pixel spacing | Passo pixel | Pixel size | Tamaño de píxel |
+| Image dimensions | Risoluzione orizzontale/verticale | Horizontal/vertical resolution | Resolución horizontal/vertical |
+| Full-resolution frame rate | FPS a piena risoluzione | Max FPS at full resolution | FPS máx. a resolución completa |
+| Cooling capacity | ΔT massimo sotto ambiente | Max ΔT below ambient | ΔT máx. por debajo del ambiente |
+| Sensor readout | Rolling shutter / Global shutter | Rolling shutter / Global shutter | Rolling shutter / Obturador global |
+| Camera interface | Baionetta | Lens mount | Montura del objetivo |
+| Long exposure mode | Modalità Bulb | Bulb mode | Modo Bulb |
+
+Exact EN/ES translations and known bad literal renderings are regression-tested.
+New equipment fields must extend both translation-review overlays and the
+technical terminology test before their generated catalogues are committed.
+
 ### Machine-Translation Provider
 
 The maintenance scripts use `tools/translation_provider.py`, a small
