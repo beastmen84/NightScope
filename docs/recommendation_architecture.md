@@ -782,10 +782,46 @@ passband remain explicit unmodeled limitations, so the result is a conservative
 broadband planning interval rather than camera calibration.
 
 This layer is also absent from `AppController`, `EquipmentService`, QML, Home,
-Planner, Sky Compass and NSOM. The next boundary is a runtime assembler that
-supplies active-profile trains, the exact solar-filter telescope IDs and
-current session conditions; presentation on Object Detail remains the last
-stage.
+Planner, Sky Compass and NSOM.
+
+### Photographic Video Capture Planning
+
+The sibling backend-only video layer consumes an already-scored solar, lunar
+or planetary candidate:
+
+```text
+ImagingRecommendationCandidate + ImagingVideoSessionConditions
+                             |
+                             v
+              ImagingVideoCaptureAdvisor
+                             |
+                             v
+               ImagingVideoCaptureAdvice
+```
+
+Policy `imaging_video_capture_v1` returns a conservative duration range for
+one independently stackable clip without image derotation, a planned FPS
+range and the corresponding captured-frame range. Solar, lunar and all seven
+planet profiles are explicit. The candidate score is never changed, and still
+candidates receive no video advice.
+
+An optional achievable FPS is authoritative. Without it, the camera's
+full-resolution FPS or body video FPS is only an upper bound; when even that is
+missing, the output remains a named target goal with low confidence. Seeing
+and target altitude contribute warnings and completeness but never fabricate
+an exact frame exposure or clip duration.
+
+Alt-azimuth GoTo retains the ordinary Jupiter window because short-frame
+planetary capture does not require an equatorial mount. Field rotation caps
+only longer clips; manual and unknown mounts use shorter conservative windows.
+Exposure/gain and histogram, ROI/readout, actual transfer throughput, codec or
+RAW format, atmospheric-dispersion correction, apparent diameter/phase, lucky
+frame-selection fraction and image derotation remain explicit limitations.
+
+This layer is likewise absent from runtime and QML. The next boundary is a
+runtime assembler that supplies active-profile trains, exact solar-filter
+telescope IDs and current conditions to the still or video advisor;
+presentation on Object Detail remains the last stage.
 
 ### Filters
 

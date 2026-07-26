@@ -68,6 +68,15 @@
   di frame. La policy e' auditabile e usa rapporto focale, luminosita' del
   target, SQM o fallback Bortle, trasparenza, geometria lunare e un limite
   prudenziale distinto per montatura; video non riceve tempi di posa still.
+- Aggiunto il quarto strato backend fotografico:
+  `ImagingVideoCaptureAdvisor` produce per Sole, Luna e pianeti un intervallo
+  prudenziale per una singola clip stackabile senza derotazione, un intervallo
+  FPS e il numero indicativo di frame acquisiti. Le finestre sono distinte per
+  target; gli FPS effettivamente raggiungibili hanno precedenza, altrimenti il
+  massimo di catalogo resta soltanto un limite superiore dichiarato. Giove usa
+  clip piu' brevi, Saturno e i pianeti deboli obiettivi FPS distinti; un GoTo
+  altazimutale conserva la normale finestra di Giove e limita soltanto le clip
+  lunghe per la rotazione di campo.
 - Completezza e limiti restano metadati paralleli e non modificano il punteggio:
   seeing, fondo cielo, precisione d'inseguimento, connessione meccanica e cerchio
   d'immagine non vengono inventati. Gain/ISO, rumore di lettura, autoguida,
@@ -75,7 +84,9 @@
   dell'advisor e non vengono sostituiti con valori sintetici. Lo scorer ammette
   il Sole in modalita' video soltanto per gli ID telescopio che il chiamante
   dichiara dotati del filtro solare a tutta apertura; l'insieme vuoto resta il
-  default sicuro. Condizioni e inventario runtime, segnali, DTO QML e pagina
+  default sicuro. Anche il video advisor non inventa esposizione/gain, ROI,
+  throughput, codec, diametro/fase apparente, percentuale di frame selezionati
+  o derotazione. Condizioni e inventario runtime, segnali, DTO QML e pagina
   Detail non sono ancora collegati.
 - La montatura dei telescopi usa ora una tassonomia stabile selezionata da menu:
   OTA, altazimutale, equatoriale, forcella e Dobson, con varianti manuale,
@@ -84,7 +95,7 @@
   conserva un codice esplicito non specificato. L'adattatore visuale mantiene
   gli stessi coefficienti precedenti, mentre i codici distinti restano
   disponibili al backend fotografico separato.
-- Il gate finale `tools/run_checks.py --fast` passa con 1.025 test, 643 warning
+- Il gate finale `tools/run_checks.py --fast` passa con 1.050 test, 643 warning
   Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale
   e Red Night Vision. Il catalogo Cameras ha inoltre QML lint senza warning; la
   pagina Profili con camere assegnate e' stata verificata nativamente a

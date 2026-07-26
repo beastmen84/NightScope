@@ -61,8 +61,9 @@ Linux packages use a portable tarball plus an adjacent SHA-256 file.
 - Provides a separate two-column Cameras catalogue for astronomy cameras and
   interchangeable-lens camera bodies. Its sensor and capture specifications
   can be assigned to profiles and feed a typed, backend-only photographic
-  configuration scorer plus a conservative still-exposure advisor; neither is
-  connected to Object Detail or consumed by the visual engine.
+  configuration scorer, a conservative still-exposure advisor and a Solar
+  System video advisor; none is connected to Object Detail or consumed by the
+  visual engine.
 - Lets each profile record, for each assigned telescope, whether the user has
   declared a certified full-aperture solar filter secured in front of the
   instrument. The unregistered scorer accepts this capability only as an exact
@@ -117,8 +118,11 @@ do not change visual target ranking. The separate, unregistered photographic
 backend can enumerate an exactly linked imaging reducer and recalculate its
 camera field, sampling and static configuration suitability. For still
 candidates it can also return broadband sub-exposure and total-integration
-ranges from explicit sky, transparency and Moon inputs. These planning ranges
-do not change Home, Planner, Equipment, Sky Compass or NSOM.
+ranges from explicit sky, transparency and Moon inputs. For video candidates
+it returns a target-specific single-clip duration, an FPS planning range and
+an indicative captured-frame range without assuming ROI or image derotation.
+These planning ranges do not change Home, Planner, Equipment, Sky Compass or
+NSOM.
 
 Telescope mount types use stable controlled codes instead of free text. This
 preserves the existing visual recommendation behavior while keeping manual,
@@ -437,7 +441,10 @@ remaining release work are tracked in
   backfocus spacing, but still cannot prove adapters, image circle, tracking
   accuracy or vignetting. Its exposure output is a broadband planning range,
   not a camera calibration: gain/ISO, read noise, autoguiding and filter
-  passband remain explicit limitations.
+  passband remain explicit limitations. Planetary-video output is likewise a
+  single-clip plan, not a capture preset: actual FPS, exposure/gain, ROI,
+  codec, atmospheric dispersion, frame selection and derotation remain
+  explicit limitations.
 - There is no installer, automatic updater, or artifact signature. The current
   portable release publishes its SHA-256 digest.
 - The final manual and application visual matrix still requires a human pass on

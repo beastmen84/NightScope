@@ -1040,6 +1040,102 @@ Photographic still-exposure planning:
   `EquipmentService`, QML, Home, Planner, Sky Compass and NSOM. No current
   runtime path invokes these formulas.
 
+Photographic solar/lunar/planetary video planning:
+
+- `ImagingVideoCaptureAdvisor` accepts one video
+  `ImagingRecommendationCandidate` and an optional immutable
+  `ImagingVideoSessionConditions`. It returns `None` for still candidates,
+  non-solar-system video classes, invalid focal ratio or invalid pixel scale.
+  It never changes or rescales the configuration-suitability score.
+- Policy `imaging_video_capture_v1` describes one independently stackable clip
+  without image derotation. The output contains a target profile, clip-duration
+  range, FPS range and indicative captured-frame range, plus FPS provenance,
+  completeness, confidence and stable assumption/warning/limitation codes.
+- The target policies are:
+
+  | Target | One clip (s) | FPS goal |
+  | --- | ---: | ---: |
+  | Sun, whole disc | 15-45 | 30-120 |
+  | Moon, whole disc | 20-60 | 30-120 |
+  | Mercury | 120-180 | 30-120 |
+  | Venus | 180-300 | 30-120 |
+  | Mars | 120-180 | 30-120 |
+  | Jupiter | 90-120 | 30-120 |
+  | Saturn | 120-180 | 30-60 |
+  | Uranus | 180-300 | 10-30 |
+  | Neptune | 180-300 | 10-30 |
+  | unrecognized planet fallback | 90-180 | 30-60 |
+
+  These are conservative planning windows, not hard physical limits. They keep
+  fast Jupiter clips short without assuming WinJUPOS-style derotation and use
+  lower FPS goals for faint outer planets. The policy is informed by the
+  [NASA rotation-period table](https://science.nasa.gov/learn/basics-of-space-flight/chapter1-2/),
+  the [British Astronomical Association Jupiter guide](https://britastro.org/section_information_/jupiter-section-overview/b-a-a-guide-to-observing-jupiter)
+  and the official [SharpCap Jupiter capture guide](https://docs.sharpcap.co.uk/howtos/jupiter/2_GettingStarted.htm).
+  Current runtime targets do not expose dynamic apparent diameter or phase to
+  this layer, so both remain named limitations rather than hidden precision.
+- FPS provenance has strict precedence:
+
+  1. `achievable_fps`, when explicitly supplied, is authoritative and is never
+     extrapolated above the target-profile maximum;
+  2. otherwise an astronomy camera's full-resolution FPS or a camera body's
+     video FPS is treated only as a catalogue upper bound;
+  3. without either, the target FPS goal remains visible with low confidence.
+
+  Astronomy-camera full-resolution FPS and body video FPS are never
+  interchanged. With a catalogue maximum:
+
+  `fps_max = min(catalogue_fps, target_fps_max)`
+
+  `fps_min = target_fps_min` when `fps_max` reaches that goal; otherwise
+  `fps_min = max(5, 0.60 * fps_max)`.
+
+  Values are rounded down so a declared maximum is never exceeded. Actual
+  frame rate also depends on frame exposure, sensor readout, ROI, USB and
+  storage throughput, as documented by the official
+  [SharpCap frame-rate guide](https://docs.sharpcap.co.uk/4.1/5_ControllingCameras.htm);
+  those facts are not inferred from a model name.
+- Indicative captured-frame counts are:
+
+  `minimum_frames = floor(clip_min_seconds * fps_min)`
+
+  `maximum_frames = ceil(clip_max_seconds * fps_max)`
+
+  These are captured frames, not the number that stacking software should
+  retain. The lucky-frame selection fraction is explicitly unmodeled.
+- The mount never changes `video` back to `still`. It only caps a target's
+  long clip:
+
+  | Mount code | Maximum clip (s) |
+  | --- | ---: |
+  | equatorial tracking | 600 |
+  | fork GoTo | 240 |
+  | alt-azimuth GoTo | 240 |
+  | Dobsonian GoTo | 180 |
+  | manual equatorial | 90 |
+  | other manual, PushTo, OTA, unknown or `OTHER` | 60 |
+
+  Consequently `ALTAZ_GOTO` leaves Jupiter's 90-120 second window unchanged.
+  It only shortens longer Venus/Uranus/Neptune windows and reports field
+  rotation. Fork orientation remains unknown; manual tracking reports that a
+  clip may need fragmentation.
+- Optional seeing score and target altitude never manufacture a different
+  duration. Seeing below 40 reports poor planetary detail; 40-64 recommends
+  multiple clips. Altitude at or below the horizon, below 25 degrees or below
+  40 degrees respectively reports unavailable geometry, low altitude or
+  atmospheric-dispersion risk.
+- Camera bodies report possible video compression. A monochrome astronomy
+  camera reports that the complete filter sequence must fit inside the capture
+  window. Solar advice repeats the requirement to inspect the declared
+  certified full-aperture filter before capture.
+- Exposure/gain and histogram, ROI/readout, actual transfer throughput, codec
+  or RAW format, atmospheric-dispersion correction, apparent diameter/phase,
+  lucky-frame selection and image derotation are explicit unmodeled limits.
+  Even with every accepted input, confidence is capped at `medium`.
+- The advisor and session DTO remain unregistered with `AppController`,
+  `EquipmentService`, QML, Home, Planner, Sky Compass and NSOM. No current
+  runtime path invokes this policy.
+
 Zoom eyepieces:
 
 - A zoom eyepiece remains one equipment record.

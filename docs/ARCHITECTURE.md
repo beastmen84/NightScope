@@ -607,6 +607,10 @@ Services hold business logic:
   still candidate. It consumes only a typed `ImagingSessionConditions`
   snapshot, emits inspectable multipliers, sub-exposure/total-integration
   intervals and confidence metadata, and remains outside runtime and QML.
+- `ImagingVideoCaptureAdvisor`: score-neutral single-clip guidance for a
+  solar, lunar or planetary video candidate. It keeps achievable FPS distinct
+  from catalogue maxima and target goals, emits duration/FPS/frame ranges and
+  explicit missing-data metadata, and remains outside runtime and QML.
 - `FilterRecommendationService`: presentation-only matching between target
   filter preferences, the aperture of the target-specific telescope, the
   complete filter catalogue and products assigned to the active profile. It

@@ -113,10 +113,24 @@ Il risultato e' deliberatamente un intervallo broadband di pianificazione, non
 una calibrazione della camera. Gain/ISO, rumore di lettura, autoguida, precisione
 d'inseguimento e banda del filtro restano limiti espliciti; gli input mancanti
 usano assunzioni neutrali nominate e abbassano la confidenza senza modificare lo
-score di idoneita'. Il prossimo passo e' un assembler runtime che legga
-l'inventario del profilo, costruisca i treni, passi gli ID solari esatti e
-adatti le condizioni correnti. DTO e presentazione nelle pagine Detail restano
-l'ultima fase.
+score di idoneita'.
+
+Il quarto passo backend e' `ImagingVideoCaptureAdvisor`, anch'esso non
+registrato. Per Sole, Luna e ciascun pianeta produce la finestra prudenziale di
+una singola clip senza derotazione, gli FPS pianificabili e il numero indicativo
+di frame acquisiti. FPS effettivamente raggiungibili, quando forniti, sono
+autorevoli; altrimenti gli FPS di catalogo restano un limite superiore e, se
+mancano, viene esposto soltanto l'obiettivo del target. Seeing e altezza
+aggiungono avvisi e completezza ma non vengono trasformati in falsi tempi
+esatti. `ALTAZ_GOTO` mantiene i normali 90-120 secondi di Giove e limita solo le
+finestre oltre quattro minuti.
+
+La policy `imaging_video_capture_v1` non inventa esposizione/gain, istogramma,
+ROI, throughput USB/disco, codec RAW, correzione della dispersione, diametro o
+fase apparente, percentuale di frame fortunati e derotazione. Il prossimo passo
+e' ora l'assembler runtime che legga l'inventario del profilo, costruisca i
+treni, passi gli ID solari esatti e adatti le condizioni correnti ai due
+advisor. DTO e presentazione nelle pagine Detail restano l'ultima fase.
 
 La montatura telescopio e' ora un menu con codici stabili per OTA,
 altazimutale, equatoriale, forcella e Dobson, distinguendo manuale,
@@ -126,7 +140,7 @@ specificato. La proiezione di tracking visuale conserva esattamente i
 coefficienti precedenti, lasciando le distinzioni piu' fini al backend
 fotografico separato.
 
-Il gate finale `tools/run_checks.py --fast` passa con 1.025 test, 643 warning
+Il gate finale `tools/run_checks.py --fast` passa con 1.050 test, 643 warning
 Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale e
 Red Night Vision. `EquipmentCamerasPage.qml` passa QML lint senza warning. La
 pagina Profili con camere assegnate e' stata controllata nativamente a
