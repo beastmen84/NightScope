@@ -57,6 +57,12 @@ class ImagingRuntimeConditionsAdapter:
                     else None
                 ),
                 transparency_score=transparency_score,
+                target_current_altitude_deg=(
+                    target.current_altitude_degrees
+                ),
+                target_maximum_altitude_deg=(
+                    cls._degrees_value(target.max_altitude)
+                ),
                 moon_illumination_fraction=(
                     cls._moon_illumination_fraction(moon)
                 ),
@@ -102,5 +108,18 @@ class ImagingRuntimeConditionsAdapter:
         if "%" in text or value > 1.0:
             value /= 100.0
         if not 0.0 <= value <= 1.0:
+            return None
+        return value
+
+    @staticmethod
+    def _degrees_value(text: object) -> float | None:
+        match = _NUMBER_PATTERN.search(str(text or ""))
+        if match is None:
+            return None
+        try:
+            value = float(match.group(0).replace(",", "."))
+        except ValueError:
+            return None
+        if not math.isfinite(value) or not -90.0 <= value <= 90.0:
             return None
         return value

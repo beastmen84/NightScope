@@ -19,6 +19,9 @@ from astro_viewer.app.services.observation_conditions_service import (
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
 from astro_viewer.app.services.night_planner_service import NightPlannerService
+from astro_viewer.app.services.observing_score_service import (
+    ObservingScoreService,
+)
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 
 
@@ -239,7 +242,18 @@ class Phase3ServiceTests(unittest.TestCase):
 
     def test_weather_blocking_status_centralizes_plan_and_home_state(self) -> None:
         rain = WeatherSummary("Discreta", 66, "Pioggia possibile.", 20, 80, 8, 78, 16.0, "")
-        poor_score = WeatherSummary("Pessima", 13, "Nuvolosità elevata.", 74, 20, 8, 78, 16.0, "")
+        poor_score = WeatherSummary(
+            "Pessima",
+            13,
+            "Nuvolosità elevata.",
+            74,
+            20,
+            8,
+            78,
+            16.0,
+            "",
+            ("Nuvolosità elevata",),
+        )
         unavailable = WeatherSummary("Pessima", 0, "Previsioni non disponibili.", 0, 0, 0, 0, 0.0, "")
 
         rain_status = NightPlannerService.weather_blocking_status(rain)
@@ -252,9 +266,39 @@ class Phase3ServiceTests(unittest.TestCase):
         self.assertEqual(rain_status.detail, "Rischio precipitazioni elevato.")
         self.assertTrue(poor_score_status.blocks_plan)
         self.assertTrue(poor_score_status.show_warning)
-        self.assertEqual(poor_score_status.reason, "Nuvolosità elevata.")
+        self.assertEqual(poor_score_status.reason, "Nuvolosità elevata")
         self.assertTrue(unavailable_status.blocks_plan)
         self.assertFalse(unavailable_status.show_warning)
+
+    def test_weather_blocking_reason_excludes_favourable_factors(self) -> None:
+        summary = ObservingScoreService().weather_score(
+            [
+                WeatherHour(
+                    "2026-06-21T22:00",
+                    "22:00",
+                    80,
+                    60,
+                    8,
+                    90,
+                    16.0,
+                )
+            ]
+        )
+
+        status = NightPlannerService.weather_blocking_status(summary)
+
+        self.assertLessEqual(summary.score_value, 25)
+        self.assertIn("vento debole", summary.explanation)
+        self.assertNotIn("vento debole", summary.limiting_factors)
+        self.assertNotIn("vento debole", status.reason)
+        self.assertEqual(
+            summary.to_qml()["limitingFactors"],
+            [
+                "Nuvolosità elevata",
+                "rischio precipitazioni",
+                "umidità elevata",
+            ],
+        )
 
     def test_moon_penalty_is_object_dependent_for_deep_sky(self) -> None:
         new_moon = MoonSummary("Nuova", "0%", "", "", "", "")

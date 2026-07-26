@@ -44,7 +44,11 @@ class RecommendationPresenter:
         sky_quality: SkyQuality | None = None,
         prefix_telescope: bool = False,
     ) -> dict:
-        options = self._option_set(candidates, recommended)
+        options = self._option_set(
+            celestial_object,
+            candidates,
+            recommended,
+        )
         setup_options = self._setup_options(options)
         alternative = next(
             (option for option in setup_options if option["roleCode"] == "alternative"),
@@ -177,6 +181,7 @@ class RecommendationPresenter:
 
     def _option_set(
         self,
+        celestial_object: CelestialObject,
         candidates: list[RecommendationCandidate],
         recommended: RecommendationCandidate,
     ) -> list[tuple[str, str, RecommendationCandidate]]:
@@ -189,7 +194,10 @@ class RecommendationPresenter:
         self._append_distinct_option(
             options,
             "high_magnification",
-            max(candidates, key=lambda item: item.magnification),
+            self._high_magnification_candidate(
+                celestial_object,
+                candidates,
+            ),
         )
         self._append_distinct_option(
             options,
@@ -197,6 +205,54 @@ class RecommendationPresenter:
             max(candidates, key=lambda item: item.true_field or 0.0),
         )
         return options
+
+    @staticmethod
+    def _high_magnification_candidate(
+        celestial_object: CelestialObject,
+        candidates: list[RecommendationCandidate],
+    ) -> RecommendationCandidate:
+        traits = TargetObservationTraits.from_object(celestial_object)
+        faint_extended_target = (
+            traits.surface_brightness_proxy is not None
+            and traits.surface_brightness_proxy >= 13.5
+            and (
+                is_supernova_remnant_type(traits.object_type_lower)
+                or any(
+                    fragment in traits.object_type_lower
+                    for fragment in (
+                        "galaxy",
+                        "galassia",
+                        "nebula",
+                        "nebul",
+                    )
+                )
+            )
+        )
+        practical: list[RecommendationCandidate] = []
+        for candidate in candidates:
+            telescope = candidate.telescope
+            if telescope is not None and (
+                candidate.magnification > telescope.aperture_mm * 2.0
+                or candidate.exit_pupil < 0.45
+            ):
+                continue
+            if faint_extended_target:
+                if candidate.barlow is not None or candidate.exit_pupil < 1.0:
+                    continue
+                target_size = traits.angular_size_deg
+                if (
+                    target_size is not None
+                    and (
+                        candidate.true_field is None
+                        or candidate.true_field < target_size * 1.05
+                    )
+                ):
+                    continue
+            practical.append(candidate)
+        return max(
+            practical or candidates,
+            key=lambda item: item.magnification,
+        )
 
     @classmethod
     def _append_distinct_option(

@@ -14,7 +14,7 @@ from astro_viewer.app.services.observation_conditions_service import (
 )
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
 from astro_viewer.app.services.nsom_target import unique_targets_by_id
-from astro_viewer.app.services.localization import tr
+from astro_viewer.app.services.localization import join_text, tr
 
 
 class NightPlannerService:
@@ -151,10 +151,17 @@ class NightPlannerService:
             )
         if weather.score_value <= 25:
             show_warning = weather.score_value > 0
+            limiting_reason = join_text(
+                weather.limiting_factors,
+                ", ",
+            )
             return WeatherBlockingStatus(
                 blocks_plan=True,
                 show_warning=show_warning,
-                reason=(weather.explanation or tr("qualità osservativa pessima"))
+                reason=(
+                    limiting_reason
+                    or tr("qualità osservativa pessima")
+                )
                 if show_warning
                 else "",
                 detail=tr("Punteggio osservativo sotto la soglia minima.")

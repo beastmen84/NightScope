@@ -109,7 +109,13 @@ intervalli di posa singola e integrazione totale, numero indicativo di frame e
 limite prudenziale della montatura. Usa rapporto focale, luminosita' del target,
 SQM o fallback Bortle, trasparenza e geometria lunare completa; video non
 riceve tempi di posa still. Le formule e ogni moltiplicatore sono esposti dalla
-policy `imaging_exposure_v1`.
+policy `imaging_exposure_v2`. Se uno dei limiti supera 900 minuti, il valore
+resta marcato come soglia minima e non viene presentato come un falso
+intervallo `15-15 h`; l'integrazione e' cumulabile su piu' notti.
+
+Altezza corrente e culmine del target producono soltanto avvisi operativi:
+se un target still non raggiunge mai 30 gradi viene segnalato come basso per
+il cielo profondo, senza riusare la soglia della finestra visuale.
 
 Il risultato e' deliberatamente un intervallo broadband di pianificazione, non
 una calibrazione della camera. Gain/ISO, rumore di lettura, autoguida, precisione

@@ -1264,6 +1264,7 @@ class AppController(QObject):
             target.magnitude,
             target.apparent_size,
             target.max_angular_size_deg,
+            target.max_altitude,
             target.imaging_reducer_recommended,
             target.current_altitude_degrees,
         )

@@ -219,6 +219,59 @@ def test_presenter_disambiguates_same_eyepiece_label_across_telescopes() -> None
     assert len(display_labels) == len(set(display_labels))
 
 
+def test_faint_extended_target_does_not_offer_an_extreme_visual_option() -> None:
+    service = EquipmentService()
+    target = _object(
+        "caldwell-C3",
+        "C3",
+        "Spiral galaxy",
+        "9.7",
+        "21 × 7 arcmin",
+        0.35,
+        "General",
+    )
+    candidates = service._ranked_candidates(
+        target,
+        Telescope(
+            "nexstar-6se",
+            "Celestron NexStar 6SE",
+            150,
+            1500,
+            "Schmidt-Cassegrain",
+            "ALTAZ_GOTO",
+        ),
+        [
+            Eyepiece(
+                "zoom",
+                "Zoom 8-24 mm",
+                24,
+                60,
+                "Zoom",
+                8,
+                24,
+                (24, 20, 16, 12, 8),
+            ),
+        ],
+        [Barlow("barlow-2x", "Barlow 2x", 2.0)],
+    )
+
+    dto = RecommendationPresenter().from_candidates(
+        target,
+        candidates,
+        service._recommended_candidate(candidates),
+    )
+    high_option = next(
+        option
+        for option in dto["setupOptions"]
+        if option["roleCode"] == "high_magnification"
+    )
+
+    assert high_option["magnification"] == "125x"
+    assert high_option["barlow"] == "No"
+    assert high_option["exitPupil"] == "1,2 mm"
+    assert high_option["trueField"] == "0,48°"
+
+
 def _object(
     object_id: str,
     name: str,

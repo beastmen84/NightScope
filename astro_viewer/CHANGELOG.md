@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+- Corretto il piano fotografico per i target molto impegnativi: quando la
+  stima supera il tetto di 15 ore, integrazione e numero di pose vengono ora
+  mostrati come soglie minime cumulative su piu' notti, non come un intervallo
+  esatto o come la durata di una singola sessione. La policy
+  `imaging_exposure_v2` aggiunge inoltre un avviso specifico se un target di
+  cielo profondo non raggiunge mai i 30 gradi, senza confondere la finestra
+  visuale con una finestra fotografica ideale.
+- Le alternative visuali ad alto ingrandimento non scelgono piu'
+  automaticamente la combinazione estrema: rispettano il limite fisico dello
+  strumento e, per galassie e nebulose estese a bassa luminosita'
+  superficiale, conservano campo, pupilla d'uscita e contrasto evitando la
+  Barlow.
+- I blocchi del Planner espongono ora soltanto fattori meteo realmente
+  limitanti. Condizioni favorevoli presenti nel riepilogo generale, come
+  `vento debole`, non possono piu' comparire sotto `Fattore limitante`.
 - Aggiunta la pagina `Cameras`, organizzata in due cataloghi indipendenti:
   37 camere astronomiche di ZWO, QHYCCD, Player One Astronomy, Atik e SVBONY,
   e 40 corpi macchina di Canon, Nikon, Sony, Fujifilm, Panasonic, OM System,
@@ -103,7 +118,7 @@
   di pose e limite prudenziale; i pianeti espongono durata della clip, FPS,
   frame indicativi e provenienza del frame rate.
 - Gli avvisi fotografici restano metadati score-neutral e vengono limitati ai
-  tre piu' operativi: visibilita', seeing, montatura/rotazione di campo, camera
+  quattro piu' operativi: visibilita', seeing, montatura/rotazione di campo, camera
   non raffreddata e pianeta debole. Se il target non entra nel campo del
   sensore, la card indica esplicitamente ritaglio o mosaico; il massimo FPS di
   catalogo non viene presentato come prestazione misurata.

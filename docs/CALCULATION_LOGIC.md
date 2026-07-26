@@ -973,10 +973,11 @@ Photographic still-exposure planning:
   `ImagingSessionConditions`. It returns `None` for `video`, invalid focal
   ratio or invalid pixel scale. It never changes or rescales the candidate
   suitability score.
-- The output policy is `imaging_exposure_v1`. It contains rounded ranges for
+- The output policy is `imaging_exposure_v2`. It contains rounded ranges for
   one sub-exposure and total stacked integration, an indicative minimum/maximum
   frame count, the conservative tracking limit, input completeness, confidence
-  and stable assumption/warning/limitation codes.
+  and stable assumption/warning/limitation codes. It also records whether
+  either total-integration bound has exceeded the finite planning ceiling.
 - Every result is explicitly a broadband, unfiltered planning range. It is not
   a sensor calibration. Gain/ISO, camera read noise, autoguiding, measured
   tracking accuracy and filter passband remain unmodeled limitations. Even
@@ -1042,8 +1043,12 @@ Photographic still-exposure planning:
   | unknown | 90-180 |
 
   Both bounds are multiplied by `optical * total_sky * transparency *
-  total_moon * target`, rounded to five minutes and clamped to `15-900`
-  minutes.
+  total_moon * target` and rounded to five minutes. The finite calculation
+  display is clamped to `15-900` minutes, but a bound that exceeds 900 is
+  retained as explicit censored metadata. The presenter renders a fully
+  censored result as `>= 15 h`, not `15-15 h`; corresponding frame counts are
+  minimum thresholds. Total integration means the sum of usable light frames
+  and may be accumulated over multiple nights.
 - The nominal single-sub reference is 120 seconds for a cooled astronomy
   camera, 60 seconds for an uncooled astronomy camera or a body with Bulb, and
   15 seconds for a body without Bulb. Comet, planetary-nebula, open-cluster,
@@ -1063,6 +1068,14 @@ Photographic still-exposure planning:
   `minimum_frames = ceil(total_min_minutes * 60 / sub_max_seconds)`
 
   `maximum_frames = ceil(total_max_minutes * 60 / sub_min_seconds)`
+
+  If an integration bound is censored at 900 minutes, the corresponding frame
+  count is also presented as a lower threshold rather than an exact endpoint.
+- Current and maximum target altitude are operational warning inputs only;
+  they never change the static equipment score or the exposure multipliers.
+  A still target that never reaches 30 degrees receives a dedicated low
+  deep-sky-altitude warning. This does not reinterpret the existing visual
+  observing window as an ideal photographic window.
 
 - The advisor and session DTO are not registered directly with
   `AppController`, `EquipmentService` or QML. The private runtime assembler can

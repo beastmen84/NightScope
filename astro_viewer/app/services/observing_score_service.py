@@ -42,20 +42,35 @@ class ObservingScoreService:
 
         label = self.score_label(score)
         explanation_parts = []
+        limiting_factors = []
         if avg_cloud < 25:
             explanation_parts.append(tr("Poche nuvole"))
         elif avg_cloud < 55:
-            explanation_parts.append(tr("Nuvolosità moderata"))
+            factor = tr("Nuvolosità moderata")
+            explanation_parts.append(factor)
+            limiting_factors.append(factor)
         else:
-            explanation_parts.append(tr("Nuvolosità elevata"))
+            factor = tr("Nuvolosità elevata")
+            explanation_parts.append(factor)
+            limiting_factors.append(factor)
         if max_rain >= 35:
-            explanation_parts.append(tr("rischio precipitazioni"))
+            factor = tr("rischio precipitazioni")
+            explanation_parts.append(factor)
+            limiting_factors.append(factor)
         if avg_wind < 15:
             explanation_parts.append(tr("vento debole"))
         elif avg_wind > 28:
-            explanation_parts.append(tr("vento sostenuto"))
+            factor = tr("vento sostenuto")
+            explanation_parts.append(factor)
+            limiting_factors.append(factor)
+        if avg_humidity >= 80:
+            factor = tr("umidità elevata")
+            explanation_parts.append(factor)
+            limiting_factors.append(factor)
         if moon_penalty >= 12:
-            explanation_parts.append(tr("Luna luminosa"))
+            factor = tr("Luna luminosa")
+            explanation_parts.append(factor)
+            limiting_factors.append(factor)
 
         explanation = tr("{factors}.", factors=join_text(explanation_parts, ", "))
         alert = tr(
@@ -64,7 +79,18 @@ class ObservingScoreService:
             label=self._score_label_lower(score),
             explanation=explanation,
         )
-        return WeatherSummary(label, score, explanation, avg_cloud, max_rain, avg_wind, avg_humidity, avg_temp, alert)
+        return WeatherSummary(
+            label,
+            score,
+            explanation,
+            avg_cloud,
+            max_rain,
+            avg_wind,
+            avg_humidity,
+            avg_temp,
+            alert,
+            tuple(limiting_factors),
+        )
 
     @staticmethod
     def score_label(score: int) -> str:

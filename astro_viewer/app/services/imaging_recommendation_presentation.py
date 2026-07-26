@@ -114,7 +114,7 @@ class ImagingRecommendationPresentation:
 class ImagingRecommendationPresenter:
     """Maps the typed photographic runtime result to a localized UI DTO."""
 
-    _NOTICE_LIMIT = 3
+    _NOTICE_LIMIT = 4
 
     def present(
         self,
@@ -142,7 +142,9 @@ class ImagingRecommendationPresenter:
                 "sul campo senza superare il limite prudenziale indicato."
             )
             disclaimer = tr(
-                "I tempi sono intervalli di pianificazione, non una "
+                "L'integrazione totale è la somma delle pose luce "
+                "utilizzabili e può essere distribuita su più notti. I "
+                "tempi sono intervalli di pianificazione, non una "
                 "calibrazione della camera."
             )
             warning_codes = recommendation.exposure_advice.warning_codes
@@ -372,14 +374,30 @@ class ImagingRecommendationPresenter:
                 _minutes_range(
                     advice.total_integration_min_minutes,
                     advice.total_integration_max_minutes,
+                    minimum_is_lower_bound=(
+                        advice.total_integration_min_is_lower_bound
+                    ),
+                    maximum_is_lower_bound=(
+                        advice.total_integration_max_is_lower_bound
+                    ),
                 ),
             ),
             ImagingPresentationMetric(
                 "frame_count",
-                tr("Numero di pose indicativo"),
+                (
+                    tr("Numero minimo di pose")
+                    if advice.total_integration_min_is_lower_bound
+                    else tr("Numero di pose indicativo")
+                ),
                 _count_range(
                     advice.estimated_frame_count_min,
                     advice.estimated_frame_count_max,
+                    minimum_is_lower_bound=(
+                        advice.total_integration_min_is_lower_bound
+                    ),
+                    maximum_is_lower_bound=(
+                        advice.total_integration_max_is_lower_bound
+                    ),
                 ),
             ),
             ImagingPresentationMetric(
@@ -554,7 +572,9 @@ class ImagingRecommendationPresenter:
     def _warning_priority() -> tuple[str, ...]:
         return (
             "target_below_horizon",
+            "target_stays_below_preferred_imaging_altitude",
             "low_target_altitude",
+            "total_integration_limit_reached",
             "poor_seeing_limits_planetary_detail",
             "variable_seeing_capture_multiple_clips",
             "atmospheric_dispersion_risk",
@@ -581,9 +601,19 @@ class ImagingRecommendationPresenter:
                 "Il target è sotto l'orizzonte: pianifica la ripresa nella "
                 "sua finestra di visibilità."
             ),
+            "target_stays_below_preferred_imaging_altitude": tr(
+                "Il target resta sotto 30° anche al culmine: è una quota "
+                "bassa per il cielo profondo e riduce contrasto e qualità "
+                "dei dati."
+            ),
             "low_target_altitude": tr(
                 "Il target è basso sull'orizzonte; attendi un'altezza "
                 "maggiore per ridurre turbolenza e dispersione."
+            ),
+            "total_integration_limit_reached": tr(
+                "La stima supera il limite di pianificazione di 15 h: il "
+                "valore mostrato è una soglia minima cumulabile su più "
+                "notti, non una durata prescritta."
             ),
             "poor_seeing_limits_planetary_detail": tr(
                 "Il seeing corrente limita il dettaglio planetario."
@@ -751,6 +781,14 @@ def _seconds_range(
     prefer_minutes: bool = False,
 ) -> object:
     if prefer_minutes and minimum >= 60 and maximum >= 60:
+        if minimum == maximum:
+            return tr(
+                "{value} min",
+                value=format_compact_number(
+                    minimum / 60.0,
+                    max_decimals=1,
+                ),
+            )
         return tr(
             "{minimum}–{maximum} min",
             minimum=format_compact_number(
@@ -762,6 +800,11 @@ def _seconds_range(
                 max_decimals=1,
             ),
         )
+    if minimum == maximum:
+        return tr(
+            "{value} s",
+            value=format_compact_number(minimum, max_decimals=1),
+        )
     return tr(
         "{minimum}–{maximum} s",
         minimum=format_compact_number(minimum, max_decimals=1),
@@ -769,18 +812,46 @@ def _seconds_range(
     )
 
 
-def _minutes_range(minimum: int, maximum: int) -> object:
+def _minutes_range(
+    minimum: int,
+    maximum: int,
+    *,
+    minimum_is_lower_bound: bool = False,
+    maximum_is_lower_bound: bool = False,
+) -> object:
     if minimum >= 120 and maximum >= 120:
+        minimum_label = format_compact_number(
+            minimum / 60.0,
+            max_decimals=1,
+        )
+        maximum_label = format_compact_number(
+            maximum / 60.0,
+            max_decimals=1,
+        )
+        if minimum_is_lower_bound:
+            return tr("≥{value} h", value=minimum_label)
+        if minimum == maximum and not maximum_is_lower_bound:
+            return tr("{value} h", value=minimum_label)
+        if maximum_is_lower_bound:
+            return tr(
+                "{minimum}–{maximum}+ h",
+                minimum=minimum_label,
+                maximum=maximum_label,
+            )
         return tr(
             "{minimum}–{maximum} h",
-            minimum=format_compact_number(
-                minimum / 60.0,
-                max_decimals=1,
-            ),
-            maximum=format_compact_number(
-                maximum / 60.0,
-                max_decimals=1,
-            ),
+            minimum=minimum_label,
+            maximum=maximum_label,
+        )
+    if minimum_is_lower_bound:
+        return tr("≥{value} min", value=format_number(minimum))
+    if minimum == maximum and not maximum_is_lower_bound:
+        return tr("{value} min", value=format_number(minimum))
+    if maximum_is_lower_bound:
+        return tr(
+            "{minimum}–{maximum}+ min",
+            minimum=format_number(minimum),
+            maximum=format_number(maximum),
         )
     return tr(
         "{minimum}–{maximum} min",
@@ -789,7 +860,23 @@ def _minutes_range(minimum: int, maximum: int) -> object:
     )
 
 
-def _count_range(minimum: int, maximum: int) -> object:
+def _count_range(
+    minimum: int,
+    maximum: int,
+    *,
+    minimum_is_lower_bound: bool = False,
+    maximum_is_lower_bound: bool = False,
+) -> object:
+    if minimum_is_lower_bound:
+        return tr("≥{value}", value=format_number(minimum))
+    if minimum == maximum and not maximum_is_lower_bound:
+        return format_number(minimum)
+    if maximum_is_lower_bound:
+        return tr(
+            "{minimum}–{maximum}+",
+            minimum=format_number(minimum),
+            maximum=format_number(maximum),
+        )
     return tr(
         "{minimum}–{maximum}",
         minimum=format_number(minimum),

@@ -36,6 +36,7 @@ def _target(
     apparent_size: str = "3.17° × 1°",
     max_size_deg: float | None = 3.17,
     altitude_deg: float | None = 52.0,
+    max_altitude: str = "60°",
 ) -> CelestialObject:
     return CelestialObject(
         id=target_id,
@@ -44,7 +45,7 @@ def _target(
         image="",
         magnitude=magnitude,
         distance="",
-        max_altitude="",
+        max_altitude=max_altitude,
         direction="",
         best_time="",
         observing_window="",
@@ -121,12 +122,16 @@ def _inventory() -> ImagingRuntimeInventory:
 def _conditions(
     *,
     altitude_deg: float = 52.0,
+    maximum_altitude_deg: float = 60.0,
+    transparency_score: int = 75,
 ) -> ImagingRuntimeConditions:
     return ImagingRuntimeConditions(
         still=ImagingSessionConditions(
             sky_brightness_mag_arcsec2=20.5,
             bortle_class=5,
-            transparency_score=75,
+            transparency_score=transparency_score,
+            target_current_altitude_deg=altitude_deg,
+            target_maximum_altitude_deg=maximum_altitude_deg,
             moon_illumination_fraction=0.2,
             moon_altitude_deg=-5,
             moon_target_separation_deg=90,
@@ -143,11 +148,17 @@ def _presented(
     target: CelestialObject,
     *,
     altitude_deg: float = 52.0,
+    maximum_altitude_deg: float = 60.0,
+    transparency_score: int = 75,
 ) -> dict[str, object]:
     recommendation = ImagingRuntimeAssembler().assemble(
         target,
         _inventory(),
-        _conditions(altitude_deg=altitude_deg),
+        _conditions(
+            altitude_deg=altitude_deg,
+            maximum_altitude_deg=maximum_altitude_deg,
+            transparency_score=transparency_score,
+        ),
     )
     presentation = ImagingRecommendationPresenter().present(
         recommendation
@@ -185,6 +196,50 @@ def test_still_presentation_exposes_plan_geometry_and_real_profile_limits() -> N
     assert payload["notices"][0]["code"] == "target_exceeds_sensor_field"
     assert "mosaico" in payload["notices"][0]["text"]
     assert "score" not in repr(payload).casefold()
+
+
+def test_c3_plan_renders_censored_integration_and_low_altitude_honestly() -> None:
+    payload = _presented(
+        _target(
+            "caldwell-C3",
+            name="C3",
+            object_type="Spiral galaxy",
+            magnitude="9.7",
+            apparent_size="21′ × 7′",
+            max_size_deg=0.35,
+            altitude_deg=13.6,
+            max_altitude="25°",
+        ),
+        altitude_deg=13.6,
+        maximum_altitude_deg=25.0,
+        transparency_score=40,
+    )
+
+    metrics = {
+        item["code"]: (item["label"], item["value"])
+        for item in payload["captureMetrics"]
+    }
+    notice_codes = [item["code"] for item in payload["notices"]]
+
+    assert payload["setupText"] == (
+        "Celestron NexStar 6SE + Celestron Reducer-Corrector f/6.3 "
+        "+ SVBONY SV705C"
+    )
+    assert metrics["total_integration"] == (
+        "Integrazione totale",
+        "≥15 h",
+    )
+    assert metrics["frame_count"] == (
+        "Numero minimo di pose",
+        "≥6750",
+    )
+    assert notice_codes == [
+        "target_stays_below_preferred_imaging_altitude",
+        "total_integration_limit_reached",
+        "field_rotation_limits_sub_exposure",
+        "uncooled_camera_thermal_noise",
+    ]
+    assert "più notti" in payload["disclaimer"]
 
 
 def test_video_presentation_uses_planetary_terms_and_condition_warnings() -> None:

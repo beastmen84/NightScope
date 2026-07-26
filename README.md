@@ -129,6 +129,11 @@ below the visual setup: optical train, field of view, image scale, exposure or
 video ranges, confidence and the most relevant operational limits. The
 presentation is computed for the selected target only; it does not change Home,
 Planner, visual Equipment, Sky Compass, visual recommendations or NSOM.
+If a still estimate exceeds the finite 15-hour planning ceiling, the card shows
+a cumulative lower bound instead of an exact `15-15 h` range and states that
+usable light frames may span multiple nights. A target that never reaches
+30 degrees receives a separate deep-sky imaging warning; the visual observing
+window is not relabeled as an ideal photographic window.
 
 Reducer compatibility is fail-closed: only explicit telescope-model links are
 used by either visual reducer guidance or the photographic train builder.
@@ -458,7 +463,9 @@ remaining release work are tracked in
   spacing, but still cannot prove adapters, image circle, tracking accuracy or
   vignetting. Its exposure output is a broadband planning range, not a camera
   calibration: gain/ISO, read noise, autoguiding and filter passband remain
-  explicit limitations. Planetary-video output is likewise a single-clip
+  explicit limitations. The 15-hour display ceiling is a lower-bound marker,
+  not a claim that every difficult target requires exactly 15 hours.
+  Planetary-video output is likewise a single-clip
   plan, not a capture preset: actual FPS, exposure/gain, ROI, codec,
   atmospheric dispersion, frame selection and derotation remain explicit
   limitations. Camera-body video crop/readout geometry is not inferred from

@@ -22,7 +22,7 @@ from astro_viewer.app.services.equipment_taxonomy import (
 )
 
 
-IMAGING_EXPOSURE_POLICY_VERSION = "imaging_exposure_v1"
+IMAGING_EXPOSURE_POLICY_VERSION = "imaging_exposure_v2"
 _REFERENCE_FOCAL_RATIO = 5.0
 _REFERENCE_SKY_BRIGHTNESS = 21.2
 _REFERENCE_TRANSPARENCY_SCORE = 75.0
@@ -158,6 +158,7 @@ class ImagingExposureAdvisor:
         assumptions = ["broadband_unfiltered_reference"]
         warnings = ["planning_range_not_camera_calibration"]
         missing: list[str] = []
+        self._append_target_altitude_warnings(conditions, warnings)
 
         sky_brightness, sky_is_available = self._sky_brightness(
             conditions,
@@ -298,12 +299,18 @@ class ImagingExposureAdvisor:
             * moon_total_factor
             * target_factor
         )
-        total_min = self._round_integration_minutes(
-            base_total_min * total_multiplier
+        raw_total_min = base_total_min * total_multiplier
+        raw_total_max = base_total_max * total_multiplier
+        total_min_is_lower_bound = (
+            raw_total_min > _MAX_TOTAL_INTEGRATION_MINUTES
         )
-        total_max = self._round_integration_minutes(
-            base_total_max * total_multiplier
+        total_max_is_lower_bound = (
+            raw_total_max > _MAX_TOTAL_INTEGRATION_MINUTES
         )
+        if total_max_is_lower_bound:
+            warnings.append("total_integration_limit_reached")
+        total_min = self._round_integration_minutes(raw_total_min)
+        total_max = self._round_integration_minutes(raw_total_max)
         total_max = max(total_min, total_max)
 
         frame_count_min = max(
@@ -345,12 +352,46 @@ class ImagingExposureAdvisor:
             factors=factors,
             confidence=confidence,
             data_completeness=round(completeness, 6),
+            total_integration_min_is_lower_bound=(
+                total_min_is_lower_bound
+            ),
+            total_integration_max_is_lower_bound=(
+                total_max_is_lower_bound
+            ),
             missing_inputs=self._unique(missing),
             assumption_codes=self._unique(assumptions),
             warning_codes=self._unique(warnings),
             limitation_codes=_INHERENT_LIMITATIONS,
             policy_version=IMAGING_EXPOSURE_POLICY_VERSION,
         )
+
+    @classmethod
+    def _append_target_altitude_warnings(
+        cls,
+        conditions: ImagingSessionConditions,
+        warnings: list[str],
+    ) -> None:
+        current_altitude = cls._bounded_float(
+            conditions.target_current_altitude_deg,
+            -90.0,
+            90.0,
+        )
+        maximum_altitude = cls._bounded_float(
+            conditions.target_maximum_altitude_deg,
+            -90.0,
+            90.0,
+        )
+        if current_altitude is not None and current_altitude < 0:
+            warnings.append("target_below_horizon")
+        if maximum_altitude is not None and maximum_altitude < 30.0:
+            warnings.append(
+                "target_stays_below_preferred_imaging_altitude"
+            )
+        elif (
+            current_altitude is not None
+            and 0.0 <= current_altitude < 30.0
+        ):
+            warnings.append("low_target_altitude")
 
     @staticmethod
     def _sky_brightness(

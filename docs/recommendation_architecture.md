@@ -785,8 +785,11 @@ ImagingRecommendationCandidate + ImagingSessionConditions
 
 The advisor returns ranges for one sub-exposure and total stacked integration,
 an indicative frame-count range, the conservative mount limit and every
-multiplier used by policy version `imaging_exposure_v1`. It never changes the
-candidate score and returns no still-exposure advice for video targets.
+multiplier used by policy version `imaging_exposure_v2`. It never changes the
+candidate score and returns no still-exposure advice for video targets. A
+900-minute planning ceiling is censored metadata, not a fabricated exact
+endpoint: the presentation uses a lower-bound value and explains that usable
+light frames can be accumulated over multiple nights.
 
 The policy consumes effective focal ratio, target brightness, explicit SQM or
 a Bortle fallback, transparency and complete Moon geometry. Mount taxonomy
@@ -795,6 +798,11 @@ tracking. Missing inputs use named neutral assumptions and reduce confidence.
 Gain/ISO, read noise, autoguiding, measured tracking accuracy and filter
 passband remain explicit unmodeled limitations, so the result is a conservative
 broadband planning interval rather than camera calibration.
+
+Current and nightly maximum target altitude add score-neutral operational
+warnings. In particular, a still target that never reaches 30 degrees is
+identified as low for deep-sky imaging; the existing visual observing window
+is not presented as a photographic-quality window.
 
 This layer is not registered directly with `AppController` and remains absent
 from `EquipmentService`, QML, Home, Planner, Sky Compass and NSOM. The private

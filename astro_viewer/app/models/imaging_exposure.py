@@ -23,6 +23,8 @@ class ImagingSessionConditions:
     sky_brightness_mag_arcsec2: float | None = None
     bortle_class: int | None = None
     transparency_score: int | None = None
+    target_current_altitude_deg: float | None = None
+    target_maximum_altitude_deg: float | None = None
     moon_illumination_fraction: float | None = None
     moon_altitude_deg: float | None = None
     moon_target_separation_deg: float | None = None
@@ -53,11 +55,13 @@ class ImagingExposureAdvice:
     factors: tuple[ImagingExposureFactor, ...]
     confidence: ImagingExposureConfidence
     data_completeness: float
+    total_integration_min_is_lower_bound: bool = False
+    total_integration_max_is_lower_bound: bool = False
     missing_inputs: tuple[str, ...] = ()
     assumption_codes: tuple[str, ...] = ()
     warning_codes: tuple[str, ...] = ()
     limitation_codes: tuple[str, ...] = ()
-    policy_version: str = "imaging_exposure_v1"
+    policy_version: str = "imaging_exposure_v2"
 
     def factor_values(self) -> dict[str, tuple[float, float]]:
         return {

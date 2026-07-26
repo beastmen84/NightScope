@@ -65,6 +65,7 @@ class WeatherSummary:
     humidity: int
     temperature_c: float
     alert: str
+    limiting_factors: tuple[str, ...] = ()
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -90,6 +91,8 @@ class WeatherSummary:
             "{value} °C",
             value=format_compact_number(self.temperature_c, max_decimals=1),
         )
+        data["limitingFactors"] = list(self.limiting_factors)
+        data.pop("limiting_factors", None)
         return data
 
 

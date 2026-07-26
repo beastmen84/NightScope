@@ -623,16 +623,17 @@ Services hold business logic:
 - `ImagingExposureAdvisor`: score-neutral broadband planning ranges for one
   still candidate. It consumes only a typed `ImagingSessionConditions`
   snapshot, emits inspectable multipliers, sub-exposure/total-integration
-  intervals and confidence metadata. It is owned only by the runtime assembler
-  and remains outside QML.
+  intervals, explicit censored bounds at the finite planning ceiling,
+  altitude warnings and confidence metadata. It is owned only by the runtime
+  assembler and remains outside QML.
 - `ImagingVideoCaptureAdvisor`: score-neutral single-clip guidance for a
   solar, lunar or planetary video candidate. It keeps achievable FPS distinct
   from catalogue maxima and target goals, emits duration/FPS/frame ranges and
   explicit missing-data metadata.
 - `ImagingRuntimeConditionsAdapter`: maps current SQM/Bortle, raw atmospheric
-  transparency, Moon illumination/target geometry, seeing and target altitude
-  into the two immutable advisor inputs. It does not consume conditioned
-  visual target scores.
+  transparency, Moon illumination/target geometry, seeing, current target
+  altitude and nightly maximum altitude into the two immutable advisor inputs.
+  It does not consume conditioned visual target scores.
 - `ImagingRuntimeAssembler`: private, on-demand orchestration over the active
   profile. It builds all valid telescope/camera trains with assigned reducers
   and Barlows, forwards the exact assigned solar-filter telescope IDs, ranks
@@ -642,8 +643,9 @@ Services hold business logic:
 - `ImagingRecommendationPresenter`: localized DTO boundary between the typed
   runtime result and Object Detail. It formats optical geometry, exposure/video
   ranges, back-focus spacing and prioritized warnings, including crop/mosaic
-  guidance when the target exceeds the camera field. It never exports the
-  internal photographic score.
+  guidance when the target exceeds the camera field and lower-bound notation
+  when integration exceeds the planning ceiling. It never exports the internal
+  photographic score.
 - `FilterRecommendationService`: presentation-only matching between target
   filter preferences, the aperture of the target-specific telescope, the
   complete filter catalogue and products assigned to the active profile. It

@@ -156,6 +156,8 @@ def _complete_conditions(
         sky_brightness_mag_arcsec2=sky_brightness,
         bortle_class=3,
         transparency_score=transparency,
+        target_current_altitude_deg=52.0,
+        target_maximum_altitude_deg=60.0,
         moon_illumination_fraction=0.2,
         moon_altitude_deg=-5.0,
         moon_target_separation_deg=120.0,
@@ -293,6 +295,59 @@ def test_slow_optics_increase_integration_but_tracking_remains_a_cap() -> None:
         slow_advice.sub_exposure_max_seconds
         <= slow_advice.tracking_limit_seconds
     )
+
+
+def test_integration_ceiling_is_reported_as_a_lower_bound() -> None:
+    candidate = _candidate(
+        target=_target(
+            target_id="caldwell-C3",
+            name="C3",
+            object_type="Spiral galaxy",
+            magnitude="9.7",
+            apparent_size="21′ × 7′",
+            max_size_deg=0.35,
+        ),
+        telescope=_telescope(
+            aperture_mm=150,
+            focal_length_mm=1500,
+            mount="ALTAZ_GOTO",
+        ),
+    )
+
+    advice = ImagingExposureAdvisor().advise(
+        candidate,
+        _complete_conditions(
+            sky_brightness=20.5,
+            transparency=75,
+        ),
+    )
+
+    assert advice is not None
+    assert advice.total_integration_min_minutes == 900
+    assert advice.total_integration_max_minutes == 900
+    assert advice.total_integration_min_is_lower_bound is True
+    assert advice.total_integration_max_is_lower_bound is True
+    assert advice.estimated_frame_count_min == 6750
+    assert advice.estimated_frame_count_max == 13500
+    assert "total_integration_limit_reached" in advice.warning_codes
+
+
+def test_low_deep_sky_altitude_is_an_explicit_photographic_warning() -> None:
+    advice = ImagingExposureAdvisor().advise(
+        _candidate(),
+        replace(
+            _complete_conditions(),
+            target_current_altitude_deg=13.6,
+            target_maximum_altitude_deg=25.0,
+        ),
+    )
+
+    assert advice is not None
+    assert (
+        "target_stays_below_preferred_imaging_altitude"
+        in advice.warning_codes
+    )
+    assert "low_target_altitude" not in advice.warning_codes
 
 
 def test_mount_taxonomy_sets_conservative_distinct_limits() -> None:

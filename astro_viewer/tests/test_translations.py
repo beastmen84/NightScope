@@ -1228,6 +1228,19 @@ def test_imaging_plan_terminology_is_technically_consistent() -> None:
             ("", "Campionamento"): "Image scale",
             ("", "Campo del sensore"): "Sensor field of view",
             ("", "Posa singola"): "Sub-exposure",
+            ("", "Numero minimo di pose"): "Minimum number of sub-exposures",
+            ("", "umidità elevata"): "high humidity",
+            (
+                "",
+                "L'integrazione totale è la somma delle pose luce "
+                "utilizzabili e può essere distribuita su più notti. I "
+                "tempi sono intervalli di pianificazione, non una "
+                "calibrazione della camera.",
+            ): (
+                "Total integration is the sum of usable light frames and "
+                "can be spread across multiple nights. The times are "
+                "planning ranges, not a camera calibration."
+            ),
             (
                 "",
                 "Limite prudenziale per posa",
@@ -1255,6 +1268,23 @@ def test_imaging_plan_terminology_is_technically_consistent() -> None:
             ("", "Campionamento"): "Escala de imagen",
             ("", "Campo del sensore"): "Campo de visión del sensor",
             ("", "Posa singola"): "Subexposición",
+            (
+                "",
+                "Numero minimo di pose",
+            ): "Número mínimo de subexposiciones",
+            ("", "umidità elevata"): "humedad elevada",
+            (
+                "",
+                "L'integrazione totale è la somma delle pose luce "
+                "utilizzabili e può essere distribuita su più notti. I "
+                "tempi sono intervalli di pianificazione, non una "
+                "calibrazione della camera.",
+            ): (
+                "La integración total es la suma de las tomas de luz "
+                "utilizables y puede repartirse entre varias noches. Los "
+                "tiempos son intervalos de planificación, no una "
+                "calibración de la cámara."
+            ),
             (
                 "",
                 "Limite prudenziale per posa",
