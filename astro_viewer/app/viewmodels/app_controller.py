@@ -126,6 +126,9 @@ from astro_viewer.app.services.home_observing_overview import (
     bortle_observing_warning,
 )
 from astro_viewer.app.services.imaging_camera_adapter import ImagingCameraAdapter
+from astro_viewer.app.services.imaging_recommendation_presentation import (
+    ImagingRecommendationPresenter,
+)
 from astro_viewer.app.services.imaging_runtime_assembler import (
     ImagingRuntimeAssembler,
 )
@@ -283,6 +286,7 @@ class AppController(QObject):
     weatherChanged = Signal()
     equipmentChanged = Signal()
     profileInventoryChanged = Signal()
+    photographicRecommendationChanged = Signal()
     cameraCatalogChanged = Signal()
     observationChanged = Signal()
     skyCompassChanged = Signal()
@@ -338,6 +342,18 @@ class AppController(QObject):
         self.weatherChanged.connect(self.observingObjectDetailChanged.emit)
         self.equipmentChanged.connect(self.observingObjectDetailChanged.emit)
         self.skyCompassChanged.connect(self.observingObjectDetailChanged.emit)
+        self.selectedObjectChanged.connect(
+            self.photographicRecommendationChanged.emit
+        )
+        self.profileInventoryChanged.connect(
+            self.photographicRecommendationChanged.emit
+        )
+        self.weatherChanged.connect(
+            self.photographicRecommendationChanged.emit
+        )
+        self.skyCompassChanged.connect(
+            self.photographicRecommendationChanged.emit
+        )
         self._base_dir = base_dir
         preferences_path = preferences_path or database_path.parent / "user_preferences.json"
         location_cache_path = location_cache_path or database_path.parent / "location_cache.json"
@@ -461,6 +477,9 @@ class AppController(QObject):
         self._sky_compass_service = sky_compass_service or SkyCompassService()
         self._observing_object_detail_service = ObservingObjectDetailService()
         self._imaging_runtime_assembler = ImagingRuntimeAssembler()
+        self._imaging_recommendation_presenter = (
+            ImagingRecommendationPresenter()
+        )
         self._refresh_manager = RefreshManager()
 
         self._city_results = []
@@ -1150,6 +1169,32 @@ class AppController(QObject):
         if self._selected_object_source == CATALOGUE_SOURCE:
             return render_payload(self._object_to_qml(self._selected_object))
         return render_payload(self._object_to_qml(self._moon_adjusted_object(self._selected_object)))
+
+    @Property("QVariant", notify=photographicRecommendationChanged)
+    def photographicRecommendation(self) -> dict:
+        target = self._photographic_detail_target()
+        if target is None:
+            return {}
+        presenter = getattr(
+            self,
+            "_imaging_recommendation_presenter",
+            None,
+        )
+        if presenter is None:
+            presenter = ImagingRecommendationPresenter()
+            self._imaging_recommendation_presenter = presenter
+        presentation = presenter.present(
+            self._imaging_runtime_recommendation(target)
+        )
+        return render_payload(presentation.to_payload())
+
+    def _photographic_detail_target(self) -> CelestialObject | None:
+        target = self._observing_detail_display_target()
+        if target is None:
+            target = self._selected_object
+        if target is None:
+            return None
+        return self._moon_adjusted_object(target)
 
     @Property("QVariant", notify=observingObjectDetailChanged)
     def observingObjectDetail(self) -> dict:

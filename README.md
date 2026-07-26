@@ -123,8 +123,11 @@ still candidates it returns broadband sub-exposure and total-integration ranges
 from the current sky, atmospheric-transparency and Moon inputs. For video
 candidates it returns a target-specific single-clip duration, an FPS planning
 range and an indicative captured-frame range without assuming ROI or image
-derotation. These planning ranges do not change Home, Planner, Equipment, Sky
-Compass or NSOM and are not yet exposed on Object Detail.
+derotation. Object Detail presents this result in a separate imaging-plan card
+below the visual setup: optical train, field of view, image scale, exposure or
+video ranges, confidence and the most relevant operational limits. The
+presentation is computed for the selected target only; it does not change Home,
+Planner, visual Equipment, Sky Compass, visual recommendations or NSOM.
 
 Telescope mount types use stable controlled codes instead of free text. This
 preserves the existing visual recommendation behavior while keeping manual,

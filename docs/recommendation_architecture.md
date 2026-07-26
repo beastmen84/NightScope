@@ -824,9 +824,9 @@ This layer is not registered directly with `AppController` and remains absent
 from QML, Home, Planner, Sky Compass and NSOM. The private runtime assembler
 can invoke it for a selected video candidate.
 
-### Photographic Runtime Assembly
+### Photographic Runtime Assembly And Presentation
 
-The runtime boundary is now implemented without a presentation boundary:
+The runtime and selected-detail presentation boundaries are now implemented:
 
 ```text
 active profile + current observing facts + CelestialObject
@@ -845,6 +845,12 @@ active profile + current observing facts + CelestialObject
                          |
                          v
           ImagingRuntimeRecommendation
+                         |
+                         v
+          ImagingRecommendationPresenter
+                         |
+                         v
+      Object Detail photographic plan (selected target only)
 ```
 
 The inventory snapshot includes only assigned telescopes, astronomy cameras,
@@ -864,10 +870,20 @@ mode-specific advice object, or a stable unavailable status for missing
 profile/inventory, invalid trains, solar safety gating or an unavailable
 advisor. Conditions remain score-neutral.
 
-`AppController` exposes this only as a private Python method. No startup,
-weather, profile or observing refresh calls it; no signal or cache was added.
-There is still no QML property or Object Detail DTO. That presentation mapping
-is the final photographic-engine phase.
+`AppController` keeps the assembler behind a private Python method and exposes
+only a localized `photographicRecommendation` DTO for the selected detail
+target. The dedicated notify signal follows target selection, photographic
+inventory and current-condition changes; it does not enqueue or recompute the
+catalogue, Home or Planner. There is no photographic cache or worker.
+
+The presenter exports no suitability score. It formats the winning optical
+train, sensor field of view, image scale, effective focal geometry, reducer
+back-focus spacing and exactly one capture plan. Still mode shows sub-exposure,
+total integration, estimated sub-exposures and a conservative tracking limit;
+video mode shows single-clip duration, planned FPS, estimated frames and FPS
+provenance. A maximum of three prioritized operational notices includes
+visibility/seeing/mount limits and explicit crop-or-mosaic guidance when a
+known target is larger than the selected sensor field.
 
 ### Filters
 

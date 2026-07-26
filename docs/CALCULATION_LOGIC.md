@@ -1176,10 +1176,22 @@ Photographic runtime assembly:
 - Conditions affect exposure/video planning and completeness only. They never
   alter the static photographic candidate score. Likewise no visual score,
   observability rank, Home value or NSOM field enters this chain.
-- The controller method is private and is not called by startup, weather,
-  profile, catalogue or observing refresh paths. There is no photographic
-  cache, worker, timer, signal or QML property at this stage. Object Detail DTO
-  mapping and presentation remain the final integration step.
+- The assembler method remains private and is never called for a catalogue-wide
+  refresh. The QML boundary requests it only for the currently selected detail
+  target through `photographicRecommendation`; a dedicated notify signal
+  invalidates that one presentation when the selection, photographic inventory
+  or relevant current conditions change. There is no photographic cache,
+  timer, worker or loop over Home/catalogue candidates.
+- `ImagingRecommendationPresenter` converts the typed result into a localized
+  score-free DTO. It exposes the winning optical train, sensor field of view,
+  image scale, effective focal length/ratio, back-focus spacing and exactly one
+  still or video plan. The presenter adds a framing notice when a known target
+  cannot fit in the sensor field, prioritizes at most three operational
+  warnings and keeps catalog FPS explicitly distinct from measured FPS.
+- Object Detail renders this as a separate card below the visual setup. Camera
+  inventory never enters visual Equipment or recommendation scoring; current
+  conditions change planning ranges, completeness and warnings only, while the
+  static photographic suitability score remains unchanged and is not shown.
 
 Zoom eyepieces:
 

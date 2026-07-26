@@ -1217,6 +1217,93 @@ def test_curated_camera_terminology_is_technically_consistent() -> None:
     assert "persiana enrollable" not in spanish_text.casefold()
 
 
+def test_imaging_plan_terminology_is_technically_consistent() -> None:
+    expected = {
+        "en": {
+            ("ObjectDetailPage", "Piano fotografico"): "Imaging plan",
+            ("", "Fuoco diretto"): "Prime focus",
+            ("", "Piano di posa"): "Exposure plan",
+            ("", "Piano video"): "Video capture plan",
+            ("", "Campionamento"): "Image scale",
+            ("", "Campo del sensore"): "Sensor field of view",
+            ("", "Posa singola"): "Sub-exposure",
+            (
+                "",
+                "Limite prudenziale per posa",
+            ): "Conservative sub-exposure limit",
+            ("", "Video planetario"): "Planetary video",
+            ("", "Nessuna camera nel profilo"): "No camera in the profile",
+            (
+                "",
+                "Backfocus richiesto dal riduttore: {required} mm",
+            ): "Reducer back focus required: {required} mm",
+            (
+                "",
+                "La montatura altazimutale limita la posa singola per "
+                "contenere la rotazione di campo.",
+            ): (
+                "The alt-azimuth mount limits each sub-exposure to control "
+                "field rotation."
+            ),
+        },
+        "es": {
+            ("ObjectDetailPage", "Piano fotografico"): "Plan fotográfico",
+            ("", "Fuoco diretto"): "Foco primario",
+            ("", "Piano di posa"): "Plan de exposición",
+            ("", "Piano video"): "Plan de captura de vídeo",
+            ("", "Campionamento"): "Escala de imagen",
+            ("", "Campo del sensore"): "Campo de visión del sensor",
+            ("", "Posa singola"): "Subexposición",
+            (
+                "",
+                "Limite prudenziale per posa",
+            ): "Límite prudente por subexposición",
+            ("", "Video planetario"): "Vídeo planetario",
+            (
+                "",
+                "Nessuna camera nel profilo",
+            ): "No hay ninguna cámara en el perfil",
+            (
+                "",
+                "Backfocus richiesto dal riduttore: {required} mm",
+            ): "Backfocus requerido por el reductor: {required} mm",
+            (
+                "",
+                "La montatura altazimutale limita la posa singola per "
+                "contenere la rotazione di campo.",
+            ): (
+                "La montura altazimutal limita cada subexposición para "
+                "controlar la rotación de campo."
+            ),
+        },
+    }
+
+    for code, expected_entries in expected.items():
+        _, entries = _catalog_entries(TRANSLATIONS_DIR / f"{code}.ts")
+        for key, translation in expected_entries.items():
+            assert entries[key] == translation
+
+    rendered = "\n".join(
+        (
+            (TRANSLATIONS_DIR / "en.ts").read_text(encoding="utf-8"),
+            (TRANSLATIONS_DIR / "es.ts").read_text(encoding="utf-8"),
+        )
+    ).casefold()
+    for forbidden in (
+        "direct fire",
+        "installation plan",
+        "single installation",
+        "no rooms in the profile",
+        "planetarium video",
+        "fuego directo",
+        "plano de instalación",
+        "habitaciones en el perfil",
+        "postura única",
+        "vídeo del planetario",
+    ):
+        assert forbidden not in rendered
+
+
 def test_profile_solar_filter_terminology_is_technically_consistent() -> None:
     sources = {
         "label": "Filtro solare a tutta apertura disponibile",

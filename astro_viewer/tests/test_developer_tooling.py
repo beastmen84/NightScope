@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import inspect
 import logging
 import re
 import sys
@@ -324,6 +325,16 @@ def test_first_run_city_progress_is_bounded_and_readable() -> None:
     assert early.percent < late.percent <= 68
     assert early.detail == "Importing the city catalogue - 500 rows processed"
     assert late.detail == "Importing the city catalogue - 50,000 rows processed"
+
+
+def test_first_run_splash_has_real_transparent_rounded_corners() -> None:
+    source = inspect.getsource(main_module._create_initialization_splash)
+
+    assert "dialog.setAttribute(Qt.WA_TranslucentBackground, True)" in source
+    assert 'surface.setObjectName("splashSurface")' in source
+    assert "surface.setAttribute(Qt.WA_StyledBackground, True)" in source
+    assert "QWidget#splashSurface {" in source
+    assert "QDialog {\n            background-color: transparent;" in source
 
 
 def test_first_run_splash_waits_for_first_qml_frame() -> None:

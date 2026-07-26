@@ -262,12 +262,16 @@ Current runtime status for `1.27.0`:
   `EquipmentService`, ObserverCapability, Planner, Home, Sky Compass or NSOM.
   Catalogue edits and profile links notify `profileInventoryChanged`; they do
   not rebuild the visual active-profile setup or emit its downstream Home and
-  observing-detail signals. `AppController` owns one backend-only
+  observing-detail signals. `AppController` owns one
   `ImagingRuntimeAssembler` and calls it only through a private on-demand
   method. The assembler snapshots the active photographic inventory, builds
-  trains, ranks the target and routes the winner to the still or video
-  advisor. It has no QML property, signal, cache or refresh subscription and
-  therefore cannot enter Home, Planner, Sky Compass, Equipment or NSOM.
+  trains, ranks the selected target and routes the winner to the still or video
+  advisor. A dedicated `photographicRecommendation` QML property maps that
+  single result through `ImagingRecommendationPresenter`; its dedicated notify
+  signal follows selected-target, photographic-inventory and current-condition
+  changes. There is no catalogue-wide photographic refresh, cache or worker,
+  and this path cannot enter Home, Planner, Sky Compass, visual Equipment or
+  NSOM.
 - Filters and focal reducers are persistent profile inventory. Separate
   presentation services can feed the score-free observing-detail read model,
   but neither accessory enters `EquipmentService`, ObserverCapability, setup
@@ -530,7 +534,11 @@ Important pages:
 - `ObjectCataloguePage.qml`: informational catalogue browser with search,
   filters and object-detail click-through. It renders catalogue data and does
   not present recommendation ranking.
-- `ObjectDetailPage.qml`: selected object detail and setup alternatives.
+- `ObjectDetailPage.qml`: selected object detail, visual setup alternatives and
+  a separate photographic plan for the active profile. The imaging card shows
+  the winning optical train, field/image scale, still or planetary-video
+  ranges, confidence and operational notices without exposing its internal
+  suitability score.
 - `EquipmentProfilesPage.qml`, `EquipmentTelescopesPage.qml`,
   `EquipmentOpticsPage.qml`, `EquipmentBinocularsPage.qml` and
   `EquipmentFiltersReducersPage.qml`: profile and visual-equipment management.
@@ -566,6 +574,7 @@ Important pages:
 - night plan and Sky Compass,
 - generic catalogue object dictionaries and catalogue filter state,
 - selected object and detail dictionaries,
+- the on-demand photographic recommendation for the selected object,
 - calendar event setup text and object-detail target mapping,
 - QML signals for every major dependent property.
 
@@ -624,7 +633,12 @@ Services hold business logic:
   and Barlows, forwards the exact assigned solar-filter telescope IDs, ranks
   candidates and returns one typed result with either still-exposure or video
   advice. Stable unavailable states cover missing inventory and blocked solar
-  guidance; no result is serialized to QML yet.
+  guidance.
+- `ImagingRecommendationPresenter`: localized DTO boundary between the typed
+  runtime result and Object Detail. It formats optical geometry, exposure/video
+  ranges, back-focus spacing and prioritized warnings, including crop/mosaic
+  guidance when the target exceeds the camera field. It never exports the
+  internal photographic score.
 - `FilterRecommendationService`: presentation-only matching between target
   filter preferences, the aperture of the target-specific telescope, the
   complete filter catalogue and products assigned to the active profile. It

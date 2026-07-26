@@ -19,6 +19,9 @@ Item {
     readonly property var originMetricData: objectData.originMetric || ({})
     readonly property var filterRecommendationsData: equipmentData.filterRecommendations || ({})
     readonly property var reducerRecommendationData: equipmentData.reducerRecommendation || ({})
+    readonly property var photographicData: controller
+                                                   ? (controller.photographicRecommendation || ({}))
+                                                   : ({})
     property bool hasObject: objectData && objectData.name !== undefined && objectData.name !== ""
     property bool isCatalogueDetail: root.hasObject && selectedIsCatalogueDetail
     property int detailMetricHeight: 88
@@ -53,6 +56,40 @@ Item {
         if (state === "pending")
             return theme.cyan
         return theme.textMuted
+    }
+
+    function photographicAccent() {
+        if (root.photographicData.ready === true)
+            return root.photographicData.modeCode === "video"
+                    ? theme.coral : theme.violet
+        if (root.photographicData.statusCode === "target_unsupported")
+            return theme.coral
+        return theme.amber
+    }
+
+    function photographicConfidenceAccent() {
+        if (root.photographicData.confidenceCode === "high")
+            return theme.green
+        if (root.photographicData.confidenceCode === "medium")
+            return theme.teal
+        return theme.amber
+    }
+
+    function photographicMetricAccent(index) {
+        var accents = [
+            theme.cyan,
+            theme.teal,
+            theme.violet,
+            theme.amber
+        ]
+        return accents[index % accents.length]
+    }
+
+    function photographicNoticeAccent(code, level) {
+        if (code === "target_below_horizon"
+                || code === "target_exceeds_sensor_field")
+            return theme.coral
+        return level === "info" ? theme.cyan : theme.amber
     }
 
     function originMetricLabel() {
@@ -288,6 +325,7 @@ Item {
 
     ScrollView {
         id: scroll
+        objectName: "objectDetailScroll"
         anchors.fill: parent
         clip: true
         contentWidth: availableWidth
@@ -800,6 +838,209 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     text: root.setupDetailText()
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                }
+            }
+
+            GlassCard {
+                objectName: "photographicRecommendationCard"
+                visible: root.hasObject
+                         && (root.photographicData.statusCode || "").length > 0
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: qsTr("Piano fotografico")
+                subtitle: root.photographicData.subtitle || qsTr("Configurazione fotografica del profilo attivo")
+                subtitleWrap: true
+                accentColor: root.photographicAccent()
+
+                Text {
+                    visible: root.photographicData.ready === true
+                    Layout.fillWidth: true
+                    text: root.photographicData.setupText || ""
+                    color: theme.textPrimary
+                    font.pixelSize: 20
+                    font.weight: Font.DemiBold
+                    wrapMode: Text.WordWrap
+                }
+
+                Flow {
+                    id: photographicBadges
+                    visible: (root.photographicData.stateLabel || "").length > 0
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: childrenRect.height
+                    spacing: 8
+
+                    StatusPill {
+                        visible: root.photographicData.ready === true
+                                 && (root.photographicData.modeLabel || "").length > 0
+                        text: root.photographicData.modeLabel || ""
+                        accentColor: root.photographicAccent()
+                    }
+
+                    StatusPill {
+                        visible: root.photographicData.ready === true
+                                 && (root.photographicData.modifierLabel || "").length > 0
+                        text: root.photographicData.modifierLabel || ""
+                        accentColor: theme.cyan
+                    }
+
+                    StatusPill {
+                        visible: root.photographicData.ready === true
+                                 && (root.photographicData.confidenceLabel || "").length > 0
+                        text: root.photographicData.confidenceLabel || ""
+                        accentColor: root.photographicConfidenceAccent()
+                    }
+
+                    StatusPill {
+                        text: root.photographicData.stateLabel || ""
+                        accentColor: root.photographicData.ready === true
+                                     ? theme.textSecondary : root.photographicAccent()
+                    }
+                }
+
+                Text {
+                    visible: root.photographicData.ready === true
+                             && (root.photographicData.mechanicalText || "").length > 0
+                    Layout.fillWidth: true
+                    text: root.photographicData.mechanicalText || ""
+                    color: theme.textSecondary
+                    font.pixelSize: 12
+                    wrapMode: Text.WordWrap
+                }
+
+                Text {
+                    visible: root.photographicData.ready === true
+                    Layout.fillWidth: true
+                    text: root.photographicData.geometryTitle || ""
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    font.weight: Font.DemiBold
+                    wrapMode: Text.WordWrap
+                }
+
+                GridLayout {
+                    visible: root.photographicData.ready === true
+                    Layout.fillWidth: true
+                    columns: root.width > 1160 ? 4 : root.width > 760 ? 2 : 1
+                    columnSpacing: 12
+                    rowSpacing: 12
+
+                    Repeater {
+                        model: root.photographicData.geometryMetrics || []
+
+                        delegate: MetricTile {
+                            required property int index
+                            required property var modelData
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 78
+                            label: modelData.label || ""
+                            value: modelData.value || ""
+                            accentColor: root.photographicMetricAccent(index)
+                        }
+                    }
+                }
+
+                Text {
+                    visible: root.photographicData.ready === true
+                    Layout.fillWidth: true
+                    text: root.photographicData.captureTitle || ""
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    font.weight: Font.DemiBold
+                    wrapMode: Text.WordWrap
+                }
+
+                GridLayout {
+                    visible: root.photographicData.ready === true
+                    Layout.fillWidth: true
+                    columns: root.width > 1160 ? 4 : root.width > 760 ? 2 : 1
+                    columnSpacing: 12
+                    rowSpacing: 12
+
+                    Repeater {
+                        model: root.photographicData.captureMetrics || []
+
+                        delegate: MetricTile {
+                            required property int index
+                            required property var modelData
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 78
+                            label: modelData.label || ""
+                            value: modelData.value || ""
+                            accentColor: root.photographicMetricAccent(index + 1)
+                        }
+                    }
+                }
+
+                Text {
+                    visible: root.photographicData.ready === true
+                             && (root.photographicData.guidance || "").length > 0
+                    Layout.fillWidth: true
+                    text: root.photographicData.guidance || ""
+                    color: theme.textPrimary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                }
+
+                Repeater {
+                    model: root.photographicData.ready === true
+                           ? (root.photographicData.notices || []) : []
+
+                    delegate: RowLayout {
+                        required property var modelData
+                        Layout.fillWidth: true
+                        spacing: 10
+
+                        Rectangle {
+                            Layout.preferredWidth: 8
+                            Layout.preferredHeight: 8
+                            Layout.alignment: Qt.AlignTop
+                            Layout.topMargin: 5
+                            radius: 4
+                            color: root.photographicNoticeAccent(
+                                       modelData.code || "",
+                                       modelData.level || "warning"
+                                   )
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: modelData.text || ""
+                            color: theme.textSecondary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
+                    }
+                }
+
+                Text {
+                    visible: root.photographicData.ready === true
+                             && (root.photographicData.disclaimer || "").length > 0
+                    Layout.fillWidth: true
+                    text: root.photographicData.disclaimer || ""
+                    color: theme.textMuted
+                    font.pixelSize: 12
+                    font.italic: true
+                    wrapMode: Text.WordWrap
+                }
+
+                Text {
+                    visible: root.photographicData.ready !== true
+                    Layout.fillWidth: true
+                    text: root.photographicData.unavailableTitle || ""
+                    color: theme.textPrimary
+                    font.pixelSize: 18
+                    font.weight: Font.DemiBold
+                    wrapMode: Text.WordWrap
+                }
+
+                Text {
+                    visible: root.photographicData.ready !== true
+                    Layout.fillWidth: true
+                    text: root.photographicData.unavailableDetail || ""
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap

@@ -89,8 +89,34 @@
   altezza corrente. Le condizioni non cambiano lo score statico; FPS
   raggiungibili restano sconosciuti senza telemetria della camera. Stati
   espliciti distinguono profilo o inventario mancanti, treni non validi e
-  target bloccati. Non sono stati aggiunti segnali, refresh, cache, DTO QML o
-  presentazione in Detail.
+  target bloccati.
+- Completato il collegamento selettivo al dettaglio oggetto:
+  `ImagingRecommendationPresenter` produce un DTO localizzato e senza score,
+  mentre la nuova card `Piano fotografico`, subito sotto la configurazione
+  visuale, mostra treno ottico, campo del sensore, campionamento, focale e
+  rapporto focale effettivi, backfocus e il solo piano coerente con foto o
+  video. Le foto espongono posa singola, integrazione totale, numero indicativo
+  di pose e limite prudenziale; i pianeti espongono durata della clip, FPS,
+  frame indicativi e provenienza del frame rate.
+- Gli avvisi fotografici restano metadati score-neutral e vengono limitati ai
+  tre piu' operativi: visibilita', seeing, montatura/rotazione di campo, camera
+  non raffreddata e pianeta debole. Se il target non entra nel campo del
+  sensore, la card indica esplicitamente ritaglio o mosaico; il massimo FPS di
+  catalogo non viene presentato come prestazione misurata.
+- Il calcolo fotografico viene richiesto soltanto per l'oggetto selezionato.
+  Un segnale dedicato aggiorna la card quando cambiano target, inventario
+  fotografico o condizioni correnti, senza cache, worker o cicli sui 7.585
+  oggetti e senza collegare camere o risultati a Home, Planner, Equipment
+  visuale, Sky Compass, raccomandazioni visuali o NSOM.
+- Corrette le quattro estremita' quadrate visibili nella schermata di
+  inizializzazione al primo avvio: la finestra frameless usa ora uno sfondo
+  realmente trasparente e dipinge bordo e riempimento su una superficie interna
+  arrotondata, invece di applicare il solo raggio al backing opaco.
+- Revisionata in italiano, inglese e spagnolo la terminologia del piano
+  fotografico: fuoco primario, riduttore di focale, scala d'immagine,
+  posa singola, integrazione, rotazione di campo, seeing, backfocus, frame
+  rate e treno ottico usano forme astronomiche controllate dagli overlay e da
+  test multilingua dedicati.
 - Completezza e limiti restano metadati paralleli e non modificano il punteggio:
   seeing, fondo cielo, precisione d'inseguimento, connessione meccanica e cerchio
   d'immagine non vengono inventati. Gain/ISO, rumore di lettura, autoguida,
@@ -101,8 +127,9 @@
   default sicuro. Anche il video advisor non inventa esposizione/gain, ROI,
   throughput, codec, diametro/fase apparente, percentuale di frame selezionati
   o derotazione. Condizioni e inventario sono ora collegati soltanto
-  nell'assembler backend on demand; segnali, DTO QML e pagina Detail non sono
-  ancora collegati.
+  nell'assembler backend on demand; il presenter e la card Detail consumano il
+  risultato tipizzato senza esporre lo scorer o registrarlo direttamente in
+  QML.
 - La montatura dei telescopi usa ora una tassonomia stabile selezionata da menu:
   OTA, altazimutale, equatoriale, forcella e Dobson, con varianti manuale,
   motorizzata, GoTo e PushTo dove pertinenti. I valori storici dei seed vengono
@@ -110,16 +137,19 @@
   conserva un codice esplicito non specificato. L'adattatore visuale mantiene
   gli stessi coefficienti precedenti, mentre i codici distinti restano
   disponibili al backend fotografico separato.
-- Il gate finale `tools/run_checks.py --fast` passa con 1.068 test, 643 warning
-  Skyfield/NumPy gia' noti e 10 subtest in 265,70 secondi, oltre agli smoke
+- Il gate finale `tools/run_checks.py --fast` passa con 1.075 test, 643 warning
+  Skyfield/NumPy gia' noti e 10 subtest in 373,87 secondi, oltre agli smoke
   backend, QML normale e Red Night Vision. Il catalogo Cameras ha inoltre QML
   lint senza warning; la
   pagina Profili con camere assegnate e' stata verificata nativamente a
   `1040 × 700` e `1709 × 1047` in entrambe le modalita'. Il nuovo controllo
   del filtro solare e il relativo avviso di sicurezza sono stati verificati
   nativamente a `1400 × 900`; la scena rossa raggiunge al massimo verde 74 e
-  blu 61, senza pixel oltre soglia. I cataloghi Qt IT/EN/ES contengono 1.868
-  voci finite e zero incomplete.
+  blu 61, senza pixel oltre soglia. La nuova card fotografica e' stata
+  verificata con M31 e Saturno in modalita' normale e rossa, senza tagli; il
+  probe rosso raggiunge al massimo verde 16 e blu 15. I quattro angoli dello
+  splash nativo hanno alpha zero. I cataloghi Qt IT/EN/ES contengono 1.959 voci
+  finite e zero incomplete.
 - Aggiunti nel catalogo i comandi `Attiva risultati` e
   `Disattiva risultati`: operano sull'intero risultato filtrato corrente,
   mostrano il numero esatto di target coinvolti e chiedono conferma prima

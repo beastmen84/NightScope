@@ -591,6 +591,14 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   osservativo, piano notturno, ranking e Sky Compass passano integralmente:
   `95 passed` nei nove file `test_home_*`, `test_observing_object_detail.py` e
   `test_sky_compass_*` eseguiti in questo passaggio.
+- [x] **VIS-V47 (`VERIFICATA`)** - La card `Piano fotografico` e' stata
+  renderizzata nativamente su Windows con il profilo reale in modalita' normale
+  e Red Night Vision. M31 mostra il piano foto, il reducer e l'avviso
+  regione/mosaico; Saturno mostra Barlow, durata clip, FPS e frame senza tagli
+  o sovrapposizioni. La scena rossa resta monocromatica, con verde massimo 16,
+  blu massimo 15 e zero pixel oltre soglia. Lo splash del primo avvio conserva
+  il bordo arrotondato visibile e ha alpha `0` nei quattro pixel d'angolo,
+  mentre superficie e centro restano opachi.
 
 ## Verifica Delle Correzioni 1.33.1
 

@@ -138,9 +138,23 @@ solari esatti, ordina i candidati e chiama il solo advisor coerente con foto o
 video. `ImagingRuntimeConditionsAdapter` usa SQM/Bortle, trasparenza atmosferica
 grezza e geometria lunare per le foto, seeing e altezza per i video. Restituisce
 la policy tipizzata `imaging_runtime_v1` con stati espliciti per profilo,
-telescopi, camere o configurazioni mancanti. Non esistono segnali, cache,
-refresh automatici o proprieta' QML: DTO e presentazione nelle pagine Detail
-sono ora l'ultimo passo.
+telescopi, camere o configurazioni mancanti.
+
+Il sesto passo completa il confine di presentazione.
+`ImagingRecommendationPresenter` trasforma il solo risultato del target
+selezionato in un DTO localizzato e senza score. `ObjectDetailPage` mostra una
+card autonoma subito sotto la configurazione visuale: treno ottico, campo del
+sensore, campionamento, focale/rapporto focale, backfocus del riduttore e il
+solo piano coerente con foto oppure video. Le foto espongono posa singola,
+integrazione totale, numero indicativo di pose e limite prudenziale; i pianeti
+espongono durata clip, FPS, frame e provenienza del frame rate. Avvisi
+prioritizzati coprono orizzonte, seeing, rotazione di campo, rumore termico e
+target piu' grande del sensore con indicazione di ritaglio o mosaico.
+
+Il segnale `photographicRecommendationChanged` segue soltanto target
+selezionato, inventario fotografico e condizioni correnti. Non esistono cache,
+worker o cicli fotografici sui 7.585 oggetti; camere e piano fotografico
+restano fuori dal motore visuale, da Home, Planner, Sky Compass e NSOM.
 
 La montatura telescopio e' ora un menu con codici stabili per OTA,
 altazimutale, equatoriale, forcella e Dobson, distinguendo manuale,
@@ -150,14 +164,14 @@ specificato. La proiezione di tracking visuale conserva esattamente i
 coefficienti precedenti, lasciando le distinzioni piu' fini al backend
 fotografico separato.
 
-Il gate finale `tools/run_checks.py --fast` passa con 1.068 test, 643 warning
-Skyfield/NumPy gia' noti e 10 subtest in 265,70 secondi, oltre agli smoke
+Il gate finale `tools/run_checks.py --fast` passa con 1.075 test, 643 warning
+Skyfield/NumPy gia' noti e 10 subtest in 373,87 secondi, oltre agli smoke
 backend, QML normale e Red Night Vision. `EquipmentCamerasPage.qml` passa QML
 lint senza warning. La
 pagina Profili con camere assegnate e' stata controllata nativamente a
 `1040 × 700` e `1709 × 1047` in entrambe le modalita'; in Red Night Vision i
 massimi sono verde 74 e blu 61, senza pixel oltre soglia. I cataloghi Qt
-IT/EN/ES contengono 1.868 voci finite e zero incomplete. Il controllo del
+IT/EN/ES contengono 1.959 voci finite e zero incomplete. Il controllo del
 filtro solare, selezionato e accompagnato dall'avviso di sicurezza, e' stato
 verificato nativamente a `1400 × 900` in modalita' normale e notturna con gli
 stessi limiti cromatici. Il follow-up visuale
@@ -165,7 +179,11 @@ mantiene lo stesso gate e aggiunge la verifica del posizionamento responsivo
 dei tag e delle colonne uniformi nei dialoghi. L'audit terminologico aggiunge
 31 test mirati verdi e una verifica nativa dei dialoghi IT/EN/ES, incluso il
 body spagnolo in Red Night Vision; l'etichetta localizzata piu' larga misura
-185,2 px nei 244 px disponibili e non viene elisa.
+185,2 px nei 244 px disponibili e non viene elisa. La card fotografica e'
+stata verificata nativamente con M31 e Saturno, senza tagli in modalita'
+normale o rossa; il relativo probe rosso raggiunge al massimo verde 16 e blu
+15. Lo splash del primo avvio ha alpha zero nei quattro angoli e mantiene
+opaca la superficie arrotondata.
 
 ## Catalogo NGC e ammissione raccomandazioni
 

@@ -137,14 +137,14 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
-## Measured Unreleased Camera, Profile, Solar Capability And Imaging Backend Gate
+## Measured Unreleased Camera, Profile, Solar Capability And Imaging Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-26:
 
 | Check | Result |
 | --- | --- |
 | `python tools/run_checks.py --fast` on the final source state | Passed |
-| Complete deterministic suite | 1,068 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 265.70 s |
+| Complete deterministic suite | 1,075 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 373.87 s |
 | Camera seed/bootstrap | 37 astronomy cameras and 40 camera bodies; schema 19-to-22 and 20-to-22 upgrades, unique identities and sensor geometry checks passed |
 | Profile persistence | Astronomy-camera and camera-body links persist independently per profile; the schema 21-to-22 migration preserves telescope assignments and initializes the exact per-profile/per-telescope solar-filter declaration to false |
 | Solar-filter persistence | The declaration survives bootstrap, stays isolated between profiles that share a telescope, rejects nonexistent assignments, and returns to false after telescope removal and reassignment |
@@ -154,15 +154,20 @@ Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-26:
 | Photographic exposure advisor | 14 focused tests cover all 7,585 catalogue targets, dark/bright sky, Bortle fallback, transparency, Moon geometry, target brightness, focal ratio, equatorial/alt-az/manual caps, body Bulb limits, bounded frame counts, invalid inputs/geometry and the direct-controller/QML boundary |
 | Photographic video capture advisor | 25 focused cases cover explicit Sun/Moon/seven-planet profiles, all 539 planet/camera seed combinations, achievable/catalogue/target FPS provenance, equatorial/alt-az/manual limits, seeing and altitude warnings, monochrome/body constraints, invalid or missing inputs, exact solar admission and the direct-controller/QML boundary |
 | Photographic runtime assembler | 18 focused cases cover still/video routing, active-profile astronomy-camera and body inventory, reducers/Barlows, exact assigned solar-filter forwarding, typed unavailable states, raw condition adaptation, localized Moon percentages, score neutrality and absence from existing refresh paths |
+| Photographic selected-detail presentation | 5 focused cases cover localized score-free DTOs, still/video metrics, reducer backfocus, field-fit warnings, unavailable and solar-safe states, dedicated controller invalidation and card placement after the visual setup |
 | Profile UI follow-up | Native width probe: both camera rows inline at 1,709 px, only the longer astronomy-camera row wraps at 1,300 px, and both return inline in the single-column 1,040 px layout; camera-form columns measured equally at 268 px |
 | Mount compatibility | Controlled taxonomy plus legacy `manuale` mapping preserve the prior visual tracking coefficients |
-| Translation catalogues | IT, EN, and ES: 1,868 finished, 0 unfinished each |
+| Translation catalogues | IT, EN, and ES: 1,959 finished, 0 unfinished each |
 | Camera terminology | Exact IT/EN/ES glossary assertions cover sensor color mode, pixel size, image resolution, full-resolution FPS, cooling Delta T, shutter type, lens mount, video tuple and Bulb mode; the widest localized label measures 185.2 px inside the 244 px text area |
+| Imaging-plan terminology | Exact IT/EN/ES assertions cover prime focus, focal reducer, image scale, sensor field of view, sub-exposure, back focus, field rotation and planetary video and reject known literal mistranslations |
 | Solar-filter terminology and safety | Exact IT/EN/ES assertions cover the full-aperture terminology, front-of-objective placement and explicit rejection of eyepiece solar filters |
 | `EquipmentCamerasPage.qml` lint | Passed with zero warnings |
 | Native profile-layout review | Windows `1040 × 700` and `1709 × 1047`, assigned cameras visible, normal and Red Night Vision passed |
 | Native solar-control review | Windows `1400 × 900` logical viewport, assigned telescope and checked flag visible with safety copy in normal and Red Night Vision |
+| Native photographic-detail review | Windows native render with the real profile: M31 still/reducer/region-or-mosaic guidance and Saturn video/Barlow/FPS guidance are complete, responsive and unclipped in normal and Red Night Vision |
+| Native first-run splash review | The four captured corner pixels have alpha 0 while the rounded surface and center remain opaque; no square backing is visible |
 | Red Night Vision pixel probe | Maximum green 74, maximum blue 61, zero threshold violations |
+| Photographic-card Red Night Vision pixel probe | Maximum green 16, maximum blue 15, zero threshold violations |
 | Backend and normal/Red Night Vision QML smoke tests | Passed in disposable runtimes |
 
 ## Measured Unreleased NGC Catalogue Gate

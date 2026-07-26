@@ -233,11 +233,15 @@ def _create_initialization_splash(app):
     dialog = QDialog()
     dialog.setWindowTitle(APP_NAME)
     dialog.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+    dialog.setAttribute(Qt.WA_TranslucentBackground, True)
     dialog.setModal(False)
     dialog.setFixedWidth(520)
     dialog.setStyleSheet(
         """
         QDialog {
+            background-color: transparent;
+        }
+        QWidget#splashSurface {
             background-color: #14181f;
             border: 1px solid #343c49;
             border-radius: 8px;
@@ -316,7 +320,14 @@ def _create_initialization_splash(app):
         """
     )
 
-    layout = QVBoxLayout(dialog)
+    window_layout = QVBoxLayout(dialog)
+    window_layout.setContentsMargins(0, 0, 0, 0)
+    surface = QWidget(dialog)
+    surface.setObjectName("splashSurface")
+    surface.setAttribute(Qt.WA_StyledBackground, True)
+    window_layout.addWidget(surface)
+
+    layout = QVBoxLayout(surface)
     layout.setContentsMargins(32, 28, 32, 30)
     layout.setSpacing(12)
 
