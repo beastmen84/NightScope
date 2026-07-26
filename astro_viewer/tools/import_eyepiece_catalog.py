@@ -25,9 +25,9 @@ def _import_eyepieces(connection, rows: list[dict]) -> int:
         INSERT INTO EyepieceCatalog (
             brand, model, eyepiece_type, focal_length_mm, min_focal_length_mm,
             max_focal_length_mm, apparent_field_deg, afov_min, afov_max,
-            barrel_size, notes
+            notes
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(brand, model, focal_length_mm) DO UPDATE SET
             eyepiece_type = excluded.eyepiece_type,
             min_focal_length_mm = excluded.min_focal_length_mm,
@@ -35,7 +35,6 @@ def _import_eyepieces(connection, rows: list[dict]) -> int:
             apparent_field_deg = excluded.apparent_field_deg,
             afov_min = excluded.afov_min,
             afov_max = excluded.afov_max,
-            barrel_size = excluded.barrel_size,
             notes = excluded.notes
         """,
         [
@@ -49,7 +48,6 @@ def _import_eyepieces(connection, rows: list[dict]) -> int:
                 float(row["apparent_field_deg"]),
                 optional_float(row.get("afov_min")),
                 optional_float(row.get("afov_max")),
-                row.get("barrel_size", ""),
                 row.get("notes", ""),
             )
             for row in rows
@@ -61,10 +59,9 @@ def _import_eyepieces(connection, rows: list[dict]) -> int:
 def _import_barlows(connection, rows: list[dict]) -> int:
     connection.executemany(
         """
-        INSERT INTO BarlowCatalog (brand, model, multiplier, barrel_size, notes)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO BarlowCatalog (brand, model, multiplier, notes)
+        VALUES (?, ?, ?, ?)
         ON CONFLICT(brand, model, multiplier) DO UPDATE SET
-            barrel_size = excluded.barrel_size,
             notes = excluded.notes
         """,
         [
@@ -72,7 +69,6 @@ def _import_barlows(connection, rows: list[dict]) -> int:
                 row["brand"],
                 row["model"],
                 float(row["multiplier"]),
-                row.get("barrel_size", ""),
                 row.get("notes", ""),
             )
             for row in rows

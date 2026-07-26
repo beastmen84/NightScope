@@ -1,36 +1,36 @@
-seed_key,brand,model,multiplier,barrel_size,notes
-barlow::baader::hyperion zoom barlow::2.25,Baader,Hyperion Zoom Barlow,2.25,1.25,Manufacturer catalog specification.
-barlow::baader::q-barlow::2.25,Baader,Q-Barlow,2.25,1.25,Manufacturer catalog specification.
-barlow::baader::vip modular barlow::2,Baader,VIP Modular Barlow,2,1.25/2,Manufacturer catalog specification.
-barlow::celestron::luminos 2.5x barlow lens::2.5,Celestron,Luminos 2.5x Barlow Lens,2.5,2,Manufacturer catalog specification.
-barlow::celestron::omni 2x barlow lens::2,Celestron,Omni 2x Barlow Lens,2,1.25,Manufacturer catalog specification.
-barlow::celestron::x-cel lx 2x barlow lens::2,Celestron,X-Cel LX 2x Barlow Lens,2,1.25,Manufacturer catalog specification.
-barlow::celestron::x-cel lx 3x barlow lens::3,Celestron,X-Cel LX 3x Barlow Lens,3,1.25,Manufacturer catalog specification.
-barlow::explore scientific::focal extender::2,Explore Scientific,Focal Extender,2,2,Manufacturer catalog specification.
-barlow::explore scientific::focal extender::3,Explore Scientific,Focal Extender,3,1.25,Manufacturer catalog specification.
-barlow::explore scientific::focal extender::5,Explore Scientific,Focal Extender,5,1.25,Manufacturer catalog specification.
-barlow::gso::2-inch ed barlow::2,GSO,2-inch ED Barlow,2,2,Manufacturer catalog specification.
-barlow::gso::ed barlow::2,GSO,ED Barlow,2,1.25,Manufacturer catalog specification.
-barlow::gso::ed barlow::3,GSO,ED Barlow,3,1.25,Manufacturer catalog specification.
-barlow::meade::series 4000 barlow::2,Meade,Series 4000 Barlow,2,1.25,Manufacturer catalog specification.
-barlow::meade::series 5000 telextender::2,Meade,Series 5000 TeleXtender,2,1.25,Manufacturer catalog specification.
-barlow::meade::series 5000 telextender::3,Meade,Series 5000 TeleXtender,3,1.25,Manufacturer catalog specification.
-barlow::omegon::achromatic barlow::2,Omegon,Achromatic Barlow,2,1.25,Manufacturer catalog specification.
-barlow::omegon::ed barlow::3,Omegon,ED Barlow,3,1.25,Manufacturer catalog specification.
-barlow::omegon::pro apo barlow::2,Omegon,Pro APO Barlow,2,1.25,Manufacturer catalog specification.
-barlow::orion::shorty barlow::2,Orion,Shorty Barlow,2,1.25,Manufacturer catalog specification.
-barlow::orion::shorty plus barlow::2,Orion,Shorty Plus Barlow,2,1.25,Manufacturer catalog specification.
-barlow::orion::tri-mag barlow::3,Orion,Tri-Mag Barlow,3,1.25,Manufacturer catalog specification.
-barlow::sky-watcher::deluxe barlow::2,Sky-Watcher,Deluxe Barlow,2,1.25,Manufacturer catalog specification.
-barlow::sky-watcher::deluxe barlow::3,Sky-Watcher,Deluxe Barlow,3,1.25,Manufacturer catalog specification.
-barlow::sky-watcher::ed barlow::2,Sky-Watcher,ED Barlow,2,1.25,Manufacturer catalog specification.
-barlow::takahashi::extender cq::1.7,Takahashi,Extender CQ,1.7,2,Manufacturer catalog specification.
-barlow::takahashi::extender q::1.6,Takahashi,Extender Q,1.6,2,Manufacturer catalog specification.
-barlow::tele vue::barlow::2,Tele Vue,Barlow,2,1.25,Manufacturer catalog specification.
-barlow::tele vue::barlow::3,Tele Vue,Barlow,3,1.25,Manufacturer catalog specification.
-barlow::tele vue::powermate::2,Tele Vue,Powermate,2,2,Manufacturer catalog specification.
-barlow::tele vue::powermate::2.5,Tele Vue,Powermate,2.5,1.25,Manufacturer catalog specification.
-barlow::tele vue::powermate::4,Tele Vue,Powermate,4,2,Manufacturer catalog specification.
-barlow::tele vue::powermate::5,Tele Vue,Powermate,5,1.25,Manufacturer catalog specification.
-barlow::vixen::barlow lens t::2,Vixen,Barlow Lens T,2,1.25,Manufacturer catalog specification.
-barlow::william optics::apo barlow::2,William Optics,APO Barlow,2,1.25,Manufacturer catalog specification.
+seed_key,brand,model,multiplier,notes
+barlow::baader::hyperion zoom barlow::2.25,Baader,Hyperion Zoom Barlow,2.25,Manufacturer catalog specification.
+barlow::baader::q-barlow::2.25,Baader,Q-Barlow,2.25,Manufacturer catalog specification.
+barlow::baader::vip modular barlow::2,Baader,VIP Modular Barlow,2,Manufacturer catalog specification.
+barlow::celestron::luminos 2.5x barlow lens::2.5,Celestron,Luminos 2.5x Barlow Lens,2.5,Manufacturer catalog specification.
+barlow::celestron::omni 2x barlow lens::2,Celestron,Omni 2x Barlow Lens,2,Manufacturer catalog specification.
+barlow::celestron::x-cel lx 2x barlow lens::2,Celestron,X-Cel LX 2x Barlow Lens,2,Manufacturer catalog specification.
+barlow::celestron::x-cel lx 3x barlow lens::3,Celestron,X-Cel LX 3x Barlow Lens,3,Manufacturer catalog specification.
+barlow::explore scientific::focal extender::2,Explore Scientific,Focal Extender,2,Manufacturer catalog specification.
+barlow::explore scientific::focal extender::3,Explore Scientific,Focal Extender,3,Manufacturer catalog specification.
+barlow::explore scientific::focal extender::5,Explore Scientific,Focal Extender,5,Manufacturer catalog specification.
+barlow::gso::2-inch ed barlow::2,GSO,2-inch ED Barlow,2,Manufacturer catalog specification.
+barlow::gso::ed barlow::2,GSO,ED Barlow,2,Manufacturer catalog specification.
+barlow::gso::ed barlow::3,GSO,ED Barlow,3,Manufacturer catalog specification.
+barlow::meade::series 4000 barlow::2,Meade,Series 4000 Barlow,2,Manufacturer catalog specification.
+barlow::meade::series 5000 telextender::2,Meade,Series 5000 TeleXtender,2,Manufacturer catalog specification.
+barlow::meade::series 5000 telextender::3,Meade,Series 5000 TeleXtender,3,Manufacturer catalog specification.
+barlow::omegon::achromatic barlow::2,Omegon,Achromatic Barlow,2,Manufacturer catalog specification.
+barlow::omegon::ed barlow::3,Omegon,ED Barlow,3,Manufacturer catalog specification.
+barlow::omegon::pro apo barlow::2,Omegon,Pro APO Barlow,2,Manufacturer catalog specification.
+barlow::orion::shorty barlow::2,Orion,Shorty Barlow,2,Manufacturer catalog specification.
+barlow::orion::shorty plus barlow::2,Orion,Shorty Plus Barlow,2,Manufacturer catalog specification.
+barlow::orion::tri-mag barlow::3,Orion,Tri-Mag Barlow,3,Manufacturer catalog specification.
+barlow::sky-watcher::deluxe barlow::2,Sky-Watcher,Deluxe Barlow,2,Manufacturer catalog specification.
+barlow::sky-watcher::deluxe barlow::3,Sky-Watcher,Deluxe Barlow,3,Manufacturer catalog specification.
+barlow::sky-watcher::ed barlow::2,Sky-Watcher,ED Barlow,2,Manufacturer catalog specification.
+barlow::takahashi::extender cq::1.7,Takahashi,Extender CQ,1.7,Manufacturer catalog specification.
+barlow::takahashi::extender q::1.6,Takahashi,Extender Q,1.6,Manufacturer catalog specification.
+barlow::tele vue::barlow::2,Tele Vue,Barlow,2,Manufacturer catalog specification.
+barlow::tele vue::barlow::3,Tele Vue,Barlow,3,Manufacturer catalog specification.
+barlow::tele vue::powermate::2,Tele Vue,Powermate,2,Manufacturer catalog specification.
+barlow::tele vue::powermate::2.5,Tele Vue,Powermate,2.5,Manufacturer catalog specification.
+barlow::tele vue::powermate::4,Tele Vue,Powermate,4,Manufacturer catalog specification.
+barlow::tele vue::powermate::5,Tele Vue,Powermate,5,Manufacturer catalog specification.
+barlow::vixen::barlow lens t::2,Vixen,Barlow Lens T,2,Manufacturer catalog specification.
+barlow::william optics::apo barlow::2,William Optics,APO Barlow,2,Manufacturer catalog specification.

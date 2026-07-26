@@ -11,6 +11,9 @@ from astro_viewer.app.models.imaging import (
     ImagingModifierKind,
     ImagingTrainConfiguration,
 )
+from astro_viewer.app.services.barlow_equivalence import (
+    optically_distinct_barlows,
+)
 
 
 ARCSECONDS_PER_RADIAN = 206_264.80624709636
@@ -193,13 +196,15 @@ class ImagingTrainBuilder:
         cls,
         barlows: Iterable[Barlow],
     ) -> list[Barlow]:
-        return cls._unique_by_id(
-            barlow
-            for barlow in barlows
-            if barlow.id.strip()
-            and barlow.name.strip()
-            and cls._positive_finite(barlow.multiplier)
-            and barlow.multiplier > 1.0
+        return optically_distinct_barlows(
+            cls._unique_by_id(
+                barlow
+                for barlow in barlows
+                if barlow.id.strip()
+                and barlow.name.strip()
+                and cls._positive_finite(barlow.multiplier)
+                and barlow.multiplier > 1.0
+            )
         )
 
     @staticmethod

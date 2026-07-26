@@ -62,9 +62,12 @@ Item {
         var query = root.searchText()
         if (query.length === 0)
             return true
+        var compatibleNames = (item.compatible_telescopes || []).map(function(telescope) {
+            return telescope.display_name || ""
+        }).join(" ")
         var text = (
             item.brand + " " + item.model + " " + item.reduction_factor + " " +
-            item.optical_system_label + " " + (item.compatible_models || "") + " " +
+            item.optical_system_label + " " + compatibleNames + " " +
             (item.connection || "")
         ).toLowerCase()
         return text.indexOf(query) >= 0
@@ -84,12 +87,34 @@ Item {
 
     function filteredReducerTelescopeModels() {
         var query = root.reducerTelescopeSearch.toLowerCase().trim()
+        var activeIds = ({})
+        var profileTelescopes = root.controller.profileTelescopes || []
+        profileTelescopes.forEach(function(item) {
+            activeIds[item.id] = true
+        })
         return root.controller.telescopeCatalogModels.filter(function(item) {
             if (query.length === 0)
                 return true
             return (item.brand + " " + item.name + " " + item.optical_type)
                     .toLowerCase().indexOf(query) >= 0
+        }).sort(function(left, right) {
+            var leftActive = activeIds[left.catalog_id] === true
+            var rightActive = activeIds[right.catalog_id] === true
+            if (leftActive !== rightActive)
+                return leftActive ? -1 : 1
+            return (left.brand + " " + left.name).localeCompare(
+                right.brand + " " + right.name
+            )
         })
+    }
+
+    function reducerCompatibilityLabel(item) {
+        var compatible = item.compatible_telescopes || []
+        if (compatible.length === 0)
+            return qsTr("Compatibilità non configurata — escluso dalle raccomandazioni")
+        return compatible.map(function(telescope) {
+            return telescope.display_name || ""
+        }).join("; ")
     }
 
     function setReducerTelescopeSelected(catalogId, selected) {
@@ -496,7 +521,11 @@ Item {
 
             Text {
                 Layout.fillWidth: true
-                text: reducerRow.itemData.compatible_models || reducerRow.itemData.notes || ""
+                text: {
+                    var compatibility = root.reducerCompatibilityLabel(reducerRow.itemData)
+                    var notes = String(reducerRow.itemData.notes || "").trim()
+                    return notes.length > 0 ? compatibility + " · " + notes : compatibility
+                }
                 color: theme.textSecondary
                 font.pixelSize: 12
                 elide: Text.ElideRight
@@ -509,6 +538,15 @@ Item {
                 StatusPill { text: reducerRow.itemData.reduction_factor_label; accentColor: theme.amber }
                 StatusPill { text: reducerRow.itemData.optical_system_label; accentColor: theme.cyan }
                 StatusPill { text: root.reducerUseLabel(reducerRow.itemData); accentColor: reducerRow.itemData.visual_compatible ? theme.green : theme.violet }
+                StatusPill {
+                    text: reducerRow.itemData.compatibility_configured
+                          ? (reducerRow.itemData.compatible_telescope_ids.length === 1
+                             ? qsTr("1 telescopio")
+                             : qsTr("%1 telescopi").arg(reducerRow.itemData.compatible_telescope_ids.length))
+                          : qsTr("Non configurata")
+                    accentColor: reducerRow.itemData.compatibility_configured
+                                 ? theme.green : theme.amber
+                }
                 StatusPill {
                     visible: String(reducerRow.itemData.backfocus_label || "").trim().length > 0
                     text: reducerRow.itemData.backfocus_label || ""
@@ -611,7 +649,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: qsTr("Telescopi compatibili (facoltativi)")
+                    text: qsTr("Telescopi compatibili")
                     color: theme.textPrimary
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
@@ -624,6 +662,15 @@ Item {
                     color: theme.textMuted
                     font.pixelSize: 12
                 }
+            }
+
+            Text {
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                text: qsTr("I telescopi del profilo attivo sono mostrati per primi. Senza almeno un collegamento esatto, il riduttore resta nel catalogo ma non viene usato nelle raccomandazioni visuali o fotografiche.")
+                color: theme.textSecondary
+                font.pixelSize: 12
+                wrapMode: Text.WordWrap
             }
 
             DarkTextField {

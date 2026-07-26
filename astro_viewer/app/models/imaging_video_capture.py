@@ -52,4 +52,4 @@ class ImagingVideoCaptureAdvice:
     assumption_codes: tuple[str, ...] = ()
     warning_codes: tuple[str, ...] = ()
     limitation_codes: tuple[str, ...] = ()
-    policy_version: str = "imaging_video_capture_v1"
+    policy_version: str = "imaging_video_capture_v2"

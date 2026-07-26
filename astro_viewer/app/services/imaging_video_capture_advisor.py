@@ -23,7 +23,7 @@ from astro_viewer.app.services.equipment_taxonomy import (
 )
 
 
-IMAGING_VIDEO_CAPTURE_POLICY_VERSION = "imaging_video_capture_v1"
+IMAGING_VIDEO_CAPTURE_POLICY_VERSION = "imaging_video_capture_v2"
 _MIN_VALID_FPS = 0.5
 _MAX_VALID_FPS = 1000.0
 _MIN_CLIP_DURATION_SECONDS = 10
@@ -254,7 +254,12 @@ class ImagingVideoCaptureAdvisor:
             warnings,
             missing,
         )
-        self._apply_camera_context(candidate, warnings)
+        video_geometry_is_known = self._apply_camera_context(
+            candidate,
+            warnings,
+            assumptions,
+            missing,
+        )
         self._apply_target_context(target_id, warnings)
 
         frame_count_min = max(
@@ -272,6 +277,7 @@ class ImagingVideoCaptureAdvisor:
             seeing_is_known,
             altitude_is_known,
             mount_is_known,
+            video_geometry_is_known,
         )
         completeness = sum(checks) / len(checks)
         confidence = (
@@ -509,14 +515,27 @@ class ImagingVideoCaptureAdvisor:
     def _apply_camera_context(
         candidate: ImagingRecommendationCandidate,
         warnings: list[str],
-    ) -> None:
+        assumptions: list[str],
+        missing: list[str],
+    ) -> bool:
         camera = candidate.camera
         if camera.kind is ImagingCameraKind.CAMERA_BODY:
             warnings.append("camera_body_video_may_be_compressed")
+            assumptions.append("camera_body_video_geometry_not_assumed")
+            missing.extend(
+                (
+                    "video_active_sensor_area",
+                    "video_pixel_scale",
+                )
+            )
+            video_geometry_is_known = False
+        else:
+            video_geometry_is_known = True
         if camera.color_mode == "MONO":
             warnings.append(
                 "monochrome_filter_sequence_must_fit_capture_window"
             )
+        return video_geometry_is_known
 
     @staticmethod
     def _apply_target_context(

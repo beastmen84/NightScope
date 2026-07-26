@@ -421,6 +421,16 @@ def test_camera_kinds_use_only_their_declared_fps_semantics() -> None:
     assert "camera_body_video_may_be_compressed" in (
         camera_body.warning_codes
     )
+    assert "camera_body_video_geometry_not_assumed" in (
+        camera_body.assumption_codes
+    )
+    assert {
+        "video_active_sensor_area",
+        "video_pixel_scale",
+    }.issubset(camera_body.missing_inputs)
+    assert camera_body.data_completeness < (
+        astronomy_camera.data_completeness
+    )
 
 
 def test_achievable_fps_is_authoritative_but_not_extrapolated() -> None:

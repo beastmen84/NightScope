@@ -19,7 +19,7 @@ from astro_viewer.app.services.localization import content_key, tr
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
-SCHEMA_VERSION = 22
+SCHEMA_VERSION = 23
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 _CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
     (
@@ -412,7 +412,6 @@ def _migrate_database(
             "max_focal_length_mm": "REAL",
             "afov_min": "REAL",
             "afov_max": "REAL",
-            "barrel_size": "TEXT",
             "zoom_click_positions_mm": "TEXT",
             "notes": "TEXT",
             "is_builtin": "INTEGER NOT NULL DEFAULT 0",
@@ -424,7 +423,6 @@ def _migrate_database(
         connection,
         "BarlowCatalog",
         {
-            "barrel_size": "TEXT",
             "notes": "TEXT",
             "is_builtin": "INTEGER NOT NULL DEFAULT 0",
             "seed_key": "TEXT",
@@ -441,6 +439,8 @@ def _migrate_database(
         },
     )
     _migrate_binocular_catalog(connection)
+    if existing_schema_version < 23:
+        _retire_legacy_equipment_compatibility_fields(connection)
     for table_name, index_name in (
         ("TelescopeModel", "idx_telescope_model_seed_key"),
         ("EyepieceCatalog", "idx_eyepiece_catalog_seed_key"),
@@ -628,6 +628,72 @@ def _add_columns(connection: sqlite3.Connection, table_name: str, columns: dict[
     for column_name, definition in columns.items():
         if column_name not in existing:
             connection.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {definition}")
+
+
+def _retire_legacy_equipment_compatibility_fields(
+    connection: sqlite3.Connection,
+) -> None:
+    for table_name in ("EyepieceCatalog", "BarlowCatalog"):
+        columns = {
+            str(row[1])
+            for row in connection.execute(
+                f"PRAGMA table_info({table_name})"
+            ).fetchall()
+        }
+        if "barrel_size" not in columns:
+            continue
+        rows = connection.execute(
+            f"""
+            SELECT id, barrel_size, notes
+            FROM {table_name}
+            WHERE trim(COALESCE(barrel_size, '')) <> ''
+              AND (
+                  COALESCE(is_builtin, 0) = 0
+                  OR COALESCE(is_user_modified, 0) = 1
+              )
+            """
+        ).fetchall()
+        for row in rows:
+            technical_note = _legacy_barrel_note(row["barrel_size"])
+            existing_notes = str(row["notes"] or "").strip()
+            if not technical_note or technical_note in existing_notes:
+                continue
+            connection.execute(
+                f"UPDATE {table_name} SET notes = ? WHERE id = ?",
+                (
+                    (
+                        f"{existing_notes} · {technical_note}"
+                        if existing_notes
+                        else technical_note
+                    ),
+                    int(row["id"]),
+                ),
+            )
+        connection.execute(
+            f"UPDATE {table_name} SET barrel_size = ''"
+        )
+
+    reducer_columns = {
+        str(row[1])
+        for row in connection.execute(
+            "PRAGMA table_info(ReducerCatalog)"
+        ).fetchall()
+    }
+    if "compatible_models" in reducer_columns:
+        connection.execute(
+            "UPDATE ReducerCatalog SET compatible_models = ''"
+        )
+
+
+def _legacy_barrel_note(value: object) -> str:
+    parts = [
+        part.strip().rstrip('"″').strip()
+        for part in str(value or "").split("/")
+        if part.strip()
+    ]
+    if not parts:
+        return ""
+    return "Ø " + " / ".join(f"{part}″" for part in parts)
 
 
 def _migrate_catalogue_tables(connection: sqlite3.Connection) -> None:
@@ -1596,10 +1662,10 @@ def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | N
             INSERT INTO EyepieceCatalog (
                 brand, model, eyepiece_type, focal_length_mm,
                 min_focal_length_mm, max_focal_length_mm, apparent_field_deg,
-                afov_min, afov_max, barrel_size, zoom_click_positions_mm,
+                afov_min, afov_max, zoom_click_positions_mm,
                 notes, is_builtin, seed_key, is_user_modified
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0)
             ON CONFLICT(seed_key) DO UPDATE SET
                 brand = excluded.brand,
                 model = excluded.model,
@@ -1610,7 +1676,6 @@ def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | N
                 apparent_field_deg = excluded.apparent_field_deg,
                 afov_min = excluded.afov_min,
                 afov_max = excluded.afov_max,
-                barrel_size = excluded.barrel_size,
                 zoom_click_positions_mm = excluded.zoom_click_positions_mm,
                 notes = excluded.notes,
                 is_builtin = 1
@@ -1635,15 +1700,14 @@ def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | N
         connection.execute(
             """
             INSERT INTO BarlowCatalog (
-                brand, model, multiplier, barrel_size, notes, is_builtin,
+                brand, model, multiplier, notes, is_builtin,
                 seed_key, is_user_modified
             )
-            VALUES (?, ?, ?, ?, ?, 1, ?, 0)
+            VALUES (?, ?, ?, ?, 1, ?, 0)
             ON CONFLICT(seed_key) DO UPDATE SET
                 brand = excluded.brand,
                 model = excluded.model,
                 multiplier = excluded.multiplier,
-                barrel_size = excluded.barrel_size,
                 notes = excluded.notes,
                 is_builtin = 1
             WHERE BarlowCatalog.is_user_modified = 0
@@ -1664,7 +1728,6 @@ def _eyepiece_catalog_rows(eyepiece_path: Path | None) -> list[tuple]:
             float(row["apparent_field_deg"]),
             _optional_float(row.get("afov_min", "")),
             _optional_float(row.get("afov_max", "")),
-            row.get("barrel_size", ""),
             row.get("zoom_click_positions_mm", ""),
             row.get("notes", ""),
             seed_key,
@@ -1696,7 +1759,6 @@ def _barlow_catalog_rows(barlow_path: Path | None) -> list[tuple]:
             row["brand"],
             row["model"],
             float(row["multiplier"]),
-            row.get("barrel_size", ""),
             row.get("notes", ""),
             seed_key,
         )
@@ -1977,17 +2039,16 @@ def _seed_filters_reducers_catalog(
             """
             INSERT INTO ReducerCatalog (
                 brand, model, reduction_factor, optical_system,
-                compatible_models, connection, backfocus_mm,
+                connection, backfocus_mm,
                 visual_compatible, imaging_compatible, corrected_field,
                 notes, is_builtin, seed_key, is_user_modified
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0)
             ON CONFLICT(seed_key) DO UPDATE SET
                 brand = excluded.brand,
                 model = excluded.model,
                 reduction_factor = excluded.reduction_factor,
                 optical_system = excluded.optical_system,
-                compatible_models = excluded.compatible_models,
                 connection = excluded.connection,
                 backfocus_mm = excluded.backfocus_mm,
                 visual_compatible = excluded.visual_compatible,
@@ -2098,7 +2159,6 @@ def _reducer_catalog_rows(reducer_path: Path | None) -> list[tuple]:
             row["model"],
             float(row["reduction_factor"]),
             row["optical_system"],
-            row.get("compatible_models", ""),
             row.get("connection", ""),
             _optional_float(row.get("backfocus_mm", "")),
             _csv_bool(row.get("visual_compatible", "")),

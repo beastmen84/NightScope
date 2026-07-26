@@ -201,7 +201,7 @@ class Phase6RealDataTests(unittest.TestCase):
             _object("saturn", "Saturno", "Pianeta", "0.8"),
             Telescope("scope", "Maksutov 90/1250", 90, 1250, "Maksutov", "manuale"),
             [Eyepiece("e1", "25 mm", 25, 52)],
-            [Barlow("b1", "Barlow 2x", 2.0, "1.25")],
+            [Barlow("b1", "Barlow 2x", 2.0)],
         )
 
         self.assertIn("Barlow 2x", suggestion["setupText"])
@@ -214,7 +214,7 @@ class Phase6RealDataTests(unittest.TestCase):
             target,
             Telescope("scope", "Newton 130/650", 130, 650, "Newton", "manuale"),
             [Eyepiece("e1", "32 mm", 32, 68), Eyepiece("e2", "8 mm", 8, 60)],
-            [Barlow("b1", "Barlow 2x", 2.0, "1.25")],
+            [Barlow("b1", "Barlow 2x", 2.0)],
         )
 
         self.assertEqual(suggestion["bestEyepiece"], "32 mm")
@@ -230,7 +230,6 @@ class Phase6RealDataTests(unittest.TestCase):
                     "Baader Hyperion Zoom",
                     24,
                     60,
-                    "1.25/2",
                     "Zoom",
                     8,
                     24,
@@ -267,7 +266,7 @@ class Phase6RealDataTests(unittest.TestCase):
             _object("saturn", "Saturno", "Pianeta", "0.8"),
             Telescope("scope", "Maksutov 90/1250", 90, 1250, "Maksutov", "manuale"),
             [Eyepiece("e1", "25 mm", 25, 52)],
-            [Barlow("b1", "Barlow 2x", 2.0, "1.25")],
+            [Barlow("b1", "Barlow 2x", 2.0)],
             SeeingTransparency("Poor", "Average", 30, 50, "Seeing scarso."),
         )
 
@@ -363,8 +362,23 @@ class Phase6RealDataTests(unittest.TestCase):
     def test_active_profile_barlow_assignment_refreshes_home_and_detail_without_restart(self) -> None:
         with _controller() as controller:
             controller.addTelescopeModel("Refresh", "Maksutov 90/1250", "Maksutov", "90", "1250", "manuale", "")
-            controller.addEyepieceModel("Refresh", "25 mm", "Plossl", "25", "", "", "52", "1.25", "", "")
-            controller.addBarlowModel("Refresh", "Barlow 2x", "2", "1.25", "")
+            controller.addEyepieceModel(
+                "Refresh",
+                "25 mm",
+                "Plossl",
+                "25",
+                "",
+                "",
+                "52",
+                "",
+                "",
+            )
+            controller.addBarlowModel(
+                "Refresh",
+                "Barlow 2x",
+                "2",
+                "",
+            )
             telescope = next(
                 row
                 for row in controller.telescopeCatalogModels
@@ -1581,7 +1595,8 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('labelText: qsTr("Focale (mm) *")', telescopes_qml)
         self.assertIn('labelText: qsTr("Focale (mm) *")', optics_qml)
         self.assertIn('qsTr("AFOV medio (°) *")', optics_qml)
-        self.assertIn("itemData.barrel_size_label", optics_qml)
+        self.assertNotIn("barrel_size", optics_qml)
+        self.assertNotIn("barrelSize", optics_qml)
         self.assertIn('labelText: qsTr("Fattore di riduzione *")', filters_reducers_qml)
         self.assertIn('placeholderText: qsTr("es. 0,63")', filters_reducers_qml)
         self.assertIn("controller.equipmentUsage(\"binocular\"", binoculars_qml)
@@ -1610,6 +1625,12 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("controller.deleteReducerModel", filters_reducers_qml)
         self.assertIn("reducerTelescopeGrid", filters_reducers_qml)
         self.assertIn("compatible_telescope_ids", filters_reducers_qml)
+        self.assertIn("compatibility_configured", filters_reducers_qml)
+        self.assertIn(
+            "root.controller.profileTelescopes",
+            filters_reducers_qml,
+        )
+        self.assertNotIn("compatible_models", filters_reducers_qml)
         self.assertIn('"1 selezionato"', filters_reducers_qml)
         self.assertIn('qsTr("%1 selezionati")', filters_reducers_qml)
         self.assertNotIn("reducerModels", filters_reducers_qml)

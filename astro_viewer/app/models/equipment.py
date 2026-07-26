@@ -28,7 +28,6 @@ class Eyepiece:
     name: str
     focal_length_mm: float
     apparent_field_deg: float
-    barrel_size: str = ""
     eyepiece_type: str = "Fixed"
     min_focal_length_mm: float | None = None
     max_focal_length_mm: float | None = None
@@ -38,7 +37,6 @@ class Eyepiece:
         data = asdict(self)
         data["focalLengthMm"] = self.focal_length_mm
         data["apparentFieldDeg"] = self.apparent_field_deg
-        data["barrelSize"] = self.barrel_size
         data["type"] = self.eyepiece_type
         data["minFocalLengthMm"] = self.min_focal_length_mm or self.focal_length_mm
         data["maxFocalLengthMm"] = self.max_focal_length_mm or self.focal_length_mm
@@ -62,12 +60,9 @@ class Barlow:
     id: str
     name: str
     multiplier: float
-    barrel_size: str = ""
 
     def to_qml(self) -> dict:
-        data = asdict(self)
-        data["barrelSize"] = self.barrel_size
-        return data
+        return asdict(self)
 
 
 @dataclass(frozen=True)
@@ -112,7 +107,6 @@ class FocalReducer:
     name: str
     reduction_factor: float
     optical_system: str
-    compatible_models: str = ""
     connection: str = ""
     backfocus_mm: float | None = None
     visual_compatible: bool = False
@@ -125,7 +119,6 @@ class FocalReducer:
         data = asdict(self)
         data["reductionFactor"] = self.reduction_factor
         data["opticalSystem"] = self.optical_system
-        data["compatibleModels"] = self.compatible_models
         data["backfocusMm"] = self.backfocus_mm
         data["visualCompatible"] = self.visual_compatible
         data["imagingCompatible"] = self.imaging_compatible

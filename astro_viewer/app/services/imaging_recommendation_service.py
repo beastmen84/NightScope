@@ -35,11 +35,21 @@ STILL_COMPONENT_WEIGHTS: Mapping[str, float] = MappingProxyType(
         "capture_efficiency": 15.0,
     }
 )
-VIDEO_COMPONENT_WEIGHTS: Mapping[str, float] = MappingProxyType(
+DISC_VIDEO_COMPONENT_WEIGHTS: Mapping[str, float] = MappingProxyType(
     {
         "sampling": 30.0,
         "camera": 25.0,
         "frame_acquisition": 25.0,
+        "framing": 10.0,
+        "mount": 10.0,
+    }
+)
+PLANETARY_VIDEO_COMPONENT_WEIGHTS: Mapping[str, float] = MappingProxyType(
+    {
+        "sampling": 25.0,
+        "aperture": 15.0,
+        "camera": 20.0,
+        "frame_acquisition": 20.0,
         "framing": 10.0,
         "mount": 10.0,
     }
@@ -95,10 +105,7 @@ class ImagingRecommendationService:
             )
         ]
         candidates.sort(
-            key=lambda candidate: (
-                -candidate.score,
-                candidate.configuration.configuration_id,
-            )
+            key=self._ranking_key
         )
         return candidates
 
@@ -140,7 +147,13 @@ class ImagingRecommendationService:
                 ),
                 "mount": self._mount_score(configuration, capture_mode),
             }
-            weights = VIDEO_COMPONENT_WEIGHTS
+            if traits.target_class is ImagingTargetClass.PLANET:
+                component_values["aperture"] = (
+                    self._planetary_aperture(configuration)
+                )
+                weights = PLANETARY_VIDEO_COMPONENT_WEIGHTS
+            else:
+                weights = DISC_VIDEO_COMPONENT_WEIGHTS
         else:
             component_values = {
                 "framing": self._still_framing(
@@ -212,6 +225,8 @@ class ImagingRecommendationService:
         traits: ImagingTargetTraits,
         configuration: ImagingTrainConfiguration,
     ) -> float:
+        if configuration.camera.kind is ImagingCameraKind.CAMERA_BODY:
+            return 0.5
         if traits.target_class in {
             ImagingTargetClass.MOON,
             ImagingTargetClass.SUN,
@@ -307,6 +322,8 @@ class ImagingRecommendationService:
         traits: ImagingTargetTraits,
         configuration: ImagingTrainConfiguration,
     ) -> float:
+        if configuration.camera.kind is ImagingCameraKind.CAMERA_BODY:
+            return 0.5
         critical_factor = (
             _LUNAR_WHOLE_DISC_FOCAL_RATIO_PER_PIXEL
             if traits.target_class
@@ -320,6 +337,26 @@ class ImagingRecommendationService:
             configuration.effective_focal_ratio,
             target_focal_ratio,
             penalty_per_stop=0.32,
+        )
+
+    @classmethod
+    def _planetary_aperture(
+        cls,
+        configuration: ImagingTrainConfiguration,
+    ) -> float:
+        return cls._piecewise_score(
+            float(configuration.telescope.aperture_mm),
+            (
+                (40.0, 0.20),
+                (60.0, 0.32),
+                (80.0, 0.45),
+                (100.0, 0.56),
+                (130.0, 0.68),
+                (160.0, 0.78),
+                (200.0, 0.88),
+                (250.0, 0.96),
+                (300.0, 1.00),
+            ),
         )
 
     @classmethod
@@ -530,6 +567,24 @@ class ImagingRecommendationService:
         )
 
     @staticmethod
+    def _ranking_key(
+        candidate: ImagingRecommendationCandidate,
+    ) -> tuple[float, int, str]:
+        conservative_body_video_modifier_rank = 0
+        if (
+            candidate.capture_mode is ImagingCaptureMode.VIDEO
+            and candidate.camera.kind is ImagingCameraKind.CAMERA_BODY
+            and candidate.configuration.modifier_kind
+            is not ImagingModifierKind.NONE
+        ):
+            conservative_body_video_modifier_rank = 1
+        return (
+            -candidate.score,
+            conservative_body_video_modifier_rank,
+            candidate.configuration.configuration_id,
+        )
+
+    @staticmethod
     def _unique_configurations(
         configurations: Iterable[ImagingTrainConfiguration],
     ) -> tuple[ImagingTrainConfiguration, ...]:
@@ -595,6 +650,8 @@ class ImagingRecommendationService:
                             camera.video_width_px is not None
                             and camera.video_height_px is not None,
                         ),
+                        ("video_active_sensor_area", False),
+                        ("video_pixel_scale", False),
                     )
                 )
 

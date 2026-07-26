@@ -53,7 +53,6 @@ Item {
         eyepieceAfov.text = item ? root.localizedNumber(item.apparent_field_deg) : ""
         eyepieceAfovRange.text = item && item.afov_min && item.afov_max
             ? root.localizedNumber(item.afov_min) + "-" + root.localizedNumber(item.afov_max) : ""
-        eyepieceBarrel.text = item ? (item.barrel_size || "") : ""
         eyepieceNotes.text = item ? (item.notes || "") : ""
         eyepieceDialog.title = item ? qsTr("Modifica oculare") : qsTr("Aggiungi oculare")
         eyepieceDialog.open()
@@ -64,7 +63,6 @@ Item {
         barlowBrand.text = item ? item.brand : ""
         barlowModel.text = item ? item.model : ""
         barlowMultiplier.text = item ? root.localizedNumber(item.multiplier) : ""
-        barlowBarrel.text = item ? (item.barrel_size || "") : ""
         barlowNotes.text = item ? (item.notes || "") : ""
         barlowDialog.title = item ? qsTr("Modifica Barlow") : qsTr("Aggiungi Barlow")
         barlowDialog.open()
@@ -92,7 +90,7 @@ Item {
             return true
         var text = (
             item.brand + " " + item.model + " Barlow " + item.multiplier + "x " +
-            item.multiplier + " " + (item.barrel_size || "")
+            item.multiplier
         ).toLowerCase()
         return text.indexOf(query) >= 0
     }
@@ -405,9 +403,8 @@ Item {
 
             Text {
                 Layout.fillWidth: true
-                text: qsTr("%1  -  %2")
-                    .arg(itemData.barrel_size_label || itemData.barrel_size || qsTr("barilotto n/d"))
-                    .arg(itemData.notes || "")
+                visible: String(itemData.notes || "").trim().length > 0
+                text: itemData.notes || ""
                 color: theme.textSecondary
                 font.pixelSize: 12
                 elide: Text.ElideRight
@@ -455,9 +452,9 @@ Item {
         onAccepted: {
             var saved
             if (root.editEyepiece.id !== undefined) {
-                saved = controller.updateEyepieceModel(root.editEyepiece.id, eyepieceBrand.text, eyepieceModel.text, eyepieceType.currentIndex === 1 ? "Zoom" : "Fixed", eyepieceFocal.text, eyepieceMinFocal.text, eyepieceMaxFocal.text, eyepieceAfov.text, eyepieceBarrel.text, eyepieceAfovRange.text, eyepieceNotes.text)
+                saved = controller.updateEyepieceModel(root.editEyepiece.id, eyepieceBrand.text, eyepieceModel.text, eyepieceType.currentIndex === 1 ? "Zoom" : "Fixed", eyepieceFocal.text, eyepieceMinFocal.text, eyepieceMaxFocal.text, eyepieceAfov.text, eyepieceAfovRange.text, eyepieceNotes.text)
             } else {
-                saved = controller.addEyepieceModel(eyepieceBrand.text, eyepieceModel.text, eyepieceType.currentIndex === 1 ? "Zoom" : "Fixed", eyepieceFocal.text, eyepieceMinFocal.text, eyepieceMaxFocal.text, eyepieceAfov.text, eyepieceBarrel.text, eyepieceAfovRange.text, eyepieceNotes.text)
+                saved = controller.addEyepieceModel(eyepieceBrand.text, eyepieceModel.text, eyepieceType.currentIndex === 1 ? "Zoom" : "Fixed", eyepieceFocal.text, eyepieceMinFocal.text, eyepieceMaxFocal.text, eyepieceAfov.text, eyepieceAfovRange.text, eyepieceNotes.text)
             }
             if (saved)
                 eyepieceDialog.close()
@@ -488,8 +485,7 @@ Item {
                 labelText: qsTr("Intervallo AFOV (°; facoltativo)")
                 placeholderText: qsTr("48-68")
             }
-            DarkTextField { id: eyepieceBarrel; Layout.fillWidth: true; labelText: qsTr("Barilotto (facoltativo)") }
-            DarkTextField { id: eyepieceNotes; Layout.fillWidth: true; labelText: qsTr("Note (facoltative)") }
+            DarkTextField { id: eyepieceNotes; Layout.columnSpan: 2; Layout.fillWidth: true; labelText: qsTr("Note (facoltative)") }
         }
 
         Text {
@@ -515,9 +511,9 @@ Item {
         onAccepted: {
             var saved
             if (root.editBarlow.id !== undefined) {
-                saved = controller.updateBarlowModel(root.editBarlow.id, barlowBrand.text, barlowModel.text, barlowMultiplier.text, barlowBarrel.text, barlowNotes.text)
+                saved = controller.updateBarlowModel(root.editBarlow.id, barlowBrand.text, barlowModel.text, barlowMultiplier.text, barlowNotes.text)
             } else {
-                saved = controller.addBarlowModel(barlowBrand.text, barlowModel.text, barlowMultiplier.text, barlowBarrel.text, barlowNotes.text)
+                saved = controller.addBarlowModel(barlowBrand.text, barlowModel.text, barlowMultiplier.text, barlowNotes.text)
             }
             if (saved)
                 barlowDialog.close()
@@ -532,8 +528,7 @@ Item {
             DarkTextField { id: barlowBrand; Layout.fillWidth: true; labelText: qsTr("Marca *") }
             DarkTextField { id: barlowModel; Layout.fillWidth: true; labelText: qsTr("Modello *") }
             DarkTextField { id: barlowMultiplier; Layout.fillWidth: true; labelText: qsTr("Moltiplicatore (x) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: barlowBarrel; Layout.fillWidth: true; labelText: qsTr("Barilotto (facoltativo)") }
-            DarkTextField { id: barlowNotes; Layout.columnSpan: 2; Layout.fillWidth: true; labelText: qsTr("Note (facoltative)") }
+            DarkTextField { id: barlowNotes; Layout.fillWidth: true; labelText: qsTr("Note (facoltative)") }
         }
 
         Text {

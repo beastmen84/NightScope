@@ -823,7 +823,8 @@ Photographic reducer recommendation boundary:
 - `ReducerRecommendationService` runs only when the flag is true and the
   target-specific Equipment recommendation identifies a telescope.
 - A candidate must be `imaging_compatible` and have an exact normalized link to
-  that telescope. Descriptive compatibility text is never parsed.
+  that telescope. Generic descriptive compatibility is not stored; an empty
+  exact link set is explicitly unconfigured and fail-closed.
 - Compatible reducers assigned to the active profile are reported as
   available. If none is owned, exact matches from the global catalogue are
   reported as `non disponibile`. Without an exact match, no reducer row is
@@ -847,9 +848,15 @@ Photographic optical-train foundation:
   reducers and Barlows supplied by its caller it emits prime-focus trains,
   trains with one exact telescope-linked imaging reducer, and trains with one
   Barlow. It never stacks a reducer and Barlow in the same configuration.
-- Reducer descriptive compatibility text is not parsed. A reducer participates
-  only when `imaging_compatible` is true and the normalized telescope ID is in
-  `compatible_telescope_ids`.
+- Reducer compatibility is exclusively the persisted exact telescope link. A
+  reducer participates only when `imaging_compatible` is true and the
+  normalized telescope ID is in `compatible_telescope_ids`; an empty link set
+  is fail-closed. Generic compatibility text is no longer stored or parsed.
+  User-created telescope models are eligible for the same exact link.
+- Barlows with the same multiplier are optically indistinguishable to the
+  current model. They are collapsed into one labeled alternative before both
+  visual and photographic configuration enumeration; brand, barrel diameter
+  and other unmodeled mechanics cannot create duplicate optical candidates.
 - For focal-length factor `k`, telescope focal length `F`, aperture `D`, pixel
   pitch `p` in micrometres and sensor dimension `s` in millimetres:
 
@@ -901,11 +908,20 @@ Photographic target and static configuration scoring:
   | photographic mount capability | 20 |
   | capture efficiency | 15 |
 
-  | Video component | Weight |
+  | Whole-disc Sun/Moon video component | Weight |
   | --- | ---: |
   | critical sampling | 30 |
   | camera suitability | 25 |
   | frame acquisition | 25 |
+  | framing/context field | 10 |
+  | mount capability | 10 |
+
+  | Planetary video component | Weight |
+  | --- | ---: |
+  | critical sampling | 25 |
+  | telescope aperture | 15 |
+  | camera suitability | 20 |
+  | frame acquisition | 20 |
   | framing/context field | 10 |
   | mount capability | 10 |
 
@@ -920,10 +936,20 @@ Photographic target and static configuration scoring:
   conservative `2.5 * pixel_pitch_um` planning policy; whole-disc solar video
   uses the same sampling reference. Their independent framing component
   strongly penalizes a cropped disc.
+- Planetary resolving aperture uses a monotonic, saturating piecewise policy:
+  40 mm maps to `0.20`, 100 mm to `0.56`, 200 mm to `0.88`, and 300 mm or more
+  to `1.00`. It rewards real resolving/light-gathering capability without
+  allowing aperture to dominate sampling, camera or frame acquisition. This
+  component applies to planets only, not whole-disc Sun or Moon video.
 - Astronomy-camera full-resolution FPS and camera-body FPS at the declared
   video resolution use separate scoring curves. Cooling affects long-exposure
   still suitability, not short-frame video suitability. Body Bulb capability
   affects still suitability.
+- Camera-body video output resolution does not establish its active sensor
+  crop or pixel binning/readout. For video, body field and sampling therefore
+  use neutral score values and are reported as missing rather than reusing
+  still-sensor geometry. Equal-scoring body trains prefer prime focus over an
+  unverified reducer or Barlow.
 - The photographic mount map is independent from the compatibility-preserving
   visual tracking coefficient. Equatorial tracking is strongest for still
   imaging; alt-azimuth GoTo remains usable but is reduced because mount type
@@ -1050,7 +1076,7 @@ Photographic solar/lunar/planetary video planning:
   `ImagingVideoSessionConditions`. It returns `None` for still candidates,
   non-solar-system video classes, invalid focal ratio or invalid pixel scale.
   It never changes or rescales the configuration-suitability score.
-- Policy `imaging_video_capture_v1` describes one independently stackable clip
+- Policy `imaging_video_capture_v2` describes one independently stackable clip
   without image derotation. The output contains a target profile, clip-duration
   range, FPS range and indicative captured-frame range, plus FPS provenance,
   completeness, confidence and stable assumption/warning/limitation codes.
@@ -1127,18 +1153,21 @@ Photographic solar/lunar/planetary video planning:
   multiple clips. Altitude at or below the horizon, below 25 degrees or below
   40 degrees respectively reports unavailable geometry, low altitude or
   atmospheric-dispersion risk.
-- Camera bodies report possible video compression. A monochrome astronomy
-  camera reports that the complete filter sequence must fit inside the capture
-  window. Solar advice repeats the requirement to inspect the declared
-  certified full-aperture filter before capture.
+- Camera bodies report possible video compression and explicitly mark active
+  video sensor area and video pixel scale as unknown. Their still-sensor field
+  and scale are not presented as video geometry, which lowers completeness.
+  A monochrome astronomy camera reports that the complete filter sequence must
+  fit inside the capture window. Solar advice repeats the requirement to
+  inspect the declared certified full-aperture filter before capture.
 - Exposure/gain and histogram, ROI/readout, actual transfer throughput, codec
   or RAW format, atmospheric-dispersion correction, apparent diameter/phase,
   lucky-frame selection and image derotation are explicit unmodeled limits.
   Even with every accepted input, confidence is capped at `medium`.
 - The advisor and session DTO are not registered directly with
-  `AppController`, `EquipmentService` or QML. The private runtime assembler can
-  invoke them on demand; Home, Object Detail, Planner, Sky Compass and NSOM do
-  not.
+  `AppController`, `EquipmentService` or QML. The private runtime assembler
+  invokes them on demand and the presenter exposes only their score-free
+  result to Object Detail; Home, Planner, Sky Compass and NSOM do not consume
+  them.
 
 Photographic runtime assembly:
 
@@ -1164,7 +1193,7 @@ Photographic runtime assembly:
                            -> still ExposureAdvisor OR VideoCaptureAdvisor
   ```
 
-- Policy `imaging_runtime_v1` returns a typed
+- Policy `imaging_runtime_v2` returns a typed
   `ImagingRuntimeRecommendation`. A ready result contains the winning
   candidate and exactly one kind of advice. Stable non-ready states distinguish
   no active profile, no telescope, no camera, no valid train, unsupported
@@ -1179,9 +1208,10 @@ Photographic runtime assembly:
 - The assembler method remains private and is never called for a catalogue-wide
   refresh. The QML boundary requests it only for the currently selected detail
   target through `photographicRecommendation`; a dedicated notify signal
-  invalidates that one presentation when the selection, photographic inventory
-  or relevant current conditions change. There is no photographic cache,
-  timer, worker or loop over Home/catalogue candidates.
+  compares a semantic signature before invalidating that one presentation.
+  Target, photographic inventory or relevant current-condition changes emit;
+  visual-only eyepiece, filter or binocular changes do not. There is no
+  photographic cache, timer, worker or loop over Home/catalogue candidates.
 - `ImagingRecommendationPresenter` converts the typed result into a localized
   score-free DTO. It exposes the winning optical train, sensor field of view,
   image scale, effective focal length/ratio, back-focus spacing and exactly one
@@ -1192,6 +1222,9 @@ Photographic runtime assembly:
   inventory never enters visual Equipment or recommendation scoring; current
   conditions change planning ranges, completeness and warnings only, while the
   static photographic suitability score remains unchanged and is not shown.
+- For camera-body video, field of view and image scale are labeled
+  `unverified` and an operational notice explains that crop and resampling can
+  differ from the still sensor.
 
 Zoom eyepieces:
 
@@ -1207,6 +1240,9 @@ Barlow logic:
 
 - Only assigned Barlows are candidates.
 - Barlows are not invented.
+- Assigned Barlows with the same multiplier are one optically equivalent
+  calculation alternative; the UI label reports how many owned choices it
+  represents.
 - A Barlow is selected only if it improves the score sufficiently over the
   no-Barlow option.
 - Wide-field and non-Barlow-friendly targets penalize Barlow usage.

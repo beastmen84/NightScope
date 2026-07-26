@@ -2501,122 +2501,98 @@
     },
     "equipment_reducers": {
       "celestron::reducer-corrector f/6.3::0.63": {
-        "compatible_models": "C5; C6; C8; C9.25; C11; C14",
         "connection": "SCT rear thread",
         "notes": "Not compatible with EdgeHD or Maksutov-Cassegrain."
       },
       "celestron::reducer lens 0.7x edgehd 8::0.7": {
-        "compatible_models": "EdgeHD 8",
         "connection": "EdgeHD 8 thread",
         "notes": "Designed exclusively for EdgeHD 8."
       },
       "celestron::reducer lens 0.7x edgehd 9.25::0.7": {
-        "compatible_models": "EdgeHD 9.25",
         "connection": "EdgeHD 9.25 thread",
         "notes": "Designed exclusively for EdgeHD 9.25."
       },
       "celestron::reducer lens 0.7x edgehd 11::0.7": {
-        "compatible_models": "EdgeHD 11",
         "connection": "EdgeHD 11 thread",
         "notes": "Designed exclusively for EdgeHD 11."
       },
       "celestron::reducer lens 0.7x edgehd 14::0.7": {
-        "compatible_models": "EdgeHD 14",
         "connection": "EdgeHD 14 thread",
         "notes": "Designed exclusively for EdgeHD 14."
       },
       "meade::series 4000 f/6.3 focal reducer field flattener::0.63": {
-        "compatible_models": "Schmidt-Cassegrain Meade and classical SCT",
         "connection": "SCT rear thread",
         "notes": "Reducer and flattener for classic SCTs."
       },
       "baader::alan gee mark ii telecompressor::0.59": {
-        "compatible_models": "SCT 8 inches and up; EdgeHD only with dedicated visual configurations",
         "connection": "Baffle SCT or T-2 system",
         "notes": "Nominal factor dependent on optical distance."
       },
       "baader::universal alan gee ii uag::0.59": {
-        "compatible_models": "SCT with T-2 diagonals or binocular turret",
         "connection": "T-2 system",
         "notes": "Pre-configured version for visual use."
       },
       "starizona::sct corrector iv::0.63": {
-        "compatible_models": "Classic SCTs",
         "connection": "SCT rear thread",
         "notes": "Photographic focal reducer and corrector for classic SCTs."
       },
       "starizona::sct corrector lf::0.63": {
-        "compatible_models": "Classic SCTs with full frame sensors",
         "connection": "SCT rear thread",
         "notes": "Large format photographic version."
       },
       "starizona::night owl sct reducer-corrector::0.4": {
-        "compatible_models": "Classic SCTs with sensors up to 16 mm",
         "connection": "2-inch body",
         "notes": "Fast photographic focal reducer for small sensors."
       },
       "william optics::flat 73r::0.8": {
-        "compatible_models": "Zenith Star 73",
         "connection": "Dedicated WO connection",
         "notes": "Dedicated focal reducer and field flattener."
       },
       "william optics::flat 6aiii::0.8": {
-        "compatible_models": "Gran Turismo 71; Gran Turismo 81; Zenith Star 81; Zenith Star 103",
         "connection": "M63 telescope side and M48 camera side",
         "notes": "Backfocus adjustable according to the telescope."
       },
       "william optics::flat 7a::0.8": {
-        "compatible_models": "Zenith Star 126; Gran Turismo 102; Gran Turismo 153",
         "connection": "Dedicated WO connection",
         "notes": "Backfocus adjustable according to the telescope."
       },
       "william optics::flat 8::0.72": {
-        "compatible_models": "FLT 132; FLT 156",
         "connection": "Dedicated WO connection",
         "notes": "Reducer and flattener for large aperture refractors."
       },
       "william optics::ultra flat 91::0.79": {
-        "compatible_models": "Fluorostar 91",
         "connection": "Dedicated WO connection",
         "notes": "Dedicated focal reducer with a corrected field."
       },
       "william optics::ultra flat 132::0.79": {
-        "compatible_models": "Fluorostar 132",
         "connection": "Dedicated WO connection",
         "notes": "Dedicated focal reducer with a corrected field."
       },
       "william optics::ultra flat 156::0.79": {
-        "compatible_models": "Fluorostar 156",
         "connection": "Dedicated WO connection",
         "notes": "Dedicated focal reducer with a corrected field."
       },
       "william optics::dr. flat master::0.8": {
-        "compatible_models": "Ritchey-Chretien WO and GSO 12 to 16 inches",
         "connection": "M92 telescope side and M48 camera side",
         "notes": "Apochromatic reducer for Ritchey-Chretien."
       },
       "sky-watcher::0.85x reducer-corrector ed72::0.85": {
-        "compatible_models": "Evostar 72ED; Evostar 72EDX",
         "connection": "Dedicated Sky-Watcher connection",
         "notes": "Optically matched photography accessory."
       },
       "sky-watcher::0.85x reducer-corrector ed80::0.85": {
-        "compatible_models": "Black Diamond ED80; Evostar 80ED; Evostar 80EDX",
         "connection": "M48 camera side",
         "notes": "Optically matched photography accessory."
       },
       "sky-watcher::0.85x reducer-corrector ed100::0.85": {
-        "compatible_models": "Black Diamond ED100; Evostar 100ED",
         "connection": "M48 camera side",
         "notes": "Optically matched photography accessory."
       },
       "sky-watcher::0.85x reducer-corrector ed120::0.85": {
-        "compatible_models": "Black Diamond ED120; Evostar 120ED; Evostar 120EDX",
         "connection": "M48 camera side",
         "notes": "Optically matched photography accessory."
       },
       "explore scientific::3-inch field flattener 0.7x focal reducer::0.7": {
-        "compatible_models": "ED APO 127; ED APO 152 excluding doublets",
         "connection": "3 inch with M42 or M48 adapter",
         "notes": "Dedicated photographic reducer and flattener."
       }

@@ -55,27 +55,102 @@ def test_filter_and_reducer_seeds_are_comprehensive_and_structured() -> None:
         temporary_directory.cleanup()
 
 
-def test_optics_catalog_exposes_localized_barrel_size_labels() -> None:
+def test_optics_catalog_omits_unmodeled_barrel_size() -> None:
     temporary_directory, _, repository = _database()
     try:
         eyepieces = repository.eyepieces()
         barlows = repository.barlows()
 
-        assert next(
-            item["barrel_size_label"]
-            for item in eyepieces
-            if item["barrel_size"] == "1.25"
-        ) == "1,25″"
-        assert next(
-            item["barrel_size_label"]
-            for item in eyepieces
-            if item["barrel_size"] == "1.25/2"
-        ) == "1,25″ / 2″"
-        assert next(
-            item["barrel_size_label"]
-            for item in barlows
-            if item["barrel_size"] == "2"
-        ) == "2″"
+        assert eyepieces
+        assert barlows
+        assert all("barrel_size" not in item for item in eyepieces)
+        assert all("barrel_size" not in item for item in barlows)
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_schema_23_retires_legacy_barrel_and_generic_reducer_fields() -> None:
+    temporary_directory, database_path, repository = _database()
+    try:
+        assert repository.add_eyepiece(
+            "Custom",
+            "Legacy eyepiece",
+            "Fixed",
+            10.0,
+            60.0,
+            notes="Nota utente",
+        )[0]
+        assert repository.add_barlow(
+            "Custom",
+            "Legacy Barlow",
+            2.0,
+        )[0]
+        reducer = repository.reducers()[0]
+        exact_ids = reducer["compatible_telescope_ids"]
+
+        with closing(sqlite3.connect(database_path)) as connection:
+            connection.execute(
+                "ALTER TABLE EyepieceCatalog ADD COLUMN barrel_size TEXT"
+            )
+            connection.execute(
+                "ALTER TABLE BarlowCatalog ADD COLUMN barrel_size TEXT"
+            )
+            connection.execute(
+                "ALTER TABLE ReducerCatalog ADD COLUMN compatible_models TEXT"
+            )
+            connection.execute(
+                """
+                UPDATE EyepieceCatalog
+                SET barrel_size = '1.25'
+                WHERE brand = 'Custom' AND model = 'Legacy eyepiece'
+                """
+            )
+            connection.execute(
+                """
+                UPDATE BarlowCatalog
+                SET barrel_size = '1.25/2'
+                WHERE brand = 'Custom' AND model = 'Legacy Barlow'
+                """
+            )
+            connection.execute(
+                "UPDATE ReducerCatalog SET compatible_models = 'Generic SCT'"
+            )
+            connection.execute("PRAGMA user_version = 22")
+            connection.commit()
+
+        initialize_database(database_path, SCHEMA_PATH)
+
+        with closing(sqlite3.connect(database_path)) as connection:
+            eyepiece = connection.execute(
+                """
+                SELECT barrel_size, notes
+                FROM EyepieceCatalog
+                WHERE brand = 'Custom' AND model = 'Legacy eyepiece'
+                """
+            ).fetchone()
+            barlow = connection.execute(
+                """
+                SELECT barrel_size, notes
+                FROM BarlowCatalog
+                WHERE brand = 'Custom' AND model = 'Legacy Barlow'
+                """
+            ).fetchone()
+            generic_values = connection.execute(
+                "SELECT DISTINCT compatible_models FROM ReducerCatalog"
+            ).fetchall()
+
+        assert eyepiece == ("", "Nota utente · Ø 1.25″")
+        assert barlow == ("", "Ø 1.25″ / 2″")
+        assert generic_values == [("",)]
+        refreshed = EquipmentCatalogRepository(database_path)
+        refreshed_reducer = next(
+            item
+            for item in refreshed.reducers()
+            if item["id"] == reducer["id"]
+        )
+        assert (
+            refreshed_reducer["compatible_telescope_ids"] == exact_ids
+        )
     finally:
         temporary_directory.cleanup()
 
@@ -116,7 +191,6 @@ def test_custom_filter_and_reducer_crud_preserves_user_provenance() -> None:
             "Riduttore prova",
             0.8,
             "REFRACTOR",
-            compatible_models="Rifrattore prova",
             connection_name="M48",
             backfocus_mm=55,
             visual_compatible=True,
@@ -186,13 +260,11 @@ def test_non_finite_accessory_values_are_rejected_before_sqlite_write() -> None:
                 "Fisso",
                 10.0,
                 float("nan"),
-                "1.25",
             ),
             repository.add_barlow(
                 "NightScope",
                 "Invalid Barlow",
                 float("inf"),
-                "1.25",
             ),
             repository.add_filter(
                 "NightScope",
@@ -260,14 +332,12 @@ def test_builtin_equipment_edits_are_persistent_and_keep_delete_protection() -> 
                 eyepiece["eyepiece_type"],
                 eyepiece["focal_length_mm"],
                 eyepiece["apparent_field_deg"],
-                eyepiece["barrel_size"],
             ),
             repository.update_barlow(
                 barlow["id"],
                 barlow["brand"],
                 f"{barlow['model']} modificato",
                 barlow["multiplier"],
-                barlow["barrel_size"],
             ),
             repository.update_binocular(
                 binocular["id"],
@@ -473,7 +543,7 @@ def test_reducer_compatibility_uses_catalog_telescope_ids() -> None:
         temporary_directory.cleanup()
 
 
-def test_reducer_update_preserves_generic_compatibility_when_not_replaced() -> None:
+def test_reducer_without_exact_compatibility_stays_unconfigured() -> None:
     temporary_directory, _, repository = _database()
     try:
         reducer = next(
@@ -482,8 +552,8 @@ def test_reducer_update_preserves_generic_compatibility_when_not_replaced() -> N
             if item["model"] == "Alan Gee Mark II Telecompressor"
         )
         assert reducer["compatible_telescope_ids"] == []
-        compatibility = reducer["compatible_models"]
-        assert compatibility
+        assert reducer["compatibility_configured"] is False
+        assert "compatible_models" not in reducer
 
         ok, _ = repository.update_reducer(
             reducer["id"],
@@ -503,8 +573,8 @@ def test_reducer_update_preserves_generic_compatibility_when_not_replaced() -> N
         updated = next(
             item for item in repository.reducers() if item["id"] == reducer["id"]
         )
-        assert updated["compatible_models"] == compatibility
         assert updated["compatible_telescope_ids"] == []
+        assert updated["compatibility_configured"] is False
     finally:
         temporary_directory.cleanup()
 
@@ -533,7 +603,51 @@ def test_custom_reducer_compatibility_survives_seed_refresh() -> None:
         assert reducer["compatible_telescope_ids"] == [telescope["catalog_id"]]
         assert (
             f"{telescope['brand']} {telescope['name']}"
-            in reducer["compatible_models"]
+            in {
+                item["display_name"]
+                for item in reducer["compatible_telescopes"]
+            }
+        )
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_user_telescope_is_available_for_exact_reducer_compatibility() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        assert repository.add_telescope_model(
+            "Custom",
+            "My imaging scope",
+            "Refractor",
+            80,
+            480,
+            "EQUATORIAL_TRACKING",
+        )[0]
+        telescope = next(
+            item
+            for item in repository.models()
+            if item["brand"] == "Custom"
+            and item["name"] == "My imaging scope"
+        )
+        assert repository.add_reducer(
+            "Custom",
+            "My exact reducer",
+            0.8,
+            "REFRACTOR",
+            imaging_compatible=True,
+            compatible_telescope_ids=[telescope["catalog_id"]],
+        )[0]
+
+        reducer = next(
+            item
+            for item in repository.reducers()
+            if item["model"] == "My exact reducer"
+        )
+        assert reducer["compatible_telescope_ids"] == [
+            telescope["catalog_id"]
+        ]
+        assert reducer["compatible_telescopes"][0]["display_name"] == (
+            "Custom My imaging scope"
         )
     finally:
         temporary_directory.cleanup()

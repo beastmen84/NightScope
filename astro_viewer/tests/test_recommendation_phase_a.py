@@ -42,7 +42,17 @@ def test_zoom_eyepiece_recommendation_preserves_target_aware_sampling() -> None:
     suggestion = EquipmentService().suggest_for_object(
         _object("saturn", "Saturno", "Pianeta", "0.8", "18 arcsec"),
         Telescope("scope", "Newton 130/650", 130, 650, "Newton", "manuale"),
-        [Eyepiece("zoom", "Baader Hyperion Zoom", 24, 60, "1.25/2", "Zoom", 8, 24)],
+        [
+            Eyepiece(
+                "zoom",
+                "Baader Hyperion Zoom",
+                24,
+                60,
+                "Zoom",
+                8,
+                24,
+            )
+        ],
         [],
     )
 

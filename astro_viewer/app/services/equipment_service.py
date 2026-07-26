@@ -9,6 +9,9 @@ from astro_viewer.app.models.recommendation_candidate import RecommendationCandi
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
 from astro_viewer.app.services.recommendation_presenter import RecommendationPresenter
+from astro_viewer.app.services.barlow_equivalence import (
+    optically_distinct_barlows,
+)
 from astro_viewer.app.services.localization import (
     format_compact_number,
     format_number,
@@ -397,7 +400,7 @@ class EquipmentService:
     @staticmethod
     def _barlow_options(barlows: list[Barlow]) -> list[Barlow | None]:
         owned = [barlow for barlow in barlows if barlow.multiplier > 1.0]
-        return [None, *owned]
+        return [None, *optically_distinct_barlows(owned)]
 
     def _profile_capability_configurations(self, telescope: Telescope, eyepieces: list[Eyepiece], barlows: list[Barlow]) -> list[dict]:
         if not eyepieces:

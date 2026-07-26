@@ -1,25 +1,25 @@
-seed_key,brand,model,reduction_factor,optical_system,compatible_models,connection,backfocus_mm,visual_compatible,imaging_compatible,corrected_field,notes
-reducer::celestron::reducer-corrector f/6.3::0.63,Celestron,Reducer-Corrector f/6.3,0.63,SCT_CLASSIC,C5; C6; C8; C9.25; C11; C14,Filettatura posteriore SCT,105,1,1,1,Non compatibile con EdgeHD o Maksutov-Cassegrain.
-reducer::celestron::reducer lens 0.7x edgehd 8::0.7,Celestron,Reducer Lens 0.7x EdgeHD 8,0.7,EDGEHD,EdgeHD 8,Filettatura EdgeHD 8,105,1,1,1,Progettato esclusivamente per EdgeHD 8.
-reducer::celestron::reducer lens 0.7x edgehd 9.25::0.7,Celestron,Reducer Lens 0.7x EdgeHD 9.25,0.7,EDGEHD,EdgeHD 9.25,Filettatura EdgeHD 9.25,146,1,1,1,Progettato esclusivamente per EdgeHD 9.25.
-reducer::celestron::reducer lens 0.7x edgehd 11::0.7,Celestron,Reducer Lens 0.7x EdgeHD 11,0.7,EDGEHD,EdgeHD 11,Filettatura EdgeHD 11,146,1,1,1,Progettato esclusivamente per EdgeHD 11.
-reducer::celestron::reducer lens 0.7x edgehd 14::0.7,Celestron,Reducer Lens 0.7x EdgeHD 14,0.7,EDGEHD,EdgeHD 14,Filettatura EdgeHD 14,146,1,1,1,Progettato esclusivamente per EdgeHD 14.
-reducer::meade::series 4000 f/6.3 focal reducer field flattener::0.63,Meade,Series 4000 f/6.3 Focal Reducer Field Flattener,0.63,SCT_CLASSIC,Schmidt-Cassegrain Meade e SCT classici,Filettatura posteriore SCT,105,1,1,1,Riduttore e spianatore per SCT classici.
-reducer::baader::alan gee mark ii telecompressor::0.59,Baader,Alan Gee Mark II Telecompressor,0.59,SCT_CLASSIC,SCT da 8 pollici in su; EdgeHD solo con configurazioni visuali dedicate,Baffle SCT o sistema T-2,121,1,1,1,Fattore nominale dipendente dalla distanza ottica.
-reducer::baader::universal alan gee ii uag::0.59,Baader,Universal Alan Gee II UAG,0.59,SCT_CLASSIC,SCT con diagonali T-2 o torretta binoculare,Sistema T-2,,1,0,1,Versione preconfigurata per uso visuale.
-reducer::starizona::sct corrector iv::0.63,Starizona,SCT Corrector IV,0.63,SCT_CLASSIC,SCT classici,Filettatura posteriore SCT,,0,1,1,Riduttore e correttore fotografico per SCT classici.
-reducer::starizona::sct corrector lf::0.63,Starizona,SCT Corrector LF,0.63,SCT_CLASSIC,SCT classici con sensori full frame,Filettatura posteriore SCT,,0,1,1,Versione fotografica a grande formato.
-reducer::starizona::night owl sct reducer-corrector::0.4,Starizona,Night Owl SCT Reducer-Corrector,0.4,SCT_CLASSIC,SCT classici con sensori fino a 16 mm,Corpo da 2 pollici,,0,1,1,Riduttore fotografico rapido per piccoli sensori.
-reducer::william optics::flat 73r::0.8,William Optics,FLAT 73R,0.8,REFRACTOR,ZenithStar 73,Connessione dedicata WO,,0,1,1,Riduttore e spianatore dedicato.
-reducer::william optics::flat 6aiii::0.8,William Optics,FLAT 6AIII,0.8,REFRACTOR,Gran Turismo 71; Gran Turismo 81; ZenithStar 81; ZenithStar 103,M63 lato telescopio e M48 lato camera,,0,1,1,Backfocus regolabile in base al telescopio.
-reducer::william optics::flat 7a::0.8,William Optics,FLAT 7A,0.8,REFRACTOR,ZenithStar 126; Gran Turismo 102; Gran Turismo 153,Connessione dedicata WO,,0,1,1,Backfocus regolabile in base al telescopio.
-reducer::william optics::flat 8::0.72,William Optics,FLAT 8,0.72,REFRACTOR,FLT 132; FLT 156,Connessione dedicata WO,,0,1,1,Riduttore e spianatore per rifrattori di grande apertura.
-reducer::william optics::ultra flat 91::0.79,William Optics,Ultra Flat 91,0.79,REFRACTOR,Fluorostar 91,Connessione dedicata WO,,0,1,1,Riduttore dedicato con campo corretto.
-reducer::william optics::ultra flat 132::0.79,William Optics,Ultra Flat 132,0.79,REFRACTOR,Fluorostar 132,Connessione dedicata WO,,0,1,1,Riduttore dedicato con campo corretto.
-reducer::william optics::ultra flat 156::0.79,William Optics,Ultra Flat 156,0.79,REFRACTOR,Fluorostar 156,Connessione dedicata WO,,0,1,1,Riduttore dedicato con campo corretto.
-reducer::william optics::dr. flat master::0.8,William Optics,Dr. Flat Master,0.8,RC,Ritchey-Chretien WO e GSO da 12 a 16 pollici,M92 lato telescopio e M48 lato camera,86.15,0,1,1,Riduttore apocromatico per Ritchey-Chretien.
-reducer::sky-watcher::0.85x reducer-corrector ed72::0.85,Sky-Watcher,0.85x Reducer-Corrector ED72,0.85,REFRACTOR,Evostar 72ED; Evostar 72EDX,Connessione dedicata Sky-Watcher,,0,1,1,Accessorio fotografico otticamente abbinato.
-reducer::sky-watcher::0.85x reducer-corrector ed80::0.85,Sky-Watcher,0.85x Reducer-Corrector ED80,0.85,REFRACTOR,Black Diamond ED80; Evostar 80ED; Evostar 80EDX,M48 lato camera,,0,1,1,Accessorio fotografico otticamente abbinato.
-reducer::sky-watcher::0.85x reducer-corrector ed100::0.85,Sky-Watcher,0.85x Reducer-Corrector ED100,0.85,REFRACTOR,Black Diamond ED100; Evostar 100ED,M48 lato camera,,0,1,1,Accessorio fotografico otticamente abbinato.
-reducer::sky-watcher::0.85x reducer-corrector ed120::0.85,Sky-Watcher,0.85x Reducer-Corrector ED120,0.85,REFRACTOR,Black Diamond ED120; Evostar 120ED; Evostar 120EDX,M48 lato camera,,0,1,1,Accessorio fotografico otticamente abbinato.
-reducer::explore scientific::3-inch field flattener 0.7x focal reducer::0.7,Explore Scientific,3-inch Field Flattener 0.7x Focal Reducer,0.7,REFRACTOR,ED APO 127; ED APO 152 esclusi i doppietti,3 pollici con adattatore M42 o M48,,0,1,1,Riduttore e spianatore fotografico dedicato.
+seed_key,brand,model,reduction_factor,optical_system,connection,backfocus_mm,visual_compatible,imaging_compatible,corrected_field,notes
+reducer::celestron::reducer-corrector f/6.3::0.63,Celestron,Reducer-Corrector f/6.3,0.63,SCT_CLASSIC,Filettatura posteriore SCT,105,1,1,1,Non compatibile con EdgeHD o Maksutov-Cassegrain.
+reducer::celestron::reducer lens 0.7x edgehd 8::0.7,Celestron,Reducer Lens 0.7x EdgeHD 8,0.7,EDGEHD,Filettatura EdgeHD 8,105,1,1,1,Progettato esclusivamente per EdgeHD 8.
+reducer::celestron::reducer lens 0.7x edgehd 9.25::0.7,Celestron,Reducer Lens 0.7x EdgeHD 9.25,0.7,EDGEHD,Filettatura EdgeHD 9.25,146,1,1,1,Progettato esclusivamente per EdgeHD 9.25.
+reducer::celestron::reducer lens 0.7x edgehd 11::0.7,Celestron,Reducer Lens 0.7x EdgeHD 11,0.7,EDGEHD,Filettatura EdgeHD 11,146,1,1,1,Progettato esclusivamente per EdgeHD 11.
+reducer::celestron::reducer lens 0.7x edgehd 14::0.7,Celestron,Reducer Lens 0.7x EdgeHD 14,0.7,EDGEHD,Filettatura EdgeHD 14,146,1,1,1,Progettato esclusivamente per EdgeHD 14.
+reducer::meade::series 4000 f/6.3 focal reducer field flattener::0.63,Meade,Series 4000 f/6.3 Focal Reducer Field Flattener,0.63,SCT_CLASSIC,Filettatura posteriore SCT,105,1,1,1,Riduttore e spianatore per SCT classici.
+reducer::baader::alan gee mark ii telecompressor::0.59,Baader,Alan Gee Mark II Telecompressor,0.59,SCT_CLASSIC,Baffle SCT o sistema T-2,121,1,1,1,Fattore nominale dipendente dalla distanza ottica.
+reducer::baader::universal alan gee ii uag::0.59,Baader,Universal Alan Gee II UAG,0.59,SCT_CLASSIC,Sistema T-2,,1,0,1,Versione preconfigurata per uso visuale.
+reducer::starizona::sct corrector iv::0.63,Starizona,SCT Corrector IV,0.63,SCT_CLASSIC,Filettatura posteriore SCT,,0,1,1,Riduttore e correttore fotografico per SCT classici.
+reducer::starizona::sct corrector lf::0.63,Starizona,SCT Corrector LF,0.63,SCT_CLASSIC,Filettatura posteriore SCT,,0,1,1,Versione fotografica a grande formato.
+reducer::starizona::night owl sct reducer-corrector::0.4,Starizona,Night Owl SCT Reducer-Corrector,0.4,SCT_CLASSIC,Corpo da 2 pollici,,0,1,1,Riduttore fotografico rapido per piccoli sensori.
+reducer::william optics::flat 73r::0.8,William Optics,FLAT 73R,0.8,REFRACTOR,Connessione dedicata WO,,0,1,1,Riduttore e spianatore dedicato.
+reducer::william optics::flat 6aiii::0.8,William Optics,FLAT 6AIII,0.8,REFRACTOR,M63 lato telescopio e M48 lato camera,,0,1,1,Backfocus regolabile in base al telescopio.
+reducer::william optics::flat 7a::0.8,William Optics,FLAT 7A,0.8,REFRACTOR,Connessione dedicata WO,,0,1,1,Backfocus regolabile in base al telescopio.
+reducer::william optics::flat 8::0.72,William Optics,FLAT 8,0.72,REFRACTOR,Connessione dedicata WO,,0,1,1,Riduttore e spianatore per rifrattori di grande apertura.
+reducer::william optics::ultra flat 91::0.79,William Optics,Ultra Flat 91,0.79,REFRACTOR,Connessione dedicata WO,,0,1,1,Riduttore dedicato con campo corretto.
+reducer::william optics::ultra flat 132::0.79,William Optics,Ultra Flat 132,0.79,REFRACTOR,Connessione dedicata WO,,0,1,1,Riduttore dedicato con campo corretto.
+reducer::william optics::ultra flat 156::0.79,William Optics,Ultra Flat 156,0.79,REFRACTOR,Connessione dedicata WO,,0,1,1,Riduttore dedicato con campo corretto.
+reducer::william optics::dr. flat master::0.8,William Optics,Dr. Flat Master,0.8,RC,M92 lato telescopio e M48 lato camera,86.15,0,1,1,Riduttore apocromatico per Ritchey-Chretien.
+reducer::sky-watcher::0.85x reducer-corrector ed72::0.85,Sky-Watcher,0.85x Reducer-Corrector ED72,0.85,REFRACTOR,Connessione dedicata Sky-Watcher,,0,1,1,Accessorio fotografico otticamente abbinato.
+reducer::sky-watcher::0.85x reducer-corrector ed80::0.85,Sky-Watcher,0.85x Reducer-Corrector ED80,0.85,REFRACTOR,M48 lato camera,,0,1,1,Accessorio fotografico otticamente abbinato.
+reducer::sky-watcher::0.85x reducer-corrector ed100::0.85,Sky-Watcher,0.85x Reducer-Corrector ED100,0.85,REFRACTOR,M48 lato camera,,0,1,1,Accessorio fotografico otticamente abbinato.
+reducer::sky-watcher::0.85x reducer-corrector ed120::0.85,Sky-Watcher,0.85x Reducer-Corrector ED120,0.85,REFRACTOR,M48 lato camera,,0,1,1,Accessorio fotografico otticamente abbinato.
+reducer::explore scientific::3-inch field flattener 0.7x focal reducer::0.7,Explore Scientific,3-inch Field Flattener 0.7x Focal Reducer,0.7,REFRACTOR,3 pollici con adattatore M42 o M48,,0,1,1,Riduttore e spianatore fotografico dedicato.

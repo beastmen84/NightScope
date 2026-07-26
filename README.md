@@ -60,11 +60,12 @@ Linux packages use a portable tarball plus an adjacent SHA-256 file.
 - Stores observation logs and user-maintained equipment locally.
 - Provides a separate two-column Cameras catalogue for astronomy cameras and
   interchangeable-lens camera bodies. Its sensor and capture specifications
-  can be assigned to profiles and feed a typed, backend-only photographic
+  can be assigned to profiles and feed a typed, isolated photographic
   configuration scorer, a conservative still-exposure advisor and a Solar
   System video advisor. An on-demand runtime assembler now connects those
   layers to the active-profile inventory and current conditions; Object Detail
-  presentation remains separate and the visual engine never consumes them.
+  shows their result in a separate photographic card and the visual engine
+  never consumes them.
 - Lets each profile record, for each assigned telescope, whether the user has
   declared a certified full-aperture solar filter secured in front of the
   instrument. The static scorer accepts this capability only as an exact
@@ -128,6 +129,17 @@ below the visual setup: optical train, field of view, image scale, exposure or
 video ranges, confidence and the most relevant operational limits. The
 presentation is computed for the selected target only; it does not change Home,
 Planner, visual Equipment, Sky Compass, visual recommendations or NSOM.
+
+Reducer compatibility is fail-closed: only explicit telescope-model links are
+used by either visual reducer guidance or the photographic train builder.
+Unconfigured reducers remain available in the catalogue and profiles but are
+excluded from both recommendation paths until the user links at least one
+telescope. User-created telescope models appear in the same compatibility
+selector. Eyepiece and Barlow barrel diameter is deliberately not modeled
+because telescope-side visual-back/focuser compatibility is not available;
+legacy user values are retained as neutral notes during migration. Barlows
+with the same multiplier are treated as optically equivalent by the current
+visual and photographic calculations.
 
 Telescope mount types use stable controlled codes instead of free text. This
 preserves the existing visual recommendation behavior while keeping manual,
@@ -442,15 +454,16 @@ remaining release work are tracked in
 - Weather, AOD, particulate, and VIIRS availability depends on provider
   coverage, freshness, authorization, and quality gates.
 - Comet magnitudes can differ materially from orbital-catalogue estimates.
-- Current UI reducer guidance does not model a complete camera train. The
-  backend photographic foundation calculates sensor geometry and known
-  backfocus spacing, but still cannot prove adapters, image circle, tracking
-  accuracy or vignetting. Its exposure output is a broadband planning range,
-  not a camera calibration: gain/ISO, read noise, autoguiding and filter
-  passband remain explicit limitations. Planetary-video output is likewise a
-  single-clip plan, not a capture preset: actual FPS, exposure/gain, ROI,
-  codec, atmospheric dispersion, frame selection and derotation remain
-  explicit limitations.
+- The photographic plan calculates sensor geometry and known backfocus
+  spacing, but still cannot prove adapters, image circle, tracking accuracy or
+  vignetting. Its exposure output is a broadband planning range, not a camera
+  calibration: gain/ISO, read noise, autoguiding and filter passband remain
+  explicit limitations. Planetary-video output is likewise a single-clip
+  plan, not a capture preset: actual FPS, exposure/gain, ROI, codec,
+  atmospheric dispersion, frame selection and derotation remain explicit
+  limitations. Camera-body video crop/readout geometry is not inferred from
+  the still sensor: field of view and image scale are shown as unverified, and
+  prime focus wins otherwise equal optical alternatives.
 - There is no installer, automatic updater, or artifact signature. The current
   portable release publishes its SHA-256 digest.
 - The final manual and application visual matrix still requires a human pass on

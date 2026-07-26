@@ -128,16 +128,19 @@ completezza ma non vengono trasformati in falsi tempi esatti. `ALTAZ_GOTO`
 mantiene i normali 90-120 secondi di Giove e limita solo le finestre oltre
 quattro minuti.
 
-La policy `imaging_video_capture_v1` non inventa esposizione/gain, istogramma,
+La policy `imaging_video_capture_v2` non inventa esposizione/gain, istogramma,
 ROI, throughput USB/disco, codec RAW, correzione della dispersione, diametro o
 fase apparente, percentuale di frame fortunati e derotazione.
+Per i pianeti lo score statico include ora anche l'apertura del telescopio con
+un peso limitato e saturante. Per i corpi macchina, area attiva e scala video
+restano esplicitamente sconosciute: non vengono ricavate dal sensore still.
 
 Il quinto passo e' ora `ImagingRuntimeAssembler`. Legge on demand soltanto
 l'inventario fotografico del profilo attivo, costruisce i treni, passa gli ID
 solari esatti, ordina i candidati e chiama il solo advisor coerente con foto o
 video. `ImagingRuntimeConditionsAdapter` usa SQM/Bortle, trasparenza atmosferica
 grezza e geometria lunare per le foto, seeing e altezza per i video. Restituisce
-la policy tipizzata `imaging_runtime_v1` con stati espliciti per profilo,
+la policy tipizzata `imaging_runtime_v2` con stati espliciti per profilo,
 telescopi, camere o configurazioni mancanti.
 
 Il sesto passo completa il confine di presentazione.
@@ -151,8 +154,10 @@ espongono durata clip, FPS, frame e provenienza del frame rate. Avvisi
 prioritizzati coprono orizzonte, seeing, rotazione di campo, rumore termico e
 target piu' grande del sensore con indicazione di ritaglio o mosaico.
 
-Il segnale `photographicRecommendationChanged` segue soltanto target
-selezionato, inventario fotografico e condizioni correnti. Non esistono cache,
+Il segnale `photographicRecommendationChanged` confronta una firma semantica e
+segue soltanto target selezionato, inventario fotografico e condizioni
+pertinenti; cambi a equipaggiamento esclusivamente visuale non lo emettono.
+Non esistono cache,
 worker o cicli fotografici sui 7.585 oggetti; camere e piano fotografico
 restano fuori dal motore visuale, da Home, Planner, Sky Compass e NSOM.
 
@@ -164,14 +169,14 @@ specificato. La proiezione di tracking visuale conserva esattamente i
 coefficienti precedenti, lasciando le distinzioni piu' fini al backend
 fotografico separato.
 
-Il gate finale `tools/run_checks.py --fast` passa con 1.075 test, 643 warning
-Skyfield/NumPy gia' noti e 10 subtest in 373,87 secondi, oltre agli smoke
+Il gate finale `tools/run_checks.py --fast` passa con 1.086 test, 643 warning
+Skyfield/NumPy gia' noti e 10 subtest in 271,74 secondi, oltre agli smoke
 backend, QML normale e Red Night Vision. `EquipmentCamerasPage.qml` passa QML
 lint senza warning. La
 pagina Profili con camere assegnate e' stata controllata nativamente a
 `1040 × 700` e `1709 × 1047` in entrambe le modalita'; in Red Night Vision i
 massimi sono verde 74 e blu 61, senza pixel oltre soglia. I cataloghi Qt
-IT/EN/ES contengono 1.959 voci finite e zero incomplete. Il controllo del
+IT/EN/ES contengono 1.967 voci finite e zero incomplete. Il controllo del
 filtro solare, selezionato e accompagnato dall'avviso di sicurezza, e' stato
 verificato nativamente a `1400 × 900` in modalita' normale e notturna con gli
 stessi limiti cromatici. Il follow-up visuale
@@ -1100,7 +1105,8 @@ quando richiesta.
 - Oculari e Barlow mantengono il valore grezzo del barilotto nel database ma
   espongono una label derivata locale, per esempio `1,25″ / 2″`. Il fallback
   QML delle dimensioni angolari usa `°`; il formatter backend prioritario e'
-  stato corretto nella `1.32.4`.
+  stato corretto nella `1.32.4`. Questa nota e' storica: lo schema 23 ritira il
+  campo non calcolabile e conserva gli eventuali valori utente nelle note.
 - I form mostrano unita' tra parentesi, `0,63` nell'esempio italiano del
   riduttore e `Stabilizzato` come booleano, senza definirlo facoltativo.
 - Nessun cambiamento a seed, ownership Equipment, schema SQLite, score, NSOM,
@@ -1304,12 +1310,12 @@ quando richiesta.
   `astro_viewer/data/DATA_SOURCES.md`.
 - I filtri conservano classe, banda/lunghezza d'onda, trasmissione e apertura
   minima. Il barilotto non e' modellato e le classi colorate identificano il
-  colore specifico. I riduttori conservano fattore, sistema e modelli
-  compatibili, connessione, backfocus, uso visuale/fotografico e correzione del
-  campo.
+  colore specifico. I riduttori conservano fattore, sistema, connessione,
+  backfocus, uso visuale/fotografico e correzione del campo.
 - `ReducerTelescopeCompatibility` conserva 16 associazioni esatte tra riduttori
   dedicati e `TelescopeModel`; i riduttori universali non ricevono associazioni
-  artificiali. Il campo descrittivo dei modelli resta disponibile alla UI.
+  artificiali. Dallo schema 23 il testo generico dei modelli e' ritirato e un
+  insieme esatto vuoto esclude il riduttore dalle raccomandazioni.
 - I riduttori creati dall'utente usano la stessa relazione normalizzata: il
   form offre ricerca e selezione multipla sui 133 modelli di telescopio, il
   repository valida gli ID e i collegamenti sopravvivono al reseed.

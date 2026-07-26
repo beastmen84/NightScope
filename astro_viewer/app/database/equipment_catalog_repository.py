@@ -22,7 +22,6 @@ from astro_viewer.app.services.equipment_taxonomy import (
 from astro_viewer.app.services.localization import (
     format_compact_number,
     format_number,
-    join_text,
     tr,
 )
 
@@ -47,26 +46,6 @@ def _natural_sort_key(value: object) -> tuple[tuple[int, object], ...]:
         for part in parts
         if part
     )
-
-
-def _barrel_size_label(value: object) -> str:
-    raw_value = str(value or "").strip()
-    if not raw_value:
-        return ""
-
-    formatted_parts: list[object] = []
-    for raw_part in raw_value.split("/"):
-        numeric_part = raw_part.strip().rstrip('"″').strip().replace(",", ".")
-        try:
-            numeric_value = float(numeric_part)
-        except ValueError:
-            return raw_value
-        if numeric_value <= 0:
-            return raw_value
-        formatted_parts.append(
-            tr("{value}″", value=format_compact_number(numeric_value))
-        )
-    return join_text(formatted_parts, separator=" / ")
 
 
 class EquipmentCatalogRepository:
@@ -294,7 +273,7 @@ class EquipmentCatalogRepository:
                 """
                 SELECT id, brand, model, eyepiece_type, focal_length_mm,
                        min_focal_length_mm, max_focal_length_mm,
-                       apparent_field_deg, afov_min, afov_max, barrel_size,
+                       apparent_field_deg, afov_min, afov_max,
                        zoom_click_positions_mm, notes, is_builtin, seed_key,
                        is_user_modified
                 FROM EyepieceCatalog
@@ -310,7 +289,6 @@ class EquipmentCatalogRepository:
         eyepiece_type: str,
         focal_length_mm: float,
         apparent_field_deg: float,
-        barrel_size: str,
         min_focal_length_mm: float | None = None,
         max_focal_length_mm: float | None = None,
         afov_min: float | None = None,
@@ -324,7 +302,6 @@ class EquipmentCatalogRepository:
             eyepiece_type,
             focal_length_mm,
             apparent_field_deg,
-            barrel_size,
             min_focal_length_mm,
             max_focal_length_mm,
             afov_min,
@@ -348,10 +325,10 @@ class EquipmentCatalogRepository:
                 """
                 INSERT INTO EyepieceCatalog (
                     brand, model, eyepiece_type, focal_length_mm, min_focal_length_mm,
-                    max_focal_length_mm, apparent_field_deg, afov_min, afov_max, barrel_size,
+                    max_focal_length_mm, apparent_field_deg, afov_min, afov_max,
                     zoom_click_positions_mm, notes
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 values,
             )
@@ -366,7 +343,6 @@ class EquipmentCatalogRepository:
         eyepiece_type: str,
         focal_length_mm: float,
         apparent_field_deg: float,
-        barrel_size: str,
         min_focal_length_mm: float | None = None,
         max_focal_length_mm: float | None = None,
         afov_min: float | None = None,
@@ -380,7 +356,6 @@ class EquipmentCatalogRepository:
             eyepiece_type,
             focal_length_mm,
             apparent_field_deg,
-            barrel_size,
             min_focal_length_mm,
             max_focal_length_mm,
             afov_min,
@@ -401,10 +376,10 @@ class EquipmentCatalogRepository:
             ).fetchone()
             if not existing:
                 return False, tr("Oculare non trovato.")
-            if not values[10]:
-                values = values[:10] + (
+            if not values[9]:
+                values = values[:9] + (
                     existing["zoom_click_positions_mm"] or "",
-                    values[11],
+                    values[10],
                 )
             duplicate = connection.execute(
                 """
@@ -421,7 +396,7 @@ class EquipmentCatalogRepository:
                 SET brand = ?, model = ?, eyepiece_type = ?, focal_length_mm = ?,
                     min_focal_length_mm = ?, max_focal_length_mm = ?,
                     apparent_field_deg = ?, afov_min = ?, afov_max = ?,
-                    barrel_size = ?, zoom_click_positions_mm = ?, notes = ?,
+                    zoom_click_positions_mm = ?, notes = ?,
                     is_user_modified = CASE
                         WHEN is_builtin = 1 THEN 1 ELSE is_user_modified
                     END
@@ -450,7 +425,7 @@ class EquipmentCatalogRepository:
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
-                SELECT id, brand, model, multiplier, barrel_size, notes,
+                SELECT id, brand, model, multiplier, notes,
                        is_builtin, seed_key, is_user_modified
                 FROM BarlowCatalog
                 ORDER BY brand, model, multiplier
@@ -458,7 +433,13 @@ class EquipmentCatalogRepository:
             ).fetchall()
         return [self._barlow_model(row) for row in rows]
 
-    def add_barlow(self, brand: str, model: str, multiplier: float, barrel_size: str, notes: str = "") -> tuple[bool, str]:
+    def add_barlow(
+        self,
+        brand: str,
+        model: str,
+        multiplier: float,
+        notes: str = "",
+    ) -> tuple[bool, str]:
         clean_brand = brand.strip()
         clean_model = model.strip()
         if not clean_brand or not clean_model:
@@ -474,15 +455,22 @@ class EquipmentCatalogRepository:
                 return False, tr("Questa Barlow è già presente nel catalogo.")
             connection.execute(
                 """
-                INSERT INTO BarlowCatalog (brand, model, multiplier, barrel_size, notes)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO BarlowCatalog (brand, model, multiplier, notes)
+                VALUES (?, ?, ?, ?)
                 """,
-                (clean_brand, clean_model, multiplier, barrel_size.strip(), notes.strip()),
+                (clean_brand, clean_model, multiplier, notes.strip()),
             )
             connection.commit()
         return True, tr("Barlow aggiunta.")
 
-    def update_barlow(self, barlow_id: int, brand: str, model: str, multiplier: float, barrel_size: str, notes: str = "") -> tuple[bool, str]:
+    def update_barlow(
+        self,
+        barlow_id: int,
+        brand: str,
+        model: str,
+        multiplier: float,
+        notes: str = "",
+    ) -> tuple[bool, str]:
         clean_brand = brand.strip()
         clean_model = model.strip()
         if not clean_brand or not clean_model:
@@ -508,7 +496,7 @@ class EquipmentCatalogRepository:
             connection.execute(
                 """
                 UPDATE BarlowCatalog
-                SET brand = ?, model = ?, multiplier = ?, barrel_size = ?, notes = ?,
+                SET brand = ?, model = ?, multiplier = ?, notes = ?,
                     is_user_modified = CASE
                         WHEN is_builtin = 1 THEN 1 ELSE is_user_modified
                     END
@@ -518,7 +506,6 @@ class EquipmentCatalogRepository:
                     clean_brand,
                     clean_model,
                     multiplier,
-                    barrel_size.strip(),
                     notes.strip(),
                     barlow_id,
                 ),
@@ -1228,7 +1215,7 @@ class EquipmentCatalogRepository:
             rows = connection.execute(
                 """
                 SELECT id, brand, model, reduction_factor, optical_system,
-                       compatible_models, connection, backfocus_mm,
+                       connection, backfocus_mm,
                        visual_compatible, imaging_compatible, corrected_field,
                        notes, is_builtin, seed_key, is_user_modified
                 FROM ReducerCatalog
@@ -1263,10 +1250,7 @@ class EquipmentCatalogRepository:
             reducer["compatible_telescope_ids"] = [
                 item["catalog_id"] for item in compatibility
             ]
-            if compatibility:
-                reducer["compatible_models"] = "; ".join(
-                    item["display_name"] for item in compatibility
-                )
+            reducer["compatibility_configured"] = bool(compatibility)
             reducers.append(reducer)
         return reducers
 
@@ -1276,7 +1260,6 @@ class EquipmentCatalogRepository:
         model: str,
         reduction_factor: float,
         optical_system: str,
-        compatible_models: str | None = None,
         connection_name: str = "",
         backfocus_mm: float | None = None,
         visual_compatible: bool = False,
@@ -1290,7 +1273,6 @@ class EquipmentCatalogRepository:
             model,
             reduction_factor,
             optical_system,
-            compatible_models or "",
             connection_name,
             backfocus_mm,
             visual_compatible,
@@ -1322,11 +1304,11 @@ class EquipmentCatalogRepository:
                 """
                 INSERT INTO ReducerCatalog (
                     brand, model, reduction_factor, optical_system,
-                    compatible_models, connection, backfocus_mm,
+                    connection, backfocus_mm,
                     visual_compatible, imaging_compatible, corrected_field,
                     notes
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 values,
             )
@@ -1345,7 +1327,6 @@ class EquipmentCatalogRepository:
         model: str,
         reduction_factor: float,
         optical_system: str,
-        compatible_models: str | None = None,
         connection_name: str = "",
         backfocus_mm: float | None = None,
         visual_compatible: bool = False,
@@ -1356,7 +1337,7 @@ class EquipmentCatalogRepository:
     ) -> tuple[bool, str]:
         with closing(self._connect()) as connection:
             existing = connection.execute(
-                "SELECT id, is_builtin, compatible_models FROM ReducerCatalog WHERE id = ?",
+                "SELECT id, is_builtin FROM ReducerCatalog WHERE id = ?",
                 (reducer_id,),
             ).fetchone()
             if not existing:
@@ -1366,7 +1347,6 @@ class EquipmentCatalogRepository:
                 model,
                 reduction_factor,
                 optical_system,
-                existing["compatible_models"] if compatible_models is None else compatible_models,
                 connection_name,
                 backfocus_mm,
                 visual_compatible,
@@ -1397,7 +1377,7 @@ class EquipmentCatalogRepository:
                 """
                 UPDATE ReducerCatalog
                 SET brand = ?, model = ?, reduction_factor = ?,
-                    optical_system = ?, compatible_models = ?, connection = ?,
+                    optical_system = ?, connection = ?,
                     backfocus_mm = ?, visual_compatible = ?,
                     imaging_compatible = ?, corrected_field = ?, notes = ?,
                     is_user_modified = CASE
@@ -1850,8 +1830,6 @@ class EquipmentCatalogRepository:
             ),
             "afov_min": row["afov_min"],
             "afov_max": row["afov_max"],
-            "barrel_size": row["barrel_size"] or "",
-            "barrel_size_label": _barrel_size_label(row["barrel_size"]),
             "zoom_click_positions_mm": row["zoom_click_positions_mm"] or "",
             "notes": row["notes"] or "",
             "focalRangeLabel": focal_range,
@@ -1872,8 +1850,6 @@ class EquipmentCatalogRepository:
             "multiplier_label": tr(
                 "{value}x", value=format_compact_number(row["multiplier"])
             ),
-            "barrel_size": row["barrel_size"] or "",
-            "barrel_size_label": _barrel_size_label(row["barrel_size"]),
             "notes": row["notes"] or "",
             "is_builtin": bool(row["is_builtin"]),
             "seed_key": row["seed_key"] or "",
@@ -2125,7 +2101,6 @@ class EquipmentCatalogRepository:
                 optical_system,
                 optical_system,
             ),
-            "compatible_models": row["compatible_models"] or "",
             "connection": row["connection"] or "",
             "backfocus_mm": row["backfocus_mm"],
             "backfocus_label": (
@@ -2152,7 +2127,6 @@ class EquipmentCatalogRepository:
         eyepiece_type: str,
         focal_length_mm: float,
         apparent_field_deg: float,
-        barrel_size: str,
         min_focal_length_mm: float | None,
         max_focal_length_mm: float | None,
         afov_min: float | None,
@@ -2210,7 +2184,6 @@ class EquipmentCatalogRepository:
             apparent_field_deg,
             afov_min,
             afov_max,
-            barrel_size.strip(),
             zoom_click_positions_mm.strip(),
             notes.strip(),
         ), ""
@@ -2436,7 +2409,6 @@ class EquipmentCatalogRepository:
         model: str,
         reduction_factor: float,
         optical_system: str,
-        compatible_models: str,
         connection_name: str,
         backfocus_mm: float | None,
         visual_compatible: bool,
@@ -2464,7 +2436,6 @@ class EquipmentCatalogRepository:
             clean_model,
             reduction_factor,
             clean_system,
-            compatible_models.strip(),
             connection_name.strip(),
             backfocus_mm,
             1 if visual_compatible else 0,

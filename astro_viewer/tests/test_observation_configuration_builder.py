@@ -26,6 +26,37 @@ def test_telescope_profile_generates_fixed_eyepiece_and_barlow_configurations() 
     assert any(configuration.barlow == barlows[1] for configuration in configurations)
 
 
+def test_visual_builder_groups_equal_multiplier_barlows() -> None:
+    telescope = Telescope(
+        "scope-200",
+        "Dobson 200",
+        200,
+        1000,
+        "Newton",
+        "Dobson",
+    )
+    eyepiece = Eyepiece("ep-10", "Planetary 10 mm", 10.0, 60.0)
+
+    configurations = ObservationConfigurationBuilder().build(
+        [telescope],
+        [eyepiece],
+        [
+            Barlow("barlow-a", "Barlow A 2x", 2.0),
+            Barlow("barlow-b", "Barlow B 2x", 2.0),
+        ],
+    )
+
+    assert len(configurations) == 2
+    amplified = next(
+        configuration
+        for configuration in configurations
+        if configuration.barlow is not None
+    )
+    assert amplified.barlow is not None
+    assert amplified.barlow.id == "equivalent-barlow:2"
+    assert amplified.magnification == pytest.approx(200.0)
+
+
 def test_telescope_configuration_reuses_existing_optical_calculations() -> None:
     telescope = Telescope("scope-200", "Dobson 200", 200, 1000, "Newton", "Dobson")
     eyepiece = Eyepiece("ep-25", "Plossl 25 mm", 25.0, 50.0)

@@ -740,9 +740,10 @@
           <li>Assegna al profilo telescopi, oculari, Barlow, binocoli, filtri, riduttori, camere astronomiche e corpi macchina.</li>
           <li>Se il profilo contiene più telescopi o binocoli, NightScope li valuta tutti per ogni target. Non esiste un unico telescopio globale selezionato per il ranking.</li>
           <li>Le voci integrate possono essere corrette dall'utente ma non eliminate. Le voci create dall'utente possono essere modificate ed eliminate.</li>
-          <li>Il catalogo Cameras raccoglie camere astronomiche e corpi macchina con i dati tecnici usati dal backend fotografico separato, non ancora mostrato nel dettaglio oggetto. Sono assegnabili ai profili, ma non entrano nelle raccomandazioni visuali.</li>
-          <li>Per ogni telescopio assegnato puoi dichiarare la disponibilità di un filtro solare certificato a tutta apertura, fissato davanti all'obiettivo. Il dato resta separato per profilo e telescopio: non modifica le raccomandazioni visuali ed è ammesso soltanto dal percorso fotografico non ancora mostrato. NightScope non verifica il filtro e un filtro solare da oculare non è mai equivalente.</li>
+          <li>Il catalogo Cameras raccoglie camere astronomiche dedicate e corpi macchina con i dati tecnici usati dal motore fotografico separato. L'equipaggiamento assegnato alimenta il <strong>Piano fotografico</strong> nel dettaglio oggetto, ma non entra nelle raccomandazioni visuali.</li>
+          <li>Per ogni telescopio assegnato puoi dichiarare la disponibilità di un filtro solare certificato a tutta apertura, fissato davanti all'obiettivo. Il dato resta separato per profilo e telescopio: non modifica le raccomandazioni visuali e abilita il piano fotografico del Sole soltanto per quello strumento. NightScope non verifica il filtro e un filtro solare da oculare non è mai equivalente.</li>
           <li>Oculari e Barlow vengono usati soltanto con un telescopio. Un profilo con soli binocoli resta una configurazione valida.</li>
+          <li>Il diametro del barilotto di oculari e Barlow non viene richiesto: senza il dato corrispondente sul portaoculari del telescopio non sarebbe possibile verificarne la compatibilità. Gli eventuali valori inseriti in versioni precedenti vengono conservati nelle note.</li>
           <li>Senza telescopi e binocoli, le alternative vengono filtrate secondo la reale modalità Occhio nudo.</li>
         </ul>
         <p>Controlla sempre che il profilo corretto sia attivo prima di interpretare una raccomandazione: il setup mostrato nel dettaglio appartiene al target specifico e al profilo attivo.</p>
@@ -806,8 +807,11 @@
         <h3>Filtri</h3>
         <p>Il dettaglio può proporre un filtro primario e un filtro colore opzionale tra quelli del profilo, rispettando target, apertura e classe del prodotto. Il filtro non cambia il setup selezionato, la capacità, il ranking o NSOM.</p>
         <h3>Riduttori di focale</h3>
-        <p>La raccomandazione è fotografica e compare soltanto se il target è marcato come opportunità wide-field e il riduttore possiede un'associazione esatta con il telescopio scelto. NightScope non modella sensore, back focus e treno ottico completo.</p>
-        <div class="callout warning"><strong>Verifica sempre la compatibilità del produttore.</strong> La raccomandazione aiuta a restringere le opzioni, ma revisioni regionali, diametri del barilotto e accessori intermedi possono cambiare il risultato reale.</div>
+        <p>La compatibilità usa esclusivamente i collegamenti esatti tra riduttore e modelli di telescopio. Nel catalogo Riduttori, i telescopi del profilo attivo sono mostrati per primi e anche i modelli creati dall'utente sono selezionabili. Se non configuri almeno un collegamento, il riduttore resta nel catalogo e nel profilo ma viene escluso sia dai suggerimenti visuali sia dal piano fotografico.</p>
+        <div class="callout warning"><strong>Verifica sempre la compatibilità del produttore.</strong> NightScope usa soltanto ciò che hai dichiarato; adattatori, revisione del prodotto, cerchio d'immagine, spaziatura e accessori intermedi possono cambiare il risultato fisico.</div>
+        <h3>Piano fotografico</h3>
+        <p>Nel dettaglio oggetto, sotto il setup visuale, NightScope confronta tutti i telescopi, le camere, i riduttori compatibili e i fattori Barlow del profilo. Per il cielo profondo propone una foto con intervalli di posa singola e integrazione totale; per Sole, Luna e pianeti propone una singola clip video con durata, frame rate e numero indicativo di frame. Per i pianeti considera anche l'apertura del telescopio, senza farla prevalere su campionamento, camera e velocità di acquisizione.</p>
+        <p>Il risultato è una guida prudenziale, non una calibrazione. Con un corpo macchina, risoluzione video e sensore fotografico non bastano a conoscere ritaglio, area attiva o ricampionamento: campo video e scala d'immagine vengono quindi indicati come <strong>Non verificato</strong>, e a parità di valutazione viene preferito il fuoco diretto.</p>
       </section>
 
       <section id="it-catalogue">
@@ -990,9 +994,10 @@
           <li>Assign telescopes, eyepieces, Barlows, binoculars, filters, reducers, astronomy cameras, and camera bodies to the profile.</li>
           <li>When a profile has several telescopes or binoculars, NightScope evaluates all of them for every target. There is no single global telescope for ranking.</li>
           <li>Built-in rows can be corrected by the user but cannot be deleted. User-created rows can be edited and deleted.</li>
-          <li>The Cameras catalogue stores astronomy cameras and camera bodies with the technical data used by the separate photographic backend, which is not yet shown in Object Detail. They can be assigned to profiles but do not enter visual recommendations.</li>
-          <li>For each assigned telescope, you can declare that a certified full-aperture solar filter is available and secured in front of the objective. The value remains separate by profile and telescope: it does not change visual recommendations and is admitted only by the photographic path that is not yet shown. NightScope does not verify the filter, and an eyepiece solar filter is never equivalent.</li>
+          <li>The Cameras catalogue stores dedicated astronomy cameras and camera bodies with the technical data used by the separate photographic engine. Assigned equipment feeds the <strong>Photographic plan</strong> in Object Detail but never enters visual recommendations.</li>
+          <li>For each assigned telescope, you can declare that a certified full-aperture solar filter is available and secured in front of the objective. The value remains separate by profile and telescope: it does not change visual recommendations and enables the Sun photographic plan only for that instrument. NightScope does not verify the filter, and an eyepiece solar filter is never equivalent.</li>
           <li>Eyepieces and Barlows are used only with a telescope. A binocular-only profile is valid.</li>
+          <li>Eyepiece and Barlow barrel diameter is not requested: without the matching telescope visual-back/focuser data, compatibility could not be verified. Values entered in earlier versions are preserved in notes.</li>
           <li>Without telescopes or binoculars, alternatives are filtered by the real Naked eye capability.</li>
         </ul>
         <p>Always confirm the active profile before interpreting a recommendation: the setup shown in detail belongs to that specific target and active profile.</p>
@@ -1056,8 +1061,11 @@
         <h3>Filters</h3>
         <p>Detail may suggest one primary filter and an optional color filter from the active profile while respecting target, aperture, and product class. A filter does not change selected setup, capability, ranking, or NSOM.</p>
         <h3>Focal reducers</h3>
-        <p>The recommendation is photographic and appears only when the target is marked as a wide-field opportunity and the reducer has an exact association with the selected telescope. NightScope does not model sensor, back focus, or the complete optical train.</p>
-        <div class="callout warning"><strong>Always verify manufacturer compatibility.</strong> The recommendation narrows the options, but regional revisions, barrel diameters, and intermediate accessories can change the physical result.</div>
+        <p>Compatibility uses only exact links between a reducer and telescope models. In the Reducers catalogue, active-profile telescopes appear first and user-created models are selectable too. With no configured link, a reducer remains in the catalogue and profile but is excluded from both visual guidance and the photographic plan.</p>
+        <div class="callout warning"><strong>Always verify manufacturer compatibility.</strong> NightScope uses only what you declared; adapters, product revisions, image circle, spacing, and intermediate accessories can change the physical result.</div>
+        <h3>Photographic plan</h3>
+        <p>In Object Detail, below the visual setup, NightScope compares every assigned telescope, camera, exactly compatible reducer, and distinct Barlow factor. Deep-sky targets receive a still plan with single-exposure and total-integration ranges; the Sun, Moon, and planets receive one video-clip plan with duration, frame rate, and indicative captured frames. Planetary selection also considers telescope aperture without letting it outweigh sampling, camera suitability, or frame acquisition.</p>
+        <p>The result is conservative guidance, not a camera calibration. For a camera body, video resolution and the still sensor do not establish crop, active area, or resampling: video field of view and image scale are therefore shown as <strong>Unverified</strong>, and prime focus wins otherwise equal alternatives.</p>
       </section>
 
       <section id="en-catalogue">
@@ -1240,9 +1248,10 @@
           <li>Asigne al perfil telescopios, oculares, lentes de Barlow, prismáticos, filtros, reductores, cámaras astronómicas y cuerpos de cámara.</li>
           <li>Cuando un perfil contiene varios telescopios o prismáticos, NightScope evalúa todos ellos para cada objeto. No existe un único telescopio global que determine la clasificación.</li>
           <li>Puede corregir las filas integradas, pero no eliminarlas. Las filas creadas por el usuario se pueden modificar y eliminar.</li>
-          <li>El catálogo Cámaras reúne cámaras astronómicas y cuerpos de cámara con los datos técnicos necesarios para un futuro motor fotográfico. Se pueden asignar a los perfiles, pero no intervienen en las recomendaciones visuales.</li>
-          <li>Para cada telescopio asignado puede declarar que dispone de un filtro solar certificado de apertura completa, fijado delante del objetivo. El valor se conserva por separado para cada perfil y telescopio y, por ahora, no modifica ninguna recomendación. NightScope no verifica el filtro y un filtro solar de ocular nunca es equivalente.</li>
+          <li>El catálogo Cámaras reúne cámaras astronómicas dedicadas y cuerpos de cámara con los datos técnicos utilizados por el motor fotográfico independiente. El equipo asignado alimenta el <strong>Plan fotográfico</strong> de los detalles del objeto, pero no interviene en las recomendaciones visuales.</li>
+          <li>Para cada telescopio asignado puede declarar que dispone de un filtro solar certificado de apertura completa, fijado delante del objetivo. El valor se conserva por separado para cada perfil y telescopio: no modifica las recomendaciones visuales y solo habilita el plan fotográfico del Sol para ese instrumento. NightScope no verifica el filtro y un filtro solar de ocular nunca es equivalente.</li>
           <li>Los oculares y las lentes de Barlow solo se utilizan con un telescopio. Un perfil compuesto únicamente por prismáticos es válido.</li>
+          <li>No se solicita el diámetro de inserción de oculares y lentes de Barlow: sin el dato correspondiente del portaocular del telescopio no sería posible verificar la compatibilidad. Los valores introducidos en versiones anteriores se conservan en las notas.</li>
           <li>Sin telescopios ni prismáticos, las alternativas se filtran según la capacidad real del modo A simple vista.</li>
         </ul>
         <p>Confirme siempre el perfil activo antes de interpretar una recomendación: la configuración mostrada en los detalles corresponde a ese objeto concreto y al perfil activo.</p>
@@ -1306,8 +1315,11 @@
         <h3>Filtros</h3>
         <p>Los detalles pueden sugerir un filtro principal y un filtro de color opcional del perfil activo, teniendo en cuenta el objeto, la apertura y la clase de producto. Un filtro no cambia la configuración seleccionada, la capacidad, la clasificación ni NSOM.</p>
         <h3>Reductores de focal</h3>
-        <p>La recomendación es fotográfica y solo aparece cuando el objeto está marcado como oportunidad de campo amplio y el reductor tiene una asociación exacta con el telescopio seleccionado. NightScope no modela el sensor, la distancia de enfoque posterior ni el tren óptico completo.</p>
-        <div class="callout warning"><strong>Compruebe siempre la compatibilidad indicada por el fabricante.</strong> La recomendación reduce las opciones, pero las revisiones regionales, los diámetros de inserción y los accesorios intermedios pueden cambiar el resultado físico.</div>
+        <p>La compatibilidad utiliza exclusivamente vínculos exactos entre el reductor y los modelos de telescopio. En el catálogo de Reductores, los telescopios del perfil activo aparecen primero y también se pueden seleccionar modelos creados por el usuario. Si no se configura ningún vínculo, el reductor permanece en el catálogo y en el perfil, pero queda excluido tanto de las indicaciones visuales como del plan fotográfico.</p>
+        <div class="callout warning"><strong>Compruebe siempre la compatibilidad indicada por el fabricante.</strong> NightScope utiliza únicamente lo que usted haya declarado; los adaptadores, las revisiones del producto, el círculo de imagen, el espaciado y los accesorios intermedios pueden cambiar el resultado físico.</div>
+        <h3>Plan fotográfico</h3>
+        <p>En los detalles del objeto, debajo de la configuración visual, NightScope compara todos los telescopios, cámaras, reductores exactamente compatibles y factores de Barlow distintos del perfil. Para cielo profundo propone fotografía con intervalos de exposición individual e integración total; para el Sol, la Luna y los planetas propone una sola secuencia de vídeo con duración, frecuencia de imagen y número indicativo de fotogramas capturados. Para los planetas también considera la apertura del telescopio, sin hacerla prevalecer sobre la escala de imagen, la cámara o la velocidad de adquisición.</p>
+        <p>El resultado es una orientación prudente, no una calibración de la cámara. En un cuerpo de cámara, la resolución de vídeo y el sensor fotográfico no determinan el recorte, el área activa ni el remuestreo: el campo de vídeo y la escala de imagen aparecen como <strong>No verificados</strong>, y a igualdad de valoración se prefiere el foco primario.</p>
       </section>
 
       <section id="es-catalogue">

@@ -2149,7 +2149,7 @@ def source_content() -> dict[str, dict[str, dict[str, str]]]:
             "equipment_reducers",
             "reducer_catalog_seed.csv",
             ("brand", "model", "reduction_factor"),
-            ("compatible_models", "connection", "notes"),
+            ("connection", "notes"),
         ),
     )
     for section, filename, identity_fields, fields in equipment_specs:

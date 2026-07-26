@@ -184,7 +184,16 @@ def test_presenter_disambiguates_same_eyepiece_label_across_telescopes() -> None
             Telescope("newton130", "Newton 130/650", 130, 650, "Newton", "manuale"),
         ],
         [
-            Eyepiece("hyperion-zoom", "Baader Hyperion Zoom 8-24 mm", 24, 60, "1.25/2", "Zoom", 8, 24, (24, 20, 16, 12, 8)),
+            Eyepiece(
+                "hyperion-zoom",
+                "Baader Hyperion Zoom 8-24 mm",
+                24,
+                60,
+                "Zoom",
+                8,
+                24,
+                (24, 20, 16, 12, 8),
+            ),
             Eyepiece("e32", "32 mm", 32, 68),
             Eyepiece("e10", "10 mm", 10, 60),
             Eyepiece("e6", "6 mm", 6, 58),

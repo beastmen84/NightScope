@@ -502,7 +502,16 @@ def _e(identifier: str, name: str, focal: float, afov: float) -> Eyepiece:
 
 
 def _hyperion_zoom() -> Eyepiece:
-    return Eyepiece("hyperion-zoom", "Baader Hyperion Zoom 8-24 mm", 24, 60, "1.25/2", "Zoom", 8, 24, (24, 20, 16, 12, 8))
+    return Eyepiece(
+        "hyperion-zoom",
+        "Baader Hyperion Zoom 8-24 mm",
+        24,
+        60,
+        "Zoom",
+        8,
+        24,
+        (24, 20, 16, 12, 8),
+    )
 
 
 def _barlow(identifier: str, name: str, multiplier: float) -> Barlow:

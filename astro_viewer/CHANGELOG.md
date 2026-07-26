@@ -14,14 +14,18 @@
   generici. I test verificano ora anche identita' marca/modello univoche e
   coerenza fra risoluzione, passo pixel e dimensioni fisiche dei sensori
   astronomici.
-- Lo schema SQLite passa alla versione 22: la versione 20 introduce
+- Lo schema SQLite passa alla versione 23: la versione 20 introduce
   `AstronomyCameraCatalog` e `CameraBodyCatalog`, mentre la 21 aggiunge le
   associazioni persistenti delle due categorie ai profili. La versione 22
   aggiunge a ogni associazione profilo-telescopio lo stato, disattivato per
-  impostazione iniziale, del filtro solare certificato a tutta apertura. I
-  modelli integrati possono essere corretti ma non eliminati; i modelli utente
-  hanno CRUD completo e, se assegnati, richiedono conferma prima della rimozione
-  anche dai profili.
+  impostazione iniziale, del filtro solare certificato a tutta apertura; la 23
+  ritira i campi non calcolabili del diametro barilotto di oculari/Barlow e la
+  compatibilita' testuale generica dei riduttori. I valori barilotto inseriti
+  dall'utente in database precedenti vengono conservati nelle note, mentre la
+  compatibilita' esatta reducer-telescopio resta invariata. I modelli integrati
+  possono essere corretti ma non eliminati; i modelli utente hanno CRUD
+  completo e, se assegnati, richiedono conferma prima della rimozione anche dai
+  profili.
 - La pagina `Profili` mostra ora camere astronomiche e corpi macchina
   nell'inventario assegnato e nei dialoghi di aggiunta/rimozione. La griglia
   passa in modo responsivo fra quattro, due e una colonna; la sezione delle
@@ -103,11 +107,38 @@
   non raffreddata e pianeta debole. Se il target non entra nel campo del
   sensore, la card indica esplicitamente ritaglio o mosaico; il massimo FPS di
   catalogo non viene presentato come prestazione misurata.
+- Rafforzato lo scoring del video planetario con una componente di apertura
+  del telescopio al 15%, monotona e saturante, senza applicarla ai piani a disco
+  intero di Sole e Luna. A parita' di rapporto focale una maggiore apertura
+  viene quindi riconosciuta per la risoluzione disponibile, ma campionamento,
+  camera e velocita' di acquisizione mantengono il peso principale.
+- Resa prudenziale la geometria video dei corpi macchina: risoluzione video e
+  sensore fotografico non vengono piu' usati per inventare area attiva,
+  ritaglio o scala d'immagine. Campo e campionamento video sono mostrati come
+  `Non verificato`, gli input mancanti riducono la completezza e, a parita' di
+  score, viene preferito il fuoco diretto a un modificatore ottico non
+  verificabile.
+- La compatibilita' dei riduttori e' ora esclusivamente l'associazione esatta
+  ai modelli di telescopio: il testo generico e i relativi tag sono rimossi.
+  Un riduttore senza collegamenti resta nel catalogo e puo' essere assegnato,
+  ma non entra in alcun suggerimento visuale o fotografico; l'interfaccia lo
+  segnala esplicitamente, mostra per primi i telescopi del profilo attivo e
+  include anche i modelli creati dall'utente.
+- Oculari e Barlow non espongono piu' il diametro del barilotto, dato che
+  NightScope non possiede la controparte meccanica del portaoculari del
+  telescopio e non lo usava in alcun calcolo. Barlow assegnate con lo stesso
+  moltiplicatore vengono ora raggruppate in una sola alternativa otticamente
+  equivalente sia nel motore visuale sia in quello fotografico.
 - Il calcolo fotografico viene richiesto soltanto per l'oggetto selezionato.
   Un segnale dedicato aggiorna la card quando cambiano target, inventario
   fotografico o condizioni correnti, senza cache, worker o cicli sui 7.585
   oggetti e senza collegare camere o risultati a Home, Planner, Equipment
   visuale, Sky Compass, raccomandazioni visuali o NSOM.
+- L'aggiornamento della card fotografica confronta ora una firma semantica
+  degli input: modifiche a target, telescopi, camere, reducer, Barlow, filtro
+  solare o condizioni pertinenti invalidano il risultato, mentre cambi a
+  oculari, filtri visuali o binocoli non provocano ricalcoli fotografici
+  ridondanti.
 - Corrette le quattro estremita' quadrate visibili nella schermata di
   inizializzazione al primo avvio: la finestra frameless usa ora uno sfondo
   realmente trasparente e dipinge bordo e riempimento su una superficie interna
@@ -137,8 +168,8 @@
   conserva un codice esplicito non specificato. L'adattatore visuale mantiene
   gli stessi coefficienti precedenti, mentre i codici distinti restano
   disponibili al backend fotografico separato.
-- Il gate finale `tools/run_checks.py --fast` passa con 1.075 test, 643 warning
-  Skyfield/NumPy gia' noti e 10 subtest in 373,87 secondi, oltre agli smoke
+- Il gate finale `tools/run_checks.py --fast` passa con 1.086 test, 643 warning
+  Skyfield/NumPy gia' noti e 10 subtest in 271,74 secondi, oltre agli smoke
   backend, QML normale e Red Night Vision. Il catalogo Cameras ha inoltre QML
   lint senza warning; la
   pagina Profili con camere assegnate e' stata verificata nativamente a
@@ -148,7 +179,7 @@
   blu 61, senza pixel oltre soglia. La nuova card fotografica e' stata
   verificata con M31 e Saturno in modalita' normale e rossa, senza tagli; il
   probe rosso raggiunge al massimo verde 16 e blu 15. I quattro angoli dello
-  splash nativo hanno alpha zero. I cataloghi Qt IT/EN/ES contengono 1.959 voci
+  splash nativo hanno alpha zero. I cataloghi Qt IT/EN/ES contengono 1.967 voci
   finite e zero incomplete.
 - Aggiunti nel catalogo i comandi `Attiva risultati` e
   `Disattiva risultati`: operano sull'intero risultato filtrato corrente,

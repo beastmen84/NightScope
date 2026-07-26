@@ -96,7 +96,6 @@ def test_setup_score_read_model_is_frozen_and_strict_json_compatible() -> None:
                 "Baader Hyperion Zoom 8-24 mm",
                 24,
                 60,
-                "1.25",
                 "Zoom",
                 8,
                 24,

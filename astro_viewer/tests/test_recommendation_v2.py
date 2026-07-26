@@ -249,7 +249,6 @@ def _hyperion_zoom() -> Eyepiece:
         "Baader Hyperion Zoom 8-24 mm",
         24,
         60,
-        "1.25/2",
         "Zoom",
         8,
         24,

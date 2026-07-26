@@ -22,8 +22,9 @@ from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.imaging_camera_adapter import ImagingCameraAdapter
 from astro_viewer.app.services.imaging_recommendation_service import (
+    DISC_VIDEO_COMPONENT_WEIGHTS,
+    PLANETARY_VIDEO_COMPONENT_WEIGHTS,
     STILL_COMPONENT_WEIGHTS,
-    VIDEO_COMPONENT_WEIGHTS,
     ImagingRecommendationService,
 )
 from astro_viewer.app.services.imaging_target_traits import (
@@ -610,6 +611,49 @@ def test_planetary_video_prefers_planetary_high_frame_rate_camera() -> None:
     )
 
 
+def test_planetary_video_rewards_resolving_aperture_at_equal_focal_ratio() -> None:
+    target = _target(
+        target_id="jupiter",
+        name="Jupiter",
+        object_type="Planet",
+        magnitude="-2.1",
+        apparent_size="",
+        max_size_deg=None,
+        reducer_preferred=False,
+    )
+    candidates = _rank(
+        target,
+        [
+            _telescope(
+                telescope_id="scope-50",
+                aperture_mm=50,
+                focal_length_mm=500,
+            ),
+            _telescope(
+                telescope_id="scope-300",
+                aperture_mm=300,
+                focal_length_mm=3000,
+            ),
+        ],
+        [
+            _camera(
+                camera_id="planetary",
+                camera_class="PLANETARY",
+                full_resolution_fps=120,
+                cooled=False,
+            )
+        ],
+    )
+
+    assert candidates[0].configuration.telescope.id == "scope-300"
+    assert candidates[0].component_values()["sampling"] == pytest.approx(
+        candidates[-1].component_values()["sampling"]
+    )
+    assert candidates[0].component_values()["aperture"] > (
+        candidates[-1].component_values()["aperture"]
+    )
+
+
 def test_video_fps_semantics_remain_separate_by_camera_kind() -> None:
     target = _target(
         target_id="mars",
@@ -658,6 +702,54 @@ def test_video_fps_semantics_remain_separate_by_camera_kind() -> None:
 
     assert frame_scores["astronomy"] == pytest.approx(0.35)
     assert frame_scores["body"] == pytest.approx(0.6625)
+    body_candidate = next(
+        candidate
+        for candidate in candidates
+        if candidate.camera.id == "body"
+    )
+    assert body_candidate.component_values()["sampling"] == pytest.approx(
+        0.5
+    )
+    assert body_candidate.component_values()["framing"] == pytest.approx(
+        0.5
+    )
+    assert {
+        "video_active_sensor_area",
+        "video_pixel_scale",
+    }.issubset(body_candidate.missing_inputs)
+
+
+def test_camera_body_video_prefers_prime_focus_when_geometry_is_unknown() -> None:
+    candidates = _rank(
+        _target(
+            target_id="mars",
+            name="Mars",
+            object_type="Planet",
+            magnitude="-1",
+            apparent_size="",
+            max_size_deg=None,
+            reducer_preferred=False,
+        ),
+        [_telescope(aperture_mm=200, focal_length_mm=2000)],
+        [
+            _camera(
+                camera_id="body",
+                kind=ImagingCameraKind.CAMERA_BODY,
+                camera_class="",
+                full_resolution_fps=None,
+                cooled=False,
+                backfocus_mm=None,
+                video_width_px=3840,
+                video_height_px=2160,
+                video_fps=30,
+            )
+        ],
+        barlows=[Barlow("barlow-2", "Barlow 2x", 2.0)],
+    )
+
+    assert len(candidates) == 2
+    assert candidates[0].configuration.modifier_kind.value == "none"
+    assert candidates[0].score == candidates[1].score
 
 
 def test_full_moon_framing_can_outweigh_unusable_magnification() -> None:
@@ -854,9 +946,31 @@ def test_real_camera_catalogue_produces_finite_still_and_video_rankings(
         and math.isfinite(candidate.score)
         and 0 <= candidate.score <= 100
         and tuple(candidate.component_values())
-        == tuple(VIDEO_COMPONENT_WEIGHTS)
+        == tuple(PLANETARY_VIDEO_COMPONENT_WEIGHTS)
         for candidate in video_candidates
     )
+
+
+def test_whole_disc_video_keeps_its_distinct_component_policy() -> None:
+    candidates = _rank(
+        _target(
+            target_id="moon",
+            name="Moon",
+            object_type="Satellite",
+            magnitude="-12.7",
+            apparent_size="0.52°",
+            max_size_deg=0.52,
+            reducer_preferred=False,
+        ),
+        [_telescope()],
+        [_camera(camera_class="ALL_ROUND")],
+    )
+
+    assert candidates
+    assert tuple(candidates[0].component_values()) == tuple(
+        DISC_VIDEO_COMPONENT_WEIGHTS
+    )
+    assert "aperture" not in candidates[0].component_values()
 
 
 def test_ranking_is_stable_and_has_no_direct_runtime_registration() -> None:

@@ -213,13 +213,12 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 
 - [x] **VIS-021 - Filtri e riduttori - contenuti inglesi (`RISOLTA`)**
   - Nell'elenco e nei form inglesi restano in italiano note dei filtri,
-    compatibilita' descrittive, connessioni e note dei riduttori.
+    connessioni e note dei riduttori.
   - `filter_catalog_seed.csv` e `reducer_catalog_seed.csv` contengono testo
     italiano, ma `update_content_translations.py` li dichiara sorgenti inglesi;
     di conseguenza `en.json` non contiene le sezioni `equipment_filters` e
-    `equipment_reducers`. Inoltre `compatible_models` non e' incluso tra i
-    campi traducibili dei riduttori.
-  - Correggere la lingua sorgente, includere tutti i campi descrittivi e
+    `equipment_reducers`.
+  - Correggere la lingua sorgente, includere connessioni e note e
     rigenerare l'inglese per 48 filtri e 24 riduttori. Il cambio lingua live deve
     aggiornare questi payload di presentazione senza modificare dati utente,
     associazioni Equipment, recommendation o score.
@@ -232,16 +231,14 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   - Rendere reattive soltanto le label visibili, conservando invariati i codici
     canonici delle classi filtro.
 
-- [x] **VIS-023 - Riduttori - compatibilita' descrittiva persa (`RISOLTA`)**
-  - Alcuni riduttori integrati, come Baader Alan Gee Mark II, hanno una
-    compatibilita' testuale generica ma nessuna associazione esatta; il form
-    mostra correttamente `0 selezionati` nella lista opzionale.
-  - Il percorso di aggiornamento non reinvia pero' `compatible_models` e usa il
-    default vuoto del repository: salvare anche una modifica non correlata puo'
-    quindi cancellare la descrizione mostrata nella scheda.
-  - Preservare il testo esistente quando non viene sostituito esplicitamente;
-    le associazioni esatte selezionate devono continuare a usare gli ID
-    normalizzati dei telescopi.
+- [x] **VIS-023 - Riduttori - compatibilita' esatta fail-closed (`SUPERATA`)**
+  - La compatibilita' descrittiva generica e' stata ritirata: non e'
+    sufficientemente certa per guidare calcoli visuali o fotografici.
+  - Il form usa soltanto associazioni esatte a ID normalizzati dei telescopi,
+    mostra per primi quelli del profilo attivo e include i modelli creati
+    dall'utente.
+  - Con zero associazioni il riduttore resta visibile nel catalogo, ma la UI lo
+    segnala come non configurato e i due motori lo escludono.
 
 - [x] **VIS-024 - Binocoli - ordinamento naturale (`RISOLTA`)**
   - L'ordinamento lessicografico del modello colloca Canon `8x20` dopo `18x50`
@@ -452,15 +449,16 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   nelle righe fornite; ricerca, contatori e scroll restano separati e leggibili.
 - [x] **VIS-V14 (`VERIFICATA`)** - Per gli oculari sono obbligatori marca,
   modello, tipo, focale singola oppure intervallo focale Zoom e AFOV; intervallo
-  AFOV, barilotto e note sono facoltativi. Per le Barlow sono obbligatori marca,
-  modello e moltiplicatore maggiore di 1; barilotto e note sono facoltativi.
-  QML e repository applicano le stesse regole di base.
+  AFOV e note sono facoltativi. Per le Barlow sono obbligatori marca, modello e
+  moltiplicatore maggiore di 1; le note sono facoltative. Il barilotto non e'
+  raccolto perche' manca la controparte meccanica del telescopio. QML e
+  repository applicano le stesse regole di base.
 - [x] **VIS-V15 (`VERIFICATA`)** - Oculari e Barlow integrati espongono
   `Modifica` ma non `Elimina`; le voci utente restano eliminabili e il
   repository blocca comunque la cancellazione delle voci integrate.
 - [x] **VIS-V16 (`VERIFICATA`)** - Tipo `Fisso` / `Fixed`, note dei prodotti,
-  dimensioni del barilotto e moltiplicatori risultano coerenti e localizzati
-  nelle due lingue; marchi e nomi commerciali restano invariati.
+  moltiplicatori e label delle alternative Barlow equivalenti risultano
+  coerenti e localizzati; marchi e nomi commerciali restano invariati.
 - [x] **VIS-V17 (`VERIFICATA`)** - I cataloghi affiancati mostrano 48 filtri e
   24 riduttori senza sovrapposizioni o troncamenti nelle righe fornite. Le pill
   opzionali compaiono soltanto quando esiste un valore: per esempio CLS non

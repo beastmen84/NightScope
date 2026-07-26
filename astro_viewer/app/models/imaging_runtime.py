@@ -19,7 +19,7 @@ from astro_viewer.app.models.imaging_video_capture import (
 )
 
 
-IMAGING_RUNTIME_POLICY_VERSION = "imaging_runtime_v1"
+IMAGING_RUNTIME_POLICY_VERSION = "imaging_runtime_v2"
 
 
 class ImagingRuntimeStatus(StrEnum):

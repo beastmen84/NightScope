@@ -241,7 +241,7 @@ def test_structured_content_covers_every_translatable_seed_field() -> None:
     assert source_language("catalogue_objects", "caldwell-C1", "name") == "it"
     assert source_language("equipment_telescopes", "any", "notes") == "en"
     assert source_language("equipment_telescopes", "any", "optical_type") == "it"
-    assert source_language("equipment_reducers", "any", "compatible_models") == "it"
+    assert source_language("equipment_reducers", "any", "notes") == "it"
 
 
 def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
@@ -395,9 +395,10 @@ def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
         "to separate the many faint stars from the background."
     )
     english_reducers = english["content"]["equipment_reducers"]
-    assert english_reducers["baader::alan gee mark ii telecompressor::0.59"][
-        "compatible_models"
-    ]
+    assert all(
+        "compatible_models" not in fields
+        for fields in english_reducers.values()
+    )
     structured_english = json.dumps(english["content"], ensure_ascii=False).casefold()
     for forbidden in (
         "medium shot",

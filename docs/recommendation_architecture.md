@@ -211,8 +211,10 @@ x assigned eyepiece
 x assigned Barlow option
 ```
 
-The Barlow options include the explicit no-Barlow setup plus every assigned
-Barlow with multiplier greater than 1.0.
+The Barlow options include the explicit no-Barlow setup plus one alternative
+for each distinct assigned multiplier greater than 1.0. Multiple owned Barlows
+with the same multiplier are labeled as equivalent options and are not scored
+as duplicate optical configurations.
 
 For each combination, `EquipmentService.telescope_configuration_values()`
 provides:
@@ -701,8 +703,12 @@ known.
 
 The builder always emits the prime-focus train. It additionally emits only
 reducers explicitly marked for imaging and exactly linked to the telescope,
-plus the supplied Barlows as separate alternatives. Reducers and Barlows are
-never stacked. The caller owns inventory scope, so the runtime assembler passes
+plus the supplied optically distinct Barlow multipliers as separate
+alternatives. Reducers and Barlows are never stacked. Equal-multiplier Barlows
+collapse to one labeled choice because the current model has no further
+optical discriminator. Reducer links are fail-closed: generic compatibility
+text is not stored or interpreted, and an unconfigured reducer generates no
+train. The caller owns inventory scope, so the runtime assembler passes
 active-profile equipment without the builder ever reading catalogues or
 profile state itself.
 
@@ -741,8 +747,16 @@ models or camera classes.
 The scorer is additive rather than multiplicative. Its explicit components
 cover framing, sampling, camera role, mount capability and capture behavior;
 still and video use separate component weights and separate FPS semantics.
+Planetary video also assigns 15% to a saturating telescope-aperture component,
+while whole-disc Sun/Moon video retains its original five-component policy.
 The result is a static equipment-suitability score, not a probability and not
 an exposure recommendation.
+
+A camera body's declared video resolution does not prove active sensor crop,
+binning or readout. Its video field and image-scale components therefore stay
+neutral and are recorded as missing rather than borrowing full still-sensor
+geometry. If such trains otherwise tie, prime focus is the conservative first
+choice.
 
 `data_completeness` and stable missing-input codes remain parallel metadata:
 they never scale the score. This makes current limits such as seeing, sky
@@ -801,7 +815,7 @@ ImagingRecommendationCandidate + ImagingVideoSessionConditions
                ImagingVideoCaptureAdvice
 ```
 
-Policy `imaging_video_capture_v1` returns a conservative duration range for
+Policy `imaging_video_capture_v2` returns a conservative duration range for
 one independently stackable clip without image derotation, a planned FPS
 range and the corresponding captured-frame range. Solar, lunar and all seven
 planet profiles are explicit. The candidate score is never changed, and still
@@ -812,6 +826,10 @@ full-resolution FPS or body video FPS is only an upper bound; when even that is
 missing, the output remains a named target goal with low confidence. Seeing
 and target altitude contribute warnings and completeness but never fabricate
 an exact frame exposure or clip duration.
+
+Camera bodies additionally report unknown video active area and pixel scale.
+These inputs reduce completeness, and their still-sensor field of view is not
+presented as verified video geometry.
 
 Alt-azimuth GoTo retains the ordinary Jupiter window because short-frame
 planetary capture does not require an equatorial mount. Field rotation caps
@@ -865,16 +883,18 @@ target score. NightScope has no camera-control telemetry, so achievable FPS
 remains absent and the video advisor keeps its existing catalogue/goal
 provenance.
 
-Policy `imaging_runtime_v1` returns the best static candidate with exactly one
+Policy `imaging_runtime_v2` returns the best static candidate with exactly one
 mode-specific advice object, or a stable unavailable status for missing
 profile/inventory, invalid trains, solar safety gating or an unavailable
 advisor. Conditions remain score-neutral.
 
 `AppController` keeps the assembler behind a private Python method and exposes
 only a localized `photographicRecommendation` DTO for the selected detail
-target. The dedicated notify signal follows target selection, photographic
-inventory and current-condition changes; it does not enqueue or recompute the
-catalogue, Home or Planner. There is no photographic cache or worker.
+target. The dedicated notify gate compares a semantic input signature:
+target selection, photographic inventory and relevant current-condition
+changes invalidate the card, while visual-only equipment changes do not. It
+does not enqueue or recompute the catalogue, Home or Planner. There is no
+photographic cache or worker.
 
 The presenter exports no suitability score. It formats the winning optical
 train, sensor field of view, image scale, effective focal geometry, reducer
@@ -883,7 +903,9 @@ total integration, estimated sub-exposures and a conservative tracking limit;
 video mode shows single-clip duration, planned FPS, estimated frames and FPS
 provenance. A maximum of three prioritized operational notices includes
 visibility/seeing/mount limits and explicit crop-or-mosaic guidance when a
-known target is larger than the selected sensor field.
+known target is larger than the selected sensor field. Camera-body video
+instead labels field and image scale as unverified and explains that video crop
+or resampling may differ from the still sensor.
 
 ### Filters
 

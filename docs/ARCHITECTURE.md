@@ -268,8 +268,10 @@ Current runtime status for `1.27.0`:
   trains, ranks the selected target and routes the winner to the still or video
   advisor. A dedicated `photographicRecommendation` QML property maps that
   single result through `ImagingRecommendationPresenter`; its dedicated notify
-  signal follows selected-target, photographic-inventory and current-condition
-  changes. There is no catalogue-wide photographic refresh, cache or worker,
+  signal compares a semantic signature so selected-target,
+  photographic-inventory and relevant current-condition changes invalidate the
+  card, while visual-only equipment changes do not. There is no catalogue-wide
+  photographic refresh, cache or worker,
   and this path cannot enter Home, Planner, Sky Compass, visual Equipment or
   NSOM.
 - Filters and focal reducers are persistent profile inventory. Separate
@@ -608,13 +610,16 @@ Services hold business logic:
 - `EquipmentService`: magnification, true field, exit pupil, profile
   capabilities and setup recommendation.
 - `ImagingTrainBuilder`: target-neutral telescope/camera enumeration at prime
-  focus, with one exact imaging reducer or one Barlow, plus focal ratio, field,
-  sampling and known backfocus geometry.
+  focus, with one exact imaging reducer or one optically distinct Barlow
+  multiplier, plus focal ratio, field, sampling and known backfocus geometry.
+  Empty reducer link sets fail closed.
 - `ImagingRecommendationService`: additive static still/video suitability over
   photographic target traits and imaging trains. Its data-completeness
   metadata has zero score effect; only the runtime assembler owns it and there
-  is no visual-engine or QML registration. Solar configurations require an
-  explicit exact set of telescope IDs from the caller.
+  is no visual-engine or QML registration. Planetary video includes a limited,
+  saturating aperture component. Camera-body video geometry remains neutral
+  and incomplete when active crop/readout is unknown. Solar configurations
+  require an explicit exact set of telescope IDs from the caller.
 - `ImagingExposureAdvisor`: score-neutral broadband planning ranges for one
   still candidate. It consumes only a typed `ImagingSessionConditions`
   snapshot, emits inspectable multipliers, sub-exposure/total-integration
@@ -722,10 +727,12 @@ Repositories own SQLite persistence:
   changes validate every requested identity before one SQLite transaction.
 - `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter,
   focal-reducer, astronomy-camera and camera-body CRUD. Visual equipment keeps
-  its profile assignments; schema 21 stores camera assignments and schema 22
+  its profile assignments; schema 21 stores camera assignments, schema 22
   stores the full-aperture-solar-filter declaration for each
-  profile-to-telescope link as inventory for the separate backend imaging
-  engine, without invoking that engine at runtime.
+  profile-to-telescope link, and schema 23 retires unmodeled eyepiece/Barlow
+  barrel fields plus generic reducer-compatibility text. The exact
+  `ReducerTelescopeCompatibility` links remain the only reducer admission
+  source for both visual guidance and the on-demand photographic engine.
   Every catalogue row exposes `is_builtin`, `seed_key` and `is_user_modified`;
   seeded rows can be updated but not deleted, while user rows can be managed
   after any applicable profile links are handled. Updating a seeded row marks
@@ -743,7 +750,8 @@ Repositories own SQLite persistence:
   retaining finer capability distinctions for future imaging logic.
   Connections enable SQLite foreign keys, usage counts operate on distinct
   valid profiles and reducer rows expose normalized exact telescope
-  compatibility where available.
+  compatibility. An empty exact set is explicit unconfigured state and remains
+  excluded from recommendation calculations.
 - `WeatherCacheRepository`: weather response cache.
 - `OrbitalElementCacheRepository`: provider-neutral OMM/TLE cache for
   short-horizon orbital event sources.

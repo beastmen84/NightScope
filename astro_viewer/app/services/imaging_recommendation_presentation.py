@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from astro_viewer.app.models.imaging import ImagingModifierKind
+from astro_viewer.app.models.imaging import (
+    ImagingCameraKind,
+    ImagingModifierKind,
+)
 from astro_viewer.app.models.imaging_exposure import ImagingExposureAdvice
 from astro_viewer.app.models.imaging_runtime import (
     ImagingRuntimeRecommendation,
@@ -272,33 +275,59 @@ class ImagingRecommendationPresenter:
     def _geometry_metrics(
         recommendation: ImagingRuntimeRecommendation,
     ) -> tuple[ImagingPresentationMetric, ...]:
-        configuration = recommendation.candidate.configuration
+        candidate = recommendation.candidate
+        configuration = candidate.configuration
+        body_video_geometry_unknown = (
+            candidate.capture_mode.value == "video"
+            and configuration.camera.kind
+            is ImagingCameraKind.CAMERA_BODY
+        )
+        field_label = (
+            tr("Campo video")
+            if candidate.capture_mode.value == "video"
+            else tr("Campo del sensore")
+        )
+        field_value = (
+            tr("Non verificato")
+            if body_video_geometry_unknown
+            else tr(
+                "{width}° × {height}°",
+                width=format_compact_number(
+                    configuration.field_width_deg,
+                    max_decimals=2,
+                ),
+                height=format_compact_number(
+                    configuration.field_height_deg,
+                    max_decimals=2,
+                ),
+            )
+        )
+        sampling_label = (
+            tr("Campionamento video")
+            if candidate.capture_mode.value == "video"
+            else tr("Campionamento")
+        )
+        sampling_value = (
+            tr("Non verificato")
+            if body_video_geometry_unknown
+            else tr(
+                "{value}″/px",
+                value=format_compact_number(
+                    configuration.pixel_scale_arcsec_per_pixel,
+                    max_decimals=2,
+                ),
+            )
+        )
         return (
             ImagingPresentationMetric(
                 "field_of_view",
-                tr("Campo del sensore"),
-                tr(
-                    "{width}° × {height}°",
-                    width=format_compact_number(
-                        configuration.field_width_deg,
-                        max_decimals=2,
-                    ),
-                    height=format_compact_number(
-                        configuration.field_height_deg,
-                        max_decimals=2,
-                    ),
-                ),
+                field_label,
+                field_value,
             ),
             ImagingPresentationMetric(
                 "pixel_scale",
-                tr("Campionamento"),
-                tr(
-                    "{value}″/px",
-                    value=format_compact_number(
-                        configuration.pixel_scale_arcsec_per_pixel,
-                        max_decimals=2,
-                    ),
-                ),
+                sampling_label,
+                sampling_value,
             ),
             ImagingPresentationMetric(
                 "effective_focal_length",
@@ -465,6 +494,18 @@ class ImagingRecommendationPresenter:
         recommendation: ImagingRuntimeRecommendation,
     ) -> ImagingPresentationNotice | None:
         candidate = recommendation.candidate
+        if (
+            candidate.capture_mode.value == "video"
+            and candidate.camera.kind is ImagingCameraKind.CAMERA_BODY
+        ):
+            return ImagingPresentationNotice(
+                "camera_body_video_geometry_unverified",
+                tr(
+                    "Il ritaglio e il ricampionamento video del corpo macchina "
+                    "non sono verificati: campo e campionamento possono "
+                    "differire dal sensore fotografico."
+                ),
+            )
         target = candidate.target
         if (
             target.angular_size_major_deg is None

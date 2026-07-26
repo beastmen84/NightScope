@@ -48,6 +48,10 @@ from astro_viewer.app.models.imaging_runtime import (
     ImagingRuntimeInventory,
     ImagingRuntimeRecommendation,
 )
+from astro_viewer.app.models.imaging_recommendation import (
+    ImagingCaptureMode,
+    ImagingTargetClass,
+)
 from astro_viewer.app.models.observing import (
     AstronomicalEvent,
     CelestialObject,
@@ -134,6 +138,9 @@ from astro_viewer.app.services.imaging_runtime_assembler import (
 )
 from astro_viewer.app.services.imaging_runtime_conditions_adapter import (
     ImagingRuntimeConditionsAdapter,
+)
+from astro_viewer.app.services.imaging_target_traits import (
+    ImagingTargetTraitsAdapter,
 )
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.nsom_category_score_service import NsomCategoryScoreService
@@ -321,6 +328,7 @@ class AppController(QObject):
         transient_event_sources: Sequence[TransientCalendarEventSource] = (),
     ):
         super().__init__()
+        self._photographic_recommendation_input_state: object | None = None
         self._earthdataConnectionTestFinished.connect(self._finish_earthdata_connection_test)
         self._openaqConnectionTestFinished.connect(self._finish_openaq_connection_test)
         self._viirsSkyQualityFinished.connect(self._finish_viirs_sky_quality_refresh)
@@ -343,16 +351,16 @@ class AppController(QObject):
         self.equipmentChanged.connect(self.observingObjectDetailChanged.emit)
         self.skyCompassChanged.connect(self.observingObjectDetailChanged.emit)
         self.selectedObjectChanged.connect(
-            self.photographicRecommendationChanged.emit
+            self._notify_photographic_recommendation_if_changed
         )
         self.profileInventoryChanged.connect(
-            self.photographicRecommendationChanged.emit
+            self._notify_photographic_recommendation_if_changed
         )
         self.weatherChanged.connect(
-            self.photographicRecommendationChanged.emit
+            self._notify_photographic_recommendation_if_changed
         )
         self.skyCompassChanged.connect(
-            self.photographicRecommendationChanged.emit
+            self._notify_photographic_recommendation_if_changed
         )
         self._base_dir = base_dir
         preferences_path = preferences_path or database_path.parent / "user_preferences.json"
@@ -1186,6 +1194,11 @@ class AppController(QObject):
         presentation = presenter.present(
             self._imaging_runtime_recommendation(target)
         )
+        signature = self._photographic_recommendation_input_signature(
+            target
+        )
+        if signature is not None:
+            self._photographic_recommendation_input_state = signature
         return render_payload(presentation.to_payload())
 
     def _photographic_detail_target(self) -> CelestialObject | None:
@@ -1195,6 +1208,144 @@ class AppController(QObject):
         if target is None:
             return None
         return self._moon_adjusted_object(target)
+
+    @Slot()
+    def _notify_photographic_recommendation_if_changed(self) -> None:
+        signature = self._photographic_recommendation_input_signature()
+        if signature is None or signature == getattr(
+            self,
+            "_photographic_recommendation_input_state",
+            None,
+        ):
+            return
+        self._photographic_recommendation_input_state = signature
+        self.photographicRecommendationChanged.emit()
+
+    def _photographic_recommendation_input_signature(
+        self,
+        target: CelestialObject | None = None,
+    ) -> tuple[object, ...] | None:
+        if not all(
+            hasattr(self, attribute)
+            for attribute in (
+                "_equipment_profiles",
+                "_profile_equipment",
+                "_telescopes",
+                "_reducers",
+                "_barlows",
+                "_astronomy_camera_catalog",
+                "_camera_body_catalog",
+            )
+        ):
+            return None
+        target = target or self._photographic_detail_target()
+        if target is None:
+            return ("no_target",)
+        traits = ImagingTargetTraitsAdapter.from_object(
+            target,
+            full_aperture_solar_filter_available=True,
+        )
+        conditions = ImagingRuntimeConditionsAdapter.from_runtime(
+            target,
+            sky_quality=getattr(self, "_sky_quality", None),
+            seeing_transparency=getattr(
+                self,
+                "_seeing_transparency",
+                None,
+            ),
+            moon=getattr(self, "_moon", None),
+            moon_geometry=self._moon_geometry_condition_input(target),
+        )
+        target_signature = (
+            target.id,
+            target.name,
+            target.object_type,
+            target.magnitude,
+            target.apparent_size,
+            target.max_angular_size_deg,
+            target.imaging_reducer_recommended,
+            target.current_altitude_degrees,
+        )
+        condition_signature = (
+            conditions.video
+            if traits.recommended_capture_mode is ImagingCaptureMode.VIDEO
+            else conditions.still
+        )
+        return (
+            target_signature,
+            AppController._photographic_inventory_signature(
+                self._active_profile_imaging_inventory(),
+                include_solar_filter_ids=(
+                    traits.target_class is ImagingTargetClass.SUN
+                ),
+            ),
+            condition_signature,
+        )
+
+    @staticmethod
+    def _photographic_inventory_signature(
+        inventory: ImagingRuntimeInventory,
+        *,
+        include_solar_filter_ids: bool,
+    ) -> tuple[object, ...]:
+        telescopes = tuple(
+            sorted(
+                (
+                    telescope.id,
+                    telescope.name,
+                    telescope.aperture_mm,
+                    telescope.focal_length_mm,
+                    telescope.mount,
+                )
+                for telescope in inventory.telescopes
+            )
+        )
+        reducers = tuple(
+            sorted(
+                (
+                    reducer.id,
+                    reducer.name,
+                    reducer.reduction_factor,
+                    reducer.backfocus_mm,
+                    reducer.imaging_compatible,
+                    tuple(sorted(reducer.compatible_telescope_ids)),
+                )
+                for reducer in inventory.reducers
+            )
+        )
+        barlows = tuple(
+            sorted(
+                (
+                    barlow.id,
+                    barlow.name,
+                    barlow.multiplier,
+                )
+                for barlow in inventory.barlows
+            )
+        )
+        cameras = tuple(
+            sorted(
+                inventory.cameras,
+                key=lambda camera: camera.id,
+            )
+        )
+        solar_filter_ids = (
+            tuple(
+                sorted(
+                    inventory.full_aperture_solar_filter_telescope_ids
+                )
+            )
+            if include_solar_filter_ids
+            else ()
+        )
+        return (
+            inventory.profile_id,
+            telescopes,
+            cameras,
+            reducers,
+            barlows,
+            solar_filter_ids,
+        )
 
     @Property("QVariant", notify=observingObjectDetailChanged)
     def observingObjectDetail(self) -> dict:
@@ -1578,6 +1729,7 @@ class AppController(QObject):
             self._observation_rows
         )
         self._equipment_message = self._equipment_status_message()
+        self._photographic_recommendation_input_state = None
 
         self.locationChanged.emit()
         self.statusChanged.emit()
@@ -2341,7 +2493,8 @@ class AppController(QObject):
 
     @Slot(str)
     def assignReducerToActiveProfile(self, reducer_id: str) -> None:
-        if not self._find_reducer(reducer_id):
+        reducer = self._find_reducer(reducer_id)
+        if reducer is None:
             return
         state = self._active_profile_state()
         if reducer_id not in state["reducer_ids"]:
@@ -2352,7 +2505,26 @@ class AppController(QObject):
                 int(profile["id"]),
                 reducer_id,
             )
-        self._equipment_message = self._equipment_status_message()
+        active_telescope_ids = {
+            telescope.id
+            for telescope in self._active_profile_telescopes()
+        }
+        if not reducer.compatible_telescope_ids:
+            self._equipment_message = tr(
+                "Riduttore assegnato, ma compatibilità non configurata: "
+                "resterà escluso dalle raccomandazioni visuali e "
+                "fotografiche finché non colleghi almeno un telescopio."
+            )
+        elif active_telescope_ids.isdisjoint(
+            reducer.compatible_telescope_ids
+        ):
+            self._equipment_message = tr(
+                "Riduttore assegnato, ma non collegato a un telescopio del "
+                "profilo attivo: resterà escluso dalle raccomandazioni "
+                "visuali e fotografiche per questo profilo."
+            )
+        else:
+            self._equipment_message = self._equipment_status_message()
         self.equipmentChanged.emit()
 
     @Slot(str)
@@ -2596,7 +2768,7 @@ class AppController(QObject):
         )
         self._after_camera_catalog_change(message, ok)
 
-    @Slot(str, str, str, str, str, str, str, str, str, str, result=bool)
+    @Slot(str, str, str, str, str, str, str, str, str, result=bool)
     def addEyepieceModel(
         self,
         brand: str,
@@ -2606,7 +2778,6 @@ class AppController(QObject):
         min_focal: str,
         max_focal: str,
         apparent_field: str,
-        barrel_size: str,
         afov_range: str,
         notes: str,
     ) -> bool:
@@ -2620,7 +2791,6 @@ class AppController(QObject):
             eyepiece_type,
             focal_value,
             apparent,
-            barrel_size,
             min_focal_length_mm=min_value,
             max_focal_length_mm=max_value,
             afov_min=afov_min,
@@ -2630,7 +2800,7 @@ class AppController(QObject):
         self._after_catalog_change(message, ok)
         return ok
 
-    @Slot(int, str, str, str, str, str, str, str, str, str, str, result=bool)
+    @Slot(int, str, str, str, str, str, str, str, str, str, result=bool)
     def updateEyepieceModel(
         self,
         eyepiece_id: int,
@@ -2641,7 +2811,6 @@ class AppController(QObject):
         min_focal: str,
         max_focal: str,
         apparent_field: str,
-        barrel_size: str,
         afov_range: str,
         notes: str,
     ) -> bool:
@@ -2656,7 +2825,6 @@ class AppController(QObject):
             eyepiece_type,
             focal_value,
             apparent,
-            barrel_size,
             min_focal_length_mm=min_value,
             max_focal_length_mm=max_value,
             afov_min=afov_min,
@@ -2671,8 +2839,14 @@ class AppController(QObject):
         ok, message = self._equipment_catalog_repository.delete_eyepiece(eyepiece_id, remove_from_profiles=force)
         self._after_catalog_change(message, ok)
 
-    @Slot(str, str, str, str, str, result=bool)
-    def addBarlowModel(self, brand: str, model: str, multiplier: str, barrel_size: str, notes: str) -> bool:
+    @Slot(str, str, str, str, result=bool)
+    def addBarlowModel(
+        self,
+        brand: str,
+        model: str,
+        multiplier: str,
+        notes: str,
+    ) -> bool:
         try:
             parsed_multiplier = float(multiplier.replace(",", "."))
             if not math.isfinite(parsed_multiplier):
@@ -2681,12 +2855,24 @@ class AppController(QObject):
             self._equipment_message = tr("Moltiplicatore Barlow non valido.")
             self.equipmentChanged.emit()
             return False
-        ok, message = self._equipment_catalog_repository.add_barlow(brand, model, parsed_multiplier, barrel_size, notes)
+        ok, message = self._equipment_catalog_repository.add_barlow(
+            brand,
+            model,
+            parsed_multiplier,
+            notes,
+        )
         self._after_catalog_change(message, ok)
         return ok
 
-    @Slot(int, str, str, str, str, str, result=bool)
-    def updateBarlowModel(self, barlow_id: int, brand: str, model: str, multiplier: str, barrel_size: str, notes: str) -> bool:
+    @Slot(int, str, str, str, str, result=bool)
+    def updateBarlowModel(
+        self,
+        barlow_id: int,
+        brand: str,
+        model: str,
+        multiplier: str,
+        notes: str,
+    ) -> bool:
         try:
             parsed_multiplier = float(multiplier.replace(",", "."))
             if not math.isfinite(parsed_multiplier):
@@ -2695,7 +2881,13 @@ class AppController(QObject):
             self._equipment_message = tr("Moltiplicatore Barlow non valido.")
             self.equipmentChanged.emit()
             return False
-        ok, message = self._equipment_catalog_repository.update_barlow(barlow_id, brand, model, parsed_multiplier, barrel_size, notes)
+        ok, message = self._equipment_catalog_repository.update_barlow(
+            barlow_id,
+            brand,
+            model,
+            parsed_multiplier,
+            notes,
+        )
         self._after_catalog_change(message, ok)
         return ok
 
@@ -2925,15 +3117,37 @@ class AppController(QObject):
 
     @Slot(str, str, str)
     def addEyepiece(self, name: str, focal: str, apparent_field: str) -> None:
-        self.addEyepieceModel("Custom", name, "Fixed", focal, "", "", apparent_field, "", "", "")
+        self.addEyepieceModel(
+            "Custom",
+            name,
+            "Fixed",
+            focal,
+            "",
+            "",
+            apparent_field,
+            "",
+            "",
+        )
 
     @Slot(str, str, str, str)
-    def addCustomEyepiece(self, name: str, focal: str, apparent_field: str, barrel_size: str) -> None:
-        self.addEyepieceModel("Custom", name, "Fixed", focal, "", "", apparent_field, barrel_size, "", "")
-
-    @Slot(str, str, str, str, str)
-    def addZoomEyepiece(self, name: str, min_focal: str, max_focal: str, apparent_field: str, barrel_size: str) -> None:
-        self.addEyepieceModel("Custom", name, "Zoom", max_focal, min_focal, max_focal, apparent_field, barrel_size, "", "")
+    def addZoomEyepiece(
+        self,
+        name: str,
+        min_focal: str,
+        max_focal: str,
+        apparent_field: str,
+    ) -> None:
+        self.addEyepieceModel(
+            "Custom",
+            name,
+            "Zoom",
+            max_focal,
+            min_focal,
+            max_focal,
+            apparent_field,
+            "",
+            "",
+        )
 
     @Slot(int)
     def addCatalogEyepiece(self, catalog_id: int) -> None:
@@ -2948,9 +3162,9 @@ class AppController(QObject):
     def addCatalogBarlow(self, catalog_id: int) -> None:
         self.assignBarlowToActiveProfile(f"catalog-barlow-{catalog_id}")
 
-    @Slot(str, str, str)
-    def addBarlow(self, name: str, multiplier: str, barrel_size: str) -> None:
-        self.addBarlowModel("Custom", name, multiplier, barrel_size, "")
+    @Slot(str, str)
+    def addBarlow(self, name: str, multiplier: str) -> None:
+        self.addBarlowModel("Custom", name, multiplier, "")
 
     @Slot(str)
     def removeBarlow(self, barlow_id: str) -> None:
@@ -8307,7 +8521,7 @@ class AppController(QObject):
             "barlows": ("notes",),
             "binoculars": (),
             "filters": ("notes",),
-            "reducers": ("compatible_models", "connection", "notes"),
+            "reducers": ("connection", "notes"),
         }
         fields = identity_fields[section_name]
         translated_fields = content_fields[section_name]
@@ -8651,7 +8865,6 @@ class AppController(QObject):
             name=f"{row['brand']} {row['model']}",
             focal_length_mm=float(row.get("focal_length_mm") or row.get("max_focal_length_mm") or 0),
             apparent_field_deg=float(row["apparent_field_deg"]),
-            barrel_size=str(row.get("barrel_size") or ""),
             eyepiece_type=str(row.get("eyepiece_type") or row.get("type") or "Fixed"),
             min_focal_length_mm=float(row["min_focal_length_mm"]) if row.get("min_focal_length_mm") else None,
             max_focal_length_mm=float(row["max_focal_length_mm"]) if row.get("max_focal_length_mm") else None,
@@ -8683,7 +8896,6 @@ class AppController(QObject):
             id=row["catalog_id"],
             name=f"{row['brand']} {row['model']} {float(row['multiplier']):g}x",
             multiplier=float(row["multiplier"]),
-            barrel_size=str(row.get("barrel_size") or ""),
         )
 
     @staticmethod
@@ -8731,7 +8943,6 @@ class AppController(QObject):
             name=f"{row['brand']} {row['model']}",
             reduction_factor=float(row["reduction_factor"]),
             optical_system=str(row["optical_system"]),
-            compatible_models=str(row.get("compatible_models") or ""),
             connection=str(row.get("connection") or ""),
             backfocus_mm=(
                 float(row["backfocus_mm"])
@@ -9327,7 +9538,6 @@ class AppController(QObject):
             and existing.name.strip().lower() == eyepiece.name.strip().lower()
             and round(existing.focal_length_mm, 3) == round(eyepiece.focal_length_mm, 3)
             and round(existing.apparent_field_deg, 3) == round(eyepiece.apparent_field_deg, 3)
-            and existing.barrel_size.strip().lower() == eyepiece.barrel_size.strip().lower()
             and existing.eyepiece_type == eyepiece.eyepiece_type
             and round(existing.min_focal_length_mm or 0.0, 3) == round(eyepiece.min_focal_length_mm or 0.0, 3)
             and round(existing.max_focal_length_mm or 0.0, 3) == round(eyepiece.max_focal_length_mm or 0.0, 3)
@@ -9339,7 +9549,6 @@ class AppController(QObject):
             existing.id != ignore_id
             and existing.name.strip().lower() == barlow.name.strip().lower()
             and round(existing.multiplier, 3) == round(barlow.multiplier, 3)
-            and existing.barrel_size.strip().lower() == barlow.barrel_size.strip().lower()
             for existing in self._barlows
         )
 

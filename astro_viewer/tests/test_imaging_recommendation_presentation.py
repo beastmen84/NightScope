@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 from pathlib import Path
+from types import SimpleNamespace
 
 from astro_viewer.app.models.equipment import Barlow, FocalReducer, Telescope
 from astro_viewer.app.models.imaging import ImagingCamera, ImagingCameraKind
@@ -15,6 +16,7 @@ from astro_viewer.app.models.imaging_video_capture import (
     ImagingVideoSessionConditions,
 )
 from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.models.sky import SeeingTransparency
 from astro_viewer.app.services.imaging_recommendation_presentation import (
     ImagingRecommendationPresenter,
 )
@@ -217,6 +219,67 @@ def test_video_presentation_uses_planetary_terms_and_condition_warnings() -> Non
     assert "massimo di catalogo" in payload["disclaimer"]
 
 
+def test_camera_body_video_does_not_reuse_still_sensor_geometry() -> None:
+    body = ImagingCamera(
+        id="body",
+        name="Sony Alpha",
+        kind=ImagingCameraKind.CAMERA_BODY,
+        sensor_width_mm=35.9,
+        sensor_height_mm=24.0,
+        resolution_width_px=6000,
+        resolution_height_px=4000,
+        pixel_size_um=5.98,
+        bit_depth=14,
+        body_type="MIRRORLESS",
+        video_width_px=3840,
+        video_height_px=2160,
+        video_fps=30.0,
+        live_view=True,
+        bulb_mode=True,
+    )
+    recommendation = ImagingRuntimeAssembler().assemble(
+        _target(
+            "jupiter",
+            name="Giove",
+            object_type="Planet",
+            magnitude="-2.1",
+            apparent_size="",
+            max_size_deg=None,
+        ),
+        ImagingRuntimeInventory(
+            profile_id="1",
+            telescopes=(_telescope(),),
+            cameras=(body,),
+        ),
+        _conditions(),
+    )
+
+    payload = render_payload(
+        ImagingRecommendationPresenter()
+        .present(recommendation)
+        .to_payload()
+    )
+    geometry = {
+        item["code"]: (item["label"], item["value"])
+        for item in payload["geometryMetrics"]
+    }
+
+    assert geometry["field_of_view"] == (
+        "Campo video",
+        "Non verificato",
+    )
+    assert geometry["pixel_scale"] == (
+        "Campionamento video",
+        "Non verificato",
+    )
+    assert payload["notices"][0]["code"] == (
+        "camera_body_video_geometry_unverified"
+    )
+    assert "possono differire dal sensore fotografico" in (
+        payload["notices"][0]["text"]
+    )
+
+
 def test_unavailable_presentation_guides_missing_inventory_and_solar_safety() -> None:
     assembler = ImagingRuntimeAssembler()
     missing_camera = assembler.assemble(
@@ -298,8 +361,168 @@ def test_controller_property_is_on_demand_and_uses_a_dedicated_notify_signal() -
     ):
         assert (
             f"self.{signal_name}.connect(\n"
-            "            self.photographicRecommendationChanged.emit"
+            "            self._notify_photographic_recommendation_if_changed"
         ) in source
+    assert "self.photographicRecommendationChanged.emit" not in source
+
+
+def test_photographic_notify_gate_emits_only_for_a_changed_signature() -> None:
+    emitted: list[bool] = []
+    signature = [("target", "inventory", "conditions")]
+    controller = SimpleNamespace(
+        _photographic_recommendation_input_state=signature[0],
+        _photographic_recommendation_input_signature=lambda: signature[0],
+        photographicRecommendationChanged=SimpleNamespace(
+            emit=lambda: emitted.append(True)
+        ),
+    )
+
+    AppController._notify_photographic_recommendation_if_changed(controller)
+    signature[0] = ("target", "changed inventory", "conditions")
+    AppController._notify_photographic_recommendation_if_changed(controller)
+    AppController._notify_photographic_recommendation_if_changed(controller)
+
+    assert emitted == [True]
+
+
+def test_photographic_signature_ignores_visual_only_inventory() -> None:
+    target = _target()
+    controller = SimpleNamespace(
+        _equipment_profiles=[{"id": 1}],
+        _profile_equipment={},
+        _telescopes=[_telescope()],
+        _reducers=[],
+        _barlows=[],
+        _eyepieces=["visual eyepiece"],
+        _astronomy_camera_catalog=[],
+        _camera_body_catalog=[],
+        _sky_quality=None,
+        _seeing_transparency=None,
+        _moon=None,
+        _moon_geometry_condition_input=lambda _target: None,
+    )
+    controller._active_profile_imaging_inventory = lambda: (
+        ImagingRuntimeInventory(
+            profile_id="1",
+            telescopes=tuple(controller._telescopes),
+            cameras=(_camera(),),
+            reducers=tuple(controller._reducers),
+            barlows=tuple(controller._barlows),
+        )
+    )
+
+    initial = AppController._photographic_recommendation_input_signature(
+        controller,
+        target,
+    )
+    controller._eyepieces = ["different visual eyepiece"]
+    visual_only_change = (
+        AppController._photographic_recommendation_input_signature(
+            controller,
+            target,
+        )
+    )
+    controller._barlows = [Barlow("barlow-3", "Barlow 3×", 3.0)]
+    photographic_change = (
+        AppController._photographic_recommendation_input_signature(
+            controller,
+            target,
+        )
+    )
+
+    assert visual_only_change == initial
+    assert photographic_change != initial
+
+
+def test_photographic_signature_uses_only_mode_relevant_conditions() -> None:
+    controller = SimpleNamespace(
+        _equipment_profiles=[{"id": 1}],
+        _profile_equipment={},
+        _telescopes=[_telescope()],
+        _reducers=[],
+        _barlows=[],
+        _astronomy_camera_catalog=[],
+        _camera_body_catalog=[],
+        _sky_quality=None,
+        _moon=None,
+        _moon_geometry_condition_input=lambda _target: None,
+        _active_profile_imaging_inventory=lambda: _inventory(),
+    )
+    controller._seeing_transparency = SeeingTransparency(
+        "Average",
+        "Good",
+        50,
+        75,
+        "",
+        atmospheric_transparency_score=75,
+    )
+    deep_sky = _target()
+    planet = _target(
+        "jupiter",
+        name="Giove",
+        object_type="Planet",
+        magnitude="-2.1",
+        apparent_size="",
+        max_size_deg=None,
+    )
+
+    still_initial = (
+        AppController._photographic_recommendation_input_signature(
+            controller,
+            deep_sky,
+        )
+    )
+    video_initial = (
+        AppController._photographic_recommendation_input_signature(
+            controller,
+            planet,
+        )
+    )
+    controller._seeing_transparency = SeeingTransparency(
+        "Good",
+        "Good",
+        90,
+        75,
+        "",
+        atmospheric_transparency_score=75,
+    )
+    still_after_seeing = (
+        AppController._photographic_recommendation_input_signature(
+            controller,
+            deep_sky,
+        )
+    )
+    video_after_seeing = (
+        AppController._photographic_recommendation_input_signature(
+            controller,
+            planet,
+        )
+    )
+    controller._seeing_transparency = SeeingTransparency(
+        "Good",
+        "Poor",
+        90,
+        40,
+        "",
+        atmospheric_transparency_score=40,
+    )
+    video_after_transparency = (
+        AppController._photographic_recommendation_input_signature(
+            controller,
+            planet,
+        )
+    )
+    still_after_transparency = (
+        AppController._photographic_recommendation_input_signature(
+            controller,
+            deep_sky,
+        )
+    )
+
+    assert still_after_seeing == still_initial
+    assert video_after_seeing != video_initial
+    assert video_after_transparency == video_after_seeing
+    assert still_after_transparency != still_after_seeing
 
 
 def test_object_detail_places_photographic_plan_after_visual_setup() -> None:

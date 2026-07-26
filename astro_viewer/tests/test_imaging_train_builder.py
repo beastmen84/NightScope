@@ -251,6 +251,29 @@ def test_barlow_configuration_recalculates_scale_and_field_inversely() -> None:
     )
 
 
+def test_equal_multiplier_barlows_form_one_optically_distinct_train() -> None:
+    configurations = ImagingTrainBuilder().build(
+        [_telescope()],
+        [_camera()],
+        barlows=[
+            Barlow("barlow-a", "Barlow A 2x", 2.0),
+            Barlow("barlow-b", "Barlow B 2x", 2.0),
+        ],
+    )
+
+    amplified = [
+        configuration
+        for configuration in configurations
+        if configuration.barlow is not None
+    ]
+    assert len(configurations) == 2
+    assert len(amplified) == 1
+    assert amplified[0].barlow is not None
+    assert amplified[0].barlow.id == "equivalent-barlow:2"
+    assert amplified[0].barlow.multiplier == pytest.approx(2.0)
+    assert "2 opzioni equivalenti" in amplified[0].barlow.name
+
+
 def test_builder_never_stacks_reducer_and_barlow() -> None:
     configurations = ImagingTrainBuilder().build(
         [_telescope()],
