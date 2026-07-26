@@ -2757,12 +2757,36 @@ class Phase6RealDataTests(unittest.TestCase):
                 [item["visible_this_month_label"] for item in objects if item["catalogue_id"] in {"M13", "M31"}],
                 ["—", "—"],
             )
+            notified_counts: list[tuple[int, int]] = []
+            controller.catalogueFilteredCountChanged.connect(
+                lambda: notified_counts.append(
+                    (
+                        controller.catalogueFilteredCount,
+                        controller.catalogueObjectModel.rowCount(),
+                    )
+                )
+            )
 
             controller.setCatalogueVisibleThisMonthFilter(True)
             visible_objects = controller.catalogueObjects
             self.assertEqual([item["catalogue_id"] for item in visible_objects], ["M13", "M31"])
             self.assertTrue(all(item["visible_this_month"] for item in visible_objects))
+            self.assertEqual(controller.catalogueFilteredCount, 2)
+            self.assertEqual(notified_counts[-1], (2, 2))
             self.assertEqual(astronomy.catalogue_month_visibility.call_count, 1)
+
+            controller.setCatalogueVisibleThisMonthFilter(False)
+            self.assertEqual(
+                controller.catalogueFilteredCount,
+                CATALOGUE_WITH_SOLAR_SYSTEM_COUNT,
+            )
+            self.assertEqual(
+                notified_counts[-1],
+                (
+                    CATALOGUE_WITH_SOLAR_SYSTEM_COUNT,
+                    CATALOGUE_WITH_SOLAR_SYSTEM_COUNT,
+                ),
+            )
 
     def test_catalogue_detail_visibility_uses_current_month_independently_from_filter(self) -> None:
         with _controller() as controller:

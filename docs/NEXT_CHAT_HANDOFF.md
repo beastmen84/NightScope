@@ -170,7 +170,7 @@ coefficienti precedenti, lasciando le distinzioni piu' fini al backend
 fotografico separato.
 
 Il gate finale `tools/run_checks.py --fast` passa con 1.086 test, 643 warning
-Skyfield/NumPy gia' noti e 10 subtest in 271,74 secondi, oltre agli smoke
+Skyfield/NumPy gia' noti e 10 subtest in 259,27 secondi, oltre agli smoke
 backend, QML normale e Red Night Vision. `EquipmentCamerasPage.qml` passa QML
 lint senza warning. La
 pagina Profili con camere assegnate e' stata controllata nativamente a
@@ -241,6 +241,11 @@ accoda un solo refresh. Nel benchmark Windows, 7.366-7.585 modifiche richiedono
 circa 80-110 ms con localita' configurata e circa 150 ms senza localita'; il
 singolo M31 resta tra 10 e 28 ms. Il layout minimo e Red Night Vision sono stati
 controllati con rendering QML.
+
+Il conteggio `N di 7594 oggetti` usa una notifica dedicata emessa soltanto dopo
+che il `QAbstractListModel` ha applicato il nuovo filtro. Questo evita che
+`Visibili nel mese` mostri il numero relativo allo stato precedente: conteggio,
+tabella, stato vuoto e azioni massive osservano ora lo stesso snapshot.
 
 Il snapshot compresso e il relativo hash restano nei soli sorgenti del
 repository. I bundle contengono invece i seed runtime derivati, l'attribuzione

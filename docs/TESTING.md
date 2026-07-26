@@ -144,12 +144,13 @@ Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-26:
 | Check | Result |
 | --- | --- |
 | `python tools/run_checks.py --fast` on the final source state | Passed |
-| Complete deterministic suite | 1,086 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 271.74 s |
+| Complete deterministic suite | 1,086 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 259.27 s |
 | Camera seed/bootstrap | 37 astronomy cameras and 40 camera bodies; schema 19-to-23 and 20-to-23 upgrades, unique identities and sensor geometry checks passed |
 | Profile persistence | Astronomy-camera and camera-body links persist independently per profile; the schema 21-to-22 migration preserves telescope assignments and initializes the exact per-profile/per-telescope solar-filter declaration to false |
 | Schema 23 equipment migration | Legacy user barrel values are retained as neutral technical notes, retired barrel and generic reducer fields are cleared, and exact reducer-to-telescope links survive unchanged |
 | Solar-filter persistence | The declaration survives bootstrap, stays isolated between profiles that share a telescope, rejects nonexistent assignments, and returns to false after telescope removal and reassignment |
 | Visual-engine boundary | Camera assignments/CRUD and the solar-filter declaration use `profileInventoryChanged`; the solar toggle emits one inventory notification and no Equipment, Home, weather, selected-object or dependency-refresh signal |
+| Monthly catalogue count synchronization | The filtered-count notification is emitted after model replacement; enabling and disabling `Visible this month` produces the same count in the property and list model in both directions |
 | Photographic optical-train foundation | 11 focused tests cover both camera adapters, all 77 seeded cameras, prime focus, exact imaging-reducer links, optically equivalent Barlows, sensor geometry, pixel scale, field of view, backfocus and stable deduplication; the foundation has no direct controller or QML registration |
 | Photographic target and scorer layer | 21 focused tests cover still/video classification, all 7,585 catalogue targets, all 77 seeded cameras, wide and compact framing, planetary/lunar sampling, aperture-aware planetary video, conservative camera-body video geometry, persisted exact solar-filter telescope admission, distinct FPS semantics, mount policy, reducer spacing, score bounds, confidence separation, deterministic ties and the direct-controller/QML boundary |
 | Photographic exposure advisor | 14 focused tests cover all 7,585 catalogue targets, dark/bright sky, Bortle fallback, transparency, Moon geometry, target brightness, focal ratio, equatorial/alt-az/manual caps, body Bulb limits, bounded frame counts, invalid inputs/geometry and the direct-controller/QML boundary |

@@ -169,7 +169,7 @@
   gli stessi coefficienti precedenti, mentre i codici distinti restano
   disponibili al backend fotografico separato.
 - Il gate finale `tools/run_checks.py --fast` passa con 1.086 test, 643 warning
-  Skyfield/NumPy gia' noti e 10 subtest in 271,74 secondi, oltre agli smoke
+  Skyfield/NumPy gia' noti e 10 subtest in 259,27 secondi, oltre agli smoke
   backend, QML normale e Red Night Vision. Il catalogo Cameras ha inoltre QML
   lint senza warning; la
   pagina Profili con camere assegnate e' stata verificata nativamente a
@@ -213,6 +213,10 @@
   la colonna Costellazione guadagna 8 px senza troncare il nome esteso di M17.
   Cambiare il flag `Home` conserva inoltre posizione e filtri della lista,
   invece di riportarla apparentemente a un altro gruppo di oggetti.
+- Corretto il conteggio dei risultati quando si attiva o disattiva
+  `Visibili nel mese`: la notifica del totale filtrato parte ora dopo il reset
+  effettivo del modello, così checkbox, righe mostrate, stato vuoto e azioni
+  massive non possono più apparire sfasati di un click.
 - Corrette due identita' incrociate nel seed NGC: il numero nel nome comune
   `47 Tucanae` non viene piu' interpretato come `NGC 47`, quindi NGC 47/58
   formano il proprio target NGC-only mentre solo NGC 104 riusa Caldwell C106.

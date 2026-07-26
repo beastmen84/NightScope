@@ -288,6 +288,7 @@ class AppController(QObject):
     selectedObjectChanged = Signal()
     observingObjectDetailChanged = Signal()
     catalogueChanged = Signal()
+    catalogueFilteredCountChanged = Signal()
     catalogueRecommendationStateChanged = Signal()
     locationChanged = Signal()
     weatherChanged = Signal()
@@ -963,7 +964,7 @@ class AppController(QObject):
             for item in self._catalogue_objects
         )
 
-    @Property(int, notify=catalogueChanged)
+    @Property(int, notify=catalogueFilteredCountChanged)
     def catalogueFilteredCount(self) -> int:
         model = getattr(self, "_catalogue_object_model", None)
         if model is not None:
@@ -6585,6 +6586,7 @@ class AppController(QObject):
         if model is None:
             return
         model.replace_items(self._filtered_catalogue_objects())
+        self.catalogueFilteredCountChanged.emit()
         self.catalogueRecommendationStateChanged.emit()
 
     def _filtered_catalogue_objects(self) -> list[dict]:
