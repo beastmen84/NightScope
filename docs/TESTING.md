@@ -137,17 +137,18 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
-## Measured Unreleased Camera Catalogue And Profile Gate
+## Measured Unreleased Camera, Profile And Imaging Foundation Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-26:
 
 | Check | Result |
 | --- | --- |
 | `python tools/run_checks.py --fast` on the final source state | Passed |
-| Complete deterministic suite | 979 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 359.01 s |
+| Complete deterministic suite | 989 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 194.26 s |
 | Camera seed/bootstrap | 37 astronomy cameras and 40 camera bodies; schema 19-to-21 and 20-to-21 upgrades, unique identities and sensor geometry checks passed |
 | Profile persistence | Astronomy-camera and camera-body links persist independently per profile; assigned user rows require explicit profile cleanup before deletion |
 | Visual-engine boundary | Assignments and camera CRUD use `profileInventoryChanged`; no Equipment refresh or Home, weather, selected-object and observing-detail notification is emitted |
+| Photographic optical-train foundation | 10 focused tests cover both camera adapters, all 77 seeded cameras, prime focus, exact imaging-reducer links, Barlows, sensor geometry, pixel scale, field of view, backfocus and stable deduplication; the foundation has no runtime or QML registration |
 | Profile UI follow-up | Native width probe: both camera rows inline at 1,709 px, only the longer astronomy-camera row wraps at 1,300 px, and both return inline in the single-column 1,040 px layout; camera-form columns measured equally at 268 px |
 | Mount compatibility | Controlled taxonomy plus legacy `manuale` mapping preserve the prior visual tracking coefficients |
 | Translation catalogues | IT, EN, and ES: 1,864 finished, 0 unfinished each |

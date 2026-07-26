@@ -37,6 +37,15 @@
   sotto ambiente, montatura obiettivo e modalita' Bulb sono ora distinti senza
   traduzioni letterali. Gli overlay editoriali e un test multilingua dedicato
   proteggono anche `Rolling shutter` dall'errata resa spagnola come tapparella.
+- Introdotta la prima fondazione backend del futuro motore fotografico, ancora
+  non collegata al runtime: `ImagingCamera` normalizza senza confonderli i dati
+  delle camere astronomiche e dei corpi macchina, mentre
+  `ImagingTrainConfiguration` descrive il treno telescopio-camera a fuoco
+  diretto, con reducer fotografico compatibile oppure con Barlow. Il builder
+  calcola focale e rapporto focale effettivi, campo orizzontale/verticale e
+  diagonale, campionamento in arcsec/pixel e spaziatura residua di backfocus.
+  Montatura e inventario restano quelli dichiarati nel profilo; non sono stati
+  aggiunti scoring, tempi di posa, segnali, DTO QML o effetti sul motore visuale.
 - La montatura dei telescopi usa ora una tassonomia stabile selezionata da menu:
   OTA, altazimutale, equatoriale, forcella e Dobson, con varianti manuale,
   motorizzata, GoTo e PushTo dove pertinenti. I valori storici dei seed vengono
@@ -44,7 +53,7 @@
   conserva un codice esplicito non specificato. L'adattatore visuale mantiene
   gli stessi coefficienti precedenti, mentre i codici distinti restano
   disponibili al futuro motore fotografico.
-- Il gate finale `tools/run_checks.py --fast` passa con 979 test, 643 warning
+- Il gate finale `tools/run_checks.py --fast` passa con 989 test, 643 warning
   Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale
   e Red Night Vision. Il catalogo Cameras ha inoltre QML lint senza warning; la
   pagina Profili con camere assegnate e' stata verificata nativamente a

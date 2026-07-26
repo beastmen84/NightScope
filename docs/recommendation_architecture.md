@@ -668,6 +668,50 @@ configuration enumeration, not handled in QML. It requires camera sensor,
 image-circle and backfocus data that the current visual setup model does not
 own.
 
+### Photographic Optical-Train Foundation
+
+The first backend-only photographic foundation is separate from
+`ObservationConfiguration`, `RecommendationCandidate` and `EquipmentService`.
+It currently follows this target-neutral flow:
+
+```text
+AstronomyCameraCatalog / CameraBodyCatalog
+    |
+    v
+ImagingCameraAdapter
+    |
+    v
+ImagingCamera
+    |
+    + Telescope + optional imaging reducer or Barlow
+    |
+    v
+ImagingTrainBuilder
+    |
+    v
+ImagingTrainConfiguration
+```
+
+`ImagingCamera` preserves the technical distinction between full-resolution
+astronomy-camera FPS and camera-body FPS at a declared video resolution.
+`ImagingTrainConfiguration` stores the selected physical equipment plus
+effective focal length, focal ratio, horizontal/vertical/diagonal field of
+view, pixel scale and the remaining reducer-to-sensor backfocus spacing when
+known.
+
+The builder always emits the prime-focus train. It additionally emits only
+reducers explicitly marked for imaging and exactly linked to the telescope,
+plus the supplied Barlows as separate alternatives. Reducers and Barlows are
+never stacked. The caller owns inventory scope, so the future photographic
+service can pass active-profile equipment without the builder ever reading
+catalogues or profile state itself.
+
+This foundation deliberately does not classify targets, score candidates,
+choose between still imaging and video, estimate exposure, serialize a UI DTO
+or register with `AppController`. The next backend step is a photographic
+target model and mode-specific scorer; QML remains the final presentation
+stage.
+
 ### Filters
 
 The current `FilterRecommendationService` compares explicit target preferences

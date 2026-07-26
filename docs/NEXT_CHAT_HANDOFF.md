@@ -65,8 +65,21 @@ Il collegamento e' deliberatamente solo inventario. Il segnale
 `profileInventoryChanged` aggiorna la pagina senza emettere `equipmentChanged`
 e quindi senza notificare Home o dettaglio osservativo; camere e body non
 entrano in Equipment, Planner, Sky Compass, NSOM o raccomandazioni visuali. Il
-passo successivo concordato resta la progettazione separata del motore
-fotografico.
+primo passo del motore fotografico e' ora una fondazione backend separata e
+target-agnostica: non cambia ancora questi confini runtime.
+
+`ImagingCameraAdapter` normalizza tutti i 37 modelli astronomici e i 40 body in
+un contratto tipizzato senza confondere FPS a piena risoluzione e FPS video.
+`ImagingTrainBuilder` combina i dati forniti dal chiamante in configurazioni a
+fuoco diretto, con un reducer fotografico esattamente collegato al telescopio
+oppure con una Barlow. Ogni configurazione conserva la montatura dichiarata
+dall'utente e calcola focale e rapporto focale effettivi, campo del sensore,
+arcsec/pixel e, quando disponibile, spaziatura residua di backfocus. Il builder
+non legge profili o cataloghi, non sceglie un target e non produce punteggi.
+
+Il prossimo passo backend e' il modello fotografico del target con la scelta
+fra foto e video e lo scoring delle configurazioni. Consigli sui tempi di posa
+e collegamento alle pagine Detail rimangono fasi successive.
 
 La montatura telescopio e' ora un menu con codici stabili per OTA,
 altazimutale, equatoriale, forcella e Dobson, distinguendo manuale,
@@ -76,7 +89,7 @@ specificato. La proiezione di tracking visuale conserva esattamente i
 coefficienti precedenti, lasciando le distinzioni piu' fini al futuro motore
 fotografico.
 
-Il gate finale `tools/run_checks.py --fast` passa con 979 test, 643 warning
+Il gate finale `tools/run_checks.py --fast` passa con 989 test, 643 warning
 Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale e
 Red Night Vision. `EquipmentCamerasPage.qml` passa QML lint senza warning. La
 pagina Profili con camere assegnate e' stata controllata nativamente a

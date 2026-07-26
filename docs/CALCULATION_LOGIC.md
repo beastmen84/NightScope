@@ -836,6 +836,39 @@ Photographic reducer recommendation boundary:
   Equipment setup selection, ObserverCapability, target score, Planner, Home
   ranking, Sky Compass and NSOM.
 
+Photographic optical-train foundation:
+
+- `ImagingCameraAdapter` converts astronomy-camera and camera-body catalogue
+  rows into one immutable `ImagingCamera` contract. Astronomy-camera
+  full-resolution FPS and camera-body video FPS remain separate fields so the
+  future scorer cannot compare unlike capture modes as if they were identical.
+- `ImagingTrainBuilder` is target-agnostic. From only the telescopes, cameras,
+  reducers and Barlows supplied by its caller it emits prime-focus trains,
+  trains with one exact telescope-linked imaging reducer, and trains with one
+  Barlow. It never stacks a reducer and Barlow in the same configuration.
+- Reducer descriptive compatibility text is not parsed. A reducer participates
+  only when `imaging_compatible` is true and the normalized telescope ID is in
+  `compatible_telescope_ids`.
+- For focal-length factor `k`, telescope focal length `F`, aperture `D`, pixel
+  pitch `p` in micrometres and sensor dimension `s` in millimetres:
+
+  - effective focal length: `F_eff = F * k`;
+  - effective focal ratio: `f_ratio = F_eff / D`;
+  - pixel scale: `206.264806247 * p / F_eff` arcsec/pixel;
+  - field of view: `2 * atan(s / (2 * F_eff))`, converted to degrees.
+
+- When both reducer and camera backfocus are known, the configuration exposes
+  the remaining mechanical spacing as `reducer_backfocus - camera_backfocus`.
+  This is a geometric value, not a claim that adapters, image circle or the
+  rest of the mechanical train are compatible.
+- The telescope mount code is carried unchanged into the configuration. The
+  foundation assumes that the mount selected for the telescope reflects the
+  user's real setup; it does not infer a different mount from model names.
+- This stage has no target classification, configuration score, capture-mode
+  decision, exposure advice or presentation payload. It is not called by
+  `AppController`, `EquipmentService`, Home, Object Detail, Planner, Sky
+  Compass or NSOM.
+
 Zoom eyepieces:
 
 - A zoom eyepiece remains one equipment record.
