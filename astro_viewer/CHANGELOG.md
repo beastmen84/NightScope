@@ -44,8 +44,22 @@
   diretto, con reducer fotografico compatibile oppure con Barlow. Il builder
   calcola focale e rapporto focale effettivi, campo orizzontale/verticale e
   diagonale, campionamento in arcsec/pixel e spaziatura residua di backfocus.
-  Montatura e inventario restano quelli dichiarati nel profilo; non sono stati
-  aggiunti scoring, tempi di posa, segnali, DTO QML o effetti sul motore visuale.
+  Montatura e inventario restano quelli dichiarati nel profilo; il builder non
+  contiene scoring, tempi di posa, segnali, DTO QML o effetti sul motore visuale.
+- Aggiunto il secondo strato backend fotografico:
+  `ImagingTargetTraitsAdapter` classifica il target e sceglie in modo esplicito
+  fra foto per cielo profondo e video per Luna/pianeti;
+  `ImagingRecommendationService` ordina quindi i treni con uno score additivo e
+  deterministico basato su inquadratura, campionamento, camera, montatura e
+  acquisizione. Le camere planetarie ad alto frame rate, le camere raffreddate
+  da cielo profondo, i body con Bulb, reducer e Barlow vengono confrontati con
+  regole distinte e senza riusare score visuali, Home o NSOM.
+- Completezza e limiti restano metadati paralleli e non modificano il punteggio:
+  seeing, fondo cielo, precisione d'inseguimento, connessione meccanica e cerchio
+  d'immagine non vengono inventati. Il Sole resta deliberatamente escluso finche'
+  il profilo non potra' provare la presenza di un filtro solare certificato.
+  Tempi di posa, condizioni runtime, segnali, DTO QML e pagina Detail non sono
+  ancora collegati.
 - La montatura dei telescopi usa ora una tassonomia stabile selezionata da menu:
   OTA, altazimutale, equatoriale, forcella e Dobson, con varianti manuale,
   motorizzata, GoTo e PushTo dove pertinenti. I valori storici dei seed vengono
@@ -53,7 +67,7 @@
   conserva un codice esplicito non specificato. L'adattatore visuale mantiene
   gli stessi coefficienti precedenti, mentre i codici distinti restano
   disponibili al futuro motore fotografico.
-- Il gate finale `tools/run_checks.py --fast` passa con 989 test, 643 warning
+- Il gate finale `tools/run_checks.py --fast` passa con 1.005 test, 643 warning
   Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale
   e Red Night Vision. Il catalogo Cameras ha inoltre QML lint senza warning; la
   pagina Profili con camere assegnate e' stata verificata nativamente a

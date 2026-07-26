@@ -706,11 +706,53 @@ never stacked. The caller owns inventory scope, so the future photographic
 service can pass active-profile equipment without the builder ever reading
 catalogues or profile state itself.
 
-This foundation deliberately does not classify targets, score candidates,
-choose between still imaging and video, estimate exposure, serialize a UI DTO
-or register with `AppController`. The next backend step is a photographic
-target model and mode-specific scorer; QML remains the final presentation
-stage.
+The builder deliberately does not classify targets, score candidates, choose
+between still imaging and video, estimate exposure, serialize a UI DTO or
+register with `AppController`.
+
+### Photographic Target And Configuration Scoring
+
+The second backend-only layer consumes the optical trains without changing
+their enumeration:
+
+```text
+CelestialObject
+    |
+    v
+ImagingTargetTraitsAdapter ---> ImagingTargetTraits
+                                      |
+ImagingTrainConfiguration ------------+
+                                      |
+                                      v
+                        ImagingRecommendationService
+                                      |
+                                      v
+                        ImagingRecommendationCandidate
+```
+
+`ImagingTargetTraits` owns photographic class, still/video choice, physical
+angular dimensions and the curated reducer preference. It does not consume the
+visual target score, observability, Home rank or NSOM values. Solar
+recommendations are deliberately unsupported until a certified solar-filter
+capability exists.
+
+The scorer is additive rather than multiplicative. Its explicit components
+cover framing, sampling, camera role, mount capability and capture behavior;
+still and video use separate component weights and separate FPS semantics.
+The result is a static equipment-suitability score, not a probability and not
+an exposure recommendation.
+
+`data_completeness` and stable missing-input codes remain parallel metadata:
+they never scale the score. This makes current limits such as seeing, sky
+background, tracking accuracy, mechanical adapters and image circle visible
+without inventing values. A known negative reducer spacing is the only modeled
+accessory-compatibility condition that removes a candidate at this layer;
+non-positive or non-finite optical geometry is also rejected.
+
+The service is still absent from `AppController`, `EquipmentService`, QML,
+Home, Planner, Sky Compass and NSOM. The next backend boundary is
+session-aware exposure guidance; presentation on Object Detail remains the
+last stage.
 
 ### Filters
 

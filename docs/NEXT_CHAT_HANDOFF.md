@@ -77,9 +77,25 @@ dall'utente e calcola focale e rapporto focale effettivi, campo del sensore,
 arcsec/pixel e, quando disponibile, spaziatura residua di backfocus. Il builder
 non legge profili o cataloghi, non sceglie un target e non produce punteggi.
 
-Il prossimo passo backend e' il modello fotografico del target con la scelta
-fra foto e video e lo scoring delle configurazioni. Consigli sui tempi di posa
-e collegamento alle pagine Detail rimangono fasi successive.
+Il secondo passo backend e' ora implementato ma resta fuori dal runtime.
+`ImagingTargetTraitsAdapter` classifica tutti i 7.585 target di catalogo come
+foto e sceglie video per Luna e pianeti. Conserva le due dimensioni angolari,
+la magnitudine e il flag reducer; il Sole non produce candidati finche' non
+esiste un dato affidabile per un filtro solare certificato.
+
+`ImagingRecommendationService` usa uno score additivo distinto per foto e
+video. Inquadratura, campionamento, ruolo della camera, montatura, efficienza e
+frame rate sono componenti espliciti; gli FPS a piena risoluzione delle camere
+astronomiche non vengono confusi con gli FPS video dei body. Il reducer largo
+vince quando il target entra davvero nel sensore, la Barlow puo' vincere sul
+campionamento planetario e la Luna a disco intero penalizza configurazioni che
+la tagliano. I punteggi visuali, Home, NSOM e osservabilita' non entrano mai.
+
+Completezza e input mancanti restano metadati paralleli a effetto score zero.
+Seeing, fondo cielo, precisione d'inseguimento, connessione meccanica e cerchio
+d'immagine rimangono quindi dichiaratamente non verificati. Il prossimo passo
+backend e' la guida ai tempi di posa basata anche sulle condizioni di sessione;
+il collegamento alle pagine Detail resta l'ultima fase.
 
 La montatura telescopio e' ora un menu con codici stabili per OTA,
 altazimutale, equatoriale, forcella e Dobson, distinguendo manuale,
@@ -89,7 +105,7 @@ specificato. La proiezione di tracking visuale conserva esattamente i
 coefficienti precedenti, lasciando le distinzioni piu' fini al futuro motore
 fotografico.
 
-Il gate finale `tools/run_checks.py --fast` passa con 989 test, 643 warning
+Il gate finale `tools/run_checks.py --fast` passa con 1.005 test, 643 warning
 Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale e
 Red Night Vision. `EquipmentCamerasPage.qml` passa QML lint senza warning. La
 pagina Profili con camere assegnate e' stata controllata nativamente a

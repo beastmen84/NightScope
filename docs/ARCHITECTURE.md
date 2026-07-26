@@ -260,7 +260,9 @@ Current runtime status for `1.27.0`:
   `EquipmentService`, ObserverCapability, Planner, Home, Sky Compass or NSOM.
   Catalogue edits and profile links notify `profileInventoryChanged`; they do
   not rebuild the visual active-profile setup or emit its downstream Home and
-  observing-detail signals.
+  observing-detail signals. A separate backend-only imaging train builder,
+  target adapter and still/video scorer now consume typed data only when
+  called directly; none is registered with `AppController` or QML.
 - Filters and focal reducers are persistent profile inventory. Separate
   presentation services can feed the score-free observing-detail read model,
   but neither accessory enters `EquipmentService`, ObserverCapability, setup
@@ -588,6 +590,13 @@ Services hold business logic:
   seeing/transparency and provider-gated AOD/OpenAQ conditions.
 - `EquipmentService`: magnification, true field, exit pupil, profile
   capabilities and setup recommendation.
+- `ImagingTrainBuilder`: target-neutral telescope/camera enumeration at prime
+  focus, with one exact imaging reducer or one Barlow, plus focal ratio, field,
+  sampling and known backfocus geometry.
+- `ImagingRecommendationService`: additive static still/video suitability over
+  photographic target traits and imaging trains. Its data-completeness
+  metadata has zero score effect; the service has no runtime, visual-engine or
+  QML registration and does not estimate exposure.
 - `FilterRecommendationService`: presentation-only matching between target
   filter preferences, the aperture of the target-specific telescope, the
   complete filter catalogue and products assigned to the active profile. It
@@ -672,8 +681,8 @@ Repositories own SQLite persistence:
 - `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter,
   focal-reducer, astronomy-camera and camera-body CRUD. Visual equipment keeps
   its profile assignments; schema 21 also stores camera assignments as
-  inventory for the future imaging engine, without projecting them into visual
-  equipment models.
+  inventory for the separate backend imaging engine, without projecting them
+  into visual equipment models or invoking that engine at runtime.
   Every catalogue row exposes `is_builtin`, `seed_key` and `is_user_modified`;
   seeded rows can be updated but not deleted, while user rows can be managed
   after any applicable profile links are handled. Updating a seeded row marks

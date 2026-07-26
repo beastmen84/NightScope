@@ -60,8 +60,9 @@ Linux packages use a portable tarball plus an adjacent SHA-256 file.
 - Stores observation logs and user-maintained equipment locally.
 - Provides a separate two-column Cameras catalogue for astronomy cameras and
   interchangeable-lens camera bodies. Its sensor and capture specifications
-  are ready for a future imaging recommendation path but are not yet assigned
-  to profiles or consumed by the visual engine.
+  can be assigned to profiles and feed a typed, backend-only photographic
+  configuration scorer; that scorer is not yet connected to Object Detail or
+  consumed by the visual engine.
 - Includes an offline celestial catalogue with 7,585 distinct deep-sky
   targets, 7,839 NGC designations deduplicated across physical identities,
   and nine Solar System targets. The 219 curated Messier/Caldwell targets and
@@ -107,14 +108,16 @@ Planner, and the NightScope observation model. They are transient calendar
 events. Comet brightness is inherently uncertain and is presented as an
 estimate rather than a precise promise.
 
-Filters and focal reducers are also presentation guidance only. They do not
-change target ranking. Reducer suggestions require an exact, normalized match
-to the target-specific telescope and are intended for imaging context.
+In the current UI, filters and focal reducers remain presentation guidance and
+do not change visual target ranking. The separate, unregistered photographic
+backend can enumerate an exactly linked imaging reducer and recalculate its
+camera field, sampling and static configuration suitability; it does not
+change Home, Planner, Equipment, Sky Compass or NSOM.
 
 Telescope mount types use stable controlled codes instead of free text. This
 preserves the existing visual recommendation behavior while keeping manual,
 tracking, GoTo, PushTo, fork, alt-azimuth and equatorial capabilities distinct
-for future imaging calculations.
+for the separate photographic scorer.
 
 The full model and its boundaries are documented in
 [`docs/CALCULATION_LOGIC.md`](docs/CALCULATION_LOGIC.md) and
@@ -416,7 +419,10 @@ remaining release work are tracked in
 - Weather, AOD, particulate, and VIIRS availability depends on provider
   coverage, freshness, authorization, and quality gates.
 - Comet magnitudes can differ materially from orbital-catalogue estimates.
-- Reducer recommendations do not model a complete camera and back-focus train.
+- Current UI reducer guidance does not model a complete camera train. The
+  backend photographic foundation calculates sensor geometry and known
+  backfocus spacing, but still cannot prove adapters, image circle, tracking
+  accuracy or vignetting.
 - There is no installer, automatic updater, or artifact signature. The current
   portable release publishes its SHA-256 digest.
 - The final manual and application visual matrix still requires a human pass on

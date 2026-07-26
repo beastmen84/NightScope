@@ -864,10 +864,75 @@ Photographic optical-train foundation:
 - The telescope mount code is carried unchanged into the configuration. The
   foundation assumes that the mount selected for the telescope reflects the
   user's real setup; it does not infer a different mount from model names.
-- This stage has no target classification, configuration score, capture-mode
-  decision, exposure advice or presentation payload. It is not called by
-  `AppController`, `EquipmentService`, Home, Object Detail, Planner, Sky
-  Compass or NSOM.
+- The optical-train builder itself has no target classification, score,
+  capture-mode decision, exposure advice or presentation payload. It is not
+  called by `AppController`, `EquipmentService`, Home, Object Detail, Planner,
+  Sky Compass or NSOM.
+
+Photographic target and static configuration scoring:
+
+- `ImagingTargetTraitsAdapter` consumes only astronomical identity, type,
+  magnitude, angular size and the curated reducer preference. It does not read
+  visual compatibility score, altitude, current observability, Home ranking or
+  NSOM values.
+- Moon and planets select `video`; catalogue targets, comets and unknown
+  non-solar targets select `still`. The Moon uses a `0.52°` whole-disc planning
+  diameter when no runtime diameter is available. The Sun returns no
+  candidates until a certified solar-filter capability can be represented.
+- Catalogue major/minor axes are normalized to degrees. A canonical major axis
+  remains authoritative while the textual dimensions preserve its aspect
+  ratio. Framing accepts sensor rotation by 90°, keeps a 5% edge margin and
+  prefers a target fill near 58% for still imaging or 68% for full-disc lunar
+  video. Unknown dimensions use the neutral component value `0.5`.
+- Every component is clamped to `[0, 1]`; weights sum to 100 and the score is
+  additive:
+
+  `score = sum(component_value * component_weight)`
+
+  | Still component | Weight |
+  | --- | ---: |
+  | framing | 25 |
+  | nominal sampling | 20 |
+  | camera suitability | 20 |
+  | photographic mount capability | 20 |
+  | capture efficiency | 15 |
+
+  | Video component | Weight |
+  | --- | ---: |
+  | critical sampling | 30 |
+  | camera suitability | 25 |
+  | frame acquisition | 25 |
+  | framing/context field | 10 |
+  | mount capability | 10 |
+
+- Nominal still sampling targets 2.0 arcsec/pixel for known extended targets,
+  1.4 for general targets, 1.0 for globular clusters, 0.9 for other compact
+  targets and 0.75 for planetary nebulae or stellar targets. These are static
+  equipment-comparison policies, not claims about current seeing.
+- Planetary video starts from critical sampling
+  `f_ratio = N * pixel_pitch_um / (1.22 * wavelength_um)`. With three samples
+  across the diffraction feature and a nominal `0.5 µm` wavelength this is
+  approximately `5 * pixel_pitch_um`. Whole-disc lunar video uses the more
+  conservative `2.5 * pixel_pitch_um` planning policy, while its independent
+  framing component strongly penalizes a cropped disc.
+- Astronomy-camera full-resolution FPS and camera-body FPS at the declared
+  video resolution use separate scoring curves. Cooling affects long-exposure
+  still suitability, not short-frame video suitability. Body Bulb capability
+  affects still suitability.
+- The photographic mount map is independent from the compatibility-preserving
+  visual tracking coefficient. Equatorial tracking is strongest for still
+  imaging; alt-azimuth GoTo remains usable but is reduced because mount type
+  alone cannot prove polar alignment or remove field rotation. Short video
+  gives much less weight to mount type.
+- A reducer with known negative remaining backfocus spacing is not rankable.
+  Unknown spacing remains rankable but is reported as incomplete.
+- `data_completeness` and `missing_inputs` are parallel metadata and have zero
+  score effect. They explicitly report missing seeing, sky background,
+  tracking accuracy, mechanical connection, image circle and any unavailable
+  target, FPS or backfocus values.
+- Scores are rounded to six decimals before deterministic ID tie-breaking.
+  The service remains unregistered with runtime controllers and QML. It does
+  not estimate sub-exposure or total integration time.
 
 Zoom eyepieces:
 
