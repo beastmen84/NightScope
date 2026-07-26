@@ -866,9 +866,9 @@ Photographic optical-train foundation:
   foundation assumes that the mount selected for the telescope reflects the
   user's real setup; it does not infer a different mount from model names.
 - The optical-train builder itself has no target classification, score,
-  capture-mode decision, exposure advice or presentation payload. It is not
-  called by `AppController`, `EquipmentService`, Home, Object Detail, Planner,
-  Sky Compass or NSOM.
+  capture-mode decision, exposure advice or presentation payload. The private
+  runtime assembler can call it on demand, but `EquipmentService`, Home,
+  Object Detail, Planner, Sky Compass and NSOM do not.
 
 Photographic target and static configuration scoring:
 
@@ -936,7 +936,9 @@ Photographic target and static configuration scoring:
   tracking accuracy, mechanical connection, image circle and any unavailable
   target, FPS or backfocus values.
 - Scores are rounded to six decimals before deterministic ID tie-breaking.
-  The service remains unregistered with runtime controllers and QML.
+  `AppController` never registers or calls this scorer directly; only the
+  isolated runtime assembler owns it. The scorer remains absent from QML and
+  every visual recommendation path.
 
 Photographic still-exposure planning:
 
@@ -1036,9 +1038,10 @@ Photographic still-exposure planning:
 
   `maximum_frames = ceil(total_max_minutes * 60 / sub_min_seconds)`
 
-- The advisor and session DTO remain unregistered with `AppController`,
-  `EquipmentService`, QML, Home, Planner, Sky Compass and NSOM. No current
-  runtime path invokes these formulas.
+- The advisor and session DTO are not registered directly with
+  `AppController`, `EquipmentService` or QML. The private runtime assembler can
+  invoke them on demand; Home, Object Detail, Planner, Sky Compass and NSOM do
+  not.
 
 Photographic solar/lunar/planetary video planning:
 
@@ -1132,9 +1135,51 @@ Photographic solar/lunar/planetary video planning:
   or RAW format, atmospheric-dispersion correction, apparent diameter/phase,
   lucky-frame selection and image derotation are explicit unmodeled limits.
   Even with every accepted input, confidence is capped at `medium`.
-- The advisor and session DTO remain unregistered with `AppController`,
-  `EquipmentService`, QML, Home, Planner, Sky Compass and NSOM. No current
-  runtime path invokes this policy.
+- The advisor and session DTO are not registered directly with
+  `AppController`, `EquipmentService` or QML. The private runtime assembler can
+  invoke them on demand; Home, Object Detail, Planner, Sky Compass and NSOM do
+  not.
+
+Photographic runtime assembly:
+
+- `AppController._active_profile_imaging_inventory()` creates an immutable
+  snapshot containing only the active profile's assigned telescopes,
+  astronomy cameras, camera bodies, imaging reducers and Barlows. Solar-filter
+  telescope IDs are intersected with the assigned telescope set before leaving
+  the controller.
+- `ImagingRuntimeConditionsAdapter` maps current condition facts to separate
+  still/video snapshots. Still planning receives SQM/Bortle, Moon illumination,
+  target-specific Moon geometry and atmospheric transparency. When available,
+  `atmospheric_transparency_score` is used instead of the already
+  pollution-conditioned display transparency, avoiding a second
+  light-pollution penalty. Video planning receives seeing and current target
+  altitude; achievable FPS remains unknown because NightScope does not control
+  or benchmark the camera.
+- `ImagingRuntimeAssembler` then executes one deterministic on-demand chain:
+
+  ```text
+  active-profile inventory -> ImagingTrainBuilder
+                           -> ImagingRecommendationService.rank
+                           -> best candidate
+                           -> still ExposureAdvisor OR VideoCaptureAdvisor
+  ```
+
+- Policy `imaging_runtime_v1` returns a typed
+  `ImagingRuntimeRecommendation`. A ready result contains the winning
+  candidate and exactly one kind of advice. Stable non-ready states distinguish
+  no active profile, no telescope, no camera, no valid train, unsupported
+  target and unavailable mode advice.
+- Solar admission remains fail-closed. The assembler forwards only exact,
+  assigned filtered telescope IDs; the scorer can therefore retain only
+  configurations using the declared instrument. A stale ID, another profile's
+  declaration or an empty set cannot produce solar advice.
+- Conditions affect exposure/video planning and completeness only. They never
+  alter the static photographic candidate score. Likewise no visual score,
+  observability rank, Home value or NSOM field enters this chain.
+- The controller method is private and is not called by startup, weather,
+  profile, catalogue or observing refresh paths. There is no photographic
+  cache, worker, timer, signal or QML property at this stage. Object Detail DTO
+  mapping and presentation remain the final integration step.
 
 Zoom eyepieces:
 

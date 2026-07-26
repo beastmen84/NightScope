@@ -859,7 +859,7 @@ def test_real_camera_catalogue_produces_finite_still_and_video_rankings(
     )
 
 
-def test_ranking_is_stable_deduplicated_and_not_runtime_registered() -> None:
+def test_ranking_is_stable_and_has_no_direct_runtime_registration() -> None:
     target = _target(reducer_preferred=False)
     configurations = ImagingTrainBuilder().build(
         [_telescope()],

@@ -63,12 +63,13 @@ formato. Italiano, inglese e spagnolo usano un glossario fotografico controllato
 obiettivo, backfocus e modalita' Bulb non vengono tradotti letteralmente. Gli
 overlay editoriali e i test bloccano regressioni sulle nomenclature Cameras.
 
-Il collegamento e' deliberatamente solo inventario. Il segnale
+Il collegamento UI resta deliberatamente solo inventario. Il segnale
 `profileInventoryChanged` aggiorna la pagina senza emettere `equipmentChanged`
 e quindi senza notificare Home o dettaglio osservativo; camere e body non
 entrano in Equipment, Planner, Sky Compass, NSOM o raccomandazioni visuali. Il
 primo passo del motore fotografico e' ora una fondazione backend separata e
-target-agnostica: non cambia ancora questi confini runtime.
+target-agnostica; l'assembler on demand la consuma senza cambiare questi
+confini visuali.
 
 `ImagingCameraAdapter` normalizza tutti i 37 modelli astronomici e i 40 body in
 un contratto tipizzato senza confondere FPS a piena risoluzione e FPS video.
@@ -79,16 +80,16 @@ dall'utente e calcola focale e rapporto focale effettivi, campo del sensore,
 arcsec/pixel e, quando disponibile, spaziatura residua di backfocus. Il builder
 non legge profili o cataloghi, non sceglie un target e non produce punteggi.
 
-Il secondo passo backend e' ora implementato ma resta fuori dal runtime.
+Il secondo passo backend resta isolato dal motore visuale.
 `ImagingTargetTraitsAdapter` classifica tutti i 7.585 target di catalogo come
 foto e sceglie video per Luna e pianeti. Conserva le due dimensioni angolari,
 la magnitudine e il flag reducer. La pagina Profili permette ora di dichiarare
 un filtro solare certificato a tutta apertura sullo specifico telescopio, senza
 emettere segnali del motore visuale. Lo scorer mantiene il default sicuro senza
-Sole, ma accetta ora un insieme esplicito di ID telescopio filtrati e conserva
+Sole, ma accetta un insieme esplicito di ID telescopio filtrati e conserva
 soltanto le configurazioni corrispondenti. Con il flag esplicito, il Sole usa
-video e pianificazione a disco intero da 0,53 gradi; il runtime non passa ancora
-questo insieme.
+video e pianificazione a disco intero da 0,53 gradi; l'assembler runtime passa
+ora soltanto ID filtrati che appartengono davvero al profilo attivo.
 
 `ImagingRecommendationService` usa uno score additivo distinto per foto e
 video. Inquadratura, campionamento, ruolo della camera, montatura, efficienza e
@@ -102,12 +103,13 @@ Completezza e input mancanti restano metadati paralleli a effetto score zero.
 Seeing, fondo cielo, precisione d'inseguimento, connessione meccanica e cerchio
 d'immagine rimangono quindi dichiaratamente non verificati.
 
-Il terzo passo backend e' ora `ImagingExposureAdvisor`, ancora fuori dal
-runtime. Per un candidato foto produce intervalli di posa singola e integrazione
-totale, numero indicativo di frame e limite prudenziale della montatura. Usa
-rapporto focale, luminosita' del target, SQM o fallback Bortle, trasparenza e
-geometria lunare completa; video non riceve tempi di posa still. Le formule e
-ogni moltiplicatore sono esposti dalla policy `imaging_exposure_v1`.
+Il terzo passo backend e' `ImagingExposureAdvisor`, non registrato direttamente
+nel controller ma invocabile dall'assembler. Per un candidato foto produce
+intervalli di posa singola e integrazione totale, numero indicativo di frame e
+limite prudenziale della montatura. Usa rapporto focale, luminosita' del target,
+SQM o fallback Bortle, trasparenza e geometria lunare completa; video non
+riceve tempi di posa still. Le formule e ogni moltiplicatore sono esposti dalla
+policy `imaging_exposure_v1`.
 
 Il risultato e' deliberatamente un intervallo broadband di pianificazione, non
 una calibrazione della camera. Gain/ISO, rumore di lettura, autoguida, precisione
@@ -116,21 +118,29 @@ usano assunzioni neutrali nominate e abbassano la confidenza senza modificare lo
 score di idoneita'.
 
 Il quarto passo backend e' `ImagingVideoCaptureAdvisor`, anch'esso non
-registrato. Per Sole, Luna e ciascun pianeta produce la finestra prudenziale di
-una singola clip senza derotazione, gli FPS pianificabili e il numero indicativo
-di frame acquisiti. FPS effettivamente raggiungibili, quando forniti, sono
-autorevoli; altrimenti gli FPS di catalogo restano un limite superiore e, se
-mancano, viene esposto soltanto l'obiettivo del target. Seeing e altezza
-aggiungono avvisi e completezza ma non vengono trasformati in falsi tempi
-esatti. `ALTAZ_GOTO` mantiene i normali 90-120 secondi di Giove e limita solo le
-finestre oltre quattro minuti.
+registrato direttamente ma invocabile dall'assembler. Per Sole, Luna e ciascun
+pianeta produce la finestra prudenziale di una singola clip senza derotazione,
+gli FPS pianificabili e il numero indicativo di frame acquisiti. FPS
+effettivamente raggiungibili, quando forniti, sono autorevoli; altrimenti gli
+FPS di catalogo restano un limite superiore e, se mancano, viene esposto
+soltanto l'obiettivo del target. Seeing e altezza aggiungono avvisi e
+completezza ma non vengono trasformati in falsi tempi esatti. `ALTAZ_GOTO`
+mantiene i normali 90-120 secondi di Giove e limita solo le finestre oltre
+quattro minuti.
 
 La policy `imaging_video_capture_v1` non inventa esposizione/gain, istogramma,
 ROI, throughput USB/disco, codec RAW, correzione della dispersione, diametro o
-fase apparente, percentuale di frame fortunati e derotazione. Il prossimo passo
-e' ora l'assembler runtime che legga l'inventario del profilo, costruisca i
-treni, passi gli ID solari esatti e adatti le condizioni correnti ai due
-advisor. DTO e presentazione nelle pagine Detail restano l'ultima fase.
+fase apparente, percentuale di frame fortunati e derotazione.
+
+Il quinto passo e' ora `ImagingRuntimeAssembler`. Legge on demand soltanto
+l'inventario fotografico del profilo attivo, costruisce i treni, passa gli ID
+solari esatti, ordina i candidati e chiama il solo advisor coerente con foto o
+video. `ImagingRuntimeConditionsAdapter` usa SQM/Bortle, trasparenza atmosferica
+grezza e geometria lunare per le foto, seeing e altezza per i video. Restituisce
+la policy tipizzata `imaging_runtime_v1` con stati espliciti per profilo,
+telescopi, camere o configurazioni mancanti. Non esistono segnali, cache,
+refresh automatici o proprieta' QML: DTO e presentazione nelle pagine Detail
+sono ora l'ultimo passo.
 
 La montatura telescopio e' ora un menu con codici stabili per OTA,
 altazimutale, equatoriale, forcella e Dobson, distinguendo manuale,
@@ -140,9 +150,10 @@ specificato. La proiezione di tracking visuale conserva esattamente i
 coefficienti precedenti, lasciando le distinzioni piu' fini al backend
 fotografico separato.
 
-Il gate finale `tools/run_checks.py --fast` passa con 1.050 test, 643 warning
-Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale e
-Red Night Vision. `EquipmentCamerasPage.qml` passa QML lint senza warning. La
+Il gate finale `tools/run_checks.py --fast` passa con 1.068 test, 643 warning
+Skyfield/NumPy gia' noti e 10 subtest in 265,70 secondi, oltre agli smoke
+backend, QML normale e Red Night Vision. `EquipmentCamerasPage.qml` passa QML
+lint senza warning. La
 pagina Profili con camere assegnate e' stata controllata nativamente a
 `1040 × 700` e `1709 × 1047` in entrambe le modalita'; in Red Night Vision i
 massimi sono verde 74 e blu 61, senza pixel oltre soglia. I cataloghi Qt

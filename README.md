@@ -62,11 +62,12 @@ Linux packages use a portable tarball plus an adjacent SHA-256 file.
   interchangeable-lens camera bodies. Its sensor and capture specifications
   can be assigned to profiles and feed a typed, backend-only photographic
   configuration scorer, a conservative still-exposure advisor and a Solar
-  System video advisor; none is connected to Object Detail or consumed by the
-  visual engine.
+  System video advisor. An on-demand runtime assembler now connects those
+  layers to the active-profile inventory and current conditions; Object Detail
+  presentation remains separate and the visual engine never consumes them.
 - Lets each profile record, for each assigned telescope, whether the user has
   declared a certified full-aperture solar filter secured in front of the
-  instrument. The unregistered scorer accepts this capability only as an exact
+  instrument. The static scorer accepts this capability only as an exact
   caller-supplied telescope set, and it never changes visual ranking.
 - Includes an offline celestial catalogue with 7,585 distinct deep-sky
   targets, 7,839 NGC designations deduplicated across physical identities,
@@ -114,15 +115,16 @@ events. Comet brightness is inherently uncertain and is presented as an
 estimate rather than a precise promise.
 
 In the current UI, filters and focal reducers remain presentation guidance and
-do not change visual target ranking. The separate, unregistered photographic
-backend can enumerate an exactly linked imaging reducer and recalculate its
-camera field, sampling and static configuration suitability. For still
-candidates it can also return broadband sub-exposure and total-integration
-ranges from explicit sky, transparency and Moon inputs. For video candidates
-it returns a target-specific single-clip duration, an FPS planning range and
-an indicative captured-frame range without assuming ROI or image derotation.
-These planning ranges do not change Home, Planner, Equipment, Sky Compass or
-NSOM.
+do not change visual target ranking. The separate photographic backend can
+enumerate an exactly linked imaging reducer and recalculate its camera field,
+sampling and static configuration suitability. Its on-demand runtime assembler
+uses only the active profile's telescopes, cameras, reducers and Barlows. For
+still candidates it returns broadband sub-exposure and total-integration ranges
+from the current sky, atmospheric-transparency and Moon inputs. For video
+candidates it returns a target-specific single-clip duration, an FPS planning
+range and an indicative captured-frame range without assuming ROI or image
+derotation. These planning ranges do not change Home, Planner, Equipment, Sky
+Compass or NSOM and are not yet exposed on Object Detail.
 
 Telescope mount types use stable controlled codes instead of free text. This
 preserves the existing visual recommendation behavior while keeping manual,
@@ -132,9 +134,10 @@ for the separate photographic scorer.
 Solar-filter availability belongs to the profile-to-telescope assignment, not
 to the global telescope model. It defaults to disabled, is isolated between
 profiles and instruments, and changes only photographic inventory state. The
-static scorer now defaults to no Sun candidate and admits only configurations
-whose telescope ID is explicitly supplied as filtered. The current runtime
-does not yet make that call, so application behavior remains unchanged.
+runtime assembler forwards only filtered telescope IDs that are also assigned
+to the active profile. The scorer defaults to no Sun candidate and admits only
+matching configurations, so a stale or unrelated declaration cannot authorize
+solar guidance.
 
 The full model and its boundaries are documented in
 [`docs/CALCULATION_LOGIC.md`](docs/CALCULATION_LOGIC.md) and

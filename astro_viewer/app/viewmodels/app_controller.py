@@ -44,6 +44,10 @@ from astro_viewer.app.models.filtering import (
     FILTER_CLASS_OPTIONS,
     SOLAR_SYSTEM_FILTER_PREFERENCES,
 )
+from astro_viewer.app.models.imaging_runtime import (
+    ImagingRuntimeInventory,
+    ImagingRuntimeRecommendation,
+)
 from astro_viewer.app.models.observing import (
     AstronomicalEvent,
     CelestialObject,
@@ -120,6 +124,13 @@ from astro_viewer.app.services.home_night_plan_overview import HomeNightPlanOver
 from astro_viewer.app.services.home_observing_overview import (
     HomeObservingOverviewService,
     bortle_observing_warning,
+)
+from astro_viewer.app.services.imaging_camera_adapter import ImagingCameraAdapter
+from astro_viewer.app.services.imaging_runtime_assembler import (
+    ImagingRuntimeAssembler,
+)
+from astro_viewer.app.services.imaging_runtime_conditions_adapter import (
+    ImagingRuntimeConditionsAdapter,
 )
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.nsom_category_score_service import NsomCategoryScoreService
@@ -449,6 +460,7 @@ class AppController(QObject):
         self._night_planner_service = NightPlannerService()
         self._sky_compass_service = sky_compass_service or SkyCompassService()
         self._observing_object_detail_service = ObservingObjectDetailService()
+        self._imaging_runtime_assembler = ImagingRuntimeAssembler()
         self._refresh_manager = RefreshManager()
 
         self._city_results = []
@@ -8850,6 +8862,80 @@ class AppController(QObject):
             for reducer_id in state["reducer_ids"]
             if (reducer := self._find_reducer(reducer_id))
         ]
+
+    def _active_profile_imaging_inventory(
+        self,
+    ) -> ImagingRuntimeInventory:
+        profile = self._active_profile()
+        if profile is None:
+            return ImagingRuntimeInventory()
+
+        state = self._active_profile_state()
+        telescopes = tuple(self._active_profile_telescopes())
+        assigned_telescope_ids = {
+            telescope.id
+            for telescope in telescopes
+        }
+        astronomy_camera_rows = [
+            camera
+            for camera_id in state["astronomy_camera_ids"]
+            if (camera := self._find_astronomy_camera(camera_id)) is not None
+        ]
+        camera_body_rows = [
+            camera
+            for camera_id in state["camera_body_ids"]
+            if (camera := self._find_camera_body(camera_id)) is not None
+        ]
+        cameras = tuple(
+            ImagingCameraAdapter.from_catalogues(
+                astronomy_camera_rows,
+                camera_body_rows,
+            )
+        )
+        solar_filter_ids = tuple(
+            dict.fromkeys(
+                telescope_id
+                for telescope_id in state[
+                    "full_aperture_solar_filter_telescope_ids"
+                ]
+                if telescope_id in assigned_telescope_ids
+            )
+        )
+        return ImagingRuntimeInventory(
+            profile_id=str(profile.get("id") or "").strip(),
+            telescopes=telescopes,
+            cameras=cameras,
+            reducers=tuple(self._active_profile_reducers()),
+            barlows=tuple(self._active_profile_barlows()),
+            full_aperture_solar_filter_telescope_ids=solar_filter_ids,
+        )
+
+    def _imaging_runtime_recommendation(
+        self,
+        target: CelestialObject,
+    ) -> ImagingRuntimeRecommendation:
+        """Build a current photographic plan only when a caller requests it."""
+
+        conditions = ImagingRuntimeConditionsAdapter.from_runtime(
+            target,
+            sky_quality=getattr(self, "_sky_quality", None),
+            seeing_transparency=getattr(
+                self,
+                "_seeing_transparency",
+                None,
+            ),
+            moon=getattr(self, "_moon", None),
+            moon_geometry=self._moon_geometry_condition_input(target),
+        )
+        assembler = getattr(self, "_imaging_runtime_assembler", None)
+        if assembler is None:
+            assembler = ImagingRuntimeAssembler()
+            self._imaging_runtime_assembler = assembler
+        return assembler.assemble(
+            target,
+            self._active_profile_imaging_inventory(),
+            conditions,
+        )
 
     def _find_telescope(self, telescope_id: str) -> Telescope | None:
         return next((telescope for telescope in self._telescopes if telescope.id == telescope_id), None)

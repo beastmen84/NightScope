@@ -582,7 +582,7 @@ def test_all_catalogue_targets_produce_bounded_deterministic_advice(
     assert len(rows) == 7585
 
 
-def test_exposure_advisor_remains_outside_runtime_and_qml() -> None:
+def test_exposure_advisor_has_no_direct_controller_or_qml_registration() -> None:
     controller_source = inspect.getsource(AppController)
     equipment_source = inspect.getsource(EquipmentService)
     qml_text = "\n".join(

@@ -702,9 +702,9 @@ known.
 The builder always emits the prime-focus train. It additionally emits only
 reducers explicitly marked for imaging and exactly linked to the telescope,
 plus the supplied Barlows as separate alternatives. Reducers and Barlows are
-never stacked. The caller owns inventory scope, so the next runtime assembler
-can pass active-profile equipment without the builder ever
-reading catalogues or profile state itself.
+never stacked. The caller owns inventory scope, so the runtime assembler passes
+active-profile equipment without the builder ever reading catalogues or
+profile state itself.
 
 The builder deliberately does not classify targets, score candidates, choose
 between still imaging and video, estimate exposure, serialize a UI DTO or
@@ -751,8 +751,9 @@ without inventing values. A known negative reducer spacing is the only modeled
 accessory-compatibility condition that removes a candidate at this layer;
 non-positive or non-finite optical geometry is also rejected.
 
-The service is still absent from `AppController`, `EquipmentService`, QML,
-Home, Planner, Sky Compass and NSOM.
+`AppController` does not own or invoke the service directly. The private
+runtime assembler owns it and can call it only on demand; it remains absent
+from `EquipmentService`, QML, Home, Planner, Sky Compass and NSOM.
 
 ### Photographic Exposure Planning
 
@@ -781,8 +782,9 @@ Gain/ISO, read noise, autoguiding, measured tracking accuracy and filter
 passband remain explicit unmodeled limitations, so the result is a conservative
 broadband planning interval rather than camera calibration.
 
-This layer is also absent from `AppController`, `EquipmentService`, QML, Home,
-Planner, Sky Compass and NSOM.
+This layer is not registered directly with `AppController` and remains absent
+from `EquipmentService`, QML, Home, Planner, Sky Compass and NSOM. The private
+runtime assembler can invoke it for a selected still candidate.
 
 ### Photographic Video Capture Planning
 
@@ -818,10 +820,54 @@ Exposure/gain and histogram, ROI/readout, actual transfer throughput, codec or
 RAW format, atmospheric-dispersion correction, apparent diameter/phase, lucky
 frame-selection fraction and image derotation remain explicit limitations.
 
-This layer is likewise absent from runtime and QML. The next boundary is a
-runtime assembler that supplies active-profile trains, exact solar-filter
-telescope IDs and current conditions to the still or video advisor;
-presentation on Object Detail remains the last stage.
+This layer is not registered directly with `AppController` and remains absent
+from QML, Home, Planner, Sky Compass and NSOM. The private runtime assembler
+can invoke it for a selected video candidate.
+
+### Photographic Runtime Assembly
+
+The runtime boundary is now implemented without a presentation boundary:
+
+```text
+active profile + current observing facts + CelestialObject
+                         |
+                         v
+             ImagingRuntimeConditionsAdapter
+                         +
+             ImagingRuntimeInventory
+                         |
+                         v
+              ImagingRuntimeAssembler
+                         |
+       ImagingTrainBuilder -> static rank -> best candidate
+                         |
+                  still OR video advisor
+                         |
+                         v
+          ImagingRuntimeRecommendation
+```
+
+The inventory snapshot includes only assigned telescopes, astronomy cameras,
+camera bodies, imaging reducers and Barlows. A full-aperture solar-filter ID is
+forwarded only if the same telescope is assigned to the active profile. This
+keeps solar admission fail-closed and exact.
+
+The condition adapter supplies SQM/Bortle, raw atmospheric transparency, Moon
+illumination and target geometry to still planning, and seeing/current target
+altitude to video planning. It deliberately does not reuse a conditioned visual
+target score. NightScope has no camera-control telemetry, so achievable FPS
+remains absent and the video advisor keeps its existing catalogue/goal
+provenance.
+
+Policy `imaging_runtime_v1` returns the best static candidate with exactly one
+mode-specific advice object, or a stable unavailable status for missing
+profile/inventory, invalid trains, solar safety gating or an unavailable
+advisor. Conditions remain score-neutral.
+
+`AppController` exposes this only as a private Python method. No startup,
+weather, profile or observing refresh calls it; no signal or cache was added.
+There is still no QML property or Object Detail DTO. That presentation mapping
+is the final photographic-engine phase.
 
 ### Filters
 

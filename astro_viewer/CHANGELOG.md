@@ -62,12 +62,13 @@
   acquisizione. Le camere planetarie ad alto frame rate, le camere raffreddate
   da cielo profondo, i body con Bulb, reducer e Barlow vengono confrontati con
   regole distinte e senza riusare score visuali, Home o NSOM.
-- Aggiunto il terzo strato backend fotografico, ancora non registrato nel
-  runtime: `ImagingExposureAdvisor` produce per il candidato foto un intervallo
-  di posa singola, un intervallo di integrazione totale e il numero indicativo
-  di frame. La policy e' auditabile e usa rapporto focale, luminosita' del
-  target, SQM o fallback Bortle, trasparenza, geometria lunare e un limite
-  prudenziale distinto per montatura; video non riceve tempi di posa still.
+- Aggiunto il terzo strato backend fotografico, non registrato direttamente nel
+  controller: `ImagingExposureAdvisor` produce per il candidato foto un
+  intervallo di posa singola, un intervallo di integrazione totale e il numero
+  indicativo di frame. La policy e' auditabile e usa rapporto focale,
+  luminosita' del target, SQM o fallback Bortle, trasparenza, geometria lunare e
+  un limite prudenziale distinto per montatura; video non riceve tempi di posa
+  still.
 - Aggiunto il quarto strato backend fotografico:
   `ImagingVideoCaptureAdvisor` produce per Sole, Luna e pianeti un intervallo
   prudenziale per una singola clip stackabile senza derotazione, un intervallo
@@ -77,6 +78,19 @@
   clip piu' brevi, Saturno e i pianeti deboli obiettivi FPS distinti; un GoTo
   altazimutale conserva la normale finestra di Giove e limita soltanto le clip
   lunghe per la rotazione di campo.
+- Collegati i quattro strati con `ImagingRuntimeAssembler`, invocabile soltanto
+  on demand dal backend. Lo snapshot usa telescopi, camere astronomiche, body,
+  reducer e Barlow del profilo attivo; costruisce i treni, sceglie il miglior
+  candidato e restituisce un risultato tipizzato con il solo advisor foto o
+  video pertinente. Gli ID del filtro solare vengono prima limitati ai
+  telescopi effettivamente assegnati, mantenendo il Sole fail-closed.
+- `ImagingRuntimeConditionsAdapter` porta nel piano foto SQM/Bortle,
+  trasparenza atmosferica grezza e geometria lunare, e nel piano video seeing e
+  altezza corrente. Le condizioni non cambiano lo score statico; FPS
+  raggiungibili restano sconosciuti senza telemetria della camera. Stati
+  espliciti distinguono profilo o inventario mancanti, treni non validi e
+  target bloccati. Non sono stati aggiunti segnali, refresh, cache, DTO QML o
+  presentazione in Detail.
 - Completezza e limiti restano metadati paralleli e non modificano il punteggio:
   seeing, fondo cielo, precisione d'inseguimento, connessione meccanica e cerchio
   d'immagine non vengono inventati. Gain/ISO, rumore di lettura, autoguida,
@@ -86,8 +100,9 @@
   dichiara dotati del filtro solare a tutta apertura; l'insieme vuoto resta il
   default sicuro. Anche il video advisor non inventa esposizione/gain, ROI,
   throughput, codec, diametro/fase apparente, percentuale di frame selezionati
-  o derotazione. Condizioni e inventario runtime, segnali, DTO QML e pagina
-  Detail non sono ancora collegati.
+  o derotazione. Condizioni e inventario sono ora collegati soltanto
+  nell'assembler backend on demand; segnali, DTO QML e pagina Detail non sono
+  ancora collegati.
 - La montatura dei telescopi usa ora una tassonomia stabile selezionata da menu:
   OTA, altazimutale, equatoriale, forcella e Dobson, con varianti manuale,
   motorizzata, GoTo e PushTo dove pertinenti. I valori storici dei seed vengono
@@ -95,9 +110,10 @@
   conserva un codice esplicito non specificato. L'adattatore visuale mantiene
   gli stessi coefficienti precedenti, mentre i codici distinti restano
   disponibili al backend fotografico separato.
-- Il gate finale `tools/run_checks.py --fast` passa con 1.050 test, 643 warning
-  Skyfield/NumPy gia' noti e 10 subtest, oltre agli smoke backend, QML normale
-  e Red Night Vision. Il catalogo Cameras ha inoltre QML lint senza warning; la
+- Il gate finale `tools/run_checks.py --fast` passa con 1.068 test, 643 warning
+  Skyfield/NumPy gia' noti e 10 subtest in 265,70 secondi, oltre agli smoke
+  backend, QML normale e Red Night Vision. Il catalogo Cameras ha inoltre QML
+  lint senza warning; la
   pagina Profili con camere assegnate e' stata verificata nativamente a
   `1040 × 700` e `1709 × 1047` in entrambe le modalita'. Il nuovo controllo
   del filtro solare e il relativo avviso di sicurezza sono stati verificati

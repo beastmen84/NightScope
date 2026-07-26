@@ -674,7 +674,7 @@ def test_all_seed_cameras_and_planets_produce_bounded_advice(
     assert advice_count == 539
 
 
-def test_video_advisor_remains_outside_runtime_and_qml() -> None:
+def test_video_advisor_has_no_direct_controller_or_qml_registration() -> None:
     controller_source = inspect.getsource(AppController)
     equipment_source = inspect.getsource(EquipmentService)
     qml_text = "\n".join(

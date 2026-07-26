@@ -262,9 +262,12 @@ Current runtime status for `1.27.0`:
   `EquipmentService`, ObserverCapability, Planner, Home, Sky Compass or NSOM.
   Catalogue edits and profile links notify `profileInventoryChanged`; they do
   not rebuild the visual active-profile setup or emit its downstream Home and
-  observing-detail signals. A separate backend-only imaging train builder,
-  target adapter and still/video scorer now consume typed data only when
-  called directly; none is registered with `AppController` or QML.
+  observing-detail signals. `AppController` owns one backend-only
+  `ImagingRuntimeAssembler` and calls it only through a private on-demand
+  method. The assembler snapshots the active photographic inventory, builds
+  trains, ranks the target and routes the winner to the still or video
+  advisor. It has no QML property, signal, cache or refresh subscription and
+  therefore cannot enter Home, Planner, Sky Compass, Equipment or NSOM.
 - Filters and focal reducers are persistent profile inventory. Separate
   presentation services can feed the score-free observing-detail read model,
   but neither accessory enters `EquipmentService`, ObserverCapability, setup
@@ -600,17 +603,28 @@ Services hold business logic:
   sampling and known backfocus geometry.
 - `ImagingRecommendationService`: additive static still/video suitability over
   photographic target traits and imaging trains. Its data-completeness
-  metadata has zero score effect; the service has no runtime, visual-engine or
-  QML registration. Solar configurations require an explicit exact set of
-  telescope IDs from the caller.
+  metadata has zero score effect; only the runtime assembler owns it and there
+  is no visual-engine or QML registration. Solar configurations require an
+  explicit exact set of telescope IDs from the caller.
 - `ImagingExposureAdvisor`: score-neutral broadband planning ranges for one
   still candidate. It consumes only a typed `ImagingSessionConditions`
   snapshot, emits inspectable multipliers, sub-exposure/total-integration
-  intervals and confidence metadata, and remains outside runtime and QML.
+  intervals and confidence metadata. It is owned only by the runtime assembler
+  and remains outside QML.
 - `ImagingVideoCaptureAdvisor`: score-neutral single-clip guidance for a
   solar, lunar or planetary video candidate. It keeps achievable FPS distinct
   from catalogue maxima and target goals, emits duration/FPS/frame ranges and
-  explicit missing-data metadata, and remains outside runtime and QML.
+  explicit missing-data metadata.
+- `ImagingRuntimeConditionsAdapter`: maps current SQM/Bortle, raw atmospheric
+  transparency, Moon illumination/target geometry, seeing and target altitude
+  into the two immutable advisor inputs. It does not consume conditioned
+  visual target scores.
+- `ImagingRuntimeAssembler`: private, on-demand orchestration over the active
+  profile. It builds all valid telescope/camera trains with assigned reducers
+  and Barlows, forwards the exact assigned solar-filter telescope IDs, ranks
+  candidates and returns one typed result with either still-exposure or video
+  advice. Stable unavailable states cover missing inventory and blocked solar
+  guidance; no result is serialized to QML yet.
 - `FilterRecommendationService`: presentation-only matching between target
   filter preferences, the aperture of the target-specific telescope, the
   complete filter catalogue and products assigned to the active profile. It
