@@ -513,6 +513,15 @@ Labels:
 
 If no forecast is available, the output is `Pessima`, score 0.
 
+`WeatherSummary` keeps the complete explanatory sentence separate from its
+structured `limiting_factors`. Favorable context such as few clouds or weak
+wind can remain in the explanation but never enters the limiting list.
+Moderate/high cloud cover, precipitation risk from 35%, wind above 28 km/h,
+humidity from 80% and a Moon penalty from 12 points are limiting factors. When
+the global score itself triggers blocking, `NightPlannerService` builds
+`blockingReason` from that list and falls back to the generic poor-quality
+label only when no structured factor is available.
+
 ## Blocking Weather And Session State
 
 The observing plan is blocked by `NightPlannerService.weather_blocking_status`
@@ -786,6 +795,18 @@ Assigned equipment only:
   `ObserverCapability` projection.
 - If no optical telescope is assigned, a naked-eye fallback is used or the
   recommendation asks the user to add appropriate equipment.
+
+The primary setup remains the score-selected `RecommendationCandidate`.
+`RecommendationPresenter` chooses secondary display roles only from those
+already-scored candidates and never changes their scores. Its
+`high_magnification` role first excludes telescope configurations above two
+times the aperture in millimetres or below a 0.45 mm exit pupil. For faint
+extended galaxies, nebulae and supernova remnants with surface-brightness proxy
+at least 13.5, it additionally prefers no Barlow, exit pupil at least 1 mm and,
+when size is known, a true field at least 105% of the target. The highest
+surviving magnification is displayed; the previous maximum-magnification
+fallback is used only if no practical candidate survives. This role never
+replaces the primary recommendation.
 
 Filter recommendation boundary:
 
@@ -1229,7 +1250,7 @@ Photographic runtime assembly:
   score-free DTO. It exposes the winning optical train, sensor field of view,
   image scale, effective focal length/ratio, back-focus spacing and exactly one
   still or video plan. The presenter adds a framing notice when a known target
-  cannot fit in the sensor field, prioritizes at most three operational
+  cannot fit in the sensor field, prioritizes at most four operational
   warnings and keeps catalog FPS explicitly distinct from measured FPS.
 - Object Detail renders this as a separate card below the visual setup. Camera
   inventory never enters visual Equipment or recommendation scoring; current

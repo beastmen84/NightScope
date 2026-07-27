@@ -1,7 +1,7 @@
 # NightScope Release Checklist
 
-This checklist is the approval gate for the first public NightScope build. A
-source commit or a passing unit suite alone is not a release approval.
+This checklist is the approval gate for public NightScope builds. A source
+commit or a passing unit suite alone is not a release approval.
 
 ## 1. Product And Legal
 
@@ -10,7 +10,7 @@ source commit or a passing unit suite alone is not a release approval.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   survey image, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.41.0` source tag referenced by the
+- [x] Create and verify the public `v1.41.0` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [ ] Confirm version number, changelog, manual revision, and About/build
   metadata agree.
@@ -122,8 +122,9 @@ Do not commit credentials or exact personal locations.
 - [x] Create the deterministic
   `NightScope-v1.41.0-debian-12-x64.tar.gz` and adjacent SHA-256 file.
 - [x] Verify checksum, extraction, audit and smoke tests from the final archive.
-- [ ] Publish the tarball and checksum as GitHub pre-release assets so Windows
-  1.40.1 clients do not receive a Linux-only stable-update notification.
+- [x] Publish the tarball and checksum together with the matching Windows ZIP
+  in the public `v1.41.0` GitHub release, so stable-update notifications have
+  assets for both supported platforms.
 
 ## 8. Release Approval
 

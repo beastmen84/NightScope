@@ -595,13 +595,18 @@ It also coordinates:
 Services hold business logic:
 
 - `ObservingScoreService`: forecast/Moon observing-weather summary and labels.
+  It keeps the complete explanation separate from structured adverse
+  `limiting_factors`, so favorable context such as weak wind is never exposed
+  as a blocking reason.
 - `NsomCategoryScoreService`: upper-Home planetary and deep-sky category
   summaries from the canonical observation environment.
 - `SeeingTransparencyService`: seeing/transparency estimation from forecast
   fields and sky quality.
 - `NightPlannerService`: observing plan capped at four unique targets, weather
-  blocking and chronological plan presentation. It delegates default ranking to
-  `PlannerNsomScoringService` and accepts selected telescopes by target.
+  blocking and chronological plan presentation. Score-based blocking reasons
+  use the structured limiting factors rather than the full weather summary. It
+  delegates default ranking to `PlannerNsomScoringService` and accepts selected
+  telescopes by target.
 - `PlannerNsomScoringService`: practical target value, binary session viability,
   timing factors and final `ObservationOpportunity` ranking.
 - `NsomObservationEnvironmentService`: the single target-specific composition
@@ -609,6 +614,11 @@ Services hold business logic:
   seeing/transparency and provider-gated AOD/OpenAQ conditions.
 - `EquipmentService`: magnification, true field, exit pupil, profile
   capabilities and setup recommendation.
+- `RecommendationPresenter`: visual recommendation DTO formatting and
+  display-only role selection from already-scored candidates. Its
+  high-magnification representative respects telescope physical limits and
+  protects faint extended targets from unusable Barlow/field/exit-pupil
+  combinations without changing the primary recommendation or any score.
 - `ImagingTrainBuilder`: target-neutral telescope/camera enumeration at prime
   focus, with one exact imaging reducer or one optically distinct Barlow
   multiplier, plus focal ratio, field, sampling and known backfocus geometry.
@@ -642,10 +652,10 @@ Services hold business logic:
   guidance.
 - `ImagingRecommendationPresenter`: localized DTO boundary between the typed
   runtime result and Object Detail. It formats optical geometry, exposure/video
-  ranges, back-focus spacing and prioritized warnings, including crop/mosaic
-  guidance when the target exceeds the camera field and lower-bound notation
-  when integration exceeds the planning ceiling. It never exports the internal
-  photographic score.
+  ranges, back-focus spacing and up to four prioritized warnings, including
+  crop/mosaic guidance when the target exceeds the camera field and
+  lower-bound notation when integration exceeds the planning ceiling. It never
+  exports the internal photographic score.
 - `FilterRecommendationService`: presentation-only matching between target
   filter preferences, the aperture of the target-specific telescope, the
   complete filter catalogue and products assigned to the active profile. It

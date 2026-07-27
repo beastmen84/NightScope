@@ -139,12 +139,12 @@ zero-warning baseline.
 
 ## Measured Unreleased Camera, Profile, Solar Capability And Imaging Gate
 
-Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-26:
+Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-27:
 
 | Check | Result |
 | --- | --- |
 | `python tools/run_checks.py --fast` on the final source state | Passed |
-| Complete deterministic suite | 1,086 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 259.27 s |
+| Complete deterministic suite | 1,091 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 245.20 s |
 | Camera seed/bootstrap | 37 astronomy cameras and 40 camera bodies; schema 19-to-23 and 20-to-23 upgrades, unique identities and sensor geometry checks passed |
 | Profile persistence | Astronomy-camera and camera-body links persist independently per profile; the schema 21-to-22 migration preserves telescope assignments and initializes the exact per-profile/per-telescope solar-filter declaration to false |
 | Schema 23 equipment migration | Legacy user barrel values are retained as neutral technical notes, retired barrel and generic reducer fields are cleared, and exact reducer-to-telescope links survive unchanged |
@@ -153,13 +153,13 @@ Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-26:
 | Monthly catalogue count synchronization | The filtered-count notification is emitted after model replacement; enabling and disabling `Visible this month` produces the same count in the property and list model in both directions |
 | Photographic optical-train foundation | 11 focused tests cover both camera adapters, all 77 seeded cameras, prime focus, exact imaging-reducer links, optically equivalent Barlows, sensor geometry, pixel scale, field of view, backfocus and stable deduplication; the foundation has no direct controller or QML registration |
 | Photographic target and scorer layer | 21 focused tests cover still/video classification, all 7,585 catalogue targets, all 77 seeded cameras, wide and compact framing, planetary/lunar sampling, aperture-aware planetary video, conservative camera-body video geometry, persisted exact solar-filter telescope admission, distinct FPS semantics, mount policy, reducer spacing, score bounds, confidence separation, deterministic ties and the direct-controller/QML boundary |
-| Photographic exposure advisor | 14 focused tests cover all 7,585 catalogue targets, dark/bright sky, Bortle fallback, transparency, Moon geometry, target brightness, focal ratio, equatorial/alt-az/manual caps, body Bulb limits, bounded frame counts, invalid inputs/geometry and the direct-controller/QML boundary |
+| Photographic exposure advisor | 16 focused tests cover all 7,585 catalogue targets, dark/bright sky, Bortle fallback, transparency, Moon geometry, target brightness, focal ratio, equatorial/alt-az/manual caps, body Bulb limits, censored integration bounds, low-altitude warnings, bounded frame counts, invalid inputs/geometry and the direct-controller/QML boundary |
 | Photographic video capture advisor | 25 focused cases cover explicit Sun/Moon/seven-planet profiles, all 539 planet/camera seed combinations, achievable/catalogue/target FPS provenance, equatorial/alt-az/manual limits, seeing and altitude warnings, monochrome/body constraints including unknown active video geometry, invalid or missing inputs, exact solar admission and the direct-controller/QML boundary |
 | Photographic runtime assembler | 18 focused cases cover still/video routing, active-profile astronomy-camera and body inventory, reducers/Barlows, exact assigned solar-filter forwarding, typed unavailable states, raw condition adaptation, localized Moon percentages, score neutrality and absence from existing refresh paths |
-| Photographic selected-detail presentation | 9 focused cases cover localized score-free DTOs, still/video metrics, reducer backfocus, field-fit warnings, unverified camera-body video geometry, unavailable and solar-safe states, semantic controller invalidation and card placement after the visual setup |
+| Photographic selected-detail presentation | 10 focused cases cover localized score-free DTOs, still/video metrics, censored integration and low-altitude guidance, reducer backfocus, field-fit warnings, unverified camera-body video geometry, unavailable and solar-safe states, semantic controller invalidation and card placement after the visual setup |
 | Profile UI follow-up | Native width probe: both camera rows inline at 1,709 px, only the longer astronomy-camera row wraps at 1,300 px, and both return inline in the single-column 1,040 px layout; camera-form columns measured equally at 268 px |
 | Mount compatibility | Controlled taxonomy plus legacy `manuale` mapping preserve the prior visual tracking coefficients |
-| Translation catalogues | IT, EN, and ES: 1,967 finished, 0 unfinished each |
+| Translation catalogues | IT, EN, and ES: 1,979 finished, 0 unfinished each |
 | Camera terminology | Exact IT/EN/ES glossary assertions cover sensor color mode, pixel size, image resolution, full-resolution FPS, cooling Delta T, shutter type, lens mount, video tuple and Bulb mode; the widest localized label measures 185.2 px inside the 244 px text area |
 | Imaging-plan terminology | Exact IT/EN/ES assertions cover prime focus, focal reducer, image scale, sensor field of view, sub-exposure, back focus, field rotation and planetary video and reject known literal mistranslations |
 | Solar-filter terminology and safety | Exact IT/EN/ES assertions cover the full-aperture terminology, front-of-objective placement and explicit rejection of eyepiece solar filters |
@@ -232,8 +232,9 @@ PyInstaller 6.21.0 and glibc 2.36:
 | Archive SHA-256 | `24490604996561e90b2b3e78ed1d2be1b4530d6ec679190ca81fe32c5f396ef5` |
 | Clean archive extraction | Checksum, bundle audit, backend smoke, and normal/red QML smoke passed |
 
-This is a fast source/bundle gate without coverage or `pip-audit`. The artifact
-is a local release candidate until its tarball and checksum are published.
+This is a fast source/bundle gate without coverage or `pip-audit`. The exact
+tarball and checksum were subsequently published with the Windows bundle in
+the public `v1.41.0` GitHub release.
 The glibc 2.36 baseline is forward-compatible with the validated Debian 13 and
 Ubuntu 26.04 environments; it is not presented as a universal Linux binary.
 

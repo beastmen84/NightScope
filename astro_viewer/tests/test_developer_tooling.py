@@ -456,6 +456,13 @@ def test_multilingual_manual_has_complete_navigation_and_current_provider_semant
     assert "Do not use eyepiece solar filters" in manual
     assert "Non usare filtri solari da oculare" in manual
     assert "No utilice filtros solares de ocular" in manual
+    assert manual.count("<h3>Imaging plan</h3>") == 1
+    assert "<h3>Photographic plan</h3>" not in manual
+    assert "single-exposure" not in manual
+    assert "Il piano fotografico usa un riferimento a banda larga" in manual
+    assert "El plan fotográfico usa una referencia de banda ancha" in manual
+    assert "piano still" not in manual
+    assert "referencia broadband" not in manual
     assert "Pupila de salida = apertura del telescopio / aumento" in manual
     assert "Pupila de salida = abertura del telescopio / aumento" not in manual
     assert "El catálogo reúne objetos del sistema solar" in manual

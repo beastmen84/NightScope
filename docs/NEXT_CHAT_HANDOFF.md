@@ -1,20 +1,23 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-26
+Aggiornato: 2026-07-27
 
 ## Stato Versioni
 
 - Versione sorgente: `1.41.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
-- Release pubblica stabile: `v1.40.1`, tag sul commit sorgente
-  `7b6da6d358f28cacb8836b4520ae6cb407d98fc5`.
-- Asset: `NightScope-v1.40.1-windows-x64.zip`, SHA-256
-  `7001aa1aa3cee8139602e4e97cdf9955f9055456585260f1aba5b3b55c42da97`.
-- Distribuzione Windows corrente: `1.40.1`, pubblicata su GitHub.
-- Metadati, tag, asset e digest della release `1.40.1` verificati su GitHub il
-  2026-07-24. Il sorgente `1.41.0` non e' ancora distribuito come release.
+- Release pubblica stabile: `v1.41.0`, tag sul commit sorgente
+  `7d95aa648b1f310adcca6a713d6b42479e978f58`.
+- Asset Windows: `NightScope-v1.41.0-windows-x64.zip`, SHA-256
+  `22703fed5cdc8dcf3537bde364591eff49375da6761e1a818f858cebef8edbd9`.
+- Asset Linux: `NightScope-v1.41.0-debian-12-x64.tar.gz`, SHA-256
+  `24490604996561e90b2b3e78ed1d2be1b4530d6ec679190ca81fe32c5f396ef5`,
+  con file checksum adiacente.
+- Metadati, tag, asset e digest della release `1.41.0` verificati su GitHub il
+  2026-07-27. Il sorgente corrente contiene modifiche `Unreleased` successive
+  al tag senza spostarle nella release gia' pubblicata.
 - Commit sorgente della release pubblica validato:
-  `7b6da6d Fix NSOM recommendation input boundaries`
+  `7d95aa6 Refresh Debian release artifact metadata`
 
 La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
@@ -175,14 +178,14 @@ specificato. La proiezione di tracking visuale conserva esattamente i
 coefficienti precedenti, lasciando le distinzioni piu' fini al backend
 fotografico separato.
 
-Il gate finale `tools/run_checks.py --fast` passa con 1.086 test, 643 warning
-Skyfield/NumPy gia' noti e 10 subtest in 259,27 secondi, oltre agli smoke
+Il gate finale `tools/run_checks.py --fast` passa con 1.091 test, 643 warning
+Skyfield/NumPy gia' noti e 10 subtest in 245,20 secondi, oltre agli smoke
 backend, QML normale e Red Night Vision. `EquipmentCamerasPage.qml` passa QML
 lint senza warning. La
 pagina Profili con camere assegnate e' stata controllata nativamente a
 `1040 × 700` e `1709 × 1047` in entrambe le modalita'; in Red Night Vision i
 massimi sono verde 74 e blu 61, senza pixel oltre soglia. I cataloghi Qt
-IT/EN/ES contengono 1.967 voci finite e zero incomplete. Il controllo del
+IT/EN/ES contengono 1.979 voci finite e zero incomplete. Il controllo del
 filtro solare, selezionato e accompagnato dall'avviso di sicurezza, e' stato
 verificato nativamente a `1400 × 900` in modalita' normale e notturna con gli
 stessi limiti cromatici. Il follow-up visuale
@@ -306,10 +309,10 @@ pulita con checksum, estrazione, audit, backend e QML normale/rosso passati.
 
 Il formato pubblico scelto e' il tar gzip Debian 12 x86-64, non un binario
 Linux universale. La stessa build e' stata verificata anche su Debian 13 e
-Ubuntu 26.04. Va pubblicata come GitHub pre-release: una release stabile
-Linux-only verrebbe proposta dall'Update Manager anche ai client Windows
-1.40.1. Prima della pubblicazione restano commit/tag e upload degli asset
-GitHub. Restano come prove opzionali una sessione
+Ubuntu 26.04. Il tarball e il checksum sono stati pubblicati nella release
+stabile `v1.41.0` insieme al bundle Windows corrispondente, quindi l'Update
+Manager trova asset per entrambe le piattaforme supportate. Restano come prove
+opzionali una sessione
 interattiva save/read/delete di Secret Service e una richiesta GeoClue
 autorizzata con coordinate reali.
 

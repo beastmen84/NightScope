@@ -33,14 +33,11 @@ tonight, from here, with this setup?**
 > Qt, backend, and QML checks; its packaged visual and live-provider release
 > matrices are not complete yet.
 
-Current Windows package:
-[NightScope 1.40.1](https://github.com/beastmen84/NightScope/releases/tag/v1.40.1).
-Its release notes identify the corresponding source commit and publish the
-SHA-256 digest of the portable ZIP.
-
-Current Linux pre-release page:
+Current public Windows and Linux release:
 [NightScope 1.41.0](https://github.com/beastmen84/NightScope/releases/tag/v1.41.0).
-Linux packages use a portable tarball plus an adjacent SHA-256 file.
+Its release assets include the portable Windows ZIP and the Debian 12 x86-64
+tarball with an adjacent SHA-256 file. The release notes identify the
+corresponding source commit and publish the artifact digests.
 
 ## What It Does
 

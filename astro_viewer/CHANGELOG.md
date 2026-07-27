@@ -117,11 +117,12 @@
   video. Le foto espongono posa singola, integrazione totale, numero indicativo
   di pose e limite prudenziale; i pianeti espongono durata della clip, FPS,
   frame indicativi e provenienza del frame rate.
-- Gli avvisi fotografici restano metadati score-neutral e vengono limitati ai
-  quattro piu' operativi: visibilita', seeing, montatura/rotazione di campo, camera
-  non raffreddata e pianeta debole. Se il target non entra nel campo del
-  sensore, la card indica esplicitamente ritaglio o mosaico; il massimo FPS di
-  catalogo non viene presentato come prestazione misurata.
+- Gli avvisi fotografici restano metadati score-neutral e vengono limitati a
+  quattro, scelti in ordine di priorita' fra visibilita', seeing,
+  montatura/rotazione di campo, camera non raffreddata e pianeta debole. Se il
+  target non entra nel campo del sensore, la card indica esplicitamente
+  ritaglio o mosaico; il massimo FPS di catalogo non viene presentato come
+  prestazione misurata.
 - Rafforzato lo scoring del video planetario con una componente di apertura
   del telescopio al 15%, monotona e saturante, senza applicarla ai piani a disco
   intero di Sole e Luna. A parita' di rapporto focale una maggiore apertura
@@ -183,8 +184,8 @@
   conserva un codice esplicito non specificato. L'adattatore visuale mantiene
   gli stessi coefficienti precedenti, mentre i codici distinti restano
   disponibili al backend fotografico separato.
-- Il gate finale `tools/run_checks.py --fast` passa con 1.086 test, 643 warning
-  Skyfield/NumPy gia' noti e 10 subtest in 259,27 secondi, oltre agli smoke
+- Il gate finale `tools/run_checks.py --fast` passa con 1.091 test, 643 warning
+  Skyfield/NumPy gia' noti e 10 subtest in 245,20 secondi, oltre agli smoke
   backend, QML normale e Red Night Vision. Il catalogo Cameras ha inoltre QML
   lint senza warning; la
   pagina Profili con camere assegnate e' stata verificata nativamente a
@@ -194,7 +195,7 @@
   blu 61, senza pixel oltre soglia. La nuova card fotografica e' stata
   verificata con M31 e Saturno in modalita' normale e rossa, senza tagli; il
   probe rosso raggiunge al massimo verde 16 e blu 15. I quattro angoli dello
-  splash nativo hanno alpha zero. I cataloghi Qt IT/EN/ES contengono 1.967 voci
+  splash nativo hanno alpha zero. I cataloghi Qt IT/EN/ES contengono 1.979 voci
   finite e zero incomplete.
 - Aggiunti nel catalogo i comandi `Attiva risultati` e
   `Disattiva risultati`: operano sull'intero risultato filtrato corrente,
@@ -368,11 +369,12 @@
   `24490604996561e90b2b3e78ed1d2be1b4530d6ec679190ca81fe32c5f396ef5`.
   Audit, backend e QML normale/rosso passano dopo estrazione pulita; la stessa
   build e' stata verificata su Debian 12, Debian 13 e Ubuntu 26.04.
-- La versione sorgente passa a `1.41.0`; la distribuzione Windows e la release
-  GitHub stabile restano `1.40.1`. L'archivio Linux Debian 12 x86-64 e' pronto
-  localmente per la pubblicazione come pre-release, cosi' i client Windows non
-  ricevono una notifica senza asset Windows. Non e' un binario Linux universale
-  e non e' ancora stato caricato su GitHub.
+- La versione sorgente e la release pubblica passano a `1.41.0`. Il tag
+  `v1.41.0` punta al commit `7d95aa6`; la release GitHub pubblica insieme il
+  bundle Windows e l'archivio Debian 12 x86-64 con checksum adiacente, cosi'
+  l'Update Manager non propone una release priva dell'asset della piattaforma.
+  Il tarball resta specifico per architettura e baseline glibc e non viene
+  presentato come binario Linux universale.
 
 ## NightScope 1.40.1 - 2026-07-23
 

@@ -42,7 +42,9 @@ Two inputs meet inside the recommendation pipeline:
 
 `EquipmentService` compares those two sides with weighted scoring and selects
 the best `RecommendationCandidate`. `RecommendationPresenter` serializes the
-selected candidate into the UI-facing DTO used by `AppController` and QML.
+selected candidate and chooses display-only role representatives from the
+already-scored candidates for the UI-facing DTO used by `AppController` and
+QML.
 
 ## Responsibilities
 
@@ -160,7 +162,16 @@ shape consumed by QML:
 - `selectionScore`
 
 It formats telescope, binocular, naked-eye and fallback recommendations without
-changing scoring.
+changing the selected recommendation or any candidate score. Its
+`high_magnification` role is a secondary presentation choice, not another
+ranking pass: it first excludes telescope configurations above two times the
+aperture in millimetres or below a 0.45 mm exit pupil. For faint extended
+galaxies, nebulae and supernova remnants with a surface-brightness proxy of at
+least 13.5, it also prefers no Barlow, an exit pupil of at least 1 mm and,
+when target size is known, a field at least 105% of that size. The highest
+magnification that survives is shown; if none survives, the existing fallback
+keeps the role populated. These rules never replace the candidate selected by
+`EquipmentService`.
 
 Each item in `setupOptions` keeps the physical setup identity (`detailLabel`,
 `telescopeName`, `barlow`, metrics) and also exposes `displayLabel` for UI
@@ -909,7 +920,7 @@ train, sensor field of view, image scale, effective focal geometry, reducer
 back-focus spacing and exactly one capture plan. Still mode shows sub-exposure,
 total integration, estimated sub-exposures and a conservative tracking limit;
 video mode shows single-clip duration, planned FPS, estimated frames and FPS
-provenance. A maximum of three prioritized operational notices includes
+provenance. A maximum of four prioritized operational notices includes
 visibility/seeing/mount limits and explicit crop-or-mosaic guidance when a
 known target is larger than the selected sensor field. Camera-body video
 instead labels field and image scale as unverified and explains that video crop
