@@ -562,13 +562,17 @@ def test_source_version_matches_current_release_documents() -> None:
 
     assert re.fullmatch(r"\d+\.\d+\.\d+", version)
     assert f"Source version {version}" in readme
+    assert (
+        f"[NightScope {version}]"
+        f"(https://github.com/beastmen84/NightScope/releases/tag/v{version})"
+    ) in readme
     assert f"NightScope {version}" in source_notice
     assert f"/v{version}" in source_notice
     assert f"NightScope {version}" in third_party_notices
     assert f"tag `v{version}`" in third_party_notices
     assert f"## NightScope {version} -" in changelog
     assert f"Versione sorgente: `{version}`" in handoff
-    assert f"Current target: `v{version}`" in release_checklist
+    assert f"Current public release: `v{version}`" in release_checklist
 
 
 def test_legal_files_are_current_and_windows_build_enforces_them() -> None:

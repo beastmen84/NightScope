@@ -3,9 +3,9 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.42.0`. Check artifact-specific rows only against newly
-generated 1.42.0 bundles; completed 1.41.0 evidence remains in the changelog and
-testing record.
+Current public release: `v1.42.0`. Artifact-specific rows refer only to the
+published 1.42.0 bundles; completed 1.41.0 evidence remains in the changelog
+and testing record.
 
 ## 1. Product And Legal
 
@@ -14,7 +14,7 @@ testing record.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   survey image, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.42.0` source tag referenced by the
+- [x] Create and verify the public `v1.42.0` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [x] Confirm source version, changelog, source-availability notices, and
   About/build metadata agree on `1.42.0`.
@@ -126,7 +126,7 @@ Do not commit credentials or exact personal locations.
 - [x] Create the deterministic
   `NightScope-v1.42.0-debian-12-x64.tar.gz` and adjacent SHA-256 file.
 - [x] Verify checksum, extraction, audit and smoke tests from the final archive.
-- [ ] Publish the tarball and checksum together with the matching Windows ZIP
+- [x] Publish the tarball and checksum together with the matching Windows ZIP
   in the public `v1.42.0` GitHub release, so stable-update notifications have
   assets for both supported platforms.
 
@@ -135,5 +135,5 @@ Do not commit credentials or exact personal locations.
 - [ ] No unresolved severity-1 or severity-2 defect.
 - [ ] Known limitations match README and manual.
 - [ ] Changelog contains only verified results.
-- [ ] Git worktree is clean and release tag points to the audited commit.
+- [x] Git worktree is clean and release tag points to the audited commit.
 - [ ] Final artifact identity and hash are recorded in the release notes.

@@ -11,13 +11,13 @@ active profile to answer a practical question: **what is worth observing
 tonight, from here, with this setup?**
 
 > [!NOTE]
-> NightScope is a released application. Source version 1.42.0 is prepared for
-> the next stable release and may be ahead of the latest published bundles.
+> NightScope is a released application. Source version 1.42.0 matches the
+> current stable Windows and Linux portable release.
 > Release artifacts remain platform-specific portable builds rather than
 > universal installers.
 
 Current public Windows and Linux release:
-[NightScope 1.41.0](https://github.com/beastmen84/NightScope/releases/tag/v1.41.0).
+[NightScope 1.42.0](https://github.com/beastmen84/NightScope/releases/tag/v1.42.0).
 Its release assets include the portable Windows ZIP and the Debian 12 x86-64
 tarball with an adjacent SHA-256 file. The release notes identify the
 corresponding source commit and publish the artifact digests.

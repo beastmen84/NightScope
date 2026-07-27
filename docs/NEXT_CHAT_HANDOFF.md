@@ -6,25 +6,20 @@ Aggiornato: 2026-07-27
 
 - Versione sorgente: `1.42.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
-- Release pubblica stabile: `v1.41.0`, tag sul commit sorgente
-  `7d95aa648b1f310adcca6a713d6b42479e978f58`.
-- Asset Windows: `NightScope-v1.41.0-windows-x64.zip`, SHA-256
-  `22703fed5cdc8dcf3537bde364591eff49375da6761e1a818f858cebef8edbd9`.
-- Asset Linux: `NightScope-v1.41.0-debian-12-x64.tar.gz`, SHA-256
-  `24490604996561e90b2b3e78ed1d2be1b4530d6ec679190ca81fe32c5f396ef5`,
-  con file checksum adiacente.
-- Candidate Linux locale `1.42.0`:
-  `NightScope-v1.42.0-debian-12-x64.tar.gz`, `273.018.788` byte (`260 MiB`),
+- Release pubblica stabile: `v1.42.0`, tag sul commit sorgente
+  `3e17132223df2df06288e7624e80da69550f3d40`.
+- Asset Windows: `NightScope-v1.42.0-windows-x64.zip`, `234.647.891` byte,
   SHA-256
+  `34dc295fa753498dc087d2de3eedba6e53ccf37177357815ba4d7e814412e08f`.
+- Asset Linux: `NightScope-v1.42.0-debian-12-x64.tar.gz`, `273.018.788` byte
+  (`260 MiB`), SHA-256
   `1961ac3be264001d1735bcff09c7bf23e58835c75c2dc49af679c8d6e532da2a`,
   con file checksum adiacente.
-- Metadati, tag, asset e digest della release `1.41.0` verificati su GitHub il
-  2026-07-27.
-- Il sorgente corrente e il changelog sono stati portati a `1.42.0`; la dist
-  Linux e' stata creata e verificata localmente. Dist Windows, tag, release e
-  upload GitHub `v1.42.0` restano da creare o verificare.
+- Metadati, tag corretto `v1.42.0`, asset e digest della release stabile
+  verificati su GitHub il 2026-07-27. Il tag iniziale errato `v.1.42.0` e'
+  stato sostituito senza modificare commit, release o asset.
 - Commit sorgente della release pubblica validato:
-  `7d95aa6 Refresh Debian release artifact metadata`
+  `3e17132 Record Debian 1.42 release candidate`
 
 La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
