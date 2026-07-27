@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+- Aggiornata la venv di sviluppo con gli aggiornamenti compatibili disponibili
+  per runtime, dati astronomici e strumenti di qualita': `aiobotocore 3.8.0`,
+  `aiohttp 3.14.3`, `astropy-iers-data 0.2026.7.27.0.56.29`,
+  `certifi 2026.7.22`, `coverage 7.15.2`, `filelock 3.32.0`,
+  `jaraco.functools 4.6.0`, `pandas 3.0.5`, `platformdirs 4.11.0`,
+  `Ruff 0.16.0`, `soupsieve 2.9.1`, `tqdm 4.70.0` e `yarl 1.24.5`.
+- Allineati `aiobotocore 3.8.0` e `botocore 1.43.46` aggiornando il vincolo
+  dichiarato alla finestra supportata `>=1.43.3,<1.43.47`. Le versioni
+  `botocore` successive restano escluse finche' non sono accettate da
+  `aiobotocore`.
+- Rigenerato l'archivio Windows delle licenze sulla closure aggiornata delle
+  dipendenze.
+- Il gate Windows `tools/run_checks.py --security` passa con `1.091 passed`,
+  `643 warnings` Skyfield/NumPy note, `10 subtests`, copertura runtime
+  complessiva dell'85%, nessuna vulnerabilita' nota e smoke backend/QML
+  normale e Red Night Vision.
+
 ## NightScope 1.42.0 - 2026-07-27
 
 - Corretto il piano fotografico per i target molto impegnativi: quando la
