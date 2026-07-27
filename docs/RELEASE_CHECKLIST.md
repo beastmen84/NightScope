@@ -109,23 +109,23 @@ Do not commit credentials or exact personal locations.
 
 ## 7. Linux Artifact
 
-- [ ] Build through the declared Debian 12 x86-64/glibc 2.36 container with
+- [x] Build through the declared Debian 12 x86-64/glibc 2.36 container with
   `packaging/build_linux_debian12.sh`.
-- [ ] Generate the environment-specific Python license archive.
-- [ ] Inventory every copied native ELF file with binary/source versions,
+- [x] Generate the environment-specific Python license archive.
+- [x] Inventory every copied native ELF file with binary/source versions,
   bundle SHA-256, notice path and exact Debian Sources or CPython source URL.
-- [ ] Bundle every source-component copyright notice and Debian common-license
+- [x] Bundle every source-component copyright notice and Debian common-license
   text referenced by the generated inventory.
-- [ ] Verify every unique exact-version source URL returns HTTP success.
-- [ ] Reject unmanifested/stale native files, changed hashes, missing notices,
+- [x] Verify every unique exact-version source URL returns HTTP success.
+- [x] Reject unmanifested/stale native files, changed hashes, missing notices,
   missing common licenses, unsupported Qt plugins and GPL-only Qt modules.
-- [ ] Run backend and normal/red QML smoke tests in Debian 12 and Debian 13;
+- [x] Run backend and normal/red QML smoke tests in Debian 12 and Debian 13;
   run Wayland normal/red and XCB QML smoke tests on the Ubuntu host.
-- [ ] Confirm GIO modules remain isolated so newer-host GVFS plugins are not
+- [x] Confirm GIO modules remain isolated so newer-host GVFS plugins are not
   loaded against the bundled Debian 12 GLib.
-- [ ] Create the deterministic
+- [x] Create the deterministic
   `NightScope-v1.42.0-debian-12-x64.tar.gz` and adjacent SHA-256 file.
-- [ ] Verify checksum, extraction, audit and smoke tests from the final archive.
+- [x] Verify checksum, extraction, audit and smoke tests from the final archive.
 - [ ] Publish the tarball and checksum together with the matching Windows ZIP
   in the public `v1.42.0` GitHub release, so stable-update notifications have
   assets for both supported platforms.

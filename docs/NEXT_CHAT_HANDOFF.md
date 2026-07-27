@@ -13,10 +13,16 @@ Aggiornato: 2026-07-27
 - Asset Linux: `NightScope-v1.41.0-debian-12-x64.tar.gz`, SHA-256
   `24490604996561e90b2b3e78ed1d2be1b4530d6ec679190ca81fe32c5f396ef5`,
   con file checksum adiacente.
+- Candidate Linux locale `1.42.0`:
+  `NightScope-v1.42.0-debian-12-x64.tar.gz`, `273.018.788` byte (`260 MiB`),
+  SHA-256
+  `1961ac3be264001d1735bcff09c7bf23e58835c75c2dc49af679c8d6e532da2a`,
+  con file checksum adiacente.
 - Metadati, tag, asset e digest della release `1.41.0` verificati su GitHub il
   2026-07-27.
-- Il sorgente corrente e il changelog sono stati portati a `1.42.0`; dist
-  Windows/Linux, tag e release GitHub `v1.42.0` restano da creare e verificare.
+- Il sorgente corrente e il changelog sono stati portati a `1.42.0`; la dist
+  Linux e' stata creata e verificata localmente. Dist Windows, tag, release e
+  upload GitHub `v1.42.0` restano da creare o verificare.
 - Commit sorgente della release pubblica validato:
   `7d95aa6 Refresh Debian release artifact metadata`
 

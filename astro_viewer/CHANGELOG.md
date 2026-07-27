@@ -295,6 +295,13 @@
   riporta il numero di righe elaborate durante l'importazione delle localita' e
   la schermata attende il primo frame della UI QML prima di chiudersi, con un
   fallback di sicurezza.
+- Generato il bundle Linux `1.42.0` nella baseline Debian 12 x86-64/glibc 2.36.
+  La dist contiene `5.419` file per `576 MiB`, inclusi i nuovi cataloghi camera
+  e la licenza OpenNGC. Il tar deterministico misura `273.018.788` byte e ha
+  SHA-256
+  `1961ac3be264001d1735bcff09c7bf23e58835c75c2dc49af679c8d6e532da2a`.
+  Checksum, audit, estrazione pulita, backend e QML normale/rosso sono passati
+  su Debian 12, Debian 13 e Ubuntu 26.04, inclusi Wayland e XCB.
 
 ## NightScope 1.41.0 - 2026-07-24
 

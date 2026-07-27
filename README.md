@@ -266,8 +266,8 @@ Download both release assets into the same directory, verify the checksum,
 extract the bundle, and start NightScope:
 
 ```bash
-sha256sum --check NightScope-v1.41.0-debian-12-x64.tar.gz.sha256
-tar -xzf NightScope-v1.41.0-debian-12-x64.tar.gz
+sha256sum --check NightScope-v1.42.0-debian-12-x64.tar.gz.sha256
+tar -xzf NightScope-v1.42.0-debian-12-x64.tar.gz
 ./NightScope/NightScope
 ```
 
