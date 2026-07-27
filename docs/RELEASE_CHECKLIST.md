@@ -3,6 +3,10 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
+Current target: `v1.42.0`. Check artifact-specific rows only against newly
+generated 1.42.0 bundles; completed 1.41.0 evidence remains in the changelog and
+testing record.
+
 ## 1. Product And Legal
 
 - [x] Select and add the project `LICENSE` file.
@@ -10,10 +14,10 @@ commit or a passing unit suite alone is not a release approval.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   survey image, and NASA/JPL attribution is present where required.
-- [x] Create and verify the public `v1.41.0` source tag referenced by the
+- [ ] Create and verify the public `v1.42.0` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
-- [ ] Confirm version number, changelog, manual revision, and About/build
-  metadata agree.
+- [x] Confirm source version, changelog, source-availability notices, and
+  About/build metadata agree on `1.42.0`.
 - [ ] Freeze the release scope; defer unrelated refactors.
 
 ## 2. Automated Validation
@@ -88,42 +92,42 @@ Do not commit credentials or exact personal locations.
 ## 6. Windows Artifact
 
 - [ ] Build from a clean checkout with `packaging/build_windows.ps1`.
-- [x] Confirm the source commit and build environment are recorded.
-- [x] Run backend and QML smoke tests against the packaged executable.
-- [x] Confirm the bundle-root legal files and Qt module audit pass.
+- [ ] Confirm the source commit and build environment are recorded.
+- [ ] Run backend and QML smoke tests against the packaged executable.
+- [ ] Confirm the bundle-root legal files and Qt module audit pass.
 - [ ] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
   timezone polygons, and credential backend.
 - [ ] Run the complete visual and provider matrices on the packaged build, not
   only from source. Test a copy and preserve a pristine release bundle.
-- [x] Immediately before archiving, rerun `tools/audit_qt_bundle.py` on the
+- [ ] Immediately before archiving, rerun `tools/audit_qt_bundle.py` on the
   pristine bundle and confirm that no runtime database, backup, cache, settings,
   or logs are present.
 - [ ] Scan the artifact with the chosen security tooling.
 - [ ] Sign the executable or document the explicit initial-release policy.
-- [x] Publish a SHA-256 hash with the artifact.
+- [ ] Publish a SHA-256 hash with the artifact.
 - [ ] Test extraction and first launch from a normal writable user directory.
 
 ## 7. Linux Artifact
 
-- [x] Build through the declared Debian 12 x86-64/glibc 2.36 container with
+- [ ] Build through the declared Debian 12 x86-64/glibc 2.36 container with
   `packaging/build_linux_debian12.sh`.
-- [x] Generate the environment-specific Python license archive.
-- [x] Inventory 146 copied native ELF files with binary/source versions,
+- [ ] Generate the environment-specific Python license archive.
+- [ ] Inventory every copied native ELF file with binary/source versions,
   bundle SHA-256, notice path and exact Debian Sources or CPython source URL.
-- [x] Bundle all 64 source-component copyright notices and the 15 Debian
-  common-license texts they reference.
-- [x] Verify all 64 unique exact-version source URLs return HTTP success.
-- [x] Reject unmanifested/stale native files, changed hashes, missing notices,
+- [ ] Bundle every source-component copyright notice and Debian common-license
+  text referenced by the generated inventory.
+- [ ] Verify every unique exact-version source URL returns HTTP success.
+- [ ] Reject unmanifested/stale native files, changed hashes, missing notices,
   missing common licenses, unsupported Qt plugins and GPL-only Qt modules.
-- [x] Run backend and normal/red QML smoke tests in Debian 12 and Debian 13;
+- [ ] Run backend and normal/red QML smoke tests in Debian 12 and Debian 13;
   run Wayland normal/red and XCB QML smoke tests on the Ubuntu host.
-- [x] Isolate GIO modules so newer-host GVFS plugins are not loaded against
-  the bundled Debian 12 GLib.
-- [x] Create the deterministic
-  `NightScope-v1.41.0-debian-12-x64.tar.gz` and adjacent SHA-256 file.
-- [x] Verify checksum, extraction, audit and smoke tests from the final archive.
-- [x] Publish the tarball and checksum together with the matching Windows ZIP
-  in the public `v1.41.0` GitHub release, so stable-update notifications have
+- [ ] Confirm GIO modules remain isolated so newer-host GVFS plugins are not
+  loaded against the bundled Debian 12 GLib.
+- [ ] Create the deterministic
+  `NightScope-v1.42.0-debian-12-x64.tar.gz` and adjacent SHA-256 file.
+- [ ] Verify checksum, extraction, audit and smoke tests from the final archive.
+- [ ] Publish the tarball and checksum together with the matching Windows ZIP
+  in the public `v1.42.0` GitHub release, so stable-update notifications have
   assets for both supported platforms.
 
 ## 8. Release Approval
@@ -132,4 +136,4 @@ Do not commit credentials or exact personal locations.
 - [ ] Known limitations match README and manual.
 - [ ] Changelog contains only verified results.
 - [ ] Git worktree is clean and release tag points to the audited commit.
-- [x] Final artifact identity and hash are recorded in the release notes.
+- [ ] Final artifact identity and hash are recorded in the release notes.

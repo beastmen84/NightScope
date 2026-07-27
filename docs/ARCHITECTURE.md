@@ -1,7 +1,7 @@
 # NightScope Architecture
 
-This document describes the current NightScope architecture as reviewed for the
-v1.0 release candidate. It is descriptive, not a redesign proposal.
+This document describes the architecture implemented by the current NightScope
+source tree. It is descriptive, not a redesign proposal.
 
 ## Project Structure
 

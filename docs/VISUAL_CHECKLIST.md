@@ -1,11 +1,11 @@
 # NightScope - Visual Review Checklist
 
-Aggiornato: 2026-07-21
+Aggiornato: 2026-07-27
 
-Questo documento registra il controllo visuale pre-release e il relativo
-passaggio unico di correzione concluso nella sorgente `1.33.1`. Le verifiche
-sull'artefatto Windows restano separate in `RELEASE_CHECKLIST.md` e dovranno
-essere ripetute dopo la prossima rigenerazione della dist.
+Questo documento conserva i controlli visuali di release iniziati con la
+sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
+verifiche sugli artefatti `1.42.0` restano separate in `RELEASE_CHECKLIST.md` e
+devono essere ripetute dopo la rigenerazione delle dist Windows e Linux.
 
 ## Verifica Sorgente Spagnolo 1.34.0
 

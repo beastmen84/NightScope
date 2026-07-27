@@ -137,7 +137,7 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
-## Measured Unreleased Camera, Profile, Solar Capability And Imaging Gate
+## Measured 1.42.0 Source Camera, Profile, Solar Capability And Imaging Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-27:
 
@@ -172,7 +172,7 @@ Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-27:
 | Photographic-card Red Night Vision pixel probe | Maximum green 16, maximum blue 15, zero threshold violations |
 | Backend and normal/Red Night Vision QML smoke tests | Passed in disposable runtimes |
 
-## Measured Unreleased NGC Catalogue Gate
+## Measured 1.42.0 Source NGC Catalogue Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-25
 after the full OpenNGC import, identity deduplication, indexed recommendation
@@ -644,7 +644,7 @@ distribution.
 
 ## Measured 1.33.0 Baseline
 
-Measured on Windows with Python 3.14.5 on 2026-07-14 after the pre-release
+Measured on Windows with Python 3.14.5 on 2026-07-14 after the release-readiness
 audit:
 
 | Check | Result |

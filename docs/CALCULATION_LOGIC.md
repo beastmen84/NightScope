@@ -1,7 +1,6 @@
 # NightScope Calculation Logic
 
-This document describes the calculations currently implemented in NightScope for
-the v1.0 release candidate.
+This document describes the calculations currently implemented in NightScope.
 
 ## Astronomical Calculations
 

@@ -4,34 +4,17 @@
   <img src="astro_viewer/resources/icons/telescope.svg" width="88" alt="NightScope telescope icon">
 </p>
 
-NightScope is a Windows and Linux desktop application for planning
-visual astronomy sessions. It combines local astronomical calculations, an
-observer location, weather and sky-quality data, and the equipment in the
+NightScope is a Windows and Linux desktop application for planning visual and
+photographic astronomy sessions. It combines local astronomical calculations,
+an observer location, weather and sky-quality data, and the equipment in the
 active profile to answer a practical question: **what is worth observing
 tonight, from here, with this setup?**
 
-> [!IMPORTANT]
-> NightScope is still in pre-release development. The source tree is regularly
-> validated; its Italian/English source visual review and source licensing are
-> complete. Source version 1.41.0 includes the reviewed Spanish localization,
-> the provider/runtime and Earthdata authorization fixes released in 1.34.2,
-> the subsequent Italian and English editorial review, and the first
-> platform-capability boundary for native Linux support, plus unified offline
-> search for GeoNames cities and MPC observatories, plus a persistent Red Night
-> Vision interface mode, a non-blocking startup notification for newer stable
-> GitHub releases, XDG-compliant Linux runtime paths, and an explicit Secret
-> Service credential backend on Linux. Recommendation inputs now preserve
-> Skyfield degree-formatted altitudes and keep light-pollution display context
-> separate from NSOM candidate eligibility. System location now
-> uses the existing providers on Windows and GeoClue 2 on Linux; the Windows
-> provider order and fallback behavior remain unchanged.
-> The portable Linux release is built in a Debian 12 container so its glibc
-> baseline is not inherited from the developer workstation. The archive
-> remains architecture- and glibc-baseline-specific rather than a universal
-> Linux installer.
-> The published Windows bundle passes automated legal,
-> Qt, backend, and QML checks; its packaged visual and live-provider release
-> matrices are not complete yet.
+> [!NOTE]
+> NightScope is a released application. Source version 1.42.0 is prepared for
+> the next stable release and may be ahead of the latest published bundles.
+> Release artifacts remain platform-specific portable builds rather than
+> universal installers.
 
 Current public Windows and Linux release:
 [NightScope 1.41.0](https://github.com/beastmen84/NightScope/releases/tag/v1.41.0).
@@ -374,7 +357,7 @@ The wrapper creates a Debian 12/Python 3.12 build image, runs PyInstaller, and
 writes the portable application to `dist/NightScope`. It then creates the
 deterministic release archive and checksum:
 
-`dist/NightScope-v1.41.0-debian-12-x64.tar.gz` and its adjacent `.sha256`
+`dist/NightScope-v1.42.0-debian-12-x64.tar.gz` and its adjacent `.sha256`
 file. The inner build scripts copy the project notices, generate the installed
 Linux Python dependency license archive, inventory every copied Debian ELF
 file, bundle the matching copyright and common-license texts, and run the
@@ -444,9 +427,10 @@ manuale.html          Self-contained Italian/English/Spanish user manual
 ```
 
 Architecture details are in
-[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). The current release audit and
-remaining release work are tracked in
-[`docs/RELEASE_CANDIDATE_REVIEW.md`](docs/RELEASE_CANDIDATE_REVIEW.md) and
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). The original release-readiness
+audit is retained in
+[`docs/RELEASE_AUDIT.md`](docs/RELEASE_AUDIT.md); the
+current approval gate is
 [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md).
 
 ## Known Limitations
@@ -497,9 +481,10 @@ LGPL information, source links, and data attributions are in
 must regenerate that inventory, pass the bundle-license audit, and identify its
 exact corresponding public source commit.
 
-## Development Status
+## Release And Development Status
 
-NightScope is developed as a pre-release application. User-facing changes and
-fixes are recorded in [`astro_viewer/CHANGELOG.md`](astro_viewer/CHANGELOG.md);
-the README intentionally describes the current product instead of duplicating
-the changelog.
+NightScope has stable public Windows and Linux releases. The `master` branch can
+be ahead of the latest published bundles while the next pair of artifacts is
+validated. User-facing changes and fixes are recorded in
+[`astro_viewer/CHANGELOG.md`](astro_viewer/CHANGELOG.md); this README describes
+the current source tree instead of duplicating the release history.

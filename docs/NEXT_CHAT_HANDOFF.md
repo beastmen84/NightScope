@@ -4,7 +4,7 @@ Aggiornato: 2026-07-27
 
 ## Stato Versioni
 
-- Versione sorgente: `1.41.0`
+- Versione sorgente: `1.42.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica stabile: `v1.41.0`, tag sul commit sorgente
   `7d95aa648b1f310adcca6a713d6b42479e978f58`.
@@ -14,8 +14,9 @@ Aggiornato: 2026-07-27
   `24490604996561e90b2b3e78ed1d2be1b4530d6ec679190ca81fe32c5f396ef5`,
   con file checksum adiacente.
 - Metadati, tag, asset e digest della release `1.41.0` verificati su GitHub il
-  2026-07-27. Il sorgente corrente contiene modifiche `Unreleased` successive
-  al tag senza spostarle nella release gia' pubblicata.
+  2026-07-27.
+- Il sorgente corrente e il changelog sono stati portati a `1.42.0`; dist
+  Windows/Linux, tag e release GitHub `v1.42.0` restano da creare e verificare.
 - Commit sorgente della release pubblica validato:
   `7d95aa6 Refresh Debian release artifact metadata`
 
@@ -913,7 +914,7 @@ quando richiesta.
 
 ## Audit Pre-Release 1.33.0
 
-- `docs/RELEASE_CANDIDATE_REVIEW.md` contiene finding, verifiche e debito
+- `docs/RELEASE_AUDIT.md` contiene finding, verifiche e debito
   residuo; `docs/RELEASE_CHECKLIST.md` e' il gate operativo da completare prima
   del primo rilascio pubblico.
 - Il repository non ha ancora una licenza di progetto ne' un notice consolidato
@@ -1754,7 +1755,7 @@ corretti; il gate finale non li riporta.
 - `docs/ARCHITECTURE.md`
 - `docs/CALCULATION_LOGIC.md`
 - `docs/LOCALIZATION.md`
-- `docs/RELEASE_CANDIDATE_REVIEW.md`
+- `docs/RELEASE_AUDIT.md`
 - `docs/RELEASE_CHECKLIST.md`
 - `docs/VISUAL_CHECKLIST.md`
 - `docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md`

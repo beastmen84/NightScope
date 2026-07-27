@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## NightScope 1.42.0 - 2026-07-27
 
 - Corretto il piano fotografico per i target molto impegnativi: quando la
   stima supera il tetto di 15 ore, integrazione e numero di pose vengono ora

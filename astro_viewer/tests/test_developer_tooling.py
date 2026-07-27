@@ -525,8 +525,9 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
 
     assert readme.startswith("# NightScope\n")
     assert "Windows and Linux desktop application" in readme
-    assert "pre-release" in readme
-    assert "docs/RELEASE_CANDIDATE_REVIEW.md" in readme
+    assert "NightScope is a released application" in readme
+    assert "pre-release" not in readme.lower()
+    assert "docs/RELEASE_AUDIT.md" in readme
     assert "docs/RELEASE_CHECKLIST.md" in readme
     assert "astro_viewer/CHANGELOG.md" in readme
     assert "Versione corrente sorgente" not in readme
@@ -552,13 +553,22 @@ def test_source_version_matches_current_release_documents() -> None:
     handoff = (PROJECT_ROOT / "docs" / "NEXT_CHAT_HANDOFF.md").read_text(
         encoding="utf-8"
     )
+    third_party_notices = (PROJECT_ROOT / "THIRD_PARTY_NOTICES.md").read_text(
+        encoding="utf-8"
+    )
+    release_checklist = (
+        PROJECT_ROOT / "docs" / "RELEASE_CHECKLIST.md"
+    ).read_text(encoding="utf-8")
 
     assert re.fullmatch(r"\d+\.\d+\.\d+", version)
     assert f"Source version {version}" in readme
     assert f"NightScope {version}" in source_notice
     assert f"/v{version}" in source_notice
+    assert f"NightScope {version}" in third_party_notices
+    assert f"tag `v{version}`" in third_party_notices
     assert f"## NightScope {version} -" in changelog
     assert f"Versione sorgente: `{version}`" in handoff
+    assert f"Current target: `v{version}`" in release_checklist
 
 
 def test_legal_files_are_current_and_windows_build_enforces_them() -> None:
@@ -670,7 +680,12 @@ def test_linux_build_enforces_licenses_and_platform_bundle_audit() -> None:
     assert "requirements-dev.txt" in dockerfile
     assert "## Install The Portable Linux Bundle" in readme
     assert "sudo apt install dbus-user-session geoclue-2.0 gnome-keyring" in readme
-    assert "sha256sum --check NightScope-v1.41.0-debian-12-x64" in readme
+    assert re.search(
+        r"sha256sum --check NightScope-v\d+\.\d+\.\d+-debian-12-x64",
+        readme,
+    )
+    version = (PROJECT_ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    assert f"`dist/NightScope-v{version}-debian-12-x64.tar.gz`" in readme
     assert "./packaging/build_linux_debian12.sh" in readme
     assert "./NightScope/NightScope" in readme
     assert '"keyring.backends.Windows"' in spec
@@ -688,7 +703,7 @@ def test_linux_build_enforces_licenses_and_platform_bundle_audit() -> None:
     assert 'os.environ["GIO_MODULE_DIR"]' in linux_gio_hook
     assert "qtvirtualkeyboardplugin" in qtgui_hook
     assert "libqtiff.so" in qtgui_hook
-    assert "current Linux release candidate" in render_archive(
+    assert "current Linux release build" in render_archive(
         environment_label="Linux"
     )
 

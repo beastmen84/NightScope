@@ -1,15 +1,19 @@
-# NightScope Pre-Release Audit
+# NightScope Release Audit
 
 Review date: 2026-07-21
+
+This document records the audit that preceded and then followed NightScope's
+first stable public builds. It is retained as historical evidence; use
+`RELEASE_CHECKLIST.md` for the current release gate.
 
 Scope: Python and QML application code, SQLite/bootstrap paths, astronomy and
 recommendation boundaries, external-provider handling, localization, packaged
 data and images, developer tooling, dependency security, user documentation,
 privacy-sensitive logging, and Windows packaging configuration.
 
-The initial audit did not rebuild `dist`. The user later rebuilt the persistent
-`1.33.2` bundle; its legal/Qt audit and packaged backend/QML smoke tests pass.
-The public release is available at
+The initial audit preceded the `dist` rebuild. The user later rebuilt the
+persistent `1.33.2` bundle; its legal/Qt audit and packaged backend/QML smoke
+tests pass. The public release is available at
 `https://github.com/beastmen84/NightScope/releases/tag/v1.33.2`.
 
 ## Verdict
@@ -18,9 +22,9 @@ No high-severity functional application defect was found. The deterministic
 suite, static checks, catalogue asset checks, and runtime dependency audit are
 clean after the fixes listed below.
 
-NightScope 1.33.2 has been published, but it is **not yet fully approved by its
-own release checklist**. The remaining work concerns release hardening and
-product verification rather than a known broken core:
+At the time of this audit, NightScope 1.33.2 had been published but was **not
+yet fully approved by its own release checklist**. The remaining work concerned
+release hardening and product verification rather than a known broken core:
 
 1. The Windows distribution has been rebuilt and passes automated artifact
    checks, but it must still pass the packaged-build visual matrix. Validation
@@ -128,7 +132,8 @@ unchanged.
 
 The GitHub README was an Italian release diary mixed with project instructions.
 It is now an English product and contributor overview that links to the
-changelog for history and states the pre-release limitations explicitly.
+changelog for history and states the then-current release limitations
+explicitly.
 
 The former Italian-only manual contained a contradiction about OpenAQ's role in
 canonical transparency. It has been replaced by a self-contained Italian and
