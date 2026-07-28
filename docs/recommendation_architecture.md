@@ -641,16 +641,27 @@ Recommended follow-up work:
 
 ### Smart Telescopes
 
-Smart telescopes can be added as a new `equipment_type`.
+Schema 24 represents a smart telescope as a category of `TelescopeModel`, not
+as an optical design and not as a separate equipment catalogue. Category
+`SMART_INTEGRATED` can therefore coexist with an optical type such as
+`APOCHROMATIC_REFRACTOR`; Seestar S30 and S50 are the first seeded examples.
+The catalogue form persists and displays both fields.
 
-Expected path:
+This first data/UI pass is deliberately score-neutral. The category is not yet
+consumed by `ObservationConfigurationBuilder`, `EquipmentService`,
+`ImagingTrainBuilder`, photographic scoring or their presenters. Until the
+integrated train is modeled, current recommendation behavior remains the legacy
+telescope path.
 
-- add catalogue/profile model
-- extend `ObservationConfigurationBuilder` to emit smart-telescope
-  configurations
-- add scoring logic in `EquipmentService` or a future `ConfigurationScorer`
-- extend `RecommendationPresenter` formatting for the new setup type
-- keep QML rendering based on backend DTO fields
+Expected calculation follow-up:
+
+- define the persisted integrated optical-train and sensor capabilities needed
+  by smart models
+- make the configuration builders route `SMART_INTEGRATED` through that
+  internal train without combining unrelated profile cameras or optics
+- add explicit visual and photographic admission/scoring policies
+- extend the presenters only after the backend DTO distinguishes the setup
+- keep ordinary `TRADITIONAL` telescopes on the current path
 
 ### Spotting Scopes
 

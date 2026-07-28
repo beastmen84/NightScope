@@ -157,6 +157,8 @@ CREATE TABLE IF NOT EXISTS TelescopeModel (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     brand_id INTEGER NOT NULL,
     name TEXT NOT NULL,
+    instrument_category TEXT NOT NULL DEFAULT 'TRADITIONAL'
+        CHECK (instrument_category IN ('TRADITIONAL', 'SMART_INTEGRATED')),
     optical_type TEXT NOT NULL,
     aperture_mm INTEGER NOT NULL,
     focal_length_mm INTEGER NOT NULL,

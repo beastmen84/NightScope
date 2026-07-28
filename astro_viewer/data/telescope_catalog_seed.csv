@@ -1,4 +1,4 @@
-seed_key,brand,model,optical_type,aperture_mm,focal_length_mm,focal_ratio,mount_type,notes
+seed_key,brand,model,optical_type,aperture_mm,focal_length_mm,focal_ratio,mount_type,notes,instrument_category
 telescope::askar::103apo,Askar,103APO,rifrattore,103,700,6.8,OTA,Manufacturer catalog specification.
 telescope::askar::120apo,Askar,120APO,rifrattore,120,840,7,OTA,Manufacturer catalog specification.
 telescope::askar::151phq,Askar,151PHQ,rifrattore Petzval,151,1057,7,OTA,Manufacturer catalog specification.
@@ -130,5 +130,5 @@ telescope::william optics::redcat 61,William Optics,RedCat 61,rifrattore Petzval
 telescope::william optics::zenithstar 61 ii,William Optics,Zenithstar 61 II,rifrattore,61,360,5.9,OTA,Manufacturer catalog specification.
 telescope::william optics::zenithstar 73 iii,William Optics,Zenithstar 73 III,rifrattore,73,430,5.9,OTA,Manufacturer catalog specification.
 telescope::william optics::zenithstar 81,William Optics,Zenithstar 81,rifrattore,81,559,6.9,OTA,Manufacturer catalog specification.
-telescope::zwo/seestar::seestar s30,ZWO/Seestar,Seestar S30,Smart telescope,30,150,5,GoTo altazimutale,Manufacturer catalog specification.
-telescope::zwo/seestar::seestar s50,ZWO/Seestar,Seestar S50,Smart telescope,50,250,5,GoTo altazimutale,Manufacturer catalog specification.
+telescope::zwo/seestar::seestar s30,ZWO/Seestar,Seestar S30,Rifrattore apocromatico,30,150,5,GoTo altazimutale,Manufacturer catalog specification.,SMART_INTEGRATED
+telescope::zwo/seestar::seestar s50,ZWO/Seestar,Seestar S50,Rifrattore apocromatico,50,250,5,GoTo altazimutale,Manufacturer catalog specification.,SMART_INTEGRATED

@@ -16,8 +16,13 @@ from astro_viewer.app.services.equipment_taxonomy import (
     CAMERA_SENSOR_FORMAT_LABELS,
     MOUNT_TYPE_LABELS,
     SENSOR_COLOR_MODE_LABELS,
+    TELESCOPE_CATEGORY_LABELS,
+    TELESCOPE_OPTICAL_TYPE_LABELS,
     canonical_mount_type,
+    canonical_telescope_category,
+    canonical_telescope_optical_type,
     mount_tracking_capability,
+    telescope_optical_type_code,
 )
 
 
@@ -784,6 +789,171 @@ def test_mount_taxonomy_normalizes_seed_aliases_without_visual_score_drift() -> 
         temporary_directory.cleanup()
 
 
+def test_telescope_category_and_optical_type_taxonomies_are_structured() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        models = repository.models()
+        smart_models = [
+            item
+            for item in models
+            if item["instrument_category"] == "SMART_INTEGRATED"
+        ]
+
+        assert set(TELESCOPE_CATEGORY_LABELS) == {
+            "TRADITIONAL",
+            "SMART_INTEGRATED",
+        }
+        assert "APOCHROMATIC_REFRACTOR" in TELESCOPE_OPTICAL_TYPE_LABELS
+        assert canonical_telescope_category("Smart") == "SMART_INTEGRATED"
+        assert (
+            canonical_telescope_optical_type("APOCHROMATIC_REFRACTOR")
+            == "Rifrattore apocromatico"
+        )
+        assert telescope_optical_type_code("rifrattore Petzval") == (
+            "PETZVAL_REFRACTOR"
+        )
+        assert {item["name"] for item in smart_models} == {
+            "Seestar S30",
+            "Seestar S50",
+        }
+        assert {
+            item["optical_type_code"]
+            for item in smart_models
+        } == {"APOCHROMATIC_REFRACTOR"}
+        assert all(
+            item["instrument_category"] in TELESCOPE_CATEGORY_LABELS
+            for item in models
+        )
+        assert all(
+            item["optical_type_code"] in TELESCOPE_OPTICAL_TYPE_LABELS
+            for item in models
+        )
+        assert all(item["optical_type_code"] != "OTHER" for item in models)
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_custom_telescope_category_and_dropdown_type_round_trip() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        ok, _ = repository.add_telescope_model(
+            "NightScope",
+            "Smart test",
+            "APOCHROMATIC_REFRACTOR",
+            50,
+            250,
+            "ALTAZ_GOTO",
+            "Integrated test instrument",
+            "SMART_INTEGRATED",
+        )
+        assert ok
+        created = next(
+            item
+            for item in repository.models()
+            if item["brand"] == "NightScope"
+        )
+        assert created["instrument_category"] == "SMART_INTEGRATED"
+        assert created["optical_type"] == "Rifrattore apocromatico"
+        assert created["optical_type_code"] == "APOCHROMATIC_REFRACTOR"
+
+        ok, _ = repository.update_telescope_model(
+            created["id"],
+            "NightScope",
+            "Custom optical test",
+            "Dall-Kirkham",
+            180,
+            2160,
+            "OTA",
+            "",
+            "TRADITIONAL",
+        )
+        assert ok
+        updated = next(
+            item
+            for item in repository.models()
+            if item["id"] == created["id"]
+        )
+        assert updated["instrument_category"] == "TRADITIONAL"
+        assert updated["optical_type"] == "Dall-Kirkham"
+        assert updated["optical_type_code"] == "OTHER"
+
+        assert not repository.add_telescope_model(
+            "NightScope",
+            "Invalid category",
+            "NEWTONIAN",
+            150,
+            750,
+            "OTA",
+            "",
+            "UNSUPPORTED",
+        )[0]
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_schema_24_adds_telescope_category_and_migrates_smart_models() -> None:
+    temporary_directory, database_path, _ = _database()
+    try:
+        with closing(sqlite3.connect(database_path)) as connection:
+            connection.execute(
+                """
+                UPDATE TelescopeModel
+                SET optical_type = 'Smart telescope'
+                WHERE seed_key = 'telescope::zwo/seestar::seestar s30'
+                """
+            )
+            connection.execute(
+                """
+                UPDATE TelescopeModel
+                SET optical_type = 'rifrattore Petzval',
+                    is_user_modified = 1
+                WHERE seed_key = 'telescope::zwo/seestar::seestar s50'
+                """
+            )
+            connection.execute(
+                "ALTER TABLE TelescopeModel DROP COLUMN instrument_category"
+            )
+            connection.execute("PRAGMA user_version = 23")
+            connection.commit()
+
+        initialize_database(database_path, SCHEMA_PATH)
+
+        with closing(sqlite3.connect(database_path)) as connection:
+            connection.row_factory = sqlite3.Row
+            version = connection.execute("PRAGMA user_version").fetchone()[0]
+            smart_rows = connection.execute(
+                """
+                SELECT seed_key, instrument_category, optical_type,
+                       is_user_modified
+                FROM TelescopeModel
+                WHERE seed_key IN (
+                    'telescope::zwo/seestar::seestar s30',
+                    'telescope::zwo/seestar::seestar s50'
+                )
+                ORDER BY seed_key
+                """
+            ).fetchall()
+            traditional_count = connection.execute(
+                """
+                SELECT COUNT(*)
+                FROM TelescopeModel
+                WHERE instrument_category = 'TRADITIONAL'
+                """
+            ).fetchone()[0]
+
+        assert version == 24
+        assert [row["instrument_category"] for row in smart_rows] == [
+            "SMART_INTEGRATED",
+            "SMART_INTEGRATED",
+        ]
+        assert smart_rows[0]["optical_type"] == "Rifrattore apocromatico"
+        assert smart_rows[1]["optical_type"] == "rifrattore Petzval"
+        assert smart_rows[1]["is_user_modified"] == 1
+        assert traditional_count == 131
+    finally:
+        temporary_directory.cleanup()
+
+
 def test_camera_navigation_profile_ui_and_packaging_are_wired() -> None:
     cameras_qml = (
         APP_DIR / "app" / "ui" / "pages" / "EquipmentCamerasPage.qml"
@@ -816,6 +986,12 @@ def test_camera_navigation_profile_ui_and_packaging_are_wired() -> None:
     assert "Filtro solare a tutta apertura disponibile" in profiles_qml
     assert "mai filtri solari da oculare" in profiles_qml
     assert cameras_qml.count("uniformCellWidths: true") == 2
+    assert "telescopeCategoryOptions" in telescopes_qml
+    assert "telescopeOpticalTypeOptions" in telescopes_qml
+    assert "Categoria strumento *" in telescopes_qml
+    assert "Tipo ottico personalizzato *" in telescopes_qml
+    assert "uniformCellWidths: true" in telescopes_qml
+    assert "columns: telescopeDialog.width < 620 ? 1 : 2" in telescopes_qml
     assert "Larghezza sensore (mm) *" in cameras_qml
     assert "Altezza sensore (mm) *" in cameras_qml
     assert "Passo pixel (µm) *" in cameras_qml

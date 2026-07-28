@@ -4,11 +4,24 @@ from import_utils import optional_float, parser, read_rows, run_import
 
 
 REQUIRED = {"brand", "model", "optical_type", "aperture_mm", "focal_length_mm", "mount_type"}
+TELESCOPE_CATEGORIES = {"TRADITIONAL", "SMART_INTEGRATED"}
 
 
 def main() -> None:
     args = parser("Import telescope catalog CSV").parse_args()
     rows = read_rows(args.csv_path, REQUIRED)
+    invalid_categories = sorted(
+        {
+            str(row.get("instrument_category") or "TRADITIONAL").strip()
+            for row in rows
+            if str(row.get("instrument_category") or "TRADITIONAL").strip()
+            not in TELESCOPE_CATEGORIES
+        }
+    )
+    if invalid_categories:
+        raise ValueError(
+            "Invalid instrument categories: " + ", ".join(invalid_categories)
+        )
 
     def import_rows(connection):
         brands = sorted({row["brand"] for row in rows})
@@ -17,11 +30,12 @@ def main() -> None:
         connection.executemany(
             """
             INSERT INTO TelescopeModel (
-                brand_id, name, optical_type, aperture_mm, focal_length_mm,
-                focal_ratio, mount_type, notes
+                brand_id, name, instrument_category, optical_type, aperture_mm,
+                focal_length_mm, focal_ratio, mount_type, notes
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(brand_id, name) DO UPDATE SET
+                instrument_category = excluded.instrument_category,
                 optical_type = excluded.optical_type,
                 aperture_mm = excluded.aperture_mm,
                 focal_length_mm = excluded.focal_length_mm,
@@ -33,6 +47,9 @@ def main() -> None:
                 (
                     brand_ids[row["brand"]],
                     row["model"],
+                    str(
+                        row.get("instrument_category") or "TRADITIONAL"
+                    ).strip(),
                     row["optical_type"],
                     int(float(row["aperture_mm"])),
                     int(float(row["focal_length_mm"])),

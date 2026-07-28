@@ -769,6 +769,14 @@ neutral in the canonical environment and does not switch selection service.
 
 `EquipmentService` uses active-profile equipment only.
 
+Telescope schema 24 stores an `instrument_category` independently from the
+optical design selected in the catalogue form. This is catalogue metadata only
+in the current implementation: neither `EquipmentService` nor the photographic
+train/scoring services consume the category, so `SMART_INTEGRATED` does not yet
+change candidates, optical trains, scores or explanations. That behavior is
+intentionally deferred until the integrated sensor and optical-train contract
+is modeled.
+
 Inputs:
 
 - active profile telescopes,

@@ -2916,12 +2916,12 @@
         "notes": "Especificaciones del catálogo del fabricante."
       },
       "zwo/seestar::seestar s30": {
-        "optical_type": "Telescopio inteligente",
+        "optical_type": "Refractor apocromático",
         "mount_type": "Altazimutal GoTo",
         "notes": "Especificaciones del catálogo del fabricante."
       },
       "zwo/seestar::seestar s50": {
-        "optical_type": "Telescopio inteligente",
+        "optical_type": "Refractor apocromático",
         "mount_type": "Altazimutal GoTo",
         "notes": "Especificaciones del catálogo del fabricante."
       }

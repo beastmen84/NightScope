@@ -13,13 +13,17 @@ from pathlib import Path
 from typing import Callable
 
 from astro_viewer.app.models.filtering import FILTER_CLASS_CODES
-from astro_viewer.app.services.equipment_taxonomy import canonical_mount_type
+from astro_viewer.app.services.equipment_taxonomy import (
+    canonical_mount_type,
+    canonical_telescope_category,
+    canonical_telescope_optical_type,
+)
 from astro_viewer.app.services.localization import content_key, tr
 
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
-SCHEMA_VERSION = 23
+SCHEMA_VERSION = 24
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 _CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
     (
@@ -396,6 +400,11 @@ def _migrate_database(
         connection,
         "TelescopeModel",
         {
+            "instrument_category": (
+                "TEXT NOT NULL DEFAULT 'TRADITIONAL' "
+                "CHECK (instrument_category IN "
+                "('TRADITIONAL', 'SMART_INTEGRATED'))"
+            ),
             "focal_ratio": "REAL",
             "notes": "TEXT",
             "is_builtin": "INTEGER NOT NULL DEFAULT 0",
@@ -403,6 +412,8 @@ def _migrate_database(
             "is_user_modified": "INTEGER NOT NULL DEFAULT 0",
         },
     )
+    if existing_schema_version < 24:
+        _migrate_telescope_categories(connection)
     _add_columns(
         connection,
         "EyepieceCatalog",
@@ -628,6 +639,36 @@ def _add_columns(connection: sqlite3.Connection, table_name: str, columns: dict[
     for column_name, definition in columns.items():
         if column_name not in existing:
             connection.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {definition}")
+
+
+def _migrate_telescope_categories(connection: sqlite3.Connection) -> None:
+    connection.execute(
+        """
+        UPDATE TelescopeModel
+        SET instrument_category = 'SMART_INTEGRATED'
+        WHERE seed_key IN (
+            'telescope::zwo/seestar::seestar s30',
+            'telescope::zwo/seestar::seestar s50'
+        )
+           OR lower(trim(optical_type)) IN (
+               'smart',
+               'smart telescope',
+               'smart integrato',
+               'telescopio intelligente'
+           )
+        """
+    )
+    connection.execute(
+        """
+        UPDATE TelescopeModel
+        SET optical_type = 'Rifrattore apocromatico'
+        WHERE seed_key IN (
+            'telescope::zwo/seestar::seestar s30',
+            'telescope::zwo/seestar::seestar s50'
+        )
+          AND is_user_modified = 0
+        """
+    )
 
 
 def _retire_legacy_equipment_compatibility_fields(
@@ -1579,7 +1620,18 @@ def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path |
         row[1]: row[0]
         for row in connection.execute("SELECT id, name FROM TelescopeBrand").fetchall()
     }
-    for brand, name, optical_type, aperture, focal, ratio, mount, notes, seed_key in catalog_rows:
+    for (
+        brand,
+        name,
+        instrument_category,
+        optical_type,
+        aperture,
+        focal,
+        ratio,
+        mount,
+        notes,
+        seed_key,
+    ) in catalog_rows:
         brand_id = brand_ids[brand]
         if not _prepare_equipment_seed_row(
             connection,
@@ -1592,14 +1644,15 @@ def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path |
         connection.execute(
             """
             INSERT INTO TelescopeModel (
-                brand_id, name, optical_type, aperture_mm, focal_length_mm,
-                focal_ratio, mount_type, notes, is_builtin, seed_key,
-                is_user_modified
+                brand_id, name, instrument_category, optical_type, aperture_mm,
+                focal_length_mm, focal_ratio, mount_type, notes, is_builtin,
+                seed_key, is_user_modified
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0)
             ON CONFLICT(seed_key) DO UPDATE SET
                 brand_id = excluded.brand_id,
                 name = excluded.name,
+                instrument_category = excluded.instrument_category,
                 optical_type = excluded.optical_type,
                 aperture_mm = excluded.aperture_mm,
                 focal_length_mm = excluded.focal_length_mm,
@@ -1612,6 +1665,7 @@ def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path |
             (
                 brand_id,
                 name,
+                instrument_category,
                 optical_type,
                 aperture,
                 focal,
@@ -1628,7 +1682,11 @@ def _telescope_catalog_rows(catalog_path: Path | None) -> list[tuple]:
         (
             row["brand"],
             row["model"],
-            row["optical_type"],
+            canonical_telescope_category(
+                row.get("instrument_category") or "TRADITIONAL",
+                preserve_unknown=False,
+            ),
+            canonical_telescope_optical_type(row["optical_type"]),
             int(float(row["aperture_mm"])),
             int(float(row["focal_length_mm"])),
             _optional_float(row.get("focal_ratio", "")),

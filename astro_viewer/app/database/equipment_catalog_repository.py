@@ -17,7 +17,12 @@ from astro_viewer.app.services.equipment_taxonomy import (
     SENSOR_SHUTTER_LABELS,
     SENSOR_TECHNOLOGY_LABELS,
     canonical_mount_type,
+    canonical_telescope_category,
+    canonical_telescope_optical_type,
     mount_type_label,
+    telescope_category_label,
+    telescope_optical_type_code,
+    telescope_optical_type_label,
 )
 from astro_viewer.app.services.localization import (
     format_compact_number,
@@ -67,10 +72,10 @@ class EquipmentCatalogRepository:
 
     def models(self, brand_id: int | None = None) -> list[dict]:
         query = """
-            SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
-                   tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
-                   tm.mount_type, tm.notes, tm.is_builtin, tm.seed_key,
-                   tm.is_user_modified
+            SELECT tm.id, tb.name AS brand, tm.name, tm.instrument_category,
+                   tm.optical_type, tm.aperture_mm, tm.focal_length_mm,
+                   tm.focal_ratio, tm.mount_type, tm.notes, tm.is_builtin,
+                   tm.seed_key, tm.is_user_modified
             FROM TelescopeModel tm
             JOIN TelescopeBrand tb ON tb.id = tm.brand_id
         """
@@ -90,7 +95,8 @@ class EquipmentCatalogRepository:
             if catalog_id.startswith("catalog-telescope-"):
                 row = connection.execute(
                     """
-                    SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
+                    SELECT tm.id, tb.name AS brand, tm.name,
+                           tm.instrument_category, tm.optical_type,
                            tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
                            tm.mount_type, tm.notes, tm.is_builtin, tm.seed_key,
                            tm.is_user_modified
@@ -109,7 +115,8 @@ class EquipmentCatalogRepository:
             brand, model = parts[1], parts[2]
             row = connection.execute(
                 """
-                SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
+                SELECT tm.id, tb.name AS brand, tm.name,
+                       tm.instrument_category, tm.optical_type,
                        tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
                        tm.mount_type, tm.notes, tm.is_builtin, tm.seed_key,
                        tm.is_user_modified
@@ -131,15 +138,22 @@ class EquipmentCatalogRepository:
         focal_length_mm: int,
         mount_type: str,
         notes: str = "",
+        instrument_category: str = "TRADITIONAL",
     ) -> tuple[bool, str]:
         clean_brand = brand.strip()
         clean_name = name.strip()
         if not clean_brand or not clean_name:
             return False, tr("Marca e modello sono obbligatori.")
-        clean_optical_type = optical_type.strip()
+        clean_category = canonical_telescope_category(
+            instrument_category,
+            preserve_unknown=False,
+        )
+        clean_optical_type = canonical_telescope_optical_type(optical_type)
         clean_mount_type = canonical_mount_type(mount_type, preserve_unknown=False)
-        if not clean_optical_type or not clean_mount_type:
-            return False, tr("Tipo ottico e montatura sono obbligatori.")
+        if not clean_category or not clean_optical_type or not clean_mount_type:
+            return False, tr(
+                "Categoria, tipo ottico e montatura sono obbligatori."
+            )
         if clean_mount_type not in MOUNT_TYPE_LABELS:
             return False, tr("Tipo di montatura non valido.")
         if not _all_finite(aperture_mm, focal_length_mm) or aperture_mm <= 0 or focal_length_mm <= 0:
@@ -156,14 +170,15 @@ class EquipmentCatalogRepository:
             connection.execute(
                 """
                 INSERT INTO TelescopeModel (
-                    brand_id, name, optical_type, aperture_mm, focal_length_mm,
-                    focal_ratio, mount_type, notes
+                    brand_id, name, instrument_category, optical_type,
+                    aperture_mm, focal_length_mm, focal_ratio, mount_type, notes
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     brand_id,
                     clean_name,
+                    clean_category,
                     clean_optical_type,
                     aperture_mm,
                     focal_length_mm,
@@ -185,15 +200,22 @@ class EquipmentCatalogRepository:
         focal_length_mm: int,
         mount_type: str,
         notes: str = "",
+        instrument_category: str = "TRADITIONAL",
     ) -> tuple[bool, str]:
         clean_brand = brand.strip()
         clean_name = name.strip()
         if not clean_brand or not clean_name:
             return False, tr("Marca e modello sono obbligatori.")
-        clean_optical_type = optical_type.strip()
+        clean_category = canonical_telescope_category(
+            instrument_category,
+            preserve_unknown=False,
+        )
+        clean_optical_type = canonical_telescope_optical_type(optical_type)
         clean_mount_type = canonical_mount_type(mount_type, preserve_unknown=False)
-        if not clean_optical_type or not clean_mount_type:
-            return False, tr("Tipo ottico e montatura sono obbligatori.")
+        if not clean_category or not clean_optical_type or not clean_mount_type:
+            return False, tr(
+                "Categoria, tipo ottico e montatura sono obbligatori."
+            )
         if clean_mount_type not in MOUNT_TYPE_LABELS:
             return False, tr("Tipo di montatura non valido.")
         if not _all_finite(aperture_mm, focal_length_mm) or aperture_mm <= 0 or focal_length_mm <= 0:
@@ -213,8 +235,9 @@ class EquipmentCatalogRepository:
             connection.execute(
                 """
                 UPDATE TelescopeModel
-                SET brand_id = ?, name = ?, optical_type = ?, aperture_mm = ?,
-                    focal_length_mm = ?, focal_ratio = ?, mount_type = ?, notes = ?,
+                SET brand_id = ?, name = ?, instrument_category = ?,
+                    optical_type = ?, aperture_mm = ?, focal_length_mm = ?,
+                    focal_ratio = ?, mount_type = ?, notes = ?,
                     is_user_modified = CASE
                         WHEN is_builtin = 1 THEN 1 ELSE is_user_modified
                     END
@@ -223,6 +246,7 @@ class EquipmentCatalogRepository:
                 (
                     brand_id,
                     clean_name,
+                    clean_category,
                     clean_optical_type,
                     aperture_mm,
                     focal_length_mm,
@@ -1766,7 +1790,19 @@ class EquipmentCatalogRepository:
             "brand": row["brand"],
             "name": row["name"],
             "display_name": f"{row['brand']} {row['name']}",
+            "instrument_category": canonical_telescope_category(
+                row["instrument_category"]
+            ),
+            "instrument_category_label": telescope_category_label(
+                row["instrument_category"]
+            ),
             "optical_type": row["optical_type"],
+            "optical_type_code": telescope_optical_type_code(
+                row["optical_type"]
+            ),
+            "optical_type_label": telescope_optical_type_label(
+                row["optical_type"]
+            ),
             "aperture_mm": row["aperture_mm"],
             "focal_length_mm": row["focal_length_mm"],
             "focal_ratio": row["focal_ratio"],
@@ -2504,10 +2540,10 @@ class EquipmentCatalogRepository:
     def _telescope_model_by_id(self, connection: sqlite3.Connection, model_id: int) -> dict | None:
         row = connection.execute(
             """
-            SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
-                   tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
-                   tm.mount_type, tm.notes, tm.is_builtin, tm.seed_key,
-                   tm.is_user_modified
+            SELECT tm.id, tb.name AS brand, tm.name, tm.instrument_category,
+                   tm.optical_type, tm.aperture_mm, tm.focal_length_mm,
+                   tm.focal_ratio, tm.mount_type, tm.notes, tm.is_builtin,
+                   tm.seed_key, tm.is_user_modified
             FROM TelescopeModel tm
             JOIN TelescopeBrand tb ON tb.id = tm.brand_id
             WHERE tm.id = ?

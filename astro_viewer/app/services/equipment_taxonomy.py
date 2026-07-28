@@ -125,3 +125,128 @@ CAMERA_SENSOR_FORMAT_OPTIONS = (
     ("MICRO_FOUR_THIRDS", "Micro Four Thirds"),
 )
 CAMERA_SENSOR_FORMAT_LABELS = dict(CAMERA_SENSOR_FORMAT_OPTIONS)
+
+
+TELESCOPE_CATEGORY_OPTIONS = (
+    ("TRADITIONAL", tr("Tradizionale")),
+    ("SMART_INTEGRATED", tr("Smart integrato")),
+)
+TELESCOPE_CATEGORY_LABELS = dict(TELESCOPE_CATEGORY_OPTIONS)
+
+_TELESCOPE_CATEGORY_ALIASES = {
+    "traditional": "TRADITIONAL",
+    "tradizionale": "TRADITIONAL",
+    "smart": "SMART_INTEGRATED",
+    "smart integrated": "SMART_INTEGRATED",
+    "smart telescope": "SMART_INTEGRATED",
+    "smart integrato": "SMART_INTEGRATED",
+    "telescopio intelligente": "SMART_INTEGRATED",
+}
+
+TELESCOPE_OPTICAL_TYPE_OPTIONS = (
+    ("REFRACTOR", tr("Rifrattore")),
+    ("APOCHROMATIC_REFRACTOR", tr("Rifrattore apocromatico")),
+    ("PETZVAL_REFRACTOR", tr("Rifrattore Petzval")),
+    ("NEWTONIAN", "Newton"),
+    ("MAKSUTOV", "Maksutov"),
+    ("MAKSUTOV_NEWTONIAN", "Maksutov-Newton"),
+    ("SCHMIDT_CASSEGRAIN", "Schmidt-Cassegrain"),
+    ("CLASSICAL_CASSEGRAIN", tr("Cassegrain classico")),
+    ("RITCHEY_CHRETIEN", "Ritchey-Chrétien"),
+    ("CATADIOPTRIC", tr("Catadiottrico")),
+    ("OTHER", tr("Altro")),
+)
+TELESCOPE_OPTICAL_TYPE_LABELS = dict(TELESCOPE_OPTICAL_TYPE_OPTIONS)
+
+_TELESCOPE_OPTICAL_TYPE_STORAGE = {
+    "REFRACTOR": "rifrattore",
+    "APOCHROMATIC_REFRACTOR": "Rifrattore apocromatico",
+    "PETZVAL_REFRACTOR": "rifrattore Petzval",
+    "NEWTONIAN": "Newton",
+    "MAKSUTOV": "Maksutov",
+    "MAKSUTOV_NEWTONIAN": "Maksutov-Newton",
+    "SCHMIDT_CASSEGRAIN": "Schmidt-Cassegrain",
+    "CLASSICAL_CASSEGRAIN": "Classical Cassegrain",
+    "RITCHEY_CHRETIEN": "RC",
+    "CATADIOPTRIC": "Catadiottrico",
+}
+
+_TELESCOPE_OPTICAL_TYPE_ALIASES = {
+    "refractor": "REFRACTOR",
+    "rifrattore": "REFRACTOR",
+    "achromatic refractor": "REFRACTOR",
+    "rifrattore acromatico": "REFRACTOR",
+    "apo": "APOCHROMATIC_REFRACTOR",
+    "apochromatic refractor": "APOCHROMATIC_REFRACTOR",
+    "rifrattore apo": "APOCHROMATIC_REFRACTOR",
+    "rifrattore apocromatico": "APOCHROMATIC_REFRACTOR",
+    "petzval": "PETZVAL_REFRACTOR",
+    "petzval refractor": "PETZVAL_REFRACTOR",
+    "rifrattore petzval": "PETZVAL_REFRACTOR",
+    "newton": "NEWTONIAN",
+    "newtonian": "NEWTONIAN",
+    "newtoniano": "NEWTONIAN",
+    "maksutov": "MAKSUTOV",
+    "maksutov-newton": "MAKSUTOV_NEWTONIAN",
+    "maksutov-newtonian": "MAKSUTOV_NEWTONIAN",
+    "schmidt-cassegrain": "SCHMIDT_CASSEGRAIN",
+    "classical cassegrain": "CLASSICAL_CASSEGRAIN",
+    "cassegrain classico": "CLASSICAL_CASSEGRAIN",
+    "rc": "RITCHEY_CHRETIEN",
+    "ritchey-chrétien": "RITCHEY_CHRETIEN",
+    "ritchey-chretien": "RITCHEY_CHRETIEN",
+    "catadioptric": "CATADIOPTRIC",
+    "catadióptrico": "CATADIOPTRIC",
+    "catadiottrico": "CATADIOPTRIC",
+}
+
+
+def canonical_telescope_category(
+    value: object,
+    *,
+    preserve_unknown: bool = True,
+) -> str:
+    raw_value = str(value or "").strip()
+    if not raw_value:
+        return ""
+    upper_value = raw_value.upper()
+    if upper_value in TELESCOPE_CATEGORY_LABELS:
+        return upper_value
+    canonical = _TELESCOPE_CATEGORY_ALIASES.get(raw_value.casefold())
+    if canonical:
+        return canonical
+    return raw_value if preserve_unknown else ""
+
+
+def telescope_category_label(value: object) -> object:
+    canonical = canonical_telescope_category(value)
+    return TELESCOPE_CATEGORY_LABELS.get(canonical, canonical)
+
+
+def telescope_optical_type_code(value: object) -> str:
+    raw_value = str(value or "").strip()
+    if not raw_value:
+        return ""
+    upper_value = raw_value.upper()
+    if upper_value in TELESCOPE_OPTICAL_TYPE_LABELS:
+        return upper_value
+    return _TELESCOPE_OPTICAL_TYPE_ALIASES.get(
+        raw_value.casefold(),
+        "OTHER",
+    )
+
+
+def canonical_telescope_optical_type(value: object) -> str:
+    raw_value = str(value or "").strip()
+    if not raw_value:
+        return ""
+    code = telescope_optical_type_code(raw_value)
+    return _TELESCOPE_OPTICAL_TYPE_STORAGE.get(code, raw_value)
+
+
+def telescope_optical_type_label(value: object) -> object:
+    raw_value = str(value or "").strip()
+    code = telescope_optical_type_code(raw_value)
+    if code == "OTHER":
+        return raw_value or TELESCOPE_OPTICAL_TYPE_LABELS["OTHER"]
+    return TELESCOPE_OPTICAL_TYPE_LABELS.get(code, raw_value)

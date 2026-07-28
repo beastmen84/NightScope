@@ -2345,11 +2345,11 @@
         "mount_type": "OTA"
       },
       "zwo/seestar::seestar s30": {
-        "optical_type": "Smart telescope",
+        "optical_type": "Apochromatic refractor",
         "mount_type": "Altazimuth GoTo"
       },
       "zwo/seestar::seestar s50": {
-        "optical_type": "Smart telescope",
+        "optical_type": "Apochromatic refractor",
         "mount_type": "Altazimuth GoTo"
       }
     },

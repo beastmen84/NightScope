@@ -129,6 +129,18 @@ def test_discovered_language_catalogs_are_complete_and_symmetric() -> None:
     assert catalogs["es"][("EquipmentTelescopesPage", "Montatura *")] == (
         "Montura *"
     )
+    assert catalogs["en"][
+        ("EquipmentTelescopesPage", "Categoria strumento *")
+    ] == "Instrument category *"
+    assert catalogs["en"][("", "Smart integrato")] == (
+        "Integrated smart telescope"
+    )
+    assert catalogs["es"][
+        ("EquipmentTelescopesPage", "Categoria strumento *")
+    ] == "Categoría del instrumento *"
+    assert catalogs["es"][("", "Smart integrato")] == (
+        "Telescopio inteligente integrado"
+    )
     assert catalogs["es"][("EquipmentBinocularsPage", "Catalogo binocoli")] == (
         "Catálogo de prismáticos"
     )
@@ -529,10 +541,10 @@ def test_curated_spanish_content_uses_reviewed_astronomy_terms() -> None:
         "Maksutov-Newton",
         "Newtoniano",
         "Refractor",
+        "Refractor apocromático",
         "Refractor Petzval",
         "Ritchey-Chrétien",
         "Schmidt-Cassegrain",
-        "Telescopio inteligente",
     }
     assert {item["mount_type"] for item in telescope_content.values()} == {
         "Altazimutal",

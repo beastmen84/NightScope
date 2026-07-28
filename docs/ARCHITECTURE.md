@@ -744,7 +744,11 @@ Repositories own SQLite persistence:
   profile-to-telescope link, and schema 23 retires unmodeled eyepiece/Barlow
   barrel fields plus generic reducer-compatibility text. The exact
   `ReducerTelescopeCompatibility` links remain the only reducer admission
-  source for both visual guidance and the on-demand photographic engine.
+  source for both visual guidance and the on-demand photographic engine. Schema
+  24 adds the controlled `instrument_category` telescope field, independently
+  from the controlled optical-design taxonomy exposed by the catalogue form.
+  `TRADITIONAL` remains the migration and import default; the seeded Seestar S30
+  and S50 rows are `SMART_INTEGRATED` apochromatic refractors.
   Every catalogue row exposes `is_builtin`, `seed_key` and `is_user_modified`;
   seeded rows can be updated but not deleted, while user rows can be managed
   after any applicable profile links are handled. Updating a seeded row marks

@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Lo schema SQLite passa alla versione 24 e separa la categoria dello
+  strumento (`TRADITIONAL` o `SMART_INTEGRATED`) dal suo tipo ottico. Il
+  catalogo classifica Seestar S30 e S50 come smart integrati con ottica
+  rifrattore apocromatico; la migrazione riconosce anche i precedenti valori
+  testuali usati per i telescopi smart e conserva il tipo ottico dei modelli
+  integrati gia' modificati dall'utente.
+- Il form dei telescopi usa ora menu a discesa controllati per categoria e tipo
+  ottico, conserva una scelta `Altro` con descrizione personalizzata e
+  distribuisce i campi in colonne uniformi, evitando larghezze dipendenti dal
+  contenuto. Categoria e tipo sono ricercabili e visibili nel catalogo. Questo
+  passaggio prepara i dati ma non modifica ancora selezione, punteggi o treni
+  ottici delle raccomandazioni visuali e fotografiche.
 - La raccomandazione visuale per pianeti, Luna e target ad alto ingrandimento
   tratta ora il limite imposto dal seeing come vincolo pratico di selezione,
   senza alterare i pesi dello score: quando esistono configurazioni entro il

@@ -78,6 +78,8 @@ from astro_viewer.app.services.equipment_taxonomy import (
     SENSOR_COLOR_MODE_OPTIONS,
     SENSOR_SHUTTER_OPTIONS,
     SENSOR_TECHNOLOGY_OPTIONS,
+    TELESCOPE_CATEGORY_OPTIONS,
+    TELESCOPE_OPTICAL_TYPE_OPTIONS,
 )
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.equipment_setup_read_model import (
@@ -1480,6 +1482,24 @@ class AppController(QObject):
         )
 
     @Property("QVariant", notify=equipmentChanged)
+    def telescopeCategoryOptions(self) -> list[dict[str, str]]:
+        return render_payload(
+            [
+                {"code": code, "label": label}
+                for code, label in TELESCOPE_CATEGORY_OPTIONS
+            ]
+        )
+
+    @Property("QVariant", notify=equipmentChanged)
+    def telescopeOpticalTypeOptions(self) -> list[dict[str, str]]:
+        return render_payload(
+            [
+                {"code": code, "label": label}
+                for code, label in TELESCOPE_OPTICAL_TYPE_OPTIONS
+            ]
+        )
+
+    @Property("QVariant", notify=equipmentChanged)
     def eyepieceCatalog(self) -> list[dict]:
         return render_payload(self._catalog_eyepieces)
 
@@ -2671,8 +2691,18 @@ class AppController(QObject):
     def equipmentUsage(self, kind: str, item_id: str) -> int:
         return self._equipment_catalog_repository.profile_usage_count(kind, item_id)
 
-    @Slot(str, str, str, str, str, str, str, result=bool)
-    def addTelescopeModel(self, brand: str, name: str, optical_type: str, aperture: str, focal: str, mount: str, notes: str) -> bool:
+    @Slot(str, str, str, str, str, str, str, str, result=bool)
+    def addTelescopeModel(
+        self,
+        brand: str,
+        name: str,
+        optical_type: str,
+        aperture: str,
+        focal: str,
+        mount: str,
+        notes: str,
+        instrument_category: str = "TRADITIONAL",
+    ) -> bool:
         try:
             aperture_mm = self._positive_int(aperture)
             focal_mm = self._positive_int(focal)
@@ -2680,12 +2710,32 @@ class AppController(QObject):
             self._equipment_message = tr("Dati telescopio non validi.")
             self.equipmentChanged.emit()
             return False
-        ok, message = self._equipment_catalog_repository.add_telescope_model(brand, name, optical_type, aperture_mm, focal_mm, mount, notes)
+        ok, message = self._equipment_catalog_repository.add_telescope_model(
+            brand,
+            name,
+            optical_type,
+            aperture_mm,
+            focal_mm,
+            mount,
+            notes,
+            instrument_category,
+        )
         self._after_catalog_change(message, ok)
         return ok
 
-    @Slot(int, str, str, str, str, str, str, str, result=bool)
-    def updateTelescopeModel(self, model_id: int, brand: str, name: str, optical_type: str, aperture: str, focal: str, mount: str, notes: str) -> bool:
+    @Slot(int, str, str, str, str, str, str, str, str, result=bool)
+    def updateTelescopeModel(
+        self,
+        model_id: int,
+        brand: str,
+        name: str,
+        optical_type: str,
+        aperture: str,
+        focal: str,
+        mount: str,
+        notes: str,
+        instrument_category: str = "TRADITIONAL",
+    ) -> bool:
         try:
             aperture_mm = self._positive_int(aperture)
             focal_mm = self._positive_int(focal)
@@ -2693,7 +2743,17 @@ class AppController(QObject):
             self._equipment_message = tr("Dati telescopio non validi.")
             self.equipmentChanged.emit()
             return False
-        ok, message = self._equipment_catalog_repository.update_telescope_model(model_id, brand, name, optical_type, aperture_mm, focal_mm, mount, notes)
+        ok, message = self._equipment_catalog_repository.update_telescope_model(
+            model_id,
+            brand,
+            name,
+            optical_type,
+            aperture_mm,
+            focal_mm,
+            mount,
+            notes,
+            instrument_category,
+        )
         self._after_catalog_change(message, ok)
         return ok
 
@@ -3175,7 +3235,16 @@ class AppController(QObject):
 
     @Slot(str, str, str, str, str)
     def addTelescope(self, name: str, aperture: str, focal: str, optical_type: str, mount: str) -> None:
-        self.addTelescopeModel("Custom", name, optical_type, aperture, focal, mount, "")
+        self.addTelescopeModel(
+            "Custom",
+            name,
+            optical_type,
+            aperture,
+            focal,
+            mount,
+            "",
+            "TRADITIONAL",
+        )
 
     @Slot(str, str)
     def addCatalogProfile(self, catalog_id: str, profile_name: str) -> None:
@@ -3199,7 +3268,21 @@ class AppController(QObject):
     def updateTelescope(self, telescope_id: str, name: str, aperture: str, focal: str, optical_type: str, mount: str) -> None:
         if telescope_id.startswith("catalog-telescope-"):
             existing = self._equipment_catalog_repository.model_by_catalog_id(telescope_id)
-            self.updateTelescopeModel(int(telescope_id.removeprefix("catalog-telescope-")), existing["brand"] if existing else "Custom", name, optical_type, aperture, focal, mount, "")
+            self.updateTelescopeModel(
+                int(telescope_id.removeprefix("catalog-telescope-")),
+                existing["brand"] if existing else "Custom",
+                name,
+                optical_type,
+                aperture,
+                focal,
+                mount,
+                "",
+                (
+                    str(existing.get("instrument_category") or "TRADITIONAL")
+                    if existing
+                    else "TRADITIONAL"
+                ),
+            )
 
     @Slot(int)
     def setActiveEquipmentProfile(self, profile_id: int) -> None:
@@ -8540,6 +8623,11 @@ class AppController(QObject):
                         field,
                         row.get(field, ""),
                     )
+            if section_name == "telescopes" and (
+                bool(row.get("is_builtin"))
+                and not bool(row.get("is_user_modified"))
+            ):
+                row["optical_type_label"] = row["optical_type"]
             localized.append(row)
         return localized
 

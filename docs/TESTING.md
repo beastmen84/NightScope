@@ -137,6 +137,23 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured Telescope Schema And Form Gate
+
+Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-28:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` on the final source state | Passed in 322.8 s |
+| Complete deterministic suite | 1,113 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 273.83 s |
+| Schema 24 migration | Existing telescope rows default to `TRADITIONAL`; legacy smart labels and the built-in Seestar seed keys become `SMART_INTEGRATED`; a user-modified Seestar keeps its custom optical type |
+| Telescope catalogue CRUD | Controlled category and optical-type codes round-trip; custom `Altro` optical designs remain editable; invalid categories fail closed |
+| Telescope CSV import | 133 rows imported, with exactly Seestar S30 and S50 in `SMART_INTEGRATED` |
+| Recommendation boundary | The deterministic 375-check visual quality matrix is byte-for-byte unchanged; smart category metadata is not consumed by visual or photographic calculation services |
+| Translation catalogues | IT, EN, and ES: 1,987 finished, 0 unfinished each |
+| Telescope form lint | Passed with the page's known non-fatal `unqualified access` diagnostic class |
+| Native telescope-form review | Windows `1040 x 700` logical viewport: six half-row fields measured equally at 346 px; category/type dropdowns, labels, full-width mount/notes and dialog actions were visible and unclipped |
+| Runtime smoke tests | Backend, normal QML and Red Night Vision QML passed in disposable runtimes |
+
 ## Measured Post-1.42.0 Recommendation Maintenance Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-28:
