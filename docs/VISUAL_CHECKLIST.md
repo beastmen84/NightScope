@@ -599,12 +599,24 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   mentre superficie e centro restano opachi.
 - [x] **VIS-V48 (`RISOLTA`)** - Revisionati tutti i `58` punti di dichiarazione
   di `MetricTile`: gli `8` di Profili, i `27` di Meteo e le metriche descrittive
-  dei `14` punti del Dettaglio oggetto usano ora il separatore neutro
-  predefinito. Nel Calendario `Prossimo` e' neutro, mentre le otto categorie
-  evento mantengono il colore coerente con filtri e schede; nel catalogo
-  soltanto i due esiti reali di visibilita' abilitano esplicitamente
-  l'accento. Otto render `1440 x 900` hanno verificato le quattro pagine in
-  modalita' normale e Red Night Vision.
+  dei `14` punti del Dettaglio oggetto usano ora il separatore teal informativo
+  attenuato. Nel Calendario `Prossimo` usa lo stesso default, mentre le otto
+  categorie evento mantengono il colore coerente con filtri e schede; nel
+  catalogo soltanto i due esiti reali di visibilita' abilitano esplicitamente
+  verde o corallo. Il set finale di tredici render `1440 x 900` include
+  Calendario, Meteo e Dettaglio oggetto in modalita' normale e scene
+  rappresentative in Red Night Vision.
+- [x] **VIS-V49 (`RISOLTA`)** - Revisionate le `50` dichiarazioni di
+  `GlassCard`, delle quali `46` possono mostrare il marker verticale. Il marker
+  usa ora il teal informativo attenuato per default; i colori di Home, Provider,
+  Posizione, Profilo attivo, Dettaglio oggetto ed Eventi richiedono un opt-in e
+  coincidono con lo stato o la categoria testuale visibile. Corrette in
+  particolare Posizione verde senza localita', le condizioni Home discordanti
+  dai badge e il Piano fotografico che mescolava modalita' e stato. I cinque
+  marker manuali dei cataloghi Equipment adottano lo stesso teal; le righe Home
+  pianeta/cielo profondo conservano invece la categoria esplicita. Lo stesso set
+  di tredici render copre Home, Provider, Equipment, Posizione, Dettaglio
+  oggetto ed Eventi e cinque scene rappresentative in Red Night Vision.
 
 ## Verifica Delle Correzioni 1.33.1
 

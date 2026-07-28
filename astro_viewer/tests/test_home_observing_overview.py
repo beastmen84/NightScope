@@ -324,10 +324,10 @@ def test_upper_home_cards_use_the_overview_contract_without_category_scores() ->
     assert "function observingLimitFactor" not in qml
     assert "function moonImpactHint" not in qml
     assert qml.count("subtitleWrap: true") >= 4
-    assert 'root.planetaryOverview.state === "pending"' in qml
-    assert 'root.deepSkyOverview.state === "pending"' in qml
-    assert 'root.deepSkyOverview.state === "partial"' in qml
-    assert "? theme.amber" in qml
+    assert "function observingCategoryAccent(data)" in qml
+    assert "function moonImpactAccent(impact)" in qml
+    assert qml.count("accentColor: root.observingCategoryAccent(") == 2
+    assert "accentColor: root.moonImpactAccent(" in qml
     assert 'root.weatherOverview.state === "pending"' in qml
     assert "property bool subtitleWrap: false" in glass_card
     assert "wrapMode: root.subtitleWrap ? Text.WordWrap : Text.NoWrap" in glass_card

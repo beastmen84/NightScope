@@ -46,8 +46,8 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 2
             radius: 1
-            color: root.accentMeaningful ? root.accentColor : theme.borderSubtle
-            opacity: root.accentMeaningful ? 0.75 : 1.0
+            color: root.accentMeaningful ? root.accentColor : theme.teal
+            opacity: root.accentMeaningful ? 0.75 : 0.6
         }
     }
 }

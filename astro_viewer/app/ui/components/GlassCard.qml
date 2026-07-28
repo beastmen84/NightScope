@@ -9,6 +9,7 @@ Rectangle {
     property string subtitle: ""
     property bool subtitleWrap: false
     property color accentColor: theme.cyan
+    property bool accentMeaningful: false
     property string headerBadgeText: ""
     property color headerBadgeColor: accentColor
     property string headerActionText: ""
@@ -47,7 +48,8 @@ Rectangle {
                 Layout.preferredWidth: 4
                 Layout.preferredHeight: 28
                 radius: 2
-                color: root.accentColor
+                color: root.accentMeaningful ? root.accentColor : theme.teal
+                opacity: root.accentMeaningful ? 1.0 : 0.7
             }
 
             ColumnLayout {

@@ -127,6 +127,7 @@ Item {
                     title: qsTr("Profilo attivo")
                     subtitle: qsTr("Configurazione visuale usata dalle raccomandazioni")
                     accentColor: theme.green
+                    accentMeaningful: true
 
                     Text {
                         Layout.fillWidth: true

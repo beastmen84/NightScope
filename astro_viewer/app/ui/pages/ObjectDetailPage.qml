@@ -43,25 +43,29 @@ Item {
             return theme.amber
         if (state === "limited")
             return theme.coral
-        return theme.textMuted
+        return theme.teal
     }
 
     function sessionAccent(state) {
         if (state === "recommended")
-            return theme.teal
+            return theme.green
         if (state === "monitor")
             return theme.amber
         if (state === "discouraged")
             return theme.coral
         if (state === "pending")
             return theme.cyan
-        return theme.textMuted
+        return theme.teal
     }
 
-    function photographicAccent() {
+    function photographicModeAccent() {
+        return root.photographicData.modeCode === "video"
+                ? theme.coral : theme.violet
+    }
+
+    function photographicStateAccent() {
         if (root.photographicData.ready === true)
-            return root.photographicData.modeCode === "video"
-                    ? theme.coral : theme.violet
+            return theme.green
         if (root.photographicData.statusCode === "target_unsupported")
             return theme.coral
         return theme.amber
@@ -151,8 +155,8 @@ Item {
             { "label": qsTr("Sorge"), "value": objectData.riseTime },
             { "label": qsTr("Transita"), "value": objectData.culminationTime },
             { "label": qsTr("Tramonta"), "value": objectData.setTime },
-            { "label": qsTr("Raggiunge ≥15°"), "value": objectData.catalogueUsefullyObservableLabel, "accent": objectData.catalogueUsefullyObservable === true ? theme.green : theme.textMuted, "accentMeaningful": true },
-            { "label": qsTr("Visibile nel mese corrente"), "value": objectData.catalogueVisibleCurrentMonthLabel, "accent": objectData.catalogueVisibleCurrentMonth === true ? theme.green : theme.textMuted, "accentMeaningful": true }
+            { "label": qsTr("Raggiunge ≥15°"), "value": objectData.catalogueUsefullyObservableLabel, "accent": objectData.catalogueUsefullyObservable === true ? theme.green : theme.coral, "accentMeaningful": true },
+            { "label": qsTr("Visibile nel mese corrente"), "value": objectData.catalogueVisibleCurrentMonthLabel, "accent": objectData.catalogueVisibleCurrentMonth === true ? theme.green : theme.coral, "accentMeaningful": true }
         ]
         var result = []
         for (var i = 0; i < source.length; i++) {
@@ -424,7 +428,9 @@ Item {
                         Layout.minimumHeight: 118
                         title: qsTr("Finestra osservativa")
                         subtitle: root.geometryData.durationText || qsTr("Durata utile non disponibile")
-                        accentColor: theme.teal
+                        accentColor: root.geometryAccent(
+                                         root.geometryData.state || "unavailable")
+                        accentMeaningful: true
 
                         Text {
                             Layout.fillWidth: true
@@ -846,7 +852,8 @@ Item {
                 title: qsTr("Piano fotografico")
                 subtitle: root.photographicData.subtitle || qsTr("Configurazione fotografica del profilo attivo")
                 subtitleWrap: true
-                accentColor: root.photographicAccent()
+                accentColor: root.photographicStateAccent()
+                accentMeaningful: true
 
                 Text {
                     visible: root.photographicData.ready === true
@@ -869,7 +876,7 @@ Item {
                         visible: root.photographicData.ready === true
                                  && (root.photographicData.modeLabel || "").length > 0
                         text: root.photographicData.modeLabel || ""
-                        accentColor: root.photographicAccent()
+                        accentColor: root.photographicModeAccent()
                     }
 
                     StatusPill {
@@ -888,8 +895,7 @@ Item {
 
                     StatusPill {
                         text: root.photographicData.stateLabel || ""
-                        accentColor: root.photographicData.ready === true
-                                     ? theme.textSecondary : root.photographicAccent()
+                        accentColor: root.photographicStateAccent()
                     }
                 }
 
@@ -1175,6 +1181,7 @@ Item {
                 title: root.evaluationData.title || qsTr("Valutazione osservativa")
                 subtitle: root.evaluationData.subtitle || qsTr("Geometria e condizioni locali")
                 accentColor: root.sessionAccent(root.sessionData.state || "unavailable")
+                accentMeaningful: true
 
                 Text {
                     visible: (root.evaluationData.warning || "").length > 0

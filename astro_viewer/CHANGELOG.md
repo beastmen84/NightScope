@@ -2,11 +2,18 @@
 
 ## Unreleased
 
-- Le linee sotto le tessere metriche sono ora neutre per impostazione
-  predefinita in Profili, Dettaglio oggetto e Meteo, cosi' da non suggerire
-  stati o soglie inesistenti. Il colore richiede un significato esplicito:
-  resta quindi nelle categorie evento del Calendario e nei reali esiti di
-  visibilita' del catalogo.
+- Le linee sotto le tessere metriche usano ora un teal informativo coerente e
+  attenuato per impostazione predefinita in Profili, Dettaglio oggetto e Meteo,
+  senza suggerire stati o soglie inesistenti. Un colore diverso richiede un
+  significato esplicito: resta quindi nelle categorie evento del Calendario e
+  nei reali esiti di visibilita' del catalogo.
+- Anche le barrette verticali delle intestazioni e dei cataloghi Equipment
+  adottano il teal informativo predefinito. Home, Provider, Posizione, Profilo
+  attivo, Dettaglio oggetto ed Eventi usano invece verde, ambra o corallo quando
+  indicano rispettivamente un esito positivo, attenzione o un problema; nei
+  marker di stato il cyan indica un'operazione in corso. Luna segue ora
+  l'impatto reale e le condizioni planetarie/cielo profondo lo stesso colore
+  del badge.
 - Lo schema SQLite passa alla versione 25. La versione 24 separa la categoria
   dello strumento (`TRADITIONAL` o `SMART_INTEGRATED`) dal tipo ottico; la 25
   aggiunge il contratto persistente `SmartTelescopeCapability` per capacita'
@@ -63,7 +70,7 @@
   `aiobotocore`.
 - Rigenerato l'archivio Windows delle licenze sulla closure aggiornata delle
   dipendenze.
-- Il gate Windows `tools/run_checks.py --fast` passa con `1.128 passed`,
+- Il gate Windows `tools/run_checks.py --fast` passa con `1.129 passed`,
   `643 warnings` Skyfield/NumPy note e `10 subtests`; il successivo
   `pip-audit` non rileva vulnerabilita' note e gli smoke backend/QML normale e
   Red Night Vision restano verdi.

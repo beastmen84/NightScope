@@ -159,12 +159,12 @@ Item {
         if (state === "pending")
             return theme.cyan
         if (state === "recommended")
-            return theme.teal
+            return theme.green
         if (state === "monitor")
             return theme.amber
         if (state === "discouraged")
-            return theme.red
-        return theme.textMuted
+            return theme.coral
+        return theme.teal
     }
 
     function planAccent(state) {
@@ -173,10 +173,34 @@ Item {
         if (state === "monitor")
             return theme.amber
         if (state === "discouraged")
-            return theme.red
+            return theme.coral
         if (state === "pending")
             return theme.cyan
-        return theme.textMuted
+        return theme.teal
+    }
+
+    function observingCategoryAccent(data) {
+        var state = data && data.state ? data.state : "unavailable"
+        if (state === "pending")
+            return theme.cyan
+        if (state === "partial")
+            return theme.amber
+        if (state === "unavailable")
+            return theme.teal
+        var scoreValue = Number(data.scoreValue)
+        return isFinite(scoreValue) ? theme.scoreColor(scoreValue) : theme.teal
+    }
+
+    function moonImpactAccent(impact) {
+        if (impact === "pending")
+            return theme.cyan
+        if (impact === "low")
+            return theme.green
+        if (impact === "medium")
+            return theme.amber
+        if (impact === "high")
+            return theme.coral
+        return theme.teal
     }
 
     function alternativeItems() {
@@ -349,6 +373,7 @@ Item {
                         subtitle: root.sessionOverview.detail || ""
                         subtitleWrap: true
                         accentColor: root.sessionAccent(root.sessionOverview.state || "unavailable")
+                        accentMeaningful: true
                         headerBadgeText: root.sessionOverview.badge || ""
                         headerBadgeColor: accentColor
 
@@ -387,7 +412,8 @@ Item {
                         Layout.preferredHeight: 160
                         title: qsTr("Luna")
                         subtitle: root.moonOverview.summary || ""
-                        accentColor: theme.amber
+                        accentColor: root.moonImpactAccent(root.moonOverview.impact || "unavailable")
+                        accentMeaningful: true
 
                         Rectangle {
                             Layout.fillWidth: true
@@ -503,13 +529,10 @@ Item {
                         title: qsTr("Condizioni planetarie")
                         subtitle: root.planetaryOverview.secondaryMetric || ""
                         subtitleWrap: true
-                        accentColor: theme.teal
+                        accentColor: root.observingCategoryAccent(root.planetaryOverview)
+                        accentMeaningful: true
                         headerBadgeText: root.planetaryOverview.label || ""
-                        headerBadgeColor: root.planetaryOverview.state === "pending"
-                                          ? theme.cyan
-                                          : (root.planetaryOverview.state === "unavailable"
-                                             ? theme.textMuted
-                                             : theme.scoreColor(root.planetaryOverview.scoreValue))
+                        headerBadgeColor: accentColor
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -547,15 +570,10 @@ Item {
                         title: qsTr("Condizioni del cielo profondo")
                         subtitle: root.deepSkyOverview.secondaryMetric || ""
                         subtitleWrap: true
-                        accentColor: theme.violet
+                        accentColor: root.observingCategoryAccent(root.deepSkyOverview)
+                        accentMeaningful: true
                         headerBadgeText: root.deepSkyOverview.label || ""
-                        headerBadgeColor: root.deepSkyOverview.state === "pending"
-                                          ? theme.cyan
-                                          : (root.deepSkyOverview.state === "partial"
-                                             ? theme.amber
-                                             : (root.deepSkyOverview.state === "unavailable"
-                                                ? theme.textMuted
-                                                : theme.scoreColor(root.deepSkyOverview.scoreValue)))
+                        headerBadgeColor: accentColor
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -601,7 +619,8 @@ Item {
                                  ? theme.cyan
                                  : (root.weatherOverview.available
                                     ? theme.scoreColor(root.weatherOverview.scoreValue)
-                                    : theme.textMuted)
+                                    : theme.teal)
+                    accentMeaningful: true
                     headerBadgeText: root.weatherOverview.badge || qsTr("n/d")
                     headerBadgeColor: root.weatherOverview.state === "pending" ? theme.cyan : accentColor
 
@@ -1344,6 +1363,7 @@ Item {
                     headerBadgeText: root.nightPlanOverview.badge || ""
                     headerBadgeColor: root.planAccent(root.nightPlanOverview.state || "unavailable")
                     accentColor: root.planAccent(root.nightPlanOverview.state || "unavailable")
+                    accentMeaningful: true
 
                     ColumnLayout {
                         Layout.fillWidth: true

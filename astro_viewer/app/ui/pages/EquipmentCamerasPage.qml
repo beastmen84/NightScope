@@ -379,7 +379,8 @@ Item {
                     Layout.preferredWidth: 4
                     Layout.preferredHeight: 28
                     radius: 2
-                    color: cameraColumn.accent
+                    color: theme.teal
+                    opacity: 0.7
                 }
 
                 ColumnLayout {

@@ -36,12 +36,12 @@ ApplicationWindow {
         if (state === "pending")
             return theme.cyan
         if (state === "recommended")
-            return theme.teal
+            return theme.green
         if (state === "monitor")
             return theme.amber
         if (state === "discouraged")
-            return theme.red
-        return theme.textMuted
+            return theme.coral
+        return theme.teal
     }
 
     AppTheme {

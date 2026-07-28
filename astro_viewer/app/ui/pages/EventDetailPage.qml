@@ -28,7 +28,7 @@ Item {
 
     function visibilityAccent(state) {
         if (state === "visible" || state === "favorable" || state === "nearby_night")
-            return theme.teal
+            return theme.green
         if (state === "check" || state === "unknown")
             return theme.amber
         return theme.coral
@@ -95,6 +95,7 @@ Item {
                 headerBadgeText: root.hasEvent ? root.eventData.type : ""
                 headerBadgeColor: root.accentColor
                 accentColor: root.accentColor
+                accentMeaningful: true
 
                 Flow {
                     Layout.fillWidth: true
@@ -135,7 +136,10 @@ Item {
                     Layout.minimumHeight: 244
                     title: qsTr("Quando osservare l'evento")
                     subtitle: qsTr("Istante, finestra e visibilità locale")
-                    accentColor: theme.amber
+                    accentColor: root.visibilityAccent(
+                                     root.hasEvent
+                                     ? root.eventData.visibilityState : "unknown")
+                    accentMeaningful: true
 
                     Text {
                         Layout.fillWidth: true

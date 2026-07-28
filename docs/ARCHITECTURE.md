@@ -194,10 +194,16 @@ black/red palette. `NightVisionIcon` colorizes functional SVG icons through
 an empty source and leave the layout while red mode is active; functional
 diagrams remain visible and repaint when the mode changes.
 
-`MetricTile` uses a neutral separator by default. A colored underline requires
-the explicit `accentMeaningful` opt-in and is reserved for a real state or a
-stable category, such as Calendar event types. Descriptive measurements do not
-cycle through decorative colors.
+`MetricTile` separators and `GlassCard` header markers use a subdued teal
+informational accent by default. A different color requires the explicit
+`accentMeaningful` opt-in and is reserved for a real state or a stable category,
+such as Calendar event types. State accents use green for a positive outcome,
+amber for attention, coral for a problem and cyan while work is in progress.
+Gray remains a de-emphasis color for borders, disabled controls or genuinely
+missing data, not a decorative accent. `GlassCard.accentColor` can still style a
+header badge or action independently from its marker. Descriptive measurements,
+section headings and Equipment catalogue columns therefore share one
+informational accent instead of cycling through decorative colors.
 
 Pages use themed controls such as `DarkTextField`, `DarkComboBox`,
 `DarkSpinBox` and `DarkCheckBox` instead of relying on platform-native

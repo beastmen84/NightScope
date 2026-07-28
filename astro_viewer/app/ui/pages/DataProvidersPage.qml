@@ -72,7 +72,15 @@ Item {
                     title: qsTr("NASA Earthdata")
                     subtitle: controller.earthdataConnectionVerified ? qsTr("Connessione LAADS verificata") : (controller.earthdataCredentialsConfigured ? qsTr("Credenziali salvate nel vault di sistema") : qsTr("Accesso opzionale ai dati VIIRS e AOD"))
                     subtitleWrap: true
-                    accentColor: controller.earthdataConnectionVerified ? theme.green : (controller.earthdataAuthorizationRequired ? theme.violet : theme.amber)
+                    accentColor: controller.earthdataConnectionTestRunning
+                                 ? theme.cyan
+                                 : controller.earthdataConnectionVerified
+                                   ? theme.green
+                                   : (controller.earthdataAuthorizationRequired
+                                      || controller.earthdataCredentialsConfigured)
+                                     ? theme.amber
+                                     : theme.teal
+                    accentMeaningful: true
                     headerActionText: qsTr("Crea account")
                     headerActionWidth: 148
                     headerActionEnabled: !controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified && !controller.earthdataAuthorizationRequired
@@ -95,7 +103,7 @@ Item {
 
                         StatusPill {
                             text: controller.earthdataConnectionTestRunning ? qsTr("Verifica") : (controller.earthdataConnectionVerified ? qsTr("Verificato") : (controller.earthdataAuthorizationRequired ? qsTr("Autorizza") : (controller.earthdataCredentialsConfigured ? qsTr("Da testare") : qsTr("Fallback"))))
-                            accentColor: controller.earthdataConnectionTestRunning ? theme.cyan : (controller.earthdataConnectionVerified ? theme.green : (controller.earthdataAuthorizationRequired ? theme.violet : theme.amber))
+                            accentColor: earthdataCard.accentColor
                         }
 
                         Text {
@@ -226,7 +234,14 @@ Item {
                     title: qsTr("OpenAQ")
                     subtitle: controller.openaqConnectionVerified ? qsTr("Connessione API verificata") : (controller.openaqCredentialsConfigured ? qsTr("API key salvata nel vault di sistema") : qsTr("Accesso opzionale ai dati qualità aria"))
                     subtitleWrap: true
-                    accentColor: controller.openaqConnectionVerified ? theme.green : (controller.openaqCredentialsConfigured ? theme.amber : theme.violet)
+                    accentColor: controller.openaqConnectionTestRunning
+                                 ? theme.cyan
+                                 : controller.openaqConnectionVerified
+                                   ? theme.green
+                                   : controller.openaqCredentialsConfigured
+                                     ? theme.amber
+                                     : theme.teal
+                    accentMeaningful: true
                     headerActionText: qsTr("Crea account")
                     headerActionWidth: 148
                     headerActionEnabled: !controller.openaqConnectionTestRunning && !controller.openaqConnectionVerified
@@ -240,7 +255,7 @@ Item {
 
                         StatusPill {
                             text: controller.openaqConnectionTestRunning ? qsTr("Verifica") : (controller.openaqConnectionVerified ? qsTr("Verificato") : (controller.openaqCredentialsConfigured ? qsTr("Da testare") : qsTr("Non configurato")))
-                            accentColor: controller.openaqConnectionTestRunning ? theme.cyan : (controller.openaqConnectionVerified ? theme.green : (controller.openaqCredentialsConfigured ? theme.amber : theme.violet))
+                            accentColor: openaqCard.accentColor
                         }
 
                         Text {

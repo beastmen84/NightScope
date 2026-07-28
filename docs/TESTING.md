@@ -137,19 +137,19 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
-## Measured Metric Color Semantics Gate
+## Measured Accent Color Semantics Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-28:
 
 | Check | Result |
 | --- | --- |
-| `python tools/run_checks.py --fast` on the final source state | Passed in 301.5 s |
-| Complete deterministic suite | 1,128 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 267.27 s |
-| Focused appearance contract | 14 passed; descriptive metric tiles remain neutral and colored underlines require an explicit meaningful-state/category opt-in |
+| `python tools/run_checks.py --fast` on the final source state | Passed in 295.7 s |
+| Complete deterministic suite | 1,129 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 263.25 s |
+| Focused appearance and Home contracts | 27 passed; descriptive horizontal and vertical markers use the subdued teal informational accent, while state/category colors require an explicit opt-in and stay aligned with their visible labels |
 | Installed-environment `pip-audit` | No known vulnerabilities |
-| Changed-QML lint | `MetricTile` plus Profiles, Object Detail, Weather and Calendar passed; known non-fatal `unqualified access` warnings only |
+| Changed-QML lint | 13 changed QML files passed with 0 errors; 598 known non-fatal `unqualified access` warnings were reported |
 | Runtime smoke tests | Backend, normal QML and Red Night Vision QML passed |
-| Metric separator render review | Eight 1440 x 900 renders covered the four affected pages in normal and Red Night Vision modes; separator hierarchy was inspected independently from offscreen text-glyph rendering |
+| Accent render review | Thirteen 1440 x 900 renders covered Home, Calendar, Weather, Data Providers, Equipment Optics, Location, Object Detail and Event Detail in normal mode plus five representative Red Night Vision scenes; all normal scenes and representative red scenes were inspected independently from offscreen text-glyph rendering |
 
 ## Measured Smart Telescope Functional Gate
 

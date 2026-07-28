@@ -93,15 +93,16 @@ def test_qml_colors_outside_the_theme_are_semantic() -> None:
     assert offenders == []
 
 
-def test_metric_tile_colors_require_explicit_meaning() -> None:
+def test_metric_tile_uses_teal_unless_accent_is_meaningful() -> None:
     component = (UI_DIR / "components" / "MetricTile.qml").read_text(
         encoding="utf-8"
     )
     assert "property bool accentMeaningful: false" in component
     assert (
-        "color: root.accentMeaningful ? root.accentColor : theme.borderSubtle"
+        "color: root.accentMeaningful ? root.accentColor : theme.teal"
         in component
     )
+    assert "opacity: root.accentMeaningful ? 0.75 : 0.6" in component
 
     metric_tile = re.compile(r"\bMetricTile\s*\{([^{}]*)\}", re.DOTALL)
     for page_name in ("EquipmentProfilesPage.qml", "WeatherPage.qml"):
@@ -129,6 +130,98 @@ def test_metric_tile_colors_require_explicit_meaning() -> None:
     assert "accentMeaningful:" in colored_detail_tiles[0]
     assert detail.count('"accentMeaningful": true') == 2
     assert "photographicMetricAccent" not in detail
+
+
+def test_glass_card_uses_teal_unless_accent_is_meaningful() -> None:
+    component = (UI_DIR / "components" / "GlassCard.qml").read_text(
+        encoding="utf-8"
+    )
+    assert "property bool accentMeaningful: false" in component
+    assert (
+        "color: root.accentMeaningful ? root.accentColor : theme.teal"
+        in component
+    )
+    assert "opacity: root.accentMeaningful ? 1.0 : 0.7" in component
+
+    expected_meaningful_counts = {
+        "DataProvidersPage.qml": 2,
+        "EquipmentProfilesPage.qml": 1,
+        "EventDetailPage.qml": 2,
+        "HomePage.qml": 6,
+        "LocationPage.qml": 1,
+        "WeatherPage.qml": 0,
+    }
+    for page_name, expected_count in expected_meaningful_counts.items():
+        page = (UI_DIR / "pages" / page_name).read_text(encoding="utf-8")
+        assert page.count("accentMeaningful: true") == expected_count
+
+    home = (UI_DIR / "pages" / "HomePage.qml").read_text(encoding="utf-8")
+    assert "accentColor: root.moonImpactAccent(" in home
+    assert home.count("accentColor: root.observingCategoryAccent(") == 2
+    assert re.search(
+        r'if \(state === "recommended"\)\s+return theme\.green',
+        home,
+    )
+    assert re.search(
+        r'if \(state === "discouraged"\)\s+return theme\.coral',
+        home,
+    )
+
+    providers = (UI_DIR / "pages" / "DataProvidersPage.qml").read_text(
+        encoding="utf-8"
+    )
+    assert "accentColor: earthdataCard.accentColor" in providers
+    assert "accentColor: openaqCard.accentColor" in providers
+
+    location = (UI_DIR / "pages" / "LocationPage.qml").read_text(
+        encoding="utf-8"
+    )
+    assert (
+        "accentColor: controller.hasValidLocation ? theme.green : theme.amber"
+        in location
+    )
+
+    detail = (UI_DIR / "pages" / "ObjectDetailPage.qml").read_text(
+        encoding="utf-8"
+    )
+    assert detail.count("accentMeaningful: true") == 3
+    assert "accentColor: root.photographicStateAccent()" in detail
+    assert "accentColor: root.photographicModeAccent()" in detail
+    assert 'if (root.photographicData.ready === true)\n            return theme.green' in detail
+    assert detail.count("return theme.green") >= 3
+
+    main_qml = (UI_DIR / "main.qml").read_text(encoding="utf-8")
+    assert re.search(
+        r'if \(state === "recommended"\)\s+return theme\.green',
+        main_qml,
+    )
+    for page_name in ("CalendarPage.qml", "EventDetailPage.qml"):
+        page = (UI_DIR / "pages" / page_name).read_text(encoding="utf-8")
+        assert re.search(
+            r'if \(state === "visible" \|\| state === "favorable" '
+            r'\|\| state === "nearby_night"\)\s+return theme\.green',
+            page,
+        )
+
+    informational_marker = re.compile(
+        r"Layout\.preferredWidth:\s*4\s+"
+        r"Layout\.preferredHeight:\s*28\s+"
+        r"radius:\s*2\s+"
+        r"color:\s*theme\.teal\s+"
+        r"opacity:\s*0\.7"
+    )
+    for page_name, expected_count in {
+        "EquipmentCamerasPage.qml": 1,
+        "EquipmentFiltersReducersPage.qml": 2,
+        "EquipmentOpticsPage.qml": 2,
+    }.items():
+        page = (UI_DIR / "pages" / page_name).read_text(encoding="utf-8")
+        assert len(informational_marker.findall(page)) == expected_count
+
+    visible_target = (UI_DIR / "components" / "HomeVisibleTargetRow.qml").read_text(
+        encoding="utf-8"
+    )
+    assert visible_target.count("root.accent()") == 2
 
 
 def test_red_palette_contains_no_bright_green_blue_or_white_tokens() -> None:

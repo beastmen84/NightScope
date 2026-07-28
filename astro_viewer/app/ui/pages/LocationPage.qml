@@ -92,7 +92,8 @@ Item {
                     Layout.minimumHeight: 148
                     title: qsTr("Posizione attuale")
                     subtitle: controller.hasValidLocation ? controller.activeLocationSource : qsTr("Nessuna località configurata")
-                    accentColor: theme.green
+                    accentColor: controller.hasValidLocation ? theme.green : theme.amber
+                    accentMeaningful: true
 
                     RowLayout {
                         Layout.fillWidth: true

@@ -186,6 +186,7 @@ Item {
                             Layout.preferredHeight: 28
                             radius: 2
                             color: theme.teal
+                            opacity: 0.7
                         }
 
                         ColumnLayout {
@@ -278,7 +279,8 @@ Item {
                             Layout.preferredWidth: 4
                             Layout.preferredHeight: 28
                             radius: 2
-                            color: theme.amber
+                            color: theme.teal
+                            opacity: 0.7
                         }
 
                         ColumnLayout {

@@ -44,7 +44,7 @@ Item {
 
     function visibilityAccent(state) {
         if (state === "visible" || state === "favorable" || state === "nearby_night")
-            return theme.teal
+            return theme.green
         if (state === "check" || state === "unknown")
             return theme.amber
         return theme.coral
