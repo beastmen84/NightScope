@@ -558,7 +558,7 @@ class ImagingExposureAdvisor:
         warnings: list[str],
     ) -> float:
         camera = candidate.camera
-        if camera.kind is ImagingCameraKind.ASTRONOMY_CAMERA:
+        if camera.is_dedicated_astronomy_camera:
             if not camera.cooled:
                 warnings.append("uncooled_camera_thermal_noise")
                 return 60.0
@@ -675,7 +675,7 @@ class ImagingExposureAdvisor:
         candidate: ImagingRecommendationCandidate,
     ) -> bool:
         return (
-            candidate.camera.kind is ImagingCameraKind.ASTRONOMY_CAMERA
+            candidate.camera.is_dedicated_astronomy_camera
             or candidate.camera.bulb_mode
         )
 

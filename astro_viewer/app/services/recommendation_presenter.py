@@ -126,6 +126,40 @@ class RecommendationPresenter:
             "selectionScore": 12.0,
         }
 
+    def smart_eaa_route(
+        self,
+        celestial_object: CelestialObject,
+        telescope: Telescope,
+        naked_eye_id: str,
+    ) -> dict:
+        """Keep visual scoring neutral while routing the user to smart EAA."""
+
+        payload = self.naked_eye(celestial_object, naked_eye_id)
+        payload.update(
+            {
+                "bestEyepiece": "",
+                "suggestedPosition": "",
+                "barlow": tr("Non applicabile"),
+                "alternative": tr(
+                    "Per il visuale ottico usa un telescopio con oculari"
+                ),
+                "setupText": tr(
+                    "{telescope}: usa il piano EAA/fotografico",
+                    telescope=telescope.name,
+                ),
+                "setupOptions": [],
+                "explanation": tr(
+                    "Questo telescopio smart usa il sensore integrato: "
+                    "ingrandimento, pupilla d'uscita, oculari e Barlow non "
+                    "sono applicabili. Consulta il piano fotografico EAA."
+                ),
+                "telescopeName": telescope.name,
+                "recommendationState": "smart_eaa_only",
+                "smartTelescopeId": telescope.id,
+            }
+        )
+        return payload
+
     @staticmethod
     def no_useful_configurations(telescope: Telescope) -> dict:
         return {

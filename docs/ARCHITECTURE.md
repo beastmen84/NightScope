@@ -747,8 +747,12 @@ Repositories own SQLite persistence:
   source for both visual guidance and the on-demand photographic engine. Schema
   24 adds the controlled `instrument_category` telescope field, independently
   from the controlled optical-design taxonomy exposed by the catalogue form.
-  `TRADITIONAL` remains the migration and import default; the seeded Seestar S30
-  and S50 rows are `SMART_INTEGRATED` apochromatic refractors.
+  Schema 25 adds the one-to-one `SmartTelescopeCapability` table. It persists
+  explicit visual and external-accessory admission flags plus the primary
+  integrated astronomical sensor, live-stacking, video, mosaic, exposure and
+  filter metadata. `TRADITIONAL` remains the migration/import default; Seestar
+  S30 and S50 are seeded as `SMART_INTEGRATED` apochromatic refractors with
+  complete primary-channel specifications.
   Every catalogue row exposes `is_builtin`, `seed_key` and `is_user_modified`;
   seeded rows can be updated but not deleted, while user rows can be managed
   after any applicable profile links are handled. Updating a seeded row marks
@@ -768,6 +772,11 @@ Repositories own SQLite persistence:
   valid profiles and reducer rows expose normalized exact telescope
   compatibility. An empty exact set is explicit unconfigured state and remains
   excluded from recommendation calculations.
+- `ImagingTrainBuilder`: enumerates ordinary telescope/external-camera trains
+  and smart integrated trains behind the same photographic configuration
+  contract. Smart equipment is fail-closed: unrelated profile cameras and
+  modifiers are not crossed into the train unless their capability flags say
+  they are supported. Incomplete integrated sensor geometry produces no train.
 - `WeatherCacheRepository`: weather response cache.
 - `OrbitalElementCacheRepository`: provider-neutral OMM/TLE cache for
   short-horizon orbital event sources.

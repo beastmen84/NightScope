@@ -48,7 +48,7 @@ class ObservationConfigurationBuilder:
 
         configurations = []
         for telescope in telescopes:
-            if not self._equipment_service.has_optical_telescope(telescope):
+            if not self._equipment_service.can_use_eyepieces(telescope):
                 continue
             for eyepiece in eyepieces:
                 for barlow in self._equipment_service.barlow_options(barlows):

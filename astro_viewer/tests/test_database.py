@@ -974,6 +974,28 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertEqual(len(seed_keys), len(set(seed_keys)))
             keys_by_kind[kind] = set(seed_keys)
 
+        smart_capability_path = (
+            data_dir / "smart_telescope_capabilities_seed.csv"
+        )
+        with smart_capability_path.open(
+            "r",
+            encoding="utf-8",
+            newline="",
+        ) as file:
+            smart_capability_rows = list(csv.DictReader(file))
+        smart_capability_keys = [
+            row["seed_key"] for row in smart_capability_rows
+        ]
+        self.assertEqual(
+            len(smart_capability_keys),
+            len(set(smart_capability_keys)),
+        )
+        self.assertTrue(
+            set(smart_capability_keys).issubset(
+                keys_by_kind["telescope"]
+            )
+        )
+
         compatibility_path = data_dir / "reducer_telescope_compatibility_seed.csv"
         with compatibility_path.open("r", encoding="utf-8", newline="") as file:
             reader = csv.DictReader(file)
@@ -1983,6 +2005,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
         self.assertIn("catalogue_objects_seed.csv", spec)
         self.assertIn("catalogue_designations_seed.csv", spec)
         self.assertIn("binocular_catalog_seed.csv", spec)
+        self.assertIn("smart_telescope_capabilities_seed.csv", spec)
         self.assertIn("astronomy_camera_catalog_seed.csv", spec)
         self.assertIn("camera_body_catalog_seed.csv", spec)
         self.assertIn("filter_catalog_seed.csv", spec)

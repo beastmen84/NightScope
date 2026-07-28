@@ -10,6 +10,7 @@ from astro_viewer.app.models.equipment import Barlow, FocalReducer, Telescope
 class ImagingCameraKind(StrEnum):
     ASTRONOMY_CAMERA = "astronomy_camera"
     CAMERA_BODY = "camera_body"
+    SMART_INTEGRATED = "smart_integrated"
 
 
 class ImagingModifierKind(StrEnum):
@@ -47,10 +48,26 @@ class ImagingCamera:
     video_fps: float | None = None
     live_view: bool = False
     bulb_mode: bool = False
+    supports_live_stacking: bool = False
+    supports_video: bool = False
+    supports_mosaic: bool = False
+    exposure_control_mode: str = "USER_CONFIGURABLE"
+    integrated_filter_codes: tuple[str, ...] = ()
 
     @property
     def sensor_diagonal_mm(self) -> float:
         return math.hypot(self.sensor_width_mm, self.sensor_height_mm)
+
+    @property
+    def is_dedicated_astronomy_camera(self) -> bool:
+        return self.kind in {
+            ImagingCameraKind.ASTRONOMY_CAMERA,
+            ImagingCameraKind.SMART_INTEGRATED,
+        }
+
+    @property
+    def is_device_managed(self) -> bool:
+        return self.exposure_control_mode == "DEVICE_MANAGED"
 
 
 @dataclass(frozen=True)

@@ -637,31 +637,45 @@ Recommended follow-up work:
 - consolidate all recommendation explanation text in `RecommendationPresenter`
 - keep QML presentation-only as new setup types are introduced
 
-## Future Extension Points
-
-### Smart Telescopes
+## Smart Telescope Path
 
 Schema 24 represents a smart telescope as a category of `TelescopeModel`, not
 as an optical design and not as a separate equipment catalogue. Category
 `SMART_INTEGRATED` can therefore coexist with an optical type such as
-`APOCHROMATIC_REFRACTOR`; Seestar S30 and S50 are the first seeded examples.
-The catalogue form persists and displays both fields.
+`APOCHROMATIC_REFRACTOR`. Schema 25 adds the one-to-one
+`SmartTelescopeCapability` contract. It stores explicit visual/external-accessory
+admission flags plus the primary astronomical sensor geometry, live-stacking,
+video, mosaic, exposure-control and integrated-filter capabilities.
 
-This first data/UI pass is deliberately score-neutral. The category is not yet
-consumed by `ObservationConfigurationBuilder`, `EquipmentService`,
-`ImagingTrainBuilder`, photographic scoring or their presenters. Until the
-integrated train is modeled, current recommendation behavior remains the legacy
-telescope path.
+The runtime paths are deliberately separate:
 
-Expected calculation follow-up:
+- `ObservationConfigurationBuilder` admits a telescope to the visual
+  eyepiece/Barlow path only when both optical visual observation and
+  interchangeable eyepieces are declared.
+- A smart-only profile receives score-neutral routing to the photographic EAA
+  card. It does not create magnification, exit-pupil or true-field values and
+  does not inject photographic suitability into visual or NSOM ranking.
+- `ImagingTrainBuilder` creates the integrated camera from the telescope
+  capability record. External profile cameras and optical modifiers are
+  ignored unless the smart model explicitly declares those capabilities.
+- A profile containing traditional and smart telescopes keeps separate
+  candidates: normal telescope/camera trains for the former and integrated
+  trains for the latter. No camera or eyepiece is crossed between modalities.
+- Incomplete smart sensor geometry is valid catalogue state but produces no
+  photographic configuration. The presenter reports insufficient integrated
+  specifications instead of falling back to an unrelated external camera.
 
-- define the persisted integrated optical-train and sensor capabilities needed
-  by smart models
-- make the configuration builders route `SMART_INTEGRATED` through that
-  internal train without combining unrelated profile cameras or optics
-- add explicit visual and photographic admission/scoring policies
-- extend the presenters only after the backend DTO distinguishes the setup
-- keep ordinary `TRADITIONAL` telescopes on the current path
+Seestar S30 and S50 seed one primary astronomical channel. The S30 wide-angle
+camera is treated as a pointing/scenery channel and is not used as a second
+astronomical train. Both seeded models disallow optical visual use,
+interchangeable eyepieces, external cameras and external optical modifiers.
+Their photographic presentation uses native field and pixel scale, describes
+sub-exposure control as device-managed, emphasizes total stacking time, gates
+oversized-target mosaic guidance on the persisted capability and warns when a
+planet is poorly sampled at native scale. Solar admission still requires the
+exact profile-to-telescope full-aperture safety declaration.
+
+## Future Extension Points
 
 ### Spotting Scopes
 

@@ -3,11 +3,45 @@ from __future__ import annotations
 import math
 from collections.abc import Iterable, Mapping
 
+from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.imaging import ImagingCamera, ImagingCameraKind
 
 
 class ImagingCameraAdapter:
-    """Normalizes the two persisted camera catalogue shapes."""
+    """Normalizes persisted and integrated photographic camera shapes."""
+
+    @staticmethod
+    def from_integrated_telescope(telescope: Telescope) -> ImagingCamera:
+        system = telescope.integrated_imaging
+        if (
+            not telescope.has_complete_integrated_imaging
+            or system is None
+        ):
+            raise ValueError(
+                "Smart telescope integrated sensor geometry is incomplete."
+            )
+        return ImagingCamera(
+            id=f"smart-integrated-camera:{telescope.id}",
+            name=f"{telescope.name} - {system.sensor_model}",
+            kind=ImagingCameraKind.SMART_INTEGRATED,
+            sensor_width_mm=float(system.sensor_width_mm),
+            sensor_height_mm=float(system.sensor_height_mm),
+            resolution_width_px=int(system.resolution_width_px),
+            resolution_height_px=int(system.resolution_height_px),
+            pixel_size_um=float(system.pixel_size_um),
+            bit_depth=int(system.bit_depth),
+            camera_class="ALL_ROUND",
+            sensor_technology="CMOS",
+            color_mode=system.color_mode,
+            full_resolution_fps=system.full_resolution_fps,
+            cooled=False,
+            shutter_type="ROLLING",
+            supports_live_stacking=system.supports_live_stacking,
+            supports_video=system.supports_video,
+            supports_mosaic=system.supports_mosaic,
+            exposure_control_mode=system.exposure_control_mode,
+            integrated_filter_codes=system.filter_codes,
+        )
 
     @classmethod
     def from_astronomy_catalogue(

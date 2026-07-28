@@ -11,8 +11,9 @@ active profile to answer a practical question: **what is worth observing
 tonight, from here, with this setup?**
 
 > [!NOTE]
-> NightScope is a released application. Source version 1.42.0 matches the
-> current stable Windows and Linux portable release.
+> NightScope is a released application. Source version 1.42.0 identifies the
+> current stable Windows and Linux portable release; the repository can also
+> contain changes listed under `Unreleased` in the changelog.
 > Release artifacts remain platform-specific portable builds rather than
 > universal installers.
 
@@ -46,6 +47,11 @@ corresponding source commit and publish the artifact digests.
   layers to the active-profile inventory and current conditions; Object Detail
   shows their result in a separate photographic card and the visual engine
   never consumes them.
+- Supports integrated smart telescopes as an explicit third equipment path.
+  Seestar S30/S50 use their persisted primary sensor and optical train, never
+  profile eyepieces, external cameras, reducers, or Barlows. Custom smart
+  models expose capability and sensor fields; incomplete specifications remain
+  assignable but fail closed instead of producing synthetic advice.
 - Lets each profile record, for each assigned telescope, whether the user has
   declared a certified full-aperture solar filter secured in front of the
   instrument. The static scorer accepts this capability only as an exact
@@ -108,7 +114,14 @@ derotation. Object Detail presents this result in a separate imaging-plan card
 below the visual setup: optical train, field of view, image scale, exposure or
 video ranges, confidence and the most relevant operational limits. The
 presentation is computed for the selected target only; it does not change Home,
-Planner, visual Equipment, Sky Compass, visual recommendations or NSOM.
+Planner, visual Equipment, Sky Compass, visual recommendations or NSOM. For a
+smart telescope, the same card uses its integrated sensor, describes
+sub-exposures as device-managed, emphasizes cumulative live-stacking time,
+offers mosaic guidance only when the model declares it, and warns when a
+planet is poorly sampled at native scale. A smart-only visual setup never
+invents magnification or exit-pupil values; it routes the user to this separate
+EAA plan. Mixed profiles keep traditional visual and external-camera paths
+separate from smart integrated trains.
 If a still estimate exceeds the finite 15-hour planning ceiling, the card shows
 a cumulative lower bound instead of an exact `15-15 h` range and states that
 usable light frames may span multiple nights. A target that never reaches

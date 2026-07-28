@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import re
 import sqlite3
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from contextlib import closing
 from pathlib import Path
 
@@ -39,6 +39,28 @@ OPTICAL_SYSTEM_LABELS = {
     "OTHER": tr("Altro"),
 }
 
+_SMART_CAPABILITY_COLUMNS = """
+    sc.supports_optical_visual,
+    sc.supports_interchangeable_eyepieces,
+    sc.supports_external_cameras,
+    sc.supports_external_optical_modifiers,
+    sc.sensor_model,
+    sc.sensor_width_mm,
+    sc.sensor_height_mm,
+    sc.resolution_width_px,
+    sc.resolution_height_px,
+    sc.pixel_size_um,
+    sc.bit_depth,
+    sc.color_mode,
+    sc.full_resolution_fps,
+    sc.supports_live_stacking,
+    sc.supports_video,
+    sc.supports_mosaic,
+    sc.exposure_control_mode,
+    sc.integrated_filter_codes,
+    sc.specification_source_url
+"""
+
 
 def _all_finite(*values: float | None) -> bool:
     return all(value is None or math.isfinite(value) for value in values)
@@ -71,13 +93,16 @@ class EquipmentCatalogRepository:
         return [dict(row) for row in rows]
 
     def models(self, brand_id: int | None = None) -> list[dict]:
-        query = """
+        query = f"""
             SELECT tm.id, tb.name AS brand, tm.name, tm.instrument_category,
                    tm.optical_type, tm.aperture_mm, tm.focal_length_mm,
                    tm.focal_ratio, tm.mount_type, tm.notes, tm.is_builtin,
-                   tm.seed_key, tm.is_user_modified
+                   tm.seed_key, tm.is_user_modified,
+                   {_SMART_CAPABILITY_COLUMNS}
             FROM TelescopeModel tm
             JOIN TelescopeBrand tb ON tb.id = tm.brand_id
+            LEFT JOIN SmartTelescopeCapability sc
+              ON sc.telescope_model_id = tm.id
         """
         params: tuple = ()
         if brand_id is not None and brand_id > 0:
@@ -94,14 +119,17 @@ class EquipmentCatalogRepository:
         with closing(self._connect()) as connection:
             if catalog_id.startswith("catalog-telescope-"):
                 row = connection.execute(
-                    """
+                    f"""
                     SELECT tm.id, tb.name AS brand, tm.name,
                            tm.instrument_category, tm.optical_type,
                            tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
                            tm.mount_type, tm.notes, tm.is_builtin, tm.seed_key,
-                           tm.is_user_modified
+                           tm.is_user_modified,
+                           {_SMART_CAPABILITY_COLUMNS}
                     FROM TelescopeModel tm
                     JOIN TelescopeBrand tb ON tb.id = tm.brand_id
+                    LEFT JOIN SmartTelescopeCapability sc
+                      ON sc.telescope_model_id = tm.id
                     WHERE tm.id = ?
                     LIMIT 1
                     """,
@@ -114,14 +142,17 @@ class EquipmentCatalogRepository:
                 return None
             brand, model = parts[1], parts[2]
             row = connection.execute(
-                """
+                f"""
                 SELECT tm.id, tb.name AS brand, tm.name,
                        tm.instrument_category, tm.optical_type,
                        tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
                        tm.mount_type, tm.notes, tm.is_builtin, tm.seed_key,
-                       tm.is_user_modified
+                       tm.is_user_modified,
+                       {_SMART_CAPABILITY_COLUMNS}
                 FROM TelescopeModel tm
                 JOIN TelescopeBrand tb ON tb.id = tm.brand_id
+                LEFT JOIN SmartTelescopeCapability sc
+                  ON sc.telescope_model_id = tm.id
                 WHERE tb.name = ? AND tm.name = ?
                 LIMIT 1
                 """,
@@ -139,6 +170,7 @@ class EquipmentCatalogRepository:
         mount_type: str,
         notes: str = "",
         instrument_category: str = "TRADITIONAL",
+        smart_capabilities: Mapping[str, object] | None = None,
     ) -> tuple[bool, str]:
         clean_brand = brand.strip()
         clean_name = name.strip()
@@ -158,6 +190,14 @@ class EquipmentCatalogRepository:
             return False, tr("Tipo di montatura non valido.")
         if not _all_finite(aperture_mm, focal_length_mm) or aperture_mm <= 0 or focal_length_mm <= 0:
             return False, tr("Apertura e focale devono essere maggiori di zero.")
+        capability_values, capability_error = (
+            self._validated_smart_capabilities(
+                clean_category,
+                smart_capabilities,
+            )
+        )
+        if capability_error:
+            return False, capability_error
         with closing(self._connect()) as connection:
             brand_id = self._ensure_brand(connection, clean_brand)
             duplicate = connection.execute(
@@ -167,7 +207,7 @@ class EquipmentCatalogRepository:
             if duplicate:
                 return False, tr("Questo modello è già presente nel catalogo.")
             focal_ratio = round(focal_length_mm / aperture_mm, 1) if aperture_mm > 0 else None
-            connection.execute(
+            cursor = connection.execute(
                 """
                 INSERT INTO TelescopeModel (
                     brand_id, name, instrument_category, optical_type,
@@ -187,6 +227,12 @@ class EquipmentCatalogRepository:
                     notes.strip(),
                 ),
             )
+            if clean_category == "SMART_INTEGRATED":
+                self._replace_smart_capabilities(
+                    connection,
+                    int(cursor.lastrowid),
+                    capability_values,
+                )
             connection.commit()
         return True, tr("Modello telescopio aggiunto.")
 
@@ -201,6 +247,7 @@ class EquipmentCatalogRepository:
         mount_type: str,
         notes: str = "",
         instrument_category: str = "TRADITIONAL",
+        smart_capabilities: Mapping[str, object] | None = None,
     ) -> tuple[bool, str]:
         clean_brand = brand.strip()
         clean_name = name.strip()
@@ -220,6 +267,14 @@ class EquipmentCatalogRepository:
             return False, tr("Tipo di montatura non valido.")
         if not _all_finite(aperture_mm, focal_length_mm) or aperture_mm <= 0 or focal_length_mm <= 0:
             return False, tr("Apertura e focale devono essere maggiori di zero.")
+        capability_values, capability_error = (
+            self._validated_smart_capabilities(
+                clean_category,
+                smart_capabilities,
+            )
+        )
+        if capability_error:
+            return False, capability_error
         with closing(self._connect()) as connection:
             old = self._telescope_model_by_id(connection, model_id)
             if not old:
@@ -256,6 +311,31 @@ class EquipmentCatalogRepository:
                     model_id,
                 ),
             )
+            if clean_category == "SMART_INTEGRATED":
+                if smart_capabilities is not None:
+                    self._replace_smart_capabilities(
+                        connection,
+                        model_id,
+                        capability_values,
+                    )
+                else:
+                    connection.execute(
+                        """
+                        INSERT OR IGNORE INTO SmartTelescopeCapability (
+                            telescope_model_id
+                        )
+                        VALUES (?)
+                        """,
+                        (model_id,),
+                    )
+            else:
+                connection.execute(
+                    """
+                    DELETE FROM SmartTelescopeCapability
+                    WHERE telescope_model_id = ?
+                    """,
+                    (model_id,),
+                )
             new_id = f"catalog-telescope-{model_id}"
             profile_ids = {old["catalog_id"], old.get("legacy_catalog_id"), new_id}
             for legacy_id in profile_ids:
@@ -1785,14 +1865,66 @@ class EquipmentCatalogRepository:
 
     @staticmethod
     def _telescope_model(row: sqlite3.Row) -> dict:
+        instrument_category = canonical_telescope_category(
+            row["instrument_category"]
+        )
+        smart_integrated = instrument_category == "SMART_INTEGRATED"
+        filter_codes = tuple(
+            code
+            for code in str(
+                row["integrated_filter_codes"] or ""
+            ).split(";")
+            if code
+        )
+        smart_capabilities = {
+            "supports_optical_visual": (
+                bool(row["supports_optical_visual"])
+                if smart_integrated
+                else True
+            ),
+            "supports_interchangeable_eyepieces": (
+                bool(row["supports_interchangeable_eyepieces"])
+                if smart_integrated
+                else True
+            ),
+            "supports_external_cameras": (
+                bool(row["supports_external_cameras"])
+                if smart_integrated
+                else True
+            ),
+            "supports_external_optical_modifiers": (
+                bool(row["supports_external_optical_modifiers"])
+                if smart_integrated
+                else True
+            ),
+            "sensor_model": row["sensor_model"] or "",
+            "sensor_width_mm": row["sensor_width_mm"],
+            "sensor_height_mm": row["sensor_height_mm"],
+            "resolution_width_px": row["resolution_width_px"],
+            "resolution_height_px": row["resolution_height_px"],
+            "pixel_size_um": row["pixel_size_um"],
+            "bit_depth": row["bit_depth"],
+            "color_mode": row["color_mode"] or "",
+            "full_resolution_fps": row["full_resolution_fps"],
+            "supports_live_stacking": bool(
+                row["supports_live_stacking"]
+            ),
+            "supports_video": bool(row["supports_video"]),
+            "supports_mosaic": bool(row["supports_mosaic"]),
+            "exposure_control_mode": (
+                row["exposure_control_mode"] or "DEVICE_MANAGED"
+            ),
+            "integrated_filter_codes": filter_codes,
+            "specification_source_url": (
+                row["specification_source_url"] or ""
+            ),
+        }
         return {
             "id": row["id"],
             "brand": row["brand"],
             "name": row["name"],
             "display_name": f"{row['brand']} {row['name']}",
-            "instrument_category": canonical_telescope_category(
-                row["instrument_category"]
-            ),
+            "instrument_category": instrument_category,
             "instrument_category_label": telescope_category_label(
                 row["instrument_category"]
             ),
@@ -1828,6 +1960,8 @@ class EquipmentCatalogRepository:
             "is_user_modified": bool(row["is_user_modified"]),
             "catalog_id": f"catalog-telescope-{row['id']}",
             "legacy_catalog_id": f"catalog:{row['brand']}:{row['name']}",
+            "smart_capabilities": smart_capabilities,
+            **smart_capabilities,
         }
 
     @staticmethod
@@ -2537,15 +2671,218 @@ class EquipmentCatalogRepository:
         row = connection.execute("SELECT id FROM TelescopeBrand WHERE name = ?", (brand,)).fetchone()
         return int(row["id"])
 
+    @staticmethod
+    def _validated_smart_capabilities(
+        instrument_category: str,
+        capabilities: Mapping[str, object] | None,
+    ) -> tuple[dict[str, object], str]:
+        if instrument_category != "SMART_INTEGRATED":
+            return {}, ""
+        values = capabilities or {}
+
+        def optional_float(key: str) -> float | None:
+            raw_value = values.get(key)
+            if raw_value in (None, ""):
+                return None
+            if isinstance(raw_value, bool):
+                raise ValueError
+            number = float(str(raw_value).strip().replace(",", "."))
+            if not math.isfinite(number) or number <= 0:
+                raise ValueError
+            return number
+
+        def optional_int(key: str) -> int | None:
+            number = optional_float(key)
+            if number is None:
+                return None
+            integer = int(number)
+            if number != integer:
+                raise ValueError
+            return integer
+
+        def boolean(key: str) -> bool:
+            raw_value = values.get(key, False)
+            if isinstance(raw_value, str):
+                normalized = raw_value.strip().casefold()
+                if normalized in {
+                    "1",
+                    "true",
+                    "yes",
+                    "on",
+                    "si",
+                    "sì",
+                }:
+                    return True
+                if normalized in {"", "0", "false", "no", "off"}:
+                    return False
+                raise ValueError
+            return bool(raw_value)
+
+        try:
+            color_mode = str(values.get("color_mode") or "").strip().upper()
+            if color_mode and color_mode not in SENSOR_COLOR_MODE_LABELS:
+                raise ValueError
+            exposure_control_mode = str(
+                values.get("exposure_control_mode") or "DEVICE_MANAGED"
+            ).strip().upper()
+            if exposure_control_mode not in {
+                "DEVICE_MANAGED",
+                "USER_CONFIGURABLE",
+            }:
+                raise ValueError
+            raw_filter_codes = values.get("integrated_filter_codes") or ""
+            if isinstance(raw_filter_codes, str):
+                filter_tokens = re.split(r"[,;/]+", raw_filter_codes)
+            elif isinstance(raw_filter_codes, Iterable):
+                filter_tokens = [str(value) for value in raw_filter_codes]
+            else:
+                raise ValueError
+            filter_codes = tuple(
+                dict.fromkeys(
+                    token.strip().upper().replace(" ", "_")
+                    for token in filter_tokens
+                    if token.strip()
+                )
+            )
+            if any(
+                not re.fullmatch(r"[A-Z0-9_+-]+", code)
+                for code in filter_codes
+            ):
+                raise ValueError
+            parsed = {
+                "supports_optical_visual": boolean(
+                    "supports_optical_visual"
+                ),
+                "supports_interchangeable_eyepieces": boolean(
+                    "supports_interchangeable_eyepieces"
+                ),
+                "supports_external_cameras": boolean(
+                    "supports_external_cameras"
+                ),
+                "supports_external_optical_modifiers": boolean(
+                    "supports_external_optical_modifiers"
+                ),
+                "sensor_model": str(
+                    values.get("sensor_model") or ""
+                ).strip(),
+                "sensor_width_mm": optional_float("sensor_width_mm"),
+                "sensor_height_mm": optional_float("sensor_height_mm"),
+                "resolution_width_px": optional_int(
+                    "resolution_width_px"
+                ),
+                "resolution_height_px": optional_int(
+                    "resolution_height_px"
+                ),
+                "pixel_size_um": optional_float("pixel_size_um"),
+                "bit_depth": optional_int("bit_depth"),
+                "color_mode": color_mode,
+                "full_resolution_fps": optional_float(
+                    "full_resolution_fps"
+                ),
+                "supports_live_stacking": boolean(
+                    "supports_live_stacking"
+                ),
+                "supports_video": boolean("supports_video"),
+                "supports_mosaic": boolean("supports_mosaic"),
+                "exposure_control_mode": exposure_control_mode,
+                "integrated_filter_codes": ";".join(filter_codes),
+                "specification_source_url": str(
+                    values.get("specification_source_url") or ""
+                ).strip(),
+            }
+            if not parsed["supports_optical_visual"]:
+                parsed["supports_interchangeable_eyepieces"] = False
+        except (TypeError, ValueError):
+            return {}, tr(
+                "Le specifiche integrate del telescopio smart non sono valide."
+            )
+        return parsed, ""
+
+    @staticmethod
+    def _replace_smart_capabilities(
+        connection: sqlite3.Connection,
+        model_id: int,
+        values: Mapping[str, object],
+    ) -> None:
+        connection.execute(
+            """
+            INSERT INTO SmartTelescopeCapability (
+                telescope_model_id, supports_optical_visual,
+                supports_interchangeable_eyepieces,
+                supports_external_cameras,
+                supports_external_optical_modifiers, sensor_model,
+                sensor_width_mm, sensor_height_mm, resolution_width_px,
+                resolution_height_px, pixel_size_um, bit_depth, color_mode,
+                full_resolution_fps, supports_live_stacking, supports_video,
+                supports_mosaic, exposure_control_mode,
+                integrated_filter_codes, specification_source_url
+            )
+            VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )
+            ON CONFLICT(telescope_model_id) DO UPDATE SET
+                supports_optical_visual =
+                    excluded.supports_optical_visual,
+                supports_interchangeable_eyepieces =
+                    excluded.supports_interchangeable_eyepieces,
+                supports_external_cameras =
+                    excluded.supports_external_cameras,
+                supports_external_optical_modifiers =
+                    excluded.supports_external_optical_modifiers,
+                sensor_model = excluded.sensor_model,
+                sensor_width_mm = excluded.sensor_width_mm,
+                sensor_height_mm = excluded.sensor_height_mm,
+                resolution_width_px = excluded.resolution_width_px,
+                resolution_height_px = excluded.resolution_height_px,
+                pixel_size_um = excluded.pixel_size_um,
+                bit_depth = excluded.bit_depth,
+                color_mode = excluded.color_mode,
+                full_resolution_fps = excluded.full_resolution_fps,
+                supports_live_stacking = excluded.supports_live_stacking,
+                supports_video = excluded.supports_video,
+                supports_mosaic = excluded.supports_mosaic,
+                exposure_control_mode = excluded.exposure_control_mode,
+                integrated_filter_codes =
+                    excluded.integrated_filter_codes,
+                specification_source_url =
+                    excluded.specification_source_url
+            """,
+            (
+                model_id,
+                int(bool(values["supports_optical_visual"])),
+                int(bool(values["supports_interchangeable_eyepieces"])),
+                int(bool(values["supports_external_cameras"])),
+                int(bool(values["supports_external_optical_modifiers"])),
+                values["sensor_model"],
+                values["sensor_width_mm"],
+                values["sensor_height_mm"],
+                values["resolution_width_px"],
+                values["resolution_height_px"],
+                values["pixel_size_um"],
+                values["bit_depth"],
+                values["color_mode"] or None,
+                values["full_resolution_fps"],
+                int(bool(values["supports_live_stacking"])),
+                int(bool(values["supports_video"])),
+                int(bool(values["supports_mosaic"])),
+                values["exposure_control_mode"],
+                values["integrated_filter_codes"],
+                values["specification_source_url"],
+            ),
+        )
+
     def _telescope_model_by_id(self, connection: sqlite3.Connection, model_id: int) -> dict | None:
         row = connection.execute(
-            """
+            f"""
             SELECT tm.id, tb.name AS brand, tm.name, tm.instrument_category,
                    tm.optical_type, tm.aperture_mm, tm.focal_length_mm,
                    tm.focal_ratio, tm.mount_type, tm.notes, tm.is_builtin,
-                   tm.seed_key, tm.is_user_modified
+                   tm.seed_key, tm.is_user_modified,
+                   {_SMART_CAPABILITY_COLUMNS}
             FROM TelescopeModel tm
             JOIN TelescopeBrand tb ON tb.id = tm.brand_id
+            LEFT JOIN SmartTelescopeCapability sc
+              ON sc.telescope_model_id = tm.id
             WHERE tm.id = ?
             LIMIT 1
             """,

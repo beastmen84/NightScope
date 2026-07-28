@@ -1,0 +1,3 @@
+seed_key,supports_optical_visual,supports_interchangeable_eyepieces,supports_external_cameras,supports_external_optical_modifiers,sensor_model,sensor_width_mm,sensor_height_mm,resolution_width_px,resolution_height_px,pixel_size_um,bit_depth,color_mode,full_resolution_fps,supports_live_stacking,supports_video,supports_mosaic,exposure_control_mode,integrated_filter_codes,specification_source_url
+telescope::zwo/seestar::seestar s30,0,0,0,0,Sony IMX662,5.568,3.132,1920,1080,2.9,12,COLOR,,1,1,1,DEVICE_MANAGED,UV_IR_CUT;DARK;DUAL_BAND,https://us.seestar.com/blogs/faq/s30
+telescope::zwo/seestar::seestar s50,0,0,0,0,Sony IMX462,5.568,3.132,1920,1080,2.9,12,COLOR,,1,1,1,DEVICE_MANAGED,UV_IR_CUT;DARK;DUAL_BAND,https://us.seestar.com/blogs/faq/s50

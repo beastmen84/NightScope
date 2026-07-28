@@ -770,12 +770,11 @@ neutral in the canonical environment and does not switch selection service.
 `EquipmentService` uses active-profile equipment only.
 
 Telescope schema 24 stores an `instrument_category` independently from the
-optical design selected in the catalogue form. This is catalogue metadata only
-in the current implementation: neither `EquipmentService` nor the photographic
-train/scoring services consume the category, so `SMART_INTEGRATED` does not yet
-change candidates, optical trains, scores or explanations. That behavior is
-intentionally deferred until the integrated sensor and optical-train contract
-is modeled.
+optical design selected in the catalogue form. Schema 25 adds
+`SmartTelescopeCapability`, a one-to-one record containing the explicit
+visual/external-equipment flags and the primary astronomical sensor contract.
+`SMART_INTEGRATED` therefore changes configuration admission without being
+misrepresented as an optical type.
 
 Inputs:
 
@@ -788,6 +787,14 @@ Inputs:
 - target altitude,
 - seeing score,
 - Bortle/sky-quality context.
+
+Traditional visual calculations use only telescopes that declare both optical
+visual observation and interchangeable eyepieces. A smart telescope without
+those capabilities creates no visual configuration: no magnification, true
+field or exit pupil is synthesized. A smart-only profile preserves the
+naked-eye visual capability boundary and points the UI to the separate EAA
+plan; a mixed profile continues to rank only its valid traditional/binocular
+visual candidates.
 
 Calculated values:
 
@@ -809,6 +816,26 @@ Assigned equipment only:
   `ObserverCapability` projection.
 - If no optical telescope is assigned, a naked-eye fallback is used or the
   recommendation asks the user to add appropriate equipment.
+
+Photographic smart-train calculation:
+
+- the integrated camera is built only when sensor model, sensor dimensions,
+  resolution, pixel size, bit depth and color mode are complete and positive;
+- field of view and pixel scale use the same physical formulas as other
+  photographic trains;
+- still/EAA candidates require declared live-stacking support, while lunar and
+  planetary video candidates require declared video support;
+- external cameras, reducers and Barlows are excluded unless the smart model
+  explicitly permits those paths;
+- device-managed still plans expose total integration but do not present the
+  internal generic sub-exposure estimate as an instruction;
+- mosaic guidance appears only when the model declares mosaic support;
+- a low native planetary sampling component produces a quality warning but
+  never invents a Barlow or changes the train in response to seeing;
+- integrated dual-band availability is operational guidance for nebulae and
+  remains score-neutral;
+- the Sun still requires the exact profile-level certified full-aperture solar
+  filter declaration.
 
 The primary setup remains the score-selected `RecommendationCandidate`.
 `RecommendationPresenter` chooses secondary display roles only from those

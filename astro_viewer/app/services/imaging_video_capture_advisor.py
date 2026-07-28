@@ -454,7 +454,7 @@ class ImagingVideoCaptureAdvisor:
         camera = candidate.camera
         value = (
             camera.full_resolution_fps
-            if camera.kind is ImagingCameraKind.ASTRONOMY_CAMERA
+            if camera.is_dedicated_astronomy_camera
             else camera.video_fps
         )
         return cls._bounded_float(

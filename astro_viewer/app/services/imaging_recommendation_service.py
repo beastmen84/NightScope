@@ -98,6 +98,10 @@ class ImagingRecommendationService:
             self._candidate(traits, configuration, capture_mode)
             for configuration in unique_configurations
             if self._configuration_is_usable(configuration)
+            and self._supports_capture_mode(
+                configuration,
+                capture_mode,
+            )
             and (
                 traits.target_class is not ImagingTargetClass.SUN
                 or configuration.telescope.id
@@ -108,6 +112,18 @@ class ImagingRecommendationService:
             key=self._ranking_key
         )
         return candidates
+
+    @staticmethod
+    def _supports_capture_mode(
+        configuration: ImagingTrainConfiguration,
+        capture_mode: ImagingCaptureMode,
+    ) -> bool:
+        camera = configuration.camera
+        if camera.kind is not ImagingCameraKind.SMART_INTEGRATED:
+            return True
+        if capture_mode is ImagingCaptureMode.VIDEO:
+            return camera.supports_video
+        return camera.supports_live_stacking
 
     def best(
         self,
@@ -366,7 +382,7 @@ class ImagingRecommendationService:
     ) -> float:
         camera = configuration.camera
         bit_depth = cls._clamp((camera.bit_depth - 8.0) / 8.0)
-        if camera.kind is ImagingCameraKind.ASTRONOMY_CAMERA:
+        if camera.is_dedicated_astronomy_camera:
             role = {
                 "DEEP_SKY": 1.0,
                 "ALL_ROUND": 0.85,
@@ -394,7 +410,7 @@ class ImagingRecommendationService:
         bit_depth = 0.5 + 0.5 * cls._clamp(
             (camera.bit_depth - 8.0) / 8.0
         )
-        if camera.kind is ImagingCameraKind.ASTRONOMY_CAMERA:
+        if camera.is_dedicated_astronomy_camera:
             role = {
                 "PLANETARY": 1.0,
                 "ALL_ROUND": 0.90,
@@ -424,7 +440,7 @@ class ImagingRecommendationService:
         configuration: ImagingTrainConfiguration,
     ) -> float:
         camera = configuration.camera
-        if camera.kind is ImagingCameraKind.ASTRONOMY_CAMERA:
+        if camera.is_dedicated_astronomy_camera:
             if camera.full_resolution_fps is None:
                 return 0.5
             return cls._piecewise_score(
@@ -631,10 +647,10 @@ class ImagingRecommendationService:
                     ("tracking_accuracy", False),
                 )
             )
-            if camera.kind is ImagingCameraKind.ASTRONOMY_CAMERA:
+            if camera.is_dedicated_astronomy_camera:
                 checks.append(("camera_class", bool(camera.camera_class)))
         else:
-            if camera.kind is ImagingCameraKind.ASTRONOMY_CAMERA:
+            if camera.is_dedicated_astronomy_camera:
                 checks.append(
                     (
                         "full_resolution_fps",

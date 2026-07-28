@@ -1,8 +1,80 @@
 from __future__ import annotations
 
+import math
 from dataclasses import asdict, dataclass
 
 from astro_viewer.app.services.localization import format_compact_number, tr
+
+
+@dataclass(frozen=True)
+class IntegratedImagingSystem:
+    """Primary astronomical imaging channel built into a smart telescope."""
+
+    sensor_model: str = ""
+    sensor_width_mm: float | None = None
+    sensor_height_mm: float | None = None
+    resolution_width_px: int | None = None
+    resolution_height_px: int | None = None
+    pixel_size_um: float | None = None
+    bit_depth: int | None = None
+    color_mode: str = ""
+    full_resolution_fps: float | None = None
+    supports_live_stacking: bool = False
+    supports_video: bool = False
+    supports_mosaic: bool = False
+    exposure_control_mode: str = "DEVICE_MANAGED"
+    filter_codes: tuple[str, ...] = ()
+    specification_source_url: str = ""
+
+    @property
+    def has_complete_sensor_geometry(self) -> bool:
+        positive_values = (
+            self.sensor_width_mm,
+            self.sensor_height_mm,
+            self.resolution_width_px,
+            self.resolution_height_px,
+            self.pixel_size_um,
+            self.bit_depth,
+        )
+        try:
+            positive_values_are_valid = all(
+                value is not None
+                and not isinstance(value, bool)
+                and math.isfinite(float(value))
+                and float(value) > 0
+                for value in positive_values
+            )
+            integer_values_are_valid = all(
+                value is not None
+                and not isinstance(value, bool)
+                and float(value).is_integer()
+                for value in (
+                    self.resolution_width_px,
+                    self.resolution_height_px,
+                    self.bit_depth,
+                )
+            )
+            optional_fps_is_valid = (
+                self.full_resolution_fps is None
+                or (
+                    not isinstance(self.full_resolution_fps, bool)
+                    and math.isfinite(float(self.full_resolution_fps))
+                    and float(self.full_resolution_fps) > 0
+                )
+            )
+        except (TypeError, ValueError):
+            positive_values_are_valid = False
+            integer_values_are_valid = False
+            optional_fps_is_valid = False
+        return (
+            bool(self.sensor_model.strip())
+            and self.color_mode in {"COLOR", "MONO"}
+            and self.exposure_control_mode
+            in {"DEVICE_MANAGED", "USER_CONFIGURABLE"}
+            and positive_values_are_valid
+            and integer_values_are_valid
+            and optional_fps_is_valid
+        )
 
 
 @dataclass(frozen=True)
@@ -13,12 +85,58 @@ class Telescope:
     focal_length_mm: int
     optical_type: str
     mount: str
+    instrument_category: str = "TRADITIONAL"
+    supports_optical_visual: bool | None = None
+    supports_interchangeable_eyepieces: bool | None = None
+    supports_external_cameras: bool | None = None
+    supports_external_optical_modifiers: bool | None = None
+    integrated_imaging: IntegratedImagingSystem | None = None
+
+    def __post_init__(self) -> None:
+        default_capability = not self.is_smart_integrated
+        for field_name in (
+            "supports_optical_visual",
+            "supports_interchangeable_eyepieces",
+            "supports_external_cameras",
+            "supports_external_optical_modifiers",
+        ):
+            if getattr(self, field_name) is None:
+                object.__setattr__(
+                    self,
+                    field_name,
+                    default_capability,
+                )
+
+    @property
+    def is_smart_integrated(self) -> bool:
+        return self.instrument_category == "SMART_INTEGRATED"
+
+    @property
+    def has_complete_integrated_imaging(self) -> bool:
+        return (
+            self.is_smart_integrated
+            and self.integrated_imaging is not None
+            and self.integrated_imaging.has_complete_sensor_geometry
+        )
 
     def to_qml(self) -> dict:
         data = asdict(self)
         data["apertureMm"] = self.aperture_mm
         data["focalLengthMm"] = self.focal_length_mm
         data["type"] = self.optical_type
+        data["instrumentCategory"] = self.instrument_category
+        data["isSmartIntegrated"] = self.is_smart_integrated
+        data["supportsOpticalVisual"] = self.supports_optical_visual
+        data["supportsInterchangeableEyepieces"] = (
+            self.supports_interchangeable_eyepieces
+        )
+        data["supportsExternalCameras"] = self.supports_external_cameras
+        data["supportsExternalOpticalModifiers"] = (
+            self.supports_external_optical_modifiers
+        )
+        data["hasCompleteIntegratedImaging"] = (
+            self.has_complete_integrated_imaging
+        )
         return data
 
 

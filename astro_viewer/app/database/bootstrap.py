@@ -23,7 +23,7 @@ from astro_viewer.app.services.localization import content_key, tr
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
-SCHEMA_VERSION = 24
+SCHEMA_VERSION = 25
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 _CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
     (
@@ -101,6 +101,7 @@ REQUIRED_TABLES = {
     "ObservationHistory",
     "TelescopeBrand",
     "TelescopeModel",
+    "SmartTelescopeCapability",
     "EyepieceCatalog",
     "BarlowCatalog",
     "BinocularCatalog",
@@ -329,6 +330,10 @@ def _build_database(
             data_dir / "catalogue_designations_seed.csv",
         )
         _seed_telescope_catalog(connection, data_dir / "telescope_catalog_seed.csv")
+        _seed_smart_telescope_capabilities(
+            connection,
+            data_dir / "smart_telescope_capabilities_seed.csv",
+        )
         _seed_optics_catalog(
             connection,
             data_dir / "eyepiece_catalog_seed.csv",
@@ -1700,6 +1705,107 @@ def _telescope_catalog_rows(catalog_path: Path | None) -> list[tuple]:
             "telescope",
         )
     ]
+
+
+def _seed_smart_telescope_capabilities(
+    connection: sqlite3.Connection,
+    catalog_path: Path | None,
+) -> None:
+    rows = _equipment_catalog_source_rows(
+        catalog_path,
+        "smart telescope capability",
+        "telescope",
+    )
+    for row, seed_key in rows:
+        exposure_control_mode = str(
+            row.get("exposure_control_mode") or "DEVICE_MANAGED"
+        ).strip().upper()
+        color_mode = str(row.get("color_mode") or "").strip().upper()
+        if exposure_control_mode not in {
+            "DEVICE_MANAGED",
+            "USER_CONFIGURABLE",
+        }:
+            raise ValueError(
+                f"Invalid smart exposure control mode for {seed_key}."
+            )
+        if color_mode not in {"COLOR", "MONO"}:
+            raise ValueError(f"Invalid smart sensor color mode for {seed_key}.")
+        connection.execute(
+            """
+            INSERT INTO SmartTelescopeCapability (
+                telescope_model_id, supports_optical_visual,
+                supports_interchangeable_eyepieces,
+                supports_external_cameras,
+                supports_external_optical_modifiers, sensor_model,
+                sensor_width_mm, sensor_height_mm, resolution_width_px,
+                resolution_height_px, pixel_size_um, bit_depth, color_mode,
+                full_resolution_fps, supports_live_stacking, supports_video,
+                supports_mosaic, exposure_control_mode,
+                integrated_filter_codes, specification_source_url
+            )
+            SELECT
+                model.id, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                ?, ?, ?
+            FROM TelescopeModel model
+            WHERE model.seed_key = ?
+              AND model.instrument_category = 'SMART_INTEGRATED'
+            ON CONFLICT(telescope_model_id) DO UPDATE SET
+                supports_optical_visual =
+                    excluded.supports_optical_visual,
+                supports_interchangeable_eyepieces =
+                    excluded.supports_interchangeable_eyepieces,
+                supports_external_cameras =
+                    excluded.supports_external_cameras,
+                supports_external_optical_modifiers =
+                    excluded.supports_external_optical_modifiers,
+                sensor_model = excluded.sensor_model,
+                sensor_width_mm = excluded.sensor_width_mm,
+                sensor_height_mm = excluded.sensor_height_mm,
+                resolution_width_px = excluded.resolution_width_px,
+                resolution_height_px = excluded.resolution_height_px,
+                pixel_size_um = excluded.pixel_size_um,
+                bit_depth = excluded.bit_depth,
+                color_mode = excluded.color_mode,
+                full_resolution_fps = excluded.full_resolution_fps,
+                supports_live_stacking = excluded.supports_live_stacking,
+                supports_video = excluded.supports_video,
+                supports_mosaic = excluded.supports_mosaic,
+                exposure_control_mode = excluded.exposure_control_mode,
+                integrated_filter_codes =
+                    excluded.integrated_filter_codes,
+                specification_source_url =
+                    excluded.specification_source_url
+            WHERE (
+                SELECT is_user_modified
+                FROM TelescopeModel
+                WHERE id = excluded.telescope_model_id
+            ) = 0
+            """,
+            (
+                _csv_bool(row.get("supports_optical_visual")),
+                _csv_bool(row.get("supports_interchangeable_eyepieces")),
+                _csv_bool(row.get("supports_external_cameras")),
+                _csv_bool(row.get("supports_external_optical_modifiers")),
+                str(row.get("sensor_model") or "").strip(),
+                _optional_float(str(row.get("sensor_width_mm") or "")),
+                _optional_float(str(row.get("sensor_height_mm") or "")),
+                _optional_int(str(row.get("resolution_width_px") or "")),
+                _optional_int(str(row.get("resolution_height_px") or "")),
+                _optional_float(str(row.get("pixel_size_um") or "")),
+                _optional_int(str(row.get("bit_depth") or "")),
+                color_mode,
+                _optional_float(
+                    str(row.get("full_resolution_fps") or "")
+                ),
+                _csv_bool(row.get("supports_live_stacking")),
+                _csv_bool(row.get("supports_video")),
+                _csv_bool(row.get("supports_mosaic")),
+                exposure_control_mode,
+                str(row.get("integrated_filter_codes") or "").strip(),
+                str(row.get("specification_source_url") or "").strip(),
+                seed_key,
+            ),
+        )
 
 
 def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | None = None, barlow_path: Path | None = None) -> None:

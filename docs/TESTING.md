@@ -137,21 +137,22 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
-## Measured Telescope Schema And Form Gate
+## Measured Smart Telescope Functional Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-28:
 
 | Check | Result |
 | --- | --- |
-| `python tools/run_checks.py --security` on the final source state | Passed in 322.8 s |
-| Complete deterministic suite | 1,113 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 273.83 s |
-| Schema 24 migration | Existing telescope rows default to `TRADITIONAL`; legacy smart labels and the built-in Seestar seed keys become `SMART_INTEGRATED`; a user-modified Seestar keeps its custom optical type |
-| Telescope catalogue CRUD | Controlled category and optical-type codes round-trip; custom `Altro` optical designs remain editable; invalid categories fail closed |
-| Telescope CSV import | 133 rows imported, with exactly Seestar S30 and S50 in `SMART_INTEGRATED` |
-| Recommendation boundary | The deterministic 375-check visual quality matrix is byte-for-byte unchanged; smart category metadata is not consumed by visual or photographic calculation services |
-| Translation catalogues | IT, EN, and ES: 1,987 finished, 0 unfinished each |
+| `python tools/run_checks.py --fast --security` on the final source state | Passed in 404.4 s |
+| Complete deterministic suite | 1,127 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 368.07 s |
+| Schema 25 migration | The one-to-one integrated capability record is added without changing existing telescope identities; verified Seestar capabilities are seeded idempotently, while removing or reclassifying both built-in smart records does not force a later catalogue reset |
+| Telescope catalogue and capability CRUD | 133 telescopes import with exactly Seestar S30 and S50 classified as `SMART_INTEGRATED`; custom integrated sensor/capture data round-trips, locale decimals and filters normalize, and incomplete or invalid capability data fails closed |
+| Visual recommendation matrix | 800 smart-profile combinations across telescopes, eyepiece inventories, Barlows and seeing levels produced no invented eyepiece, Barlow, magnification or exit-pupil configuration; mixed profiles retained only their valid traditional visual path |
+| Photographic recommendation matrix | 704 combinations across integrated telescopes, targets, unrelated cameras, reducers, Barlows and seeing levels produced exactly one device-native train; hybrid, capture-mode, solar-safety and incomplete-specification cases were checked separately |
+| Recommendation regression boundary | The deterministic 375-check visual quality matrix was regenerated and remained byte-for-byte unchanged |
+| Translation catalogues | IT, EN, and ES: 2,038 finished, 0 unfinished each |
 | Telescope form lint | Passed with the page's known non-fatal `unqualified access` diagnostic class |
-| Native telescope-form review | Windows `1040 x 700` logical viewport: six half-row fields measured equally at 346 px; category/type dropdowns, labels, full-width mount/notes and dialog actions were visible and unclipped |
+| Native telescope-form review | Windows `1280 x 800` logical viewport: the `780 x 723` dialog kept a fixed footer and a working `700 x 570` scroll area for its 882 px content; paired fields measured 340 px each and full-width rows 688 px, with the top and bottom states visible and unclipped |
 | Runtime smoke tests | Backend, normal QML and Red Night Vision QML passed in disposable runtimes |
 
 ## Measured Post-1.42.0 Recommendation Maintenance Gate
@@ -166,7 +167,7 @@ Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-28:
 | Focused photographic exposure suite | 26 passed, including a 32,400-point tracking-limit monotonicity sweep |
 | Focused NASA AOD provider suite | 45 passed, including TLS, timeout, HTTP authentication and HTTP service failure classification |
 | Deterministic recommendation quality matrix | 375 checks passed; the tracked result snapshot was regenerated |
-| Extended visual stress matrix | 53,200 combinations across 133 telescopes, four eyepiece sets, 25 targets and four observing conditions; the remaining five monotonic inversions are confined to the separately deferred smart-telescope semantic issue |
+| Extended visual stress matrix | 53,200 combinations across 133 telescopes, four eyepiece sets, 25 targets and four observing conditions; the five historical smart-telescope semantic findings identified here are addressed by the dedicated functional gate above |
 | Extended photographic static matrix | 6,117,034 ranked candidates across 48 telescopes, 77 cameras and 271 targets; no sub-exposure monotonicity findings |
 | Photographic runtime/presenter matrix | 3,600 assembled plans across 12 profiles, 75 targets and four observing conditions; zero findings |
 | Dependency and security audit | `pip check` passed and `pip-audit` reported no known vulnerabilities |

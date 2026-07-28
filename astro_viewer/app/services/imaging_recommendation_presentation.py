@@ -131,22 +131,43 @@ class ImagingRecommendationPresenter:
             if advice is not None
             else ""
         )
+        smart_integrated = (
+            candidate.camera.kind is ImagingCameraKind.SMART_INTEGRATED
+        )
 
         if recommendation.exposure_advice is not None:
-            capture_title = tr("Piano di posa")
+            capture_title = (
+                tr("Piano EAA / live stacking")
+                if smart_integrated
+                else tr("Piano di posa")
+            )
             capture_metrics = self._still_metrics(
                 recommendation.exposure_advice
             )
-            guidance = tr(
-                "Acquisisci molte pose e sommale; regola gain o ISO con prove "
-                "sul campo senza superare il limite prudenziale indicato."
-            )
-            disclaimer = tr(
-                "L'integrazione totale è la somma delle pose luce "
-                "utilizzabili e può essere distribuita su più notti. I "
-                "tempi sono intervalli di pianificazione, non una "
-                "calibrazione della camera."
-            )
+            if smart_integrated and candidate.camera.is_device_managed:
+                guidance = tr(
+                    "Lascia al dispositivo la gestione delle singole pose "
+                    "e usa l'integrazione totale come obiettivo cumulativo "
+                    "del live stacking."
+                )
+                disclaimer = tr(
+                    "NightScope non prescrive gain o durata della singola "
+                    "posa per questo sistema integrato. L'integrazione "
+                    "totale è una stima operativa, non una calibrazione del "
+                    "dispositivo."
+                )
+            else:
+                guidance = tr(
+                    "Acquisisci molte pose e sommale; regola gain o ISO con "
+                    "prove sul campo senza superare il limite prudenziale "
+                    "indicato."
+                )
+                disclaimer = tr(
+                    "L'integrazione totale è la somma delle pose luce "
+                    "utilizzabili e può essere distribuita su più notti. I "
+                    "tempi sono intervalli di pianificazione, non una "
+                    "calibrazione della camera."
+                )
             warning_codes = recommendation.exposure_advice.warning_codes
         else:
             capture_title = tr("Piano video")
@@ -170,8 +191,12 @@ class ImagingRecommendationPresenter:
         return ImagingRecommendationPresentation(
             status_code=recommendation.status.value,
             ready=True,
-            subtitle=tr(
-                "Migliore combinazione disponibile nel profilo attivo"
+            subtitle=(
+                tr("Piano del sistema smart integrato")
+                if smart_integrated
+                else tr(
+                    "Migliore combinazione disponibile nel profilo attivo"
+                )
             ),
             state_label=tr(
                 "Scelta tra {count} configurazioni",
@@ -179,9 +204,17 @@ class ImagingRecommendationPresenter:
             ),
             mode_code=mode_code,
             mode_label=(
-                tr("Foto a lunga posa")
+                (
+                    tr("EAA / live stacking")
+                    if smart_integrated
+                    else tr("Foto a lunga posa")
+                )
                 if mode_code == "still"
-                else tr("Video planetario")
+                else (
+                    tr("Video integrato")
+                    if smart_integrated
+                    else tr("Video planetario")
+                )
             ),
             confidence_code=confidence_code,
             confidence_label=self._confidence_label(confidence_code),
@@ -203,6 +236,12 @@ class ImagingRecommendationPresenter:
         recommendation: ImagingRuntimeRecommendation,
     ) -> object:
         configuration = recommendation.candidate.configuration
+        if configuration.camera.kind is ImagingCameraKind.SMART_INTEGRATED:
+            return tr(
+                "{telescope} · {sensor} integrato",
+                telescope=configuration.telescope.name,
+                sensor=configuration.camera.name.rsplit(" - ", 1)[-1],
+            )
         parts: list[object] = [configuration.telescope.name]
         if configuration.reducer is not None:
             parts.append(configuration.reducer.name)
@@ -216,6 +255,8 @@ class ImagingRecommendationPresenter:
         recommendation: ImagingRuntimeRecommendation,
     ) -> object:
         configuration = recommendation.candidate.configuration
+        if configuration.camera.kind is ImagingCameraKind.SMART_INTEGRATED:
+            return tr("Treno ottico integrato")
         if configuration.modifier_kind is ImagingModifierKind.FOCAL_REDUCER:
             return tr(
                 "Riduttore di focale {factor}×",
@@ -359,6 +400,28 @@ class ImagingRecommendationPresenter:
     def _still_metrics(
         advice: ImagingExposureAdvice,
     ) -> tuple[ImagingPresentationMetric, ...]:
+        if advice.candidate.camera.is_device_managed:
+            return (
+                ImagingPresentationMetric(
+                    "sub_exposure_control",
+                    tr("Pose singole"),
+                    tr("Gestite dal dispositivo"),
+                ),
+                ImagingPresentationMetric(
+                    "total_integration",
+                    tr("Integrazione totale"),
+                    _minutes_range(
+                        advice.total_integration_min_minutes,
+                        advice.total_integration_max_minutes,
+                        minimum_is_lower_bound=(
+                            advice.total_integration_min_is_lower_bound
+                        ),
+                        maximum_is_lower_bound=(
+                            advice.total_integration_max_is_lower_bound
+                        ),
+                    ),
+                ),
+            )
         return (
             ImagingPresentationMetric(
                 "sub_exposure",
@@ -496,6 +559,7 @@ class ImagingRecommendationPresenter:
         framing_notice = self._framing_notice(recommendation)
         if framing_notice is not None:
             notices.append(framing_notice)
+        notices.extend(self._smart_notices(recommendation))
 
         messages = self._warning_messages()
         warning_set = set(warning_codes)
@@ -506,6 +570,46 @@ class ImagingRecommendationPresenter:
             if len(notices) >= self._NOTICE_LIMIT:
                 break
         return tuple(notices[: self._NOTICE_LIMIT])
+
+    @staticmethod
+    def _smart_notices(
+        recommendation: ImagingRuntimeRecommendation,
+    ) -> tuple[ImagingPresentationNotice, ...]:
+        candidate = recommendation.candidate
+        if candidate.camera.kind is not ImagingCameraKind.SMART_INTEGRATED:
+            return ()
+        notices: list[ImagingPresentationNotice] = []
+        if (
+            candidate.target.target_class.value
+            in {"diffuse_nebula", "planetary_nebula"}
+            and "DUAL_BAND" in candidate.camera.integrated_filter_codes
+        ):
+            notices.append(
+                ImagingPresentationNotice(
+                    "integrated_dual_band_available",
+                    tr(
+                        "Per le nebulose è disponibile il filtro dual-band "
+                        "integrato; attivalo quando cielo e target lo "
+                        "rendono utile."
+                    ),
+                    level="info",
+                )
+            )
+        if (
+            candidate.target.target_class.value == "planet"
+            and candidate.component_values().get("sampling", 1.0) < 0.65
+        ):
+            notices.append(
+                ImagingPresentationNotice(
+                    "native_scale_under_samples_planet",
+                    tr(
+                        "Il pianeta è poco campionato alla scala nativa: "
+                        "puoi registrarlo, ma il dettaglio fine resterà "
+                        "limitato dal treno integrato."
+                    ),
+                )
+            )
+        return tuple(notices)
 
     @staticmethod
     def _framing_notice(
@@ -547,6 +651,24 @@ class ImagingRecommendationPresenter:
             target.angular_size_minor_deg,
         )
         if target_major > field_major or target_minor > field_minor:
+            if candidate.camera.kind is ImagingCameraKind.SMART_INTEGRATED:
+                if candidate.camera.supports_mosaic:
+                    return ImagingPresentationNotice(
+                        "target_requires_integrated_mosaic",
+                        tr(
+                            "Il target supera il campo nativo: usa il "
+                            "mosaico automatico integrato."
+                        ),
+                        level="info",
+                    )
+                return ImagingPresentationNotice(
+                    "target_exceeds_smart_field_without_mosaic",
+                    tr(
+                        "Il target supera il campo nativo e questo modello "
+                        "non dichiara il mosaico automatico: inquadra solo "
+                        "una regione."
+                    ),
+                )
             return ImagingPresentationNotice(
                 "target_exceeds_sensor_field",
                 tr(
@@ -695,6 +817,49 @@ class ImagingRecommendationPresenter:
     def _unavailable(
         recommendation: ImagingRuntimeRecommendation,
     ) -> ImagingRecommendationPresentation:
+        if (
+            recommendation.unavailable_reason_code
+            == "smart_integrated_specs_required"
+        ):
+            title = tr("Specifiche integrate incomplete")
+            detail = tr(
+                "Completa sensore, dimensioni, risoluzione, passo pixel e "
+                "profondità del telescopio smart. NightScope non userà "
+                "camere esterne come sostituto implicito."
+            )
+            state_label = tr("Dati smart insufficienti")
+            return ImagingRecommendationPresentation(
+                status_code=recommendation.status.value,
+                ready=False,
+                subtitle=tr(
+                    "Configurazione fotografica del profilo attivo"
+                ),
+                state_label=state_label,
+                unavailable_title=title,
+                unavailable_detail=detail,
+                policy_version=recommendation.policy_version,
+            )
+        if (
+            recommendation.unavailable_reason_code
+            == "smart_capture_mode_unsupported"
+        ):
+            return ImagingRecommendationPresentation(
+                status_code=recommendation.status.value,
+                ready=False,
+                subtitle=tr(
+                    "Configurazione fotografica del profilo attivo"
+                ),
+                state_label=tr("Capacità smart non disponibile"),
+                unavailable_title=tr(
+                    "Modalità di acquisizione non supportata"
+                ),
+                unavailable_detail=tr(
+                    "Il modello smart non dichiara live stacking per questo "
+                    "target o video per Luna e pianeti. Abilita solo capacità "
+                    "verificate."
+                ),
+                policy_version=recommendation.policy_version,
+            )
         title, detail, state_label = {
             ImagingRuntimeStatus.NO_ACTIVE_PROFILE: (
                 tr("Nessun profilo Equipment attivo"),

@@ -37,6 +37,7 @@ from astro_viewer.app.models.equipment import (
     Binocular,
     Eyepiece,
     FocalReducer,
+    IntegratedImagingSystem,
     OpticalFilter,
     Telescope,
 )
@@ -1300,6 +1301,12 @@ class AppController(QObject):
                     telescope.aperture_mm,
                     telescope.focal_length_mm,
                     telescope.mount,
+                    telescope.instrument_category,
+                    telescope.supports_optical_visual,
+                    telescope.supports_interchangeable_eyepieces,
+                    telescope.supports_external_cameras,
+                    telescope.supports_external_optical_modifiers,
+                    telescope.integrated_imaging,
                 )
                 for telescope in inventory.telescopes
             )
@@ -2691,7 +2698,18 @@ class AppController(QObject):
     def equipmentUsage(self, kind: str, item_id: str) -> int:
         return self._equipment_catalog_repository.profile_usage_count(kind, item_id)
 
-    @Slot(str, str, str, str, str, str, str, str, result=bool)
+    @Slot(
+        str,
+        str,
+        str,
+        str,
+        str,
+        str,
+        str,
+        str,
+        "QVariantMap",
+        result=bool,
+    )
     def addTelescopeModel(
         self,
         brand: str,
@@ -2702,6 +2720,7 @@ class AppController(QObject):
         mount: str,
         notes: str,
         instrument_category: str = "TRADITIONAL",
+        smart_capabilities: Mapping[str, object] | None = None,
     ) -> bool:
         try:
             aperture_mm = self._positive_int(aperture)
@@ -2719,11 +2738,24 @@ class AppController(QObject):
             mount,
             notes,
             instrument_category,
+            smart_capabilities,
         )
         self._after_catalog_change(message, ok)
         return ok
 
-    @Slot(int, str, str, str, str, str, str, str, str, result=bool)
+    @Slot(
+        int,
+        str,
+        str,
+        str,
+        str,
+        str,
+        str,
+        str,
+        str,
+        "QVariantMap",
+        result=bool,
+    )
     def updateTelescopeModel(
         self,
         model_id: int,
@@ -2735,6 +2767,7 @@ class AppController(QObject):
         mount: str,
         notes: str,
         instrument_category: str = "TRADITIONAL",
+        smart_capabilities: Mapping[str, object] | None = None,
     ) -> bool:
         try:
             aperture_mm = self._positive_int(aperture)
@@ -2753,6 +2786,7 @@ class AppController(QObject):
             mount,
             notes,
             instrument_category,
+            smart_capabilities,
         )
         self._after_catalog_change(message, ok)
         return ok
@@ -8553,6 +8587,52 @@ class AppController(QObject):
 
     @staticmethod
     def _telescope_from_catalog_model(model: dict) -> Telescope:
+        category = str(
+            model.get("instrument_category") or "TRADITIONAL"
+        )
+        capabilities = model.get("smart_capabilities") or {}
+        integrated_imaging = None
+        if category == "SMART_INTEGRATED":
+            integrated_imaging = IntegratedImagingSystem(
+                sensor_model=str(
+                    capabilities.get("sensor_model") or ""
+                ),
+                sensor_width_mm=capabilities.get("sensor_width_mm"),
+                sensor_height_mm=capabilities.get("sensor_height_mm"),
+                resolution_width_px=capabilities.get(
+                    "resolution_width_px"
+                ),
+                resolution_height_px=capabilities.get(
+                    "resolution_height_px"
+                ),
+                pixel_size_um=capabilities.get("pixel_size_um"),
+                bit_depth=capabilities.get("bit_depth"),
+                color_mode=str(
+                    capabilities.get("color_mode") or ""
+                ),
+                full_resolution_fps=capabilities.get(
+                    "full_resolution_fps"
+                ),
+                supports_live_stacking=bool(
+                    capabilities.get("supports_live_stacking")
+                ),
+                supports_video=bool(
+                    capabilities.get("supports_video")
+                ),
+                supports_mosaic=bool(
+                    capabilities.get("supports_mosaic")
+                ),
+                exposure_control_mode=str(
+                    capabilities.get("exposure_control_mode")
+                    or "DEVICE_MANAGED"
+                ),
+                filter_codes=tuple(
+                    capabilities.get("integrated_filter_codes") or ()
+                ),
+                specification_source_url=str(
+                    capabilities.get("specification_source_url") or ""
+                ),
+            )
         return Telescope(
             id=model["catalog_id"],
             name=f"{model['brand']} {model['name']}",
@@ -8560,6 +8640,32 @@ class AppController(QObject):
             focal_length_mm=int(model["focal_length_mm"]),
             optical_type=model["optical_type"],
             mount=model["mount_type"],
+            instrument_category=category,
+            supports_optical_visual=bool(
+                capabilities.get(
+                    "supports_optical_visual",
+                    category != "SMART_INTEGRATED",
+                )
+            ),
+            supports_interchangeable_eyepieces=bool(
+                capabilities.get(
+                    "supports_interchangeable_eyepieces",
+                    category != "SMART_INTEGRATED",
+                )
+            ),
+            supports_external_cameras=bool(
+                capabilities.get(
+                    "supports_external_cameras",
+                    category != "SMART_INTEGRATED",
+                )
+            ),
+            supports_external_optical_modifiers=bool(
+                capabilities.get(
+                    "supports_external_optical_modifiers",
+                    category != "SMART_INTEGRATED",
+                )
+            ),
+            integrated_imaging=integrated_imaging,
         )
 
     @staticmethod
@@ -9664,6 +9770,12 @@ class AppController(QObject):
                     "per usare oculari e Barlow."
                 )
             return tr("Modalità Occhio nudo: configura o seleziona un telescopio per usare oculari e Barlow.")
+        if not self._equipment_service.can_use_eyepieces(telescope):
+            return tr(
+                "Telescopio smart attivo: oculari, Barlow e ingrandimenti "
+                "visuali non si applicano. Usa il piano EAA/fotografico "
+                "integrato."
+            )
         eyepieces = self._active_profile_eyepieces()
         barlows = self._active_profile_barlows()
         if not eyepieces:

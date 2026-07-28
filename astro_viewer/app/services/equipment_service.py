@@ -64,7 +64,7 @@ class EquipmentService:
         ]
 
     def calculations(self, telescope: Telescope, eyepieces: list[Eyepiece], barlow: float) -> list[dict]:
-        if not self.has_optical_telescope(telescope) or not eyepieces:
+        if not self.can_use_eyepieces(telescope) or not eyepieces:
             return []
         rows = []
         for eyepiece in eyepieces:
@@ -158,6 +158,32 @@ class EquipmentService:
                 "availableConfigurations": [],
                 "availableConfigurationsText": tr("Aggiungi attrezzatura al profilo"),
             }
+        if not self.can_use_eyepieces(telescope):
+            return {
+                "name": telescope.name,
+                "aperture": tr(
+                    "{value} mm",
+                    value=format_number(telescope.aperture_mm),
+                ),
+                "focalLength": tr(
+                    "{value} mm",
+                    value=format_number(telescope.focal_length_mm),
+                ),
+                "practicalMagnification": tr("Non applicabile"),
+                "availableMagnificationMin": tr("n/d"),
+                "availableMagnificationMax": tr("n/d"),
+                "exitPupilMin": tr("n/d"),
+                "exitPupilMax": tr("n/d"),
+                "trueFieldMin": tr("n/d"),
+                "trueFieldMax": tr("n/d"),
+                "lightGathering": tr("Canale fotografico integrato"),
+                "limitingMagnitude": tr("n/d"),
+                "resolution": tr("n/d"),
+                "availableConfigurations": [],
+                "availableConfigurationsText": tr(
+                    "Telescopio smart: usa il piano EAA/fotografico integrato."
+                ),
+            }
         min_magnification = max(1, round(telescope.aperture_mm / 5))
         max_magnification = max(min_magnification, round(telescope.aperture_mm * 2))
         light_gathering = round((telescope.aperture_mm / 7.0) ** 2)
@@ -204,6 +230,12 @@ class EquipmentService:
 
         if not self.has_optical_telescope(telescope):
             return self._presenter.naked_eye(celestial_object, self.NAKED_EYE_ID)
+        if not self.can_use_eyepieces(telescope):
+            return self._presenter.smart_eaa_route(
+                celestial_object,
+                telescope,
+                self.NAKED_EYE_ID,
+            )
         if not eyepieces:
             return self._presenter.missing_eyepieces(celestial_object, telescope)
 
@@ -238,8 +270,23 @@ class EquipmentService:
     ) -> dict:
         barlows = barlows or []
         binoculars = binoculars or []
-        usable_telescopes = [telescope for telescope in telescopes if self.has_optical_telescope(telescope)]
+        usable_telescopes = [
+            telescope
+            for telescope in telescopes
+            if self.can_use_eyepieces(telescope)
+        ]
+        smart_telescopes = [
+            telescope
+            for telescope in telescopes
+            if telescope.is_smart_integrated
+        ]
         if not usable_telescopes and not binoculars:
+            if smart_telescopes:
+                return self._presenter.smart_eaa_route(
+                    celestial_object,
+                    smart_telescopes[0],
+                    self.NAKED_EYE_ID,
+                )
             return self._presenter.naked_eye(celestial_object, self.NAKED_EYE_ID)
 
         if binoculars or (usable_telescopes and eyepieces):
@@ -1083,7 +1130,11 @@ class EquipmentService:
         return telescope.id != self.NAKED_EYE_ID and telescope.aperture_mm > 0 and telescope.focal_length_mm > 0
 
     def can_use_eyepieces(self, telescope: Telescope) -> bool:
-        return self.has_optical_telescope(telescope)
+        return (
+            self.has_optical_telescope(telescope)
+            and telescope.supports_optical_visual
+            and telescope.supports_interchangeable_eyepieces
+        )
 
     @staticmethod
     def _log10(value: float) -> float:

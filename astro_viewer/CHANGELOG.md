@@ -2,18 +2,34 @@
 
 ## Unreleased
 
-- Lo schema SQLite passa alla versione 24 e separa la categoria dello
-  strumento (`TRADITIONAL` o `SMART_INTEGRATED`) dal suo tipo ottico. Il
-  catalogo classifica Seestar S30 e S50 come smart integrati con ottica
-  rifrattore apocromatico; la migrazione riconosce anche i precedenti valori
-  testuali usati per i telescopi smart e conserva il tipo ottico dei modelli
-  integrati gia' modificati dall'utente.
+- Lo schema SQLite passa alla versione 25. La versione 24 separa la categoria
+  dello strumento (`TRADITIONAL` o `SMART_INTEGRATED`) dal tipo ottico; la 25
+  aggiunge il contratto persistente `SmartTelescopeCapability` per capacita'
+  visuali, accessori esterni, sensore integrato, live stacking, video, mosaico,
+  controllo delle pose, filtri interni e fonte tecnica. Seestar S30 e S50
+  vengono inizializzati con il rispettivo sensore Sony IMX662/IMX462, focale
+  150/250 mm, pixel da 2,9 µm e geometria 1920 x 1080 del canale astronomico
+  principale.
 - Il form dei telescopi usa ora menu a discesa controllati per categoria e tipo
   ottico, conserva una scelta `Altro` con descrizione personalizzata e
   distribuisce i campi in colonne uniformi, evitando larghezze dipendenti dal
-  contenuto. Categoria e tipo sono ricercabili e visibili nel catalogo. Questo
-  passaggio prepara i dati ma non modifica ancora selezione, punteggi o treni
-  ottici delle raccomandazioni visuali e fotografiche.
+  contenuto. Se la categoria e' smart mostra una sezione scorrevole per
+  specifiche integrate e capacita' esplicite. I campi tecnici possono restare
+  incompleti, ma in quel caso il motore fallisce in modo chiuso e non sostituisce
+  implicitamente il sensore con una camera esterna.
+- I telescopi smart non generano piu' combinazioni visuali fittizie con oculari
+  o Barlow. Il percorso visuale li rimanda al piano EAA/fotografico mantenendo
+  la capacita' visuale e i punteggi NSOM separati; in un profilo misto, gli
+  strumenti tradizionali e i binocoli continuano a seguire il comportamento
+  precedente.
+- Il motore fotografico costruisce per S30/S50 un solo treno con sensore
+  integrato e ignora camere, riduttori e Barlow assegnati al profilo. Il piano
+  smart mostra campo e campionamento reali, integrazione totale con pose gestite
+  dal dispositivo, disponibilita' del mosaico, filtro dual-band per le nebulose
+  e un avviso di sottocampionamento per i pianeti alla scala nativa. Live
+  stacking e video vengono ammessi solo quando dichiarati dal modello. Il Sole
+  resta bloccato finche' il profilo non dichiara esplicitamente un filtro solare
+  certificato a tutta apertura.
 - La raccomandazione visuale per pianeti, Luna e target ad alto ingrandimento
   tratta ora il limite imposto dal seeing come vincolo pratico di selezione,
   senza alterare i pesi dello score: quando esistono configurazioni entro il
@@ -42,10 +58,9 @@
   `aiobotocore`.
 - Rigenerato l'archivio Windows delle licenze sulla closure aggiornata delle
   dipendenze.
-- Il gate Windows `tools/run_checks.py --security` passa con `1.110 passed`,
-  `643 warnings` Skyfield/NumPy note, `10 subtests`, copertura runtime
-  complessiva dell'85%, nessuna vulnerabilita' nota e smoke backend/QML
-  normale e Red Night Vision.
+- Il gate Windows `tools/run_checks.py --fast --security` passa con
+  `1.127 passed`, `643 warnings` Skyfield/NumPy note, `10 subtests`, nessuna
+  vulnerabilita' nota e smoke backend/QML normale e Red Night Vision.
 
 ## NightScope 1.42.0 - 2026-07-27
 

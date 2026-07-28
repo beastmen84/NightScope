@@ -174,6 +174,46 @@ CREATE TABLE IF NOT EXISTS TelescopeModel (
 
 CREATE INDEX IF NOT EXISTS idx_telescope_model_brand ON TelescopeModel(brand_id);
 
+CREATE TABLE IF NOT EXISTS SmartTelescopeCapability (
+    telescope_model_id INTEGER PRIMARY KEY,
+    supports_optical_visual INTEGER NOT NULL DEFAULT 0
+        CHECK (supports_optical_visual IN (0, 1)),
+    supports_interchangeable_eyepieces INTEGER NOT NULL DEFAULT 0
+        CHECK (supports_interchangeable_eyepieces IN (0, 1)),
+    supports_external_cameras INTEGER NOT NULL DEFAULT 0
+        CHECK (supports_external_cameras IN (0, 1)),
+    supports_external_optical_modifiers INTEGER NOT NULL DEFAULT 0
+        CHECK (supports_external_optical_modifiers IN (0, 1)),
+    sensor_model TEXT,
+    sensor_width_mm REAL,
+    sensor_height_mm REAL,
+    resolution_width_px INTEGER,
+    resolution_height_px INTEGER,
+    pixel_size_um REAL,
+    bit_depth INTEGER,
+    color_mode TEXT CHECK (
+        color_mode IS NULL OR color_mode IN ('COLOR', 'MONO')
+    ),
+    full_resolution_fps REAL,
+    supports_live_stacking INTEGER NOT NULL DEFAULT 0
+        CHECK (supports_live_stacking IN (0, 1)),
+    supports_video INTEGER NOT NULL DEFAULT 0
+        CHECK (supports_video IN (0, 1)),
+    supports_mosaic INTEGER NOT NULL DEFAULT 0
+        CHECK (supports_mosaic IN (0, 1)),
+    exposure_control_mode TEXT NOT NULL DEFAULT 'DEVICE_MANAGED'
+        CHECK (
+            exposure_control_mode IN (
+                'DEVICE_MANAGED',
+                'USER_CONFIGURABLE'
+            )
+        ),
+    integrated_filter_codes TEXT,
+    specification_source_url TEXT,
+    FOREIGN KEY (telescope_model_id)
+        REFERENCES TelescopeModel(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS EyepieceCatalog (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     brand TEXT NOT NULL,

@@ -6,7 +6,13 @@ from contextlib import closing
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from astro_viewer.app.database.bootstrap import SCHEMA_VERSION, initialize_database
+import pytest
+
+from astro_viewer.app.database.bootstrap import (
+    SCHEMA_VERSION,
+    database_initialization_required,
+    initialize_database,
+)
 from astro_viewer.app.database.equipment_catalog_repository import (
     EquipmentCatalogRepository,
 )
@@ -24,6 +30,7 @@ from astro_viewer.app.services.equipment_taxonomy import (
     mount_tracking_capability,
     telescope_optical_type_code,
 )
+from astro_viewer.app.viewmodels.app_controller import AppController
 
 
 APP_DIR = Path(__file__).resolve().parents[1]
@@ -891,7 +898,121 @@ def test_custom_telescope_category_and_dropdown_type_round_trip() -> None:
         temporary_directory.cleanup()
 
 
-def test_schema_24_adds_telescope_category_and_migrates_smart_models() -> None:
+def test_custom_smart_telescope_capabilities_round_trip_fail_closed() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        capabilities = {
+            "sensor_model": "Test sensor",
+            "sensor_width_mm": "7,2",
+            "sensor_height_mm": "4.1",
+            "resolution_width_px": "2400",
+            "resolution_height_px": "1366",
+            "pixel_size_um": "3.0",
+            "bit_depth": "12",
+            "color_mode": "COLOR",
+            "supports_live_stacking": True,
+            "supports_video": True,
+            "supports_mosaic": False,
+            "supports_optical_visual": False,
+            "supports_interchangeable_eyepieces": True,
+            "supports_external_cameras": False,
+            "supports_external_optical_modifiers": False,
+            "exposure_control_mode": "DEVICE_MANAGED",
+            "integrated_filter_codes": "uv_ir_cut; dual_band",
+            "specification_source_url": "https://example.test/spec",
+        }
+        ok, _ = repository.add_telescope_model(
+            "NightScope",
+            "Smart custom",
+            "APOCHROMATIC_REFRACTOR",
+            60,
+            300,
+            "ALTAZ_GOTO",
+            "",
+            "SMART_INTEGRATED",
+            capabilities,
+        )
+        assert ok
+        created = next(
+            item
+            for item in repository.models()
+            if item["name"] == "Smart custom"
+        )
+        assert created["sensor_model"] == "Test sensor"
+        assert created["sensor_width_mm"] == pytest.approx(7.2)
+        assert created["integrated_filter_codes"] == (
+            "UV_IR_CUT",
+            "DUAL_BAND",
+        )
+        assert created["supports_live_stacking"] is True
+        assert created["supports_interchangeable_eyepieces"] is False
+        assert created["supports_external_cameras"] is False
+
+        ok, _ = repository.update_telescope_model(
+            created["id"],
+            "NightScope",
+            "Smart custom",
+            "APOCHROMATIC_REFRACTOR",
+            60,
+            300,
+            "ALTAZ_GOTO",
+            "",
+            "SMART_INTEGRATED",
+            {
+                **capabilities,
+                "sensor_width_mm": "",
+                "supports_mosaic": True,
+            },
+        )
+        assert ok
+        incomplete = next(
+            item
+            for item in repository.models()
+            if item["id"] == created["id"]
+        )
+        telescope = AppController._telescope_from_catalog_model(incomplete)
+        assert incomplete["supports_mosaic"] is True
+        assert telescope.has_complete_integrated_imaging is False
+
+        invalid, message = repository.update_telescope_model(
+            created["id"],
+            "NightScope",
+            "Smart custom",
+            "APOCHROMATIC_REFRACTOR",
+            60,
+            300,
+            "ALTAZ_GOTO",
+            "",
+            "SMART_INTEGRATED",
+            {
+                **capabilities,
+                "pixel_size_um": "-1",
+            },
+        )
+        assert invalid is False
+        assert "non sono valide" in message
+
+        invalid, _ = repository.update_telescope_model(
+            created["id"],
+            "NightScope",
+            "Smart custom",
+            "APOCHROMATIC_REFRACTOR",
+            60,
+            300,
+            "ALTAZ_GOTO",
+            "",
+            "SMART_INTEGRATED",
+            {
+                **capabilities,
+                "supports_video": "maybe",
+            },
+        )
+        assert invalid is False
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_schema_25_adds_integrated_smart_capabilities() -> None:
     temporary_directory, database_path, _ = _database()
     try:
         with closing(sqlite3.connect(database_path)) as connection:
@@ -913,6 +1034,7 @@ def test_schema_24_adds_telescope_category_and_migrates_smart_models() -> None:
             connection.execute(
                 "ALTER TABLE TelescopeModel DROP COLUMN instrument_category"
             )
+            connection.execute("DROP TABLE SmartTelescopeCapability")
             connection.execute("PRAGMA user_version = 23")
             connection.commit()
 
@@ -940,8 +1062,19 @@ def test_schema_24_adds_telescope_category_and_migrates_smart_models() -> None:
                 WHERE instrument_category = 'TRADITIONAL'
                 """
             ).fetchone()[0]
+            capability_rows = connection.execute(
+                """
+                SELECT model.seed_key, smart.sensor_model,
+                       smart.pixel_size_um, smart.supports_live_stacking,
+                       smart.supports_video, smart.supports_mosaic
+                FROM SmartTelescopeCapability smart
+                JOIN TelescopeModel model
+                  ON model.id = smart.telescope_model_id
+                ORDER BY model.seed_key
+                """
+            ).fetchall()
 
-        assert version == 24
+        assert version == 25
         assert [row["instrument_category"] for row in smart_rows] == [
             "SMART_INTEGRATED",
             "SMART_INTEGRATED",
@@ -950,6 +1083,52 @@ def test_schema_24_adds_telescope_category_and_migrates_smart_models() -> None:
         assert smart_rows[1]["optical_type"] == "rifrattore Petzval"
         assert smart_rows[1]["is_user_modified"] == 1
         assert traditional_count == 131
+        assert [row["sensor_model"] for row in capability_rows] == [
+            "Sony IMX662",
+            "Sony IMX462",
+        ]
+        assert all(
+            row["pixel_size_um"] == pytest.approx(2.9)
+            and row["supports_live_stacking"] == 1
+            and row["supports_video"] == 1
+            and row["supports_mosaic"] == 1
+            for row in capability_rows
+        )
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_reclassified_builtin_smart_models_do_not_force_reinitialization() -> None:
+    temporary_directory, database_path, repository = _database()
+    try:
+        smart_models = [
+            model
+            for model in repository.models()
+            if model["instrument_category"] == "SMART_INTEGRATED"
+        ]
+        assert len(smart_models) == 2
+        for model in smart_models:
+            ok, _ = repository.update_telescope_model(
+                model["id"],
+                model["brand"],
+                model["name"],
+                model["optical_type"],
+                model["aperture_mm"],
+                model["focal_length_mm"],
+                model["mount_type"],
+                model["notes"],
+                "TRADITIONAL",
+            )
+            assert ok
+
+        with closing(sqlite3.connect(database_path)) as connection:
+            assert connection.execute(
+                "SELECT COUNT(*) FROM SmartTelescopeCapability"
+            ).fetchone()[0] == 0
+        assert not database_initialization_required(
+            database_path,
+            SCHEMA_PATH,
+        )
     finally:
         temporary_directory.cleanup()
 
@@ -992,6 +1171,10 @@ def test_camera_navigation_profile_ui_and_packaging_are_wired() -> None:
     assert "Tipo ottico personalizzato *" in telescopes_qml
     assert "uniformCellWidths: true" in telescopes_qml
     assert "columns: telescopeDialog.width < 620 ? 1 : 2" in telescopes_qml
+    assert "smartCapabilitiesPayload" in telescopes_qml
+    assert "Treno ottico e sensore integrati" in telescopes_qml
+    assert "supports_live_stacking" in telescopes_qml
+    assert "telescopeFormScroll" in telescopes_qml
     assert "Larghezza sensore (mm) *" in cameras_qml
     assert "Altezza sensore (mm) *" in cameras_qml
     assert "Passo pixel (µm) *" in cameras_qml
@@ -1008,3 +1191,4 @@ def test_camera_navigation_profile_ui_and_packaging_are_wired() -> None:
     assert "DarkComboBox" in telescopes_qml
     assert "astronomy_camera_catalog_seed.csv" in spec
     assert "camera_body_catalog_seed.csv" in spec
+    assert "smart_telescope_capabilities_seed.csv" in spec

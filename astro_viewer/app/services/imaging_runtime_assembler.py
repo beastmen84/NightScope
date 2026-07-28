@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from astro_viewer.app.models.imaging import (
+    ImagingCameraKind,
+    ImagingTrainConfiguration,
+)
 from astro_viewer.app.models.imaging_recommendation import ImagingCaptureMode
 from astro_viewer.app.models.imaging_runtime import (
     ImagingRuntimeConditions,
@@ -62,7 +66,18 @@ class ImagingRuntimeAssembler:
                 ImagingRuntimeStatus.NO_TELESCOPES,
                 "profile_telescope_required",
             )
-        if not inventory.cameras:
+        integrated_ready = any(
+            telescope.has_complete_integrated_imaging
+            for telescope in inventory.telescopes
+        )
+        if not inventory.cameras and not integrated_ready:
+            if self._requires_integrated_smart_specs(inventory):
+                return self._unavailable(
+                    target_id,
+                    inventory,
+                    ImagingRuntimeStatus.NO_VALID_CONFIGURATIONS,
+                    "smart_integrated_specs_required",
+                )
             return self._unavailable(
                 target_id,
                 inventory,
@@ -81,7 +96,11 @@ class ImagingRuntimeAssembler:
                 target_id,
                 inventory,
                 ImagingRuntimeStatus.NO_VALID_CONFIGURATIONS,
-                "valid_imaging_train_required",
+                (
+                    "smart_integrated_specs_required"
+                    if self._requires_integrated_smart_specs(inventory)
+                    else "valid_imaging_train_required"
+                ),
             )
 
         solar_filter_ids = self._solar_filter_ids(inventory)
@@ -101,14 +120,24 @@ class ImagingRuntimeAssembler:
                     solar_filter_available
                 ),
             )
+            reason_code = (
+                traits.unsupported_reason_code
+                or "photographic_target_unsupported"
+            )
+            if (
+                traits.recommendation_supported
+                and traits.recommended_capture_mode is not None
+                and not self._capture_mode_is_supported(
+                    configurations,
+                    traits.recommended_capture_mode,
+                )
+            ):
+                reason_code = "smart_capture_mode_unsupported"
             return self._unavailable(
                 target_id,
                 inventory,
                 ImagingRuntimeStatus.TARGET_UNSUPPORTED,
-                (
-                    traits.unsupported_reason_code
-                    or "photographic_target_unsupported"
-                ),
+                reason_code,
                 configuration_count=len(configurations),
             )
 
@@ -165,6 +194,17 @@ class ImagingRuntimeAssembler:
         )
 
     @staticmethod
+    def _requires_integrated_smart_specs(
+        inventory: ImagingRuntimeInventory,
+    ) -> bool:
+        return bool(inventory.telescopes) and all(
+            telescope.is_smart_integrated
+            and not telescope.has_complete_integrated_imaging
+            and not telescope.supports_external_cameras
+            for telescope in inventory.telescopes
+        )
+
+    @staticmethod
     def _unavailable(
         target_id: str,
         inventory: ImagingRuntimeInventory,
@@ -180,3 +220,24 @@ class ImagingRuntimeAssembler:
             configuration_count=configuration_count,
             unavailable_reason_code=reason_code,
         )
+
+    @staticmethod
+    def _capture_mode_is_supported(
+        configurations: list[ImagingTrainConfiguration],
+        capture_mode: ImagingCaptureMode,
+    ) -> bool:
+        for configuration in configurations:
+            camera = configuration.camera
+            if camera.kind is not ImagingCameraKind.SMART_INTEGRATED:
+                return True
+            if (
+                capture_mode is ImagingCaptureMode.VIDEO
+                and camera.supports_video
+            ):
+                return True
+            if (
+                capture_mode is ImagingCaptureMode.STILL
+                and camera.supports_live_stacking
+            ):
+                return True
+        return False

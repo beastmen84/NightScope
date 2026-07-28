@@ -14,6 +14,9 @@ from astro_viewer.app.models.imaging import (
 from astro_viewer.app.services.barlow_equivalence import (
     optically_distinct_barlows,
 )
+from astro_viewer.app.services.imaging_camera_adapter import (
+    ImagingCameraAdapter,
+)
 
 
 ARCSECONDS_PER_RADIAN = 206_264.80624709636
@@ -40,8 +43,38 @@ class ImagingTrainBuilder:
             telescope_reducers = [
                 reducer
                 for reducer in valid_reducers
+                if telescope.supports_external_optical_modifiers
                 if telescope.id in reducer.compatible_telescope_ids
             ]
+            telescope_barlows = (
+                valid_barlows
+                if telescope.supports_external_optical_modifiers
+                else ()
+            )
+            integrated_camera = self._integrated_camera(telescope)
+            if integrated_camera is not None:
+                configurations.append(
+                    self._configuration(telescope, integrated_camera)
+                )
+                configurations.extend(
+                    self._configuration(
+                        telescope,
+                        integrated_camera,
+                        reducer=reducer,
+                    )
+                    for reducer in telescope_reducers
+                )
+                configurations.extend(
+                    self._configuration(
+                        telescope,
+                        integrated_camera,
+                        barlow=barlow,
+                    )
+                    for barlow in telescope_barlows
+                )
+
+            if not telescope.supports_external_cameras:
+                continue
             for camera in valid_cameras:
                 configurations.append(
                     self._configuration(telescope, camera)
@@ -60,9 +93,15 @@ class ImagingTrainBuilder:
                         camera,
                         barlow=barlow,
                     )
-                    for barlow in valid_barlows
+                    for barlow in telescope_barlows
                 )
         return configurations
+
+    @staticmethod
+    def _integrated_camera(telescope: Telescope) -> ImagingCamera | None:
+        if not telescope.has_complete_integrated_imaging:
+            return None
+        return ImagingCameraAdapter.from_integrated_telescope(telescope)
 
     @staticmethod
     def _configuration(
