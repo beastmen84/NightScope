@@ -312,14 +312,14 @@ Item {
                     columnSpacing: 10
                     rowSpacing: 10
 
-                    MetricTile { label: qsTr("Apertura"); value: controller.telescopeCapabilities.aperture; accentColor: theme.cyan }
-                    MetricTile { label: qsTr("Focale"); value: controller.telescopeCapabilities.focalLength; accentColor: theme.teal }
-                    MetricTile { label: qsTr("Magnificazione minima"); value: controller.telescopeCapabilities.availableMagnificationMin; accentColor: theme.green }
-                    MetricTile { label: qsTr("Magnificazione massima"); value: controller.telescopeCapabilities.availableMagnificationMax; accentColor: theme.amber }
-                    MetricTile { label: qsTr("Pupilla minima"); value: controller.telescopeCapabilities.exitPupilMin; accentColor: theme.coral }
-                    MetricTile { label: qsTr("Pupilla massima"); value: controller.telescopeCapabilities.exitPupilMax; accentColor: theme.violet }
-                    MetricTile { label: qsTr("Campo reale minimo"); value: controller.telescopeCapabilities.trueFieldMin; accentColor: theme.cyan }
-                    MetricTile { label: qsTr("Campo reale massimo"); value: controller.telescopeCapabilities.trueFieldMax; accentColor: theme.teal }
+                    MetricTile { label: qsTr("Apertura"); value: controller.telescopeCapabilities.aperture }
+                    MetricTile { label: qsTr("Focale"); value: controller.telescopeCapabilities.focalLength }
+                    MetricTile { label: qsTr("Magnificazione minima"); value: controller.telescopeCapabilities.availableMagnificationMin }
+                    MetricTile { label: qsTr("Magnificazione massima"); value: controller.telescopeCapabilities.availableMagnificationMax }
+                    MetricTile { label: qsTr("Pupilla minima"); value: controller.telescopeCapabilities.exitPupilMin }
+                    MetricTile { label: qsTr("Pupilla massima"); value: controller.telescopeCapabilities.exitPupilMax }
+                    MetricTile { label: qsTr("Campo reale minimo"); value: controller.telescopeCapabilities.trueFieldMin }
+                    MetricTile { label: qsTr("Campo reale massimo"); value: controller.telescopeCapabilities.trueFieldMax }
                 }
 
                 Flow {

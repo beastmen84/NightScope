@@ -288,55 +288,62 @@ Item {
                         MetricTile {
                             label: qsTr("Prossimo")
                             value: root.nextEventLabel()
-                            accentColor: theme.amber
                         }
 
                         MetricTile {
                             label: qsTr("Luna")
                             value: root.eventCountLabel("moon")
                             accentColor: theme.amber
+                            accentMeaningful: true
                         }
 
                         MetricTile {
                             label: qsTr("Opposizioni")
                             value: root.eventCountLabel("opposition")
                             accentColor: theme.cyan
+                            accentMeaningful: true
                         }
 
                         MetricTile {
                             label: qsTr("Cong. planetarie")
                             value: root.eventCountLabel("planetary_conjunction")
                             accentColor: theme.violet
+                            accentMeaningful: true
                         }
 
                         MetricTile {
                             label: qsTr("Cong. solari")
                             value: root.eventCountLabel("solar_conjunction")
                             accentColor: theme.coral
+                            accentMeaningful: true
                         }
 
                         MetricTile {
                             label: qsTr("Sciami")
                             value: root.eventCountLabel("meteor_shower")
                             accentColor: theme.teal
+                            accentMeaningful: true
                         }
 
                         MetricTile {
                             label: qsTr("Eclissi")
                             value: root.eventCountLabel("eclipse")
                             accentColor: theme.coral
+                            accentMeaningful: true
                         }
 
                         MetricTile {
                             label: qsTr("Passaggi ISS")
                             value: root.eventCountLabel("satellite_pass")
                             accentColor: theme.cyan
+                            accentMeaningful: true
                         }
 
                         MetricTile {
                             label: qsTr("Comete")
                             value: root.eventCountLabel("comet_window")
                             accentColor: theme.teal
+                            accentMeaningful: true
                         }
                     }
                 }

@@ -75,16 +75,6 @@ Item {
         return theme.amber
     }
 
-    function photographicMetricAccent(index) {
-        var accents = [
-            theme.cyan,
-            theme.teal,
-            theme.violet,
-            theme.amber
-        ]
-        return accents[index % accents.length]
-    }
-
     function photographicNoticeAccent(code, level) {
         if (code === "target_below_horizon"
                 || code === "target_exceeds_sensor_field")
@@ -146,23 +136,23 @@ Item {
 
     function catalogueMetadataItems() {
         var source = [
-            { "label": qsTr("Catalogo"), "value": objectData.catalogueLabel || objectData.catalogue, "accent": theme.violet },
-            { "label": qsTr("ID catalogo"), "value": objectData.catalogueId, "accent": theme.cyan },
-            { "label": qsTr("Tipo"), "value": objectData.catalogueTypeLabel || objectData.type, "accent": theme.teal },
-            { "label": qsTr("Costellazione"), "value": objectData.constellationLabel || objectData.constellation, "accent": theme.amber },
-            { "label": qsTr("Magnitudine"), "value": objectData.magnitude, "accent": theme.cyan },
-            { "label": qsTr("Dimensione"), "value": objectData.apparentSize, "accent": theme.green },
-            { "label": qsTr("Dimensione angolare massima"), "value": root.maxAngularSizeText(), "accent": theme.teal },
-            { "label": qsTr("Osservazione"), "value": objectData.catalogueObservationTypeLabel || objectData.recommendedObservationType, "accent": theme.amber },
-            { "label": qsTr("A.R."), "value": objectData.rightAscension, "accent": theme.violet },
-            { "label": qsTr("Dec"), "value": objectData.declination, "accent": theme.coral },
-            { "label": qsTr("Alt. attuale"), "value": objectData.currentAltitude, "accent": theme.cyan },
-            { "label": qsTr("Azimut"), "value": objectData.currentAzimuth, "accent": theme.coral },
-            { "label": qsTr("Sorge"), "value": objectData.riseTime, "accent": theme.teal },
-            { "label": qsTr("Transita"), "value": objectData.culminationTime, "accent": theme.green },
-            { "label": qsTr("Tramonta"), "value": objectData.setTime, "accent": theme.amber },
-            { "label": qsTr("Raggiunge ≥15°"), "value": objectData.catalogueUsefullyObservableLabel, "accent": objectData.catalogueUsefullyObservable === true ? theme.green : theme.textMuted },
-            { "label": qsTr("Visibile nel mese corrente"), "value": objectData.catalogueVisibleCurrentMonthLabel, "accent": objectData.catalogueVisibleCurrentMonth === true ? theme.green : theme.textMuted }
+            { "label": qsTr("Catalogo"), "value": objectData.catalogueLabel || objectData.catalogue },
+            { "label": qsTr("ID catalogo"), "value": objectData.catalogueId },
+            { "label": qsTr("Tipo"), "value": objectData.catalogueTypeLabel || objectData.type },
+            { "label": qsTr("Costellazione"), "value": objectData.constellationLabel || objectData.constellation },
+            { "label": qsTr("Magnitudine"), "value": objectData.magnitude },
+            { "label": qsTr("Dimensione"), "value": objectData.apparentSize },
+            { "label": qsTr("Dimensione angolare massima"), "value": root.maxAngularSizeText() },
+            { "label": qsTr("Osservazione"), "value": objectData.catalogueObservationTypeLabel || objectData.recommendedObservationType },
+            { "label": qsTr("A.R."), "value": objectData.rightAscension },
+            { "label": qsTr("Dec"), "value": objectData.declination },
+            { "label": qsTr("Alt. attuale"), "value": objectData.currentAltitude },
+            { "label": qsTr("Azimut"), "value": objectData.currentAzimuth },
+            { "label": qsTr("Sorge"), "value": objectData.riseTime },
+            { "label": qsTr("Transita"), "value": objectData.culminationTime },
+            { "label": qsTr("Tramonta"), "value": objectData.setTime },
+            { "label": qsTr("Raggiunge ≥15°"), "value": objectData.catalogueUsefullyObservableLabel, "accent": objectData.catalogueUsefullyObservable === true ? theme.green : theme.textMuted, "accentMeaningful": true },
+            { "label": qsTr("Visibile nel mese corrente"), "value": objectData.catalogueVisibleCurrentMonthLabel, "accent": objectData.catalogueVisibleCurrentMonth === true ? theme.green : theme.textMuted, "accentMeaningful": true }
         ]
         var result = []
         for (var i = 0; i < source.length; i++) {
@@ -500,17 +490,17 @@ Item {
                         columnSpacing: 12
                         rowSpacing: 12
 
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Magnitudine"); value: objectData.magnitude; accentColor: theme.cyan }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: root.originMetricLabel(); value: root.originMetricValue(); accentColor: theme.violet }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Altezza massima"); value: objectData.max_altitude; accentColor: theme.teal }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Direzione"); value: objectData.direction; accentColor: theme.amber }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Momento migliore"); value: root.geometryData.bestTimeLabel || qsTr("n/d"); accentColor: theme.green }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Azimut"); value: objectData.azimuth; accentColor: theme.coral }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Altezza attuale"); value: root.geometryData.currentAltitude || objectData.currentAltitude; accentColor: theme.cyan }
-                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Sorge"); value: root.geometryData.riseTime || qsTr("n/d"); accentColor: theme.teal }
-                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Tramonta"); value: root.geometryData.setTime || qsTr("n/d"); accentColor: theme.amber }
-                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Inizio utile"); value: root.geometryData.windowStart || qsTr("n/d"); accentColor: theme.teal }
-                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Fine utile"); value: root.geometryData.windowEnd || qsTr("n/d"); accentColor: theme.amber }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Magnitudine"); value: objectData.magnitude }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: root.originMetricLabel(); value: root.originMetricValue() }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Altezza massima"); value: objectData.max_altitude }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Direzione"); value: objectData.direction }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Momento migliore"); value: root.geometryData.bestTimeLabel || qsTr("n/d") }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Azimut"); value: objectData.azimuth }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Altezza attuale"); value: root.geometryData.currentAltitude || objectData.currentAltitude }
+                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Sorge"); value: root.geometryData.riseTime || qsTr("n/d") }
+                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Tramonta"); value: root.geometryData.setTime || qsTr("n/d") }
+                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Inizio utile"); value: root.geometryData.windowStart || qsTr("n/d") }
+                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Fine utile"); value: root.geometryData.windowEnd || qsTr("n/d") }
                     }
                 }
             }
@@ -636,7 +626,9 @@ Item {
                             Layout.preferredHeight: 82
                             label: modelData.label
                             value: modelData.value
-                            accentColor: modelData.accent
+                            accentColor: modelData.accentMeaningful === true
+                                         ? modelData.accent : theme.textMuted
+                            accentMeaningful: modelData.accentMeaningful === true
                         }
                     }
                 }
@@ -932,13 +924,11 @@ Item {
                         model: root.photographicData.geometryMetrics || []
 
                         delegate: MetricTile {
-                            required property int index
                             required property var modelData
                             Layout.fillWidth: true
                             Layout.preferredHeight: 78
                             label: modelData.label || ""
                             value: modelData.value || ""
-                            accentColor: root.photographicMetricAccent(index)
                         }
                     }
                 }
@@ -964,13 +954,11 @@ Item {
                         model: root.photographicData.captureMetrics || []
 
                         delegate: MetricTile {
-                            required property int index
                             required property var modelData
                             Layout.fillWidth: true
                             Layout.preferredHeight: 78
                             label: modelData.label || ""
                             value: modelData.value || ""
-                            accentColor: root.photographicMetricAccent(index + 1)
                         }
                     }
                 }

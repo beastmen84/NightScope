@@ -137,6 +137,20 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured Metric Color Semantics Gate
+
+Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-28:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --fast` on the final source state | Passed in 301.5 s |
+| Complete deterministic suite | 1,128 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 267.27 s |
+| Focused appearance contract | 14 passed; descriptive metric tiles remain neutral and colored underlines require an explicit meaningful-state/category opt-in |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Changed-QML lint | `MetricTile` plus Profiles, Object Detail, Weather and Calendar passed; known non-fatal `unqualified access` warnings only |
+| Runtime smoke tests | Backend, normal QML and Red Night Vision QML passed |
+| Metric separator render review | Eight 1440 x 900 renders covered the four affected pages in normal and Red Night Vision modes; separator hierarchy was inspected independently from offscreen text-glyph rendering |
+
 ## Measured Smart Telescope Functional Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-28:

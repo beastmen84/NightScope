@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Le linee sotto le tessere metriche sono ora neutre per impostazione
+  predefinita in Profili, Dettaglio oggetto e Meteo, cosi' da non suggerire
+  stati o soglie inesistenti. Il colore richiede un significato esplicito:
+  resta quindi nelle categorie evento del Calendario e nei reali esiti di
+  visibilita' del catalogo.
 - Lo schema SQLite passa alla versione 25. La versione 24 separa la categoria
   dello strumento (`TRADITIONAL` o `SMART_INTEGRATED`) dal tipo ottico; la 25
   aggiunge il contratto persistente `SmartTelescopeCapability` per capacita'
@@ -58,9 +63,10 @@
   `aiobotocore`.
 - Rigenerato l'archivio Windows delle licenze sulla closure aggiornata delle
   dipendenze.
-- Il gate Windows `tools/run_checks.py --fast --security` passa con
-  `1.127 passed`, `643 warnings` Skyfield/NumPy note, `10 subtests`, nessuna
-  vulnerabilita' nota e smoke backend/QML normale e Red Night Vision.
+- Il gate Windows `tools/run_checks.py --fast` passa con `1.128 passed`,
+  `643 warnings` Skyfield/NumPy note e `10 subtests`; il successivo
+  `pip-audit` non rileva vulnerabilita' note e gli smoke backend/QML normale e
+  Red Night Vision restano verdi.
 
 ## NightScope 1.42.0 - 2026-07-27
 

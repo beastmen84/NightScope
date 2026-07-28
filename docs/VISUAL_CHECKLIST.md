@@ -1,6 +1,6 @@
 # NightScope - Visual Review Checklist
 
-Aggiornato: 2026-07-27
+Aggiornato: 2026-07-28
 
 Questo documento conserva i controlli visuali di release iniziati con la
 sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
@@ -597,6 +597,14 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   blu massimo 15 e zero pixel oltre soglia. Lo splash del primo avvio conserva
   il bordo arrotondato visibile e ha alpha `0` nei quattro pixel d'angolo,
   mentre superficie e centro restano opachi.
+- [x] **VIS-V48 (`RISOLTA`)** - Revisionati tutti i `58` punti di dichiarazione
+  di `MetricTile`: gli `8` di Profili, i `27` di Meteo e le metriche descrittive
+  dei `14` punti del Dettaglio oggetto usano ora il separatore neutro
+  predefinito. Nel Calendario `Prossimo` e' neutro, mentre le otto categorie
+  evento mantengono il colore coerente con filtri e schede; nel catalogo
+  soltanto i due esiti reali di visibilita' abilitano esplicitamente
+  l'accento. Otto render `1440 x 900` hanno verificato le quattro pagine in
+  modalita' normale e Red Night Vision.
 
 ## Verifica Delle Correzioni 1.33.1
 

@@ -7,6 +7,7 @@ Rectangle {
     property string label: ""
     property string value: ""
     property color accentColor: theme.cyan
+    property bool accentMeaningful: false
 
     AppTheme {
         id: theme
@@ -35,7 +36,7 @@ Rectangle {
         Text {
             Layout.fillWidth: true
             text: root.value
-        color: theme.textPrimary
+            color: theme.textPrimary
             font.pixelSize: 18
             font.weight: Font.DemiBold
             elide: Text.ElideRight
@@ -45,8 +46,8 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 2
             radius: 1
-            color: root.accentColor
-            opacity: 0.75
+            color: root.accentMeaningful ? root.accentColor : theme.borderSubtle
+            opacity: root.accentMeaningful ? 0.75 : 1.0
         }
     }
 }

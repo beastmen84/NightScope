@@ -165,14 +165,14 @@ Item {
                 columnSpacing: 12
                 rowSpacing: 12
 
-                MetricTile { label: qsTr("Nuvolosità media"); value: controller.hasValidLocation ? controller.weatherSummary.cloudCoverLabel : qsTr("n/d"); accentColor: theme.cyan }
-                MetricTile { label: qsTr("Precipitazioni max"); value: controller.hasValidLocation ? controller.weatherSummary.precipitationProbabilityLabel : qsTr("n/d"); accentColor: theme.coral }
-                MetricTile { label: qsTr("Vento medio"); value: controller.hasValidLocation ? controller.weatherSummary.windLabel : qsTr("n/d"); accentColor: theme.teal }
-                MetricTile { label: qsTr("Umidità media"); value: controller.hasValidLocation ? controller.weatherSummary.humidityLabel : qsTr("n/d"); accentColor: theme.violet }
-                MetricTile { label: qsTr("Temperatura media"); value: controller.hasValidLocation ? controller.weatherSummary.temperatureLabel : qsTr("n/d"); accentColor: theme.amber }
-                MetricTile { label: qsTr("Seeing notturno"); value: controller.hasValidLocation ? controller.seeingTransparency.seeing : qsTr("n/d"); accentColor: theme.green }
-                MetricTile { label: qsTr("Trasparenza notturna"); value: controller.hasValidLocation ? controller.seeingTransparency.atmosphericTransparency : qsTr("n/d"); accentColor: theme.cyan }
-                MetricTile { label: qsTr("Bortle locale"); value: root.hasSkyQuality ? controller.skyQuality.bortleLabel : qsTr("n/d"); accentColor: theme.violet }
+                MetricTile { label: qsTr("Nuvolosità media"); value: controller.hasValidLocation ? controller.weatherSummary.cloudCoverLabel : qsTr("n/d") }
+                MetricTile { label: qsTr("Precipitazioni max"); value: controller.hasValidLocation ? controller.weatherSummary.precipitationProbabilityLabel : qsTr("n/d") }
+                MetricTile { label: qsTr("Vento medio"); value: controller.hasValidLocation ? controller.weatherSummary.windLabel : qsTr("n/d") }
+                MetricTile { label: qsTr("Umidità media"); value: controller.hasValidLocation ? controller.weatherSummary.humidityLabel : qsTr("n/d") }
+                MetricTile { label: qsTr("Temperatura media"); value: controller.hasValidLocation ? controller.weatherSummary.temperatureLabel : qsTr("n/d") }
+                MetricTile { label: qsTr("Seeing notturno"); value: controller.hasValidLocation ? controller.seeingTransparency.seeing : qsTr("n/d") }
+                MetricTile { label: qsTr("Trasparenza notturna"); value: controller.hasValidLocation ? controller.seeingTransparency.atmosphericTransparency : qsTr("n/d") }
+                MetricTile { label: qsTr("Bortle locale"); value: root.hasSkyQuality ? controller.skyQuality.bortleLabel : qsTr("n/d") }
             }
 
             GlassCard {
@@ -197,7 +197,6 @@ Item {
                         visible: root.hasSkyQuality && controller.skyQuality.hasViirsRadiance
                         label: qsTr("Osservazioni VIIRS")
                         value: controller.skyQuality.viirsObservationCountLabel
-                        accentColor: theme.violet
                     }
                     MetricTile {
                         label: root.hasSkyQuality && controller.skyQuality.hasViirsRadiance
@@ -207,7 +206,6 @@ Item {
                                : controller.skyQuality.hasViirsRadiance
                                  ? controller.skyQuality.viirsRadianceLabel
                                  : controller.skyQuality.skyBrightnessLabel
-                        accentColor: theme.cyan
                     }
                     MetricTile {
                         label: root.hasSkyQuality && controller.skyQuality.hasViirsRadiance
@@ -217,9 +215,8 @@ Item {
                                : controller.skyQuality.hasViirsRadiance
                                  ? controller.skyQuality.skyBrightnessLabel
                                  : controller.skyQuality.limitingMagnitudeLabel
-                        accentColor: theme.teal
                     }
-                    MetricTile { label: qsTr("Confidenza"); value: root.skyQualityConfidenceText(); accentColor: theme.amber }
+                    MetricTile { label: qsTr("Confidenza"); value: root.skyQualityConfidenceText() }
                 }
 
                 Text {
@@ -260,10 +257,10 @@ Item {
                     columnSpacing: 12
                     rowSpacing: 12
 
-                    MetricTile { label: qsTr("AOD 550 nm"); value: controller.atmosphericTransparency.aod550; accentColor: theme.cyan }
-                    MetricTile { label: qsTr("Effetto aerosol"); value: controller.atmosphericTransparency.transparency; accentColor: theme.green }
-                    MetricTile { label: qsTr("Freschezza"); value: controller.atmosphericTransparency.freshness; accentColor: theme.amber }
-                    MetricTile { label: qsTr("Fonte"); value: controller.atmosphericTransparency.productLabel; accentColor: theme.violet }
+                    MetricTile { label: qsTr("AOD 550 nm"); value: controller.atmosphericTransparency.aod550 }
+                    MetricTile { label: qsTr("Effetto aerosol"); value: controller.atmosphericTransparency.transparency }
+                    MetricTile { label: qsTr("Freschezza"); value: controller.atmosphericTransparency.freshness }
+                    MetricTile { label: qsTr("Fonte"); value: controller.atmosphericTransparency.productLabel }
                 }
 
                 Text {
@@ -301,11 +298,11 @@ Item {
                     columnSpacing: 12
                     rowSpacing: 12
 
-                    MetricTile { label: qsTr("PM2.5"); value: controller.localAtmosphere.pm25; accentColor: theme.teal }
-                    MetricTile { label: qsTr("PM10"); value: controller.localAtmosphere.pm10; accentColor: theme.cyan }
-                    MetricTile { label: qsTr("Aria locale"); value: controller.localAtmosphere.clarity; accentColor: theme.amber }
-                    MetricTile { label: qsTr("Fonte"); value: controller.localAtmosphere.source; accentColor: theme.violet }
-                    MetricTile { label: qsTr("Freschezza"); value: controller.localAtmosphere.freshness; accentColor: theme.amber }
+                    MetricTile { label: qsTr("PM2.5"); value: controller.localAtmosphere.pm25 }
+                    MetricTile { label: qsTr("PM10"); value: controller.localAtmosphere.pm10 }
+                    MetricTile { label: qsTr("Aria locale"); value: controller.localAtmosphere.clarity }
+                    MetricTile { label: qsTr("Fonte"); value: controller.localAtmosphere.source }
+                    MetricTile { label: qsTr("Freschezza"); value: controller.localAtmosphere.freshness }
                 }
 
                 Text {
@@ -484,12 +481,12 @@ Item {
                     columnSpacing: 12
                     rowSpacing: 12
 
-                    MetricTile { label: qsTr("Orario"); value: root.selectedHourText("time", "-"); accentColor: theme.cyan }
-                    MetricTile { label: qsTr("Nuvolosità"); value: root.selectedHourText("cloudCoverLabel", "-"); accentColor: theme.cyan }
-                    MetricTile { label: qsTr("Pioggia"); value: root.selectedHourText("precipitationProbabilityLabel", "-"); accentColor: theme.coral }
-                    MetricTile { label: qsTr("Vento"); value: root.selectedHourText("windLabel", "-"); accentColor: theme.teal }
-                    MetricTile { label: qsTr("Umidità"); value: root.selectedHourText("humidityLabel", "-"); accentColor: theme.violet }
-                    MetricTile { label: qsTr("Temperatura"); value: root.selectedHourText("temperatureLabel", "-"); accentColor: theme.amber }
+                    MetricTile { label: qsTr("Orario"); value: root.selectedHourText("time", "-") }
+                    MetricTile { label: qsTr("Nuvolosità"); value: root.selectedHourText("cloudCoverLabel", "-") }
+                    MetricTile { label: qsTr("Pioggia"); value: root.selectedHourText("precipitationProbabilityLabel", "-") }
+                    MetricTile { label: qsTr("Vento"); value: root.selectedHourText("windLabel", "-") }
+                    MetricTile { label: qsTr("Umidità"); value: root.selectedHourText("humidityLabel", "-") }
+                    MetricTile { label: qsTr("Temperatura"); value: root.selectedHourText("temperatureLabel", "-") }
                 }
 
                 Text {

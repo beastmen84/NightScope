@@ -93,6 +93,44 @@ def test_qml_colors_outside_the_theme_are_semantic() -> None:
     assert offenders == []
 
 
+def test_metric_tile_colors_require_explicit_meaning() -> None:
+    component = (UI_DIR / "components" / "MetricTile.qml").read_text(
+        encoding="utf-8"
+    )
+    assert "property bool accentMeaningful: false" in component
+    assert (
+        "color: root.accentMeaningful ? root.accentColor : theme.borderSubtle"
+        in component
+    )
+
+    metric_tile = re.compile(r"\bMetricTile\s*\{([^{}]*)\}", re.DOTALL)
+    for page_name in ("EquipmentProfilesPage.qml", "WeatherPage.qml"):
+        page = (UI_DIR / "pages" / page_name).read_text(encoding="utf-8")
+        assert all("accentColor:" not in block for block in metric_tile.findall(page))
+
+    calendar = (UI_DIR / "pages" / "CalendarPage.qml").read_text(
+        encoding="utf-8"
+    )
+    calendar_tiles = metric_tile.findall(calendar)
+    colored_calendar_tiles = [
+        block for block in calendar_tiles if "accentColor:" in block
+    ]
+    assert len(calendar_tiles) == 9
+    assert len(colored_calendar_tiles) == 8
+    assert all("accentMeaningful: true" in block for block in colored_calendar_tiles)
+
+    detail = (UI_DIR / "pages" / "ObjectDetailPage.qml").read_text(
+        encoding="utf-8"
+    )
+    colored_detail_tiles = [
+        block for block in metric_tile.findall(detail) if "accentColor:" in block
+    ]
+    assert len(colored_detail_tiles) == 1
+    assert "accentMeaningful:" in colored_detail_tiles[0]
+    assert detail.count('"accentMeaningful": true') == 2
+    assert "photographicMetricAccent" not in detail
+
+
 def test_red_palette_contains_no_bright_green_blue_or_white_tokens() -> None:
     theme = (UI_DIR / "components" / "AppTheme.qml").read_text(encoding="utf-8")
     red_colors = re.findall(r'redNightVision \? "#([0-9a-fA-F]{6})"', theme)

@@ -194,6 +194,11 @@ black/red palette. `NightVisionIcon` colorizes functional SVG icons through
 an empty source and leave the layout while red mode is active; functional
 diagrams remain visible and repaint when the mode changes.
 
+`MetricTile` uses a neutral separator by default. A colored underline requires
+the explicit `accentMeaningful` opt-in and is reserved for a real state or a
+stable category, such as Calendar event types. Descriptive measurements do not
+cycle through decorative colors.
+
 Pages use themed controls such as `DarkTextField`, `DarkComboBox`,
 `DarkSpinBox` and `DarkCheckBox` instead of relying on platform-native
 indicators. This keeps modal and disabled states inside the same palette, not
