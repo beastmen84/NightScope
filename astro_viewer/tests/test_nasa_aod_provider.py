@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import UTC, date, datetime, timedelta
 import os
 from pathlib import Path
+import ssl
 import tempfile
 import unittest
 import warnings
@@ -11,6 +12,7 @@ from unittest.mock import Mock, patch
 import h5py
 import netCDF4
 import numpy as np
+import requests
 from PySide6.QtCore import QObject
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
@@ -177,6 +179,82 @@ class NasaAodProviderTests(unittest.TestCase):
         self.assertFalse(result.available)
         self.assertEqual(result.status, "no_credentials")
         self.assertEqual(client.authenticate_calls, 0)
+
+    def test_tls_login_failure_is_reported_as_connection_error(self) -> None:
+        client = FakeNasaClient()
+        client.authenticate = Mock(
+            side_effect=ssl.SSLError("unexpected EOF"),
+        )
+        provider = NasaAodProvider(
+            FakeCredentials(),
+            client=client,
+            extractor=FakeExtractor({}),
+            clock=_clock,
+        )
+
+        result = provider.aod(_location())
+
+        self.assertFalse(result.available)
+        self.assertEqual(result.status, "connection_error")
+        self.assertIn("Connessione Earthdata non riuscita", result.message)
+        self.assertIn("SSLError", result.message)
+        self.assertNotIn("unexpected EOF", result.message)
+
+    def test_non_transport_login_failure_remains_auth_error(self) -> None:
+        client = FakeNasaClient()
+        client.authenticate = Mock(
+            side_effect=RuntimeError("bad credentials"),
+        )
+        provider = NasaAodProvider(
+            FakeCredentials(),
+            client=client,
+            extractor=FakeExtractor({}),
+            clock=_clock,
+        )
+
+        result = provider.aod(_location())
+
+        self.assertFalse(result.available)
+        self.assertEqual(result.status, "auth_error")
+        self.assertIn("Autenticazione Earthdata AOD non riuscita", result.message)
+        self.assertIn("RuntimeError", result.message)
+        self.assertNotIn("bad credentials", result.message)
+
+    def test_http_login_rejection_remains_auth_error(self) -> None:
+        response = requests.Response()
+        response.status_code = 401
+        client = FakeNasaClient()
+        client.authenticate = Mock(
+            side_effect=requests.exceptions.HTTPError(response=response),
+        )
+        provider = NasaAodProvider(
+            FakeCredentials(),
+            client=client,
+            extractor=FakeExtractor({}),
+            clock=_clock,
+        )
+
+        result = provider.aod(_location())
+
+        self.assertEqual(result.status, "auth_error")
+
+    def test_http_provider_failure_is_reported_as_connection_error(self) -> None:
+        response = requests.Response()
+        response.status_code = 503
+        client = FakeNasaClient()
+        client.authenticate = Mock(
+            side_effect=requests.exceptions.HTTPError(response=response),
+        )
+        provider = NasaAodProvider(
+            FakeCredentials(),
+            client=client,
+            extractor=FakeExtractor({}),
+            clock=_clock,
+        )
+
+        result = provider.aod(_location())
+
+        self.assertEqual(result.status, "connection_error")
 
     def test_search_results_are_processed_newest_first(self) -> None:
         old = _granule(VIIRS_MAIAC_AOD, "old", date(2026, 6, 20))

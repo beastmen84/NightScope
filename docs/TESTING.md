@@ -137,6 +137,24 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured Post-1.42.0 Recommendation Maintenance Gate
+
+Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-28:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` on the final source state | Passed |
+| Complete deterministic suite | 1,110 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 400.75 s |
+| Focused visual recommendation regression file | 44 passed |
+| Focused photographic exposure suite | 26 passed, including a 32,400-point tracking-limit monotonicity sweep |
+| Focused NASA AOD provider suite | 45 passed, including TLS, timeout, HTTP authentication and HTTP service failure classification |
+| Deterministic recommendation quality matrix | 375 checks passed; the tracked result snapshot was regenerated |
+| Extended visual stress matrix | 53,200 combinations across 133 telescopes, four eyepiece sets, 25 targets and four observing conditions; the remaining five monotonic inversions are confined to the separately deferred smart-telescope semantic issue |
+| Extended photographic static matrix | 6,117,034 ranked candidates across 48 telescopes, 77 cameras and 271 targets; no sub-exposure monotonicity findings |
+| Photographic runtime/presenter matrix | 3,600 assembled plans across 12 profiles, 75 targets and four observing conditions; zero findings |
+| Dependency and security audit | `pip check` passed and `pip-audit` reported no known vulnerabilities |
+| Runtime smoke tests | Backend, normal QML and Red Night Vision QML passed in disposable runtimes |
+
 ## Measured 1.42.0 Source Camera, Profile, Solar Capability And Imaging Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-27:

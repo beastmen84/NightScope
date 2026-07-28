@@ -644,6 +644,13 @@ Planetary recommendations depend on:
 Equipment recommendations for planets prefer higher magnification, but the
 target magnification is reduced under low altitude or poor seeing. Barlows are
 allowed for planetary targets when they improve the setup enough.
+For planetary, lunar and explicit high-magnification targets, the target-profile
+ideal magnification is capped at the seeing-limited useful maximum. Candidate
+selection then keeps only configurations at or below that limit when any are
+available for the same telescope. If every owned configuration exceeds it,
+only the least excessive configuration remains and the recommendation state is
+`seeing_limited`; this feasibility policy does not change the additive
+setup-score weights or wide-field selection.
 When seeing is unavailable, NightScope treats it as unknown rather than
 excellent and uses a conservative magnification cap. With a Mak 127 and Baader
 Hyperion Zoom, unknown seeing should prefer a safer medium-high click position
@@ -1075,6 +1082,9 @@ Photographic still-exposure planning:
   globular and stellar references receive factors `0.35, 0.75, 0.55, 0.70,
   0.45`; other still classes use 1.0. The desired sub is multiplied by
   `optical * sub_sky * sub_moon`, then converted to a 65%-135% interval.
+  The upper bound is capped by tracking. The lower bound is
+  `min(desired * 0.65, capped_upper * 0.50)`, so it remains monotonic while
+  converging to half the tracking-limited maximum.
 - The mount limit starts at 90 seconds for equatorial tracking, 30 for fork
   GoTo, 20 for alt-azimuth GoTo, 12 for Dobsonian GoTo, 3 for manual
   equatorial, 2 for PushTo alt-azimuth, 1 for other manual/PushTo/OTA states
@@ -1393,6 +1403,9 @@ Access flow:
   provider reuses a processed cache entry while its 18-hour TTL is valid.
 - `earthaccess.login(..., persist=False)` is retried with backoff because URS
   token creation can time out.
+- TLS, timeout and transport failures during login are reported as
+  `connection_error`; non-transport login rejection remains `auth_error`.
+  Neither transient status is written to the processed-result cache.
 - Long-lived manually generated Earthdata tokens are not required by the default
   provider path.
 

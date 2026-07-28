@@ -144,6 +144,131 @@ def test_v2_planetary_zoom_recommendation_depends_on_seeing_quality() -> None:
     assert poor["setupOptions"][0]["magnification"] == "62x"
 
 
+def test_poor_seeing_uses_the_least_over_limit_owned_configuration() -> None:
+    service = EquipmentService()
+    target = _planet("mercury", "Mercurio", max_altitude="18 gradi")
+    telescope = Telescope(
+        "edgehd8",
+        "Celestron EdgeHD 8 OTA",
+        203,
+        2032,
+        "Schmidt-Cassegrain",
+        "OTA",
+    )
+
+    poor = service.suggest_for_profile(
+        target,
+        [telescope],
+        [
+            Eyepiece("e18", "18 mm", 18, 52),
+            Eyepiece("e9", "9 mm", 9, 62),
+            Eyepiece("e5", "5 mm", 5, 60),
+        ],
+        [],
+        seeing=_seeing(25),
+        binoculars=[],
+    )
+    excellent = service.suggest_for_profile(
+        target,
+        [telescope],
+        [
+            Eyepiece("e18", "18 mm", 18, 52),
+            Eyepiece("e9", "9 mm", 9, 62),
+            Eyepiece("e5", "5 mm", 5, 60),
+        ],
+        [],
+        seeing=_seeing(92),
+        binoculars=[],
+    )
+
+    assert poor["setupText"] == "Celestron EdgeHD 8 OTA + 18 mm"
+    assert poor["setupOptions"][0]["magnification"] == "113x"
+    assert poor["recommendationState"] == "seeing_limited"
+    assert "seeing lo permette" in poor["explanation"]
+    assert excellent["setupOptions"][0]["magnification"] == "113x"
+    assert excellent["recommendationState"] == "ready"
+
+
+def test_poor_seeing_excludes_over_limit_options_when_one_is_available() -> None:
+    service = EquipmentService()
+    telescope = Telescope(
+        "edgehd8",
+        "Celestron EdgeHD 8 OTA",
+        203,
+        2032,
+        "Schmidt-Cassegrain",
+        "OTA",
+    )
+    suggestion = service.suggest_for_profile(
+        _planet("mercury", "Mercurio"),
+        [telescope],
+        [
+            Eyepiece("e25", "25 mm", 25, 52),
+            Eyepiece("e18", "18 mm", 18, 52),
+            Eyepiece("e9", "9 mm", 9, 62),
+        ],
+        [],
+        seeing=_seeing(25),
+        binoculars=[],
+    )
+
+    assert suggestion["setupOptions"][0]["magnification"] == "81x"
+    assert suggestion["recommendationState"] == "ready"
+    assert all(
+        int(option["magnification"].removesuffix("x")) <= 85
+        for option in suggestion["setupOptions"]
+    )
+
+
+def test_unknown_seeing_marks_a_planetary_fallback_above_the_conservative_cap() -> None:
+    service = EquipmentService()
+    suggestion = service.suggest_for_profile(
+        _planet("jupiter", "Giove"),
+        [
+            Telescope(
+                "long_focus",
+                "Long-focus 200",
+                200,
+                3000,
+                "Schmidt-Cassegrain",
+                "OTA",
+            )
+        ],
+        [
+            Eyepiece("e20", "20 mm", 20, 52),
+            Eyepiece("e10", "10 mm", 10, 62),
+        ],
+        [],
+        seeing=None,
+        binoculars=[],
+    )
+
+    assert suggestion["setupOptions"][0]["magnification"] == "150x"
+    assert suggestion["recommendationState"] == "seeing_limited"
+    assert "seeing lo permette" in suggestion["explanation"]
+
+
+def test_target_profile_ideal_magnification_never_exceeds_seeing_cap() -> None:
+    service = EquipmentService()
+    telescope = Telescope(
+        "fs60",
+        "Takahashi FS-60CB",
+        60,
+        355,
+        "Refractor",
+        "OTA",
+    )
+
+    profile = service._target_profile(
+        _planet("mercury", "Mercurio"),
+        telescope,
+        _seeing(25),
+    )
+
+    assert profile["maxUsefulMag"] == 36
+    assert profile["idealMag"] == 36
+
+
 @pytest.mark.parametrize("target_name", ["M5", "M92", "M15"])
 def test_v2_medium_globular_zoom_prefers_medium_magnification(target_name: str) -> None:
     suggestion = EquipmentService().suggest_for_profile(
@@ -170,6 +295,30 @@ def test_v2_wide_field_zoom_targets_remain_low_power(target_name: str) -> None:
 
     assert suggestion["setupText"] == "Mak 127 + Baader Hyperion Zoom 8-24 mm @ 24 mm"
     assert suggestion["setupOptions"][0]["magnification"] == "62x"
+
+
+def test_seeing_limit_does_not_reclassify_wide_field_recommendations() -> None:
+    service = EquipmentService()
+    poor = service.suggest_for_profile(
+        _target("M31"),
+        [_newton()],
+        _newton_eyepieces(),
+        [_barlow()],
+        seeing=_seeing(25),
+        binoculars=[],
+    )
+    excellent = service.suggest_for_profile(
+        _target("M31"),
+        [_newton()],
+        _newton_eyepieces(),
+        [_barlow()],
+        seeing=_seeing(92),
+        binoculars=[],
+    )
+
+    assert poor["setupText"] == excellent["setupText"] == "Newton 130/650 + 32 mm"
+    assert poor["recommendationState"] == "ready"
+    assert excellent["recommendationState"] == "ready"
 
 
 def test_v2_zoom_recommendations_use_click_positions_without_duplicate_options() -> None:
@@ -264,7 +413,12 @@ def _binocular() -> Binocular:
     return Binocular("bino", "Nikon Monarch M5", 10, 50)
 
 
-def _planet(object_id: str, name: str) -> CelestialObject:
+def _planet(
+    object_id: str,
+    name: str,
+    *,
+    max_altitude: str = "62 gradi",
+) -> CelestialObject:
     return CelestialObject(
         id=object_id,
         name=name,
@@ -272,7 +426,7 @@ def _planet(object_id: str, name: str) -> CelestialObject:
         image="",
         magnitude="-1.2",
         distance="",
-        max_altitude="62 gradi",
+        max_altitude=max_altitude,
         direction="Sud",
         best_time="22:00",
         observing_window="21:00 - 01:00",

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 
 from astro_viewer.app.models.equipment import Barlow, BeginnerPreset, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observation_configuration import ObservationConfiguration
@@ -212,7 +213,18 @@ class EquipmentService:
             return self._presenter.no_useful_configurations(telescope)
 
         recommended = self._recommended_candidate(candidates)
-        return self._presenter.from_candidates(celestial_object, candidates, recommended, sky_quality)
+        return self._presenter.from_candidates(
+            celestial_object,
+            candidates,
+            recommended,
+            sky_quality,
+            seeing_limited=self._candidate_exceeds_seeing_limit(
+                celestial_object,
+                recommended,
+                seeing,
+                sky_quality,
+            ),
+        )
 
     def suggest_for_profile(
         self,
@@ -248,6 +260,12 @@ class EquipmentService:
                     recommended,
                     sky_quality,
                     prefix_telescope=True,
+                    seeing_limited=self._candidate_exceeds_seeing_limit(
+                        celestial_object,
+                        recommended,
+                        seeing,
+                        sky_quality,
+                    ),
                 )
 
         if usable_telescopes:
@@ -304,7 +322,18 @@ class EquipmentService:
                 candidate = None
             if candidate:
                 candidates.append(candidate)
-        return sorted(candidates, key=lambda item: item.score, reverse=True)
+        practical_candidates = self._seeing_practical_candidates(
+            candidates,
+            profile_for,
+            enforce_limit=self._seeing_limit_is_selection_constraint(
+                celestial_object
+            ),
+        )
+        return sorted(
+            practical_candidates,
+            key=lambda item: item.score,
+            reverse=True,
+        )
 
     def _ranked_candidates(
         self,
@@ -335,7 +364,18 @@ class EquipmentService:
             candidate = self._telescope_candidate(configuration, celestial_object, profile, sky_quality)
             if candidate:
                 candidates.append(candidate)
-        return sorted(candidates, key=lambda item: item.score, reverse=True)
+        practical_candidates = self._seeing_practical_candidates(
+            candidates,
+            lambda _telescope: profile,
+            enforce_limit=self._seeing_limit_is_selection_constraint(
+                celestial_object
+            ),
+        )
+        return sorted(
+            practical_candidates,
+            key=lambda item: item.score,
+            reverse=True,
+        )
 
     def _telescope_candidate(
         self,
@@ -483,6 +523,89 @@ class EquipmentService:
             )
         return positions
 
+    @staticmethod
+    def _seeing_practical_candidates(
+        candidates: list[RecommendationCandidate],
+        profile_for: Callable[[Telescope], dict],
+        *,
+        enforce_limit: bool,
+    ) -> list[RecommendationCandidate]:
+        if not enforce_limit:
+            return candidates
+        telescope_groups: dict[str, list[RecommendationCandidate]] = {}
+        accepted_configuration_ids = {
+            candidate.configuration.configuration_id
+            for candidate in candidates
+            if candidate.telescope is None
+        }
+        for candidate in candidates:
+            telescope = candidate.telescope
+            if telescope is not None:
+                telescope_groups.setdefault(telescope.id, []).append(candidate)
+
+        for group in telescope_groups.values():
+            telescope = group[0].telescope
+            if telescope is None:
+                continue
+            profile = profile_for(telescope)
+            max_useful = float(profile["maxUsefulMag"])
+            within_limit = [
+                candidate
+                for candidate in group
+                if candidate.magnification <= max_useful
+            ]
+            if within_limit:
+                accepted = within_limit
+            else:
+                minimum_magnification = min(
+                    candidate.magnification
+                    for candidate in group
+                )
+                accepted = [
+                    candidate
+                    for candidate in group
+                    if math.isclose(
+                        candidate.magnification,
+                        minimum_magnification,
+                        rel_tol=1e-9,
+                        abs_tol=1e-9,
+                    )
+                ]
+            accepted_configuration_ids.update(
+                candidate.configuration.configuration_id
+                for candidate in accepted
+            )
+
+        return [
+            candidate
+            for candidate in candidates
+            if candidate.configuration.configuration_id
+            in accepted_configuration_ids
+        ]
+
+    def _candidate_exceeds_seeing_limit(
+        self,
+        celestial_object: CelestialObject,
+        candidate: RecommendationCandidate,
+        seeing: SeeingTransparency | None,
+        sky_quality: SkyQuality | None,
+    ) -> bool:
+        telescope = candidate.telescope
+        if (
+            telescope is None
+            or not self._seeing_limit_is_selection_constraint(
+                celestial_object
+            )
+        ):
+            return False
+        profile = self._target_profile(
+            celestial_object,
+            telescope,
+            seeing,
+            sky_quality,
+        )
+        return candidate.magnification > float(profile["maxUsefulMag"])
+
     def _recommended_candidate(self, candidates: list[RecommendationCandidate]) -> RecommendationCandidate:
         best = candidates[0]
         if best.equipment_type != "Telescope" or best.multiplier <= 1.0:
@@ -493,6 +616,37 @@ class EquipmentService:
         return best
 
     def _target_profile(
+        self,
+        celestial_object: CelestialObject,
+        telescope: Telescope,
+        seeing: SeeingTransparency | None = None,
+        sky_quality: SkyQuality | None = None,
+    ) -> dict:
+        profile = self._unclamped_target_profile(
+            celestial_object,
+            telescope,
+            seeing,
+            sky_quality,
+        )
+        if not self._seeing_limit_is_selection_constraint(celestial_object):
+            return profile
+        max_useful = max(1.0, float(profile["maxUsefulMag"]))
+        return {
+            **profile,
+            "idealMag": min(float(profile["idealMag"]), max_useful),
+        }
+
+    @staticmethod
+    def _seeing_limit_is_selection_constraint(
+        celestial_object: CelestialObject,
+    ) -> bool:
+        traits = TargetObservationTraits.from_object(celestial_object)
+        return (
+            traits.is_planetary_or_lunar
+            or traits.is_high_magnification
+        )
+
+    def _unclamped_target_profile(
         self,
         celestial_object: CelestialObject,
         telescope: Telescope,

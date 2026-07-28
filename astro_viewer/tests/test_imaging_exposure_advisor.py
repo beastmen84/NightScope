@@ -260,6 +260,38 @@ def test_dark_sky_allows_longer_subs_but_needs_less_total_integration() -> None:
     )
 
 
+def test_tracking_cap_does_not_make_the_lower_sub_bound_drop() -> None:
+    before = ImagingExposureAdvisor._sub_exposure_range(15.25, 10.0)
+    after = ImagingExposureAdvisor._sub_exposure_range(15.5, 10.0)
+
+    assert before == (5.0, 10.0)
+    assert after == (5.0, 10.0)
+
+
+@pytest.mark.parametrize(
+    "tracking_limit",
+    (1.0, 2.0, 3.0, 5.0, 10.0, 12.0, 20.0, 30.0, 90.0),
+)
+def test_sub_exposure_range_is_monotonic_across_tracking_caps(
+    tracking_limit: float,
+) -> None:
+    previous_lower = 0.0
+    previous_upper = 0.0
+
+    for quarter_seconds in range(1, 3601):
+        desired = quarter_seconds / 4.0
+        lower, upper = ImagingExposureAdvisor._sub_exposure_range(
+            desired,
+            tracking_limit,
+        )
+
+        assert previous_lower <= lower
+        assert previous_upper <= upper
+        assert 0.25 <= lower <= upper <= tracking_limit
+        previous_lower = lower
+        previous_upper = upper
+
+
 def test_slow_optics_increase_integration_but_tracking_remains_a_cap() -> None:
     fast = _candidate(
         telescope=_telescope(

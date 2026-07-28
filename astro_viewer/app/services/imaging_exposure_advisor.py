@@ -624,10 +624,7 @@ class ImagingExposureAdvisor:
             _MAX_SUB_EXPOSURE_SECONDS,
         )
         upper_raw = min(desired * 1.35, tracking_limit_seconds)
-        if desired * 0.65 >= upper_raw:
-            lower_raw = upper_raw * 0.50
-        else:
-            lower_raw = desired * 0.65
+        lower_raw = min(desired * 0.65, upper_raw * 0.50)
         upper = cls._round_sub_exposure(
             upper_raw,
             round_down=True,

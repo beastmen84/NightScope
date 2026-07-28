@@ -4,6 +4,7 @@ import json
 import logging
 import math
 import os
+import ssl
 import tempfile
 import time
 from contextlib import contextmanager
@@ -15,6 +16,7 @@ from typing import Any, Callable, Iterable, Protocol
 import h5py
 import netCDF4
 import numpy as np
+import requests
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialStore
@@ -53,6 +55,46 @@ class NasaAodProduct:
 VIIRS_MAIAC_AOD = NasaAodProduct("VNP19A2", "002", VIIRS_PRODUCT, "hdf5")
 MODIS_MAIAC_AOD = NasaAodProduct("MCD19A2", "061", MODIS_PRODUCT, "netcdf4")
 NASA_AOD_PRODUCTS = (VIIRS_MAIAC_AOD, MODIS_MAIAC_AOD)
+
+
+def _authentication_failure_status(error: BaseException) -> str:
+    transport_types = (
+        ConnectionError,
+        TimeoutError,
+        ssl.SSLError,
+        requests.exceptions.ConnectionError,
+        requests.exceptions.Timeout,
+    )
+    transport_names = {
+        "ConnectError",
+        "ConnectTimeout",
+        "MaxRetryError",
+        "NewConnectionError",
+        "ReadTimeout",
+        "SSLError",
+    }
+    for failure in _exception_chain(error):
+        if isinstance(failure, requests.exceptions.HTTPError):
+            response = failure.response
+            status_code = getattr(response, "status_code", None)
+            if status_code in {401, 403}:
+                return "auth_error"
+            return "connection_error"
+        if (
+            isinstance(failure, transport_types)
+            or failure.__class__.__name__ in transport_names
+        ):
+            return "connection_error"
+    return "auth_error"
+
+
+def _exception_chain(error: BaseException) -> Iterable[BaseException]:
+    current: BaseException | None = error
+    seen: set[int] = set()
+    while current is not None and id(current) not in seen:
+        seen.add(id(current))
+        yield current
+        current = current.__cause__ or current.__context__
 
 
 @dataclass(frozen=True)
@@ -301,13 +343,25 @@ class NasaAodProvider:
         try:
             self._client.authenticate(username, password)
         except Exception as exc:
-            logger.warning("NASA AOD Earthdata authentication failed: %s", exc.__class__.__name__)
-            return NasaAodResult.failure(
-                "auth_error",
-                tr(
+            failure_status = _authentication_failure_status(exc)
+            logger.warning(
+                "NASA AOD Earthdata connection failed: status=%s error=%s",
+                failure_status,
+                exc.__class__.__name__,
+            )
+            if failure_status == "connection_error":
+                message = tr(
+                    "Connessione Earthdata non riuscita: {error_type}.",
+                    error_type=exc.__class__.__name__,
+                )
+            else:
+                message = tr(
                     "Autenticazione Earthdata AOD non riuscita: {error_type}.",
                     error_type=exc.__class__.__name__,
-                ),
+                )
+            return NasaAodResult.failure(
+                failure_status,
+                message,
             )
 
         now = self._clock().astimezone(UTC)

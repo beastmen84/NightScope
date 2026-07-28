@@ -43,6 +43,7 @@ class RecommendationPresenter:
         recommended: RecommendationCandidate,
         sky_quality: SkyQuality | None = None,
         prefix_telescope: bool = False,
+        seeing_limited: bool = False,
     ) -> dict:
         options = self._option_set(
             celestial_object,
@@ -76,6 +77,11 @@ class RecommendationPresenter:
                 else DIFFICULTY_MEDIUM
             )
             explanation = self._equipment_explanation(celestial_object, recommended)
+            if seeing_limited:
+                explanation = (
+                    f"{explanation} "
+                    f"{tr('Usa alti ingrandimenti solo se il seeing lo permette.')}"
+                )
             best_eyepiece = recommended.eyepiece.name if recommended.eyepiece else ""
             telescope_id = telescope.id if telescope else ""
             telescope_name = telescope.name if telescope else ""
@@ -94,7 +100,9 @@ class RecommendationPresenter:
             "telescopeName": telescope_name,
             "equipmentType": recommended.equipment_type,
             "setupType": recommended.setup_type,
-            "recommendationState": "ready",
+            "recommendationState": (
+                "seeing_limited" if seeing_limited else "ready"
+            ),
             "requiresOpticalInstrument": False,
             "selectionScore": recommended.score,
         }

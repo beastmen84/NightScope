@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+- La raccomandazione visuale per pianeti, Luna e target ad alto ingrandimento
+  tratta ora il limite imposto dal seeing come vincolo pratico di selezione,
+  senza alterare i pesi dello score: quando esistono configurazioni entro il
+  limite esclude quelle superiori e, se tutte lo superano, conserva soltanto
+  quella meno eccedente segnalandola come `seeing_limited`. Anche
+  l'ingrandimento ideale di questi profili non puo' piu' superare il relativo
+  limite utile; i target a largo campo restano invariati.
+- Corretto l'intervallo delle singole pose fotografiche quando interviene il
+  limite d'inseguimento: il limite inferiore converge ora in modo monotono al
+  50% del massimo invece di diminuire bruscamente all'aumentare della posa
+  desiderata. Ranking fotografico, limite superiore e integrazione totale
+  restano invariati.
+- Il provider NASA AOD distingue ora gli errori TLS, timeout e connessione
+  (`connection_error`) dalle credenziali realmente respinte (`auth_error`).
+  Restano invariati i tre tentativi Earthaccess, il comportamento fail-neutral
+  e i fallback atmosferici esistenti.
 - Aggiornata la venv di sviluppo con gli aggiornamenti compatibili disponibili
   per runtime, dati astronomici e strumenti di qualita': `aiobotocore 3.8.0`,
   `aiohttp 3.14.3`, `astropy-iers-data 0.2026.7.27.0.56.29`,
@@ -14,7 +30,7 @@
   `aiobotocore`.
 - Rigenerato l'archivio Windows delle licenze sulla closure aggiornata delle
   dipendenze.
-- Il gate Windows `tools/run_checks.py --security` passa con `1.091 passed`,
+- Il gate Windows `tools/run_checks.py --security` passa con `1.110 passed`,
   `643 warnings` Skyfield/NumPy note, `10 subtests`, copertura runtime
   complessiva dell'85%, nessuna vulnerabilita' nota e smoke backend/QML
   normale e Red Night Vision.
