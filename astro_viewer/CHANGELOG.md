@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## NightScope 1.43.0 - 2026-07-29
+
 - Le linee sotto le tessere metriche usano ora un teal informativo coerente e
   attenuato per impostazione predefinita in Profili, Dettaglio oggetto e Meteo,
   senza suggerire stati o soglie inesistenti. Un colore diverso richiede un
@@ -75,10 +77,18 @@
   `aiobotocore`.
 - Rigenerato l'archivio Windows delle licenze sulla closure aggiornata delle
   dipendenze.
-- Il gate Windows `tools/run_checks.py --fast` passa con `1.129 passed`,
-  `643 warnings` Skyfield/NumPy note e `10 subtests`; il successivo
-  `pip-audit` non rileva vulnerabilita' note e gli smoke backend/QML normale e
-  Red Night Vision restano verdi.
+- Corretto nel manuale multilingue il riferimento alla release pubblica, ancora
+  fermo alla storica `1.34.2`: italiano, inglese e spagnolo indicano ora
+  correttamente la `1.42.0`.
+- La review finale Windows passa con `tools/run_checks.py --security`:
+  `1.132 passed`, `643 warnings` Skyfield/NumPy note, `10 subtests`, coverage
+  `85%` su `19.500` statement e nessuna vulnerabilita' nota. I 34 file QML
+  passano `qmllint` con zero errori e `832` warning `unqualified` gia' noti; i
+  cataloghi IT/EN/ES contengono `2.046` stringhe complete ciascuno e gli smoke
+  backend, QML normale e Red Night Vision restano verdi.
+- La versione sorgente passa a `1.43.0`. I bundle Windows/Linux, il tag
+  `v1.43.0` e la release GitHub restano da creare, verificare e pubblicare; la
+  release pubblica corrente rimane `v1.42.0`.
 
 ## NightScope 1.42.0 - 2026-07-27
 

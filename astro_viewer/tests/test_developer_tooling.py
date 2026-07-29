@@ -420,9 +420,18 @@ def test_first_run_splash_has_a_readiness_fallback() -> None:
 
 def test_multilingual_manual_has_complete_navigation_and_current_provider_semantics() -> None:
     manual = (PROJECT_ROOT / "manuale.html").read_text(encoding="utf-8")
+    release_checklist = (
+        PROJECT_ROOT / "docs" / "RELEASE_CHECKLIST.md"
+    ).read_text(encoding="utf-8")
+    public_release_match = re.search(
+        r"Current public release: `v(\d+\.\d+\.\d+)`",
+        release_checklist,
+    )
     parser = _ManualStructureParser()
     parser.feed(manual)
 
+    assert public_release_match is not None
+    public_release = public_release_match.group(1)
     assert len(parser.ids) == len(set(parser.ids))
     assert parser.internal_links
     assert set(parser.internal_links).issubset(set(parser.ids))
@@ -472,7 +481,7 @@ def test_multilingual_manual_has_complete_navigation_and_current_provider_semant
     )
     assert "complete every field, including those marked optional" in manual
     assert "complete todos los campos, también los indicados como opcionales" in manual
-    assert manual.count("NightScope 1.34.2") == 3
+    assert manual.count(f"NightScope {public_release}") == 3
     assert "independent from recommendations" not in manual
     assert "independent of recommendations" in manual
     assert manual.count("LAADS OPeNDAP") >= 3
@@ -543,9 +552,10 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     ]
 
 
-def test_source_version_matches_current_release_documents() -> None:
+def test_source_and_public_release_versions_are_documented_separately() -> None:
     version = (PROJECT_ROOT / "VERSION").read_text(encoding="utf-8").strip()
     readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+    manual = (PROJECT_ROOT / "manuale.html").read_text(encoding="utf-8")
     source_notice = (PROJECT_ROOT / "SOURCE_CODE.md").read_text(encoding="utf-8")
     changelog = (PROJECT_ROOT / "astro_viewer" / "CHANGELOG.md").read_text(
         encoding="utf-8"
@@ -559,12 +569,19 @@ def test_source_version_matches_current_release_documents() -> None:
     release_checklist = (
         PROJECT_ROOT / "docs" / "RELEASE_CHECKLIST.md"
     ).read_text(encoding="utf-8")
+    public_release_match = re.search(
+        r"Current public release: `v(\d+\.\d+\.\d+)`",
+        release_checklist,
+    )
 
     assert re.fullmatch(r"\d+\.\d+\.\d+", version)
+    assert public_release_match is not None
+    public_release = public_release_match.group(1)
     assert f"Source version {version}" in readme
+    assert f"Current target: `v{version}`" in release_checklist
     assert (
-        f"[NightScope {version}]"
-        f"(https://github.com/beastmen84/NightScope/releases/tag/v{version})"
+        f"[NightScope {public_release}]"
+        f"(https://github.com/beastmen84/NightScope/releases/tag/v{public_release})"
     ) in readme
     assert f"NightScope {version}" in source_notice
     assert f"/v{version}" in source_notice
@@ -572,7 +589,8 @@ def test_source_version_matches_current_release_documents() -> None:
     assert f"tag `v{version}`" in third_party_notices
     assert f"## NightScope {version} -" in changelog
     assert f"Versione sorgente: `{version}`" in handoff
-    assert f"Current public release: `v{version}`" in release_checklist
+    assert f"Release pubblica stabile: `v{public_release}`" in handoff
+    assert manual.count(f"NightScope {public_release}") == 3
 
 
 def test_legal_files_are_current_and_windows_build_enforces_them() -> None:

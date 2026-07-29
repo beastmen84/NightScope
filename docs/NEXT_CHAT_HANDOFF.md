@@ -1,10 +1,10 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-27
+Aggiornato: 2026-07-29
 
 ## Stato Versioni
 
-- Versione sorgente: `1.42.0`
+- Versione sorgente: `1.43.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica stabile: `v1.42.0`, tag sul commit sorgente
   `3e17132223df2df06288e7624e80da69550f3d40`.
@@ -18,6 +18,9 @@ Aggiornato: 2026-07-27
 - Metadati, tag corretto `v1.42.0`, asset e digest della release stabile
   verificati su GitHub il 2026-07-27. Il tag iniziale errato `v.1.42.0` e'
   stato sostituito senza modificare commit, release o asset.
+- Il sorgente `1.43.0` e' stato preparato dopo la review completa delle
+  modifiche successive al tag `v1.42.0`. Dist Windows/Linux, tag e release
+  GitHub `v1.43.0` restano da creare, verificare e pubblicare.
 - Commit sorgente della release pubblica validato:
   `3e17132 Record Debian 1.42 release candidate`
 
@@ -25,6 +28,26 @@ La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
+
+## Release Candidate Sorgente 1.43.0
+
+La `1.43.0` consolida il lavoro successivo alla release pubblica `1.42.0`:
+aggiornamenti compatibili della venv, vincoli pratici del seeing e delle pose
+fotografiche, diagnostica NASA AOD, semantica teal/stato coerente e supporto
+esplicito dei telescopi smart integrati.
+
+Lo schema SQLite corrente e' `25`. I database esistenti conservano identita',
+override e strumenti personalizzati; Seestar S30/S50 ricevono un treno
+integrato verificato. I modelli smart personalizzati con specifiche incomplete
+falliscono in modo chiuso e non prendono implicitamente camere, oculari,
+Barlow o riduttori esterni. Il percorso tradizionale resta invariato.
+
+La review Windows del 2026-07-29 ha superato `tools/run_checks.py --security`
+con `1.132 passed`, `643` warning Skyfield/NumPy noti, `10 subtests`, coverage
+`85%` su `19.500` statement e nessuna vulnerabilita' nota. Tutti i 34 file QML
+passano con zero errori (`832` warning `unqualified` noti); i cataloghi
+IT/EN/ES hanno `2.046` stringhe complete ciascuno. Build, audit, smoke,
+checksum e verifica visuale devono essere ripetuti sui nuovi artefatti.
 
 ## Fondazione catalogo Cameras
 

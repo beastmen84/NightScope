@@ -137,6 +137,26 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.43.0 Source Release Review Gate
+
+Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-29.
+This gate reviews the nine commits after public tag `v1.42.0`; it approves the
+source candidate, not the Windows or Linux artifacts still to be built:
+
+| Check | Result |
+| --- | --- |
+| Commit and diff review | All post-1.42.0 changes were reviewed by area: dependencies, visual and photographic limits, NASA AOD diagnostics, schema 24/25 migration, smart integrated routing, telescope form and accent semantics |
+| Focused high-risk regressions | 145 passed across telescope CRUD/migration, integrated smart routing, visual recommendation selection, photographic exposure and NASA AOD failure classification |
+| Full source/security gate | `python tools/run_checks.py --security` passed; 1,132 tests, 643 known Skyfield/NumPy warnings and 10 subtests passed in 211.58 s |
+| Coverage | 85% over 19,500 application statements |
+| Dependency integrity | `pip check` found no broken requirements; `pip-audit` found no known vulnerabilities |
+| Smart specification cross-check | Seestar S30/S50 sensor identity, 1920 x 1080 geometry, 2.9 µm pixel pitch and 10/12-bit sensor capability agree with the manufacturer FAQs and Sony IMX662/IMX462 product information |
+| Translation catalogues | IT, EN and ES: 2,046 finished, 0 unfinished each; 23 translation tests passed |
+| QML validation | All 34 QML files passed with exit 0 and no errors; 832 known non-fatal `unqualified access` warnings remain |
+| Runtime smoke tests | Backend, normal QML and Red Night Vision QML passed in disposable runtimes |
+| Release hygiene | `git diff --check` passed; `nasa_login.txt` is ignored and untracked; no credential, key or runtime-state file entered the post-tag diff |
+| Publication boundary | Source is 1.43.0; the public release remains 1.42.0 until new Windows/Linux bundles, checksums, tag and GitHub release are verified |
+
 ## Measured Smart Telescope Filter Form Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-29:
@@ -185,7 +205,7 @@ Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-28:
 | Native telescope-form review | Windows `1280 x 800` logical viewport: the `780 x 723` dialog kept a fixed footer and a working `700 x 570` scroll area for its 882 px content; paired fields measured 340 px each and full-width rows 688 px, with the top and bottom states visible and unclipped |
 | Runtime smoke tests | Backend, normal QML and Red Night Vision QML passed in disposable runtimes |
 
-## Measured Post-1.42.0 Recommendation Maintenance Gate
+## Measured 1.43.0 Recommendation Maintenance Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-28:
 
