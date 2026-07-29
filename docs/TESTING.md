@@ -137,6 +137,20 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured Smart Telescope Filter Form Gate
+
+Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-29:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --fast` on the final source state | Passed |
+| Complete deterministic suite | 1,132 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 266.93 s |
+| Focused catalogue and translation contracts | 18 telescope/camera catalogue tests and 23 translation tests passed; standard smart filters map to the existing normalized codes, the raw code field is absent and non-standard saved codes remain recoverable |
+| Translation catalogues | IT, EN, and ES: 2,046 finished, 0 unfinished each |
+| QML lint | All 34 QML files passed with exit 0; 832 known non-fatal `unqualified access` warnings were reported |
+| Native telescope-form review | Three Windows renders covered the `671 x 221` wide panel, the `439 x 303` single-column panel with a restored custom filter and the wide Red Night Vision state; controls, helper copy and the conditional field remained unclipped and reachable through the scroll area |
+| Runtime smoke tests | Backend, normal QML and Red Night Vision QML passed |
+
 ## Measured Accent Color Semantics Gate
 
 Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1. The initial

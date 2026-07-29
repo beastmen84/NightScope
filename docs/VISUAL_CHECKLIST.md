@@ -617,6 +617,14 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   pianeta/cielo profondo conservano invece la categoria esplicita. Lo stesso set
   di tredici render copre Home, Provider, Equipment, Posizione, Dettaglio
   oggetto ed Eventi e cinque scene rappresentative in Red Night Vision.
+- [x] **VIS-V50 (`VERIFICATA`)** - Il form dei telescopi smart sostituisce
+  l'inserimento libero dei codici filtro con scelte leggibili per UV/IR-cut,
+  dual-band e dark. `Altri filtri` mostra il campo testuale soltanto quando
+  richiesto e conserva i codici non standard gia' salvati. Tre render nativi
+  Windows coprono il dialogo largo normale, la colonna singola con filtro
+  personalizzato e il dialogo largo in Red Night Vision: il pannello misura
+  rispettivamente `671 x 221` e `439 x 303` px, senza tagli o sovrapposizioni,
+  e resta interamente raggiungibile nello `ScrollView`.
 
 ## Verifica Delle Correzioni 1.33.1
 

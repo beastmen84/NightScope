@@ -53,6 +53,43 @@ Item {
         return String(telescopeType.currentValue || "")
     }
 
+    function normalizedSmartFilterCodes(value) {
+        var source = []
+        if (typeof value === "string")
+            source = value.split(/[;,]+/)
+        else if (value && value.length !== undefined)
+            source = value
+        var result = []
+        for (var index = 0; index < source.length; index += 1) {
+            var code = String(source[index] || "")
+                .trim().toUpperCase().replace(/\s+/g, "_")
+            if (code.length > 0 && result.indexOf(code) < 0)
+                result.push(code)
+        }
+        return result
+    }
+
+    function isStandardSmartFilterCode(code) {
+        return code === "UV_IR_CUT"
+            || code === "DUAL_BAND"
+            || code === "DARK"
+    }
+
+    function smartIntegratedFilterCodes() {
+        var codes = []
+        if (smartFilterUvIrCut.checked)
+            codes.push("UV_IR_CUT")
+        if (smartFilterDualBand.checked)
+            codes.push("DUAL_BAND")
+        if (smartFilterDark.checked)
+            codes.push("DARK")
+        var additional = smartAdditionalFilters.checked
+            ? smartAdditionalFilterNames.text.trim() : ""
+        if (additional.length > 0)
+            codes.push(additional)
+        return codes.join(";")
+    }
+
     function smartCapabilitiesPayload() {
         return {
             "supports_optical_visual": smartOpticalVisual.checked,
@@ -74,7 +111,7 @@ Item {
             "exposure_control_mode": String(
                 smartExposureControl.currentValue || "DEVICE_MANAGED"
             ),
-            "integrated_filter_codes": smartFilters.text,
+            "integrated_filter_codes": root.smartIntegratedFilterCodes(),
             "specification_source_url": smartSource.text
         }
     }
@@ -130,9 +167,25 @@ Item {
             capabilities.supports_live_stacking === true
         smartVideo.checked = capabilities.supports_video === true
         smartMosaic.checked = capabilities.supports_mosaic === true
-        smartFilters.text = (
+        var filterCodes = root.normalizedSmartFilterCodes(
             capabilities.integrated_filter_codes || []
-        ).join(";")
+        )
+        smartFilterUvIrCut.checked =
+            filterCodes.indexOf("UV_IR_CUT") >= 0
+        smartFilterDualBand.checked =
+            filterCodes.indexOf("DUAL_BAND") >= 0
+        smartFilterDark.checked = filterCodes.indexOf("DARK") >= 0
+        var additionalFilters = []
+        for (var filterIndex = 0;
+             filterIndex < filterCodes.length;
+             filterIndex += 1) {
+            if (!root.isStandardSmartFilterCode(filterCodes[filterIndex]))
+                additionalFilters.push(
+                    filterCodes[filterIndex].replace(/_/g, " ")
+                )
+        }
+        smartAdditionalFilters.checked = additionalFilters.length > 0
+        smartAdditionalFilterNames.text = additionalFilters.join("; ")
         smartSource.text = capabilities.specification_source_url || ""
     }
 
@@ -674,13 +727,97 @@ Item {
                             labelText: qsTr("FPS verificati (facoltativo)")
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                         }
-                        DarkTextField {
-                            id: smartFilters
-                            Layout.fillWidth: true
-                            Layout.columnSpan: telescopeDialog.width < 620 ? 1 : 2
-                            labelText: qsTr(
-                                "Filtri integrati, separati da ;"
-                            )
+                    }
+
+                    Rectangle {
+                        id: smartFilterPanel
+                        objectName: "smartFilterPanel"
+
+                        Layout.fillWidth: true
+                        implicitHeight: smartFilterLayout.implicitHeight + 20
+                        radius: 8
+                        color: theme.surfaceDeep
+                        border.color: theme.border
+                        border.width: 1
+
+                        ColumnLayout {
+                            id: smartFilterLayout
+
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            spacing: 5
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: qsTr("Filtri integrati")
+                                color: theme.textPrimary
+                                font.pixelSize: 13
+                                font.weight: Font.DemiBold
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: qsTr(
+                                    "Seleziona i filtri presenti nel dispositivo. "
+                                    + "NightScope segnala il dual-band nei consigli "
+                                    + "per le nebulose; il filtro dark descrive la "
+                                    + "calibrazione automatica."
+                                )
+                                color: theme.textSecondary
+                                font.pixelSize: 11
+                                wrapMode: Text.WordWrap
+                            }
+
+                            DarkCheckBox {
+                                id: smartFilterUvIrCut
+                                objectName: "smartFilterUvIrCut"
+                                Layout.fillWidth: true
+                                text: qsTr("UV/IR-cut (ripresa a banda larga)")
+                            }
+
+                            DarkCheckBox {
+                                id: smartFilterDualBand
+                                objectName: "smartFilterDualBand"
+                                Layout.fillWidth: true
+                                text: qsTr(
+                                    "Dual-band Hα/OIII (nebulose e cielo urbano)"
+                                )
+                            }
+
+                            DarkCheckBox {
+                                id: smartFilterDark
+                                objectName: "smartFilterDark"
+                                Layout.fillWidth: true
+                                text: qsTr("Filtro dark (calibrazione automatica)")
+                            }
+
+                            DarkCheckBox {
+                                id: smartAdditionalFilters
+                                objectName: "smartAdditionalFilters"
+                                Layout.fillWidth: true
+                                text: qsTr("Altri filtri non elencati")
+                            }
+
+                            DarkTextField {
+                                id: smartAdditionalFilterNames
+                                objectName: "smartAdditionalFilterNames"
+                                visible: smartAdditionalFilters.checked
+                                Layout.fillWidth: true
+                                labelText: qsTr("Altri filtri (facoltativo)")
+                                placeholderText: qsTr("H-alpha; OIII")
+                            }
+
+                            Text {
+                                visible: smartAdditionalFilters.checked
+                                Layout.fillWidth: true
+                                text: qsTr(
+                                    "Scrivi nomi brevi separati da punto e virgola, "
+                                    + "per esempio H-alpha; OIII."
+                                )
+                                color: theme.textMuted
+                                font.pixelSize: 10
+                                wrapMode: Text.WordWrap
+                            }
                         }
                     }
 

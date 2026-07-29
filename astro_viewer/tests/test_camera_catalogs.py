@@ -918,7 +918,7 @@ def test_custom_smart_telescope_capabilities_round_trip_fail_closed() -> None:
             "supports_external_cameras": False,
             "supports_external_optical_modifiers": False,
             "exposure_control_mode": "DEVICE_MANAGED",
-            "integrated_filter_codes": "uv_ir_cut; dual_band",
+            "integrated_filter_codes": "uv_ir_cut; dual_band; h_alpha",
             "specification_source_url": "https://example.test/spec",
         }
         ok, _ = repository.add_telescope_model(
@@ -943,6 +943,7 @@ def test_custom_smart_telescope_capabilities_round_trip_fail_closed() -> None:
         assert created["integrated_filter_codes"] == (
             "UV_IR_CUT",
             "DUAL_BAND",
+            "H_ALPHA",
         )
         assert created["supports_live_stacking"] is True
         assert created["supports_interchangeable_eyepieces"] is False
@@ -972,6 +973,7 @@ def test_custom_smart_telescope_capabilities_round_trip_fail_closed() -> None:
         )
         telescope = AppController._telescope_from_catalog_model(incomplete)
         assert incomplete["supports_mosaic"] is True
+        assert incomplete["integrated_filter_codes"][-1] == "H_ALPHA"
         assert telescope.has_complete_integrated_imaging is False
 
         invalid, message = repository.update_telescope_model(
@@ -1192,3 +1194,35 @@ def test_camera_navigation_profile_ui_and_packaging_are_wired() -> None:
     assert "astronomy_camera_catalog_seed.csv" in spec
     assert "camera_body_catalog_seed.csv" in spec
     assert "smart_telescope_capabilities_seed.csv" in spec
+
+
+def test_smart_telescope_filter_form_maps_readable_choices_to_codes() -> None:
+    telescopes_qml = (
+        APP_DIR / "app" / "ui" / "pages" / "EquipmentTelescopesPage.qml"
+    ).read_text(encoding="utf-8")
+
+    assert "smartFilters" not in telescopes_qml
+    assert (
+        '"integrated_filter_codes": root.smartIntegratedFilterCodes()'
+        in telescopes_qml
+    )
+    assert "function normalizedSmartFilterCodes(value)" in telescopes_qml
+    assert "function isStandardSmartFilterCode(code)" in telescopes_qml
+    assert "smartAdditionalFilters.checked = additionalFilters.length > 0" in (
+        telescopes_qml
+    )
+    assert 'filterCodes[filterIndex].replace(/_/g, " ")' in telescopes_qml
+
+    expected_choices = {
+        "smartFilterUvIrCut": "UV_IR_CUT",
+        "smartFilterDualBand": "DUAL_BAND",
+        "smartFilterDark": "DARK",
+    }
+    for object_name, capability_code in expected_choices.items():
+        assert f'objectName: "{object_name}"' in telescopes_qml
+        assert f'codes.push("{capability_code}")' in telescopes_qml
+
+    assert 'objectName: "smartAdditionalFilters"' in telescopes_qml
+    assert 'objectName: "smartAdditionalFilterNames"' in telescopes_qml
+    assert "Altri filtri non elencati" in telescopes_qml
+    assert "Filtri integrati, separati da ;" not in telescopes_qml

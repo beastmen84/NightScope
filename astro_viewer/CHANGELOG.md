@@ -28,9 +28,12 @@
   ottico, conserva una scelta `Altro` con descrizione personalizzata e
   distribuisce i campi in colonne uniformi, evitando larghezze dipendenti dal
   contenuto. Se la categoria e' smart mostra una sezione scorrevole per
-  specifiche integrate e capacita' esplicite. I campi tecnici possono restare
-  incompleti, ma in quel caso il motore fallisce in modo chiuso e non sostituisce
-  implicitamente il sensore con una camera esterna.
+  specifiche integrate e capacita' esplicite. I filtri interni standard sono
+  ora scelte leggibili, con un campo aggiuntivo mostrato solo per modelli non
+  coperti dall'elenco; il formato persistente e i codici personalizzati
+  esistenti restano compatibili. I campi tecnici possono restare incompleti, ma
+  in quel caso il motore fallisce in modo chiuso e non sostituisce implicitamente
+  il sensore con una camera esterna.
 - I telescopi smart non generano piu' combinazioni visuali fittizie con oculari
   o Barlow. Il percorso visuale li rimanda al piano EAA/fotografico mantenendo
   la capacita' visuale e i punteggi NSOM separati; in un profilo misto, gli

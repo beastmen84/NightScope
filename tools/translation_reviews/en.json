@@ -1,6 +1,15 @@
 {
   "schema_version": 1,
   "translations": {
+    "Filtri integrati": "Integrated filters",
+    "Seleziona i filtri presenti nel dispositivo. NightScope segnala il dual-band nei consigli per le nebulose; il filtro dark descrive la calibrazione automatica.": "Select the filters built into the device. NightScope mentions dual-band in nebula guidance; the dark filter describes automatic calibration.",
+    "UV/IR-cut (ripresa a banda larga)": "UV/IR-cut (broadband imaging)",
+    "Dual-band Hα/OIII (nebulose e cielo urbano)": "Dual-band Hα/OIII (nebulae and urban skies)",
+    "Filtro dark (calibrazione automatica)": "Dark filter (automatic calibration)",
+    "Altri filtri non elencati": "Other filters not listed",
+    "Altri filtri (facoltativo)": "Other filters (optional)",
+    "H-alpha; OIII": "H-alpha; OIII",
+    "Scrivi nomi brevi separati da punto e virgola, per esempio H-alpha; OIII.": "Enter short names separated by semicolons, for example H-alpha; OIII.",
     "Numero minimo di pose": "Minimum number of sub-exposures",
     "Il target resta sotto 30° anche al culmine: è una quota bassa per il cielo profondo e riduce contrasto e qualità dei dati.": "The target remains below 30° even at culmination: this is low for deep-sky imaging and reduces contrast and data quality.",
     "La stima supera il limite di pianificazione di 15 h: il valore mostrato è una soglia minima cumulabile su più notti, non una durata prescritta.": "The estimate exceeds the 15 h planning limit: the displayed value is a cumulative lower bound across multiple nights, not a prescribed duration.",

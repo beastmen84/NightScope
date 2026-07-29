@@ -767,7 +767,10 @@ Repositories own SQLite persistence:
   integrated astronomical sensor, live-stacking, video, mosaic, exposure and
   filter metadata. `TRADITIONAL` remains the migration/import default; Seestar
   S30 and S50 are seeded as `SMART_INTEGRATED` apochromatic refractors with
-  complete primary-channel specifications.
+  complete primary-channel specifications. The telescope form maps the standard
+  integrated filters to readable checkboxes and exposes non-standard filter
+  names only on request; both paths still persist the same normalized filter
+  code tuple, so custom telescope records require no migration.
   Every catalogue row exposes `is_builtin`, `seed_key` and `is_user_modified`;
   seeded rows can be updated but not deleted, while user rows can be managed
   after any applicable profile links are handled. Updating a seeded row marks

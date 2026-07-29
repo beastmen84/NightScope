@@ -2,7 +2,7 @@
 <!DOCTYPE TS []>
 <TS version="2.1" language="es_ES" sourcelanguage="it_IT">
   <context>
-    <name></name>
+    <name />
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="5" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="347" />
@@ -7091,7 +7091,7 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     <message>
       <location filename="../app/ui/pages/CalendarPage.qml" line="101" />
       <location filename="../app/ui/pages/CalendarPage.qml" line="109" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="448" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="455" />
       <source>n/d</source>
       <translation>n/d</translation>
     </message>
@@ -7132,7 +7132,7 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     </message>
     <message>
       <location filename="../app/ui/pages/CalendarPage.qml" line="228" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="486" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="493" />
       <source>Eventi non disponibili senza località.</source>
       <translation>Eventos no disponibles sin una ubicación.</translation>
     </message>
@@ -7162,119 +7162,119 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>Siguiente</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="295" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="408" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="294" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="415" />
       <source>Luna</source>
       <translation>Luna</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/CalendarPage.qml" line="301" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="409" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="416" />
       <source>Opposizioni</source>
       <translation>Oposiciones</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="307" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="410" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="308" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="417" />
       <source>Cong. planetarie</source>
       <translation>Conj. planetarias</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="313" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="411" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="315" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="418" />
       <source>Cong. solari</source>
       <translation>Conj. solares</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="319" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="412" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="322" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="419" />
       <source>Sciami</source>
       <translation>Lluvias</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="325" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="413" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="329" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="420" />
       <source>Eclissi</source>
       <translation>Eclipses</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="331" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="336" />
       <source>Passaggi ISS</source>
       <translation>Pasos de la ISS</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="337" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="415" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="343" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="422" />
       <source>Comete</source>
       <translation>Cometas</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="349" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="356" />
       <source>Vista calendario</source>
       <translation>Vista de calendario</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="351" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="358" />
       <source>%1 di %2 eventi</source>
       <translation>%1 de %2 eventos</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="354" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="361" />
       <source>Località necessaria</source>
       <translation>Ubicación requerida</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="363" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="370" />
       <source>Periodo</source>
       <translation>Periodo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="376" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="383" />
       <source>30 giorni</source>
       <translation>30 días</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="377" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="384" />
       <source>6 mesi</source>
       <translation>6 meses</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="378" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="385" />
       <source>12 mesi</source>
       <translation>12 meses</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="394" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="401" />
       <source>Tipo evento</source>
       <translation>Tipo de evento</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="407" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="414" />
       <source>Tutti</source>
       <translation>Todos</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="414" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="421" />
       <source>ISS</source>
       <translation>ISS</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="439" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="446" />
       <source>Timeline eventi</source>
       <translation>Cronología de eventos</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="450" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="457" />
       <source>1 evento</source>
       <translation>1 evento</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="451" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="458" />
       <source>%1 eventi</source>
       <translation>%1 eventos</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="485" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="492" />
       <source>Nessun evento per i filtri selezionati.</source>
       <translation>Ningún evento coincide con los filtros seleccionados.</translation>
     </message>
@@ -7338,177 +7338,177 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>Acceso opcional a los datos VIIRS y AOD</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="76" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="230" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="84" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="245" />
       <source>Crea account</source>
       <translation>Crear cuenta</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="80" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="234" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="88" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="249" />
       <source>Account già configurato</source>
       <translation>Cuenta ya configurada</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="80" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="88" />
       <source>Crea un account NASA Earthdata</source>
       <translation>Crear una cuenta de NASA Earthdata</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="97" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="242" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="105" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="257" />
       <source>Verifica</source>
       <translation>Verificar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="97" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="242" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="105" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="257" />
       <source>Verificato</source>
       <translation>Verificado</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="97" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="105" />
       <source>Autorizza</source>
       <translation>Autorizar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="97" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="242" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="105" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="257" />
       <source>Da testare</source>
       <translation>Pendiente de prueba</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="97" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="105" />
       <source>Fallback</source>
       <translation>Alternativa</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="119" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="127" />
       <source>Utente Earthdata</source>
       <translation>Usuario de Earthdata</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="127" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="135" />
       <source>Nuova password</source>
       <translation>Nueva contraseña</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="127" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="135" />
       <source>Password Earthdata</source>
       <translation>Contraseña de Earthdata</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="139" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="269" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="147" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="284" />
       <source>Salva</source>
       <translation>Guardar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="150" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="280" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="158" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="295" />
       <source>Verifica...</source>
       <translation>Verificando...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="150" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="280" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="158" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="295" />
       <source>Test connessione</source>
       <translation>Probar conexión</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="158" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="166" />
       <source>Autorizza app</source>
       <translation>Autorizar aplicación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="170" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="292" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="178" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="307" />
       <source>Rimuovi</source>
       <translation>Quitar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="189" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="310" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="197" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="325" />
       <source>Guida alla configurazione</source>
       <translation>Guía de configuración</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="198" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="206" />
       <source>Crea l'account Earthdata, conferma l'e-mail di attivazione e accedi.</source>
       <translation>Cree una cuenta de Earthdata, confirme el correo electrónico de activación e inicie sesión.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="204" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="212" />
       <source>Apri Modifica profilo e compila tutti i campi, anche quelli indicati come facoltativi: organizzazione, affiliazione, tipo di utente e area di studio. Inserisci informazioni veritiere e pertinenti al tuo caso.</source>
       <translation>Abra Editar perfil y complete todos los campos, también los indicados como opcionales: organización, afiliación, tipo de usuario y área de estudio. Introduzca información veraz y pertinente para su caso.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="210" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="218" />
       <source>In NightScope inserisci nome utente e password. Seleziona quindi Salva e Test connessione.</source>
       <translation>En NightScope, introduzca el nombre de usuario y la contraseña. A continuación, seleccione Guardar y Probar conexión.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="216" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="224" />
       <source>Se richiesto, seleziona Autorizza app, spunta tutte le autorizzazioni richieste da LAADS OPeNDAP e conferma con Authorize. Torna quindi in NightScope e ripeti il test.</source>
       <translation>Si se le solicita, seleccione Autorizar aplicación, marque todas las autorizaciones requeridas por LAADS OPeNDAP y confirme con Authorize. Después, vuelva a NightScope y repita la prueba.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="226" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="234" />
       <source>OpenAQ</source>
       <translation>OpenAQ</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="227" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="235" />
       <source>Connessione API verificata</source>
       <translation>Conexión API verificada</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="227" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="235" />
       <source>API key salvata nel vault di sistema</source>
       <translation>Clave API guardada en el almacén del sistema</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="227" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="235" />
       <source>Accesso opzionale ai dati qualità aria</source>
       <translation>Acceso opcional a datos de calidad del aire</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="234" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="249" />
       <source>Crea un account OpenAQ</source>
       <translation>Crear una cuenta OpenAQ</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="242" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="257" />
       <source>Non configurato</source>
       <translation>No configurado</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="258" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="273" />
       <source>Nuova API key OpenAQ</source>
       <translation>Nueva clave API de OpenAQ</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="258" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="273" />
       <source>API key OpenAQ</source>
       <translation>Clave API de OpenAQ</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="319" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="334" />
       <source>Crea un account OpenAQ e accedi.</source>
       <translation>Cree una cuenta de OpenAQ e inicie sesión.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="325" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="340" />
       <source>Apri la pagina dell'account dal menu del profilo e scorri fino alla sezione API Keys.</source>
       <translation>Abra la página de la cuenta desde el menú del perfil y desplácese hasta la sección API Keys.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="331" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="346" />
       <source>Crea o copia la chiave API. Trattala come una password e non condividerla.</source>
       <translation>Cree o copie la clave de API. Trátela como una contraseña y no la comparta.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="337" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="352" />
       <source>In NightScope incolla la chiave, seleziona Salva e poi Test connessione. La configurazione è completa quando lo stato diventa Verificato.</source>
       <translation>En NightScope, pegue la clave, seleccione Guardar y después Probar conexión. La configuración estará completa cuando el estado cambie a Verificado.</translation>
     </message>
@@ -7628,7 +7628,7 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="140" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="572" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="573" />
       <source>Aggiungi camera astronomica</source>
       <translation>Añadir cámara astronómica</translation>
     </message>
@@ -7639,7 +7639,7 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="174" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="677" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="678" />
       <source>Aggiungi corpo macchina</source>
       <translation>Añadir cuerpo de cámara</translation>
     </message>
@@ -7699,199 +7699,199 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>No se encontraron cuerpos de cámara.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="490" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="491" />
       <source>Scheda</source>
       <translation>Ficha</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="495" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="496" />
       <source>Modifica</source>
       <translation>Editar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="501" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="765" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="795" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="502" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="766" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="796" />
       <source>Elimina</source>
       <translation>Eliminar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="573" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="678" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="574" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="679" />
       <source>Salva</source>
       <translation>Guardar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="598" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="703" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="599" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="704" />
       <source>Marca *</source>
       <translation>Marca *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="599" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="704" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="600" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="705" />
       <source>Modello *</source>
       <translation>Modelo *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="603" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="604" />
       <source>Impiego *</source>
       <translation>Uso previsto *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="609" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="610" />
       <source>Modello sensore *</source>
       <translation>Modelo del sensor *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="613" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="614" />
       <source>Tecnologia sensore *</source>
       <translation>Tecnología del sensor *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="621" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="622" />
       <source>Modalità colore *</source>
       <translation>Modo de color *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="631" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="729" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="632" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="730" />
       <source>Risoluzione orizzontale (px) *</source>
       <translation>Resolución horizontal (px) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="632" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="730" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="633" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="731" />
       <source>Risoluzione verticale (px) *</source>
       <translation>Resolución vertical (px) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="635" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="636" />
       <source>FPS a piena risoluzione (facoltativo)</source>
       <translation>FPS máx. a resolución completa (opcional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="651" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="652" />
       <source>ΔT massimo sotto ambiente (°C)</source>
       <translation>ΔT máx. por debajo del ambiente (°C)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="733" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="734" />
       <source>Risoluzione video orizzontale (px)</source>
       <translation>Resolución horizontal de vídeo (px)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="734" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="735" />
       <source>Risoluzione video verticale (px)</source>
       <translation>Resolución vertical de vídeo (px)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="735" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="736" />
       <source>FPS alla risoluzione video indicata</source>
       <translation>FPS a la resolución de vídeo indicada</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="738" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="739" />
       <source>Modalità Bulb</source>
       <translation>Modo Bulb</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="627" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="725" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="628" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="726" />
       <source>Larghezza sensore (mm) *</source>
       <translation>Anchura del sensor (mm) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="628" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="726" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="629" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="727" />
       <source>Altezza sensore (mm) *</source>
       <translation>Altura del sensor (mm) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="629" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="630" />
       <source>Passo pixel (µm) *</source>
       <translation>Tamaño de píxel (µm) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="633" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="634" />
       <source>Profondità (bit) *</source>
       <translation>Profundidad de bits *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="639" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="640" />
       <source>Otturatore *</source>
       <translation>Obturador *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="644" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="645" />
       <source>Backfocus (mm; facoltativo)</source>
       <translation>Backfocus (mm; opcional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="646" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="647" />
       <source>Raffreddata</source>
       <translation>Refrigerada</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="660" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="745" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="661" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="746" />
       <source>Scheda tecnica URL (facoltativa)</source>
       <translation>URL de ficha técnica (opcional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="708" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="709" />
       <source>Tipo corpo *</source>
       <translation>Tipo de cuerpo *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="717" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="718" />
       <source>Formato sensore *</source>
       <translation>Formato del sensor *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="722" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="723" />
       <source>Baionetta *</source>
       <translation>Montura del objetivo *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="723" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="724" />
       <source>Profondità RAW (bit) *</source>
       <translation>Profundidad de bits RAW *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="737" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="738" />
       <source>Live View</source>
       <translation>Vista en directo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="761" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="762" />
       <source>Elimina camera astronomica</source>
       <translation>Eliminar cámara astronómica</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="765" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="795" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="766" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="796" />
       <source>Rimuovi dai profili e continua</source>
       <translation>Quitar de los perfiles y continuar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="781" />
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="811" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="782" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="812" />
       <source>Questo elemento è utilizzato da uno o più profili.</source>
       <translation>Este elemento se utiliza en uno o más perfiles.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="782" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="783" />
       <source>Eliminare la camera astronomica dal catalogo?</source>
       <translation>¿Eliminar la cámara astronómica del catálogo?</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="791" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="792" />
       <source>Elimina corpo macchina</source>
       <translation>Eliminar cuerpo de cámara</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="812" />
+      <location filename="../app/ui/pages/EquipmentCamerasPage.qml" line="813" />
       <source>Eliminare il corpo macchina dal catalogo?</source>
       <translation>¿Eliminar el cuerpo de cámara del catálogo?</translation>
     </message>
@@ -7940,8 +7940,8 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="141" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="272" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="561" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="273" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="563" />
       <source>Aggiungi filtro</source>
       <translation>Añadir filtro</translation>
     </message>
@@ -7952,8 +7952,8 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="160" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="362" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="607" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="364" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="609" />
       <source>Aggiungi riduttore</source>
       <translation>Añadir reductor focal</translation>
     </message>
@@ -7988,207 +7988,207 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>Buscar filtro o reductor focal...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="254" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="255" />
       <source>Catalogo filtri</source>
       <translation>Catálogo de filtros</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="262" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="263" />
       <source>%1 di %2 filtri</source>
       <translation>%1 de %2 filtros</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="305" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="306" />
       <source>Nessun filtro trovato.</source>
       <translation>No se encontraron filtros.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="344" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="346" />
       <source>Catalogo riduttori</source>
       <translation>Catálogo de reductores focales</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="352" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="354" />
       <source>%1 di %2 riduttori</source>
       <translation>%1 de %2 reductores focales</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="395" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="397" />
       <source>Nessun riduttore trovato.</source>
       <translation>No se encontraron reductores focales.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="439" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="511" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="441" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="513" />
       <source>Modifica</source>
       <translation>Editar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="444" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="516" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="722" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="739" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="446" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="518" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="724" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="741" />
       <source>Elimina</source>
       <translation>Eliminar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="544" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="546" />
       <source>1 telescopio</source>
       <translation>1 telescopio</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="545" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="547" />
       <source>%1 telescopi</source>
       <translation>%1 telescopios</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="546" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="548" />
       <source>Non configurata</source>
       <translation>Sin configurar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="562" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="608" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="564" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="610" />
       <source>Salva</source>
       <translation>Guardar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="585" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="634" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="587" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="636" />
       <source>Marca *</source>
       <translation>Marca *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="586" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="635" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="588" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="637" />
       <source>Modello *</source>
       <translation>Modelo *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="587" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="589" />
       <source>Classe filtro *</source>
       <translation>Clase de filtro *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="588" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="590" />
       <source>Lunghezza d'onda centrale (nm, facoltativa)</source>
       <translation>Longitud de onda central (nm, opcional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="589" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="591" />
       <source>Larghezza banda (nm, facoltativa)</source>
       <translation>Ancho de banda (nm, opcional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="590" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="592" />
       <source>Trasmissione (%, facoltativa)</source>
       <translation>Transmisión (%, opcional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="591" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="593" />
       <source>Apertura minima (mm, facoltativa)</source>
       <translation>Apertura mínima (mm, opcional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="592" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="643" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="594" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="645" />
       <source>Note (facoltative)</source>
       <translation>Notas (opcionales)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="636" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="638" />
       <source>Fattore di riduzione *</source>
       <translation>Factor de reducción *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="636" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="638" />
       <source>es. 0,63</source>
       <translation>por ej. 0,63</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="637" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="639" />
       <source>Sistema ottico *</source>
       <translation>Sistema óptico *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="638" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="640" />
       <source>Connessione (facoltativa)</source>
       <translation>Conexión (opcional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="639" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="641" />
       <source>Backfocus (mm, facoltativo)</source>
       <translation>Backfocus (mm, opcional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="640" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="642" />
       <source>Uso visuale</source>
       <translation>Uso visual</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="641" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="643" />
       <source>Uso fotografico</source>
       <translation>Uso fotográfico</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="642" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="644" />
       <source>Correzione del campo</source>
       <translation>Corrección de campo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="652" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="654" />
       <source>Telescopi compatibili</source>
       <translation>Telescopios compatibles</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="660" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="662" />
       <source>1 selezionato</source>
       <translation>1 seleccionado</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="661" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="663" />
       <source>%1 selezionati</source>
       <translation>%1 seleccionados</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="670" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="672" />
       <source>I telescopi del profilo attivo sono mostrati per primi. Senza almeno un collegamento esatto, il riduttore resta nel catalogo ma non viene usato nelle raccomandazioni visuali o fotografiche.</source>
       <translation>Los telescopios del perfil activo aparecen primero. Sin al menos un vínculo exacto, el reductor permanece en el catálogo, pero no se utiliza en las recomendaciones visuales ni fotográficas.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="680" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="682" />
       <source>Cerca telescopio compatibile...</source>
       <translation>Buscar telescopio compatible...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="721" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="723" />
       <source>Elimina filtro</source>
       <translation>Eliminar filtro</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="722" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="739" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="724" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="741" />
       <source>Rimuovi dai profili e continua</source>
       <translation>Quitar de los perfiles y continuar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="728" />
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="745" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="730" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="747" />
       <source>Questo elemento è utilizzato da uno o più profili.</source>
       <translation>Este elemento se utiliza en uno o más perfiles.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="729" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="731" />
       <source>Eliminare il filtro dal catalogo?</source>
       <translation>¿Eliminar este filtro del catálogo?</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="738" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="740" />
       <source>Elimina riduttore</source>
       <translation>Eliminar reductor focal</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="746" />
+      <location filename="../app/ui/pages/EquipmentFiltersReducersPage.qml" line="748" />
       <source>Eliminare il riduttore dal catalogo?</source>
       <translation>¿Eliminar este reductor focal del catálogo?</translation>
     </message>
@@ -8202,8 +8202,8 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="57" />
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="216" />
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="447" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="217" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="449" />
       <source>Aggiungi oculare</source>
       <translation>Añadir ocular</translation>
     </message>
@@ -8214,8 +8214,8 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="67" />
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="309" />
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="503" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="311" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="505" />
       <source>Aggiungi Barlow</source>
       <translation>Añadir Barlow</translation>
     </message>
@@ -8235,150 +8235,150 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>Buscar ocular o Barlow...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="197" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="198" />
       <source>Catalogo oculari</source>
       <translation>Catálogo de oculares</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="206" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="207" />
       <source>%1 di %2 oculari</source>
       <translation>%1 de %2 oculares</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="250" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="251" />
       <source>Nessun oculare trovato.</source>
       <translation>No se encontraron oculares.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="290" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="292" />
       <source>Catalogo Barlow</source>
       <translation>Catálogo de Barlow</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="299" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="301" />
       <source>%1 di %2 Barlow</source>
       <translation>%1 de %2 Barlow</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="344" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="346" />
       <source>Nessuna Barlow trovata.</source>
       <translation>No se encontró ninguna Barlow.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="392" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="394" />
       <source>Modifica</source>
       <translation>Editar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="398" />
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="547" />
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="565" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="400" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="549" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="567" />
       <source>Elimina</source>
       <translation>Eliminar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="448" />
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="504" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="450" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="506" />
       <source>Salva</source>
       <translation>Guardar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="469" />
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="528" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="471" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="530" />
       <source>Marca *</source>
       <translation>Marca *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="470" />
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="529" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="472" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="531" />
       <source>Modello *</source>
       <translation>Modelo *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="471" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="473" />
       <source>Tipo *</source>
       <translation>Tipo *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="471" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="473" />
       <source>Fisso</source>
       <translation>Fijo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="472" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="474" />
       <source>Focale (mm) *</source>
       <translation>Distancia focal (mm) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="473" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="475" />
       <source>Focale minima (mm) *</source>
       <translation>Distancia focal mínima (mm) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="474" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="476" />
       <source>Focale massima (mm) *</source>
       <translation>Distancia focal máxima (mm) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="478" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="480" />
       <source>AFOV (°) *</source>
       <translation>AFOV (°) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="478" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="480" />
       <source>AFOV medio (°) *</source>
       <translation>AFOV medio (°) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="485" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="487" />
       <source>Intervallo AFOV (°; facoltativo)</source>
       <translation>Rango AFOV (°; opcional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="486" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="488" />
       <source>48-68</source>
       <translation>48-68</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="488" />
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="531" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="490" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="533" />
       <source>Note (facoltative)</source>
       <translation>Notas (opcionales)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="530" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="532" />
       <source>Moltiplicatore (x) *</source>
       <translation>Multiplicador (x) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="546" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="548" />
       <source>Elimina oculare</source>
       <translation>Eliminar ocular</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="547" />
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="565" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="549" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="567" />
       <source>Rimuovi dai profili e continua</source>
       <translation>Quitar de los perfiles y continuar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="554" />
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="572" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="556" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="574" />
       <source>Questo elemento è utilizzato da uno o più profili.</source>
       <translation>Este elemento se utiliza en uno o más perfiles.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="555" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="557" />
       <source>Eliminare l'oculare dal catalogo?</source>
       <translation>¿Eliminar este ocular del catálogo?</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="564" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="566" />
       <source>Elimina Barlow</source>
       <translation>Eliminar Barlow</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="573" />
+      <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="575" />
       <source>Eliminare la Barlow dal catalogo?</source>
       <translation>¿Eliminar esta Barlow del catálogo?</translation>
     </message>
@@ -8392,49 +8392,49 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="20" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="219" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="220" />
       <source>Telescopi</source>
       <translation>Telescopios</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="21" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="227" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="228" />
       <source>Oculari</source>
       <translation>Oculares</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="22" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="235" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="236" />
       <source>Barlow</source>
       <translation>Barlow</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="23" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="243" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="244" />
       <source>Binocoli</source>
       <translation>Prismáticos</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="24" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="251" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="252" />
       <source>Filtri</source>
       <translation>Filtros</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="25" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="259" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="260" />
       <source>Riduttori</source>
       <translation>Reductores focales</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="26" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="267" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="268" />
       <source>Camere astronomiche</source>
       <translation>Cámaras astronómicas</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="27" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="275" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="276" />
       <source>Corpi macchina</source>
       <translation>Cuerpos de cámara</translation>
     </message>
@@ -8459,93 +8459,93 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>Perfil activo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="140" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="158" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="141" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="159" />
       <source>Attivo</source>
       <translation>Activo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="146" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="158" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="147" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="159" />
       <source>Profilo</source>
       <translation>Perfil</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="146" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="147" />
       <source>Lista profili</source>
       <translation>Lista de perfiles</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="147" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="148" />
       <source>Profili osservativi salvati</source>
       <translation>Perfiles de observación guardados</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="172" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="173" />
       <source>Imposta attivo</source>
       <translation>Establecer activo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="178" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="708" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="179" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="709" />
       <source>Rinomina</source>
       <translation>Cambiar nombre</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="187" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="188" />
       <source>Elimina</source>
       <translation>Eliminar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="197" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="694" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="198" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="695" />
       <source>Aggiungi profilo</source>
       <translation>Añadir perfil</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="207" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="208" />
       <source>Equipaggiamento assegnato</source>
       <translation>Equipo asignado</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="220" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="221" />
       <source>Nessun telescopio assegnato.</source>
       <translation>No hay telescopio asignado.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="228" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="229" />
       <source>Nessun oculare assegnato.</source>
       <translation>No hay ocular asignado.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="236" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="237" />
       <source>Nessuna Barlow assegnata.</source>
       <translation>No hay ninguna Barlow asignada.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="244" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="245" />
       <source>Nessun binocolo assegnato.</source>
       <translation>No hay prismáticos asignados.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="252" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="253" />
       <source>Nessun filtro assegnato.</source>
       <translation>No hay filtro asignado.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="260" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="261" />
       <source>Nessun riduttore assegnato.</source>
       <translation>No se ha asignado ningún reductor focal.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="288" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="720" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="289" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="721" />
       <source>Aggiungi equipaggiamento</source>
       <translation>Añadir equipo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="295" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="794" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="296" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="795" />
       <source>Rimuovi equipaggiamento</source>
       <translation>Quitar equipo</translation>
     </message>
@@ -8560,154 +8560,154 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>Solo filtros solares certificados fijados delante del objetivo; nunca utilice filtros solares de ocular.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="208" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="209" />
       <source>Inventario visuale e fotografico del profilo attivo</source>
       <translation>Inventario visual y fotográfico del perfil activo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="268" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="269" />
       <source>Nessuna camera astronomica assegnata.</source>
       <translation>No hay ninguna cámara astronómica asignada.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="276" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="277" />
       <source>Nessun corpo macchina assegnato.</source>
       <translation>No hay ningún cuerpo de cámara asignado.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="305" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="306" />
       <source>Capacità visuali del profilo</source>
       <translation>Capacidades visuales del perfil</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="315" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="316" />
       <source>Apertura</source>
       <translation>Apertura</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="316" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="317" />
       <source>Focale</source>
       <translation>Distancia focal</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="317" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="318" />
       <source>Magnificazione minima</source>
       <translation>Aumento mínimo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="318" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="319" />
       <source>Magnificazione massima</source>
       <translation>Aumento máximo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="319" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="320" />
       <source>Pupilla minima</source>
       <translation>Pupila de salida mínima</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="320" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="321" />
       <source>Pupilla massima</source>
       <translation>Pupila de salida máxima</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="321" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="322" />
       <source>Campo reale minimo</source>
       <translation>Campo real mínimo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="322" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="323" />
       <source>Campo reale massimo</source>
       <translation>Campo real máximo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="341" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="342" />
       <source>Binocoli del profilo</source>
       <translation>Prismáticos del perfil</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="342" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="343" />
       <source>Capacità derivate dai binocoli assegnati</source>
       <translation>Capacidades derivadas de los prismáticos asignados</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="393" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="394" />
       <source>IS</source>
       <translation>IS</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="405" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="406" />
       <source>Pupilla d’uscita</source>
       <translation>Pupila de salida</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="483" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="484" />
       <source>✓</source>
       <translation>✓</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="539" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="540" />
       <source>Filtro solare a tutta apertura disponibile</source>
       <translation>Filtro solar de apertura completa disponible</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="669" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="670" />
       <source>Già assegnato</source>
       <translation>Ya asignado</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="669" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="670" />
       <source>Assegna</source>
       <translation>Asignar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="695" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="696" />
       <source>Aggiungi</source>
       <translation>Añadir</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="701" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="714" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="702" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="715" />
       <source>Nome profilo *</source>
       <translation>Nombre del perfil *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="707" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="708" />
       <source>Rinomina profilo</source>
       <translation>Cambiar nombre de perfil</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="723" />
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="796" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="724" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="797" />
       <source>Chiudi</source>
       <translation>Cerrar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="727" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="728" />
       <source>Cerca equipaggiamento...</source>
       <translation>Buscar equipo...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="756" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="757" />
       <source>1 risultato</source>
       <translation>1 resultado</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="757" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="758" />
       <source>%1 risultati</source>
       <translation>%1 resultados</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="785" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="786" />
       <source>Nessun elemento trovato.</source>
       <translation>No se encontró ningún elemento.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="809" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="810" />
       <source>Cerca...</source>
       <translation>Buscar...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="818" />
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="819" />
       <source>Rimuovi dal profilo</source>
       <translation>Eliminar del perfil</translation>
     </message>
@@ -8715,235 +8715,275 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
   <context>
     <name>EquipmentTelescopesPage</name>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="164" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="217" />
       <source>Modifica modello</source>
       <translation>Editar modelo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="188" />
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="259" />
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="411" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="241" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="312" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="464" />
       <source>Aggiungi modello</source>
       <translation>Añadir modelo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="236" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="289" />
       <source>Catalogo telescopi</source>
       <translation>Catálogo de telescopios</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="245" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="298" />
       <source>Modelli disponibili per i profili osservativi</source>
       <translation>Modelos disponibles para los perfiles de observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="254" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="307" />
       <source>Cerca telescopio...</source>
       <translation>Buscar telescopio...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="275" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="328" />
       <source>%1 di %2 modelli</source>
       <translation>%1 de %2 modelos</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="308" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="361" />
       <source>Nessun telescopio trovato.</source>
       <translation>No se encontraron telescopios.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="353" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="406" />
       <source>Modifica</source>
       <translation>Editar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="362" />
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="756" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="415" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="893" />
       <source>Elimina</source>
       <translation>Eliminar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="412" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="465" />
       <source>Salva</source>
       <translation>Guardar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="488" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="541" />
       <source>Marca *</source>
       <translation>Marca *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="496" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="549" />
       <source>Modello *</source>
       <translation>Modelo *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="504" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="557" />
       <source>Categoria strumento *</source>
       <translation>Categoría del instrumento *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="515" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="568" />
       <source>Tipo ottico *</source>
       <translation>Tipo óptico *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="528" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="581" />
       <source>Tipo ottico personalizzato *</source>
       <translation>Tipo óptico personalizado *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="536" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="589" />
       <source>Apertura (mm) *</source>
       <translation>Apertura (mm) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="545" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="598" />
       <source>Focale (mm) *</source>
       <translation>Distancia focal (mm) *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="554" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="607" />
       <source>Montatura *</source>
       <translation>Montura *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="565" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="618" />
       <source>Note (facoltative)</source>
       <translation>Notas (opcionales)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="577" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="630" />
       <source>Treno ottico e sensore integrati</source>
       <translation>Tren óptico y sensor integrados</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="585" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="638" />
       <source>Inserisci il canale astronomico principale. I campi possono restare incompleti, ma in quel caso NightScope non inventerà un piano EAA.</source>
       <translation>Introduce el canal astronómico principal. Los campos pueden quedar incompletos, pero, en ese caso, NightScope no inventará un plan EAA.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="605" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="658" />
       <source>Sensore integrato</source>
       <translation>Sensor integrado</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="610" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="663" />
       <source>Modalità colore</source>
       <translation>Modo de color</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="618" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="671" />
       <source>Controllo delle pose</source>
       <translation>Control de las exposiciones</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="622" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="675" />
       <source>Gestito dal dispositivo</source>
       <translation>Gestionado por el dispositivo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="626" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="679" />
       <source>Configurabile dall'utente</source>
       <translation>Configurable por el usuario</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="636" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="689" />
       <source>Sensore, larghezza (mm)</source>
       <translation>Anchura del sensor (mm)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="642" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="695" />
       <source>Sensore, altezza (mm)</source>
       <translation>Altura del sensor (mm)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="648" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="701" />
       <source>Passo pixel (µm)</source>
       <translation>Tamaño de píxel (µm)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="655" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="708" />
       <source>Risoluzione orizzontale (px)</source>
       <translation>Resolución horizontal (px)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="661" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="714" />
       <source>Risoluzione verticale (px)</source>
       <translation>Resolución vertical (px)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="667" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="720" />
       <source>Profondità (bit)</source>
       <translation>Profundidad de bits</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="674" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="727" />
       <source>FPS verificati (facoltativo)</source>
       <translation>FPS verificados (opcional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="681" />
-      <source>Filtri integrati, separati da ;</source>
-      <translation>Filtros integrados, separados por ;</translation>
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="752" />
+      <source>Filtri integrati</source>
+      <translation>Filtros integrados</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="697" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="760" />
+      <source>Seleziona i filtri presenti nel dispositivo. NightScope segnala il dual-band nei consigli per le nebulose; il filtro dark descrive la calibrazione automatica.</source>
+      <translation>Selecciona los filtros integrados en el dispositivo. NightScope indica el de doble banda en las recomendaciones para nebulosas; el filtro oscuro describe la calibración automática.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="775" />
+      <source>UV/IR-cut (ripresa a banda larga)</source>
+      <translation>Corte UV/IR (captura de banda ancha)</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="782" />
+      <source>Dual-band Hα/OIII (nebulose e cielo urbano)</source>
+      <translation>Doble banda Hα/OIII (nebulosas y cielos urbanos)</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="791" />
+      <source>Filtro dark (calibrazione automatica)</source>
+      <translation>Filtro oscuro (calibración automática)</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="798" />
+      <source>Altri filtri non elencati</source>
+      <translation>Otros filtros no incluidos</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="806" />
+      <source>Altri filtri (facoltativo)</source>
+      <translation>Otros filtros (opcionales)</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="807" />
+      <source>H-alpha; OIII</source>
+      <translation>H-alpha; OIII</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="813" />
+      <source>Scrivi nomi brevi separati da punto e virgola, per esempio H-alpha; OIII.</source>
+      <translation>Escribe nombres breves separados por punto y coma, por ejemplo H-alpha; OIII.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="834" />
       <source>Live stacking / EAA</source>
       <translation>Apilado en vivo / EAA</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="702" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="839" />
       <source>Video lunare e planetario</source>
       <translation>Vídeo lunar y planetario</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="707" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="844" />
       <source>Mosaico automatico</source>
       <translation>Mosaico automático</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="712" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="849" />
       <source>Osservazione ottica visuale</source>
       <translation>Observación visual óptica</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="718" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="855" />
       <source>Oculari intercambiabili</source>
       <translation>Oculares intercambiables</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="723" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="860" />
       <source>Camere esterne supportate</source>
       <translation>Cámaras externas compatibles</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="728" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="865" />
       <source>Barlow e riduttori esterni supportati</source>
       <translation>Barlow y reductores externos compatibles</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="735" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="872" />
       <source>Fonte ufficiale delle specifiche (URL)</source>
       <translation>Fuente oficial de las especificaciones (URL)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="755" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="892" />
       <source>Elimina modello</source>
       <translation>Eliminar modelo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="756" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="893" />
       <source>Rimuovi dai profili e continua</source>
       <translation>Quitar de los perfiles y continuar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="763" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="900" />
       <source>Questo elemento è utilizzato da uno o più profili.</source>
       <translation>Este elemento se utiliza en uno o más perfiles.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="764" />
+      <location filename="../app/ui/pages/EquipmentTelescopesPage.qml" line="901" />
       <source>Eliminare il modello dal catalogo?</source>
       <translation>¿Eliminar este modelo del catálogo?</translation>
     </message>
@@ -8962,122 +9002,122 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     </message>
     <message>
       <location filename="../app/ui/pages/EventDetailPage.qml" line="80" />
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="353" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="357" />
       <source>Nessun evento selezionato</source>
       <translation>Ningún evento seleccionado</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="136" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="137" />
       <source>Quando osservare l'evento</source>
       <translation>Cuándo observar el evento</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="137" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="138" />
       <source>Istante, finestra e visibilità locale</source>
       <translation>Instante, ventana y visibilidad local</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="142" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="146" />
       <source>Istante evento</source>
       <translation>Hora del evento</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="150" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="154" />
       <source>n/d</source>
       <translation>n/d</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="159" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="163" />
       <source>Finestra osservativa: %1</source>
       <translation>Ventana de observación: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="168" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="172" />
       <source>Nessuna finestra osservativa locale</source>
       <translation>Sin ventana de observación local</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="177" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="181" />
       <source>Separazione minima: %1</source>
       <translation>Separación mínima: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="196" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="200" />
       <source>Indicazione di sicurezza</source>
       <translation>Guía de seguridad</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="199" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="203" />
       <source>Osservazione</source>
       <translation>Observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="200" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="204" />
       <source>Con il tuo profilo</source>
       <translation>Con su perfil</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="202" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="206" />
       <source>Evento informativo, non osservativo</source>
       <translation>Evento informativo, no destinado a la observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="204" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="208" />
       <source>Indicazioni per la finestra cometaria</source>
       <translation>Indicaciones para la ventana de observación del cometa</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="206" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="210" />
       <source>Indicazioni essenziali per il passaggio</source>
       <translation>Información esencial del pase</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="207" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="211" />
       <source>Configurazione consigliata per l'evento</source>
       <translation>Configuración recomendada para el evento</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="236" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="240" />
       <source>Apri %1</source>
       <translation>Abrir %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="252" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="256" />
       <source>Dettagli del passaggio</source>
       <translation>Detalles del pase</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="254" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="258" />
       <source>Dettagli della cometa</source>
       <translation>Detalles del cometa</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="255" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="259" />
       <source>Dettagli evento</source>
       <translation>Detalles del evento</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="286" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="290" />
       <source>Fonte: %1</source>
       <translation>Fuente: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="317" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="321" />
       <source>Consigli osservativi</source>
       <translation>Consejos de observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="318" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="322" />
       <source>Azioni pratiche per preparare l'evento</source>
       <translation>Acciones prácticas para prepararse para el evento.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="354" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="358" />
       <source>Torna al calendario e scegli una voce dalla timeline</source>
       <translation>Vuelva al calendario y elija un elemento de la cronología</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="359" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="363" />
       <source>Seleziona una scheda evento per aprire il dettaglio.</source>
       <translation>Seleccione una ficha de evento para abrir sus detalles.</translation>
     </message>
@@ -9105,306 +9145,306 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>%1 objetos</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="209" />
+      <location filename="../app/ui/pages/HomePage.qml" line="239" />
       <source>Pianeti (%1)</source>
       <translation>Planetas (%1)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="211" />
+      <location filename="../app/ui/pages/HomePage.qml" line="241" />
       <source>Cielo profondo (%1)</source>
       <translation>Cielo profundo (%1)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="212" />
+      <location filename="../app/ui/pages/HomePage.qml" line="242" />
       <source>Tutti (%1)</source>
       <translation>Todos (%1)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="266" />
+      <location filename="../app/ui/pages/HomePage.qml" line="296" />
       <source>Stasera dal tuo cielo</source>
       <translation>Esta noche bajo su cielo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="285" />
+      <location filename="../app/ui/pages/HomePage.qml" line="315" />
       <source>Profilo attivo: Default  ·  occhio nudo</source>
       <translation>Perfil activo: Default · a simple vista</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="298" />
+      <location filename="../app/ui/pages/HomePage.qml" line="328" />
       <source>Configura località</source>
       <translation>Configurar ubicación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="321" />
+      <location filename="../app/ui/pages/HomePage.qml" line="351" />
       <source>Aggiornamento dei dati del cielo...</source>
       <translation>Actualizando datos del cielo...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="348" />
+      <location filename="../app/ui/pages/HomePage.qml" line="378" />
       <source>Sessione di stasera</source>
       <translation>La sesión de esta noche</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="362" />
+      <location filename="../app/ui/pages/HomePage.qml" line="393" />
       <source>Finestra osservativa non disponibile</source>
       <translation>Ventana de observación no disponible</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="388" />
+      <location filename="../app/ui/pages/HomePage.qml" line="419" />
       <source>Luna</source>
       <translation>Luna</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="426" />
-      <location filename="../app/ui/pages/HomePage.qml" line="605" />
-      <location filename="../app/ui/pages/HomePage.qml" line="643" />
-      <location filename="../app/ui/pages/HomePage.qml" line="684" />
-      <location filename="../app/ui/pages/HomePage.qml" line="725" />
+      <location filename="../app/ui/pages/HomePage.qml" line="458" />
+      <location filename="../app/ui/pages/HomePage.qml" line="630" />
+      <location filename="../app/ui/pages/HomePage.qml" line="668" />
+      <location filename="../app/ui/pages/HomePage.qml" line="709" />
+      <location filename="../app/ui/pages/HomePage.qml" line="750" />
       <source>n/d</source>
       <translation>n/d</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="439" />
+      <location filename="../app/ui/pages/HomePage.qml" line="471" />
       <source>Sorge %1</source>
       <translation>Sale a las %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="448" />
+      <location filename="../app/ui/pages/HomePage.qml" line="480" />
       <source>Tramonta %1</source>
       <translation>Se pone a las %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="503" />
+      <location filename="../app/ui/pages/HomePage.qml" line="535" />
       <source>Condizioni planetarie</source>
       <translation>Condiciones planetarias</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="547" />
+      <location filename="../app/ui/pages/HomePage.qml" line="576" />
       <source>Condizioni del cielo profondo</source>
       <translation>Condiciones para cielo profundo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="596" />
+      <location filename="../app/ui/pages/HomePage.qml" line="620" />
       <source>Meteo osservativo</source>
       <translation>Meteorología para la observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="633" />
+      <location filename="../app/ui/pages/HomePage.qml" line="658" />
       <source>Nuvole (media)</source>
       <translation>Nubes (media)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="674" />
+      <location filename="../app/ui/pages/HomePage.qml" line="699" />
       <source>Vento (media)</source>
       <translation>Viento (medio)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="715" />
+      <location filename="../app/ui/pages/HomePage.qml" line="740" />
       <source>Pioggia (max)</source>
       <translation>Lluvia (máx.)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="840" />
+      <location filename="../app/ui/pages/HomePage.qml" line="865" />
       <source>Condizioni della sessione non confermate: usa la direzione solo come orientamento.</source>
       <translation>Las condiciones de la sesión no están confirmadas: use la dirección solo como orientación.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="846" />
+      <location filename="../app/ui/pages/HomePage.qml" line="871" />
       <source>Sky Compass</source>
       <translation>Sky Compass</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="848" />
+      <location filename="../app/ui/pages/HomePage.qml" line="873" />
       <source>Dove iniziare stasera</source>
       <translation>Por dónde empezar esta noche</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="848" />
+      <location filename="../app/ui/pages/HomePage.qml" line="873" />
       <source>Orientamento del cielo</source>
       <translation>Orientación del cielo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="857" />
+      <location filename="../app/ui/pages/HomePage.qml" line="882" />
       <source>Alternative</source>
       <translation>Alternativas</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="857" />
+      <location filename="../app/ui/pages/HomePage.qml" line="882" />
       <source>Altre direzioni</source>
       <translation>Otras direcciones</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="879" />
+      <location filename="../app/ui/pages/HomePage.qml" line="904" />
       <source>Nessun oggetto consigliato al momento.</source>
       <translation>No se recomiendan objetos en este momento.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="993" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1018" />
       <source>N</source>
       <translation>N</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1003" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1028" />
       <source>E</source>
       <translation>E</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1013" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1038" />
       <source>S</source>
       <translation>S</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1023" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1048" />
       <source>O</source>
       <translation>O</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1037" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1062" />
       <source>Inizia da</source>
       <translation>Empezar por</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1037" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1062" />
       <source>Guarda verso</source>
       <translation>Mirar hacia</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1067" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1092" />
       <source>Zona consigliata</source>
       <translation>Zona recomendada</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1068" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1093" />
       <source>Zona con più oggetti</source>
       <translation>Zona con más objetos</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1109" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1134" />
       <source>Perché questa direzione?</source>
       <translation>¿Por qué esta dirección?</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1167" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1192" />
       <source>Oggetti principali</source>
       <translation>Objetos principales</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1167" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1192" />
       <source>Oggetti nella direzione</source>
       <translation>Objetos en esta dirección</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1302" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1327" />
       <source>Piano della notte</source>
       <translation>Plan nocturno</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1313" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1338" />
       <source>Solo suggeriti ora</source>
       <translation>Solo los sugeridos ahora</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1320" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1345" />
       <source>Mostra nelle due schede solo gli oggetti nella zona indicata da Sky Compass</source>
       <translation>Mostrar solo objetos en el área indicada por Sky Compass en ambas secciones</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1321" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1346" />
       <source>Nessun oggetto osservabile in questo momento</source>
       <translation>No hay objetos observables en este momento.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1339" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1364" />
       <source>Piano osservativo</source>
       <translation>Plan de observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1341" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1366" />
       <source>Tappe del piano nella zona indicata da Sky Compass</source>
       <translation>Etapas del plan en la zona indicada por Sky Compass</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1392" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1418" />
       <source>Possibile finestra</source>
       <translation>Ventana posible</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1437" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1463" />
       <source>Nessuna tappa del piano nella zona suggerita in questo momento.</source>
       <translation>Actualmente no hay ningún elemento del plan en el área sugerida.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1448" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1474" />
       <source>Altri oggetti visibili stasera</source>
       <translation>Otros objetos visibles esta noche</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1450" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1476" />
       <source>Oggetti nella zona indicata da Sky Compass; filtra ulteriormente per categoria</source>
       <translation>Objetos en el área indicada por Sky Compass; filtrar más por categoría</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1509" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1535" />
       <source>Oggetto</source>
       <translation>Objeto</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1510" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1536" />
       <source>Tipo</source>
       <translation>Tipo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1511" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1537" />
       <source>Finestra</source>
       <translation>Ventana</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1512" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1538" />
       <source>Direzione</source>
       <translation>Dirección</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1513" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1539" />
       <source>Difficoltà</source>
       <translation>Dificultad</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1573" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1599" />
       <source>Oggetti non disponibili senza località.</source>
       <translation>Los objetos no están disponibles sin una ubicación.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1575" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1601" />
       <source>Nessun altro oggetto fuori dal piano nella zona suggerita in questo momento.</source>
       <translation>Ningún otro objeto fuera del plan se encuentra actualmente en el área sugerida.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1576" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1602" />
       <source>Nessun altro oggetto utile fuori dal piano.</source>
       <translation>Ningún otro objeto útil fuera del plan.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1589" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1615" />
       <source>Prossimi eventi</source>
       <translation>Próximos eventos</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1590" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1616" />
       <source>Ordinati per data</source>
       <translation>Ordenados por fecha</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1592" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1618" />
       <source>Vedi tutti</source>
       <translation>Ver todo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1670" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1696" />
       <source>Nessun evento imminente disponibile.</source>
       <translation>No hay próximos eventos disponibles.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/HomePage.qml" line="1671" />
+      <location filename="../app/ui/pages/HomePage.qml" line="1697" />
       <source>Eventi non disponibili senza località.</source>
       <translation>Eventos no disponibles sin una ubicación.</translation>
     </message>
@@ -9478,189 +9518,189 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>Ubicación actual</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="102" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="103" />
       <source>Attiva</source>
       <translation>Activa</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="102" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="103" />
       <source>Da configurare</source>
       <translation>Necesita configuración</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="132" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="133" />
       <source>Configura una località per ottenere meteo e cielo locale.</source>
       <translation>Configure una ubicación para obtener datos meteorológicos y del cielo locales.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="145" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="146" />
       <source>Rilevamento posizione all'avvio</source>
       <translation>Detectar ubicación al inicio</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="146" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="147" />
       <source>Origini usate quando NightScope parte.</source>
       <translation>Fuentes utilizadas cuando se inicia NightScope.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="161" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="162" />
       <source>Avvio</source>
       <translation>Inicio</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="170" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="171" />
       <source>Rileva automaticamente</source>
       <translation>Detectar automáticamente</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="182" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="183" />
       <source>Origini</source>
       <translation>Fuentes</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="205" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="206" />
       <source>Fallback</source>
       <translation>Alternativa</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="214" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="215" />
       <source>Fallback online</source>
       <translation>Alternativa en línea</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="352" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="353" />
       <source>Precisa con fallback Windows approssimato</source>
       <translation>Precisa con alternativa aproximada de Windows</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="359" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="360" />
       <source>Usa i servizi di localizzazione di Windows con consenso di sistema. Se il provider preciso non risponde, NightScope tenta il fallback Windows approssimato.</source>
       <translation>Use los servicios de ubicación de Windows con el consentimiento del sistema. Si el proveedor preciso no responde, NightScope prueba la alternativa aproximada de Windows.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="191" />
-      <location filename="../app/ui/pages/LocationPage.qml" line="349" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="192" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="350" />
       <source>Posizione di sistema</source>
       <translation>Ubicación del sistema</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="240" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="241" />
       <source>Ricerca località</source>
       <translation>Búsqueda de ubicaciones</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="241" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="242" />
       <source>GeoNames e osservatori MPC offline</source>
       <translation>GeoNames y observatorios MPC sin conexión</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="248" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="249" />
       <source>Cerca città, osservatorio o codice MPC</source>
       <translation>Buscar ciudad, observatorio o código MPC</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="265" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="266" />
       <source>Digita una città, un osservatorio o un codice MPC.</source>
       <translation>Introduzca una ciudad, un observatorio o un código MPC.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="276" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="277" />
       <source>Nessuna località trovata.</source>
       <translation>No se encontraron ubicaciones.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="351" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="352" />
       <source>Servizio GeoClue 2</source>
       <translation>Servicio GeoClue 2</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="358" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="359" />
       <source>Usa GeoClue per richiedere la posizione al sistema. Disponibilità e precisione dipendono dai servizi di localizzazione configurati nella distribuzione.</source>
       <translation>Use GeoClue para solicitar la ubicación al sistema. La disponibilidad y la precisión dependen de los servicios de ubicación configurados en la distribución Linux.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="367" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="368" />
       <source>Usa posizione di sistema</source>
       <translation>Usar ubicación del sistema</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="390" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="391" />
       <source>La posizione di sistema non è disponibile. Provare la posizione approssimata online?</source>
       <translation>La ubicación del sistema no está disponible. ¿Desea probar la ubicación aproximada en línea?</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="398" />
-      <location filename="../app/ui/pages/LocationPage.qml" line="424" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="399" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="425" />
       <source>Usa posizione approssimata online</source>
       <translation>Usar ubicación aproximada en línea</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="410" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="411" />
       <source>Località IP (ipapi/ipwho)</source>
       <translation>Ubicación IP (ipapi/ipwho)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="411" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="412" />
       <source>Geolocalizzazione IP</source>
       <translation>Geolocalización de IP</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="416" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="417" />
       <source>Stima città, paese, coordinate e fuso orario tramite connessione internet. Precisione limitata; non viene usata senza consenso.</source>
       <translation>Estima la ciudad, el país, las coordenadas y la zona horaria mediante conexión a Internet. Precisión limitada; no se utiliza sin consentimiento.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="432" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="433" />
       <source>Origine: %1  -  accuratezza: %2</source>
       <translation>Fuente: %1 - precisión: %2</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="445" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="446" />
       <source>Posizioni recenti</source>
       <translation>Ubicaciones recientes</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="446" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="447" />
       <source>Ultime posizioni salvate o caricate</source>
       <translation>Ubicaciones guardadas o cargadas recientemente</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="452" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="453" />
       <source>Nessuna posizione recente.</source>
       <translation>No hay ubicaciones recientes.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="500" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="501" />
       <source>Usa</source>
       <translation>Usar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="520" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="521" />
       <source>Coordinate manuali</source>
       <translation>Coordenadas manuales</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="521" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="522" />
       <source>Inserimento diretto</source>
       <translation>Entrada directa</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="527" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="528" />
       <source>Nome luogo (facoltativo)</source>
       <translation>Nombre del lugar (opcional)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="539" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="540" />
       <source>Latitudine *</source>
       <translation>Latitud *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="546" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="547" />
       <source>Longitudine *</source>
       <translation>Longitud *</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/LocationPage.qml" line="553" />
+      <location filename="../app/ui/pages/LocationPage.qml" line="554" />
       <source>Imposta coordinate</source>
       <translation>Establecer coordenadas</translation>
     </message>
@@ -9684,172 +9724,172 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>Sí</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="94" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="102" />
       <source>Attivare il risultato filtrato nei suggerimenti Home?</source>
       <translation>¿Activar el resultado filtrado en las sugerencias de Inicio?</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="95" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="103" />
       <source>Attivare %1 risultati filtrati nei suggerimenti Home?</source>
       <translation>¿Activar %1 resultados filtrados en las sugerencias de Inicio?</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="98" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="106" />
       <source>Disattivare il risultato filtrato dai suggerimenti Home?</source>
       <translation>¿Desactivar el resultado filtrado en las sugerencias de Inicio?</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="99" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="107" />
       <source>Disattivare %1 risultati filtrati dai suggerimenti Home?</source>
       <translation>¿Desactivar %1 resultados filtrados en las sugerencias de Inicio?</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="123" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="131" />
       <source>Oggetti celesti</source>
       <translation>Objetos celestes</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="132" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="140" />
       <source>Esplora gli oggetti astronomici disponibili nel catalogo.</source>
       <translation>Explora los objetos astronómicos disponibles en el catálogo.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="160" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="168" />
       <source>Ricerca</source>
       <translation>Buscar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="165" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="173" />
       <source>Cerca ID o nome...</source>
       <translation>Buscar por ID o nombre...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="174" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="182" />
       <source>Catalogo</source>
       <translation>Catálogo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="190" />
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="367" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="198" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="375" />
       <source>Tipo</source>
       <translation>Tipo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="206" />
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="368" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="214" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="376" />
       <source>Costellazione</source>
       <translation>Constelación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="222" />
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="371" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="230" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="379" />
       <source>Osservazione</source>
       <translation>Observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="239" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="247" />
       <source>Visibilità</source>
       <translation>Visibilidad</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="248" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="256" />
       <source>Visibili nel mese</source>
       <translation>Visibles este mes</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="280" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="288" />
       <source>%1 di %2 oggetti</source>
       <translation>%1 de %2 objetos</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="291" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="299" />
       <source>Aggiornamento raccomandazioni in corso…</source>
       <translation>Actualizando recomendaciones…</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="309" />
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="526" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="317" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="534" />
       <source>Attiva risultati</source>
       <translation>Activar resultados</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="311" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="319" />
       <source>Attiva tutti gli oggetti modificabili nei risultati filtrati</source>
       <translation>Activar todos los objetos modificables de los resultados filtrados</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="321" />
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="527" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="329" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="535" />
       <source>Disattiva risultati</source>
       <translation>Desactivar resultados</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="323" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="331" />
       <source>Disattiva tutti gli oggetti modificabili nei risultati filtrati</source>
       <translation>Desactivar todos los objetos modificables de los resultados filtrados</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="332" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="340" />
       <source>Pulisci filtri</source>
       <translation>Limpiar filtros</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="365" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="373" />
       <source>ID</source>
       <translation>ID</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="366" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="374" />
       <source>Nome</source>
       <translation>Nombre</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="369" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="377" />
       <source>Magnitudine</source>
       <translation>Magnitud</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="370" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="378" />
       <source>Dimensione</source>
       <translation>Tamaño</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="372" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="380" />
       <source>Raggiunge ≥15°</source>
       <translation>Alcanza ≥15°</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="374" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="382" />
       <source>Home</source>
       <translation>Inicio</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="450" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="458" />
       <source>Sempre incluso nei suggerimenti automatici</source>
       <translation>Siempre incluido en las sugerencias automáticas</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="529" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="537" />
       <source>Attiva</source>
       <translation>Activa</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="530" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="538" />
       <source>Disattiva</source>
       <translation>Desactiva</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="549" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="557" />
       <source>Gli oggetti del Sistema solare restano sempre attivi. Verrà avviato un solo aggiornamento delle raccomandazioni.</source>
       <translation>Los objetos del Sistema Solar permanecen siempre activos. Solo se iniciará una actualización de las recomendaciones.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="449" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="457" />
       <source>Includi nei suggerimenti automatici</source>
       <translation>Incluir en las sugerencias automáticas</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="511" />
+      <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="519" />
       <source>Nessun oggetto trovato.</source>
       <translation>No se encontraron objetos.</translation>
     </message>
@@ -9863,190 +9903,190 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     </message>
     <message>
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="33" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="103" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="111" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="115" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="124" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="131" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="101" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="109" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="113" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="122" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="129" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="441" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="507" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="510" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="511" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="512" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="513" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1058" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1056" />
       <source>n/d</source>
       <translation>n/d</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="97" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="131" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="149" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="95" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="129" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="147" />
       <source>Catalogo</source>
       <translation>Catálogo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="98" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="96" />
       <source>Distanza</source>
       <translation>Distancia</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="116" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="114" />
       <source>%1°</source>
       <translation>%1°</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="131" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="129" />
       <source>Catalogo %1</source>
       <translation>Catálogo %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="143" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="141" />
       <source>Costellazione %1</source>
       <translation>Constelación %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="150" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="148" />
       <source>ID catalogo</source>
       <translation>ID de catálogo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="151" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="149" />
       <source>Tipo</source>
       <translation>Tipo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="152" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="150" />
       <source>Costellazione</source>
       <translation>Constelación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="153" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="151" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="503" />
       <source>Magnitudine</source>
       <translation>Magnitud</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="154" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="152" />
       <source>Dimensione</source>
       <translation>Tamaño</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="155" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="153" />
       <source>Dimensione angolare massima</source>
       <translation>Tamaño angular máximo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="156" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="154" />
       <source>Osservazione</source>
       <translation>Observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="157" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="155" />
       <source>A.R.</source>
       <translation>A. R.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="158" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="156" />
       <source>Dec</source>
       <translation>Dec.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="159" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="157" />
       <source>Alt. attuale</source>
       <translation>Alt. actual.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="160" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="158" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="508" />
       <source>Azimut</source>
       <translation>Azimut</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="161" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="159" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="510" />
       <source>Sorge</source>
       <translation>Salida</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="162" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="160" />
       <source>Transita</source>
       <translation>Tránsito</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="163" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="161" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="511" />
       <source>Tramonta</source>
       <translation>Puesta</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="164" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="162" />
       <source>Raggiunge ≥15°</source>
       <translation>Alcanza ≥15°</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="165" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="163" />
       <source>Visibile nel mese corrente</source>
       <translation>Visible en el mes actual</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="223" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="221" />
       <source>Pupilla %1</source>
       <translation>Pupila de salida %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="232" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="230" />
       <source>Binocolo: %1</source>
       <translation>Prismáticos: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="234" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="232" />
       <source>Ingrandimento: %1</source>
       <translation>Aumento: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="236" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="234" />
       <source>Pupilla d'uscita: %1</source>
       <translation>Pupila de salida: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="237" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="235" />
       <source>Difficoltà: %1</source>
       <translation>Dificultad: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="240" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="238" />
       <source>Oculare: %1  -  Barlow: %2  -  Difficoltà: %3</source>
       <translation>Ocular: %1 - Barlow: %2 - Dificultad: %3</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="356" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="354" />
       <source>Scheda catalogo</source>
       <translation>Entrada de catálogo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="356" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="354" />
       <source>Dettaglio osservativo</source>
       <translation>Detalles de observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="356" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="354" />
       <source>Nessun oggetto selezionato</source>
       <translation>Ningún objeto seleccionado</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="409" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="407" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="555" />
       <source>Fonte immagine</source>
       <translation>Fuente de la imagen</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="435" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="433" />
       <source>Finestra osservativa</source>
       <translation>ventana de observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="436" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="434" />
       <source>Durata utile non disponibile</source>
       <translation>Duración útil no disponible</translation>
     </message>
@@ -10091,173 +10131,173 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>Datos del catálogo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="650" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="652" />
       <source>Descrizione</source>
       <translation>Descripción</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="652" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="654" />
       <source>Periodo migliore: %1</source>
       <translation>Mejor periodo: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="670" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="672" />
       <source>Curiosità</source>
       <translation>Curiosidades</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="671" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="673" />
       <source>Storia, scienza e contesto</source>
       <translation>Historia, ciencia y contexto.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="686" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="688" />
       <source>Fonte: &lt;a href="%1"&gt;%2&lt;/a&gt;</source>
       <translation>Fuente: &lt;a href="%1"&gt;%2&lt;/a&gt;</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="688" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="690" />
       <source>Apri la fonte</source>
       <translation>Abrir la fuente</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="707" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="709" />
       <source>Configurazione consigliata</source>
       <translation>Configuración recomendada</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="709" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="711" />
       <source>Setup scelto per %1</source>
       <translation>Configuración elegida para %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="710" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="712" />
       <source>Suggerimento operativo</source>
       <translation>Recomendación práctica</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="725" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="727" />
       <source>Perché questa configurazione: %1</source>
       <translation>Por qué esta configuración: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="745" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="747" />
       <source>Filtro</source>
       <translation>Filtro</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="754" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="756" />
       <source>Disponibile</source>
       <translation>Disponible</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="755" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="791" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="757" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="793" />
       <source>Non disponibile</source>
       <translation>No disponible</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="782" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="784" />
       <source>Riduttore fotografico</source>
       <translation>Reductor focal fotográfico</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="791" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="793" />
       <source>Nel profilo</source>
       <translation>En el perfil</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="854" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="856" />
       <source>Piano fotografico</source>
       <translation>Plan fotográfico</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="855" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="857" />
       <source>Configurazione fotografica del profilo attivo</source>
       <translation>Configuración fotográfica del perfil activo</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1055" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1053" />
       <source>Ciclo lunare</source>
       <translation>ciclo lunar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1056" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1054" />
       <source>%1  -  %2  -  %3</source>
       <translation>%1 - %2 - %3</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1057" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1055" />
       <source>Fase lunare</source>
       <translation>fase lunar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1068" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1066" />
       <source>Nuova</source>
       <translation>Nueva</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1069" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1067" />
       <source>Crescente</source>
       <translation>Creciente</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1070" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1068" />
       <source>Primo quarto</source>
       <translation>Cuarto creciente</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1071" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1069" />
       <source>Gibbosa</source>
       <translation>Gibosa creciente</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1072" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1070" />
       <source>Piena</source>
       <translation>Llena</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1073" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1071" />
       <source>Calante</source>
       <translation>Gibosa menguante</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1074" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1072" />
       <source>Ultimo quarto</source>
       <translation>Cuarto menguante</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1075" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1073" />
       <source>Falce calante</source>
       <translation>Menguante</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1169" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1167" />
       <source>Seleziona un oggetto</source>
       <translation>Seleccione un objeto</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1170" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1168" />
       <source>Il dettaglio si apre dalle pagine dell'app</source>
       <translation>Los detalles se abren desde las páginas de la aplicación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1175" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1173" />
       <source>Scegli un oggetto dalla Home, dal calendario o dal catalogo.</source>
       <translation>Elija un objeto de Inicio, el calendario o el catálogo.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1187" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1185" />
       <source>Valutazione osservativa</source>
       <translation>Evaluación de observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1188" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1186" />
       <source>Geometria e condizioni locali</source>
       <translation>Geometría y condiciones locales.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1230" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1229" />
       <source>Valutazione specifica non disponibile.</source>
       <translation>Evaluación específica del objeto no disponible.</translation>
     </message>
@@ -10485,8 +10525,8 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <location filename="../app/ui/pages/WeatherPage.qml" line="174" />
       <location filename="../app/ui/pages/WeatherPage.qml" line="175" />
       <location filename="../app/ui/pages/WeatherPage.qml" line="187" />
-      <location filename="../app/ui/pages/WeatherPage.qml" line="206" />
-      <location filename="../app/ui/pages/WeatherPage.qml" line="216" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="205" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="214" />
       <source>n/d</source>
       <translation>n/d</translation>
     </message>
@@ -10527,8 +10567,8 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     </message>
     <message>
       <location filename="../app/ui/pages/WeatherPage.qml" line="128" />
-      <location filename="../app/ui/pages/WeatherPage.qml" line="371" />
-      <location filename="../app/ui/pages/WeatherPage.qml" line="501" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="368" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="498" />
       <source>Caricamento meteo...</source>
       <translation>Cargando datos meteorológicos...</translation>
     </message>
@@ -10598,167 +10638,167 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
       <translation>Observaciones VIIRS</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="204" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="203" />
       <source>Radianza VIIRS</source>
       <translation>Radiancia VIIRS</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="214" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="212" />
       <source>SQM stimato</source>
       <translation>SQM estimado</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="214" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="212" />
       <source>Limite visuale</source>
       <translation>Límite a simple vista</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="222" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="219" />
       <source>Confidenza</source>
       <translation>Confianza</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="228" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="225" />
       <source>Seeing: %1 (%2)</source>
       <translation>Seeing: %1 (%2)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="231" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="228" />
       <source>Seeing: n/d</source>
       <translation>Seeing: n/d</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="240" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="237" />
       <source>Recupero dati VIIRS NASA...</source>
       <translation>Recuperando datos VIIRS de la NASA...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="252" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="249" />
       <source>Aerosol atmosferico</source>
       <translation>Aerosoles atmosféricos</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="253" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="250" />
       <source>NASA MAIAC AOD</source>
       <translation>NASA MAIAC AOD</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="263" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="260" />
       <source>AOD 550 nm</source>
       <translation>AOD 550 nm</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="264" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="261" />
       <source>Effetto aerosol</source>
       <translation>Efecto de los aerosoles</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="265" />
-      <location filename="../app/ui/pages/WeatherPage.qml" line="308" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="262" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="305" />
       <source>Freschezza</source>
       <translation>Actualidad</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="266" />
-      <location filename="../app/ui/pages/WeatherPage.qml" line="307" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="263" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="304" />
       <source>Fonte</source>
       <translation>Fuente</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="281" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="278" />
       <source>Recupero dati NASA AOD...</source>
       <translation>Recuperando datos AOD de la NASA...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="293" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="290" />
       <source>Particolato locale</source>
       <translation>Partículas locales</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="294" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="291" />
       <source>OpenAQ PM2.5/PM10</source>
       <translation>OpenAQ PM2.5/PM10</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="304" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="301" />
       <source>PM2.5</source>
       <translation>PM2.5</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="305" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="302" />
       <source>PM10</source>
       <translation>PM10</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="306" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="303" />
       <source>Aria locale</source>
       <translation>Aire local</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="334" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="331" />
       <source>Copertura nuvolosa oraria</source>
       <translation>Nubosidad por hora</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="335" />
-      <location filename="../app/ui/pages/WeatherPage.qml" line="386" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="332" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="383" />
       <source>Previsione mobile delle prossime 24 ore</source>
       <translation>Previsión continua para las próximas 24 horas</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="351" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="348" />
       <source>Notte osservativa</source>
       <translation>Noche de observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="369" />
-      <location filename="../app/ui/pages/WeatherPage.qml" line="499" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="366" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="496" />
       <source>Dati non disponibili senza località.</source>
       <translation>Datos no disponibles sin una ubicación.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="374" />
-      <location filename="../app/ui/pages/WeatherPage.qml" line="504" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="371" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="501" />
       <source>Dati meteo non disponibili al momento.</source>
       <translation>Los datos meteorológicos no están disponibles actualmente.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="385" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="382" />
       <source>Dettaglio orario</source>
       <translation>Detalle horario</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="452" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="449" />
       <source>%1 pioggia</source>
       <translation>%1 de lluvia</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="487" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="484" />
       <source>Orario</source>
       <translation>Hora</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="488" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="485" />
       <source>Nuvolosità</source>
       <translation>Nubosidad</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="489" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="486" />
       <source>Pioggia</source>
       <translation>Lluvia</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="490" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="487" />
       <source>Vento</source>
       <translation>Viento</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="491" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="488" />
       <source>Umidità</source>
       <translation>Humedad</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/WeatherPage.qml" line="492" />
+      <location filename="../app/ui/pages/WeatherPage.qml" line="489" />
       <source>Temperatura</source>
       <translation>Temperatura</translation>
     </message>
@@ -10767,170 +10807,170 @@ Compruebe los permisos de la carpeta de la aplicación y reinicie NightScope.</t
     <name>main</name>
     <message>
       <location filename="../app/ui/main.qml" line="16" />
-      <location filename="../app/ui/main.qml" line="161" />
+      <location filename="../app/ui/main.qml" line="163" />
       <source>NightScope</source>
       <translation>NightScope</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="64" />
+      <location filename="../app/ui/main.qml" line="66" />
       <source>Nuova versione disponibile</source>
       <translation>Nueva versión disponible</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="65" />
+      <location filename="../app/ui/main.qml" line="67" />
       <source>Scarica aggiornamento</source>
       <translation>Descargar actualización</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="66" />
+      <location filename="../app/ui/main.qml" line="68" />
       <source>Più tardi</source>
       <translation>Más tarde</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="78" />
+      <location filename="../app/ui/main.qml" line="80" />
       <source>È disponibile NightScope %1. Stai utilizzando la versione %2.</source>
       <translation>NightScope %1 está disponible. Está utilizando la versión %2.</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="89" />
+      <location filename="../app/ui/main.qml" line="91" />
       <source>Non mostrare più questa versione</source>
       <translation>No volver a mostrar esta versión</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="183" />
+      <location filename="../app/ui/main.qml" line="185" />
       <source>?</source>
       <translation>?</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="184" />
       <location filename="../app/ui/main.qml" line="186" />
+      <location filename="../app/ui/main.qml" line="188" />
       <source>Apri manuale</source>
       <translation>Abrir manual</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="207" />
+      <location filename="../app/ui/main.qml" line="209" />
       <source>Home</source>
       <translation>Inicio</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="215" />
+      <location filename="../app/ui/main.qml" line="217" />
       <source>Calendario</source>
       <translation>Calendario</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="226" />
+      <location filename="../app/ui/main.qml" line="228" />
       <source>Log Osservazioni</source>
       <translation>Registro de observación</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="234" />
+      <location filename="../app/ui/main.qml" line="236" />
       <source>Meteo</source>
       <translation>Meteorología</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="243" />
+      <location filename="../app/ui/main.qml" line="245" />
       <source>Configurazione</source>
       <translation>Configuración</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="252" />
+      <location filename="../app/ui/main.qml" line="254" />
       <source>Località</source>
       <translation>Ubicación</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="260" />
+      <location filename="../app/ui/main.qml" line="262" />
       <source>Provider dati</source>
       <translation>Proveedores de datos</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="268" />
+      <location filename="../app/ui/main.qml" line="270" />
       <source>Profili</source>
       <translation>Perfiles</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="277" />
+      <location filename="../app/ui/main.qml" line="279" />
       <source>Cataloghi</source>
       <translation>Catálogos</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="286" />
+      <location filename="../app/ui/main.qml" line="288" />
       <source>Oggetti celesti</source>
       <translation>Objetos celestes</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="294" />
+      <location filename="../app/ui/main.qml" line="296" />
       <source>Telescopi</source>
       <translation>Telescopios</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="302" />
+      <location filename="../app/ui/main.qml" line="304" />
       <source>Oculari e Barlow</source>
       <translation>Oculares y Barlow</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="310" />
+      <location filename="../app/ui/main.qml" line="312" />
       <source>Cameras</source>
       <translation>Cámaras</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="318" />
+      <location filename="../app/ui/main.qml" line="320" />
       <source>Filtri e riduttori</source>
       <translation>Filtros y reductores focales</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="326" />
+      <location filename="../app/ui/main.qml" line="328" />
       <source>Binocoli</source>
       <translation>Prismáticos</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="340" />
+      <location filename="../app/ui/main.qml" line="342" />
       <source>Lingua</source>
       <translation>Idioma</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="385" />
+      <location filename="../app/ui/main.qml" line="387" />
       <source>Stasera</source>
       <translation>Esta noche</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="393" />
+      <location filename="../app/ui/main.qml" line="395" />
       <source>Da valutare</source>
       <translation>Por evaluar</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="401" />
+      <location filename="../app/ui/main.qml" line="403" />
       <source>Finestra osservativa non disponibile</source>
       <translation>Ventana de observación no disponible</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="413" />
+      <location filename="../app/ui/main.qml" line="415" />
       <source>Condizioni della sessione non valutabili</source>
       <translation>Las condiciones de la sesión no se pueden evaluar</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="441" />
-      <location filename="../app/ui/main.qml" line="442" />
+      <location filename="../app/ui/main.qml" line="443" />
+      <location filename="../app/ui/main.qml" line="444" />
       <source>Normale</source>
       <translation>Normal</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="473" />
-      <location filename="../app/ui/main.qml" line="474" />
+      <location filename="../app/ui/main.qml" line="475" />
+      <location filename="../app/ui/main.qml" line="476" />
       <source>Visione rossa</source>
       <translation>Visión roja</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="552" />
+      <location filename="../app/ui/main.qml" line="554" />
       <source>Torna al catalogo</source>
       <translation>Volver al catálogo</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="553" />
+      <location filename="../app/ui/main.qml" line="555" />
       <source>Torna al calendario</source>
       <translation>Volver al calendario</translation>
     </message>
     <message>
-      <location filename="../app/ui/main.qml" line="554" />
+      <location filename="../app/ui/main.qml" line="556" />
       <source>Torna alla Home</source>
       <translation>Volver a Inicio</translation>
     </message>
