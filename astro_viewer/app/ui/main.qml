@@ -41,6 +41,8 @@ ApplicationWindow {
             return theme.amber
         if (state === "discouraged")
             return theme.coral
+        if (state === "unavailable")
+            return theme.textMuted
         return theme.teal
     }
 

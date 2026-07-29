@@ -132,6 +132,29 @@ def test_metric_tile_uses_teal_unless_accent_is_meaningful() -> None:
     assert "photographicMetricAccent" not in detail
 
 
+def test_catalogue_visibility_colors_preserve_unknown_state() -> None:
+    theme = (UI_DIR / "components" / "AppTheme.qml").read_text(encoding="utf-8")
+    assert "function booleanStateColor(value, known)" in theme
+    assert "if (known !== true) return textMuted" in theme
+    assert "return value === true ? green : coral" in theme
+
+    detail = (UI_DIR / "pages" / "ObjectDetailPage.qml").read_text(
+        encoding="utf-8"
+    )
+    assert detail.count("theme.booleanStateColor(") == 2
+    assert "objectData.catalogueUsefullyObservableKnown" in detail
+    assert "objectData.catalogueVisibleCurrentMonthKnown" in detail
+
+    catalogue = (UI_DIR / "pages" / "ObjectCataloguePage.qml").read_text(
+        encoding="utf-8"
+    )
+    assert "function usefulObservableColor(item)" in catalogue
+    assert "item.is_usefully_observable_known === true" in catalogue
+    assert "item.observable_known === true" in catalogue
+    assert "return theme.booleanStateColor(value, known)" in catalogue
+    assert "color: root.usefulObservableColor(itemData)" in catalogue
+
+
 def test_glass_card_uses_teal_unless_accent_is_meaningful() -> None:
     component = (UI_DIR / "components" / "GlassCard.qml").read_text(
         encoding="utf-8"
@@ -222,6 +245,44 @@ def test_glass_card_uses_teal_unless_accent_is_meaningful() -> None:
         encoding="utf-8"
     )
     assert visible_target.count("root.accent()") == 2
+
+
+def test_unavailable_state_accents_use_muted_color() -> None:
+    home = (UI_DIR / "pages" / "HomePage.qml").read_text(encoding="utf-8")
+    assert (
+        home.count(
+            'if (state === "unavailable")\n'
+            "            return theme.textMuted"
+        )
+        == 3
+    )
+    assert (
+        'if (impact === "unavailable")\n'
+        "            return theme.textMuted"
+    ) in home
+    assert (
+        "root.weatherOverview.available\n"
+        "                                    ? theme.scoreColor("
+        "root.weatherOverview.scoreValue)\n"
+        "                                    : theme.textMuted)"
+    ) in home
+
+    main_qml = (UI_DIR / "main.qml").read_text(encoding="utf-8")
+    assert (
+        'if (state === "unavailable")\n'
+        "            return theme.textMuted"
+    ) in main_qml
+
+    detail = (UI_DIR / "pages" / "ObjectDetailPage.qml").read_text(
+        encoding="utf-8"
+    )
+    assert (
+        detail.count(
+            'if (state === "unavailable")\n'
+            "            return theme.textMuted"
+        )
+        == 2
+    )
 
 
 def test_red_palette_contains_no_bright_green_blue_or_white_tokens() -> None:

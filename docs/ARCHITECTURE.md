@@ -204,6 +204,10 @@ missing data, not a decorative accent. `GlassCard.accentColor` can still style a
 header badge or action independently from its marker. Descriptive measurements,
 section headings and Equipment catalogue columns therefore share one
 informational accent instead of cycling through decorative colors.
+`AppTheme.booleanStateColor` is the shared tri-state mapping for catalogue
+facts: known positive and negative outcomes use green and coral respectively,
+while an unknown outcome uses muted gray in both the catalogue list and object
+detail.
 
 Pages use themed controls such as `DarkTextField`, `DarkComboBox`,
 `DarkSpinBox` and `DarkCheckBox` instead of relying on platform-native

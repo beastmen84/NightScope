@@ -67,4 +67,9 @@ QtObject {
         if (score > 25) return coral
         return red
     }
+
+    function booleanStateColor(value, known) {
+        if (known !== true) return textMuted
+        return value === true ? green : coral
+    }
 }

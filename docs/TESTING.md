@@ -139,17 +139,19 @@ zero-warning baseline.
 
 ## Measured Accent Color Semantics Gate
 
-Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1 on 2026-07-28:
+Measured on Windows with Python 3.14.5 and PySide/Qt 6.11.1. The initial
+visual audit was completed on 2026-07-28; the tri-state and unavailable-state
+follow-up was validated on 2026-07-29:
 
 | Check | Result |
 | --- | --- |
-| `python tools/run_checks.py --fast` on the final source state | Passed in 295.7 s |
-| Complete deterministic suite | 1,129 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 263.25 s |
-| Focused appearance and Home contracts | 27 passed; descriptive horizontal and vertical markers use the subdued teal informational accent, while state/category colors require an explicit opt-in and stay aligned with their visible labels |
-| Installed-environment `pip-audit` | No known vulnerabilities |
-| Changed-QML lint | 13 changed QML files passed with 0 errors; 598 known non-fatal `unqualified access` warnings were reported |
+| `python tools/run_checks.py --fast` on the final source state | Passed in 330.4 s |
+| Complete deterministic suite | 1,131 passed, 643 known Skyfield/NumPy warnings, 10 subtests passed in 294.07 s |
+| Focused appearance and Home contracts | 29 passed; descriptive markers retain the subdued teal informational accent, explicit unavailable states use muted gray, and catalogue booleans share the green/coral/gray yes/no/unknown mapping in list and detail views |
+| Installed-environment `pip-audit` (2026-07-28) | No known vulnerabilities |
+| Follow-up changed-QML lint | 5 QML files passed with 0 errors; 289 known non-fatal `unqualified access` warnings were reported |
 | Runtime smoke tests | Backend, normal QML and Red Night Vision QML passed |
-| Accent render review | Thirteen 1440 x 900 renders covered Home, Calendar, Weather, Data Providers, Equipment Optics, Location, Object Detail and Event Detail in normal mode plus five representative Red Night Vision scenes; all normal scenes and representative red scenes were inspected independently from offscreen text-glyph rendering |
+| Accent render review (2026-07-28) | Thirteen 1440 x 900 renders covered Home, Calendar, Weather, Data Providers, Equipment Optics, Location, Object Detail and Event Detail in normal mode plus five representative Red Night Vision scenes; all normal scenes and representative red scenes were inspected independently from offscreen text-glyph rendering |
 
 ## Measured Smart Telescope Functional Gate
 

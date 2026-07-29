@@ -6,14 +6,16 @@
   attenuato per impostazione predefinita in Profili, Dettaglio oggetto e Meteo,
   senza suggerire stati o soglie inesistenti. Un colore diverso richiede un
   significato esplicito: resta quindi nelle categorie evento del Calendario e
-  nei reali esiti di visibilita' del catalogo.
+  nei reali esiti di visibilita' del catalogo. Lista e dettaglio catalogo
+  condividono ora la stessa semantica tri-state: verde per `Si'`, corallo per
+  `No` e grigio quando l'esito non e' noto.
 - Anche le barrette verticali delle intestazioni e dei cataloghi Equipment
   adottano il teal informativo predefinito. Home, Provider, Posizione, Profilo
   attivo, Dettaglio oggetto ed Eventi usano invece verde, ambra o corallo quando
   indicano rispettivamente un esito positivo, attenzione o un problema; nei
-  marker di stato il cyan indica un'operazione in corso. Luna segue ora
-  l'impatto reale e le condizioni planetarie/cielo profondo lo stesso colore
-  del badge.
+  marker di stato il cyan indica un'operazione in corso e il grigio un dato
+  realmente non disponibile. Luna segue ora l'impatto reale e le condizioni
+  planetarie/cielo profondo lo stesso colore del badge.
 - Lo schema SQLite passa alla versione 25. La versione 24 separa la categoria
   dello strumento (`TRADITIONAL` o `SMART_INTEGRATED`) dal tipo ottico; la 25
   aggiunge il contratto persistente `SmartTelescopeCapability` per capacita'

@@ -68,6 +68,14 @@ Item {
         return item.is_usefully_observable === true || item.observable === true ? qsTr("Sì") : "—"
     }
 
+    function usefulObservableColor(item) {
+        var known = item.is_usefully_observable_known === true
+                 || item.observable_known === true
+        var value = item.is_usefully_observable === true
+                 || item.observable === true
+        return theme.booleanStateColor(value, known)
+    }
+
     function clearFilters() {
         searchField.text = ""
         catalogueFilter.currentIndex = 0
@@ -423,7 +431,7 @@ Item {
                             TableCell { text: root.textOrDash(itemData.recommended_observation_type_label); Layout.preferredWidth: 130 }
                             TableCell {
                                 text: root.usefulObservableText(itemData)
-                                color: itemData.is_usefully_observable === true ? theme.green : theme.textMuted
+                                color: root.usefulObservableColor(itemData)
                                 font.weight: Font.DemiBold
                                 horizontalAlignment: Text.AlignHCenter
                                 Layout.preferredWidth: 104

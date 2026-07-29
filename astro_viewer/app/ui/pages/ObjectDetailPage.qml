@@ -43,6 +43,8 @@ Item {
             return theme.amber
         if (state === "limited")
             return theme.coral
+        if (state === "unavailable")
+            return theme.textMuted
         return theme.teal
     }
 
@@ -55,6 +57,8 @@ Item {
             return theme.coral
         if (state === "pending")
             return theme.cyan
+        if (state === "unavailable")
+            return theme.textMuted
         return theme.teal
     }
 
@@ -155,8 +159,8 @@ Item {
             { "label": qsTr("Sorge"), "value": objectData.riseTime },
             { "label": qsTr("Transita"), "value": objectData.culminationTime },
             { "label": qsTr("Tramonta"), "value": objectData.setTime },
-            { "label": qsTr("Raggiunge ≥15°"), "value": objectData.catalogueUsefullyObservableLabel, "accent": objectData.catalogueUsefullyObservable === true ? theme.green : theme.coral, "accentMeaningful": true },
-            { "label": qsTr("Visibile nel mese corrente"), "value": objectData.catalogueVisibleCurrentMonthLabel, "accent": objectData.catalogueVisibleCurrentMonth === true ? theme.green : theme.coral, "accentMeaningful": true }
+            { "label": qsTr("Raggiunge ≥15°"), "value": objectData.catalogueUsefullyObservableLabel, "accent": theme.booleanStateColor(objectData.catalogueUsefullyObservable, objectData.catalogueUsefullyObservableKnown), "accentMeaningful": true },
+            { "label": qsTr("Visibile nel mese corrente"), "value": objectData.catalogueVisibleCurrentMonthLabel, "accent": theme.booleanStateColor(objectData.catalogueVisibleCurrentMonth, objectData.catalogueVisibleCurrentMonthKnown), "accentMeaningful": true }
         ]
         var result = []
         for (var i = 0; i < source.length; i++) {

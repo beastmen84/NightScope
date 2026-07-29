@@ -164,6 +164,8 @@ Item {
             return theme.amber
         if (state === "discouraged")
             return theme.coral
+        if (state === "unavailable")
+            return theme.textMuted
         return theme.teal
     }
 
@@ -176,6 +178,8 @@ Item {
             return theme.coral
         if (state === "pending")
             return theme.cyan
+        if (state === "unavailable")
+            return theme.textMuted
         return theme.teal
     }
 
@@ -186,9 +190,9 @@ Item {
         if (state === "partial")
             return theme.amber
         if (state === "unavailable")
-            return theme.teal
+            return theme.textMuted
         var scoreValue = Number(data.scoreValue)
-        return isFinite(scoreValue) ? theme.scoreColor(scoreValue) : theme.teal
+        return isFinite(scoreValue) ? theme.scoreColor(scoreValue) : theme.textMuted
     }
 
     function moonImpactAccent(impact) {
@@ -200,6 +204,8 @@ Item {
             return theme.amber
         if (impact === "high")
             return theme.coral
+        if (impact === "unavailable")
+            return theme.textMuted
         return theme.teal
     }
 
@@ -619,7 +625,7 @@ Item {
                                  ? theme.cyan
                                  : (root.weatherOverview.available
                                     ? theme.scoreColor(root.weatherOverview.scoreValue)
-                                    : theme.teal)
+                                    : theme.textMuted)
                     accentMeaningful: true
                     headerBadgeText: root.weatherOverview.badge || qsTr("n/d")
                     headerBadgeColor: root.weatherOverview.state === "pending" ? theme.cyan : accentColor
