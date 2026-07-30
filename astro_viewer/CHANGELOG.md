@@ -86,9 +86,16 @@
   passano `qmllint` con zero errori e `832` warning `unqualified` gia' noti; i
   cataloghi IT/EN/ES contengono `2.046` stringhe complete ciascuno e gli smoke
   backend, QML normale e Red Night Vision restano verdi.
-- La versione sorgente passa a `1.43.0`. I bundle Windows/Linux, il tag
-  `v1.43.0` e la release GitHub restano da creare, verificare e pubblicare; la
-  release pubblica corrente rimane `v1.42.0`.
+- Generato il bundle Linux `1.43.0` nella baseline Debian 12
+  x86-64/glibc 2.36. La dist contiene `5.430` file per `577 MiB`, incluso il
+  seed delle capacita' dei telescopi smart. Il tar deterministico misura
+  `273.473.021` byte e ha SHA-256
+  `ecdb48f9844b99bd3795e93b8d817f03de6943a171893c624b10fa84522f1250`.
+  Checksum, audit, estrazione pulita, backend e QML normale/rosso sono passati
+  su Debian 12, Debian 13 e Ubuntu 26.04, inclusi Wayland e XCB.
+- La versione sorgente passa a `1.43.0`. Il bundle Windows, il tag `v1.43.0` e
+  la release GitHub restano da creare, verificare e pubblicare; la release
+  pubblica corrente rimane `v1.42.0`.
 
 ## NightScope 1.42.0 - 2026-07-27
 

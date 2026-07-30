@@ -1,6 +1,6 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-29
+Aggiornato: 2026-07-30
 
 ## Stato Versioni
 
@@ -15,12 +15,19 @@ Aggiornato: 2026-07-29
   (`260 MiB`), SHA-256
   `1961ac3be264001d1735bcff09c7bf23e58835c75c2dc49af679c8d6e532da2a`,
   con file checksum adiacente.
+- Candidate Linux locale `1.43.0`:
+  `NightScope-v1.43.0-debian-12-x64.tar.gz`, `273.473.021` byte (`261 MiB`),
+  SHA-256
+  `ecdb48f9844b99bd3795e93b8d817f03de6943a171893c624b10fa84522f1250`,
+  con file checksum adiacente. La precedente dist locale `1.42.0` e' stata
+  rimossa; resta disponibile nella release pubblica.
 - Metadati, tag corretto `v1.42.0`, asset e digest della release stabile
   verificati su GitHub il 2026-07-27. Il tag iniziale errato `v.1.42.0` e'
   stato sostituito senza modificare commit, release o asset.
 - Il sorgente `1.43.0` e' stato preparato dopo la review completa delle
-  modifiche successive al tag `v1.42.0`. Dist Windows/Linux, tag e release
-  GitHub `v1.43.0` restano da creare, verificare e pubblicare.
+  modifiche successive al tag `v1.42.0`. La dist Linux e' stata creata e
+  verificata localmente; dist Windows, tag, release e upload GitHub `v1.43.0`
+  restano da creare o verificare.
 - Commit sorgente della release pubblica validato:
   `3e17132 Record Debian 1.42 release candidate`
 
@@ -46,8 +53,14 @@ La review Windows del 2026-07-29 ha superato `tools/run_checks.py --security`
 con `1.132 passed`, `643` warning Skyfield/NumPy noti, `10 subtests`, coverage
 `85%` su `19.500` statement e nessuna vulnerabilita' nota. Tutti i 34 file QML
 passano con zero errori (`832` warning `unqualified` noti); i cataloghi
-IT/EN/ES hanno `2.046` stringhe complete ciascuno. Build, audit, smoke,
-checksum e verifica visuale devono essere ripetuti sui nuovi artefatti.
+IT/EN/ES hanno `2.046` stringhe complete ciascuno.
+
+Il gate Linux del 2026-07-30 ha superato `tools/run_checks.py --fast` su Ubuntu
+26.04 con `1.131 passed`, un test solo Windows saltato, `643` warning noti e
+`10 subtests`. Il bundle Debian 12 e' stato verificato da un'estrazione pulita
+su Debian 12, Debian 13 e Ubuntu 26.04: backend, QML normale/rosso, Wayland e
+XCB passano. Restano da completare build e verifica del nuovo artefatto Windows
+e la pubblicazione coordinata.
 
 ## Fondazione catalogo Cameras
 

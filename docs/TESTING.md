@@ -292,6 +292,38 @@ regressions additionally cover alias deduplication, locked Solar System rows,
 exact action counts, all-or-nothing persistence, compact large-range model
 notifications, filtered-state preservation and exactly one deferred refresh.
 
+## Measured 1.43.0 Debian Portable Bundle Gate
+
+Measured on 2026-07-30. Source validation ran on Ubuntu 26.04 with Python
+3.14.4. The portable bundle was built with rootless Podman from the official
+Python 3.12 Debian 12 image using Python 3.12.13, PySide/Qt 6.11.1,
+PyInstaller 6.21.0 and glibc 2.36:
+
+| Check | Result |
+| --- | --- |
+| Ubuntu source `.venv/bin/python tools/run_checks.py --fast` | Passed |
+| Linux deterministic suite | 1,131 passed, 1 Windows-only test skipped, 643 warnings, 10 subtests passed in 151.50 s |
+| Focused Linux and smart-telescope regressions | 151 passed |
+| Offline catalogue checks | 2,683 MPC observatories and 7,839 usable OpenNGC designations passed |
+| `./packaging/build_linux_debian12.sh` | Passed using rootless Podman |
+| Frozen bundle inventory | Version 1.43.0; 5,430 files; 577 MiB |
+| New release data | Smart-telescope capability seed present; `botocore 1.43.46` and `aiobotocore 3.8.0` aligned |
+| Native-component inventory | 146 ELF files; 84 binary packages; 63 Debian source packages plus CPython |
+| Bundled native notices | 64 notices and 15 common-license texts |
+| Exact source links | 64/64 Debian Sources and official CPython tag URLs passed |
+| Debian 12 frozen smoke | Backend and offscreen normal/red QML passed |
+| Debian 13 frozen smoke | Backend and offscreen normal/red QML passed with the documented GL/EGL host libraries |
+| Ubuntu 26.04 frozen smoke | Backend, Wayland normal/red QML, and XCB normal/red QML passed |
+| Newer-host GIO isolation | XCB passed without loading an incompatible host GVFS module |
+| Deterministic release archive | `NightScope-v1.43.0-debian-12-x64.tar.gz`; 273,473,021 bytes (261 MiB) |
+| Archive SHA-256 | `ecdb48f9844b99bd3795e93b8d817f03de6943a171893c624b10fa84522f1250` |
+| Clean archive extraction | Checksum, bundle audit, backend, Wayland and XCB normal/red QML passed |
+
+This is a fast source/bundle gate without coverage or `pip-audit`. The tarball
+and checksum are local release candidates until they are published together
+with the matching Windows asset in the public `v1.43.0` GitHub release. The
+current public release remains `v1.42.0`.
+
 ## Measured 1.42.0 Debian Portable Bundle Gate
 
 Measured on 2026-07-27. Source validation ran on Ubuntu 26.04 with Python
