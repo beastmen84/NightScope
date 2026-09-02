@@ -1,7 +1,7 @@
 # NightScope Recommendation Architecture
 
 This document describes the current recommendation architecture in NightScope
-`1.45.0`. The typed profile, binocular and recommendation boundaries originated
+`1.45.1`. The typed profile, binocular and recommendation boundaries originated
 in the NightScope 1.1 refactors and remain the active design.
 
 The recommendation system has one main rule:
@@ -29,7 +29,10 @@ EquipmentService scoring and selection
 RecommendationPresenter
     |
     v
-AppController
+CatalogueRecommendationWorkflow
+    |
+    v
+AppController (Qt scheduling and state application)
     |
     v
 Home / Object Detail / Calendar / Planner
@@ -45,6 +48,15 @@ the best `RecommendationCandidate`. `RecommendationPresenter` serializes the
 selected candidate and chooses display-only role representatives from the
 already-scored candidates for the UI-facing DTO used by `AppController` and
 QML.
+
+Since `1.45.1`, `CatalogueRecommendationWorkflow` owns the synchronous,
+framework-independent preparation of the complete catalogue recommendation
+snapshot: equipment setup enrichment, condition read models, NSOM ranking,
+best-object selection, night planning and the Sky Compass payload. The Qt
+controller owns request generations, debounce/timers, worker lifecycle, stale
+result rejection and application of the prepared immutable snapshot. Snapshot
+contracts live in `astro_viewer.app.application.snapshots`, so the application
+workflow does not depend on the view-model module.
 
 ## Responsibilities
 

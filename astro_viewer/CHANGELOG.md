@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+## NightScope 1.45.1 - 2026-09-02
+
+- Estratto da `AppController` il workflow sincrono che prepara le
+  raccomandazioni di catalogo. Arricchimento con l'equipaggiamento, read model
+  delle condizioni, ranking NSOM, scelta del miglior oggetto, piano notturno e
+  payload Sky Compass appartengono ora al livello applicativo e sono privi di
+  dipendenze Qt.
+- I contratti immutabili usati dai worker asincroni vivono ora in un modulo
+  applicativo dedicato. Il controller conserva debounce, timer, generazioni di
+  richiesta, rifiuto dei risultati obsoleti, segnali e applicazione dello stato,
+  mantenendo invariati i contratti QML e gli adattatori interni esistenti.
+- La versione sorgente passa a `1.45.1`. `dist` non e' stata rigenerata o
+  modificata; tag, checksum e artefatti restano un'attivita' di release separata.
+
 ## NightScope 1.45.0 - 2026-09-02
 
 - Introdotta una composition root applicativa esplicita che costruisce

@@ -4,7 +4,7 @@ Aggiornato: 2026-09-02
 
 ## Stato Versioni
 
-- Versione sorgente: `1.45.0`
+- Versione sorgente: `1.45.1`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica stabile: `v1.43.0`, tag sul commit sorgente
   `26dfaf49df8f9b8e73e84f406396f406170400b2`.
@@ -17,9 +17,10 @@ Aggiornato: 2026-09-02
   con file checksum adiacente.
 - Metadati, tag, asset Windows/Linux e digest della release stabile `v1.43.0`
   sono stati verificati su GitHub il 2026-09-01.
-- Il sorgente `1.45.0` avvia la serie architetturale 1.45.x con una composition
-  root applicativa esplicita. Dist, checksum e release GitHub `v1.45.0` non sono
-  stati creati e restano fuori ambito fino a richiesta esplicita.
+- Il sorgente `1.45.1` prosegue la serie architetturale 1.45.x estraendo dal
+  controller il workflow delle raccomandazioni di catalogo. Dist, checksum e
+  release GitHub `v1.45.1` non sono stati creati e restano fuori ambito fino a
+  richiesta esplicita.
 - Commit sorgente della release pubblica validato:
   `26dfaf4 Record Debian 1.43 release candidate`
 
@@ -29,6 +30,14 @@ Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
 
 ## Serie Architetturale 1.45.x
+
+La `1.45.1` introduce `CatalogueRecommendationWorkflow`: prepara fuori dal
+confine Qt equipaggiamento, condizioni, ranking NSOM, miglior oggetto, piano
+notturno e Sky Compass. I contratti delle snapshot asincrone sono stati spostati
+nel livello applicativo; `AppController` conserva timer, debounce, generazioni,
+scarto dei risultati obsoleti, segnali e applicazione dello stato. Gli adattatori
+interni storici delegano alle nuove funzioni pure per non rompere test o
+integrazioni.
 
 La `1.45.0` sposta la costruzione concreta di repository, provider, servizi e
 motore astronomico in `astro_viewer.app.application.dependencies`. L'entry point
@@ -40,6 +49,16 @@ La serie proseguira' con commit e versioni sorgente distinti per workflow
 catalogo, presentazione osservativa, profili/equipaggiamento, pulizia dei cicli
 di importazione e gate statici. `dist` non deve essere rigenerata durante questi
 step.
+
+Validazione sorgente `1.45.1` su Python 3.14.5:
+
+- test mirati del workflow, composizione e percorsi NSOM: `68 passed`;
+- test di composizione, metadati e tooling: `34 passed`;
+- `tools/run_checks.py --fast`: `1.144 passed`, `715` warning esterni noti e
+  `10 subtests passed`;
+- `pip check`, Ruff, `compileall`, licenze, snapshot MPC/OpenNGC, smoke backend
+  e smoke QML normale/Red Night Vision puliti;
+- nessun file sotto `dist` rigenerato o modificato.
 
 Validazione sorgente `1.45.0` su Python 3.14.5:
 

@@ -33,3 +33,29 @@ def test_dependency_factory_owns_ephemeris_fallback(tmp_path: Path) -> None:
 
     assert isinstance(dependencies.astronomy_engine, MockAstronomyEngine)
     assert dependencies.startup_service_status
+
+    workflow = dependencies.catalogue_recommendation_workflow
+    assert workflow._equipment_service is dependencies.equipment_service
+    assert (
+        workflow._equipment_setup_read_model_builder
+        is dependencies.equipment_setup_read_model_builder
+    )
+    assert workflow._conditions_service is dependencies.conditions_service
+    assert (
+        workflow._conditions_read_model_builder
+        is dependencies.conditions_read_model_builder
+    )
+    assert (
+        workflow._home_ranking_service
+        is dependencies.home_recommended_deep_sky_nsom_ranking_service
+    )
+    assert (
+        workflow._category_score_service
+        is dependencies.nsom_category_score_service
+    )
+    assert (
+        workflow._best_object_service
+        is dependencies.best_object_nsom_selection_service
+    )
+    assert workflow._night_planner_service is dependencies.night_planner_service
+    assert workflow._sky_compass_service is dependencies.sky_compass_service

@@ -5,6 +5,9 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from astro_viewer.app.application.catalogue_recommendations import (
+    CatalogueRecommendationWorkflow,
+)
 from astro_viewer.app.astronomy.engine import (
     AstronomyEngine,
     MockAstronomyEngine,
@@ -140,6 +143,7 @@ class AppControllerDependencies:
     imaging_runtime_assembler: ImagingRuntimeAssembler
     imaging_recommendation_presenter: ImagingRecommendationPresenter
     refresh_manager: RefreshManager
+    catalogue_recommendation_workflow: CatalogueRecommendationWorkflow
 
 
 def build_app_controller_dependencies(
@@ -211,6 +215,32 @@ def build_app_controller_dependencies(
         )
 
     equipment_service = EquipmentService()
+    equipment_setup_read_model_builder = EquipmentSetupReadModelBuilder()
+    conditions_service = ObservationConditionsService()
+    conditions_read_model_builder = ObservationConditionsReadModelBuilder()
+    resolved_category_score_service = (
+        nsom_category_score_service or NsomCategoryScoreService()
+    )
+    resolved_best_object_service = (
+        best_object_nsom_selection_service or BestObjectNsomSelectionService()
+    )
+    resolved_home_ranking_service = (
+        home_recommended_deep_sky_nsom_ranking_service
+        or HomeRecommendedDeepSkyNsomRankingService()
+    )
+    night_planner_service = NightPlannerService()
+    resolved_sky_compass_service = sky_compass_service or SkyCompassService()
+    catalogue_recommendation_workflow = CatalogueRecommendationWorkflow(
+        equipment_service=equipment_service,
+        equipment_setup_read_model_builder=equipment_setup_read_model_builder,
+        conditions_service=conditions_service,
+        conditions_read_model_builder=conditions_read_model_builder,
+        home_ranking_service=resolved_home_ranking_service,
+        category_score_service=resolved_category_score_service,
+        best_object_service=resolved_best_object_service,
+        night_planner_service=night_planner_service,
+        sky_compass_service=resolved_sky_compass_service,
+    )
     return AppControllerDependencies(
         city_repository=city_repository,
         location_repository=location_repository,
@@ -231,7 +261,7 @@ def build_app_controller_dependencies(
         startup_service_status=startup_service_status,
         weather_service=OpenMeteoWeatherService(weather_cache_repository),
         equipment_service=equipment_service,
-        equipment_setup_read_model_builder=EquipmentSetupReadModelBuilder(),
+        equipment_setup_read_model_builder=equipment_setup_read_model_builder,
         filter_recommendation_service=FilterRecommendationService(),
         reducer_recommendation_service=ReducerRecommendationService(),
         score_service=ObservingScoreService(),
@@ -245,26 +275,20 @@ def build_app_controller_dependencies(
             cache_path=resolved_nasa_aod_cache_path,
         ),
         seeing_service=SeeingTransparencyService(),
-        nsom_category_score_service=(
-            nsom_category_score_service or NsomCategoryScoreService()
-        ),
-        conditions_service=ObservationConditionsService(),
-        conditions_read_model_builder=ObservationConditionsReadModelBuilder(),
+        nsom_category_score_service=resolved_category_score_service,
+        conditions_service=conditions_service,
+        conditions_read_model_builder=conditions_read_model_builder,
         observation_log_service=ObservationLogService(),
-        best_object_nsom_selection_service=(
-            best_object_nsom_selection_service or BestObjectNsomSelectionService()
-        ),
-        home_recommended_deep_sky_nsom_ranking_service=(
-            home_recommended_deep_sky_nsom_ranking_service
-            or HomeRecommendedDeepSkyNsomRankingService()
-        ),
+        best_object_nsom_selection_service=resolved_best_object_service,
+        home_recommended_deep_sky_nsom_ranking_service=resolved_home_ranking_service,
         home_observing_overview_service=HomeObservingOverviewService(),
         home_night_plan_overview_service=HomeNightPlanOverviewService(),
         calendar_overview_service=CalendarOverviewService(),
-        night_planner_service=NightPlannerService(),
-        sky_compass_service=sky_compass_service or SkyCompassService(),
+        night_planner_service=night_planner_service,
+        sky_compass_service=resolved_sky_compass_service,
         observing_object_detail_service=ObservingObjectDetailService(),
         imaging_runtime_assembler=ImagingRuntimeAssembler(),
         imaging_recommendation_presenter=ImagingRecommendationPresenter(),
         refresh_manager=RefreshManager(),
+        catalogue_recommendation_workflow=catalogue_recommendation_workflow,
     )
