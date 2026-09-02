@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## NightScope 1.45.2 - 2026-09-02
+
+- Estratti da `AppController` gli algoritmi di presentazione degli stati
+  osservativi, delle motivazioni, delle finestre meteo e della decisione di
+  sessione. I nuovi servizi ricevono dati espliciti e non dipendono da QObject,
+  segnali o stato UI.
+- Le funzioni condivise per orari della notte, parsing di date e finestre a
+  cavallo della mezzanotte sono ora raccolte in `observing_time`; selezione e
+  sintesi delle ore meteo vivono in `weather_presentation`. Il controller
+  conserva wrapper compatibili per i test e le integrazioni esistenti.
+- La versione sorgente passa a `1.45.2`. `dist` non e' stata rigenerata o
+  modificata; tag e artefatti restano fuori da questa serie di commit.
+
 ## NightScope 1.45.1 - 2026-09-02
 
 - Estratto da `AppController` il workflow sincrono che prepara le

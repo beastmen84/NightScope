@@ -152,10 +152,13 @@ from astro_viewer.app.services.observation_log_service import (
     ObservationLogValidationError,
 )
 from astro_viewer.app.services.observing_night_service import (
-    consecutive_weather_groups,
-    weather_hour_datetime,
     weather_hours_for_next_24,
     weather_hours_for_night,
+)
+from astro_viewer.app.services import (
+    observing_presentation,
+    observing_time,
+    weather_presentation,
 )
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere
 from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshManager, RefreshReason
@@ -411,6 +414,12 @@ class AppController(QObject):
         self._refresh_manager = controller_dependencies.refresh_manager
         self._catalogue_recommendation_workflow = (
             controller_dependencies.catalogue_recommendation_workflow
+        )
+        self._observing_presentation_service = (
+            controller_dependencies.observing_presentation_service
+        )
+        self._weather_presentation_service = (
+            controller_dependencies.weather_presentation_service
         )
 
         self._city_results = []
@@ -7396,310 +7405,137 @@ class AppController(QObject):
             return tr("Bassa priorità osservativa")
         return clean
 
+    def _observing_presentation_service_instance(
+        self,
+    ) -> observing_presentation.ObservingPresentationService:
+        service = getattr(self, "_observing_presentation_service", None)
+        if service is None:
+            service = observing_presentation.ObservingPresentationService()
+        return service
+
+    def _weather_presentation_service_instance(
+        self,
+    ) -> weather_presentation.WeatherPresentationService:
+        service = getattr(self, "_weather_presentation_service", None)
+        if service is None:
+            night_planner_service = getattr(
+                self,
+                "_night_planner_service",
+                None,
+            ) or weather_presentation.NightPlannerService()
+            service = weather_presentation.WeatherPresentationService(
+                night_planner_service
+            )
+        return service
+
     def _observing_status(self, item: CelestialObject) -> tuple[str, str]:
         _, status, detail = self._observing_status_data(item)
         return status, detail
 
     def _observing_status_data(self, item: CelestialObject) -> tuple[str, str, str]:
         if self._is_catalogue_detail_object(item):
-            catalogue = self._catalogue_name_for_detail(item)
-            return (
-                "catalogue",
-                tr("Catalogo {catalogue}", catalogue=catalogue),
-                tr("Scheda informativa caricata dal catalogo locale."),
+            return self._observing_presentation_service_instance().status_data(
+                item,
+                catalogue_name=self._catalogue_name_for_detail(item),
+                now=datetime.now(ZoneInfo("UTC")),
+                night_window=ObservingNightWindow.unavailable(),
+                monthly_visibility_blocked=False,
+                useful_datetime=None,
+                window="",
+                altitude_threshold=self._observing_altitude_threshold(item),
             )
-        current_altitude = self._parse_degrees(item.current_altitude)
-        useful_datetime = self._first_observing_datetime(item.best_time) or self._first_observing_datetime(
-            item.observing_window
-        )
-        window = self._home_window_label(item)
-        now = datetime.now(self._zone())
-        night_window = getattr(self, "_observing_night_window", ObservingNightWindow.unavailable())
-        is_observing_time = night_window.contains(now)
-        altitude_threshold = self._observing_altitude_threshold(item)
-        observable_now = item.observable_now
-        if observable_now is None:
-            observable_now = bool(
-                is_observing_time
-                and current_altitude is not None
-                and current_altitude >= altitude_threshold
-            )
-        if self._is_solar_system_monthly_visibility_blocked(item):
-            if current_altitude is not None and current_altitude > 0:
-                return (
-                    "above_horizon",
-                    tr("Sopra l'orizzonte"),
-                    tr("Sopra l'orizzonte, ma non utile per l'osservazione questo mese."),
-                )
-            if useful_datetime:
-                return (
-                    "limited",
-                    tr("Finestra marginale"),
-                    tr("Finestra marginale: l'oggetto non raggiunge la visibilità utile mensile."),
-                )
-            return (
-                "limited",
-                tr("Non utile questo mese"),
-                tr("Non raggiunge una finestra utile questo mese secondo il criterio di visibilità mensile."),
-            )
-        if observable_now:
-            altitude = (
-                tr("{value}°", value=format_number(current_altitude))
-                if current_altitude is not None
-                else tr("quota utile")
-            )
-            return (
-                "observable_now",
-                tr("Osservabile ora"),
-                tr("Attualmente a {altitude}. Finestra utile: {window}.", altitude=altitude, window=window),
-            )
-        if current_altitude is not None and current_altitude > 0 and not is_observing_time:
-            return (
-                "above_horizon",
-                tr("Sopra l'orizzonte"),
-                tr(
-                    "Attualmente a {altitude}°, ma fuori dalla notte osservativa. Finestra utile: {window}.",
-                    altitude=format_number(current_altitude),
-                    window=window,
-                ),
-            )
-        if useful_datetime:
-            if self._home_time_period_code(useful_datetime) == "before_dawn":
-                return (
-                    "later",
-                    tr("Meglio prima dell'alba"),
-                    tr("Attualmente sotto la soglia utile. Finestra prima dell'alba: {window}.", window=window),
-                )
-            if useful_datetime > now:
-                return (
-                    "later",
-                    tr("Meglio più tardi"),
-                    tr("Attualmente sotto la soglia utile. Finestra più tardi: {window}.", window=window),
-                )
-        if current_altitude is not None and current_altitude > 0:
-            return (
-                "limited",
-                tr("Troppo basso ora"),
-                tr(
-                    "Attualmente a {altitude}°, sotto la soglia utile di {threshold}°. Finestra utile: {window}.",
-                    altitude=format_number(current_altitude),
-                    threshold=format_number(altitude_threshold),
-                    window=window,
-                ),
-            )
-        if useful_datetime:
-            return (
-                "unavailable",
-                tr("Finestra conclusa"),
-                tr("La finestra utile di questa notte era {window}.", window=window),
-            )
-        if item.visible:
-            return (
-                "later",
-                tr("Finestra utile"),
-                tr("Finestra osservativa: {window}.", window=item.observing_window),
-            )
-        return (
-            "unavailable",
-            tr("Non osservabile"),
-            tr("Nessuna finestra notturna utile per questa posizione."),
+        useful_datetime = self._first_observing_datetime(
+            item.best_time
+        ) or self._first_observing_datetime(item.observing_window)
+        return self._observing_presentation_service_instance().status_data(
+            item,
+            catalogue_name=None,
+            now=datetime.now(self._zone()),
+            night_window=getattr(
+                self,
+                "_observing_night_window",
+                ObservingNightWindow.unavailable(),
+            ),
+            monthly_visibility_blocked=(
+                self._is_solar_system_monthly_visibility_blocked(item)
+            ),
+            useful_datetime=useful_datetime,
+            window=self._home_window_label(item),
+            altitude_threshold=self._observing_altitude_threshold(item),
         )
 
     @staticmethod
     def _is_planetary_or_lunar_target(item: CelestialObject) -> bool:
-        return item.id in {
-            "sun",
-            "moon",
-            "mercury",
-            "venus",
-            "mars",
-            "jupiter",
-            "saturn",
-            "uranus",
-            "neptune",
-        } or item.object_type == "Pianeta"
+        return observing_presentation.is_planetary_or_lunar_target(item)
 
     @classmethod
     def _observing_altitude_threshold(cls, item: CelestialObject) -> float:
-        return 8.0 if cls._is_planetary_or_lunar_target(item) else DEEP_SKY_USEFUL_ALTITUDE_DEG
+        return observing_presentation.observing_altitude_threshold(item)
 
-    def _is_solar_system_monthly_visibility_blocked(self, item: CelestialObject) -> bool:
+    def _is_solar_system_monthly_visibility_blocked(
+        self,
+        item: CelestialObject,
+    ) -> bool:
         if item.object_type != "Pianeta":
             return False
         return self._catalogue_month_visible_for_object(item.id) is False
 
     def _observing_reasons(self, item: CelestialObject) -> list[str]:
-        if self._is_catalogue_detail_object(item):
-            return []
-        reasons = []
-        max_altitude = self._parse_degrees(item.max_altitude)
-        if max_altitude is not None and max_altitude > 0:
-            reasons.append(self._altitude_reason(max_altitude))
-        if item.time_above_horizon and item.time_above_horizon not in {"n/d", "0 h"}:
-            reasons.append(
-                tr(
-                    "Finestra utile sopra soglia: {duration}.",
-                    duration=item.time_above_horizon,
-                )
-            )
-        if item.id == "moon" and self._moon:
-            reasons.append(
-                tr(
-                    "Fase lunare: {phase}, illuminazione {illumination}.",
-                    phase=self._moon.phase,
-                    illumination=self._moon.illumination,
-                )
-            )
-        elif self._seeing_transparency and item.object_type == "Pianeta":
-            seeing = self._localized_seeing(self._seeing_transparency.seeing)
-            reasons.append(
-                tr(
-                    "Seeing previsto: {seeing}. Adatto a valutare dettagli planetari.",
-                    seeing=seeing,
-                )
-            )
-        elif self._sky_quality and item.object_type != "Pianeta":
-            reasons.append(self._sky_quality_reason(item))
-        return reasons[:4]
+        return self._observing_presentation_service_instance().reasons(
+            item,
+            is_catalogue_detail=self._is_catalogue_detail_object(item),
+            moon=getattr(self, "_moon", None),
+            seeing_transparency=getattr(self, "_seeing_transparency", None),
+            sky_quality=getattr(self, "_sky_quality", None),
+        )
 
     @staticmethod
     def _altitude_reason(max_altitude: float) -> str:
-        altitude = format_number(max_altitude)
-        if max_altitude >= 65:
-            return tr(
-                "Culmina molto alto ({altitude}°): meno atmosfera e immagine più stabile.",
-                altitude=altitude,
-            )
-        if max_altitude >= 35:
-            return tr(
-                "Raggiunge una buona altezza ({altitude}°): osservazione realistica.",
-                altitude=altitude,
-            )
-        if max_altitude >= 15:
-            return tr(
-                "Resta basso ({altitude}°): serve orizzonte libero e cielo stabile.",
-                altitude=altitude,
-            )
-        return tr(
-            "Altezza massima critica ({altitude}°): oggetto difficile da sfruttare.",
-            altitude=altitude,
-        )
+        return observing_presentation.altitude_reason(max_altitude)
 
     @staticmethod
     def _localized_seeing(value: str) -> str:
-        labels = {
-            "Excellent": tr("Eccellente"),
-            "Good": tr("Buono"),
-            "Average": tr("Discreto"),
-            "Poor": tr("Scarso"),
-        }
-        return labels.get(value, value or tr("n/d"))
+        return observing_presentation.localized_seeing(value)
 
     def _sky_quality_reason(self, item: CelestialObject) -> str:
-        bortle = self._sky_quality.bortle_class
-        difficulty = item.difficulty if item.difficulty and item.difficulty != "n/d" else "da valutare"
-        if difficulty == "Facile":
-            return tr(
-                "Cielo Bortle {bortle}: oggetto ancora gestibile, difficoltà stimata facile.",
-                bortle=bortle,
-            )
-        if difficulty == "Media":
-            return tr(
-                "Cielo Bortle {bortle}: richiede adattamento al buio, difficoltà media.",
-                bortle=bortle,
-            )
-        if difficulty == "Difficile":
-            return tr(
-                "Cielo Bortle {bortle}: oggetto penalizzato, meglio trasparenza alta e luci schermate.",
-                bortle=bortle,
-            )
-        return tr(
-            "Cielo Bortle {bortle}: difficoltà stimata {difficulty}.",
-            bortle=bortle,
-            difficulty=(tr("da valutare") if difficulty == "da valutare" else difficulty),
+        return observing_presentation.sky_quality_reason(
+            item,
+            self._sky_quality,
         )
 
     def _setup_reason(self, item: CelestialObject) -> str:
-        if not item.recommended_setup:
-            return ""
-        option = self._recommended_setup_option(item)
-        magnification = option.get("magnification", "") if option else ""
-        true_field = option.get("trueField", "") if option else ""
-        exit_pupil = option.get("exitPupil", "") if option else ""
-        barlow = option.get("barlow", "") if option else item.barlow
-        lower_type = item.object_type.lower()
-        if option.get("equipmentType") == "Binocular":
-            if "open" in lower_type or "ammasso aperto" in lower_type or "star cloud" in lower_type:
-                return tr("{magnification} e pupilla {exit_pupil}: campo ampio e visione naturale dell'ammasso.", magnification=magnification, exit_pupil=exit_pupil)
-            if "galaxy" in lower_type or "galassia" in lower_type:
-                return tr("{magnification} e pupilla {exit_pupil}: adatto a oggetti molto estesi e a basso contrasto.", magnification=magnification, exit_pupil=exit_pupil)
-            if "nebula" in lower_type or "nebul" in lower_type:
-                return tr("{magnification} e pupilla {exit_pupil}: utile per individuare l'oggetto senza stringere troppo il campo.", magnification=magnification, exit_pupil=exit_pupil)
-            return item.equipment_explanation or tr("{magnification} e pupilla {exit_pupil}: configurazione binoculare a basso ingrandimento.", magnification=magnification, exit_pupil=exit_pupil)
-        if magnification and exit_pupil:
-            if item.id == "moon":
-                return tr("{magnification} e pupilla {exit_pupil}: dettaglio lunare leggibile senza spingere troppo l'immagine.", magnification=magnification, exit_pupil=exit_pupil)
-            if item.object_type == "Pianeta":
-                return tr("{magnification} e pupilla {exit_pupil}: compromesso tra dettaglio planetario e seeing previsto.", magnification=magnification, exit_pupil=exit_pupil)
-            if "open" in lower_type or "ammasso aperto" in lower_type or "star cloud" in lower_type:
-                return tr("Campo reale {true_field}: mantiene l'oggetto nel suo contesto stellare.", true_field=true_field)
-            if "globular" in lower_type or "ammasso globulare" in lower_type:
-                return tr("{magnification} e pupilla {exit_pupil}: aiuta a separare il nucleo senza scurire troppo.", magnification=magnification, exit_pupil=exit_pupil)
-            if "galaxy" in lower_type or "galassia" in lower_type:
-                return tr("Pupilla {exit_pupil} e campo {true_field}: privilegia contrasto e orientamento della galassia.", exit_pupil=exit_pupil, true_field=true_field)
-            if "nebula" in lower_type or "nebul" in lower_type:
-                return tr("Pupilla {exit_pupil} e campo {true_field}: equilibrio utile per oggetti diffusi.", exit_pupil=exit_pupil, true_field=true_field)
-        if item.equipment_explanation:
-            return item.equipment_explanation
-        if barlow and barlow != "No":
-            return tr("Barlow inclusa per raggiungere un ingrandimento più utile.")
-        return tr("Configurazione scelta in base al profilo attivo e al tipo di oggetto.")
+        return self._observing_presentation_service_instance().setup_reason(item)
 
     @staticmethod
     def _recommended_setup_option(item: CelestialObject) -> dict:
-        for option in item.setup_options:
-            if option.get("roleCode") == "recommended":
-                return option
-        return item.setup_options[0] if item.setup_options else {}
+        return observing_presentation.recommended_setup_option(item)
 
     @staticmethod
     def _recommendation_setup_type(suggestion: dict) -> str:
-        setup_type = suggestion.get("setupType", "")
-        if setup_type:
-            return setup_type
-        equipment_type = suggestion.get("equipmentType", "")
-        if equipment_type == "Binocular":
-            return "binocular"
-        if equipment_type == "Telescope":
-            return "telescope"
-        for option in suggestion.get("setupOptions", []):
-            if option.get("roleCode") == "recommended":
-                option_type = option.get("equipmentType", "")
-                if option_type == "Binocular":
-                    return "binocular"
-                if option_type == "Telescope":
-                    return "telescope"
-        return ""
+        return observing_presentation.recommendation_setup_type(suggestion)
 
     @staticmethod
     def _moon_cycle_fraction(phase_angle: float) -> float:
-        return round((phase_angle % 360.0) / 360.0, 4)
+        return observing_presentation.moon_cycle_fraction(phase_angle)
 
     @staticmethod
     def _moon_cycle_day_label(phase_angle: float) -> str:
-        cycle_day = AppController._moon_cycle_fraction(phase_angle) * 29.53
-        return tr(
-            "Giorno {day} di {cycle}",
-            day=format_number(cycle_day, decimals=1),
-            cycle=format_number(29.5, decimals=1),
-        )
+        return observing_presentation.moon_cycle_day_label(phase_angle)
 
     def _update_observing_night_window(self) -> bool:
-        previous = getattr(self, "_observing_night_window", ObservingNightWindow.unavailable())
+        previous = getattr(
+            self,
+            "_observing_night_window",
+            ObservingNightWindow.unavailable(),
+        )
         if not self._has_valid_location():
             current = ObservingNightWindow.unavailable()
         else:
-            method = getattr(self._astronomy_engine, "observing_night_window", None)
+            method = getattr(
+                self._astronomy_engine,
+                "observing_night_window",
+                None,
+            )
             try:
                 if callable(method):
                     with self._astronomy_engine_lock_instance():
@@ -7707,7 +7543,10 @@ class AppController(QObject):
                 else:
                     current = ObservingNightWindow.unavailable()
             except Exception:
-                logger.warning("Observing night window refresh failed.", exc_info=True)
+                logger.warning(
+                    "Observing night window refresh failed.",
+                    exc_info=True,
+                )
                 current = ObservingNightWindow.unavailable()
         if not isinstance(current, ObservingNightWindow):
             current = ObservingNightWindow.unavailable()
@@ -7719,17 +7558,13 @@ class AppController(QObject):
         left: ObservingNightWindow,
         right: ObservingNightWindow,
     ) -> bool:
-        if left.state != right.state:
-            return False
-        if left.start is None or left.end is None or right.start is None or right.end is None:
-            return left.start == right.start and left.end == right.end
-        return (
-            abs((left.start - right.start).total_seconds()) < 60
-            and abs((left.end - right.end).total_seconds()) < 60
-        )
+        return observing_time.same_observing_night(left, right)
 
     def _observing_weather_hours(self) -> list[WeatherHour]:
-        if not hasattr(self, "_location") or not hasattr(self, "_observing_night_window"):
+        if not hasattr(self, "_location") or not hasattr(
+            self,
+            "_observing_night_window",
+        ):
             return list(getattr(self, "_weather_hours", []))
         if not self._has_valid_location():
             return []
@@ -7740,7 +7575,11 @@ class AppController(QObject):
         )
 
     def _next_24_weather_hours(self) -> list[WeatherHour]:
-        timezone = self._location.timezone if getattr(self, "_location", None) else "UTC"
+        timezone = (
+            self._location.timezone
+            if getattr(self, "_location", None)
+            else "UTC"
+        )
         return weather_hours_for_next_24(
             list(getattr(self, "_weather_hours", [])),
             timezone,
@@ -7753,166 +7592,69 @@ class AppController(QObject):
     def _weather_digest(self) -> dict:
         night_hours = self._observing_weather_hours()
         if not night_hours:
-            return {
-                "bestWindow": tr("n/d"),
-                "cloudAverage": 0,
-                "cloudAverageLabel": tr("n/d"),
-                "windLabel": tr("n/d"),
-                "rainProbability": 0,
-                "rainProbabilityLabel": tr("n/d"),
-                "bestHours": [],
-            }
-        average_cloud = round(sum(hour.cloud_cover for hour in night_hours) / len(night_hours))
-        max_rain = max(hour.precipitation_probability for hour in night_hours)
-        average_wind = round(sum(hour.wind_kmh for hour in night_hours) / len(night_hours))
-        best_hours = self._best_weather_hours(night_hours)
-        return {
-            "bestWindow": self._weather_window_label(
-                best_hours,
-                self._observing_night_window,
-                self._location.timezone,
-            ),
-            "cloudAverage": average_cloud,
-            "cloudAverageLabel": tr(
-                "{value}%", value=format_number(average_cloud)
-            ),
-            "windLabel": self._wind_label(average_wind),
-            "rainProbability": max_rain,
-            "rainProbabilityLabel": tr(
-                "{value}%", value=format_number(max_rain)
-            ),
-            "bestHours": [
-                {
-                    "time": hour.time,
-                    "cloudCover": hour.cloud_cover,
-                    "cloudCoverLabel": tr(
-                        "{value}%", value=format_number(hour.cloud_cover)
-                    ),
-                    "windKmh": hour.wind_kmh,
-                    "windLabel": tr(
-                        "{value} km/h", value=format_number(hour.wind_kmh)
-                    ),
-                    "rainProbability": hour.precipitation_probability,
-                    "rainProbabilityLabel": tr(
-                        "{value}%",
-                        value=format_number(hour.precipitation_probability),
-                    ),
-                }
-                for hour in self._selected_weather_hours(night_hours)
-            ],
-        }
+            return self._weather_presentation_service_instance().digest(
+                [],
+                ObservingNightWindow.unavailable(),
+                "UTC",
+            )
+        return self._weather_presentation_service_instance().digest(
+            night_hours,
+            self._observing_night_window,
+            self._location.timezone,
+        )
 
     def _weather_blocking_status(self) -> WeatherBlockingStatus:
-        if not self._weather_summary:
-            return WeatherBlockingStatus(blocks_plan=False, show_warning=False)
-        return self._night_planner_service.weather_blocking_status(self._weather_summary)
+        return self._weather_presentation_service_instance().blocking_status(
+            self._weather_summary
+        )
 
     def _observing_session_decision(self) -> ObservingSessionDecision:
-        blocking = self._weather_blocking_status()
-        if not blocking.show_warning:
-            return ObservingSessionDecision(state="recommended")
-
-        if self._best_usable_observing_window():
-            return ObservingSessionDecision(
-                state="monitor",
-                title=tr("Sessione da monitorare"),
-                icon="⚠",
-                detail=tr("Le condizioni attuali non sono ancora favorevoli."),
-                description=tr(
-                    "Le condizioni migliorano in una finestra osservativa successiva.\n"
-                    "Ricontrolla il meteo prima di preparare la sessione."
-                ),
-                show_opportunity=True,
-            )
-
-        return ObservingSessionDecision(
-            state="discouraged",
-            title=tr("Sessione sconsigliata"),
-            icon="🚫",
-            detail=tr("Le condizioni previste rimangono sfavorevoli per tutta la notte."),
-            description=tr("Non è consigliabile preparare una sessione osservativa."),
-            show_opportunity=False,
+        return self._weather_presentation_service_instance().session_decision(
+            self._weather_summary,
+            self._observing_weather_hours(),
         )
 
     def _suggested_observing_window(self) -> str:
-        decision = self._observing_session_decision()
-        if decision.state == "discouraged":
-            return ""
-        if decision.state == "monitor":
-            return self._weather_window_label(
-                self._best_usable_observing_window(),
-                self._observing_night_window,
-                self._location.timezone,
-            ).replace(" - ", "–")
-        best_window = self._weather_digest().get("bestWindow", "")
-        if not best_window or best_window == "n/d":
-            return ""
-        return best_window.replace(" - ", "–")
-
-    @staticmethod
-    def _best_weather_hours(hours: list[WeatherHour]) -> list[WeatherHour]:
-        groups = consecutive_weather_groups(hours)
-        full_groups = [group for group in groups if len(group) >= 3]
-        if full_groups:
-            candidates = [
-                group[index : index + 3]
-                for group in full_groups
-                for index in range(len(group) - 2)
-            ]
-        else:
-            longest = max((len(group) for group in groups), default=0)
-            candidates = [group for group in groups if len(group) == longest]
-        if not candidates:
-            return []
-        return min(candidates, key=AppController._weather_slice_score)
-
-    def _best_usable_observing_window(self) -> list[WeatherHour]:
         night_hours = self._observing_weather_hours()
-        best_group: list[WeatherHour] = []
-        for forecast_group in consecutive_weather_groups(night_hours):
-            current_group: list[WeatherHour] = []
-            for hour in forecast_group:
-                if self._is_usable_weather_hour(hour):
-                    current_group.append(hour)
-                    if len(current_group) > len(best_group):
-                        best_group = list(current_group)
-                else:
-                    current_group = []
-
-        return best_group if len(best_group) >= 2 else []
-
-    @staticmethod
-    def _is_usable_weather_hour(hour: WeatherHour) -> bool:
-        return (
-            hour.precipitation_probability <= 35
-            and hour.cloud_cover <= 65
-            and hour.wind_kmh <= 28
-            and AppController._weather_hour_observing_score(hour) >= 45
+        return self._weather_presentation_service_instance().suggested_observing_window(
+            self._weather_summary,
+            night_hours,
+            getattr(
+                self,
+                "_observing_night_window",
+                ObservingNightWindow.unavailable(),
+            ),
+            (
+                self._location.timezone
+                if getattr(self, "_location", None)
+                else "UTC"
+            ),
         )
 
     @staticmethod
+    def _best_weather_hours(hours: list[WeatherHour]) -> list[WeatherHour]:
+        return weather_presentation.best_weather_hours(hours)
+
+    def _best_usable_observing_window(self) -> list[WeatherHour]:
+        return weather_presentation.best_usable_observing_window(
+            self._observing_weather_hours()
+        )
+
+    @staticmethod
+    def _is_usable_weather_hour(hour: WeatherHour) -> bool:
+        return weather_presentation.is_usable_weather_hour(hour)
+
+    @staticmethod
     def _weather_hour_observing_score(hour: WeatherHour) -> int:
-        score = 100
-        score -= min(55, round(hour.cloud_cover * 0.55))
-        score -= min(30, round(hour.precipitation_probability * 0.45))
-        score -= max(0, hour.wind_kmh - 10)
-        score -= max(0, round((hour.humidity - 70) * 0.25))
-        return max(0, min(100, score))
+        return weather_presentation.weather_hour_observing_score(hour)
 
     @staticmethod
     def _weather_slice_score(hours: list[WeatherHour]) -> float:
-        cloud = sum(hour.cloud_cover for hour in hours) / len(hours)
-        rain = max(hour.precipitation_probability for hour in hours)
-        wind = sum(hour.wind_kmh for hour in hours) / len(hours)
-        return cloud + rain * 1.3 + max(0.0, wind - 10.0) * 1.8
+        return weather_presentation.weather_slice_score(hours)
 
     @staticmethod
     def _selected_weather_hours(hours: list[WeatherHour]) -> list[WeatherHour]:
-        if len(hours) <= 5:
-            return list(hours)
-        last_index = len(hours) - 1
-        indices = [round(position * last_index / 4) for position in range(5)]
-        return [hours[index] for index in dict.fromkeys(indices)]
+        return weather_presentation.selected_weather_hours(hours)
 
     @staticmethod
     def _weather_window_label(
@@ -7920,132 +7662,79 @@ class AppController(QObject):
         night_window: ObservingNightWindow | None = None,
         timezone: str = "UTC",
     ) -> str:
-        if not hours:
-            return tr("n/d")
-        contiguous = consecutive_weather_groups(hours)
-        selected = max(contiguous, key=len, default=[])
-        if not selected:
-            return tr("n/d")
-        start = selected[0].time
-        last_timestamp = weather_hour_datetime(selected[-1], timezone)
-        if last_timestamp is not None:
-            end_dt = last_timestamp + timedelta(hours=1)
-            if night_window is not None and night_window.end is not None:
-                end_dt = min(end_dt, night_window.end)
-        else:
-            parsed_end = AppController._parse_hour_minute(selected[-1].time)
-            if not parsed_end:
-                return start
-            end_dt = datetime(2000, 1, 1, parsed_end[0], parsed_end[1]) + timedelta(hours=1)
-        return f"{start} - {end_dt.strftime('%H:%M')}"
+        return weather_presentation.weather_window_label(
+            hours,
+            night_window,
+            timezone,
+        )
 
     @staticmethod
     def _wind_label(wind_kmh: int) -> str:
-        if wind_kmh <= 12:
-            return tr("debole")
-        if wind_kmh <= 24:
-            return tr("moderato")
-        return tr("sostenuto")
+        return weather_presentation.wind_label(wind_kmh)
 
     def _home_time_label(self, item: CelestialObject) -> str:
-        useful_best = self._first_observing_datetime(item.best_time)
-        if useful_best:
-            return self._format_home_datetime(useful_best)
-        useful_window = self._first_observing_datetime(item.observing_window)
-        if useful_window:
-            return self._format_home_datetime(useful_window)
-        return tr("Non in finestra notturna")
+        return observing_time.home_time_label(
+            item,
+            getattr(self, "_observing_night_window", None),
+        )
 
     def _home_window_label(self, item: CelestialObject) -> str:
-        useful_times = [
-            candidate
-            for hour, minute in self._all_times(item.observing_window)
-            if (candidate := self._observing_datetime_for_clock(hour, minute)) is not None
-        ]
-        if len(useful_times) >= 2:
-            return f"{useful_times[0].strftime('%H:%M')} - {useful_times[-1].strftime('%H:%M')}"
-        if useful_times:
-            return self._format_home_datetime(useful_times[0])
-        return item.observing_window
+        return observing_time.home_window_label(
+            item,
+            getattr(self, "_observing_night_window", None),
+        )
 
     def _first_useful_time(self, value: str) -> tuple[int, int] | None:
-        candidate = self._first_observing_datetime(value)
-        if candidate is not None:
-            return candidate.hour, candidate.minute
-        return None
+        return observing_time.first_useful_time(
+            value,
+            getattr(self, "_observing_night_window", None),
+        )
 
     def _first_observing_datetime(self, value: str) -> datetime | None:
-        for hour, minute in self._all_times(value):
-            candidate = self._observing_datetime_for_clock(hour, minute)
-            if candidate is not None:
-                return candidate
-        return None
+        return observing_time.first_observing_datetime(
+            value,
+            getattr(self, "_observing_night_window", None),
+        )
 
-    def _observing_datetime_for_clock(self, hour: int, minute: int) -> datetime | None:
-        night_window = getattr(self, "_observing_night_window", None)
-        if night_window is None:
-            day = 2 if hour < 12 else 1
-            return datetime(2000, 1, day, hour, minute, tzinfo=ZoneInfo("UTC"))
-        return night_window.datetime_for_clock(hour, minute)
+    def _observing_datetime_for_clock(
+        self,
+        hour: int,
+        minute: int,
+    ) -> datetime | None:
+        return observing_time.observing_datetime_for_clock(
+            getattr(self, "_observing_night_window", None),
+            hour,
+            minute,
+        )
 
     @staticmethod
     def _all_times(value: str) -> list[tuple[int, int]]:
-        return [
-            (int(hour), int(minute))
-            for hour, minute in re.findall(r"\b([0-2]?\d):([0-5]\d)\b", value or "")
-            if 0 <= int(hour) <= 23
-        ]
+        return observing_time.all_times(value)
 
     @staticmethod
     def _parse_hour_minute(value: str) -> tuple[int, int] | None:
-        match = re.search(r"\b([0-2]?\d):([0-5]\d)\b", value or "")
-        if not match:
-            return None
-        hour = int(match.group(1))
-        minute = int(match.group(2))
-        if hour > 23:
-            return None
-        return hour, minute
+        return observing_time.parse_hour_minute(value)
 
     @staticmethod
     def _parse_degrees(value: str) -> float | None:
-        match = re.search(r"-?\d+(?:[\.,]\d+)?", value or "")
-        if not match:
-            return None
-        try:
-            return float(match.group(0).replace(",", "."))
-        except ValueError:
-            return None
+        return observing_presentation.parse_degrees(value)
 
     @staticmethod
     def _parse_event_date(value: str, now: datetime) -> datetime | None:
-        for fmt in ("%d/%m/%Y", "%d/%m"):
-            try:
-                parsed = datetime.strptime(value, fmt)
-            except ValueError:
-                continue
-            year = parsed.year if "%Y" in fmt else now.year
-            candidate = datetime(year, parsed.month, parsed.day, tzinfo=now.tzinfo)
-            if candidate < now - timedelta(days=1) and "%Y" not in fmt:
-                candidate = datetime(now.year + 1, parsed.month, parsed.day, tzinfo=now.tzinfo)
-            return candidate
-        return None
+        return observing_time.parse_event_date(value, now)
 
     def _format_home_datetime(self, value: datetime) -> str:
-        return value.strftime("%H:%M")
+        return observing_time.format_home_datetime(value)
 
     def _home_time_period_code(self, value: datetime) -> str:
-        night_window = getattr(self, "_observing_night_window", None)
-        if night_window is not None and night_window.state == "bounded":
-            if night_window.start is not None and value.date() == night_window.start.date():
-                return "evening"
-            if night_window.end is not None and night_window.end - value <= timedelta(hours=3):
-                return "before_dawn"
-        return "night"
+        return observing_time.home_time_period_code(
+            value,
+            getattr(self, "_observing_night_window", None),
+        )
 
     @staticmethod
     def _format_clock(hour: int, minute: int) -> str:
-        return f"{hour:02d}:{minute:02d}"
+        return observing_time.format_clock(hour, minute)
 
     def _current_telescope(self) -> Telescope:
         for telescope in self._active_profile_telescopes():

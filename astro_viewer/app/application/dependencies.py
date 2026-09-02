@@ -76,6 +76,9 @@ from astro_viewer.app.services.observation_log_service import ObservationLogServ
 from astro_viewer.app.services.observing_object_detail import (
     ObservingObjectDetailService,
 )
+from astro_viewer.app.services.observing_presentation import (
+    ObservingPresentationService,
+)
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.openaq_atmosphere_service import (
     OpenAQLocalAtmosphereService,
@@ -91,6 +94,7 @@ from astro_viewer.app.services.refresh_lifecycle import RefreshManager
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
 from astro_viewer.app.services.weather_service import OpenMeteoWeatherService
+from astro_viewer.app.services.weather_presentation import WeatherPresentationService
 
 
 logger = logging.getLogger(__name__)
@@ -144,6 +148,8 @@ class AppControllerDependencies:
     imaging_recommendation_presenter: ImagingRecommendationPresenter
     refresh_manager: RefreshManager
     catalogue_recommendation_workflow: CatalogueRecommendationWorkflow
+    observing_presentation_service: ObservingPresentationService
+    weather_presentation_service: WeatherPresentationService
 
 
 def build_app_controller_dependencies(
@@ -229,6 +235,10 @@ def build_app_controller_dependencies(
         or HomeRecommendedDeepSkyNsomRankingService()
     )
     night_planner_service = NightPlannerService()
+    observing_presentation_service = ObservingPresentationService()
+    weather_presentation_service = WeatherPresentationService(
+        night_planner_service
+    )
     resolved_sky_compass_service = sky_compass_service or SkyCompassService()
     catalogue_recommendation_workflow = CatalogueRecommendationWorkflow(
         equipment_service=equipment_service,
@@ -291,4 +301,6 @@ def build_app_controller_dependencies(
         imaging_recommendation_presenter=ImagingRecommendationPresenter(),
         refresh_manager=RefreshManager(),
         catalogue_recommendation_workflow=catalogue_recommendation_workflow,
+        observing_presentation_service=observing_presentation_service,
+        weather_presentation_service=weather_presentation_service,
     )

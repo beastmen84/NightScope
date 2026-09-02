@@ -1,7 +1,7 @@
 # NightScope Recommendation Architecture
 
 This document describes the current recommendation architecture in NightScope
-`1.45.1`. The typed profile, binocular and recommendation boundaries originated
+`1.45.2`. The typed profile, binocular and recommendation boundaries originated
 in the NightScope 1.1 refactors and remain the active design.
 
 The recommendation system has one main rule:
@@ -57,6 +57,13 @@ controller owns request generations, debounce/timers, worker lifecycle, stale
 result rejection and application of the prepared immutable snapshot. Snapshot
 contracts live in `astro_viewer.app.application.snapshots`, so the application
 workflow does not depend on the view-model module.
+
+Since `1.45.2`, observing status/explanation text and weather/session read
+models are produced by dedicated presentation services. Shared parsing and
+night-clock functions live in `observing_time`; weather window selection lives
+in `weather_presentation`. `AppController` supplies current runtime state and
+retains compatibility wrappers, but no longer owns those presentation
+algorithms.
 
 ## Responsibilities
 

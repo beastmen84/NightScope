@@ -59,3 +59,8 @@ def test_dependency_factory_owns_ephemeris_fallback(tmp_path: Path) -> None:
     )
     assert workflow._night_planner_service is dependencies.night_planner_service
     assert workflow._sky_compass_service is dependencies.sky_compass_service
+    assert dependencies.observing_presentation_service is not None
+    assert (
+        dependencies.weather_presentation_service._night_planner_service
+        is dependencies.night_planner_service
+    )
