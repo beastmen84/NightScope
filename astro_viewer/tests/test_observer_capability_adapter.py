@@ -1,3 +1,5 @@
+"""Protect projection of equipment configurations into NSOM capability values."""
+
 from __future__ import annotations
 
 import json

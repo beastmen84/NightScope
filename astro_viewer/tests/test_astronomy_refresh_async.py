@@ -1,3 +1,5 @@
+"""Protect asynchronous astronomy refresh snapshots, staleness, and publication."""
+
 from __future__ import annotations
 
 import time

@@ -1,3 +1,5 @@
+"""Protect canonical Best Object NSOM ranking and removal of legacy paths."""
+
 from __future__ import annotations
 
 from copy import deepcopy

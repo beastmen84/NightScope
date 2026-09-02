@@ -1,3 +1,5 @@
+"""Protect observing-detail reasoning, condition diagnostics, and setup explanations."""
+
 from __future__ import annotations
 
 import unittest

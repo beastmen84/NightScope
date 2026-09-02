@@ -1,3 +1,5 @@
+"""Protect owned-filter compatibility and target-class recommendation rules."""
+
 from __future__ import annotations
 
 from dataclasses import replace

@@ -1,3 +1,5 @@
+"""Protect target-size-aware visual recommendation rules introduced in phase A."""
+
 from __future__ import annotations
 
 import pytest

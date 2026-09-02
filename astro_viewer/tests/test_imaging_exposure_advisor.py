@@ -1,3 +1,5 @@
+"""Protect conservative still-exposure ranges across sky and setup conditions."""
+
 from __future__ import annotations
 
 import inspect

@@ -1,3 +1,5 @@
+"""Protect observation validation, persistence, summaries, and presentation rows."""
+
 from __future__ import annotations
 
 from datetime import datetime

@@ -1,3 +1,5 @@
+"""Protect Sky Compass zone ranking and its QML-facing presentation contract."""
+
 from __future__ import annotations
 
 from dataclasses import replace

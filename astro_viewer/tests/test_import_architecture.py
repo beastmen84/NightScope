@@ -1,3 +1,5 @@
+"""Protect acyclic production imports and enforced lower-layer dependency rules."""
+
 from __future__ import annotations
 
 from pathlib import Path

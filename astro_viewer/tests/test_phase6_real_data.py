@@ -1,3 +1,5 @@
+"""Protect real-data service integration and provenance-facing read models."""
+
 from __future__ import annotations
 
 import io

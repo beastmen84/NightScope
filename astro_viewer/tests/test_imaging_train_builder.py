@@ -1,3 +1,5 @@
+"""Protect valid photographic train enumeration and modifier compatibility."""
+
 from __future__ import annotations
 
 from pathlib import Path

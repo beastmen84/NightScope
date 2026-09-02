@@ -1,3 +1,5 @@
+"""Protect integrated sky-quality, seeing, condition, score, and planner services."""
+
 from __future__ import annotations
 
 from dataclasses import replace

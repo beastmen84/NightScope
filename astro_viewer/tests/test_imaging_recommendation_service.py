@@ -1,3 +1,5 @@
+"""Protect target-neutral photographic train scoring and ranking."""
+
 from __future__ import annotations
 
 import inspect

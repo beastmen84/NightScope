@@ -1,3 +1,5 @@
+"""Protect camera catalogue normalization, CRUD, taxonomy, and profile assignment."""
+
 from __future__ import annotations
 
 import csv

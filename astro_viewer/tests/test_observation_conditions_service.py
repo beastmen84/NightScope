@@ -1,3 +1,5 @@
+"""Protect bounded target-specific Moon, aerosol, and sky-condition adjustments."""
+
 from __future__ import annotations
 
 import math

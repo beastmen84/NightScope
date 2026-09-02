@@ -1,3 +1,5 @@
+"""Protect on-demand photographic recommendation assembly from explicit snapshots."""
+
 from __future__ import annotations
 
 import inspect

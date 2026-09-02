@@ -1,3 +1,5 @@
+"""Protect Home recommendation reasons, setup labels, and score-free presentation."""
+
 from __future__ import annotations
 
 from pathlib import Path

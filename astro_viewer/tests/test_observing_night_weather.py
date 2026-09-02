@@ -1,3 +1,5 @@
+"""Protect forecast selection and grouping inside local observing nights."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta

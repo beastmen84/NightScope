@@ -59,7 +59,18 @@ contracts.
 
 ## Enforcement
 
-The documentation series lands in bounded `1.45.x` batches. Its final step adds
-an automated inventory gate covering all file families above, so a new
-undocumented source file cannot silently reduce coverage. The gate validates
-presence and structure; code review remains responsible for accuracy.
+The documentation series landed in bounded `1.45.x` batches. Version `1.45.13`
+completed a file-by-file pass and introduced
+`tools/check_code_documentation.py`, which is part of the standard source gate.
+Its audited inventory at that version is:
+
+- 240 Python modules: 121 production modules, 88 test/support modules, and 31
+  maintenance or packaging modules;
+- 34 QML pages and components;
+- 15 automation, packaging, CI, configuration, schema, and manual files.
+
+Python and QML families are discovered recursively. Operational families are
+discovered from their governed extensions and locations, with explicit entries
+for the schema, manual, and dependency manifests. A new undocumented source file
+therefore cannot silently reduce coverage. The gate validates presence and
+structure; code review remains responsible for accuracy.

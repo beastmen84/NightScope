@@ -1,3 +1,5 @@
+"""Protect maintenance tools, release audits, smoke isolation, and manual structure."""
+
 from __future__ import annotations
 
 import hashlib
@@ -24,6 +26,13 @@ from tools.audit_qt_bundle import (
     REQUIRED_DLLS,
     REQUIRED_LINUX_LIBRARIES,
     audit_bundle,
+)
+from tools.check_code_documentation import (
+    documentation_counts,
+    documentation_errors,
+    operational_documentation_error,
+    python_documentation_error,
+    qml_documentation_error,
 )
 from tools.generate_linux_native_notices import (
     _common_license_source,
@@ -146,6 +155,7 @@ def test_standard_check_plan_runs_one_test_suite_and_optional_security() -> None
     assert [check.name for check in fast] == [
         "pip-check",
         "ruff",
+        "code-documentation",
         "import-cycles",
         "bandit-baseline",
         "compileall",
@@ -175,6 +185,43 @@ def test_standard_check_plan_runs_one_test_suite_and_optional_security() -> None
         if check.name
         in {"smoke-test", "qml-smoke-test", "qml-red-night-vision-smoke-test"}
     )
+
+
+def test_code_documentation_gate_covers_the_repository_and_rejects_empty_headers(
+    tmp_path: Path,
+) -> None:
+    assert documentation_errors(PROJECT_ROOT) == []
+    assert documentation_counts(PROJECT_ROOT) == {
+        "Python": 240,
+        "QML": 34,
+        "operational": 15,
+    }
+
+    python_source = tmp_path / "undocumented.py"
+    python_source.write_text("VALUE = 1\n", encoding="utf-8")
+    assert python_documentation_error(python_source) == "missing module responsibility docstring"
+    python_source.write_text('"""Own a synthetic test boundary."""\n', encoding="utf-8")
+    assert python_documentation_error(python_source) is None
+
+    qml_source = tmp_path / "Undocumented.qml"
+    qml_source.write_text("// Purpose:\nItem {}\n", encoding="utf-8")
+    assert "non-empty // Purpose:" in (qml_documentation_error(qml_source) or "")
+    qml_source.write_text(
+        "// Purpose: Render a synthetic component.\n"
+        "// Contract: Consume no external state.\n"
+        "Item {}\n",
+        encoding="utf-8",
+    )
+    assert qml_documentation_error(qml_source) is None
+
+    script = tmp_path / "script.sh"
+    script.write_text("#!/usr/bin/env sh\n# Purpose: Run a probe.\n", encoding="utf-8")
+    assert "Contract" in (operational_documentation_error(script) or "")
+    script.write_text(
+        "#!/usr/bin/env sh\n# Purpose: Run a probe.\n# Contract: Write no state.\n",
+        encoding="utf-8",
+    )
+    assert operational_documentation_error(script) is None
 
 
 def test_smoke_check_uses_and_removes_a_disposable_runtime() -> None:

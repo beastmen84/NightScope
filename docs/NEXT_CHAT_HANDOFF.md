@@ -4,7 +4,7 @@ Updated: 2026-09-02
 
 ## Current State
 
-- Source version: `1.45.12`.
+- Source version: `1.45.13`.
 - Current public release: `v1.43.0`.
 - Public-release source commit: `26dfaf49df8f9b8e73e84f406396f406170400b2`.
 - The `1.45.x` architectural series is source-only. No `1.45.x` tag, checksum,
@@ -29,7 +29,8 @@ Updated: 2026-09-02
 | 1.45.9 | `06b514e` | Documents every domain, provider, presentation, equipment, catalogue, and localization service. |
 | 1.45.10 | `35972b7` | Documents persistence, astronomy, Qt view models, and runtime composition boundaries. |
 | 1.45.11 | `6719979` | Documents the responsibility and boundary contract of every QML file. |
-| 1.45.12 | current source | Documents maintenance, packaging, CI, configuration, schema, and manual files. |
+| 1.45.12 | `8f4a9f2` | Documents maintenance, packaging, CI, configuration, schema, and manual files. |
+| 1.45.13 | current source | Documents every test/support module and enforces the complete source-documentation inventory. |
 
 ## Resulting Architecture
 
@@ -48,15 +49,17 @@ tests or integrations construct the controller directly.
 The detailed assessment is in `docs/ARCHITECTURE_REVIEW_1_45.md`. The concise
 verdict is that the codebase is robust, well tested, and materially better
 organized than `1.44.0`, but not uniformly modular: `AppController`, the
-equipment repository/bootstrap, the Skyfield engine, and the largest QML pages
-remain concentrated maintenance areas.
+location and NASA providers, equipment repository/bootstrap, the Skyfield
+engine, and the largest QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.45.7` fast source gate passed on Windows/Python 3.14.5:
+The final local `1.45.13` coverage source gate passed on Windows/Python 3.14.5:
 
-- 1,168 tests and 10 subtests in 273.47 seconds, with no unexpected warning
-  summary;
+- 1,169 tests and 10 subtests in 437.71 seconds, with 86% aggregate application
+  coverage and no unexpected warning summary;
+- complete documentation inventory: 240 Python, 34 QML, and 15 operational
+  files;
 - Ruff, compilation, license archive, MPC/OpenNGC snapshot checks;
 - 0 import cycles and 0 protected-layer violations;
 - Bandit baseline unchanged: 0 high, 37 medium, 14 low reviewed findings;

@@ -1,3 +1,5 @@
+"""Protect secure OpenAQ key persistence, state, and connection-test behavior."""
+
 from __future__ import annotations
 
 import tempfile

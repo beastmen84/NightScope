@@ -1,3 +1,5 @@
+"""Protect schema bootstrap, migrations, seeds, repositories, and database recovery."""
+
 from __future__ import annotations
 
 import csv

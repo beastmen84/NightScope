@@ -1,3 +1,5 @@
+"""Protect weather timeout, malformed-response, cache, and fallback behavior."""
+
 from __future__ import annotations
 
 import json

@@ -1,3 +1,5 @@
+"""Protect location-provider precedence, normalization, caching, and timezone behavior."""
+
 from __future__ import annotations
 
 import json

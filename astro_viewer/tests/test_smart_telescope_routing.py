@@ -1,3 +1,5 @@
+"""Protect smart-telescope capability routing across visual and imaging workflows."""
+
 from __future__ import annotations
 
 from dataclasses import replace

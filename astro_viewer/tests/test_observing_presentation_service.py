@@ -1,3 +1,5 @@
+"""Protect observing status, timing, Moon, and weather presentation helpers."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta

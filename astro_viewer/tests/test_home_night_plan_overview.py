@@ -1,3 +1,5 @@
+"""Protect the compact, score-free lower-Home night-plan read model."""
+
 from __future__ import annotations
 
 from dataclasses import replace

@@ -1,3 +1,5 @@
+"""Protect Red Night Vision persistence and Qt property notifications."""
+
 from __future__ import annotations
 
 import json

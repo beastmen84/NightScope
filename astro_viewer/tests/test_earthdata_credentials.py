@@ -1,3 +1,5 @@
+"""Protect secure Earthdata credential state and bounded authorization tests."""
+
 from __future__ import annotations
 
 import os

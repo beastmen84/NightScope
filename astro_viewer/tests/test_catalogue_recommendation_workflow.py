@@ -1,3 +1,5 @@
+"""Protect synchronous catalogue recommendation preparation and stale-result safety."""
+
 from __future__ import annotations
 
 from dataclasses import replace

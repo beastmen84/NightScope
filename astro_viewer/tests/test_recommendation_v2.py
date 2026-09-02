@@ -1,3 +1,5 @@
+"""Protect optical recommendation scoring, setup choices, and explanations."""
+
 from __future__ import annotations
 
 import pytest

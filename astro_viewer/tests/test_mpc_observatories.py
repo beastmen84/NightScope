@@ -1,3 +1,5 @@
+"""Protect MPC snapshot normalization, import, search, and location selection."""
+
 from __future__ import annotations
 
 import csv

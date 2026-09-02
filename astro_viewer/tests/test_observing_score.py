@@ -1,3 +1,5 @@
+"""Protect legacy weather-and-Moon observing score endpoints."""
+
 from __future__ import annotations
 
 import unittest

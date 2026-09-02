@@ -1,3 +1,5 @@
+"""Protect IANA timezone availability and reference DST conversions."""
+
 from __future__ import annotations
 
 import unittest

@@ -1,3 +1,5 @@
+"""Protect canonical NSOM runtime value construction and confidence metadata."""
+
 from __future__ import annotations
 
 from datetime import date

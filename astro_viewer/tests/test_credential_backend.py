@@ -1,3 +1,5 @@
+"""Protect rejection of insecure keyring backends and supported backend selection."""
+
 from __future__ import annotations
 
 from unittest.mock import Mock, patch

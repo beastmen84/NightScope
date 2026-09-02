@@ -1,3 +1,5 @@
+"""Protect platform feature detection and capability-dependent composition."""
+
 from __future__ import annotations
 
 import sys

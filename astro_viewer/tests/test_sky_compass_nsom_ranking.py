@@ -1,3 +1,5 @@
+"""Protect Sky Compass ranking through canonical NSOM observability values."""
+
 from __future__ import annotations
 
 import json

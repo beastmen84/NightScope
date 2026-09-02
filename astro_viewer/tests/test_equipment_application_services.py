@@ -1,3 +1,5 @@
+"""Protect equipment input, catalogue, profile, and presentation application services."""
+
 from __future__ import annotations
 
 from pathlib import Path

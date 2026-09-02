@@ -1,3 +1,5 @@
+"""Protect live Sky Compass hysteresis, immediate switches, and reset behavior."""
+
 from __future__ import annotations
 
 import inspect

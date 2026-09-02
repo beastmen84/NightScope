@@ -1,3 +1,5 @@
+"""Protect canonical target-pool construction for the Home night plan."""
+
 from __future__ import annotations
 
 from datetime import datetime

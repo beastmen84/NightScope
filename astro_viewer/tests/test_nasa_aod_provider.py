@@ -1,3 +1,5 @@
+"""Protect NASA MAIAC discovery, cache, granule reading, QA, and local fallback."""
+
 from __future__ import annotations
 
 from datetime import UTC, date, datetime, timedelta

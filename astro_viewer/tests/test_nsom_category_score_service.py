@@ -1,3 +1,5 @@
+"""Protect category scores and single ownership of environmental influences."""
+
 from __future__ import annotations
 
 from dataclasses import replace

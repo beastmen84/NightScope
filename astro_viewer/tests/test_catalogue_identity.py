@@ -1,3 +1,5 @@
+"""Protect physical-object identity across catalogue designations and presentation."""
+
 from __future__ import annotations
 
 from datetime import datetime

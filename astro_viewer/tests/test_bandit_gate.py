@@ -1,3 +1,5 @@
+"""Protect deterministic Bandit normalization, baseline review, and regression failure."""
+
 from __future__ import annotations
 
 from pathlib import Path

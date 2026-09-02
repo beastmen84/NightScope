@@ -1,3 +1,5 @@
+"""Protect canonical target traits used by condition and recommendation services."""
+
 from __future__ import annotations
 
 from dataclasses import replace

@@ -1,3 +1,5 @@
+"""Protect runtime-target identity, classification, deduplication, and intrinsic quality."""
+
 from __future__ import annotations
 
 import csv

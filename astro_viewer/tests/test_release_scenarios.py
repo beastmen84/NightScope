@@ -1,3 +1,5 @@
+"""Protect source-release startup, offline fallback, and location failure scenarios."""
+
 from __future__ import annotations
 
 import tempfile

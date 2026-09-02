@@ -1,3 +1,5 @@
+"""Protect stable visual-equipment recommendation payloads and explanations."""
+
 from __future__ import annotations
 
 from types import SimpleNamespace

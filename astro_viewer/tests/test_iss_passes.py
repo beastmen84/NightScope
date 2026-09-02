@@ -1,3 +1,5 @@
+"""Protect ISS element caching, visibility intervals, stable IDs, and failure policy."""
+
 from __future__ import annotations
 
 import json

@@ -1,3 +1,5 @@
+"""Protect class-specific target profiles and equipment scoring preferences."""
+
 from __future__ import annotations
 
 from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope

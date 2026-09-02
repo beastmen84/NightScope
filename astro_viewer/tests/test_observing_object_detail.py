@@ -1,3 +1,5 @@
+"""Protect score-free observing-detail structure and condition/equipment boundaries."""
+
 from __future__ import annotations
 
 from dataclasses import replace

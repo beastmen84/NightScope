@@ -1,3 +1,5 @@
+"""Protect immutable equipment setup normalization across recommendation payloads."""
+
 from __future__ import annotations
 
 import inspect

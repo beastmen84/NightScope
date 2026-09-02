@@ -1,3 +1,5 @@
+"""Protect focal-reducer compatibility and imaging recommendation selection."""
+
 from __future__ import annotations
 
 from dataclasses import replace

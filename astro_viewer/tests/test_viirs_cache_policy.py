@@ -1,3 +1,5 @@
+"""Protect VIIRS cache freshness, fallback, and provider replacement policy."""
+
 from __future__ import annotations
 
 import tempfile

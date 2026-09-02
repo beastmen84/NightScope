@@ -1,3 +1,5 @@
+"""Protect accessory catalogue CRUD, compatibility, and profile usage behavior."""
+
 from __future__ import annotations
 
 import sqlite3

@@ -1,3 +1,5 @@
+"""Protect score-free calendar event normalization, visibility, and linked targets."""
+
 from __future__ import annotations
 
 from collections import Counter

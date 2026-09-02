@@ -1,3 +1,5 @@
+"""Protect enumeration and equivalence of valid visual observing configurations."""
+
 from __future__ import annotations
 
 import pytest

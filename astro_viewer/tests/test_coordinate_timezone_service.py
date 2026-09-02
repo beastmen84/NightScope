@@ -1,3 +1,5 @@
+"""Protect offline coordinate-to-IANA-timezone resolution."""
+
 from __future__ import annotations
 
 import unittest

@@ -1,3 +1,5 @@
+"""Protect runtime Moon geometry diagnostics and conditioned target payloads."""
+
 from __future__ import annotations
 
 import json

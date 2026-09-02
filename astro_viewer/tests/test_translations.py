@@ -1,3 +1,5 @@
+"""Protect language-pack parity, Qt catalog coverage, placeholders, and localized content."""
+
 from __future__ import annotations
 
 import json

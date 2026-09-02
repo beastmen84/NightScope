@@ -1,3 +1,5 @@
+"""Protect NSOM value constraints, scoring equations, caps, and confidence separation."""
+
 from __future__ import annotations
 
 import json

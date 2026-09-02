@@ -1,3 +1,5 @@
+"""Initialize the canonical NightScope SQLite database outside the GUI startup path."""
+
 from __future__ import annotations
 
 from astro_viewer.app.database.bootstrap import initialize_database

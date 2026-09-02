@@ -1,3 +1,5 @@
+"""Protect source and frozen runtime-path resolution and state isolation."""
+
 from __future__ import annotations
 
 import sys

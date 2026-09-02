@@ -1,3 +1,5 @@
+"""Protect dirty-domain propagation, refresh reasons, and completion semantics."""
+
 from __future__ import annotations
 
 import unittest

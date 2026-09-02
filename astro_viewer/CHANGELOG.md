@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+## NightScope 1.45.13 - 2026-09-02
+
+- Ispezionati tutti gli 88 moduli Python di test/supporto e documentati i 87 che
+  non dichiaravano ancora il contratto protetto; completato anche il modulo CLI
+  di bootstrap del database individuato dal nuovo inventario.
+- Aggiunto un gate automatico per 240 moduli Python, 34 file QML e 15 file
+  operativi. Il runner standard lo esegue prima dei controlli architetturali e
+  ora include anche i moduli Python di packaging in Ruff e `compileall`.
+- Aggiornata la valutazione architetturale con misure correnti e una roadmap
+  esplicita per controller, provider/localita', persistenza, Skyfield, QML e
+  localizzazione.
+- Nessun comportamento runtime e' stato modificato. La versione sorgente passa
+  a `1.45.13`; `dist` non e' stata rigenerata o modificata e non sono stati
+  creati tag o artefatti di release.
+
 ## NightScope 1.45.12 - 2026-09-02
 
 - Documentati 29 moduli Python di manutenzione e packaging e 15 file operativi

@@ -1,3 +1,5 @@
+"""Protect Home deep-sky ordering by canonical NSOM observable target value."""
+
 from __future__ import annotations
 
 import ast

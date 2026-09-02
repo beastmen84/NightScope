@@ -1,3 +1,5 @@
+"""Protect pinned OpenNGC transformation, identities, metadata, and deterministic seeds."""
+
 from __future__ import annotations
 
 import csv

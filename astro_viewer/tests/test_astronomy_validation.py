@@ -1,3 +1,5 @@
+"""Protect multi-location astronomical coherence and selected Skyfield classifications."""
+
 from __future__ import annotations
 
 import unittest

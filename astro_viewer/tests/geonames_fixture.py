@@ -1,3 +1,5 @@
+"""Build deterministic miniature GeoNames inputs for database and location tests."""
+
 from __future__ import annotations
 
 from pathlib import Path

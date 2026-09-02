@@ -1,3 +1,5 @@
+"""Protect canonical NSOM environment ownership and single application of conditions."""
+
 from __future__ import annotations
 
 from dataclasses import replace

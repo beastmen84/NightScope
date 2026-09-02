@@ -1,3 +1,5 @@
+"""Protect comet element caching, visibility windows, identifiers, and fallback policy."""
+
 from __future__ import annotations
 
 import sqlite3

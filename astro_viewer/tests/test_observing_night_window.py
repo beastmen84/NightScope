@@ -1,3 +1,5 @@
+"""Protect twilight-derived observing-night windows across locations and seasons."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta

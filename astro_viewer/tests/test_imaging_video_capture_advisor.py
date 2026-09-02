@@ -1,3 +1,5 @@
+"""Protect planetary-video duration, cadence, frame, and fallback guidance."""
+
 from __future__ import annotations
 
 import inspect

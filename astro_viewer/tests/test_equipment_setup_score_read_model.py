@@ -1,3 +1,5 @@
+"""Protect inspectable equipment score components and stable read-model serialization."""
+
 from __future__ import annotations
 
 import inspect

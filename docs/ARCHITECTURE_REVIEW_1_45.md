@@ -1,7 +1,7 @@
 # NightScope 1.45 Architecture Review
 
 Date: 2026-09-02
-Scope: source `1.44.0` through `1.45.7`
+Scope: source `1.44.0` through `1.45.13`
 
 ## Verdict
 
@@ -18,10 +18,13 @@ contracts, database schema, scoring, or recommendation outcomes. Concrete
 dependencies have one composition boundary; large pure workflows have moved out
 of Qt; the production import graph is acyclic; lower layers cannot import the
 controller/composition root; and the standard source gate now detects security,
-warning, and architectural regressions before pytest.
+warning, architectural, and missing-documentation regressions before pytest.
 
-This is a good stopping point for the architectural series. Further extraction
-should be driven by a concrete change area, not by line count alone.
+The architecture is substantially healthier, but the work is not exhausted.
+The remaining risks are concentrated and have identifiable seams. They justify
+further focused versions, especially around location/provider orchestration and
+controller commands; they do not justify a wholesale rewrite or arbitrary
+splitting by line count.
 
 ## Evidence Snapshot
 
@@ -30,15 +33,16 @@ stated.
 
 | Area | Evidence | Assessment |
 | --- | --- | --- |
-| Production Python | 121 modules, 46,585 lines | Broad domain surface, but responsibilities are discoverable by package and service names. |
-| Tests | 86 test files, 34,963 lines; 1,168 tests at the 1.45.7 gate | Very strong regression protection relative to production size. |
-| `AppController` | 9,836 lines at 1.44.0; 7,908 at 1.45.6/1.45.7; 1,928 lines removed (19.6%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
+| Production Python | 121 modules, 46,811 lines | Broad domain surface; every module now states its responsibility and package boundaries are discoverable. |
+| Tests | 86 test files plus 2 support/package modules, 35,268 lines; 1,169 tests and 10 subtests at the 1.45.13 gate | Very strong regression protection relative to production size. |
+| `AppController` | 9,836 lines at 1.44.0; 7,910 at 1.45.13, including its new module header; 1,926 net lines removed (19.6%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
 | Controller surface | 562 methods, including 114 slots and 141 properties | Large compatibility/API surface makes wholesale rewriting risky. |
-| Largest persistence modules | `equipment_catalog_repository.py` 3,025 lines; `bootstrap.py` 2,490 | Transactionally cohesive but too concentrated for easy local reasoning. |
-| Astronomy implementation | `skyfield_engine.py` 2,432 lines | Complex by domain necessity; provider/event subcomponents can still be separated. |
-| Largest QML pages | Home 1,705 lines; Object Detail 1,242 | Backend decisions are mostly extracted, but layout/component complexity remains. |
+| Largest persistence modules | `equipment_catalog_repository.py` 3,027 lines; `bootstrap.py` 2,492 | Transactionally cohesive but too concentrated for easy local reasoning. |
+| Astronomy implementation | `skyfield_engine.py` 2,434 lines | Complex by domain necessity; provider/event subcomponents can still be separated. |
+| Largest QML pages | Home 1,708 lines; Object Detail 1,245 | Backend decisions are mostly extracted, but layout/component complexity remains. |
 | Import structure | 0 cycles; 0 protected-layer violations | Good and now mechanically enforced. |
-| Static/security gate | Ruff, compileall, exact Bandit baseline; 0 high findings | Good incremental protection; whole-project type checking remains absent. |
+| Documentation inventory | 240 Python, 34 QML, and 15 operational files | Complete governed coverage, enforced before the long test suite. |
+| Static/security gate | Ruff, compileall, documentation inventory, exact Bandit baseline; 0 high findings | Good incremental protection; whole-project type checking remains absent. |
 | Runtime gate | Backend plus normal and red QML smoke tests in disposable runtimes | Strong protection of construction and UI loading paths. |
 
 ## What Changed In 1.45.x
@@ -96,7 +100,10 @@ some services depend directly on concrete repositories.
 
 ### Quality gates
 
-The standard runner checks architecture and Bandit before the long test suite.
+The standard runner checks code-documentation coverage, architecture, and Bandit
+before the long test suite. The documentation inventory recursively covers all
+Python and QML sources plus governed automation/configuration families; it
+checks structure mechanically while review remains responsible for truthfulness.
 Bandit's 51 existing findings are not globally skipped: each exact code context
 is recorded with a review rationale, any change reopens review, and high
 severity cannot be baselined. Unexpected pytest warnings fail. This policy
@@ -121,18 +128,25 @@ remote CI pass.
 | Astronomy/provider implementation | astronomy and provider services | Good isolation at package level; several individual modules remain large. |
 | UI decisions | Python read models; QML visual rendering | Direction is good; largest pages still contain substantial local presentation structure. |
 | Localization | Qt catalogues plus structured JSON overlays | Mature multilingual mechanism, but the helper module cuts across nominal layers. |
-| Documentation | living documents plus immutable archive | Consolidated in 1.45.7; historical evidence no longer dominates operational guidance. |
+| Documentation | governed source headers, living documents, immutable archive | Every hand-written source family is covered and the inventory is mechanically enforced. |
 
 ## Residual Risks And Priorities
 
-### Priority 1: controller concentration
+### Priority 1: controller and location/provider orchestration
 
-At 7,908 physical lines and 562 methods, `AppController` is still expensive to
+At 7,910 physical lines and 562 methods, `AppController` is still expensive to
 understand and easy to touch accidentally. Its remaining responsibilities are
 not all misplaced: Qt properties, slots, signals, timers, thread handoff, and
 compatibility adapters belong at this boundary. Future extraction should target
-coherent use cases still mixing mutation and presentation, such as location/
-provider orchestration, calendar-event projection, or observation-log commands.
+coherent commands still mixing mutation and presentation, such as location
+selection/provider refresh, calendar-event projection, and observation-log
+operations.
+
+`location_service.py` is the clearest next seam at 1,461 lines: Windows and
+GeoClue providers, online IP lookup, manual location, cache policy, timezone
+resolution, and subprocess handling share one module. Extract platform-provider
+adapters first, then move the controller-facing selection policy into an
+application workflow with explicit inputs and results.
 
 Do not split the file mechanically. Every extraction should reduce controller
 state access, accept explicit inputs, preserve signal timing, and land with
@@ -147,13 +161,20 @@ would carry more risk than benefit. Split by aggregate or migration family only
 when a feature requires sustained edits there, while keeping cross-equipment
 transactions explicit.
 
-### Priority 2: large provider and QML modules
+### Priority 2: provider, astronomy, and presentation concentration
 
-The Skyfield engine, location service, NASA provider, Home page, and Object
-Detail page remain large. Event-source adapters and platform location providers
-are natural Python seams. Reusable QML sections should become components when
-they have a stable input contract; visual fragments with tightly shared state
-should remain local until that contract exists.
+The 1,330-line NASA AOD provider combines network discovery, cache selection,
+granule readers, quality masks, and result projection. `equipment_service.py`
+(1,061), `imaging_recommendation_presentation.py` (1,064), OpenAQ (753), light
+pollution (712), and calendar presentation (691) are secondary hotspots. Split
+them only along stable policy/provider/read-model boundaries, with the existing
+tests preserving fallback and payload behavior.
+
+The 2,434-line Skyfield engine can separate event sources and calculation
+families behind the existing astronomy protocol. Home (1,708 QML lines) and
+Object Detail (1,245) should gain reusable sections only where inputs and emitted
+actions can be stated independently; fragments with tightly shared visual state
+should remain local.
 
 ### Priority 2: cross-cutting localization
 
@@ -203,6 +224,10 @@ single controller and a few large infrastructure files. The `1.45.x` series
 does not erase that history, but it creates clear seams and automated rules that
 make incremental improvement safe.
 
-Recommended status: proceed to catalogue editorial work in small reviewed
-versions. Continue architectural extraction only when that work reveals a
-specific bottleneck; do not reopen broad refactoring before content work.
+Recommended status: the codebase is safe for editorial work, but architecture
+still has worthwhile focused work. Continue in small reviewed versions in this
+order: location/provider adapters, controller command workflows, persistence
+aggregates, Skyfield event/calculation seams, large QML sections, and finally a
+neutral home for localization primitives. Each extraction must reduce coupling
+or state reach and preserve observable contracts; line-count reduction alone is
+not a success criterion.

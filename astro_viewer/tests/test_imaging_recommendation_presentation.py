@@ -1,3 +1,5 @@
+"""Protect localized photographic recommendation payloads and capture guidance."""
+
 from __future__ import annotations
 
 import inspect

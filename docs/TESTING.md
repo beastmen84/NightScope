@@ -43,22 +43,28 @@ Full source/release gate with coverage and dependency audit:
 The runner performs these checks in order:
 
 1. `pip check`.
-2. Ruff over application, tests, and developer tools.
-3. Production import-cycle and protected-layer validation.
-4. Bandit comparison with the reviewed source-context baseline.
-5. Quiet bytecode compilation.
-6. Third-party license archive validation.
-7. Offline MPC observatory snapshot validation.
-8. Offline OpenNGC snapshot and derived-seed validation.
-9. Optional `pip-audit`.
-10. One complete pytest pass, with or without runtime-code coverage.
-11. Backend smoke test in a disposable runtime.
-12. Normal-mode QML smoke test in a disposable runtime.
-13. Red Night Vision QML smoke test in a disposable runtime.
+2. Ruff over application, tests, developer tools, and packaging Python modules.
+3. Complete Python, QML, and operational-file documentation inventory.
+4. Production import-cycle and protected-layer validation.
+5. Bandit comparison with the reviewed source-context baseline.
+6. Quiet bytecode compilation, including packaging Python modules.
+7. Third-party license archive validation.
+8. Offline MPC observatory snapshot validation.
+9. Offline OpenNGC snapshot and derived-seed validation.
+10. Optional `pip-audit`.
+11. One complete pytest pass, with or without runtime-code coverage.
+12. Backend smoke test in a disposable runtime.
+13. Normal-mode QML smoke test in a disposable runtime.
+14. Red Night Vision QML smoke test in a disposable runtime.
 
 The source gate does not build, update, or approve `dist`.
 
 ## Architecture And Security Policies
+
+`tools/check_code_documentation.py` discovers governed Python and QML sources
+recursively and validates the operational source families defined in
+`docs/CODE_DOCUMENTATION_POLICY.md`. It enforces responsibility docstrings and
+purpose/contract headers; review still owns their semantic accuracy.
 
 `tools/check_import_cycles.py` rejects strongly connected components and
 self-imports in production Python modules. It also prevents models, database,
@@ -151,13 +157,14 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
-The `1.45.7` fast source gate passed on Windows/Python 3.14.5 with 1,168 tests
-and 10 subtests in 273.47 seconds, no unexpected warning summary, an acyclic
-production graph, zero protected-layer violations, an unchanged Bandit
-baseline (0 high, 37 medium, 14 low), clean dependency/license/MPC/OpenNGC
-checks, and successful backend, normal QML, and Red Night Vision QML smoke
-tests. A direct installed-environment `pip-audit` immediately afterward found
-no known vulnerabilities.
+The `1.45.13` coverage source gate passed on Windows/Python 3.14.5 with 1,169
+tests and 10 subtests in 437.71 seconds, 86% aggregate application coverage, no
+unexpected warning summary, complete documentation coverage for 240 Python, 34
+QML, and 15 operational files, an acyclic production graph, zero protected-layer
+violations, an unchanged Bandit baseline (0 high, 37 medium, 14 low), clean
+dependency/license/MPC/OpenNGC checks, and successful backend, normal QML, and
+Red Night Vision QML smoke tests. A direct installed-environment `pip-audit`
+immediately afterward found no known vulnerabilities.
 
 No remote CI result, distribution build, source tag, checksum, or release is
 implied by that local source measurement.

@@ -1,3 +1,5 @@
+"""Protect separation of raw targets from condition-adjusted read models."""
+
 from __future__ import annotations
 
 import inspect

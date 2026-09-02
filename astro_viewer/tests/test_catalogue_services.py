@@ -1,3 +1,5 @@
+"""Protect catalogue query, filtering, observability, and detail services."""
+
 from __future__ import annotations
 
 from astro_viewer.app.astronomy.engine import ObserverLocation

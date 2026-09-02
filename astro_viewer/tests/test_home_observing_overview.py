@@ -1,3 +1,5 @@
+"""Protect the stable upper-Home observing overview and session states."""
+
 from __future__ import annotations
 
 from pathlib import Path

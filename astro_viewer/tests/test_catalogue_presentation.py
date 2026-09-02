@@ -1,3 +1,5 @@
+"""Protect catalogue type, observation mode, and display-name localization."""
+
 from astro_viewer.app.services.catalogue_presentation import (
     catalogue_display_name,
     catalogue_object_type_label,

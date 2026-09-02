@@ -25,10 +25,11 @@ class Check:
 def _checks(*, include_coverage: bool, include_security: bool) -> list[Check]:
     checks = [
         Check("pip-check", ("-m", "pip", "check")),
-        Check("ruff", ("-m", "ruff", "check", "astro_viewer", "tools")),
+        Check("ruff", ("-m", "ruff", "check", "astro_viewer", "tools", "packaging")),
+        Check("code-documentation", ("tools/check_code_documentation.py",)),
         Check("import-cycles", ("tools/check_import_cycles.py",)),
         Check("bandit-baseline", ("tools/check_bandit.py",)),
-        Check("compileall", ("-m", "compileall", "-q", "astro_viewer", "tools")),
+        Check("compileall", ("-m", "compileall", "-q", "astro_viewer", "tools", "packaging")),
         Check(
             "third-party-licenses",
             ("tools/generate_third_party_licenses.py", "--check"),

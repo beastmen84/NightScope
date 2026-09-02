@@ -1,3 +1,5 @@
+"""Protect ephemeris loading, recovery, and failure behavior without silent drift."""
+
 from __future__ import annotations
 
 import tempfile

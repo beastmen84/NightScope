@@ -1,3 +1,5 @@
+"""Protect robust right-ascension and declination parsing."""
+
 from __future__ import annotations
 
 import unittest
@@ -18,4 +20,3 @@ class CoordinateParsingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
