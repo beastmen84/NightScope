@@ -39,7 +39,6 @@ from astro_viewer.app.models.equipment import (
     Binocular,
     Eyepiece,
     FocalReducer,
-    IntegratedImagingSystem,
     OpticalFilter,
     Telescope,
 )
@@ -85,9 +84,7 @@ from astro_viewer.app.services.equipment_setup_read_model import (
 )
 from astro_viewer.app.services.light_pollution_service import LightPollutionService, ViirsCacheState
 from astro_viewer.app.services.localization import (
-    content_key,
     content_text,
-    format_compact_number,
     format_month_year,
     format_number,
     join_text,
@@ -116,7 +113,6 @@ from astro_viewer.app.services.home_nsom_ranking import (
 from astro_viewer.app.services.home_observing_overview import (
     bortle_observing_warning,
 )
-from astro_viewer.app.services.imaging_camera_adapter import ImagingCameraAdapter
 from astro_viewer.app.services.imaging_recommendation_presentation import (
     ImagingRecommendationPresenter,
 )
@@ -152,8 +148,12 @@ from astro_viewer.app.services import (
     catalogue_detail_service,
     catalogue_query_service,
     catalogue_records,
+    equipment_catalog_service,
+    equipment_input,
+    equipment_presentation,
     observing_presentation,
     observing_time,
+    profile_equipment_service,
     weather_presentation,
 )
 from astro_viewer.app.services.catalogue_detail_service import CATALOGUE_SOURCE
@@ -358,6 +358,15 @@ class AppController(QObject):
         self._astronomy_engine = controller_dependencies.astronomy_engine
         self._weather_service = controller_dependencies.weather_service
         self._equipment_service = controller_dependencies.equipment_service
+        self._equipment_catalog_service = (
+            controller_dependencies.equipment_catalog_service
+        )
+        self._profile_equipment_service = (
+            controller_dependencies.profile_equipment_service
+        )
+        self._equipment_presentation_service = (
+            controller_dependencies.equipment_presentation_service
+        )
         self._equipment_setup_read_model_builder = (
             controller_dependencies.equipment_setup_read_model_builder
         )
@@ -471,29 +480,8 @@ class AppController(QObject):
         self._observation_message = ""
 
         self._beginner_presets = self._equipment_service.beginner_presets()
-        self._telescope_brands = self._equipment_catalog_repository.brands()
-        self._telescope_catalog_models = self._localized_equipment_catalog_rows(
-            self._equipment_catalog_repository.models(), "telescopes"
-        )
-        self._catalog_eyepieces = self._localized_equipment_catalog_rows(
-            self._equipment_catalog_repository.eyepieces(), "eyepieces"
-        )
-        self._catalog_barlows = self._localized_equipment_catalog_rows(
-            self._equipment_catalog_repository.barlows(), "barlows"
-        )
-        self._catalog_binoculars = self._localized_equipment_catalog_rows(
-            self._equipment_catalog_repository.binoculars(), "binoculars"
-        )
-        self._astronomy_camera_catalog = (
-            self._equipment_catalog_repository.astronomy_cameras()
-        )
-        self._camera_body_catalog = self._equipment_catalog_repository.camera_bodies()
-        self._catalog_filters = self._localized_equipment_catalog_rows(
-            self._equipment_catalog_repository.filters(), "filters"
-        )
-        self._catalog_reducers = self._localized_equipment_catalog_rows(
-            self._equipment_catalog_repository.reducers(), "reducers"
-        )
+        equipment_catalog = self._equipment_catalog_service.load()
+        self._apply_equipment_catalog_snapshot(equipment_catalog)
         self._equipment_profiles = self._equipment_catalog_repository.profiles()
         self._object_images = self._object_image_repository.all()
         self._object_image_map = {item["object_id"]: item for item in self._object_images}
@@ -535,16 +523,6 @@ class AppController(QObject):
         self._catalogue_object_model = CatalogueObjectListModel(self)
         self.catalogueChanged.connect(self._refresh_catalogue_object_model)
         self._refresh_catalogue_object_model()
-        self._telescopes: list[Telescope] = self._initial_telescopes()
-        self._eyepieces: list[Eyepiece] = [self._eyepiece_from_catalog_row(row) for row in self._catalog_eyepieces]
-        self._barlows: list[Barlow] = [self._barlow_from_catalog_row(row) for row in self._catalog_barlows]
-        self._binoculars: list[Binocular] = [self._binocular_from_catalog_row(row) for row in self._catalog_binoculars]
-        self._filters: list[OpticalFilter] = [
-            self._filter_from_catalog_row(row) for row in self._catalog_filters
-        ]
-        self._reducers: list[FocalReducer] = [
-            self._reducer_from_catalog_row(row) for row in self._catalog_reducers
-        ]
         self._profile_equipment = self._initial_profile_equipment()
         self._selected_telescope_index = self._initial_telescope_index()
         self._barlow = 1.0
@@ -7330,6 +7308,42 @@ class AppController(QObject):
     def _format_clock(hour: int, minute: int) -> str:
         return observing_time.format_clock(hour, minute)
 
+    def _equipment_catalog_manager(
+        self,
+    ) -> equipment_catalog_service.EquipmentCatalogService:
+        service = getattr(self, "_equipment_catalog_service", None)
+        if service is None:
+            service = equipment_catalog_service.EquipmentCatalogService(
+                self._equipment_catalog_repository,
+                self._equipment_service,
+            )
+            self._equipment_catalog_service = service
+        return service
+
+    def _profile_equipment_manager(
+        self,
+    ) -> profile_equipment_service.ProfileEquipmentService:
+        service = getattr(self, "_profile_equipment_service", None)
+        if service is None:
+            service = profile_equipment_service.ProfileEquipmentService(
+                self._equipment_catalog_repository,
+                self._equipment_service,
+                self._equipment_catalog_manager(),
+            )
+            self._profile_equipment_service = service
+        return service
+
+    def _equipment_presenter(
+        self,
+    ) -> equipment_presentation.EquipmentPresentationService:
+        service = getattr(self, "_equipment_presentation_service", None)
+        if service is None:
+            service = equipment_presentation.EquipmentPresentationService(
+                self._equipment_service
+            )
+            self._equipment_presentation_service = service
+        return service
+
     def _current_telescope(self) -> Telescope:
         for telescope in self._active_profile_telescopes():
             return telescope
@@ -7343,108 +7357,14 @@ class AppController(QObject):
         return self._index_for_telescope(current.id)
 
     def _telescope_from_profile(self, profile: dict, existing_telescopes: list[Telescope]) -> Telescope | None:
-        telescope_id = profile["telescope_id"]
-        if telescope_id == "preset:naked-eye":
-            return self._equipment_service.naked_eye_telescope()
-        if telescope_id == "preset:binoculars":
-            return Telescope(
-                "preset:binoculars",
-                tr("Binocolo 10x50"),
-                50,
-                500,
-                tr("Binocolo"),
-                "manuale",
-            )
-        if telescope_id.startswith("custom-"):
-            for telescope in existing_telescopes:
-                if telescope.id == telescope_id:
-                    return telescope
-            return None
-        model = self._equipment_catalog_repository.model_by_catalog_id(telescope_id)
-        return self._telescope_from_catalog_model(model) if model else None
+        return self._equipment_catalog_manager().telescope_from_profile(
+            profile,
+            existing_telescopes,
+        )
 
     @staticmethod
     def _telescope_from_catalog_model(model: dict) -> Telescope:
-        category = str(
-            model.get("instrument_category") or "TRADITIONAL"
-        )
-        capabilities = model.get("smart_capabilities") or {}
-        integrated_imaging = None
-        if category == "SMART_INTEGRATED":
-            integrated_imaging = IntegratedImagingSystem(
-                sensor_model=str(
-                    capabilities.get("sensor_model") or ""
-                ),
-                sensor_width_mm=capabilities.get("sensor_width_mm"),
-                sensor_height_mm=capabilities.get("sensor_height_mm"),
-                resolution_width_px=capabilities.get(
-                    "resolution_width_px"
-                ),
-                resolution_height_px=capabilities.get(
-                    "resolution_height_px"
-                ),
-                pixel_size_um=capabilities.get("pixel_size_um"),
-                bit_depth=capabilities.get("bit_depth"),
-                color_mode=str(
-                    capabilities.get("color_mode") or ""
-                ),
-                full_resolution_fps=capabilities.get(
-                    "full_resolution_fps"
-                ),
-                supports_live_stacking=bool(
-                    capabilities.get("supports_live_stacking")
-                ),
-                supports_video=bool(
-                    capabilities.get("supports_video")
-                ),
-                supports_mosaic=bool(
-                    capabilities.get("supports_mosaic")
-                ),
-                exposure_control_mode=str(
-                    capabilities.get("exposure_control_mode")
-                    or "DEVICE_MANAGED"
-                ),
-                filter_codes=tuple(
-                    capabilities.get("integrated_filter_codes") or ()
-                ),
-                specification_source_url=str(
-                    capabilities.get("specification_source_url") or ""
-                ),
-            )
-        return Telescope(
-            id=model["catalog_id"],
-            name=f"{model['brand']} {model['name']}",
-            aperture_mm=int(model["aperture_mm"]),
-            focal_length_mm=int(model["focal_length_mm"]),
-            optical_type=model["optical_type"],
-            mount=model["mount_type"],
-            instrument_category=category,
-            supports_optical_visual=bool(
-                capabilities.get(
-                    "supports_optical_visual",
-                    category != "SMART_INTEGRATED",
-                )
-            ),
-            supports_interchangeable_eyepieces=bool(
-                capabilities.get(
-                    "supports_interchangeable_eyepieces",
-                    category != "SMART_INTEGRATED",
-                )
-            ),
-            supports_external_cameras=bool(
-                capabilities.get(
-                    "supports_external_cameras",
-                    category != "SMART_INTEGRATED",
-                )
-            ),
-            supports_external_optical_modifiers=bool(
-                capabilities.get(
-                    "supports_external_optical_modifiers",
-                    category != "SMART_INTEGRATED",
-                )
-            ),
-            integrated_imaging=integrated_imaging,
-        )
+        return equipment_catalog_service.telescope_from_catalog_model(model)
 
     @staticmethod
     def _localized_object_content(rows: Mapping[str, dict]) -> dict[str, dict]:
@@ -7470,94 +7390,50 @@ class AppController(QObject):
         rows: list[dict],
         section_name: str,
     ) -> list[dict]:
-        identity_fields = {
-            "telescopes": ("brand", "name"),
-            "eyepieces": (
-                "brand",
-                "model",
-                "eyepiece_type",
-                "focal_length_mm",
-                "min_focal_length_mm",
-                "max_focal_length_mm",
-            ),
-            "barlows": ("brand", "model", "multiplier"),
-            "binoculars": ("brand", "model"),
-            "filters": ("brand", "model"),
-            "reducers": ("brand", "model", "reduction_factor"),
-        }
-        content_fields = {
-            "telescopes": ("optical_type", "notes"),
-            "eyepieces": ("notes",),
-            "barlows": ("notes",),
-            "binoculars": (),
-            "filters": ("notes",),
-            "reducers": ("connection", "notes"),
-        }
-        fields = identity_fields[section_name]
-        translated_fields = content_fields[section_name]
-        localized = []
-        for source_row in rows:
-            row = dict(source_row)
-            if bool(row.get("is_builtin")) and not bool(row.get("is_user_modified")):
-                item_key = content_key(*(row.get(field) for field in fields))
-                for field in translated_fields:
-                    row[field] = content_text(
-                        f"equipment_{section_name}",
-                        item_key,
-                        field,
-                        row.get(field, ""),
-                    )
-            if section_name == "telescopes" and (
-                bool(row.get("is_builtin"))
-                and not bool(row.get("is_user_modified"))
-            ):
-                row["optical_type_label"] = row["optical_type"]
-            localized.append(row)
-        return localized
+        return equipment_catalog_service.localized_equipment_catalog_rows(
+            rows,
+            section_name,
+        )
+
+    def _apply_equipment_catalog_snapshot(
+        self,
+        snapshot: equipment_catalog_service.EquipmentCatalogSnapshot,
+    ) -> None:
+        self._telescope_brands = list(snapshot.telescope_brands)
+        self._telescope_catalog_models = list(snapshot.telescope_catalog_models)
+        self._catalog_eyepieces = list(snapshot.eyepiece_rows)
+        self._catalog_barlows = list(snapshot.barlow_rows)
+        self._catalog_binoculars = list(snapshot.binocular_rows)
+        self._astronomy_camera_catalog = list(snapshot.astronomy_camera_rows)
+        self._camera_body_catalog = list(snapshot.camera_body_rows)
+        self._catalog_filters = list(snapshot.filter_rows)
+        self._catalog_reducers = list(snapshot.reducer_rows)
+        self._telescopes = list(snapshot.telescopes)
+        self._eyepieces = list(snapshot.eyepieces)
+        self._barlows = list(snapshot.barlows)
+        self._binoculars = list(snapshot.binoculars)
+        self._filters = list(snapshot.filters)
+        self._reducers = list(snapshot.reducers)
 
     def _refresh_equipment_catalogs(self) -> None:
-        self._telescope_brands = self._equipment_catalog_repository.brands()
-        self._telescope_catalog_models = self._localized_equipment_catalog_rows(
-            self._equipment_catalog_repository.models(), "telescopes"
+        self._apply_equipment_catalog_snapshot(
+            self._equipment_catalog_manager().load()
         )
-        self._catalog_eyepieces = self._localized_equipment_catalog_rows(
-            self._equipment_catalog_repository.eyepieces(), "eyepieces"
-        )
-        self._catalog_barlows = self._localized_equipment_catalog_rows(
-            self._equipment_catalog_repository.barlows(), "barlows"
-        )
-        self._catalog_binoculars = self._equipment_catalog_repository.binoculars()
-        self._astronomy_camera_catalog = (
-            self._equipment_catalog_repository.astronomy_cameras()
-        )
-        self._camera_body_catalog = self._equipment_catalog_repository.camera_bodies()
-        self._catalog_filters = self._localized_equipment_catalog_rows(
-            self._equipment_catalog_repository.filters(), "filters"
-        )
-        self._catalog_reducers = self._localized_equipment_catalog_rows(
-            self._equipment_catalog_repository.reducers(), "reducers"
-        )
-        self._telescopes = self._initial_telescopes()
-        self._eyepieces = [self._eyepiece_from_catalog_row(row) for row in self._catalog_eyepieces]
-        self._barlows = [self._barlow_from_catalog_row(row) for row in self._catalog_barlows]
-        self._binoculars = [self._binocular_from_catalog_row(row) for row in self._catalog_binoculars]
-        self._filters = [self._filter_from_catalog_row(row) for row in self._catalog_filters]
-        self._reducers = [self._reducer_from_catalog_row(row) for row in self._catalog_reducers]
         self._profile_equipment = self._initial_profile_equipment()
         self._selected_telescope_index = self._initial_telescope_index()
 
     def _refresh_binocular_catalog(self) -> None:
-        self._catalog_binoculars = self._localized_equipment_catalog_rows(
-            self._equipment_catalog_repository.binoculars(), "binoculars"
-        )
-        self._binoculars = [self._binocular_from_catalog_row(row) for row in self._catalog_binoculars]
+        rows, binoculars = self._equipment_catalog_manager().load_binoculars()
+        self._catalog_binoculars = list(rows)
+        self._binoculars = list(binoculars)
         self._profile_equipment = self._initial_profile_equipment()
 
     def _refresh_camera_catalogs(self) -> None:
-        self._astronomy_camera_catalog = (
-            self._equipment_catalog_repository.astronomy_cameras()
+        astronomy_cameras, camera_bodies = (
+            self._equipment_catalog_manager().load_cameras()
         )
-        self._camera_body_catalog = self._equipment_catalog_repository.camera_bodies()
+        self._astronomy_camera_catalog = list(astronomy_cameras)
+        self._camera_body_catalog = list(camera_bodies)
 
     def _after_catalog_change(self, message: str, ok: bool) -> None:
         self._equipment_message = message
@@ -7594,87 +7470,24 @@ class AppController(QObject):
         payload: Mapping[str, object],
     ) -> tuple | None:
         try:
-            sensor_width = self._required_float_input(payload.get("sensor_width_mm"))
-            sensor_height = self._required_float_input(payload.get("sensor_height_mm"))
-            resolution_width = self._positive_int(str(payload.get("resolution_width_px") or ""))
-            resolution_height = self._positive_int(str(payload.get("resolution_height_px") or ""))
-            pixel_size = self._required_float_input(payload.get("pixel_size_um"))
-            bit_depth = self._positive_int(str(payload.get("bit_depth") or ""))
-            max_fps = self._optional_float_input(str(payload.get("max_fps") or ""))
-            cooling_delta = self._optional_float_input(
-                str(payload.get("cooling_delta_c") or "")
-            )
-            backfocus = self._optional_float_input(
-                str(payload.get("backfocus_mm") or "")
-            )
-        except (TypeError, ValueError):
+            return equipment_input.parse_astronomy_camera_inputs(payload)
+        except equipment_input.EquipmentInputError:
             self._camera_catalog_message = tr(
                 "Dati della camera astronomica non validi."
             )
             self.cameraCatalogChanged.emit()
             return None
-        return (
-            str(payload.get("brand") or ""),
-            str(payload.get("model") or ""),
-            str(payload.get("camera_class") or ""),
-            str(payload.get("sensor_model") or ""),
-            str(payload.get("sensor_technology") or ""),
-            str(payload.get("color_mode") or ""),
-            sensor_width,
-            sensor_height,
-            resolution_width,
-            resolution_height,
-            pixel_size,
-            bit_depth,
-            max_fps,
-            bool(payload.get("cooled")),
-            cooling_delta,
-            str(payload.get("shutter_type") or ""),
-            backfocus,
-            str(payload.get("source_url") or ""),
-        )
 
     def _parse_camera_body_inputs(
         self,
         payload: Mapping[str, object],
     ) -> tuple | None:
         try:
-            sensor_width = self._required_float_input(payload.get("sensor_width_mm"))
-            sensor_height = self._required_float_input(payload.get("sensor_height_mm"))
-            resolution_width = self._positive_int(str(payload.get("resolution_width_px") or ""))
-            resolution_height = self._positive_int(str(payload.get("resolution_height_px") or ""))
-            raw_bit_depth = self._positive_int(str(payload.get("raw_bit_depth") or ""))
-            video_width = self._optional_positive_int_input(
-                payload.get("max_video_width_px")
-            )
-            video_height = self._optional_positive_int_input(
-                payload.get("max_video_height_px")
-            )
-            video_fps = self._optional_float_input(
-                str(payload.get("max_video_fps") or "")
-            )
-        except (TypeError, ValueError):
+            return equipment_input.parse_camera_body_inputs(payload)
+        except equipment_input.EquipmentInputError:
             self._camera_catalog_message = tr("Dati del corpo macchina non validi.")
             self.cameraCatalogChanged.emit()
             return None
-        return (
-            str(payload.get("brand") or ""),
-            str(payload.get("model") or ""),
-            str(payload.get("body_type") or ""),
-            str(payload.get("sensor_format") or ""),
-            str(payload.get("lens_mount") or ""),
-            sensor_width,
-            sensor_height,
-            resolution_width,
-            resolution_height,
-            raw_bit_depth,
-            video_width,
-            video_height,
-            video_fps,
-            bool(payload.get("live_view")),
-            bool(payload.get("bulb_mode")),
-            str(payload.get("source_url") or ""),
-        )
 
     def _parse_filter_inputs(
         self,
@@ -7684,18 +7497,16 @@ class AppController(QObject):
         minimum_aperture: str,
     ) -> tuple[float | None, float | None, float | None, int | None] | None:
         try:
-            central = self._optional_float_input(central_wavelength)
-            width = self._optional_float_input(bandwidth)
-            transmission_pct = self._optional_float_input(transmission)
-            aperture_value = self._optional_float_input(minimum_aperture)
-            if aperture_value is not None and not aperture_value.is_integer():
-                raise ValueError
-            aperture = int(aperture_value) if aperture_value is not None else None
-        except ValueError:
+            return equipment_input.parse_filter_inputs(
+                central_wavelength,
+                bandwidth,
+                transmission,
+                minimum_aperture,
+            )
+        except equipment_input.EquipmentInputError:
             self._equipment_message = tr("Dati filtro non validi.")
             self.equipmentChanged.emit()
             return None
-        return central, width, transmission_pct, aperture
 
     def _parse_reducer_inputs(
         self,
@@ -7703,47 +7514,30 @@ class AppController(QObject):
         backfocus: str,
     ) -> tuple[float, float | None] | None:
         try:
-            factor = float(reduction_factor.replace(",", "."))
-            if not math.isfinite(factor):
-                raise ValueError
-            backfocus_mm = self._optional_float_input(backfocus)
-        except ValueError:
+            return equipment_input.parse_reducer_inputs(
+                reduction_factor,
+                backfocus,
+            )
+        except equipment_input.EquipmentInputError:
             self._equipment_message = tr("Dati riduttore non validi.")
             self.equipmentChanged.emit()
             return None
-        return factor, backfocus_mm
 
     @staticmethod
     def _catalog_id_list(value: str) -> tuple[str, ...]:
-        return tuple(
-            dict.fromkeys(
-                item.strip()
-                for item in str(value or "").split(",")
-                if item.strip()
-            )
-        )
+        return equipment_input.catalog_id_list(value)
 
     @staticmethod
     def _optional_float_input(value: str) -> float | None:
-        clean_value = value.strip()
-        if not clean_value:
-            return None
-        parsed = float(clean_value.replace(",", "."))
-        if not math.isfinite(parsed):
-            raise ValueError
-        return parsed
+        return equipment_input.optional_float_input(value)
 
     @staticmethod
     def _required_float_input(value: object) -> float:
-        parsed = float(str(value or "").strip().replace(",", "."))
-        if not math.isfinite(parsed):
-            raise ValueError
-        return parsed
+        return equipment_input.required_float_input(value)
 
     @classmethod
     def _optional_positive_int_input(cls, value: object) -> int | None:
-        clean_value = str(value or "").strip()
-        return cls._positive_int(clean_value) if clean_value else None
+        return equipment_input.optional_positive_int_input(value)
 
     def _parse_binocular_inputs(
         self,
@@ -7751,20 +7545,18 @@ class AppController(QObject):
         objective_diameter: str,
     ) -> tuple[int, int] | None:
         try:
-            magnification_value = self._positive_int(magnification)
-            objective_value = self._positive_int(objective_diameter)
-        except ValueError:
+            return equipment_input.parse_binocular_inputs(
+                magnification,
+                objective_diameter,
+            )
+        except equipment_input.EquipmentInputError:
             self._equipment_message = tr("Dati binocolo non validi.")
             self.equipmentChanged.emit()
             return None
-        return magnification_value, objective_value
 
     @staticmethod
     def _positive_int(value: str) -> int:
-        parsed = float(value.strip().replace(",", "."))
-        if not math.isfinite(parsed) or parsed <= 0 or not parsed.is_integer():
-            raise ValueError
-        return int(parsed)
+        return equipment_input.positive_int(value)
 
     def _parse_eyepiece_inputs(
         self,
@@ -7776,284 +7568,109 @@ class AppController(QObject):
         afov_range: str,
     ) -> tuple[float, float, float | None, float | None, float | None, float | None] | None:
         try:
-            apparent = float(apparent_field.replace(",", "."))
-            if eyepiece_type == "Zoom":
-                min_value = float(min_focal.replace(",", "."))
-                max_value = float(max_focal.replace(",", "."))
-                focal_value = max_value
-                if (
-                    not all(math.isfinite(value) for value in (apparent, min_value, max_value))
-                    or min_value <= 0
-                    or max_value <= 0
-                    or min_value >= max_value
-                ):
-                    raise ValueError
-            else:
-                focal_value = float(focal.replace(",", "."))
-                min_value = None
-                max_value = None
-                if not all(math.isfinite(value) for value in (apparent, focal_value)):
-                    raise ValueError
-        except ValueError:
-            self._equipment_message = tr("Dati oculare non validi.")
-            self.equipmentChanged.emit()
-            return None
-        afov_min = None
-        afov_max = None
-        if afov_range.strip():
-            parts = [
-                part.strip()
-                for part in afov_range.replace(",", ".").replace("-", " ").split()
-                if part.strip()
-            ]
-            try:
-                if len(parts) != 2:
-                    raise ValueError
-                afov_min = float(parts[0])
-                afov_max = float(parts[1])
-                if (
-                    not all(math.isfinite(value) for value in (afov_min, afov_max))
-                    or afov_min <= 0
-                    or afov_min > afov_max
-                    or afov_max > 180
-                ):
-                    raise ValueError
-            except ValueError:
-                self._equipment_message = tr("Intervallo AFOV non valido.")
-                self.equipmentChanged.emit()
-                return None
-        if focal_value <= 0 or apparent <= 0:
-            self._equipment_message = tr(
-                "Focale e campo apparente devono essere maggiori di zero."
+            return equipment_input.parse_eyepiece_inputs(
+                eyepiece_type,
+                focal,
+                min_focal,
+                max_focal,
+                apparent_field,
+                afov_range,
+            )
+        except equipment_input.EquipmentInputError as exc:
+            messages = {
+                "eyepiece_afov_invalid": tr("Intervallo AFOV non valido."),
+                "eyepiece_non_positive": tr(
+                    "Focale e campo apparente devono essere maggiori di zero."
+                ),
+            }
+            self._equipment_message = messages.get(
+                exc.code,
+                tr("Dati oculare non validi."),
             )
             self.equipmentChanged.emit()
             return None
-        return focal_value, apparent, min_value, max_value, afov_min, afov_max
 
     def _catalog_telescopes(self) -> list[Telescope]:
-        return [self._telescope_from_catalog_model(model) for model in self._telescope_catalog_models]
+        return [
+            equipment_catalog_service.telescope_from_catalog_model(model)
+            for model in self._telescope_catalog_models
+        ]
 
     @staticmethod
     def _eyepiece_from_catalog_row(row: dict) -> Eyepiece:
-        return Eyepiece(
-            id=row["catalog_id"],
-            name=f"{row['brand']} {row['model']}",
-            focal_length_mm=float(row.get("focal_length_mm") or row.get("max_focal_length_mm") or 0),
-            apparent_field_deg=float(row["apparent_field_deg"]),
-            eyepiece_type=str(row.get("eyepiece_type") or row.get("type") or "Fixed"),
-            min_focal_length_mm=float(row["min_focal_length_mm"]) if row.get("min_focal_length_mm") else None,
-            max_focal_length_mm=float(row["max_focal_length_mm"]) if row.get("max_focal_length_mm") else None,
-            zoom_click_positions_mm=AppController._parse_zoom_click_positions(row.get("zoom_click_positions_mm", "")),
-        )
+        return equipment_catalog_service.eyepiece_from_catalog_row(row)
 
     @staticmethod
     def _parse_zoom_click_positions(value: str) -> tuple[float, ...]:
-        positions = []
-        seen = set()
-        for part in str(value or "").replace(",", ".").replace("/", ";").split(";"):
-            token = part.strip()
-            if not token:
-                continue
-            try:
-                position = float(token)
-            except ValueError:
-                continue
-            key = round(position, 3)
-            if position <= 0 or key in seen:
-                continue
-            seen.add(key)
-            positions.append(position)
-        return tuple(positions)
+        return equipment_catalog_service.parse_zoom_click_positions(value)
 
     @staticmethod
     def _barlow_from_catalog_row(row: dict) -> Barlow:
-        return Barlow(
-            id=row["catalog_id"],
-            name=f"{row['brand']} {row['model']} {float(row['multiplier']):g}x",
-            multiplier=float(row["multiplier"]),
-        )
+        return equipment_catalog_service.barlow_from_catalog_row(row)
 
     @staticmethod
     def _binocular_from_catalog_row(row: dict) -> Binocular:
-        return Binocular(
-            id=row["catalog_id"],
-            name=f"{row['brand']} {row['model']}",
-            magnification=int(row["magnification"]),
-            objective_diameter_mm=int(row["objective_diameter_mm"]),
-            image_stabilized=bool(row["image_stabilized"]),
-        )
+        return equipment_catalog_service.binocular_from_catalog_row(row)
 
     @staticmethod
     def _filter_from_catalog_row(row: dict) -> OpticalFilter:
-        return OpticalFilter(
-            id=row["catalog_id"],
-            name=f"{row['brand']} {row['model']}",
-            filter_class=str(row["filter_class"]),
-            central_wavelength_nm=(
-                float(row["central_wavelength_nm"])
-                if row.get("central_wavelength_nm") is not None
-                else None
-            ),
-            bandwidth_nm=(
-                float(row["bandwidth_nm"])
-                if row.get("bandwidth_nm") is not None
-                else None
-            ),
-            transmission_pct=(
-                float(row["transmission_pct"])
-                if row.get("transmission_pct") is not None
-                else None
-            ),
-            minimum_aperture_mm=(
-                int(row["minimum_aperture_mm"])
-                if row.get("minimum_aperture_mm") is not None
-                else None
-            ),
-        )
+        return equipment_catalog_service.filter_from_catalog_row(row)
 
     @staticmethod
     def _reducer_from_catalog_row(row: dict) -> FocalReducer:
-        return FocalReducer(
-            id=row["catalog_id"],
-            name=f"{row['brand']} {row['model']}",
-            reduction_factor=float(row["reduction_factor"]),
-            optical_system=str(row["optical_system"]),
-            connection=str(row.get("connection") or ""),
-            backfocus_mm=(
-                float(row["backfocus_mm"])
-                if row.get("backfocus_mm") is not None
-                else None
-            ),
-            visual_compatible=bool(row.get("visual_compatible")),
-            imaging_compatible=bool(row.get("imaging_compatible")),
-            corrected_field=bool(row.get("corrected_field")),
-            compatible_telescope_ids=tuple(row.get("compatible_telescope_ids") or ()),
-            compatible_telescope_names=tuple(
-                item.get("display_name", "")
-                for item in row.get("compatible_telescopes", [])
-                if item.get("display_name")
-            ),
-        )
+        return equipment_catalog_service.reducer_from_catalog_row(row)
 
     def _initial_profile_equipment(self) -> dict[str, dict[str, list[str]]]:
-        equipment: dict[str, dict[str, list[str]]] = {}
-        for profile in self._equipment_profiles:
-            profile_id = int(profile["id"])
-            telescope_ids = [
-                self._normalize_telescope_catalog_id(telescope_id)
-                for telescope_id in self._equipment_catalog_repository.profile_telescope_ids(profile_id)
-            ]
-            telescope_ids = [telescope_id for telescope_id in telescope_ids if telescope_id]
-            solar_filter_telescope_ids = [
-                self._normalize_telescope_catalog_id(telescope_id)
-                for telescope_id in (
-                    self._equipment_catalog_repository
-                    .profile_full_aperture_solar_filter_telescope_ids(
-                        profile_id
-                    )
-                )
-            ]
-            solar_filter_telescope_ids = [
-                telescope_id
-                for telescope_id in solar_filter_telescope_ids
-                if telescope_id and telescope_id in telescope_ids
-            ]
-            legacy_telescope_id = profile.get("telescope_id") or self._equipment_service.NAKED_EYE_ID
-            normalized_legacy_id = self._normalize_telescope_catalog_id(legacy_telescope_id)
-            if normalized_legacy_id and normalized_legacy_id != self._equipment_service.NAKED_EYE_ID and normalized_legacy_id not in telescope_ids:
-                telescope_ids.append(normalized_legacy_id)
-                self._equipment_catalog_repository.assign_profile_telescope(profile_id, normalized_legacy_id)
-                self._equipment_catalog_repository.update_profile_telescope(profile_id, normalized_legacy_id)
-            equipment[str(profile_id)] = {
-                "telescope_ids": telescope_ids,
-                "full_aperture_solar_filter_telescope_ids": (
-                    solar_filter_telescope_ids
-                ),
-                "eyepiece_ids": self._equipment_catalog_repository.profile_eyepiece_ids(profile_id),
-                "barlow_ids": self._equipment_catalog_repository.profile_barlow_ids(profile_id),
-                "binocular_ids": self._equipment_catalog_repository.profile_binocular_ids(profile_id),
-                "filter_ids": self._equipment_catalog_repository.profile_filter_ids(profile_id),
-                "reducer_ids": self._equipment_catalog_repository.profile_reducer_ids(profile_id),
-                "astronomy_camera_ids": (
-                    self._equipment_catalog_repository
-                    .profile_astronomy_camera_ids(profile_id)
-                ),
-                "camera_body_ids": (
-                    self._equipment_catalog_repository.profile_camera_body_ids(
-                        profile_id
-                    )
-                ),
-            }
-        return equipment
+        return self._profile_equipment_manager().initial_profile_equipment(
+            self._equipment_profiles
+        )
 
     def _refresh_profiles_from_repository(self) -> None:
-        self._equipment_profiles = self._equipment_catalog_repository.profiles()
-        for profile in self._equipment_profiles:
-            state = self._profile_equipment.setdefault(
-                str(profile["id"]),
-                self._empty_profile_equipment_state(),
+        self._equipment_profiles = (
+            self._profile_equipment_manager().refresh_profiles(
+                self._profile_equipment
             )
-            self._ensure_profile_equipment_state(state)
+        )
 
     def _active_profile(self) -> dict | None:
-        return next((profile for profile in self._equipment_profiles if int(profile.get("active", 0)) == 1), None)
+        return profile_equipment_service.active_profile(
+            self._equipment_profiles
+        )
 
     def _presented_equipment_profiles(self) -> list[dict]:
-        return [dict(profile) for profile in self._equipment_profiles]
+        return profile_equipment_service.presented_equipment_profiles(
+            self._equipment_profiles
+        )
 
     def _active_profile_state(self) -> dict[str, list[str]]:
-        profile = self._active_profile()
-        if not profile:
-            return self._empty_profile_equipment_state()
-        state = self._profile_equipment.setdefault(
-            str(profile["id"]),
-            self._empty_profile_equipment_state(),
+        return profile_equipment_service.active_profile_state(
+            self._equipment_profiles,
+            self._profile_equipment,
         )
-        self._ensure_profile_equipment_state(state)
-        return state
 
     @staticmethod
     def _empty_profile_equipment_state() -> dict[str, list[str]]:
-        return {
-            "telescope_ids": [],
-            "full_aperture_solar_filter_telescope_ids": [],
-            "eyepiece_ids": [],
-            "barlow_ids": [],
-            "binocular_ids": [],
-            "filter_ids": [],
-            "reducer_ids": [],
-            "astronomy_camera_ids": [],
-            "camera_body_ids": [],
-        }
+        return profile_equipment_service.empty_profile_equipment_state()
 
     @staticmethod
     def _ensure_profile_equipment_state(state: dict[str, list[str]]) -> None:
-        for key in (
-            "telescope_ids",
-            "full_aperture_solar_filter_telescope_ids",
-            "eyepiece_ids",
-            "barlow_ids",
-            "binocular_ids",
-            "filter_ids",
-            "reducer_ids",
-            "astronomy_camera_ids",
-            "camera_body_ids",
-        ):
-            state.setdefault(key, [])
+        profile_equipment_service.ensure_profile_equipment_state(state)
 
     def _profile_key_by_name(self, profile_name: str) -> str:
-        for profile in self._equipment_profiles:
-            if profile["profile_name"].strip().lower() == profile_name.strip().lower():
-                return str(profile["id"])
-        return profile_name.strip().lower()
+        return profile_equipment_service.profile_key_by_name(
+            self._equipment_profiles,
+            profile_name,
+        )
 
     def _owned_telescopes(self) -> list[Telescope]:
         return self._catalog_telescopes()
 
     def _active_profile_telescopes(self) -> list[Telescope]:
         state = self._active_profile_state()
-        telescopes = [telescope for telescope_id in state["telescope_ids"] if (telescope := self._find_telescope(telescope_id))]
-        return telescopes
+        return profile_equipment_service.select_by_ids(
+            self._telescopes,
+            state["telescope_ids"],
+        )
 
     def _active_profile_has_full_aperture_solar_filter(
         self,
@@ -8068,77 +7685,51 @@ class AppController(QObject):
 
     def _active_profile_eyepieces(self) -> list[Eyepiece]:
         state = self._active_profile_state()
-        return [eyepiece for eyepiece_id in state["eyepiece_ids"] if (eyepiece := self._find_eyepiece(eyepiece_id))]
+        return profile_equipment_service.select_by_ids(
+            self._eyepieces,
+            state["eyepiece_ids"],
+        )
 
     def _active_profile_barlows(self) -> list[Barlow]:
         state = self._active_profile_state()
-        return [barlow for barlow_id in state["barlow_ids"] if (barlow := self._find_barlow(barlow_id))]
+        return profile_equipment_service.select_by_ids(
+            self._barlows,
+            state["barlow_ids"],
+        )
 
     def _active_profile_binoculars(self) -> list[Binocular]:
         state = self._active_profile_state()
-        return [binocular for binocular_id in state["binocular_ids"] if (binocular := self._find_binocular(binocular_id))]
+        return profile_equipment_service.select_by_ids(
+            self._binoculars,
+            state["binocular_ids"],
+        )
 
     def _active_profile_filters(self) -> list[OpticalFilter]:
         state = self._active_profile_state()
-        return [
-            optical_filter
-            for filter_id in state["filter_ids"]
-            if (optical_filter := self._find_filter(filter_id))
-        ]
+        return profile_equipment_service.select_by_ids(
+            self._filters,
+            state["filter_ids"],
+        )
 
     def _active_profile_reducers(self) -> list[FocalReducer]:
         state = self._active_profile_state()
-        return [
-            reducer
-            for reducer_id in state["reducer_ids"]
-            if (reducer := self._find_reducer(reducer_id))
-        ]
+        return profile_equipment_service.select_by_ids(
+            self._reducers,
+            state["reducer_ids"],
+        )
 
     def _active_profile_imaging_inventory(
         self,
     ) -> ImagingRuntimeInventory:
         profile = self._active_profile()
-        if profile is None:
-            return ImagingRuntimeInventory()
-
-        state = self._active_profile_state()
-        telescopes = tuple(self._active_profile_telescopes())
-        assigned_telescope_ids = {
-            telescope.id
-            for telescope in telescopes
-        }
-        astronomy_camera_rows = [
-            camera
-            for camera_id in state["astronomy_camera_ids"]
-            if (camera := self._find_astronomy_camera(camera_id)) is not None
-        ]
-        camera_body_rows = [
-            camera
-            for camera_id in state["camera_body_ids"]
-            if (camera := self._find_camera_body(camera_id)) is not None
-        ]
-        cameras = tuple(
-            ImagingCameraAdapter.from_catalogues(
-                astronomy_camera_rows,
-                camera_body_rows,
-            )
-        )
-        solar_filter_ids = tuple(
-            dict.fromkeys(
-                telescope_id
-                for telescope_id in state[
-                    "full_aperture_solar_filter_telescope_ids"
-                ]
-                if telescope_id in assigned_telescope_ids
-            )
-        )
-        return ImagingRuntimeInventory(
-            profile_id=str(profile.get("id") or "").strip(),
-            telescopes=telescopes,
-            cameras=cameras,
-            reducers=tuple(self._active_profile_reducers()),
-            barlows=tuple(self._active_profile_barlows()),
-            full_aperture_solar_filter_telescope_ids=solar_filter_ids,
+        return profile_equipment_service.imaging_inventory(
+            profile=profile,
+            state=self._active_profile_state(),
+            telescopes=self._telescopes,
+            astronomy_camera_rows=self._astronomy_camera_catalog,
+            camera_body_rows=self._camera_body_catalog,
+            reducers=self._reducers,
+            barlows=self._barlows,
         )
 
     def _imaging_runtime_recommendation(
@@ -8169,413 +7760,117 @@ class AppController(QObject):
         )
 
     def _find_telescope(self, telescope_id: str) -> Telescope | None:
-        return next((telescope for telescope in self._telescopes if telescope.id == telescope_id), None)
+        return profile_equipment_service.find_by_id(
+            self._telescopes,
+            telescope_id,
+        )
 
     def _find_eyepiece(self, eyepiece_id: str) -> Eyepiece | None:
-        return next((eyepiece for eyepiece in self._eyepieces if eyepiece.id == eyepiece_id), None)
+        return profile_equipment_service.find_by_id(
+            self._eyepieces,
+            eyepiece_id,
+        )
 
     def _find_barlow(self, barlow_id: str) -> Barlow | None:
-        return next((barlow for barlow in self._barlows if barlow.id == barlow_id), None)
+        return profile_equipment_service.find_by_id(
+            self._barlows,
+            barlow_id,
+        )
 
     def _find_binocular(self, binocular_id: str) -> Binocular | None:
-        return next((binocular for binocular in self._binoculars if binocular.id == binocular_id), None)
+        return profile_equipment_service.find_by_id(
+            self._binoculars,
+            binocular_id,
+        )
 
     def _find_filter(self, filter_id: str) -> OpticalFilter | None:
-        return next((item for item in self._filters if item.id == filter_id), None)
+        return profile_equipment_service.find_by_id(self._filters, filter_id)
 
     def _find_reducer(self, reducer_id: str) -> FocalReducer | None:
-        return next((item for item in self._reducers if item.id == reducer_id), None)
+        return profile_equipment_service.find_by_id(self._reducers, reducer_id)
 
     def _find_astronomy_camera(self, camera_id: str) -> dict | None:
-        return next(
-            (
-                item
-                for item in self._astronomy_camera_catalog
-                if item["catalog_id"] == camera_id
-            ),
-            None,
+        return profile_equipment_service.find_row_by_catalog_id(
+            self._astronomy_camera_catalog,
+            camera_id,
         )
 
     def _find_camera_body(self, camera_id: str) -> dict | None:
-        return next(
-            (
-                item
-                for item in self._camera_body_catalog
-                if item["catalog_id"] == camera_id
-            ),
-            None,
+        return profile_equipment_service.find_row_by_catalog_id(
+            self._camera_body_catalog,
+            camera_id,
         )
 
     def _index_for_telescope(self, telescope_id: str) -> int:
-        for index, telescope in enumerate(self._telescopes):
-            if telescope.id == telescope_id:
-                return index
-        return 0
+        return profile_equipment_service.index_for_telescope(
+            self._telescopes,
+            telescope_id,
+        )
 
     def _normalize_telescope_catalog_id(self, telescope_id: str) -> str:
-        if not telescope_id or telescope_id == self._equipment_service.NAKED_EYE_ID:
-            return self._equipment_service.NAKED_EYE_ID
-        if telescope_id.startswith("catalog-telescope-"):
-            return telescope_id
-        model = self._equipment_catalog_repository.model_by_catalog_id(telescope_id)
-        return model["catalog_id"] if model else ""
+        return self._equipment_catalog_manager().normalize_telescope_catalog_id(
+            telescope_id
+        )
 
     def _equipment_catalog_items(self) -> list[dict]:
-        items = []
-        for telescope in self._catalog_telescopes():
-            items.append(
-                {
-                    "kind": "telescope",
-                    "id": telescope.id,
-                    "name": telescope.name,
-                    "badge": tr("Telescopio"),
-                    "details": tr(
-                        "{aperture} mm / {focal_length} mm",
-                        aperture=format_number(telescope.aperture_mm),
-                        focal_length=format_number(telescope.focal_length_mm),
-                    ),
-                    "type": telescope.optical_type,
-                }
-            )
-        for eyepiece in self._eyepieces:
-            badge = tr("Zoom") if eyepiece.eyepiece_type == "Zoom" else tr("Oculare")
-            items.append(
-                {
-                    "kind": "eyepiece",
-                    "id": eyepiece.id,
-                    "name": eyepiece.name,
-                    "badge": badge,
-                    "details": eyepiece.to_qml()["focalRangeLabel"],
-                    "type": eyepiece.eyepiece_type,
-                }
-            )
-        for barlow in self._barlows:
-            items.append(
-                {
-                    "kind": "barlow",
-                    "id": barlow.id,
-                    "name": barlow.name,
-                    "badge": tr("Barlow"),
-                    "details": tr(
-                        "{value}x",
-                        value=format_compact_number(barlow.multiplier),
-                    ),
-                    "type": tr("Barlow"),
-                }
-            )
-        for binocular in self._binoculars:
-            items.append(
-                {
-                    "kind": "binocular",
-                    "id": binocular.id,
-                    "name": binocular.name,
-                    "badge": tr("Binocolo"),
-                    "details": binocular.to_qml()["specLabel"],
-                    "type": tr("Binocolo stabilizzato") if binocular.image_stabilized else tr("Binocolo"),
-                    "secondaryBadge": "IS" if binocular.image_stabilized else "",
-                }
-            )
-        for optical_filter in self._catalog_filters:
-            items.append(
-                {
-                    "kind": "filter",
-                    "id": optical_filter["catalog_id"],
-                    "name": optical_filter["display_name"],
-                    "badge": tr("Filtro"),
-                    "details": optical_filter["filter_class_label"],
-                    "type": optical_filter["filter_class_label"],
-                }
-            )
-        for reducer in self._catalog_reducers:
-            items.append(
-                {
-                    "kind": "reducer",
-                    "id": reducer["catalog_id"],
-                    "name": reducer["display_name"],
-                    "badge": tr("Riduttore"),
-                    "details": join_text(
-                        [
-                            tr(
-                                "{value}x",
-                                value=format_compact_number(
-                                    float(reducer["reduction_factor"])
-                                ),
-                            ),
-                            reducer["optical_system_label"],
-                        ]
-                    ),
-                    "type": reducer["optical_system_label"],
-                    "secondaryBadge": self._reducer_use_label(reducer),
-                }
-            )
-        for camera in self._astronomy_camera_catalog:
-            items.append(
-                {
-                    "kind": "astronomy_camera",
-                    "id": camera["catalog_id"],
-                    "name": camera["display_name"],
-                    "badge": tr("Camera astronomica"),
-                    "details": join_text(
-                        [
-                            camera["camera_class_label"],
-                            camera["sensor_model"],
-                        ]
-                    ),
-                    "type": join_text(
-                        [
-                            camera["sensor_technology_label"],
-                            camera["color_mode_label"],
-                        ]
-                    ),
-                    "secondaryBadge": camera["color_mode_label"],
-                }
-            )
-        for camera in self._camera_body_catalog:
-            items.append(
-                {
-                    "kind": "camera_body",
-                    "id": camera["catalog_id"],
-                    "name": camera["display_name"],
-                    "badge": tr("Corpo macchina"),
-                    "details": join_text(
-                        [
-                            camera["body_type_label"],
-                            camera["sensor_format_label"],
-                        ]
-                    ),
-                    "type": camera["lens_mount"],
-                    "secondaryBadge": camera["lens_mount"],
-                }
-            )
-        return items
-
+        return self._equipment_presenter().catalog_items(
+            telescopes=self._catalog_telescopes(),
+            eyepieces=self._eyepieces,
+            barlows=self._barlows,
+            binoculars=self._binoculars,
+            filter_rows=self._catalog_filters,
+            reducer_rows=self._catalog_reducers,
+            astronomy_camera_rows=self._astronomy_camera_catalog,
+            camera_body_rows=self._camera_body_catalog,
+        )
     def _profile_assigned_equipment(self) -> list[dict]:
-        items = []
-        for telescope in self._active_profile_telescopes():
-            items.append(
-                {
-                    "kind": "telescope",
-                    "id": telescope.id,
-                    "name": telescope.name,
-                    "badge": tr("Telescopio"),
-                    "details": tr(
-                        "{aperture} mm / {focal_length} mm",
-                        aperture=format_number(telescope.aperture_mm),
-                        focal_length=format_number(telescope.focal_length_mm),
-                    ),
-                    "hasFullApertureSolarFilter": (
-                        self._active_profile_has_full_aperture_solar_filter(
-                            telescope.id
-                        )
-                    ),
-                }
-            )
-        for eyepiece in self._active_profile_eyepieces():
-            items.append(
-                {
-                    "kind": "eyepiece",
-                    "id": eyepiece.id,
-                    "name": eyepiece.name,
-                    "badge": tr("Zoom") if eyepiece.eyepiece_type == "Zoom" else tr("Oculare"),
-                    "details": eyepiece.to_qml()["focalRangeLabel"],
-                }
-            )
-        for barlow in self._active_profile_barlows():
-            items.append(
-                {
-                    "kind": "barlow",
-                    "id": barlow.id,
-                    "name": barlow.name,
-                    "badge": tr("Barlow"),
-                    "details": tr(
-                        "{value}x",
-                        value=format_compact_number(barlow.multiplier),
-                    ),
-                }
-            )
-        for binocular in self._active_profile_binoculars():
-            items.append(
-                {
-                    "kind": "binocular",
-                    "id": binocular.id,
-                    "name": binocular.name,
-                    "badge": tr("Binocolo"),
-                    "details": binocular.to_qml()["specLabel"],
-                    "secondaryBadge": "IS" if binocular.image_stabilized else "",
-                }
-            )
-        assigned_filter_ids = set(self._active_profile_state()["filter_ids"])
-        for optical_filter in self._catalog_filters:
-            if optical_filter["catalog_id"] not in assigned_filter_ids:
-                continue
-            items.append(
-                {
-                    "kind": "filter",
-                    "id": optical_filter["catalog_id"],
-                    "name": optical_filter["display_name"],
-                    "badge": tr("Filtro"),
-                    "details": optical_filter["filter_class_label"],
-                }
-            )
-        assigned_reducer_ids = set(self._active_profile_state()["reducer_ids"])
-        for reducer in self._catalog_reducers:
-            if reducer["catalog_id"] not in assigned_reducer_ids:
-                continue
-            items.append(
-                {
-                    "kind": "reducer",
-                    "id": reducer["catalog_id"],
-                    "name": reducer["display_name"],
-                    "badge": tr("Riduttore"),
-                    "details": join_text(
-                        [
-                            tr(
-                                "{value}x",
-                                value=format_compact_number(
-                                    float(reducer["reduction_factor"])
-                                ),
-                            ),
-                            reducer["optical_system_label"],
-                        ]
-                    ),
-                    "secondaryBadge": self._reducer_use_label(reducer),
-                }
-            )
-        assigned_astronomy_camera_ids = set(
-            self._active_profile_state()["astronomy_camera_ids"]
+        return self._equipment_presenter().assigned_items(
+            state=self._active_profile_state(),
+            telescopes=self._telescopes,
+            eyepieces=self._eyepieces,
+            barlows=self._barlows,
+            binoculars=self._binoculars,
+            filter_rows=self._catalog_filters,
+            reducer_rows=self._catalog_reducers,
+            astronomy_camera_rows=self._astronomy_camera_catalog,
+            camera_body_rows=self._camera_body_catalog,
         )
-        for camera in self._astronomy_camera_catalog:
-            if camera["catalog_id"] not in assigned_astronomy_camera_ids:
-                continue
-            items.append(
-                {
-                    "kind": "astronomy_camera",
-                    "id": camera["catalog_id"],
-                    "name": camera["display_name"],
-                    "badge": tr("Camera astronomica"),
-                    "details": join_text(
-                        [
-                            camera["camera_class_label"],
-                            camera["sensor_model"],
-                        ]
-                    ),
-                    "secondaryBadge": camera["color_mode_label"],
-                }
-            )
-        assigned_camera_body_ids = set(
-            self._active_profile_state()["camera_body_ids"]
-        )
-        for camera in self._camera_body_catalog:
-            if camera["catalog_id"] not in assigned_camera_body_ids:
-                continue
-            items.append(
-                {
-                    "kind": "camera_body",
-                    "id": camera["catalog_id"],
-                    "name": camera["display_name"],
-                    "badge": tr("Corpo macchina"),
-                    "details": join_text(
-                        [
-                            camera["body_type_label"],
-                            camera["sensor_format_label"],
-                        ]
-                    ),
-                    "secondaryBadge": camera["lens_mount"],
-                }
-            )
-        return items
-
     @staticmethod
     def _reducer_use_label(reducer: Mapping[str, object]) -> str:
-        visual = bool(reducer.get("visual_compatible"))
-        imaging = bool(reducer.get("imaging_compatible"))
-        if visual and imaging:
-            return tr("Visuale + foto")
-        if visual:
-            return tr("Visuale")
-        return tr("Fotografico")
+        return equipment_presentation.reducer_use_label(reducer)
 
     def _telescope_exists(self, telescope: Telescope, ignore_id: str = "") -> bool:
-        return any(
-            existing.id != ignore_id
-            and existing.id != self._equipment_service.NAKED_EYE_ID
-            and existing.name.strip().lower() == telescope.name.strip().lower()
-            and existing.aperture_mm == telescope.aperture_mm
-            and existing.focal_length_mm == telescope.focal_length_mm
-            and existing.optical_type.strip().lower() == telescope.optical_type.strip().lower()
-            and existing.mount.strip().lower() == telescope.mount.strip().lower()
-            for existing in self._telescopes
+        return profile_equipment_service.telescope_exists(
+            self._telescopes,
+            telescope,
+            self._equipment_service.NAKED_EYE_ID,
+            ignore_id,
         )
 
     def _eyepiece_exists(self, eyepiece: Eyepiece, ignore_id: str = "") -> bool:
-        return any(
-            existing.id != ignore_id
-            and existing.name.strip().lower() == eyepiece.name.strip().lower()
-            and round(existing.focal_length_mm, 3) == round(eyepiece.focal_length_mm, 3)
-            and round(existing.apparent_field_deg, 3) == round(eyepiece.apparent_field_deg, 3)
-            and existing.eyepiece_type == eyepiece.eyepiece_type
-            and round(existing.min_focal_length_mm or 0.0, 3) == round(eyepiece.min_focal_length_mm or 0.0, 3)
-            and round(existing.max_focal_length_mm or 0.0, 3) == round(eyepiece.max_focal_length_mm or 0.0, 3)
-            for existing in self._eyepieces
+        return profile_equipment_service.eyepiece_exists(
+            self._eyepieces,
+            eyepiece,
+            ignore_id,
         )
 
     def _barlow_exists(self, barlow: Barlow, ignore_id: str = "") -> bool:
-        return any(
-            existing.id != ignore_id
-            and existing.name.strip().lower() == barlow.name.strip().lower()
-            and round(existing.multiplier, 3) == round(barlow.multiplier, 3)
-            for existing in self._barlows
+        return profile_equipment_service.barlow_exists(
+            self._barlows,
+            barlow,
+            ignore_id,
         )
 
     @staticmethod
     def _next_custom_id(prefix: str, existing_ids: list[str]) -> str:
-        highest = 0
-        for item_id in existing_ids:
-            if not item_id.startswith(prefix):
-                continue
-            try:
-                highest = max(highest, int(item_id.removeprefix(prefix)))
-            except ValueError:
-                continue
-        return f"{prefix}{highest + 1}"
+        return profile_equipment_service.next_custom_id(prefix, existing_ids)
 
     def _equipment_status_message(self) -> str:
-        telescope = self._current_telescope()
-        if not self._equipment_service.has_optical_telescope(telescope):
-            if self._active_profile_binoculars():
-                return tr(
-                    "Profilo con binocolo: configura o seleziona un telescopio "
-                    "per usare oculari e Barlow."
-                )
-            return tr("Modalità Occhio nudo: configura o seleziona un telescopio per usare oculari e Barlow.")
-        if not self._equipment_service.can_use_eyepieces(telescope):
-            return tr(
-                "Telescopio smart attivo: oculari, Barlow e ingrandimenti "
-                "visuali non si applicano. Usa il piano EAA/fotografico "
-                "integrato."
-            )
-        eyepieces = self._active_profile_eyepieces()
-        barlows = self._active_profile_barlows()
-        if not eyepieces:
-            return tr("Telescopio attivo senza oculari: suggerimenti limitati. Aggiungi oculari per calcoli completi.")
-        barlow_count = len(barlows)
-        barlow_text = (
-            tr("1 Barlow")
-            if barlow_count == 1
-            else tr("{count} Barlow", count=barlow_count)
-            if barlow_count > 1
-            else tr("nessuna Barlow")
-        )
-        eyepiece_text = (
-            tr("1 oculare")
-            if len(eyepieces) == 1
-            else tr("{count} oculari", count=len(eyepieces))
-        )
-        return tr(
-            "Profilo attivo: {telescope}. Opzioni di ingrandimento: {eyepieces}, {barlows}.",
-            telescope=telescope.name,
-            eyepieces=eyepiece_text,
-            barlows=barlow_text,
+        return self._equipment_presenter().status_message(
+            telescope=self._current_telescope(),
+            binoculars=self._active_profile_binoculars(),
+            eyepieces=self._active_profile_eyepieces(),
+            barlows=self._active_profile_barlows(),
         )
 
     def _zone(self) -> ZoneInfo:

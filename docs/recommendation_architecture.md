@@ -1,7 +1,7 @@
 # NightScope Recommendation Architecture
 
 This document describes the current recommendation architecture in NightScope
-`1.45.3`. The typed profile, binocular and recommendation boundaries originated
+`1.45.4`. The typed profile, binocular and recommendation boundaries originated
 in the NightScope 1.1 refactors and remain the active design.
 
 The recommendation system has one main rule:
@@ -70,6 +70,12 @@ filters, localization projections and static observability checks live in
 dedicated catalogue services. A separate detail service builds catalogue
 objects and metadata. The controller retains UI model notifications, runtime
 visibility caches and serialized access to the astronomy engine.
+
+Since `1.45.4`, loading and mapping equipment catalogues, parsing equipment
+form values, profile inventory queries and equipment presentation read models
+live in framework-independent services. `AppController` retains repository
+mutations, localized validation feedback and Qt signals, while compatibility
+wrappers keep the established integration surface stable.
 
 ## Responsibilities
 

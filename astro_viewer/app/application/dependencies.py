@@ -37,6 +37,12 @@ from astro_viewer.app.services.earthdata_credentials import (
     EarthdataConnectionTester,
     EarthdataCredentialStore,
 )
+from astro_viewer.app.services.equipment_catalog_service import (
+    EquipmentCatalogService,
+)
+from astro_viewer.app.services.equipment_presentation import (
+    EquipmentPresentationService,
+)
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.equipment_setup_read_model import (
     EquipmentSetupReadModelBuilder,
@@ -89,6 +95,9 @@ from astro_viewer.app.services.openaq_credentials import (
     OpenAQConnectionTester,
     OpenAQCredentialStore,
 )
+from astro_viewer.app.services.profile_equipment_service import (
+    ProfileEquipmentService,
+)
 from astro_viewer.app.services.reducer_recommendation_service import (
     ReducerRecommendationService,
 )
@@ -125,6 +134,9 @@ class AppControllerDependencies:
     startup_service_status: object
     weather_service: OpenMeteoWeatherService
     equipment_service: EquipmentService
+    equipment_catalog_service: EquipmentCatalogService
+    profile_equipment_service: ProfileEquipmentService
+    equipment_presentation_service: EquipmentPresentationService
     equipment_setup_read_model_builder: EquipmentSetupReadModelBuilder
     filter_recommendation_service: FilterRecommendationService
     reducer_recommendation_service: ReducerRecommendationService
@@ -225,6 +237,18 @@ def build_app_controller_dependencies(
         )
 
     equipment_service = EquipmentService()
+    equipment_catalog_service = EquipmentCatalogService(
+        equipment_catalog_repository,
+        equipment_service,
+    )
+    profile_equipment_service = ProfileEquipmentService(
+        equipment_catalog_repository,
+        equipment_service,
+        equipment_catalog_service,
+    )
+    equipment_presentation_service = EquipmentPresentationService(
+        equipment_service
+    )
     equipment_setup_read_model_builder = EquipmentSetupReadModelBuilder()
     conditions_service = ObservationConditionsService()
     conditions_read_model_builder = ObservationConditionsReadModelBuilder()
@@ -277,6 +301,9 @@ def build_app_controller_dependencies(
         startup_service_status=startup_service_status,
         weather_service=OpenMeteoWeatherService(weather_cache_repository),
         equipment_service=equipment_service,
+        equipment_catalog_service=equipment_catalog_service,
+        profile_equipment_service=profile_equipment_service,
+        equipment_presentation_service=equipment_presentation_service,
         equipment_setup_read_model_builder=equipment_setup_read_model_builder,
         filter_recommendation_service=FilterRecommendationService(),
         reducer_recommendation_service=ReducerRecommendationService(),

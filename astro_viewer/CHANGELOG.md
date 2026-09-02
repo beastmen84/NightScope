@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## NightScope 1.45.4 - 2026-09-02
+
+- Estratti da `AppController` caricamento e mapping dei cataloghi Equipment,
+  parsing e validazione degli input, query dell'inventario dei profili e read
+  model presentati a QML. I nuovi servizi sono privi di dipendenze Qt e
+  ricevono repository o dati espliciti dalla composition root.
+- Il controller conserva mutazioni persistenti, messaggi localizzati, segnali
+  e notifiche dipendenti dal profilo. Wrapper compatibili mantengono invariati
+  gli helper storici, inclusi i test che costruiscono il controller senza
+  eseguirne il costruttore.
+- La versione sorgente passa a `1.45.4`. `dist` non e' stata rigenerata o
+  modificata; nessun tag, checksum o artefatto di release e' stato creato.
+
 ## NightScope 1.45.3 - 2026-09-02
 
 - Separati da `AppController` caricamento e normalizzazione dei record di

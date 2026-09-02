@@ -69,3 +69,27 @@ def test_dependency_factory_owns_ephemeris_fallback(tmp_path: Path) -> None:
         is dependencies.catalogue_repository
     )
     assert dependencies.catalogue_detail_service is not None
+    assert (
+        dependencies.equipment_catalog_service._repository
+        is dependencies.equipment_catalog_repository
+    )
+    assert (
+        dependencies.equipment_catalog_service._equipment_service
+        is dependencies.equipment_service
+    )
+    assert (
+        dependencies.profile_equipment_service._repository
+        is dependencies.equipment_catalog_repository
+    )
+    assert (
+        dependencies.profile_equipment_service._equipment_service
+        is dependencies.equipment_service
+    )
+    assert (
+        dependencies.profile_equipment_service._catalogue_service
+        is dependencies.equipment_catalog_service
+    )
+    assert (
+        dependencies.equipment_presentation_service._equipment_service
+        is dependencies.equipment_service
+    )
