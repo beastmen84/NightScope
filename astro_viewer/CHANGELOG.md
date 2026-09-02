@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## NightScope 1.45.3 - 2026-09-02
+
+- Separati da `AppController` caricamento e normalizzazione dei record di
+  catalogo, ricerca sulle designazioni, filtri, proiezioni localizzate e
+  calcolo dell'osservabilita' geometrica statica. Le identita' multi-catalogo e
+  l'ordinamento numerico restano invariati.
+- La costruzione degli oggetti e dei metadati di dettaglio vive ora in un
+  servizio dedicato. Il controller conserva notifiche del modello QML, cache di
+  visibilita' e accesso sincronizzato al motore astronomico, con wrapper
+  compatibili per i chiamanti esistenti.
+- La versione sorgente passa a `1.45.3`. `dist` non e' stata rigenerata o
+  modificata; nessun tag o artefatto di release e' stato creato.
+
 ## NightScope 1.45.2 - 2026-09-02
 
 - Estratti da `AppController` gli algoritmi di presentazione degli stati

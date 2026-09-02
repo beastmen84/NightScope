@@ -4,7 +4,7 @@ Aggiornato: 2026-09-02
 
 ## Stato Versioni
 
-- Versione sorgente: `1.45.2`
+- Versione sorgente: `1.45.3`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica stabile: `v1.43.0`, tag sul commit sorgente
   `26dfaf49df8f9b8e73e84f406396f406170400b2`.
@@ -17,10 +17,10 @@ Aggiornato: 2026-09-02
   con file checksum adiacente.
 - Metadati, tag, asset Windows/Linux e digest della release stabile `v1.43.0`
   sono stati verificati su GitHub il 2026-09-01.
-- Il sorgente `1.45.2` prosegue la serie architetturale 1.45.x separando dal
-  controller presentazione osservativa, decisioni meteo e funzioni temporali.
-  Dist, checksum e release GitHub `v1.45.2` non sono stati creati e restano
-  fuori ambito fino a richiesta esplicita.
+- Il sorgente `1.45.3` prosegue la serie architetturale 1.45.x separando dal
+  controller record, query, filtri e dettaglio dei cataloghi. Dist, checksum e
+  release GitHub `v1.45.3` non sono stati creati e restano fuori ambito fino a
+  richiesta esplicita.
 - Commit sorgente della release pubblica validato:
   `26dfaf4 Record Debian 1.43 release candidate`
 
@@ -30,6 +30,12 @@ Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
 
 ## Serie Architetturale 1.45.x
+
+La `1.45.3` divide il sottosistema cataloghi in normalizzazione dei record,
+query/proiezioni e costruzione del dettaglio. Ricerca multi-designazione,
+filtri, ordinamento, indice identificatori e osservabilita' geometrica sono
+testabili senza Qt. Nel controller restano il modello QML, le notifiche, le
+cache legate alla posizione e l'accesso serializzato al motore astronomico.
 
 La `1.45.2` introduce servizi distinti per la presentazione osservativa e
 meteo, piu' un modulo di utilita' temporali condivise. Stati, motivazioni,
@@ -55,6 +61,16 @@ La serie proseguira' con commit e versioni sorgente distinti per workflow
 catalogo, presentazione osservativa, profili/equipaggiamento, pulizia dei cicli
 di importazione e gate statici. `dist` non deve essere rigenerata durante questi
 step.
+
+Validazione sorgente `1.45.3` su Python 3.14.5:
+
+- test mirati di servizi catalogo, identita', NGC, dettaglio e scenario dati:
+  `118 passed`, `34` warning Skyfield noti e `10 subtests passed`;
+- `tools/run_checks.py --fast`: `1.150 passed`, `715` warning esterni noti e
+  `10 subtests passed`;
+- dipendenze, Ruff, `compileall`, licenze, snapshot MPC/OpenNGC, smoke backend
+  e smoke QML normale/Red Night Vision puliti;
+- nessun file sotto `dist` rigenerato o modificato.
 
 Validazione sorgente `1.45.2` su Python 3.14.5:
 

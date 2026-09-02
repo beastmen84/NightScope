@@ -64,3 +64,8 @@ def test_dependency_factory_owns_ephemeris_fallback(tmp_path: Path) -> None:
         dependencies.weather_presentation_service._night_planner_service
         is dependencies.night_planner_service
     )
+    assert (
+        dependencies.catalogue_query_service._catalogue_repository
+        is dependencies.catalogue_repository
+    )
+    assert dependencies.catalogue_detail_service is not None

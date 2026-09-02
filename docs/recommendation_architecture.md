@@ -1,7 +1,7 @@
 # NightScope Recommendation Architecture
 
 This document describes the current recommendation architecture in NightScope
-`1.45.2`. The typed profile, binocular and recommendation boundaries originated
+`1.45.3`. The typed profile, binocular and recommendation boundaries originated
 in the NightScope 1.1 refactors and remain the active design.
 
 The recommendation system has one main rule:
@@ -64,6 +64,12 @@ night-clock functions live in `observing_time`; weather window selection lives
 in `weather_presentation`. `AppController` supplies current runtime state and
 retains compatibility wrappers, but no longer owns those presentation
 algorithms.
+
+Since `1.45.3`, catalogue record normalization, designation-aware search,
+filters, localization projections and static observability checks live in
+dedicated catalogue services. A separate detail service builds catalogue
+objects and metadata. The controller retains UI model notifications, runtime
+visibility caches and serialized access to the astronomy engine.
 
 ## Responsibilities
 

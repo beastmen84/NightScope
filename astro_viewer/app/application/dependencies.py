@@ -31,6 +31,8 @@ from astro_viewer.app.services.best_object_nsom_ranking import (
     BestObjectNsomSelectionService,
 )
 from astro_viewer.app.services.calendar_overview import CalendarOverviewService
+from astro_viewer.app.services.catalogue_detail_service import CatalogueDetailService
+from astro_viewer.app.services.catalogue_query_service import CatalogueQueryService
 from astro_viewer.app.services.earthdata_credentials import (
     EarthdataConnectionTester,
     EarthdataCredentialStore,
@@ -150,6 +152,8 @@ class AppControllerDependencies:
     catalogue_recommendation_workflow: CatalogueRecommendationWorkflow
     observing_presentation_service: ObservingPresentationService
     weather_presentation_service: WeatherPresentationService
+    catalogue_query_service: CatalogueQueryService
+    catalogue_detail_service: CatalogueDetailService
 
 
 def build_app_controller_dependencies(
@@ -251,6 +255,8 @@ def build_app_controller_dependencies(
         night_planner_service=night_planner_service,
         sky_compass_service=resolved_sky_compass_service,
     )
+    catalogue_query_service = CatalogueQueryService(catalogue_repository)
+    catalogue_detail_service = CatalogueDetailService()
     return AppControllerDependencies(
         city_repository=city_repository,
         location_repository=location_repository,
@@ -303,4 +309,6 @@ def build_app_controller_dependencies(
         catalogue_recommendation_workflow=catalogue_recommendation_workflow,
         observing_presentation_service=observing_presentation_service,
         weather_presentation_service=weather_presentation_service,
+        catalogue_query_service=catalogue_query_service,
+        catalogue_detail_service=catalogue_detail_service,
     )
