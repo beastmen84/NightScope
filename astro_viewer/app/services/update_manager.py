@@ -1,3 +1,5 @@
+"""Check GitHub releases asynchronously and persist user update preferences."""
+
 from __future__ import annotations
 
 import json

@@ -1,3 +1,5 @@
+"""Fetch, cache, and qualify nearby OpenAQ particulate measurements."""
+
 from __future__ import annotations
 
 import logging

@@ -1,3 +1,5 @@
+"""Rank Home deep-sky targets solely by NSOM observable target value."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping

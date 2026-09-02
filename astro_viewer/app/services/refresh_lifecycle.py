@@ -1,3 +1,5 @@
+"""Track refresh dependencies and dirty-domain reasons without executing work."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

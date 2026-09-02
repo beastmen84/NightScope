@@ -1,3 +1,5 @@
+"""Parse and format clock values relative to an observing-night boundary."""
+
 from __future__ import annotations
 
 import re

@@ -1,3 +1,5 @@
+"""Load, index, filter, and project physical catalogue records without Qt."""
+
 from __future__ import annotations
 
 import re

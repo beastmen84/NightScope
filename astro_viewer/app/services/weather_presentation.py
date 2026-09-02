@@ -1,3 +1,5 @@
+"""Build weather digests, useful windows, and session advice for QML."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta

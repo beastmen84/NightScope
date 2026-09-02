@@ -1,3 +1,5 @@
+"""Parse and validate equipment form payloads at the application boundary."""
+
 from __future__ import annotations
 
 import math

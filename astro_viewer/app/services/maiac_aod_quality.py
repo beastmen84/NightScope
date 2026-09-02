@@ -1,3 +1,5 @@
+"""Decode the MAIAC AOD quality bitfield used by provider eligibility checks."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

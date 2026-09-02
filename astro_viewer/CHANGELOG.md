@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## NightScope 1.45.9 - 2026-09-02
+
+- Documentati a livello di modulo tutti i 71 servizi applicativi non vuoti:
+  dominio, provider, presentazione, cataloghi, attrezzatura e localizzazione.
+- Le descrizioni esplicitano effetti collaterali dei provider, confini del
+  ranking, separazione tra dati grezzi e proiezioni UI e contratti verso QML.
+- Nessun comportamento runtime e' stato modificato. La versione sorgente passa
+  a `1.45.9`; `dist` non e' stata rigenerata o modificata e non sono stati
+  creati tag o artefatti di release.
+
 ## NightScope 1.45.8 - 2026-09-02
 
 - Definito un contratto esplicito per documentare ogni file sorgente scritto a

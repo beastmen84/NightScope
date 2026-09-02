@@ -1,3 +1,5 @@
+"""Expose inspectable optical setup score components without changing policy."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

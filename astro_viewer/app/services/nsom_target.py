@@ -1,3 +1,5 @@
+"""Normalize runtime targets into NSOM identity, class, and intrinsic quality."""
+
 from __future__ import annotations
 
 import math

@@ -1,3 +1,5 @@
+"""Resolve Bortle sky quality from VIIRS, cache, or local fallback data."""
+
 from __future__ import annotations
 
 import csv

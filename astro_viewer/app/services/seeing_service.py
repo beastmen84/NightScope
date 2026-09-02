@@ -1,3 +1,5 @@
+"""Estimate seeing and atmospheric transparency from normalized forecasts."""
+
 from __future__ import annotations
 
 import math

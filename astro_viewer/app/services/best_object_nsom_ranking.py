@@ -1,3 +1,5 @@
+"""Select the canonical Best Object from actionable NSOM opportunities."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping

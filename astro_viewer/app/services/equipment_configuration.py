@@ -1,3 +1,5 @@
+"""Provide target-neutral optical configuration math behind a narrow protocol."""
+
 from __future__ import annotations
 
 import math

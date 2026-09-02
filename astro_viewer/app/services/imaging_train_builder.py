@@ -1,3 +1,5 @@
+"""Enumerate valid target-neutral telescope, camera, and modifier trains."""
+
 from __future__ import annotations
 
 import math

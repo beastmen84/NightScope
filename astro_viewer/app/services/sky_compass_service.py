@@ -1,3 +1,5 @@
+"""Rank visible targets by compass zone and stabilize live direction changes."""
+
 from __future__ import annotations
 
 import re

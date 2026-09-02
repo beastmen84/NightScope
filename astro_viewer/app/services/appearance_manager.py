@@ -1,3 +1,5 @@
+"""Persist and expose Red Night Vision appearance state to QML."""
+
 from __future__ import annotations
 
 import json

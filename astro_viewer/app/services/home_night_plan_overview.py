@@ -1,3 +1,5 @@
+"""Build the stable lower-Home plan, profile, and alternatives contract."""
+
 from __future__ import annotations
 
 from collections import Counter

@@ -1,3 +1,5 @@
+"""Store Earthdata secrets securely and verify LAADS authorization safely."""
+
 from __future__ import annotations
 
 import json

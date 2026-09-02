@@ -1,3 +1,5 @@
+"""Produce conservative still-exposure ranges from candidate and sky facts."""
+
 from __future__ import annotations
 
 import math

@@ -1,3 +1,5 @@
+"""Normalize equipment recommendation payloads into immutable read models."""
+
 from __future__ import annotations
 
 import math

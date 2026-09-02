@@ -1,3 +1,5 @@
+"""Resolve IANA timezones from coordinates using the offline boundary dataset."""
+
 from __future__ import annotations
 
 import logging

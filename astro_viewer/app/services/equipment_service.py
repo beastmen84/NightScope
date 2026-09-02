@@ -1,3 +1,5 @@
+"""Score visual equipment configurations and build recommendation candidates."""
+
 from __future__ import annotations
 
 import math

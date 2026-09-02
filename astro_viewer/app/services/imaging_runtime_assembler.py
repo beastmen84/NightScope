@@ -1,3 +1,5 @@
+"""Assemble one on-demand photographic recommendation from explicit snapshots."""
+
 from __future__ import annotations
 
 from astro_viewer.app.models.imaging import (

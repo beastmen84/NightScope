@@ -1,3 +1,5 @@
+"""Decide whether aerosol providers are fresh, local, and safe for scoring."""
+
 from __future__ import annotations
 
 import math

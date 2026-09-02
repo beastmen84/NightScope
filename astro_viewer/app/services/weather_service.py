@@ -1,3 +1,5 @@
+"""Fetch, cache, and normalize Open-Meteo forecasts behind a service port."""
+
 from __future__ import annotations
 
 import json

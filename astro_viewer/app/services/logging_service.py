@@ -1,3 +1,5 @@
+"""Configure the rotating application log in the resolved runtime state path."""
+
 from __future__ import annotations
 
 import logging

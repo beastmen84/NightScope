@@ -1,3 +1,5 @@
+"""Calculate NSOM category summaries from canonical runtime condition inputs."""
+
 from __future__ import annotations
 
 from statistics import mean

@@ -1,3 +1,5 @@
+"""Build observing status, timing, and Moon presentation without controller state."""
+
 from __future__ import annotations
 
 import re

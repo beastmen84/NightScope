@@ -1,3 +1,5 @@
+"""Collapse optically equivalent Barlows into stable configuration choices."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable

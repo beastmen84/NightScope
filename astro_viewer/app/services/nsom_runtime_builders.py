@@ -1,3 +1,5 @@
+"""Construct canonical NSOM Observer, Session, Opportunity, and Confidence values."""
+
 from __future__ import annotations
 
 import math

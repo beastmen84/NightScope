@@ -1,3 +1,5 @@
+"""Normalize catalogue and smart-telescope cameras into one domain shape."""
+
 from __future__ import annotations
 
 import math

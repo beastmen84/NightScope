@@ -1,3 +1,5 @@
+"""Produce conservative planetary-video duration, FPS, and frame guidance."""
+
 from __future__ import annotations
 
 import math

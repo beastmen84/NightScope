@@ -1,3 +1,5 @@
+"""Load equipment catalogues and map repository rows into typed snapshots."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

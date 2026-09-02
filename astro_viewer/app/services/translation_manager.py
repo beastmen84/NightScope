@@ -1,3 +1,5 @@
+"""Discover language packs, install Qt translations, and persist selection."""
+
 from __future__ import annotations
 
 import json

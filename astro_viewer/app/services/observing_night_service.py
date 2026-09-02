@@ -1,3 +1,5 @@
+"""Select and group forecast hours inside local observing-night windows."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta

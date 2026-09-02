@@ -1,3 +1,5 @@
+"""Build the score-free observing-detail presentation contract for Home."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping

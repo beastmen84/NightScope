@@ -1,3 +1,5 @@
+"""Build and score first-class NSOM opportunities for the night planner."""
+
 from __future__ import annotations
 
 from dataclasses import replace

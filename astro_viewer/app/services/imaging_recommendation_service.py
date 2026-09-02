@@ -1,3 +1,5 @@
+"""Score photographic train suitability without observing-session conditions."""
+
 from __future__ import annotations
 
 import math

@@ -1,3 +1,5 @@
+"""Persist startup location policy and reusable detection results in JSON."""
+
 from __future__ import annotations
 
 import json

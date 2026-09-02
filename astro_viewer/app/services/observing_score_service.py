@@ -1,3 +1,5 @@
+"""Summarize weather and Moon conditions into the legacy observing score."""
+
 from __future__ import annotations
 
 from astro_viewer.app.models.observing import MoonSummary

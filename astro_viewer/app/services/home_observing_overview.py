@@ -1,3 +1,5 @@
+"""Build the stable upper-Home observing-condition presentation contract."""
+
 from __future__ import annotations
 
 from astro_viewer.app.models.observing import MoonSummary

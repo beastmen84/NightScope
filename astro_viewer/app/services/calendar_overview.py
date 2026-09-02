@@ -1,3 +1,5 @@
+"""Build score-free Calendar and Home event presentation contracts."""
+
 from __future__ import annotations
 
 import re

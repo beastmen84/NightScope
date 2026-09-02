@@ -1,3 +1,5 @@
+"""Map observing state into score-independent photographic session inputs."""
+
 from __future__ import annotations
 
 import math

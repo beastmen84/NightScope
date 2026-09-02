@@ -1,3 +1,5 @@
+"""Construct catalogue detail targets without mutating controller state."""
+
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping

@@ -1,3 +1,5 @@
+"""Apply target-specific sky, Moon, and aerosol condition adjustments."""
+
 from __future__ import annotations
 
 import math

@@ -1,3 +1,5 @@
+"""Build Home ObservableTargetValue through the canonical NSOM Sky service."""
+
 from __future__ import annotations
 
 from astro_viewer.app.models.condition_inputs import ObservationConditionInputs

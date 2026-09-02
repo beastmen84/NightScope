@@ -1,3 +1,5 @@
+"""Delay translation and locale formatting until values cross the UI boundary."""
+
 from __future__ import annotations
 
 from datetime import datetime

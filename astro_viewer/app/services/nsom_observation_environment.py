@@ -1,3 +1,5 @@
+"""Build canonical NSOM Sky and effective-observability values from runtime inputs."""
+
 from __future__ import annotations
 
 import math

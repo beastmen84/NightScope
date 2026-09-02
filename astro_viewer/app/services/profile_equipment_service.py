@@ -1,3 +1,5 @@
+"""Build and query profile equipment assignments without QObject coupling."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence

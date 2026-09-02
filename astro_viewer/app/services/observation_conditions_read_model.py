@@ -1,3 +1,5 @@
+"""Preserve raw targets beside condition-adjusted presentation projections."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

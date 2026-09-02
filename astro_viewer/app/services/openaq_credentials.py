@@ -1,3 +1,5 @@
+"""Store OpenAQ API keys securely and verify them against the provider."""
+
 from __future__ import annotations
 
 import hashlib

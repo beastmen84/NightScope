@@ -1,3 +1,5 @@
+"""Localize catalogue types, constellations, and physical-object display names."""
+
 from __future__ import annotations
 
 from astro_viewer.app.services.localization import presentation_text, tr

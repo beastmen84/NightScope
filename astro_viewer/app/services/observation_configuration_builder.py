@@ -1,3 +1,5 @@
+"""Enumerate valid telescope, eyepiece, Barlow, and binocular configurations."""
+
 from __future__ import annotations
 
 from collections.abc import Callable

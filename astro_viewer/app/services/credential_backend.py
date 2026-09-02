@@ -1,3 +1,5 @@
+"""Select only platform credential backends accepted as secure by NightScope."""
+
 from __future__ import annotations
 
 import logging

@@ -1,3 +1,5 @@
+"""Present optical recommendation candidates as stable QML-facing payloads."""
+
 from __future__ import annotations
 
 from astro_viewer.app.models.equipment import Telescope

@@ -1,3 +1,5 @@
+"""Map canonical compass direction codes to localized presentation labels."""
+
 from __future__ import annotations
 
 from astro_viewer.app.services.localization import tr

@@ -1,3 +1,5 @@
+"""Build an ordered NSOM observing plan subject to weather and night bounds."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping

@@ -1,3 +1,5 @@
+"""Classify runtime targets into photographic traits and capture modes."""
+
 from __future__ import annotations
 
 import math

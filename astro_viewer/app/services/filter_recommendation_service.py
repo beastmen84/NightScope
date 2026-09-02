@@ -1,3 +1,5 @@
+"""Choose aperture-compatible owned filters for a target's declared classes."""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field

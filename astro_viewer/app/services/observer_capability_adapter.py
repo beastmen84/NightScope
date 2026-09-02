@@ -1,3 +1,5 @@
+"""Project optical configurations into NSOM Observer capability values."""
+
 from __future__ import annotations
 
 import math

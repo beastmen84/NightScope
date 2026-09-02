@@ -1,3 +1,5 @@
+"""Retrieve, cache, and quality-check local NASA MAIAC aerosol observations."""
+
 from __future__ import annotations
 
 import json

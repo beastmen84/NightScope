@@ -1,3 +1,5 @@
+"""Normalize physical catalogue rows and Solar System entries for presentation."""
+
 from __future__ import annotations
 
 import re

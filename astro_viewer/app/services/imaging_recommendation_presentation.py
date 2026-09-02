@@ -1,3 +1,5 @@
+"""Render photographic recommendations as localized QML presentation data."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

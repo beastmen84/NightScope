@@ -1,3 +1,5 @@
+"""Resolve observer location through platform, IP, cache, and manual boundaries."""
+
 from __future__ import annotations
 
 import json

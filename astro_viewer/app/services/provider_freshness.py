@@ -1,3 +1,5 @@
+"""Define canonical freshness weights shared by aerosol provider policies."""
+
 from __future__ import annotations
 
 

@@ -1,3 +1,5 @@
+"""Canonicalize persisted mount and telescope taxonomy for logic and display."""
+
 from __future__ import annotations
 
 from astro_viewer.app.services.localization import tr
