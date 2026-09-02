@@ -51,15 +51,40 @@ The runner executes, in order:
 
 1. `pip check`.
 2. Ruff over application, tests, and developer tools.
-3. Quiet bytecode compilation.
-4. Third-party license archive validation.
-5. Offline MPC observatory snapshot validation.
-6. Offline OpenNGC snapshot and derived-seed validation.
-7. Optional `pip-audit`.
-8. Exactly one complete pytest pass, with or without runtime-code coverage.
-9. Backend smoke test.
-10. Normal-mode QML smoke test.
-11. Red Night Vision QML smoke test.
+3. Production import-cycle rejection.
+4. Bandit comparison with the reviewed source-fingerprint baseline.
+5. Quiet bytecode compilation.
+6. Third-party license archive validation.
+7. Offline MPC observatory snapshot validation.
+8. Offline OpenNGC snapshot and derived-seed validation.
+9. Optional `pip-audit`.
+10. Exactly one complete pytest pass, with or without runtime-code coverage.
+11. Backend smoke test.
+12. Normal-mode QML smoke test.
+13. Red Night Vision QML smoke test.
+
+Bandit scans the application, entry point, and developer tools on every run.
+The committed baseline records the exact rule, severity, confidence, portable
+path, triggering source line, and a line-number-independent hash of Bandit's
+code context. A new finding, a removed finding, a changed context, or a changed
+classification fails the gate. High-severity findings are never accepted. Use
+`python tools/check_bandit.py --render-baseline` to inspect a candidate update;
+use `--write-baseline` only after reviewing every difference.
+
+Pytest promotes every unexpected warning to an error. The only repository-wide
+exceptions are the exact `dtype` and `shape` deprecations emitted inside
+Skyfield against NumPy 2.5; their message, category, and originating module are
+all constrained in `pytest.ini`. When Skyfield resolves them, remove the two
+filters and rerun the complete astronomy suite.
+
+## Continuous Integration
+
+`.github/workflows/source-validation.yml` runs the same fast complete gate on
+Windows with Python 3.14 and Linux with Python 3.12. A separate Linux/Python
+3.14 job runs `pip check` and `pip-audit` over the installed dependency closure.
+The workflow has read-only repository permission, pins the major versions of
+the official checkout/setup actions, caches pip downloads, and never builds or
+changes `dist`.
 
 The committed third-party archive records the exact Windows release
 environment. On Windows the gate compares it byte-for-byte with the installed
@@ -136,6 +161,24 @@ currently reports non-fatal `unqualified access` diagnostics for context
 properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
+
+## Measured 1.45.6 Architecture Quality Gate
+
+Measured on Windows with Python 3.14.5 on 2026-09-02. The workflow definition
+was validated locally but had not yet run on GitHub at the time of this source
+commit.
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --fast` | Passed |
+| Complete deterministic suite | 1,166 passed, no unexpected warning summary, 10 subtests passed in 282.87 s |
+| Import architecture | Production graph acyclic; the AST gate runs before tests |
+| Bandit | 0 high, 37 medium, 14 low reviewed findings; exact source-context baseline unchanged |
+| Dependency integrity | `pip check` passed; `pip-audit` found no known vulnerabilities |
+| Warning policy | Unexpected warnings fail; only the two exact Skyfield/NumPy 2.5 deprecation signatures are filtered |
+| Resource hygiene | The policy exposed and the change closed one leaked SQLite test connection |
+| Runtime smoke tests | Backend, normal QML and Red Night Vision passed in disposable runtimes |
+| Distribution boundary | No file below `dist` was regenerated or modified; no tag or release artifact was created |
 
 ## Measured 1.43.0 Source Release Review Gate
 

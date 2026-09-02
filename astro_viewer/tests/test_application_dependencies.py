@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import closing
 import sqlite3
 from pathlib import Path
 from unittest.mock import patch
@@ -14,7 +15,7 @@ from astro_viewer.app.astronomy.skyfield_engine import EphemerisUnavailableError
 def test_dependency_factory_owns_ephemeris_fallback(tmp_path: Path) -> None:
     base_dir = Path(__file__).resolve().parents[1]
     database_path = tmp_path / "nightscope.db"
-    with sqlite3.connect(database_path) as connection:
+    with closing(sqlite3.connect(database_path)) as connection:
         connection.executescript(
             (base_dir / "data" / "schema.sql").read_text(encoding="utf-8")
         )

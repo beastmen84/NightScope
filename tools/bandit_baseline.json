@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-09-02",
+  "policy": "Exact reviewed findings only. New, removed, reclassified, or changed source lines fail the gate; high-severity findings are never accepted.",
+  "review": [
+    {
+      "test_ids": [
+        "B110"
+      ],
+      "rationale": "The destructor only suppresses cleanup failures after explicit close() has already been attempted; runtime work does not depend on finalization."
+    },
+    {
+      "test_ids": [
+        "B314",
+        "B405"
+      ],
+      "rationale": "The maintenance command parses only repository-owned Qt TS files selected from the fixed translations directory, never remote or user-supplied XML."
+    },
+    {
+      "test_ids": [
+        "B404",
+        "B603",
+        "B607"
+      ],
+      "rationale": "Location and packaging helpers use argument lists with shell disabled; executables and developer-tool arguments come from controlled code paths."
+    },
+    {
+      "test_ids": [
+        "B608"
+      ],
+      "rationale": "SQLite values remain parameterized. Dynamic identifiers come from fixed internal table/column maps and placeholder strings derived only from value counts, not from user-provided SQL fragments."
+    }
+  ],
+  "findings": [
+    {
+      "test_id": "B110",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "astro_viewer/app/astronomy/skyfield_engine.py",
+      "source": "except Exception:",
+      "code_hash": "a67435c706f646c746ad253ccd57b524c04b09dac8ac041d78ff90931901476e"
+    },
+    {
+      "test_id": "B314",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "path": "tools/update_ts_translations.py",
+      "source": "root = ElementTree.parse(path).getroot()",
+      "code_hash": "ac4c296aebe75e06352a1907cd9df36c1fd866a7bb8adc6cf70f9b84893b9492"
+    },
+    {
+      "test_id": "B404",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "astro_viewer/app/services/location_service.py",
+      "source": "import subprocess",
+      "code_hash": "29edd6ffdaa3759aed48b2c160f12d289c6e9e31f1862d19ffd989da666c06cb"
+    },
+    {
+      "test_id": "B404",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "tools/generate_linux_native_notices.py",
+      "source": "import subprocess",
+      "code_hash": "9e53cd445b98e24f841e5cfd49de93f64f96071eb608d3f919d71911d9b7bbe9"
+    },
+    {
+      "test_id": "B404",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "tools/run_checks.py",
+      "source": "import subprocess",
+      "code_hash": "c38e9df404ab38981b824fe978abbda3fedb5ee8db555a30ad5837e647f16544"
+    },
+    {
+      "test_id": "B405",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "tools/update_ts_translations.py",
+      "source": "import xml.etree.ElementTree as ElementTree",
+      "code_hash": "7e2b83956136db25e2a64479ad424e10fa4118853977336ec5d8ec3483d7c57e"
+    },
+    {
+      "test_id": "B603",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "astro_viewer/app/services/location_service.py",
+      "source": "result = subprocess.run(",
+      "code_hash": "5508bcdab26f49700e7b056aefdb1111aad65ad81a109c8f1690e04af1c6c587"
+    },
+    {
+      "test_id": "B603",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "astro_viewer/app/services/location_service.py",
+      "source": "result = subprocess.run(",
+      "code_hash": "844d8acd605280e89865ff6a313be69148f23cacc91788eb0cca445d3e0ba062"
+    },
+    {
+      "test_id": "B603",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "astro_viewer/app/services/location_service.py",
+      "source": "result = subprocess.run(",
+      "code_hash": "e21724622a269b77a0a9b50dbde4b111dc7cc9749573cc96b677e8c5b9707bde"
+    },
+    {
+      "test_id": "B603",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "tools/generate_linux_native_notices.py",
+      "source": "result = subprocess.run(",
+      "code_hash": "81d1fc3479977337622e7da3c84b7753c7aa21a44db429c20a05a00a8b9f6e07"
+    },
+    {
+      "test_id": "B603",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "tools/run_checks.py",
+      "source": "completed = subprocess.run(",
+      "code_hash": "1d4ff78dea1d93415f241b4fcba076626fd82ca8e048c7145df2cc369d8e8d7b"
+    },
+    {
+      "test_id": "B603",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "tools/run_checks.py",
+      "source": "completed = subprocess.run(command, cwd=REPO_ROOT, check=False)",
+      "code_hash": "13be31a543bf2f109a7c5d9c679346db092073debb8634e2547147118ddcc102"
+    },
+    {
+      "test_id": "B607",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "astro_viewer/app/services/location_service.py",
+      "source": "result = subprocess.run(",
+      "code_hash": "5508bcdab26f49700e7b056aefdb1111aad65ad81a109c8f1690e04af1c6c587"
+    },
+    {
+      "test_id": "B607",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "astro_viewer/app/services/location_service.py",
+      "source": "result = subprocess.run(",
+      "code_hash": "844d8acd605280e89865ff6a313be69148f23cacc91788eb0cca445d3e0ba062"
+    },
+    {
+      "test_id": "B607",
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "path": "astro_viewer/app/services/location_service.py",
+      "source": "result = subprocess.run(",
+      "code_hash": "e21724622a269b77a0a9b50dbde4b111dc7cc9749573cc96b677e8c5b9707bde"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "LOW",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "query = f\"\"\"",
+      "code_hash": "2bec61fcee7f13f6e34edd2c826240fc096fec20d23d17997e559d8f608b70c2"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "LOW",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "query = f\"\"\"",
+      "code_hash": "b902146ef79ddde318f29acf40a75a580d3a753267b16ba6964d201a6a76943b"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/bootstrap.py",
+      "source": "f\"\"\"",
+      "code_hash": "4b1a6596a25ba2dc199d8362aacc454938e18e3d0159d4ebc1b1e607418e0958"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/bootstrap.py",
+      "source": "f\"\"\"",
+      "code_hash": "bfcf43c61c6d95d3f19d525b0e86a15e6aac2e98dc464d4e67d59f7b1aa90762"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/bootstrap.py",
+      "source": "f\"SELECT id FROM {table_name} WHERE seed_key = ?\",",
+      "code_hash": "5f77d4771f2d5bbeb05c286afa948ffe511b767161aea548e4be7c3a99a89e02"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/bootstrap.py",
+      "source": "f\"SELECT id, is_builtin FROM {table_name} WHERE {natural_key_sql}\",",
+      "code_hash": "42297c2d481f914a7319d4b11b8ecf385c46716e82c88cec266b93777a5346da"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/bootstrap.py",
+      "source": "f\"UPDATE {table_name} SET barrel_size = ''\"",
+      "code_hash": "c715ba3cee9c3f438bf52e36074b81767ef9703e78227d6012a0ba605f515c42"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/bootstrap.py",
+      "source": "f\"UPDATE {table_name} SET notes = ? WHERE id = ?\",",
+      "code_hash": "108e46427d8ba6942da719c1bb9ea33834a20ccb97b69868c983c33c5c3811a5"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/bootstrap.py",
+      "source": "f\"UPDATE {table_name} SET seed_key = ? WHERE id = ?\",",
+      "code_hash": "0d45c32f0f7cf73db4519a507d90630f0467a1b57b1b8d412e321dd152e5f7bf"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/bootstrap.py",
+      "source": "f\"UPDATE {table_name} SET seed_key = ? WHERE id = ?\",",
+      "code_hash": "f7c72d1a8ecace5a0d5fee0096d4243506dcb3a2e7f63a65ddd7d414e7a6666a"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/bootstrap.py",
+      "source": "return int(connection.execute(f\"SELECT COUNT(*) FROM {table_name}\").fetchone()[0])",
+      "code_hash": "886128834beb2fefd573275b7c4e588922d6d2cd51b974fe99b115a131a801be"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/catalogue_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "6b371673037bb1725787fec940df50dc51a6647b2970509f6b5372197acf0f12"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/catalogue_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "7bbe7b7db137a49d23bd90c3fcdd9e9e2220bfe7399cf12cb5f4d0e8e5bce6a6"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/catalogue_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "86daae6a6776cd36c62d39f7ade05593d89e142e540036d5c517c3e802c6448c"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/catalogue_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "b537f763b12371ba7e6daf8db7b98ef15d65c873b3b50d5d1ad1af2f8e0476f2"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/catalogue_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "bd3bf1b3af94e20331616833c8c9d8ea4da075d81582067b0e1166a6075ac06d"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/catalogue_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "cd8c9398bd4a52a47ee8ddff6251126d5ed552cfb1e64e17b262902e8cfded79"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/catalogue_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "ceb34e1fb7f3f752bc3fb21c117d0c5430b0abf93677a0a171b6f0cad24ca46e"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/catalogue_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "d0f9eec574fcf8f404403a02c7af7ecbb76c75c88a8f4687af7b0d4552362117"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "connection.execute(f\"DELETE FROM EquipmentProfileBarlow WHERE barlow_id IN ({placeholders})\", ids)",
+      "code_hash": "360d7839528d99fd1849d9932a799f176de5de263efb6d55b859285263458bf6"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "connection.execute(f\"DELETE FROM EquipmentProfileBinocular WHERE binocular_id IN ({placeholders})\", ids)",
+      "code_hash": "33cbffe66b746ba01d85e4c9d7e218ecce5d507d70536c14d243057ee55e2f10"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "connection.execute(f\"DELETE FROM EquipmentProfileEyepiece WHERE eyepiece_id IN ({placeholders})\", ids)",
+      "code_hash": "d39f9aec9f840b9d556c4695cabd431655d73bb3655eb758d783a06a3d288da0"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "connection.execute(f\"DELETE FROM EquipmentProfileFilter WHERE filter_id IN ({placeholders})\", ids)",
+      "code_hash": "df072120cc646910770923f4968bd22db8b8ec768a216af5e14ffb52d41c3387"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "connection.execute(f\"DELETE FROM EquipmentProfileReducer WHERE reducer_id IN ({placeholders})\", ids)",
+      "code_hash": "d4f99e781f77f139681c9f25e3a03225fd759630c44158c0e116241fc5466947"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "connection.execute(f\"DELETE FROM EquipmentProfileTelescope WHERE telescope_id IN ({placeholders})\", ids)",
+      "code_hash": "8b0f74cbf675bf209f7f1447ae3367a59bcb66e75a91b6f9681bdad022c4c446"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "connection.execute(f\"DELETE FROM {table} WHERE profile_id = ? AND {id_column} = ?\", (profile_id, item_id))",
+      "code_hash": "7b404ad64cfd0a73d18b5f403b9665d3e859c0ee6317abee171e661122ac9e48"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "351e64eb234e7efcaf5c6572351163d3edc3c3c8c4584009619fe0c84c648dfb"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "4f4385ba60d4843616d2115a98250164ec90013c9de9c26c3eff9a0ffdd90623"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "6ea603c65275e67898eda96547b727a5feeece9db43f3e82172f4cbd2299536c"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "83c2842c37d9dbeb2a155f250b11cd0f06b4a59c08550b412b9a1abe02e8d247"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "de48433ca9b2a25638b75f65fa4265b2013148042a5c41e22a5f91f3bb1d0b78"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "f\"\"\"",
+      "code_hash": "f023c80559f2f9cfced06582f019be909ac4fc253e6ad896c846ff1e553bd28f"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "f\"SELECT id FROM TelescopeModel WHERE id IN ({placeholders})\",",
+      "code_hash": "bd9d0507cb6962a2eacca2a0e4637f6a2db3d01a8d5fe124ec16385c74e75dd7"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "f\"SELECT is_builtin FROM {table_name} WHERE id = ?\",",
+      "code_hash": "3ab0d13be5c6f06ede6814afac37e019f13de01a02f2c8340b3ff5aa80c7978e"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "f\"SELECT {id_column} FROM {table} WHERE profile_id = ? ORDER BY {id_column}\",",
+      "code_hash": "e9552a4a35cbe9e2042732ea4c722c3e79a670fa7bbfae1c10a48fe1e811c032"
+    },
+    {
+      "test_id": "B608",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "path": "astro_viewer/app/database/equipment_catalog_repository.py",
+      "source": "f\"UPDATE EquipmentProfile SET telescope_id = ? WHERE telescope_id IN ({placeholders})\",",
+      "code_hash": "465f665ff0cd0667d555498aef1a91075c65a8d49a3eda5cf794ffb943055754"
+    }
+  ]
+}

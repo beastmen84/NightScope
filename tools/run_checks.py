@@ -24,6 +24,8 @@ def _checks(*, include_coverage: bool, include_security: bool) -> list[Check]:
     checks = [
         Check("pip-check", ("-m", "pip", "check")),
         Check("ruff", ("-m", "ruff", "check", "astro_viewer", "tools")),
+        Check("import-cycles", ("tools/check_import_cycles.py",)),
+        Check("bandit-baseline", ("tools/check_bandit.py",)),
         Check("compileall", ("-m", "compileall", "-q", "astro_viewer", "tools")),
         Check(
             "third-party-licenses",

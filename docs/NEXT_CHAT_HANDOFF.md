@@ -4,7 +4,7 @@ Aggiornato: 2026-09-02
 
 ## Stato Versioni
 
-- Versione sorgente: `1.45.5`
+- Versione sorgente: `1.45.6`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica stabile: `v1.43.0`, tag sul commit sorgente
   `26dfaf49df8f9b8e73e84f406396f406170400b2`.
@@ -17,9 +17,9 @@ Aggiornato: 2026-09-02
   con file checksum adiacente.
 - Metadati, tag, asset Windows/Linux e digest della release stabile `v1.43.0`
   sono stati verificati su GitHub il 2026-09-01.
-- Il sorgente `1.45.5` prosegue la serie architetturale 1.45.x con un grafo di
-  importazione aciclico e confini di tipo espliciti per input atmosferici e
-  configurazioni ottiche. Dist, checksum e release GitHub `v1.45.5` non sono
+- Il sorgente `1.45.6` prosegue la serie architetturale 1.45.x rendendo
+  automatici i vincoli su import, sicurezza, warning e CI multipiattaforma.
+  Dist, checksum e release GitHub `v1.45.6` non sono
   stati creati e restano fuori ambito fino a richiesta esplicita.
 - Commit sorgente della release pubblica validato:
   `26dfaf4 Record Debian 1.43 release candidate`
@@ -30,6 +30,12 @@ Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
 
 ## Serie Architetturale 1.45.x
+
+La `1.45.6` integra nel gate standard il controllo AST dei cicli e Bandit con
+una baseline esatta e portabile, vincolata anche all'impronta del frammento di
+codice. Pytest fallisce sui warning nuovi e filtra esclusivamente le due firme
+Skyfield/NumPy note. La CI esegue lo stesso runner su Windows/Python 3.14 e
+Linux/Python 3.12; un job separato verifica dipendenze e vulnerabilita'.
 
 La `1.45.5` rimuove tutti e tre i cicli rilevati nel grafo di produzione. Gli
 input atmosferici sono DTO del livello `models`; il builder delle
@@ -71,9 +77,22 @@ costruisce e inietta `AppControllerDependencies`; il controller conserva un
 percorso factory compatibile per i test e le integrazioni che lo istanziano
 direttamente. Nessun contratto QML, calcolo NSOM, refresh o schema dati cambia.
 
-La serie proseguira' con commit e versioni sorgente distinti per gate statici,
-CI e consolidamento della documentazione. `dist` non deve essere rigenerata
-durante questi step.
+La serie proseguira' con un ultimo commit e una versione sorgente distinta per
+consolidamento della documentazione e audit architetturale finale. `dist` non
+deve essere rigenerata durante questi step.
+
+Validazione sorgente `1.45.6` su Python 3.14.5:
+
+- test mirati dei nuovi gate, del contratto CI, della composition root e delle
+  integrazioni di tooling: `38 passed`;
+- `tools/run_checks.py --fast`: `1.166 passed`, nessun warning inatteso e
+  `10 subtests passed` in `282,87 s`;
+- grafo di produzione aciclico; baseline Bandit invariata con `0` finding
+  alti, `37` medi e `14` bassi revisionati;
+- `pip check` e `pip-audit`: dipendenze coerenti e nessuna vulnerabilita' nota;
+- smoke backend, QML normale e Red Night Vision passati; workflow CI verificato
+  localmente per struttura e riuso del runner, non ancora eseguito da GitHub;
+- nessun file sotto `dist` rigenerato o modificato.
 
 Validazione sorgente `1.45.5` su Python 3.14.5:
 

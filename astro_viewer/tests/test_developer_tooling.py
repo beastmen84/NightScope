@@ -146,6 +146,8 @@ def test_standard_check_plan_runs_one_test_suite_and_optional_security() -> None
     assert [check.name for check in fast] == [
         "pip-check",
         "ruff",
+        "import-cycles",
+        "bandit-baseline",
         "compileall",
         "third-party-licenses",
         "mpc-observatories",
@@ -309,6 +311,22 @@ def test_first_run_progress_uses_english_stage_copy() -> None:
         italian_word not in " ".join(state.detail for state in states).lower()
         for italian_word in ("creazione", "importazione", "preparazione", "finalizzazione")
     )
+
+
+def test_github_source_validation_reuses_the_local_gate() -> None:
+    workflow = (
+        PROJECT_ROOT / ".github" / "workflows" / "source-validation.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "permissions:\n  contents: read" in workflow
+    assert workflow.count("actions/checkout@v7") == 2
+    assert workflow.count("actions/setup-python@v7") == 2
+    assert 'python-version: "3.14"' in workflow
+    assert 'python-version: "3.12"' in workflow
+    assert "python tools/run_checks.py --fast" in workflow
+    assert "python -m pip_audit --progress-spinner off" in workflow
+    assert "QT_QPA_PLATFORM: offscreen" in workflow
+    assert "dist/" not in workflow
 
 
 def test_first_run_city_progress_is_bounded_and_readable() -> None:

@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## NightScope 1.45.6 - 2026-09-02
+
+- Integrati nel runner standard il controllo dei cicli di importazione e una
+  scansione Bandit incrementale. Le 51 segnalazioni esistenti sono revisionate
+  per severita', percorso e impronta del codice: ogni nuova segnalazione, ogni
+  riclassificazione e ogni modifica della sorgente interessata blocca il gate;
+  una severita' alta non puo' entrare in baseline.
+- Pytest tratta come errori tutti i warning inattesi. Restano filtrate soltanto
+  le due deprecazioni Skyfield causate dalle assegnazioni `dtype` e `shape`
+  rimosse da NumPy 2.5, con regex, categoria e modulo espliciti. Il nuovo gate
+  ha anche individuato e corretto una connessione SQLite non chiusa in un test
+  della composition root.
+- Aggiunta una CI GitHub con gate completo su Windows/Python 3.14 e
+  Linux/Python 3.12, piu' un audit separato della chiusura delle dipendenze.
+  La CI riusa `tools/run_checks.py` e non costruisce artefatti di distribuzione.
+- La versione sorgente passa a `1.45.6`. `dist` non e' stata rigenerata o
+  modificata; nessun tag, checksum o artefatto di release e' stato creato.
+
 ## NightScope 1.45.5 - 2026-09-02
 
 - Eliminati i cicli d'importazione tra policy aerosol e condizioni, tra
