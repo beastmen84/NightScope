@@ -81,6 +81,14 @@ def test_dependency_factory_owns_ephemeris_fallback(tmp_path: Path) -> None:
         == tmp_path / "location_cache.json"
     )
     assert (
+        dependencies.location_command_workflow._repository
+        is dependencies.location_repository
+    )
+    assert (
+        dependencies.location_command_workflow._service
+        is dependencies.location_service
+    )
+    assert (
         dependencies.equipment_catalog_service._repository
         is dependencies.equipment_catalog_repository
     )

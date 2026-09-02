@@ -14,14 +14,14 @@ from PySide6.QtCore import QCoreApplication
 
 import requests
 
+from astro_viewer.app.application.location_commands import (
+    LocationCommandResult,
+    LocationProviderFailure,
+)
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.models.weather import WeatherHour
-from astro_viewer.app.services.location_service import (
-    LocationDetectionResult,
-    LocationUnavailableError,
-    WINDOWS_LOCATION_UNAVAILABLE_MESSAGE,
-)
+from astro_viewer.app.services.location_service import LocationDetectionResult
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
 from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE
 from astro_viewer.app.viewmodels.app_controller import WEATHER_RETRY_DELAY_MS, AppController
@@ -203,6 +203,44 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertEqual(controller.location["city"], "Addis Ababa")
             self.assertGreater(len(controller.weatherHourly), 0)
 
+    def test_manual_selection_rejects_an_in_flight_startup_result(self) -> None:
+        ip_response = Mock()
+        ip_response.raise_for_status.return_value = None
+        ip_response.json.return_value = {
+            "city": "Bologna",
+            "region": "Emilia-Romagna",
+            "country_name": "Italy",
+            "latitude": 44.4938,
+            "longitude": 11.3387,
+            "timezone": "Europe/Rome",
+            "accuracy_radius": 25,
+        }
+        weather_response = _valid_weather_response()
+
+        def response_for_url(url, *args, **kwargs):
+            if "ipapi" in url or "ipwho" in url:
+                time.sleep(0.2)
+                return ip_response
+            return weather_response
+
+        with self._controller_with_weather(
+            side_effect=response_for_url,
+            preferences={
+                "auto_detect_location_on_startup": True,
+                "allow_approximate_online_location": True,
+            },
+            patch_location_requests=True,
+        ) as controller:
+            self.assertTrue(controller.startupLocationDetectionRunning)
+
+            controller.setManualLocation("41.9", "12.5", "Manual Rome")
+
+            self.assertFalse(controller.startupLocationDetectionRunning)
+            self.assertEqual(controller.location["city"], "Manual Rome")
+            time.sleep(0.25)
+            QCoreApplication.processEvents()
+            self.assertEqual(controller.location["city"], "Manual Rome")
+
     def test_startup_auto_detection_overrides_saved_location(self) -> None:
         ip_response = Mock()
         ip_response.raise_for_status.return_value = None
@@ -241,9 +279,20 @@ class ReleaseScenarioTests(unittest.TestCase):
         with self._controller_with_weather(_valid_weather_response()) as controller:
             previous_location = controller.location["city"]
             with patch.object(
-                controller._location_service,
-                "detect_system_location",
-                side_effect=LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE),
+                controller._location_command_workflow,
+                "detect_system",
+                return_value=LocationCommandResult(
+                    handled=True,
+                    message=(
+                        "La posizione di sistema non è disponibile. "
+                        "Provare la posizione approssimata online?"
+                    ),
+                    offer_online_fallback=True,
+                    failure=LocationProviderFailure(
+                        "system",
+                        "unavailable provider",
+                    ),
+                ),
             ):
                 with self.assertLogs("astro_viewer.app.viewmodels.app_controller", level="WARNING"):
                     controller.useSystemLocation()
@@ -419,7 +468,14 @@ class ReleaseScenarioTests(unittest.TestCase):
                 approximate=True,
                 message="Posizione approssimata rilevata tramite connessione internet: Rome, Italy. La precisione può essere limitata.",
             )
-            with patch.object(controller._location_service, "detect_ip_location", return_value=result):
+            with patch.object(
+                controller._location_command_workflow,
+                "detect_online",
+                return_value=LocationCommandResult.selected(
+                    result,
+                    remember_online_consent=True,
+                ),
+            ):
                 controller.useApproximateOnlineLocation()
 
             self.assertEqual(controller.location["city"], "Rome")

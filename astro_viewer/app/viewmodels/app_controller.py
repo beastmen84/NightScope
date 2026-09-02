@@ -18,6 +18,11 @@ from astro_viewer.app.application.dependencies import (
     AppControllerDependencies,
     build_app_controller_dependencies,
 )
+from astro_viewer.app.application.location_commands import (
+    LocationCommandResult,
+    StartupLocationInputs,
+    StoredLocationInputs,
+)
 from astro_viewer.app.application.catalogue_recommendations import (
     apply_object_content_from_sources,
     home_visible_objects_for_window,
@@ -101,11 +106,7 @@ from astro_viewer.app.services.localization import (
     render_text,
     tr,
 )
-from astro_viewer.app.services.location_service import (
-    APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE,
-    LocationDetectionResult,
-    LocationUnavailableError,
-)
+from astro_viewer.app.services.location_service import LocationDetectionResult
 from astro_viewer.app.services.nasa_aod_provider import NasaAodResult
 from astro_viewer.app.services.best_object_nsom_ranking import (
     BestObjectNsomSelectionService,
@@ -283,8 +284,6 @@ class AppController(QObject):
             sky_compass_service=sky_compass_service,
             transient_event_sources=transient_event_sources,
         )
-        self._city_repository = controller_dependencies.city_repository
-        self._location_repository = controller_dependencies.location_repository
         self._catalogue_repository = controller_dependencies.catalogue_repository
         self._equipment_catalog_repository = (
             controller_dependencies.equipment_catalog_repository
@@ -321,7 +320,9 @@ class AppController(QObject):
         self._startup_location_detection_running = False
         self._startup_location_detection_request_id = 0
         self._startup_location_preferences = self._location_preferences.preferences()
-        self._location_service = controller_dependencies.location_service
+        self._location_command_workflow = (
+            controller_dependencies.location_command_workflow
+        )
         self._is_loading = False
         self._service_status = controller_dependencies.startup_service_status
         self._weather_status = ""
@@ -1875,12 +1876,9 @@ class AppController(QObject):
 
     @Slot(str)
     def searchLocations(self, query: str) -> None:
-        if query.strip():
-            self._city_search_has_query = True
-            self._city_results = self._location_repository.search(query, limit=20)
-        else:
-            self._city_search_has_query = False
-            self._city_results = []
+        result = self._location_command_workflow.search(query, limit=20)
+        self._city_search_has_query = result.has_query
+        self._city_results = list(result.matches)
         self.locationChanged.emit()
 
     @Slot(str)
@@ -1889,88 +1887,46 @@ class AppController(QObject):
 
     @Slot(int)
     def selectRecentLocation(self, index: int) -> None:
-        recent = self._recent_location_results()
-        if 0 <= index < len(recent):
-            self._cancel_startup_location_detection()
-            self._apply_location_result(recent[index])
-            self._refresh_all()
-            self.locationChanged.emit()
+        result = self._location_command_workflow.select_recent(
+            index,
+            self._recent_location_results(),
+        )
+        self._publish_location_command_result(result, cancel_on_success=True)
 
     @Slot(int)
     def selectCity(self, city_id: int) -> None:
-        city = self._location_repository.get_city(city_id)
-        if not city:
-            return
-        self._cancel_startup_location_detection()
-        result = self._location_service.from_city_result(city)
-        self._apply_location_result(result)
-        self._refresh_all()
-        self.locationChanged.emit()
+        result = self._location_command_workflow.select_city(city_id)
+        self._publish_location_command_result(result, cancel_on_success=True)
 
     @Slot(str)
     def selectMpcObservatory(self, mpc_code: str) -> None:
-        observatory = self._location_repository.get_observatory(mpc_code)
-        if not observatory:
-            return
-        self._cancel_startup_location_detection()
-        result = self._location_service.from_mpc_observatory_result(observatory)
-        self._apply_location_result(result)
-        self._refresh_all()
-        self.locationChanged.emit()
+        result = self._location_command_workflow.select_observatory(mpc_code)
+        self._publish_location_command_result(result, cancel_on_success=True)
 
     @Slot(str, str)
     def selectLocation(self, kind: str, selection_id: str) -> None:
-        if kind == "city":
-            try:
-                city_id = int(selection_id)
-            except ValueError:
-                return
-            self.selectCity(city_id)
-        elif kind == "mpc_observatory":
-            self.selectMpcObservatory(selection_id)
+        result = self._location_command_workflow.select(kind, selection_id)
+        self._publish_location_command_result(result, cancel_on_success=True)
 
     @Slot(str, str, str)
     def setManualLocation(self, latitude: str, longitude: str, label: str) -> None:
-        try:
-            parsed_latitude = float(latitude.replace(",", "."))
-            parsed_longitude = float(longitude.replace(",", "."))
-        except ValueError:
-            self._location_message = tr("Coordinate non valide.")
-            self.locationChanged.emit()
-            return
-
-        if not -90 <= parsed_latitude <= 90 or not -180 <= parsed_longitude <= 180:
-            self._location_message = tr("Coordinate fuori intervallo.")
-            self.locationChanged.emit()
-            return
-
-        clean_label = label.strip() or tr("Coordinate manuali")
-        self._cancel_startup_location_detection()
-        result = self._location_service.from_manual_coordinates_result(
-            parsed_latitude,
-            parsed_longitude,
-            label=clean_label,
+        result = self._location_command_workflow.set_manual(
+            latitude,
+            longitude,
+            label,
         )
-        self._apply_location_result(result)
-        self._refresh_all()
-        self.locationChanged.emit()
+        self._publish_location_command_result(result, cancel_on_success=True)
 
     @Slot()
     def useSystemLocation(self) -> None:
         self._cancel_startup_location_detection()
-        try:
-            result = self._location_service.detect_system_location()
-        except LocationUnavailableError as exc:
-            logger.warning("System location unavailable in AppController: %s", exc.reason)
-            self._location_message = tr(
-                "La posizione di sistema non è disponibile. Provare la posizione approssimata online?"
+        result = self._location_command_workflow.detect_system()
+        if result.failure is not None:
+            logger.warning(
+                "System location unavailable in AppController: %s",
+                result.failure.reason,
             )
-            self._offer_online_location_fallback = True
-            self.locationChanged.emit()
-            return
-        self._apply_location_result(result)
-        self._refresh_all()
-        self.locationChanged.emit()
+        self._publish_location_command_result(result)
 
     @Slot()
     def useWindowsLocation(self) -> None:
@@ -1979,17 +1935,13 @@ class AppController(QObject):
     @Slot()
     def useApproximateOnlineLocation(self) -> None:
         self._cancel_startup_location_detection()
-        try:
-            result = self._location_service.detect_ip_location(allow_online=True)
-        except LocationUnavailableError as exc:
-            logger.warning("Approximate online location unavailable: %s", exc.reason)
-            self._location_message = APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE
-            self.locationChanged.emit()
-            return
-        self._update_startup_preferences(allow_approximate_online_location=True)
-        self._apply_location_result(result)
-        self._refresh_all()
-        self.locationChanged.emit()
+        result = self._location_command_workflow.detect_online()
+        if result.failure is not None:
+            logger.warning(
+                "Approximate online location unavailable: %s",
+                result.failure.reason,
+            )
+        self._publish_location_command_result(result)
 
     @Slot()
     def refreshWeatherNow(self) -> None:
@@ -5546,7 +5498,37 @@ class AppController(QObject):
             if enabled_by_id.get(item.id.strip().casefold(), True)
         ]
 
-    def _apply_location_result(self, result: LocationDetectionResult, persist: bool = True) -> None:
+    def _publish_location_command_result(
+        self,
+        result: LocationCommandResult,
+        *,
+        cancel_on_success: bool = False,
+    ) -> None:
+        if not result.handled:
+            return
+        if result.detection is not None:
+            if cancel_on_success:
+                self._cancel_startup_location_detection()
+            if result.remember_online_consent:
+                self._update_startup_preferences(
+                    allow_approximate_online_location=True
+                )
+            self._apply_location_result(result.detection)
+            self._refresh_all()
+        else:
+            if result.message:
+                self._location_message = result.message
+            if result.offer_online_fallback is not None:
+                self._offer_online_location_fallback = (
+                    result.offer_online_fallback
+                )
+        self.locationChanged.emit()
+
+    def _apply_location_result(
+        self,
+        result: LocationDetectionResult,
+        persist: bool = True,
+    ) -> None:
         self._mark_refresh_dirty(RefreshReason.LOCATION_CHANGED)
         self._cancel_astronomy_refresh()
         self._cancel_catalogue_recommendation_refresh()
@@ -5554,7 +5536,7 @@ class AppController(QObject):
         previous_location = self._location
         self._location_detection_result = result
         self._location = result.location
-        self._location_message = self._location_result_message(result)
+        self._location_message = self._location_command_workflow.result_message(result)
         self._offer_online_location_fallback = False
         if (
             not isinstance(previous_location, ObserverLocation)
@@ -5569,44 +5551,6 @@ class AppController(QObject):
             self._location_preferences.save_location(result)
         self.catalogueChanged.emit()
         self._clear_refresh_domains(RefreshDomain.LOCATION)
-
-    @staticmethod
-    def _location_result_message(result: LocationDetectionResult) -> str:
-        location = result.location
-        if result.provider == "manual_city":
-            return tr(
-                "Posizione impostata su {city}, {country}.",
-                city=location.city,
-                country=location.country,
-            )
-        if result.provider == "manual_coordinates":
-            return tr(
-                "Coordinate impostate: {latitude}, {longitude}.",
-                latitude=format_number(location.latitude, decimals=4),
-                longitude=format_number(location.longitude, decimals=4),
-            )
-        if result.provider == "mpc_observatory":
-            return result.message or tr("Osservatorio MPC selezionato.")
-        if result.provider == "ip_geolocation":
-            if result.source.endswith(" cached"):
-                return tr(
-                    "Ultima posizione caricata: {city}.",
-                    city=location.city,
-                )
-            return tr(
-                "Posizione approssimata rilevata tramite connessione internet: {city}, {country}. La precisione può essere limitata.",
-                city=location.city,
-                country=location.country or tr("sconosciuto"),
-            )
-        if result.provider in {"windows_precise", "windows_coarse", "geoclue2"}:
-            if location.country:
-                return tr(
-                    "Posizione di sistema acquisita: {city}, {country}.",
-                    city=location.city,
-                    country=location.country,
-                )
-            return tr("Posizione di sistema acquisita.")
-        return result.message or tr("Posizione caricata.")
 
     def _reset_location_provider_presentations(self) -> None:
         if self._earthdata_credentials_state.connection_verified:
@@ -5679,27 +5623,28 @@ class AppController(QObject):
 
         Thread(target=run_detection, daemon=True).start()
 
-    def _resolve_startup_location(self, preferences) -> tuple[LocationDetectionResult | None, bool, str]:
-        if preferences.use_system_location_on_startup:
-            try:
-                return self._location_service.detect_system_location(), True, ""
-            except LocationUnavailableError as exc:
-                logger.info("System startup location detection unavailable: %s", exc.reason)
-
-        if preferences.allow_approximate_online_location:
-            try:
-                return self._location_service.detect_ip_location(allow_online=True), True, ""
-            except LocationUnavailableError as exc:
-                logger.info("Approximate startup location detection unavailable: %s", exc.reason)
-
-        stored = self._stored_startup_location_result()
-        if stored:
-            return stored
-        return (
-            None,
-            False,
-            tr("Configura una località per ottenere meteo e cielo locale."),
+    def _resolve_startup_location(
+        self,
+        preferences,
+    ) -> tuple[LocationDetectionResult | None, bool, str]:
+        result = self._location_command_workflow.resolve_startup(
+            StartupLocationInputs(
+                preferences=preferences,
+                stored=self._stored_location_inputs(),
+            )
         )
+        for failure in result.failures:
+            if failure.provider == "system":
+                logger.info(
+                    "System startup location detection unavailable: %s",
+                    failure.reason,
+                )
+            elif failure.provider == "approximate_online":
+                logger.info(
+                    "Approximate startup location detection unavailable: %s",
+                    failure.reason,
+                )
+        return result.detection, result.persist, result.message
 
     @Slot(int, object, bool, object)
     def _finish_startup_location_detection(
@@ -5713,7 +5658,10 @@ class AppController(QObject):
             return
 
         self._startup_location_detection_running = False
-        if isinstance(result, LocationDetectionResult) and self._result_has_valid_location(result):
+        if (
+            isinstance(result, LocationDetectionResult)
+            and self._location_command_workflow.result_has_valid_location(result)
+        ):
             self._apply_location_result(result, persist=persist)
             if message:
                 self._location_message = message
@@ -5735,49 +5683,23 @@ class AppController(QObject):
         self._light_pollution_status = ""
 
     def _apply_stored_startup_location(self) -> bool:
-        stored = self._stored_startup_location_result()
-        if stored:
-            result, persist, message = stored
-            self._apply_location_result(result, persist=persist)
-            self._location_message = message
+        stored = self._location_command_workflow.resolve_stored(
+            self._stored_location_inputs()
+        )
+        if stored is not None and stored.detection is not None:
+            self._apply_location_result(
+                stored.detection,
+                persist=stored.persist,
+            )
+            self._location_message = stored.message
             return True
 
         return False
 
-    def _stored_startup_location_result(self) -> tuple[LocationDetectionResult, bool, str] | None:
-        saved = self._location_preferences.saved_location()
-        if saved and self._result_has_valid_location(saved):
-            return (
-                saved,
-                False,
-                tr(
-                    "Posizione salvata caricata: {city}.",
-                    city=saved.location.city,
-                ),
-            )
-
-        cached = self._location_preferences.cached_location()
-        if cached and self._result_has_valid_location(cached):
-            return (
-                cached,
-                False,
-                tr(
-                    "Ultima posizione caricata: {city}.",
-                    city=cached.location.city,
-                ),
-            )
-
-        return None
-
-    @staticmethod
-    def _result_has_valid_location(result: LocationDetectionResult | None) -> bool:
-        if not result:
-            return False
-        location = result.location
-        return bool(
-            location.timezone
-            and -90 <= location.latitude <= 90
-            and -180 <= location.longitude <= 180
+    def _stored_location_inputs(self) -> StoredLocationInputs:
+        return StoredLocationInputs(
+            load_saved=self._location_preferences.saved_location,
+            load_cached=self._location_preferences.cached_location,
         )
 
     def _update_startup_preferences(
@@ -5799,30 +5721,12 @@ class AppController(QObject):
         return [result.to_qml() for result in self._recent_location_results()]
 
     def _recent_location_results(self) -> list[LocationDetectionResult]:
-        candidates: list[LocationDetectionResult] = []
-        if self._location_detection_result and self._result_has_valid_location(self._location_detection_result):
-            candidates.append(self._location_detection_result)
-        saved = self._location_preferences.saved_location()
-        if saved and self._result_has_valid_location(saved):
-            candidates.append(saved)
-        cached = self._location_preferences.cached_location()
-        if cached and self._result_has_valid_location(cached):
-            candidates.append(cached)
-        unique = []
-        seen = set()
-        for result in candidates:
-            key = (
-                result.location.city,
-                result.location.country,
-                round(result.location.latitude, 3),
-                round(result.location.longitude, 3),
-                result.location.timezone,
+        return list(
+            self._location_command_workflow.recent_results(
+                self._location_detection_result,
+                self._stored_location_inputs(),
             )
-            if key in seen:
-                continue
-            seen.add(key)
-            unique.append(result)
-        return unique[:5]
+        )
 
     @staticmethod
     def _location_source_label(provider: str) -> str:

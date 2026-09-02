@@ -246,7 +246,7 @@ def test_app_controller_uses_explicit_config_and_cache_paths(
         assert controller._openaq_credential_store._preferences_path == (
             preferences_path
         )
-        assert controller._location_service.ip_provider._cache_path == (
+        assert dependencies.location_service.ip_provider._cache_path == (
             location_cache_path
         )
         assert controller._nasa_aod_provider._cache_path == nasa_aod_cache_path

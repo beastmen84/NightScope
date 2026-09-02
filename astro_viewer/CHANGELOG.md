@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+## NightScope 1.45.18 - 2026-09-02
+
+- Estratto dal controller Qt `LocationCommandWorkflow`, che ora gestisce
+  ricerca, selezioni città/MPC/manuali, provider di sistema/online, fallback di
+  avvio, località recenti e messaggi con input e risultati espliciti.
+- `AppController` non interroga più direttamente `LocationRepository` o
+  `LocationService`; conserva slot e segnali Qt, cancellazione delle richieste,
+  scarto dei risultati obsoleti, persistenza e scheduling dei refresh.
+- Aggiunti 28 test unitari del workflow e verificati 72 test mirati inclusi gli
+  scenari controller e i percorsi runtime.
+- Il gate sorgente completo con coverage e sicurezza passa con 1.201 test e 10
+  subtest in 306,74 secondi, coverage aggregata 86%, nessuna vulnerabilità nota
+  e smoke test backend, QML normale e Red Night Vision riusciti.
+- La versione sorgente passa a `1.45.18`; `dist` non è stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release.
+
 ## NightScope 1.45.17 - 2026-09-02
 
 - Estratti da `location_service.py` gli adapter concreti Windows/WinRT,

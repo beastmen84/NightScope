@@ -1,7 +1,7 @@
 # NightScope 1.45 Architecture Review
 
 Date: 2026-09-02
-Scope: source `1.44.0` through `1.45.17`
+Scope: source `1.44.0` through `1.45.18`
 
 ## Verdict
 
@@ -22,9 +22,9 @@ warning, architectural, and missing-documentation regressions before pytest.
 
 The architecture is substantially healthier, but the work is not exhausted.
 The remaining risks are concentrated and have identifiable seams. They justify
-further focused versions, especially around location/provider orchestration and
-controller commands; they do not justify a wholesale rewrite or arbitrary
-splitting by line count.
+further focused versions around persistence aggregates, astronomy/provider
+components, and selected controller commands; they do not justify a wholesale
+rewrite or arbitrary splitting by line count.
 
 ## Evidence Snapshot
 
@@ -33,15 +33,15 @@ stated.
 
 | Area | Evidence | Assessment |
 | --- | --- | --- |
-| Production Python | 122 modules, 46,976 lines | Broad domain surface; every module now states its responsibility and package boundaries are discoverable. |
-| Tests | 86 test files plus 2 support/package modules, 35,321 lines; 1,172 tests and 10 subtests at the 1.45.17 gate | Very strong regression protection relative to production size. |
-| `AppController` | 9,836 lines at 1.44.0; 7,910 at 1.45.17, including its module header; 1,926 net lines removed (19.6%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
-| Controller surface | 562 methods, including 114 slots and 141 properties | Large compatibility/API surface makes wholesale rewriting risky. |
+| Production Python | 123 modules, 47,332 lines | Broad domain surface; every module now states its responsibility and package boundaries are discoverable. |
+| Tests | 87 test files plus 2 support/package modules, 35,805 lines; 1,201 tests and 10 subtests at the 1.45.18 gate | Very strong regression protection relative to production size. |
+| `AppController` | 9,836 lines at 1.44.0; 7,814 at 1.45.18, including its module header; 2,022 net lines removed (20.6%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
+| Controller surface | 561 methods, including 114 slots and 141 properties | Large compatibility/API surface makes wholesale rewriting risky. |
 | Largest persistence modules | `equipment_catalog_repository.py` 3,027 lines; `bootstrap.py` 2,492 | Transactionally cohesive but too concentrated for easy local reasoning. |
 | Astronomy implementation | `skyfield_engine.py` 2,434 lines | Complex by domain necessity; provider/event subcomponents can still be separated. |
 | Largest QML pages | Home 1,708 lines; Object Detail 1,245 | Backend decisions are mostly extracted, but layout/component complexity remains. |
 | Import structure | 0 cycles; 0 protected-layer violations | Good and now mechanically enforced. |
-| Documentation inventory | 241 Python, 34 QML, and 15 operational files | Complete governed coverage, enforced before the long test suite. |
+| Documentation inventory | 243 Python, 34 QML, and 15 operational files | Complete governed coverage, enforced before the long test suite. |
 | Static/security gate | Ruff 0.16.5, compileall, documentation inventory, exact Bandit baseline and pip-audit; 0 high findings and no known dependency vulnerabilities | Good incremental protection; whole-project type checking remains absent. |
 | Validated build toolchain | pip 26.2.1, coverage 7.16.0, PyInstaller 6.22.2 and `pyinstaller-hooks-contrib` 2026.7 on Windows/Python 3.14.5 | Current source floors and local environment are aligned; portable bundles still require a separate final build and audit. |
 | Validated UI/astronomy runtime | PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55, Astropy 8.0.1, current IERS data and NumPy 2.5.2 | Focused astronomy/timezone tests, QML smoke modes and all-file `qmllint` pass without changing application or QML source. |
@@ -63,6 +63,13 @@ equipment enrichment, condition read models, NSOM ranking, Best Object, night
 plan, and Sky Compass candidates. Immutable snapshots cross the worker/Qt
 boundary. The controller retains scheduling, request generations, cancellation
 semantics, stale-result rejection, state swaps, and signals.
+
+`LocationCommandWorkflow` now owns location search, city/MPC/manual selection,
+system and online provider commands, startup fallback, recent-location
+deduplication, validation and result messages. Explicit immutable outcomes cross
+the boundary. The controller retains Qt slots, request cancellation and stale
+result rejection, persistence timing, dependent refreshes, state application
+and signal publication.
 
 ### Presentation and catalogue boundaries
 
@@ -135,23 +142,25 @@ remote CI pass.
 
 ## Residual Risks And Priorities
 
-### Priority 1: controller and location/provider orchestration
+### Completed focus: controller and location/provider orchestration
 
-At 7,910 physical lines and 562 methods, `AppController` is still expensive to
+At 7,814 physical lines and 561 methods, `AppController` is still expensive to
 understand and easy to touch accidentally. Its remaining responsibilities are
 not all misplaced: Qt properties, slots, signals, timers, thread handoff, and
 compatibility adapters belong at this boundary. Future extraction should target
-coherent commands still mixing mutation and presentation, such as location
-selection/provider refresh, calendar-event projection, and observation-log
-operations.
+other coherent commands still mixing mutation and presentation, such as
+calendar-event projection and observation-log operations.
 
 `1.45.17` separates the former 1,461-line location module into a 1,147-line
 infrastructure adapter module and a 472-line selection/normalization service.
 The composition root now constructs an explicit immutable adapter bundle;
 legacy provider imports remain available through `location_service.py`.
-The next seam is controller-facing selection and provider-refresh policy,
-which should move into an application workflow with explicit inputs and
-results.
+`1.45.18` moves controller-facing search, selection, validation, provider
+commands, startup fallback, result copy and recent-location policy into a
+445-line framework-independent workflow with explicit inputs and immutable
+results. The controller no longer reaches directly into the location repository
+or service. Its Qt signal timing, asynchronous request generations, provider
+errors, persistence and cache precedence remain covered by focused tests.
 
 Do not split the file mechanically. Every extraction should reduce controller
 state access, accept explicit inputs, preserve signal timing, and land with
@@ -231,8 +240,8 @@ make incremental improvement safe.
 
 Recommended status: the codebase is safe for editorial work, but architecture
 still has worthwhile focused work. Continue in small reviewed versions in this
-order: location/provider adapters, controller command workflows, persistence
-aggregates, Skyfield event/calculation seams, large QML sections, and finally a
-neutral home for localization primitives. Each extraction must reduce coupling
-or state reach and preserve observable contracts; line-count reduction alone is
-not a success criterion.
+order: persistence aggregates, Skyfield event/calculation seams, remaining
+controller command workflows, large QML sections, and finally a neutral home
+for localization primitives. Each extraction must reduce coupling or state
+reach and preserve observable contracts; line-count reduction alone is not a
+success criterion.

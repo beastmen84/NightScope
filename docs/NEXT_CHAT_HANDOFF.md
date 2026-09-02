@@ -4,7 +4,7 @@ Updated: 2026-09-02
 
 ## Current State
 
-- Source version: `1.45.17`.
+- Source version: `1.45.18`.
 - Current public release: `v1.43.0`.
 - Public-release source commit: `26dfaf49df8f9b8e73e84f406396f406170400b2`.
 - The `1.45.x` architectural series is source-only. No `1.45.x` tag, checksum,
@@ -34,7 +34,8 @@ Updated: 2026-09-02
 | 1.45.14 | `de25eab` | Updates the validated development and portable-packaging toolchain without changing runtime behavior. |
 | 1.45.15 | `8c11175` | Updates the validated Qt and astronomy runtime baseline while preserving application contracts. |
 | 1.45.16 | `a8584a8` | Updates and constrains the Earthdata transport family as one tested resolver unit. |
-| 1.45.17 | current source | Extracts concrete location adapters behind an explicit composition-root bundle while retaining compatibility imports. |
+| 1.45.17 | `98b7b67` | Extracts concrete location adapters behind an explicit composition-root bundle while retaining compatibility imports. |
+| 1.45.18 | current source | Extracts controller-facing location commands into a framework-independent workflow with explicit inputs and outcomes. |
 
 ## Resulting Architecture
 
@@ -45,7 +46,10 @@ of runtime state. Framework-independent application workflows and presentation
 services now prepare recommendation, catalogue, observing/weather, and equipment
 read models. The composition root also builds the concrete location-adapter
 bundle; `LocationService` owns provider selection, fallback and result
-normalization. Repositories own SQLite transactions and models carry typed data.
+normalization. `LocationCommandWorkflow` owns search, selection, validation,
+startup fallback and recent-location policy while the controller retains Qt
+lifecycle and publication. Repositories own SQLite transactions and models
+carry typed data.
 
 The production graph is acyclic. The architecture gate also prevents models,
 database, astronomy, and service modules from importing the controller or the
@@ -60,10 +64,10 @@ QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.45.17` coverage/security source gate passed on
+The final local `1.45.18` coverage/security source gate passed on
 Windows/Python 3.14.5:
 
-- 1,172 tests and 10 subtests in 330.30 seconds, with 86% aggregate application
+- 1,201 tests and 10 subtests in 306.74 seconds, with 86% aggregate application
   coverage and no unexpected warning summary;
 - validated toolchain: pip 26.2.1, Ruff 0.16.5, coverage 7.16.0, PyInstaller
   6.22.2, and `pyinstaller-hooks-contrib` 2026.7;
@@ -71,7 +75,7 @@ Windows/Python 3.14.5:
   Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, and NumPy 2.5.2;
 - validated Earthdata runtime: earthaccess 0.18.0, s3fs/fsspec 2026.7.0,
   aiobotocore 3.9.0, and maximum compatible botocore 1.43.56;
-- complete documentation inventory: 241 Python, 34 QML, and 15 operational
+- complete documentation inventory: 243 Python, 34 QML, and 15 operational
   files;
 - Ruff, compilation, license archive, MPC/OpenNGC snapshot checks;
 - 0 import cycles and 0 protected-layer violations;
@@ -85,15 +89,18 @@ claim a remote CI pass until GitHub has run it.
 
 ## Next Architectural Step
 
-`1.45.17` extracted concrete Windows, GeoClue, IP, cache and manual location
-adapters from selection/normalization policy. The composition root owns their
-construction, and the previous `location_service` import surface remains
-compatible.
+`1.45.18` completed the location seam: controller-facing search, selections,
+manual validation, system/online commands, startup fallback, recent-location
+deduplication and result copy now live in `LocationCommandWorkflow`. The
+controller no longer reaches directly into the location repository or service;
+it retains Qt slots, cancellation generations, stale-result rejection,
+persistence timing, dependent refreshes and signal publication.
 
-Resume in `1.45.18` with the controller-facing location selection and provider
-refresh commands. Preserve current Qt properties, signals, refresh timing,
-asynchronous stale-result rejection, cache behavior and provider error
-semantics while introducing explicit workflow inputs and results.
+The next priority is persistence concentration. Start with one stable aggregate
+inside `EquipmentCatalogRepository` rather than splitting mechanically, and
+preserve existing cross-equipment transaction behavior. `database.bootstrap`
+should likewise be separated only by a migration or seed-reconciliation family
+with its current recovery and idempotency tests kept intact.
 
 ## Deferred Product Work: Catalogue Editorial Content
 

@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.45.17
+This document describes the architecture implemented by the NightScope 1.45.18
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -59,9 +59,9 @@ The current implementation is coherent, but the ViewModel/controller layer has
 grown beyond a narrow presentation adapter. `AppController` still orchestrates
 refresh flows, profile mutations, asynchronous work, stale-result rejection,
 calendar integration and publication of QML-facing state. Recommendation,
-catalogue, observing/weather and equipment preparation now live in explicit
-application or service boundaries and return framework-independent snapshots or
-read models.
+location commands, catalogue, observing/weather and equipment preparation now
+live in explicit application or service boundaries and return
+framework-independent snapshots, command outcomes or read models.
 
 Concrete construction is owned by
 `astro_viewer.app.application.dependencies`. `astro_viewer.main` builds one
@@ -275,7 +275,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.45.17`:
+Current runtime status for `1.45.18`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -791,6 +791,11 @@ Services hold business logic:
   from already prepared Home targets; it does not call weather, VIIRS, Planner
   or recommendation services. Direction ranking combines current altitude,
   target value and density; plan/Best flags are annotations only.
+- `LocationCommandWorkflow`: framework-independent search, city/MPC/manual
+  selection, system/online commands, startup fallback and recent-location
+  deduplication. It accepts explicit preference and lazy stored-location inputs
+  and returns immutable outcomes; the controller alone applies state, cancels
+  stale work, schedules dependent refreshes and emits Qt signals.
 - `location_providers`: concrete Windows/WinRT, Linux/GeoClue, online IP,
   cache, city and manual-coordinate adapters. The composition root constructs
   one immutable adapter bundle; `LocationService` retains the old provider
@@ -887,6 +892,21 @@ Startup flow:
    or captured inputs.
 5. QML receives property change signals and renders dictionaries exposed by the
    controller.
+
+Location command flow:
+
+1. A QML slot passes only the requested query, selection identifier or manual
+   coordinate text to `LocationCommandWorkflow`.
+2. The workflow validates input, queries the narrow location repository port,
+   invokes `LocationService` when acquisition is needed, and returns an
+   immutable success, ignored-command or provider-failure outcome.
+3. `AppController` preserves the established boundary behavior: it cancels any
+   superseded startup request, applies successful state, persists consent or
+   location data, schedules dependent refreshes and emits the same Qt signals.
+4. Startup detection remains on its worker thread. Its immutable input carries
+   the captured preference policy and lazy saved/cache readers, preserving
+   provider precedence and avoiding persisted-location I/O after an earlier
+   provider succeeds; request generations still reject stale worker results.
 
 Home recommendation flow:
 

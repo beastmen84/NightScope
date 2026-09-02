@@ -10,6 +10,7 @@ from pathlib import Path
 from astro_viewer.app.application.catalogue_recommendations import (
     CatalogueRecommendationWorkflow,
 )
+from astro_viewer.app.application.location_commands import LocationCommandWorkflow
 from astro_viewer.app.astronomy.engine import (
     AstronomyEngine,
     MockAstronomyEngine,
@@ -135,6 +136,7 @@ class AppControllerDependencies:
     openaq_connection_tester: OpenAQConnectionTester
     local_atmosphere_service: OpenAQLocalAtmosphereService
     location_service: LocationService
+    location_command_workflow: LocationCommandWorkflow
     astronomy_engine: AstronomyEngine
     startup_service_status: object
     weather_service: OpenMeteoWeatherService
@@ -227,6 +229,10 @@ def build_app_controller_dependencies(
         cache_path=resolved_location_cache_path,
         provider_adapters=location_provider_adapters,
     )
+    location_command_workflow = LocationCommandWorkflow(
+        repository=location_repository,
+        service=location_service,
+    )
 
     startup_service_status: object = ""
     try:
@@ -306,6 +312,7 @@ def build_app_controller_dependencies(
         openaq_connection_tester=OpenAQConnectionTester(),
         local_atmosphere_service=OpenAQLocalAtmosphereService(),
         location_service=location_service,
+        location_command_workflow=location_command_workflow,
         astronomy_engine=astronomy_engine,
         startup_service_status=startup_service_status,
         weather_service=OpenMeteoWeatherService(weather_cache_repository),
