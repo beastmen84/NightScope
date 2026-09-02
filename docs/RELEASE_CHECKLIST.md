@@ -92,11 +92,11 @@ Do not commit credentials or exact personal locations.
 
 ## 6. Windows Artifact
 
-- [ ] Build from a clean checkout with `packaging/build_windows.ps1`.
-- [ ] Confirm the source commit and build environment are recorded.
-- [ ] Run backend and QML smoke tests against the packaged executable.
-- [ ] Confirm the bundle-root legal files and Qt module audit pass.
-- [ ] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
+- [x] Build from a clean checkout with `packaging/build_windows.ps1`.
+- [x] Confirm the source commit and build environment are recorded.
+- [x] Run backend and QML smoke tests against the packaged executable.
+- [x] Confirm the bundle-root legal files and Qt module audit pass.
+- [x] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
   timezone polygons, and credential backend.
 - [ ] Run the complete visual and provider matrices on the packaged build, not
   only from source. Test a copy and preserve a pristine release bundle.

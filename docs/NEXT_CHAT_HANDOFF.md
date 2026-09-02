@@ -55,7 +55,31 @@ Risultati:
   smoke backend e smoke QML normale/Red Night Vision puliti; `pip-audit` non
   rileva vulnerabilita' note.
 - `git diff --check` pulito. Compilazione separata delle traduzioni, `qmllint`,
-  asset check, matrice visuale e build restano gate di release aperti.
+  asset check e matrice visuale restano gate di release separati.
+
+## Dist Windows 1.44.0
+
+La cartella portabile Windows e' stata rigenerata il 2026-09-02 con
+`packaging/build_windows.ps1` dal commit sorgente
+`116d6f5db8297ea90637f3d5dbd2f8e55b2a61e8`, su Windows build `26200.9278`,
+Python `3.14.5` e PyInstaller `6.21.0`.
+
+- `dist\NightScope` contiene `5.271` file per `440.192.024` byte (`419,8 MiB`)
+  e incorpora `VERSION` `1.44.0`.
+- SHA-256 del solo `NightScope.exe`:
+  `ba7cd6fbec0cfc811109a83f4471481f9f29e7263e3d8c0c7d395460cbb8cda6`.
+  Non sostituisce il digest del futuro ZIP di release.
+- L'audit Qt, file legali e assenza di stato runtime e' passato sia nello script
+  di build sia di nuovo sulla cartella originale dopo le verifiche.
+- Su una copia usa-e-getta del bundle passano con exit code `0` smoke backend,
+  QML normale e QML Red Night Vision. La copia di test con il relativo stato
+  runtime e' stata rimossa; la dist originale e' rimasta pulita.
+- Sono presenti 34 QML, i cataloghi compilati IT/EN/ES, manuale, risorse,
+  seed, effemeride `de421`, dati timezone, Qt Positioning e il backend Windows
+  Keyring con le dipendenze `win32ctypes`.
+- ZIP, digest del futuro archivio, firma, scansione antivirus, matrice visuale e
+  provider restano aperti. La dist Linux non e' stata rigenerata: deve essere
+  costruita e verificata separatamente su un host Linux.
 
 ## Release Pubblica 1.43.0
 
