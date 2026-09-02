@@ -5028,6 +5028,7 @@ class AppController(QObject):
 
     def _refresh_sky_compass(self) -> None:
         self._cancel_sky_compass_live_refresh()
+        self._sky_compass_service.reset_live_direction_stability()
         candidates = self._sky_compass_candidates()
         self._sky_compass_candidate_snapshot = list(candidates)
         self._set_sky_compass(
@@ -5140,7 +5141,7 @@ class AppController(QObject):
         caution_text: str,
     ) -> dict:
         try:
-            return self._sky_compass_service.compass(
+            return self._sky_compass_service.live_compass(
                 candidates,
                 self._night_plan,
                 self._best_object,
@@ -5155,7 +5156,7 @@ class AppController(QObject):
                 "NSOM Sky Compass selection failed; using geometry fallback.",
                 exc_info=True,
             )
-        return self._sky_compass_service.compass(
+        return self._sky_compass_service.live_compass(
             candidates,
             self._night_plan,
             self._best_object,

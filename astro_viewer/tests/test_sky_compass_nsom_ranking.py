@@ -185,26 +185,26 @@ def test_controller_sky_compass_split_adapter_uses_raw_physics_and_display_live_
             raw_targets_by_id=controller._deep_sky_raw_condition_input_by_id,
         )
     )
-    controller._sky_compass_service.compass.return_value = {"available": True}
+    controller._sky_compass_service.live_compass.return_value = {"available": True}
 
     result = controller._select_sky_compass_payload([display], has_location=True, caution_text="")
 
     assert result == {"available": True}
-    kwargs = controller._sky_compass_service.compass.call_args.kwargs
+    kwargs = controller._sky_compass_service.live_compass.call_args.kwargs
     observable = kwargs["observable_objects_by_id"]["galaxy"]
     assert observable.score == 90
     assert observable.direction == "Nord-Est"
     assert observable.max_altitude == "18 gradi"
     assert observable.current_altitude == "17 gradi"
     assert observable.current_azimuth == "45 gradi"
-    assert controller._sky_compass_service.compass.call_args.args[0] == [display]
+    assert controller._sky_compass_service.live_compass.call_args.args[0] == [display]
 
 
 def test_service_failure_falls_back_to_geometry_with_diagnostic_log(caplog) -> None:
     targets = _targets()
     geometry = _geometry_compass(targets)
     failing_service = Mock()
-    failing_service.compass.side_effect = [RuntimeError("fixture"), geometry]
+    failing_service.live_compass.side_effect = [RuntimeError("fixture"), geometry]
     failing = _controller(
         sky_quality=_sky_quality(9, radiance=120.0),
         compass_service=failing_service,
@@ -212,7 +212,7 @@ def test_service_failure_falls_back_to_geometry_with_diagnostic_log(caplog) -> N
 
     with caplog.at_level(logging.WARNING, logger="astro_viewer.app.viewmodels.app_controller"):
         assert failing._select_sky_compass_payload(targets, has_location=True, caution_text="") == geometry
-    assert failing_service.compass.call_count == 2
+    assert failing_service.live_compass.call_count == 2
     assert "NSOM Sky Compass selection failed; using geometry fallback." in caplog.text
 
 

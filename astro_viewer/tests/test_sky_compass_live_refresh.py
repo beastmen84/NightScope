@@ -96,6 +96,16 @@ class SkyCompassLiveRefreshTest(unittest.TestCase):
         self.assertEqual(controller._sky_compass["primaryTargets"][0]["id"], "mars")
         self.assertTrue(timer.isActive())
 
+    def test_normal_refresh_resets_live_direction_stability(self) -> None:
+        target = _object("mars", "Marte", "Pianeta", "Sud", 80)
+        controller, _engine, _timer = _controller([target])
+        controller._sky_compass_service = Mock(wraps=SkyCompassService())
+
+        controller._refresh_sky_compass()
+
+        controller._sky_compass_service.reset_live_direction_stability.assert_called_once_with()
+        controller._sky_compass_service.live_compass.assert_called_once()
+
     def test_live_refresh_emits_only_sky_compass_signal(self) -> None:
         target = _object("mars", "Marte", "Pianeta", "Sud", 80)
         controller, _engine, _timer = _controller([target])

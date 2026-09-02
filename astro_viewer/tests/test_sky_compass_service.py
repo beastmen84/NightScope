@@ -155,6 +155,117 @@ def test_sky_compass_excludes_targets_that_are_not_observable_now() -> None:
     assert [item["id"] for item in result["targets"]] == ["current"]
 
 
+def test_live_compass_holds_direction_when_adjacent_winners_alternate() -> None:
+    service = SkyCompassService()
+    south_leads = [
+        _object("south", "South", "Pianeta", "Sud", 80),
+        _object("south-west", "South-West", "Pianeta", "Sud-Ovest", 79),
+    ]
+    south_west_leads = [
+        replace(south_leads[0], score=79),
+        replace(south_leads[1], score=80),
+    ]
+
+    assert service.live_compass(south_leads, [], None, has_location=True)["direction"] == "Sud"
+    for _ in range(service.LIVE_SWITCH_CONFIRMATIONS + 1):
+        held = service.live_compass(south_west_leads, [], None, has_location=True)
+        assert held["direction"] == "Sud"
+        assert held["primaryTargets"][0]["id"] == "south"
+        assert held["alternatives"][0]["direction"] == "Sud-Ovest"
+
+        restored = service.live_compass(south_leads, [], None, has_location=True)
+        assert restored["direction"] == "Sud"
+
+
+def test_live_compass_confirms_a_small_advantage_before_switching() -> None:
+    service = SkyCompassService()
+    initial = [
+        _object("south", "South", "Pianeta", "Sud", 80),
+        _object("south-west", "South-West", "Pianeta", "Sud-Ovest", 79),
+    ]
+    challenger = [
+        replace(initial[0], score=79),
+        replace(initial[1], score=80),
+    ]
+    service.live_compass(initial, [], None, has_location=True)
+
+    for _ in range(service.LIVE_SWITCH_CONFIRMATIONS - 1):
+        result = service.live_compass(challenger, [], None, has_location=True)
+        assert result["direction"] == "Sud"
+
+    confirmed = service.live_compass(challenger, [], None, has_location=True)
+    assert confirmed["direction"] == "Sud-Ovest"
+    assert confirmed["primaryTargets"][0]["id"] == "south-west"
+
+
+def test_live_compass_switches_immediately_for_a_decisive_advantage() -> None:
+    service = SkyCompassService()
+    initial = [
+        _object("south", "South", "Pianeta", "Sud", 80),
+        _object("south-west", "South-West", "Pianeta", "Sud-Ovest", 79),
+    ]
+    decisive = [
+        replace(initial[0], score=40),
+        replace(initial[1], score=100),
+    ]
+    service.live_compass(initial, [], None, has_location=True)
+
+    result = service.live_compass(decisive, [], None, has_location=True)
+
+    assert result["direction"] == "Sud-Ovest"
+
+
+def test_live_compass_switches_immediately_when_current_direction_is_empty() -> None:
+    service = SkyCompassService()
+    south = _object("south", "South", "Pianeta", "Sud", 80)
+    service.live_compass([south], [], None, has_location=True)
+
+    result = service.live_compass(
+        [_object("south-west", "South-West", "Pianeta", "Sud-Ovest", 60)],
+        [],
+        None,
+        has_location=True,
+    )
+
+    assert result["direction"] == "Sud-Ovest"
+
+
+def test_live_compass_reset_starts_a_fresh_direction_decision() -> None:
+    service = SkyCompassService()
+    initial = [
+        _object("south", "South", "Pianeta", "Sud", 80),
+        _object("south-west", "South-West", "Pianeta", "Sud-Ovest", 79),
+    ]
+    challenger = [
+        replace(initial[0], score=79),
+        replace(initial[1], score=80),
+    ]
+    service.live_compass(initial, [], None, has_location=True)
+
+    service.reset_live_direction_stability()
+    result = service.live_compass(challenger, [], None, has_location=True)
+
+    assert result["direction"] == "Sud-Ovest"
+
+
+def test_plain_compass_keeps_immediate_stateless_ranking() -> None:
+    service = SkyCompassService()
+    initial = [
+        _object("south", "South", "Pianeta", "Sud", 80),
+        _object("south-west", "South-West", "Pianeta", "Sud-Ovest", 79),
+    ]
+    challenger = [
+        replace(initial[0], score=79),
+        replace(initial[1], score=80),
+    ]
+
+    assert service.compass(initial, [], None, has_location=True)["direction"] == "Sud"
+    assert (
+        service.compass(challenger, [], None, has_location=True)["direction"]
+        == "Sud-Ovest"
+    )
+
+
 def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     source = HOME_PAGE.read_text(encoding="utf-8")
     glass_card_source = GLASS_CARD.read_text(encoding="utf-8")

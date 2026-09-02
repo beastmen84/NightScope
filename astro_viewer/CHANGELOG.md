@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## NightScope 1.44.0 - 2026-09-01
+
+- Stabilizzata la direzione live di Sky Compass senza rallentare il refresh
+  astronomico da 60 secondi. Quando due zone hanno punteggi vicini, la zona gia'
+  mostrata resta selezionata e una concorrente marginale deve risultare prima
+  per cinque refresh consecutivi; il cambio resta immediato se la nuova zona ha
+  un vantaggio di almeno il 15% e cinque punti oppure se la zona corrente non ha
+  piu' target osservabili.
+- Il normale refresh Home/Planner apre una nuova decisione Sky Compass, mentre
+  il percorso live continua ad aggiornare altitudine, azimut, settore e
+  `observable_now` dalla snapshot esistente senza richiamare meteo, provider,
+  Planner, equipaggiamento o Recommendation Engine. Punteggi NSOM, soglie di
+  osservabilita', otto settori da 45 gradi e comportamento dei refresh non live
+  restano invariati.
+- La versione sorgente passa a `1.44.0`; i nuovi bundle Windows/Linux devono
+  essere rigenerati e verificati rispetto al tag sorgente `v1.44.0`.
+
 ## NightScope 1.43.0 - 2026-07-29
 
 - Le linee sotto le tessere metriche usano ora un teal informativo coerente e

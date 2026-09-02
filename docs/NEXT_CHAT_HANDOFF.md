@@ -1,42 +1,63 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-30
+Aggiornato: 2026-09-02
 
 ## Stato Versioni
 
-- Versione sorgente: `1.43.0`
+- Versione sorgente: `1.44.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
-- Release pubblica stabile: `v1.42.0`, tag sul commit sorgente
-  `3e17132223df2df06288e7624e80da69550f3d40`.
-- Asset Windows: `NightScope-v1.42.0-windows-x64.zip`, `234.647.891` byte,
+- Release pubblica stabile: `v1.43.0`, tag sul commit sorgente
+  `26dfaf49df8f9b8e73e84f406396f406170400b2`.
+- Asset Windows: `NightScope-v1.43.0-windows-x64.zip`, `235.183.056` byte,
   SHA-256
-  `34dc295fa753498dc087d2de3eedba6e53ccf37177357815ba4d7e814412e08f`.
-- Asset Linux: `NightScope-v1.42.0-debian-12-x64.tar.gz`, `273.018.788` byte
-  (`260 MiB`), SHA-256
-  `1961ac3be264001d1735bcff09c7bf23e58835c75c2dc49af679c8d6e532da2a`,
-  con file checksum adiacente.
-- Candidate Linux locale `1.43.0`:
-  `NightScope-v1.43.0-debian-12-x64.tar.gz`, `273.473.021` byte (`261 MiB`),
-  SHA-256
+  `61aeb14c030ab2158d7e677babd62ceb8d02eee6686a5a609d3cc3137ebda3f0`.
+- Asset Linux: `NightScope-v1.43.0-debian-12-x64.tar.gz`, `273.473.021` byte
+  (`261 MiB`), SHA-256
   `ecdb48f9844b99bd3795e93b8d817f03de6943a171893c624b10fa84522f1250`,
-  con file checksum adiacente. La precedente dist locale `1.42.0` e' stata
-  rimossa; resta disponibile nella release pubblica.
-- Metadati, tag corretto `v1.42.0`, asset e digest della release stabile
-  verificati su GitHub il 2026-07-27. Il tag iniziale errato `v.1.42.0` e'
-  stato sostituito senza modificare commit, release o asset.
-- Il sorgente `1.43.0` e' stato preparato dopo la review completa delle
-  modifiche successive al tag `v1.42.0`. La dist Linux e' stata creata e
-  verificata localmente; dist Windows, tag, release e upload GitHub `v1.43.0`
-  restano da creare o verificare.
+  con file checksum adiacente.
+- Metadati, tag, asset Windows/Linux e digest della release stabile `v1.43.0`
+  sono stati verificati su GitHub il 2026-09-01.
+- Il sorgente `1.44.0` aggiunge la stabilizzazione live di Sky Compass. Dist,
+  checksum e release GitHub `v1.44.0` restano da creare e verificare.
 - Commit sorgente della release pubblica validato:
-  `3e17132 Record Debian 1.42 release candidate`
+  `26dfaf4 Record Debian 1.43 release candidate`
 
 La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
 
-## Release Candidate Sorgente 1.43.0
+## Release Candidate Sorgente 1.44.0
+
+La `1.44.0` mantiene il refresh posizionale Sky Compass ogni 60 secondi ma
+stabilizza la zona mostrata: una concorrente con vantaggio marginale deve
+restare prima per cinque tick, mentre un vantaggio netto o la perdita dei target
+della zona corrente producono un cambio immediato. Il refresh normale azzera la
+memoria live; ranking NSOM, settori, soglie, provider e altri percorsi di
+raccomandazione non cambiano.
+
+## Validazione Sorgente 1.44.0
+
+Eseguita il 2026-09-02 nella venv PyCharm corrente con Python 3.14.5:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_sky_compass_service.py astro_viewer\tests\test_sky_compass_live_refresh.py astro_viewer\tests\test_sky_compass_nsom_ranking.py
+.\.venv\Scripts\python.exe tools\run_checks.py --security
+git diff --check
+```
+
+Risultati:
+
+- Test mirati Sky Compass: `46 passed` in `4,84 s`.
+- Gate completo: `1.139 passed`, `715` warning Skyfield/NumPy noti e `10
+  subtests passed` in `485,79 s`; coverage `85%` su `19.552` statement.
+- `pip check`, Ruff, `compileall`, archivio third-party, cataloghi MPC/OpenNGC,
+  smoke backend e smoke QML normale/Red Night Vision puliti; `pip-audit` non
+  rileva vulnerabilita' note.
+- `git diff --check` pulito. Compilazione separata delle traduzioni, `qmllint`,
+  asset check, matrice visuale e build restano gate di release aperti.
+
+## Release Pubblica 1.43.0
 
 La `1.43.0` consolida il lavoro successivo alla release pubblica `1.42.0`:
 aggiornamenti compatibili della venv, vincoli pratici del seeing e delle pose
@@ -59,8 +80,8 @@ Il gate Linux del 2026-07-30 ha superato `tools/run_checks.py --fast` su Ubuntu
 26.04 con `1.131 passed`, un test solo Windows saltato, `643` warning noti e
 `10 subtests`. Il bundle Debian 12 e' stato verificato da un'estrazione pulita
 su Debian 12, Debian 13 e Ubuntu 26.04: backend, QML normale/rosso, Wayland e
-XCB passano. Restano da completare build e verifica del nuovo artefatto Windows
-e la pubblicazione coordinata.
+XCB passano. Gli artefatti Windows e Linux, il tag e la release GitHub sono
+stati poi pubblicati come release stabile `v1.43.0`.
 
 ## Fondazione catalogo Cameras
 

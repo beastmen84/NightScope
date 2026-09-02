@@ -113,6 +113,14 @@ direction as either an observing suggestion or geometric orientation; it does
 not rerank directions or targets. Missing weather also forces orientation-only
 copy.
 
+The one-minute live position update continues to recompute current altitude,
+azimuth, direction and `observable_now`. Direction presentation adds hysteresis
+after the normal ranking: a marginal new winner must lead for five consecutive
+live updates, while a decisive winner or the loss of every target in the
+displayed direction switches immediately. Full Home/Planner recomputation
+resets the live decision. This stability layer does not alter NSOM values,
+target contributions, observability thresholds or azimuth-sector boundaries.
+
 The lower-Home candidate pool contains every planet and deep-sky object with a
 useful window during the observing night. `visible` means useful at some point
 in that night; `observable_now` is a separate live geometry result. The Home

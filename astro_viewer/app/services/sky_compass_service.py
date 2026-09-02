@@ -44,6 +44,18 @@ class SkyCompassService:
         "Nord-Ovest",
     ]
     TARGET_PRESENCE_BONUS = 10.0
+    LIVE_SWITCH_CONFIRMATIONS = 5
+    LIVE_SWITCH_MARGIN_RATIO = 0.15
+    LIVE_SWITCH_MIN_SCORE_DELTA = 5.0
+
+    def __init__(self) -> None:
+        self._live_direction = ""
+        self._pending_live_direction = ""
+        self._pending_live_confirmations = 0
+
+    def reset_live_direction_stability(self) -> None:
+        self._live_direction = ""
+        self._clear_pending_live_direction()
 
     @classmethod
     def empty(cls, reason: str, message: str, *, caution_text: str = "") -> dict:
@@ -77,7 +89,59 @@ class SkyCompassService:
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
         observable_objects_by_id: Mapping[str, CelestialObject] | None = None,
     ) -> dict:
+        return self._compass(
+            objects,
+            night_plan,
+            best_object,
+            has_location=has_location,
+            caution_text=caution_text,
+            condition_inputs=condition_inputs,
+            moon_geometry_by_object_id=moon_geometry_by_object_id,
+            observable_objects_by_id=observable_objects_by_id,
+            stabilize_live_direction=False,
+        )
+
+    def live_compass(
+        self,
+        objects: list[CelestialObject],
+        night_plan: list[NightPlanItem],
+        best_object: CelestialObject | None,
+        *,
+        has_location: bool,
+        caution_text: str = "",
+        condition_inputs: ObservationConditionInputs | None = None,
+        moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
+        observable_objects_by_id: Mapping[str, CelestialObject] | None = None,
+    ) -> dict:
+        """Build a live payload while suppressing marginal direction churn."""
+        return self._compass(
+            objects,
+            night_plan,
+            best_object,
+            has_location=has_location,
+            caution_text=caution_text,
+            condition_inputs=condition_inputs,
+            moon_geometry_by_object_id=moon_geometry_by_object_id,
+            observable_objects_by_id=observable_objects_by_id,
+            stabilize_live_direction=True,
+        )
+
+    def _compass(
+        self,
+        objects: list[CelestialObject],
+        night_plan: list[NightPlanItem],
+        best_object: CelestialObject | None,
+        *,
+        has_location: bool,
+        caution_text: str,
+        condition_inputs: ObservationConditionInputs | None,
+        moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None,
+        observable_objects_by_id: Mapping[str, CelestialObject] | None,
+        stabilize_live_direction: bool,
+    ) -> dict:
         if not has_location:
+            if stabilize_live_direction:
+                self.reset_live_direction_stability()
             return self.empty(
                 "no_location",
                 tr("Configura una località per usare Sky Compass."),
@@ -95,6 +159,8 @@ class SkyCompassService:
             observable_objects_by_id=observable_objects_by_id,
         )
         if not targets:
+            if stabilize_live_direction:
+                self.reset_live_direction_stability()
             return self.empty(
                 "no_targets",
                 tr("Nessun oggetto osservabile in questo momento."),
@@ -111,7 +177,16 @@ class SkyCompassService:
             ),
             reverse=True,
         )
-        top = ranked_groups[0]
+        top = (
+            self._stable_live_group(ranked_groups)
+            if stabilize_live_direction
+            else ranked_groups[0]
+        )
+        alternative_groups = [
+            group
+            for group in ranked_groups
+            if group["direction"] != top["direction"]
+        ][:2]
         alternatives = [
             {
                 "directionCode": direction_code(group["direction"]),
@@ -119,7 +194,7 @@ class SkyCompassService:
                 "targetCount": group["targetCount"],
                 "targetCountLabel": self._target_count_label(group["targetCount"]),
             }
-            for group in ranked_groups[1:3]
+            for group in alternative_groups
         ]
         primary_targets = top["targets"][:3]
         other_target_count = max(0, top["targetCount"] - len(primary_targets))
@@ -140,6 +215,53 @@ class SkyCompassService:
             "alternatives": alternatives,
             "cautionText": caution_text,
         }
+
+    def _stable_live_group(self, ranked_groups: list[dict]) -> dict:
+        challenger = ranked_groups[0]
+        groups_by_direction = {
+            group["direction"]: group
+            for group in ranked_groups
+        }
+        current = groups_by_direction.get(self._live_direction)
+        if current is None:
+            self._accept_live_direction(challenger["direction"])
+            return challenger
+
+        if challenger["direction"] == current["direction"]:
+            self._clear_pending_live_direction()
+            return current
+
+        if self._has_decisive_live_margin(challenger, current):
+            self._accept_live_direction(challenger["direction"])
+            return challenger
+
+        if self._pending_live_direction == challenger["direction"]:
+            self._pending_live_confirmations += 1
+        else:
+            self._pending_live_direction = challenger["direction"]
+            self._pending_live_confirmations = 1
+
+        if self._pending_live_confirmations >= self.LIVE_SWITCH_CONFIRMATIONS:
+            self._accept_live_direction(challenger["direction"])
+            return challenger
+        return current
+
+    def _has_decisive_live_margin(self, challenger: dict, current: dict) -> bool:
+        current_score = float(current["directionScore"])
+        score_delta = float(challenger["directionScore"]) - current_score
+        required_delta = max(
+            self.LIVE_SWITCH_MIN_SCORE_DELTA,
+            abs(current_score) * self.LIVE_SWITCH_MARGIN_RATIO,
+        )
+        return score_delta >= required_delta
+
+    def _accept_live_direction(self, direction: str) -> None:
+        self._live_direction = direction
+        self._clear_pending_live_direction()
+
+    def _clear_pending_live_direction(self) -> None:
+        self._pending_live_direction = ""
+        self._pending_live_confirmations = 0
 
     def _targets(
         self,

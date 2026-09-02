@@ -1059,6 +1059,16 @@ live tick never calls `_sky_compass_candidates()`: it uses
 altitude, azimuth, direction and `observable_now` for the stored snapshot, emits only
 `skyCompassChanged` and clears `COMPASS_LIVE` after the update.
 
+The positional refresh cadence is independent from the displayed-direction
+stability policy. `SkyCompassService` keeps the current live direction when a
+different direction has only a marginal score lead. A marginal challenger must
+remain first for five completed live refreshes before it is shown. A challenger
+with at least a 15% and five-point score advantage switches immediately, as
+does the best available direction when the displayed group has no observable
+target. A normal Home/Planner refresh resets this live state and starts a fresh
+decision. The policy changes neither target scoring nor the eight 45-degree
+azimuth sectors.
+
 The optional Home filter remains active while the live payload has targets and
 replaces its membership only when the normalized ID set changes. An unavailable
 or `no_targets` payload clears the toggle. This behavior is UI-local and does

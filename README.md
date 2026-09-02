@@ -11,14 +11,14 @@ active profile to answer a practical question: **what is worth observing
 tonight, from here, with this setup?**
 
 > [!NOTE]
-> NightScope is a released application. Source version 1.43.0 is prepared for
-> the next stable release and is ahead of the current public 1.42.0 Windows and
+> NightScope is a released application. Source version 1.44.0 is prepared for
+> the next stable release and is ahead of the current public 1.43.0 Windows and
 > Linux portable bundles.
 > Release artifacts remain platform-specific portable builds rather than
 > universal installers.
 
 Current public Windows and Linux release:
-[NightScope 1.42.0](https://github.com/beastmen84/NightScope/releases/tag/v1.42.0).
+[NightScope 1.43.0](https://github.com/beastmen84/NightScope/releases/tag/v1.43.0).
 Its release assets include the portable Windows ZIP and the Debian 12 x86-64
 tarball with an adjacent SHA-256 file. The release notes identify the
 corresponding source commit and publish the artifact digests.
@@ -370,7 +370,7 @@ The wrapper creates a Debian 12/Python 3.12 build image, runs PyInstaller, and
 writes the portable application to `dist/NightScope`. It then creates the
 deterministic release archive and checksum:
 
-`dist/NightScope-v1.43.0-debian-12-x64.tar.gz` and its adjacent `.sha256`
+`dist/NightScope-v1.44.0-debian-12-x64.tar.gz` and its adjacent `.sha256`
 file. The inner build scripts copy the project notices, generate the installed
 Linux Python dependency license archive, inventory every copied Debian ELF
 file, bundle the matching copyright and common-license texts, and run the

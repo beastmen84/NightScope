@@ -3,9 +3,9 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.43.0`. Current public release: `v1.42.0`. Unless a row says
-otherwise, every gate below applies to newly generated 1.43.0 artifacts.
-Completed 1.42.0 evidence remains in the changelog, testing record and handoff;
+Current target: `v1.44.0`. Current public release: `v1.43.0`. Unless a row says
+otherwise, every gate below applies to newly generated 1.44.0 artifacts.
+Completed 1.43.0 evidence remains in the changelog, testing record and handoff;
 it does not approve the new bundles.
 
 ## 1. Product And Legal
@@ -15,21 +15,21 @@ it does not approve the new bundles.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   survey image, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.43.0` source tag referenced by the
+- [ ] Create and verify the public `v1.44.0` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [x] Confirm source version, changelog, source-availability notices, and
-  About/build metadata agree on `1.43.0`.
+  About/build metadata agree on `1.44.0`.
 - [x] Freeze the release scope; defer unrelated refactors.
 
 ## 2. Automated Validation
 
 - [ ] Install runtime and developer requirements in a clean virtual environment.
 - [x] Run `python tools/run_checks.py --security` against the source candidate.
-- [x] Run all translation compilation and catalogue tests.
+- [ ] Run all translation compilation and catalogue tests.
 - [x] Run both normal and Red Night Vision QML smoke tests.
-- [x] Run `qmllint` over all packaged QML files.
-- [x] Run deep-sky and Solar System asset checks.
-- [x] Record exact Python, dependency, test, warning, and translation counts.
+- [ ] Run `qmllint` over all packaged QML files.
+- [ ] Run deep-sky and Solar System asset checks.
+- [ ] Record exact Python, dependency, test, warning, and translation counts.
 - [ ] Produce a frozen dependency list or SBOM for the release environment.
 
 ## 3. Visual Matrix
@@ -110,25 +110,25 @@ Do not commit credentials or exact personal locations.
 
 ## 7. Linux Artifact
 
-- [x] Build through the declared Debian 12 x86-64/glibc 2.36 container with
+- [ ] Build through the declared Debian 12 x86-64/glibc 2.36 container with
   `packaging/build_linux_debian12.sh`.
-- [x] Generate the environment-specific Python license archive.
-- [x] Inventory every copied native ELF file with binary/source versions,
+- [ ] Generate the environment-specific Python license archive.
+- [ ] Inventory every copied native ELF file with binary/source versions,
   bundle SHA-256, notice path and exact Debian Sources or CPython source URL.
-- [x] Bundle every source-component copyright notice and Debian common-license
+- [ ] Bundle every source-component copyright notice and Debian common-license
   text referenced by the generated inventory.
-- [x] Verify every unique exact-version source URL returns HTTP success.
-- [x] Reject unmanifested/stale native files, changed hashes, missing notices,
+- [ ] Verify every unique exact-version source URL returns HTTP success.
+- [ ] Reject unmanifested/stale native files, changed hashes, missing notices,
   missing common licenses, unsupported Qt plugins and GPL-only Qt modules.
-- [x] Run backend and normal/red QML smoke tests in Debian 12 and Debian 13;
+- [ ] Run backend and normal/red QML smoke tests in Debian 12 and Debian 13;
   run Wayland normal/red and XCB QML smoke tests on the Ubuntu host.
-- [x] Confirm GIO modules remain isolated so newer-host GVFS plugins are not
+- [ ] Confirm GIO modules remain isolated so newer-host GVFS plugins are not
   loaded against the bundled Debian 12 GLib.
-- [x] Create the deterministic
-  `NightScope-v1.43.0-debian-12-x64.tar.gz` and adjacent SHA-256 file.
-- [x] Verify checksum, extraction, audit and smoke tests from the final archive.
+- [ ] Create the deterministic
+  `NightScope-v1.44.0-debian-12-x64.tar.gz` and adjacent SHA-256 file.
+- [ ] Verify checksum, extraction, audit and smoke tests from the final archive.
 - [ ] Publish the tarball and checksum together with the matching Windows ZIP
-  in the public `v1.43.0` GitHub release, so stable-update notifications have
+  in the public `v1.44.0` GitHub release, so stable-update notifications have
   assets for both supported platforms.
 
 ## 8. Release Approval
