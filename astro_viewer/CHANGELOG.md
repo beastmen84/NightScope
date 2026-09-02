@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## NightScope 1.45.5 - 2026-09-02
+
+- Eliminati i cicli d'importazione tra policy aerosol e condizioni, tra
+  servizio Equipment e builder delle configurazioni, e tra bootstrap del
+  database ed entry point. Un controllo AST dedicato rende ora esplicito e
+  verificabile il vincolo di aciclicita' dei moduli di produzione.
+- Gli input atmosferici immutabili vivono nel livello `models`; il builder
+  ottico dipende da un `Protocol` minimo e da tipi `TypedDict`, mentre i calcoli
+  condivisi hanno un'unica implementazione indipendente dal motore di
+  raccomandazione. Gli import storici degli input restano compatibili.
+- La versione sorgente passa a `1.45.5`. `dist` non e' stata rigenerata o
+  modificata; nessun tag o artefatto di release e' stato creato.
+
 ## NightScope 1.45.4 - 2026-09-02
 
 - Estratti da `AppController` caricamento e mapping dei cataloghi Equipment,

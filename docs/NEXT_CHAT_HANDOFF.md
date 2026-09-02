@@ -4,7 +4,7 @@ Aggiornato: 2026-09-02
 
 ## Stato Versioni
 
-- Versione sorgente: `1.45.4`
+- Versione sorgente: `1.45.5`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica stabile: `v1.43.0`, tag sul commit sorgente
   `26dfaf49df8f9b8e73e84f406396f406170400b2`.
@@ -17,10 +17,10 @@ Aggiornato: 2026-09-02
   con file checksum adiacente.
 - Metadati, tag, asset Windows/Linux e digest della release stabile `v1.43.0`
   sono stati verificati su GitHub il 2026-09-01.
-- Il sorgente `1.45.4` prosegue la serie architetturale 1.45.x separando dal
-  controller cataloghi Equipment, validazione degli input, stato dei profili e
-  read model dell'inventario. Dist, checksum e release GitHub `v1.45.4` non
-  sono stati creati e restano fuori ambito fino a richiesta esplicita.
+- Il sorgente `1.45.5` prosegue la serie architetturale 1.45.x con un grafo di
+  importazione aciclico e confini di tipo espliciti per input atmosferici e
+  configurazioni ottiche. Dist, checksum e release GitHub `v1.45.5` non sono
+  stati creati e restano fuori ambito fino a richiesta esplicita.
 - Commit sorgente della release pubblica validato:
   `26dfaf4 Record Debian 1.43 release candidate`
 
@@ -30,6 +30,13 @@ Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
 
 ## Serie Architetturale 1.45.x
+
+La `1.45.5` rimuove tutti e tre i cicli rilevati nel grafo di produzione. Gli
+input atmosferici sono DTO del livello `models`; il builder delle
+configurazioni ottiche dipende da un protocollo minimo e condivide i calcoli
+target-neutral con `EquipmentService`. Il bootstrap standalone e' separato dal
+modulo database. `tools/check_import_cycles.py` analizza anche import locali e
+relativi e il relativo test impedisce regressioni architetturali.
 
 La `1.45.4` introduce servizi indipendenti da Qt per caricare e mappare i
 cataloghi Equipment, validare i form, costruire e interrogare lo stato
@@ -64,9 +71,20 @@ costruisce e inietta `AppControllerDependencies`; il controller conserva un
 percorso factory compatibile per i test e le integrazioni che lo istanziano
 direttamente. Nessun contratto QML, calcolo NSOM, refresh o schema dati cambia.
 
-La serie proseguira' con commit e versioni sorgente distinti per pulizia dei
-cicli di importazione, gate statici e consolidamento della documentazione.
-`dist` non deve essere rigenerata durante questi step.
+La serie proseguira' con commit e versioni sorgente distinti per gate statici,
+CI e consolidamento della documentazione. `dist` non deve essere rigenerata
+durante questi step.
+
+Validazione sorgente `1.45.5` su Python 3.14.5:
+
+- scansione AST del grafo di produzione: `0` cicli, rispetto ai `3` rimossi;
+- test mirati di architettura, condizioni, configurazioni, profili e
+  raccomandazioni: `112 passed`;
+- `tools/run_checks.py --fast`: `1.160 passed`, `715` warning esterni noti e
+  `10 subtests passed`;
+- dipendenze, Ruff, `compileall`, licenze, snapshot MPC/OpenNGC, smoke backend
+  e smoke QML normale/Red Night Vision puliti;
+- nessun file sotto `dist` rigenerato o modificato.
 
 Validazione sorgente `1.45.4` su Python 3.14.5:
 

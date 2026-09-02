@@ -2,14 +2,12 @@ from __future__ import annotations
 
 from statistics import mean
 
+from astro_viewer.app.models.condition_inputs import ObservationConditionInputs
 from astro_viewer.app.models.nsom import NsomTargetClass
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import ObservingCategoryScores
 from astro_viewer.app.services.nsom_observation_environment import (
     NsomObservationEnvironmentService,
-)
-from astro_viewer.app.services.observation_conditions_service import (
-    ObservationConditionInputs,
 )
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.localization import tr

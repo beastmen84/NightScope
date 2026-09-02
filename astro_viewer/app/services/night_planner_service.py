@@ -4,14 +4,14 @@ from collections.abc import Mapping
 from datetime import datetime, timedelta
 
 from astro_viewer.app.astronomy.engine import ObservingNightWindow
+from astro_viewer.app.models.condition_inputs import (
+    MoonGeometryConditionInput,
+    ObservationConditionInputs,
+)
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import NightPlanItem
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
-from astro_viewer.app.services.observation_conditions_service import (
-    MoonGeometryConditionInput,
-    ObservationConditionInputs,
-)
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
 from astro_viewer.app.services.nsom_target import unique_targets_by_id
 from astro_viewer.app.services.localization import join_text, tr

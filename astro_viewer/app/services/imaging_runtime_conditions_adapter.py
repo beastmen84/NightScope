@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import re
 
+from astro_viewer.app.models.condition_inputs import MoonGeometryConditionInput
 from astro_viewer.app.models.imaging_exposure import (
     ImagingSessionConditions,
 )
@@ -12,9 +13,6 @@ from astro_viewer.app.models.imaging_video_capture import (
 )
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
-from astro_viewer.app.services.observation_conditions_service import (
-    MoonGeometryConditionInput,
-)
 
 
 _NUMBER_PATTERN = re.compile(r"-?\d+(?:[.,]\d+)?")

@@ -11,6 +11,7 @@ from astro_viewer.app.application.snapshots import (
     PreparedCatalogueRecommendationSnapshot,
 )
 from astro_viewer.app.astronomy.engine import ObservingNightWindow
+from astro_viewer.app.models.condition_inputs import MoonGeometryConditionInput
 from astro_viewer.app.models.observing import CelestialObject, MoonGeometrySummary
 from astro_viewer.app.services.best_object_nsom_ranking import (
     BestObjectNsomSelectionService,
@@ -33,7 +34,6 @@ from astro_viewer.app.services.observation_conditions_read_model import (
     ObservationConditionsReadModelBuilder,
 )
 from astro_viewer.app.services.observation_conditions_service import (
-    MoonGeometryConditionInput,
     ObservationConditionsService,
 )
 from astro_viewer.app.services.sky_compass_service import SkyCompassService

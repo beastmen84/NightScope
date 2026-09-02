@@ -34,6 +34,12 @@ from astro_viewer.app.astronomy.engine import (
     ObservingNightWindow,
     TransientCalendarEventSource,
 )
+from astro_viewer.app.models.condition_inputs import (
+    AodConditionInput,
+    MoonGeometryConditionInput,
+    ObservationConditionInputs,
+    ParticulateConditionInput,
+)
 from astro_viewer.app.models.equipment import (
     Barlow,
     Binocular,
@@ -127,12 +133,6 @@ from astro_viewer.app.services.imaging_target_traits import (
 )
 from astro_viewer.app.services.nsom_category_score_service import NsomCategoryScoreService
 from astro_viewer.app.services.nsom_target import unique_targets_by_id
-from astro_viewer.app.services.observation_conditions_service import (
-    AodConditionInput,
-    MoonGeometryConditionInput,
-    ObservationConditionInputs,
-    ParticulateConditionInput,
-)
 from astro_viewer.app.services.observation_conditions_read_model import (
     ObservationConditionedTargetReadModel,
     ObservationConditionsReadModelBuilder,

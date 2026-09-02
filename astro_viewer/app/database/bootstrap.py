@@ -2488,16 +2488,3 @@ def _seed_default_profiles(connection: sqlite3.Connection) -> None:
                 ("Default", 1, "preset:naked-eye"),
             ],
         )
-
-
-if __name__ == "__main__":
-    from astro_viewer.main import _data_dir, _database_paths
-
-    runtime_database_path, schema_path = _database_paths()
-    data_dir = _data_dir()
-    initialize_database(
-        runtime_database_path,
-        schema_path,
-        geonames_data_dir=data_dir,
-    )
-    print("Database inizializzato:", runtime_database_path)

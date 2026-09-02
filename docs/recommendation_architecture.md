@@ -1,7 +1,7 @@
 # NightScope Recommendation Architecture
 
 This document describes the current recommendation architecture in NightScope
-`1.45.4`. The typed profile, binocular and recommendation boundaries originated
+`1.45.5`. The typed profile, binocular and recommendation boundaries originated
 in the NightScope 1.1 refactors and remain the active design.
 
 The recommendation system has one main rule:
@@ -76,6 +76,12 @@ form values, profile inventory queries and equipment presentation read models
 live in framework-independent services. `AppController` retains repository
 mutations, localized validation feedback and Qt signals, while compatibility
 wrappers keep the established integration surface stable.
+
+Since `1.45.5`, condition-input DTOs live in the model layer and optical
+configuration builders depend on a narrow protocol rather than the complete
+recommendation service. Production imports are acyclic and checked from the
+Python AST; compatibility exports preserve the established condition-input
+imports for external callers.
 
 ## Responsibilities
 

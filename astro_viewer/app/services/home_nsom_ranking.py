@@ -3,12 +3,12 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from dataclasses import replace
 
-from astro_viewer.app.models.observing import CelestialObject
-from astro_viewer.app.services.home_nsom_observable import build_home_observable_target_value
-from astro_viewer.app.services.observation_conditions_service import (
+from astro_viewer.app.models.condition_inputs import (
     MoonGeometryConditionInput,
     ObservationConditionInputs,
 )
+from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.services.home_nsom_observable import build_home_observable_target_value
 from astro_viewer.app.services.nsom_target import unique_targets_by_id
 
 

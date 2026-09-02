@@ -4,54 +4,29 @@ import math
 from dataclasses import dataclass
 from dataclasses import replace
 
+from astro_viewer.app.models.condition_inputs import (
+    AodConditionInput,
+    MoonGeometryConditionInput,
+    ObservationConditionInputs,
+    ParticulateConditionInput,
+)
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
-from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
+from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.models.target_observation_traits import (
     TargetObservationTraits,
     is_supernova_remnant_type,
 )
+from astro_viewer.app.services.aerosol_provider_quality_policy import (
+    AerosolProviderQualityPolicy,
+    AerosolProviderQualityPolicyService,
+)
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.localization import join_text, tr
-
-
-@dataclass(frozen=True)
-class AodConditionInput:
-    available: bool = False
-    freshness_category: str = "unavailable"
-    aod_550: float | None = None
-    source: str = ""
-    product: str = ""
-    status: str = "unavailable"
-    age_days: float | None = None
-    uncertainty: float | None = None
-    qa_raw: int | None = None
-    method: str = ""
-    local_valid_pixel_count: int | None = None
-    neighborhood_radius_pixels: int | None = None
-    nearest_valid_pixel_distance_km: float | None = None
-
-
-@dataclass(frozen=True)
-class ParticulateConditionInput:
-    available: bool = False
-    freshness_category: str = "unavailable"
-    pm25: float | None = None
-    pm10: float | None = None
-    source: str = ""
-    status: str = "unavailable"
-    age_days: float | None = None
-    distance_km: float | None = None
-
-
-@dataclass(frozen=True)
-class MoonGeometryConditionInput:
-    """Target-specific Moon geometry used by the canonical NSOM environment."""
-
-    moon_altitude_deg: float | None = None
-    moon_target_separation_deg: float | None = None
-    moon_above_horizon: bool | None = None
-    moon_visible_during_target_window: bool | None = None
-    moon_set_before_target_window: bool | None = None
+from astro_viewer.app.services.provider_freshness import (
+    aod_freshness_weight,
+    freshness_category_code,
+    particulate_freshness_weight,
+)
 
 
 @dataclass(frozen=True)
@@ -81,16 +56,6 @@ class AerosolScoringBreakdown:
     atmospheric_transparency_factor: float
     formula: str
     notes: tuple[str, ...] = ()
-
-
-@dataclass(frozen=True)
-class ObservationConditionInputs:
-    moon: MoonSummary | None = None
-    sky_quality: SkyQuality | None = None
-    seeing: SeeingTransparency | None = None
-    aod: AodConditionInput | None = None
-    particulate: ParticulateConditionInput | None = None
-    moon_geometry: MoonGeometryConditionInput | None = None
 
 
 @dataclass(frozen=True)
@@ -404,42 +369,12 @@ class ObservationConditionsService:
     @staticmethod
     def aod_freshness_weight(age_days: float | None = None, freshness_category: str | None = None) -> float:
         """NASA AOD freshness weight used by provider-quality gates."""
-
-        if age_days is not None:
-            age = max(0.0, age_days)
-            if age <= 3.0:
-                return 1.0
-            if age <= 7.0:
-                return 0.5
-            return 0.0
-        category = ObservationConditionsService._freshness_category(freshness_category or "")
-        return {
-            "current": 1.0,
-            "recent": 1.0,
-            "stale": 0.5,
-            "historical": 0.0,
-        }.get(category, 0.0)
+        return aod_freshness_weight(age_days, freshness_category)
 
     @staticmethod
     def particulate_freshness_weight(age_days: float | None = None, freshness_category: str | None = None) -> float:
         """OpenAQ/PM freshness weight used by provider-quality gates."""
-
-        if age_days is not None:
-            age = max(0.0, age_days)
-            if age <= 1.0:
-                return 1.0
-            if age <= 3.0:
-                return 0.7
-            if age <= 7.0:
-                return 0.3
-            return 0.0
-        category = ObservationConditionsService._freshness_category(freshness_category or "")
-        return {
-            "current": 1.0,
-            "recent": 0.7,
-            "stale": 0.3,
-            "historical": 0.0,
-        }.get(category, 0.0)
+        return particulate_freshness_weight(age_days, freshness_category)
 
     @classmethod
     def atmospheric_sensitivity_profile(cls, target: CelestialObject) -> AtmosphericSensitivityProfile:
@@ -649,11 +584,7 @@ class ObservationConditionsService:
     def _aerosol_provider_policy(
         aod: AodConditionInput | None,
         particulate: ParticulateConditionInput | None,
-    ):
-        from astro_viewer.app.services.aerosol_provider_quality_policy import (
-            AerosolProviderQualityPolicyService,
-        )
-
+    ) -> AerosolProviderQualityPolicy:
         return AerosolProviderQualityPolicyService().policy(aod, particulate)
 
     @classmethod
@@ -831,8 +762,7 @@ class ObservationConditionsService:
 
     @staticmethod
     def _freshness_category(category: str) -> str:
-        normalized = category.strip().lower().replace(" ", "_")
-        return normalized or "unavailable"
+        return freshness_category_code(category)
 
     @classmethod
     def sky_quality_diagnostics(cls, sky_quality: SkyQuality | None) -> tuple[str, ...]:

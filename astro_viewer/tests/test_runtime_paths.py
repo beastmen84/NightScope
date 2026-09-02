@@ -184,14 +184,13 @@ def test_windows_entrypoint_keeps_current_colocated_runtime() -> None:
 
 
 def test_database_bootstrap_cli_uses_canonical_runtime_paths() -> None:
-    bootstrap = (
-        Path(__file__).resolve().parents[1] / "app" / "database" / "bootstrap.py"
+    bootstrap_cli = (
+        Path(__file__).resolve().parents[1] / "bootstrap_database.py"
     ).read_text(encoding="utf-8")
 
-    main_block = bootstrap[bootstrap.index('if __name__ == "__main__":') :]
-    assert "from astro_viewer.main import _data_dir, _database_paths" in main_block
-    assert "runtime_database_path, schema_path = _database_paths()" in main_block
-    assert 'base_dir.parent / "nightscope.db"' not in main_block
+    assert "from astro_viewer.main import _data_dir, _database_paths" in bootstrap_cli
+    assert "runtime_database_path, schema_path = _database_paths()" in bootstrap_cli
+    assert 'base_dir.parent / "nightscope.db"' not in bootstrap_cli
 
 
 def test_app_controller_uses_explicit_config_and_cache_paths(

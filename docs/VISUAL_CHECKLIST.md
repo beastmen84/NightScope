@@ -5,7 +5,7 @@ Aggiornato: 2026-09-01
 Questo documento conserva i controlli visuali di release iniziati con la
 sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
 verifiche gia' concluse sugli artefatti pubblici `1.43.0` restano nello storico
-di `TESTING.md`. Le verifiche dei nuovi artefatti `1.45.4` sono separate in
+di `TESTING.md`. Le verifiche dei nuovi artefatti `1.45.5` sono separate in
 `RELEASE_CHECKLIST.md` e devono essere ripetute dopo la rigenerazione delle
 dist Windows e Linux.
 

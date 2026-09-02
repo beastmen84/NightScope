@@ -4,17 +4,29 @@ from collections.abc import Callable
 
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observation_configuration import ObservationConfiguration
-from astro_viewer.app.services.equipment_service import EquipmentService
+from astro_viewer.app.services.equipment_configuration import (
+    EquipmentConfigurationPort,
+    EquipmentConfigurationService,
+    FocalPosition,
+)
 
-FocalPositionProvider = Callable[[Telescope, Eyepiece, Barlow | None], list[dict]]
+FocalPositionProvider = Callable[
+    [Telescope, Eyepiece, Barlow | None],
+    list[FocalPosition],
+]
 
 
 class ObservationConfigurationBuilder:
     TELESCOPE = "Telescope"
     BINOCULAR = "Binocular"
 
-    def __init__(self, equipment_service: EquipmentService | None = None) -> None:
-        self._equipment_service = equipment_service or EquipmentService()
+    def __init__(
+        self,
+        equipment_service: EquipmentConfigurationPort | None = None,
+    ) -> None:
+        self._equipment_service = (
+            equipment_service or EquipmentConfigurationService()
+        )
 
     def build(
         self,

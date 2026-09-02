@@ -3,11 +3,14 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from astro_viewer.app.services.maiac_aod_quality import decode_maiac_aod_qa
-from astro_viewer.app.services.observation_conditions_service import (
+from astro_viewer.app.models.condition_inputs import (
     AodConditionInput,
-    ObservationConditionsService,
     ParticulateConditionInput,
+)
+from astro_viewer.app.services.maiac_aod_quality import decode_maiac_aod_qa
+from astro_viewer.app.services.provider_freshness import (
+    aod_freshness_weight,
+    particulate_freshness_weight,
 )
 
 
@@ -87,7 +90,7 @@ class AerosolProviderQualityPolicyService:
 
         reasons: list[str] = []
         notes: list[str] = []
-        freshness_weight = ObservationConditionsService.aod_freshness_weight(
+        freshness_weight = aod_freshness_weight(
             aod.age_days,
             aod.freshness_category,
         )
@@ -185,7 +188,7 @@ class AerosolProviderQualityPolicyService:
 
         reasons: list[str] = []
         notes: list[str] = []
-        freshness_weight = ObservationConditionsService.particulate_freshness_weight(
+        freshness_weight = particulate_freshness_weight(
             particulate.age_days,
             particulate.freshness_category,
         )

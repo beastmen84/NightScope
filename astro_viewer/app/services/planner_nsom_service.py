@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from astro_viewer.app.models.condition_inputs import (
+    MoonGeometryConditionInput,
+    ObservationConditionInputs,
+)
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.nsom import (
     EffectiveObservability,
@@ -14,10 +18,6 @@ from astro_viewer.app.models.nsom import (
 )
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
-from astro_viewer.app.services.observation_conditions_service import (
-    MoonGeometryConditionInput,
-    ObservationConditionInputs,
-)
 from astro_viewer.app.services.nsom_observation_environment import (
     NsomObservationEnvironmentService,
 )

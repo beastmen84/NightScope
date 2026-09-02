@@ -3,6 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from astro_viewer.app.astronomy.engine import ObservingNightWindow
+from astro_viewer.app.models.condition_inputs import (
+    MoonGeometryConditionInput,
+    ObservationConditionInputs,
+)
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observing import (
     AstronomicalEvent,
@@ -22,10 +26,6 @@ from astro_viewer.app.services.equipment_setup_read_model import (
 )
 from astro_viewer.app.services.observation_conditions_read_model import (
     ObservationConditionedTargetReadModel,
-)
-from astro_viewer.app.services.observation_conditions_service import (
-    MoonGeometryConditionInput,
-    ObservationConditionInputs,
 )
 
 

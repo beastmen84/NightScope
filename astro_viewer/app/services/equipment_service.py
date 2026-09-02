@@ -9,10 +9,14 @@ from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.recommendation_candidate import RecommendationCandidate
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
-from astro_viewer.app.services.recommendation_presenter import RecommendationPresenter
-from astro_viewer.app.services.barlow_equivalence import (
-    optically_distinct_barlows,
+from astro_viewer.app.services.equipment_configuration import (
+    EquipmentConfigurationService,
+    FocalPosition,
 )
+from astro_viewer.app.services.observation_configuration_builder import (
+    ObservationConfigurationBuilder,
+)
+from astro_viewer.app.services.recommendation_presenter import RecommendationPresenter
 from astro_viewer.app.services.localization import (
     format_compact_number,
     format_number,
@@ -26,8 +30,7 @@ from astro_viewer.app.services.equipment_setup_score_read_model import (
 )
 
 
-class EquipmentService:
-    NAKED_EYE_ID = "preset:naked-eye"
+class EquipmentService(EquipmentConfigurationService):
 
     def __init__(self, presenter: RecommendationPresenter | None = None) -> None:
         self._presenter = presenter or RecommendationPresenter()
@@ -104,37 +107,6 @@ class EquipmentService:
                     }
                 )
         return rows
-
-    def barlow_options(self, barlows: list[Barlow]) -> list[Barlow | None]:
-        return self._barlow_options(barlows)
-
-    def eyepiece_focal_positions(self, eyepiece: Eyepiece, ideal_focal_mm: float | None = None) -> list[dict]:
-        return self._eyepiece_focal_positions(
-            eyepiece,
-            eyepiece.focal_length_mm if ideal_focal_mm is None else ideal_focal_mm,
-        )
-
-    def telescope_configuration_values(
-        self,
-        telescope: Telescope,
-        eyepiece: Eyepiece,
-        focal_mm: float,
-        barlow: Barlow | None = None,
-        barlow_multiplier: float | None = None,
-    ) -> dict[str, float]:
-        multiplier = barlow_multiplier if barlow_multiplier is not None else (barlow.multiplier if barlow else 1.0)
-        magnification = (telescope.focal_length_mm / focal_mm) * multiplier
-        true_field = eyepiece.apparent_field_deg / magnification
-        exit_pupil = telescope.aperture_mm / magnification
-        limiting_magnitude = 2 + 5 * self._log10(max(1.0, telescope.aperture_mm))
-        resolution = 116 / telescope.aperture_mm
-        return {
-            "magnification": magnification,
-            "true_field_of_view_deg": true_field,
-            "exit_pupil_mm": exit_pupil,
-            "limiting_magnitude_estimate": limiting_magnitude,
-            "resolution_estimate": resolution,
-        }
 
     def telescope_capabilities(self, telescope: Telescope) -> dict:
         return self.profile_capabilities(telescope, [], [])
@@ -332,8 +304,6 @@ class EquipmentService:
         seeing: SeeingTransparency | None = None,
         sky_quality: SkyQuality | None = None,
     ) -> list[RecommendationCandidate]:
-        from astro_viewer.app.services.observation_configuration_builder import ObservationConfigurationBuilder
-
         profiles: dict[str, dict] = {}
 
         def profile_for(telescope: Telescope) -> dict:
@@ -341,7 +311,11 @@ class EquipmentService:
                 profiles[telescope.id] = self._target_profile(celestial_object, telescope, seeing, sky_quality)
             return profiles[telescope.id]
 
-        def focal_position_provider(candidate_telescope: Telescope, eyepiece: Eyepiece, barlow: Barlow | None) -> list[dict]:
+        def focal_position_provider(
+            candidate_telescope: Telescope,
+            eyepiece: Eyepiece,
+            barlow: Barlow | None,
+        ) -> list[FocalPosition]:
             profile = profile_for(candidate_telescope)
             multiplier = barlow.multiplier if barlow else 1.0
             ideal_focal = candidate_telescope.focal_length_mm * multiplier / max(profile["idealMag"], 1.0)
@@ -391,12 +365,14 @@ class EquipmentService:
         seeing: SeeingTransparency | None = None,
         sky_quality: SkyQuality | None = None,
     ) -> list[RecommendationCandidate]:
-        from astro_viewer.app.services.observation_configuration_builder import ObservationConfigurationBuilder
-
         profile = self._target_profile(celestial_object, telescope, seeing, sky_quality)
         candidates = []
 
-        def focal_position_provider(candidate_telescope: Telescope, eyepiece: Eyepiece, barlow: Barlow | None) -> list[dict]:
+        def focal_position_provider(
+            candidate_telescope: Telescope,
+            eyepiece: Eyepiece,
+            barlow: Barlow | None,
+        ) -> list[FocalPosition]:
             multiplier = barlow.multiplier if barlow else 1.0
             ideal_focal = candidate_telescope.focal_length_mm * multiplier / max(profile["idealMag"], 1.0)
             return self.eyepiece_focal_positions(eyepiece, ideal_focal)
@@ -484,16 +460,9 @@ class EquipmentService:
             barlow_label=tr("No"),
         )
 
-    @staticmethod
-    def _barlow_options(barlows: list[Barlow]) -> list[Barlow | None]:
-        owned = [barlow for barlow in barlows if barlow.multiplier > 1.0]
-        return [None, *optically_distinct_barlows(owned)]
-
     def _profile_capability_configurations(self, telescope: Telescope, eyepieces: list[Eyepiece], barlows: list[Barlow]) -> list[dict]:
         if not eyepieces:
             return []
-
-        from astro_viewer.app.services.observation_configuration_builder import ObservationConfigurationBuilder
 
         configurations = []
         seen = set()
@@ -532,43 +501,6 @@ class EquipmentService:
                 }
             )
         return sorted(configurations, key=lambda item: item["magnificationValue"])
-
-    @staticmethod
-    def _eyepiece_focal_positions(eyepiece: Eyepiece, ideal_focal_mm: float) -> list[dict]:
-        if eyepiece.eyepiece_type != "Zoom":
-            return [
-                {
-                    "focal": eyepiece.focal_length_mm,
-                    "position": tr(
-                        "{value} mm",
-                        value=format_compact_number(eyepiece.focal_length_mm),
-                    ),
-                }
-            ]
-        minimum = eyepiece.min_focal_length_mm or min(eyepiece.focal_length_mm, eyepiece.max_focal_length_mm or eyepiece.focal_length_mm)
-        maximum = eyepiece.max_focal_length_mm or max(eyepiece.focal_length_mm, minimum)
-        low = min(minimum, maximum)
-        high = max(minimum, maximum)
-        click_positions = [position for position in eyepiece.zoom_click_positions_mm if low <= position <= high]
-        candidates = click_positions or [high, (low + high) / 2, low]
-        positions = []
-        seen = set()
-        for value in candidates:
-            rounded = round(value, 1)
-            key = round(rounded, 1)
-            if key in seen:
-                continue
-            seen.add(key)
-            positions.append(
-                {
-                    "focal": rounded,
-                    "position": tr(
-                        "{value} mm",
-                        value=format_compact_number(rounded),
-                    ),
-                }
-            )
-        return positions
 
     @staticmethod
     def _seeing_practical_candidates(
@@ -1125,19 +1057,3 @@ class EquipmentService:
         if binocular.image_stabilized and "IS" not in tokens:
             name = f"{name} IS"
         return name
-
-    def has_optical_telescope(self, telescope: Telescope) -> bool:
-        return telescope.id != self.NAKED_EYE_ID and telescope.aperture_mm > 0 and telescope.focal_length_mm > 0
-
-    def can_use_eyepieces(self, telescope: Telescope) -> bool:
-        return (
-            self.has_optical_telescope(telescope)
-            and telescope.supports_optical_visual
-            and telescope.supports_interchangeable_eyepieces
-        )
-
-    @staticmethod
-    def _log10(value: float) -> float:
-        import math
-
-        return math.log10(value)

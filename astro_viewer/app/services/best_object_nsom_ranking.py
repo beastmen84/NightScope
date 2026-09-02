@@ -3,6 +3,10 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, replace
 
+from astro_viewer.app.models.condition_inputs import (
+    MoonGeometryConditionInput,
+    ObservationConditionInputs,
+)
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.nsom import (
     ObservableTargetValue,
@@ -23,10 +27,6 @@ from astro_viewer.app.services.nsom_runtime_builders import (
 )
 from astro_viewer.app.services.nsom_target import unique_targets_by_id
 from astro_viewer.app.services.observer_capability_adapter import build_observer_capability_for_target
-from astro_viewer.app.services.observation_conditions_service import (
-    MoonGeometryConditionInput,
-    ObservationConditionInputs,
-)
 
 
 @dataclass(frozen=True)

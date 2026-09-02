@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import re
 
+from astro_viewer.app.models.condition_inputs import ObservationConditionInputs
 from astro_viewer.app.models.nsom import (
     EffectiveObservability,
     NSOM_TARGET_CLASS_PROFILES,
@@ -13,7 +14,6 @@ from astro_viewer.app.models.nsom import (
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.services.nsom_target import build_intrinsic_target_quality
 from astro_viewer.app.services.observation_conditions_service import (
-    ObservationConditionInputs,
     ObservationConditionsService,
 )
 

@@ -4,16 +4,16 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
 
+from astro_viewer.app.models.condition_inputs import (
+    MoonGeometryConditionInput,
+    ObservationConditionInputs,
+)
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import NightPlanItem
 from astro_viewer.app.services.catalogue_presentation import catalogue_object_type_label
 from astro_viewer.app.services.home_nsom_observable import build_home_observable_target_value
 from astro_viewer.app.services.direction_presentation import direction_code, direction_label
 from astro_viewer.app.services.localization import tr
-from astro_viewer.app.services.observation_conditions_service import (
-    MoonGeometryConditionInput,
-    ObservationConditionInputs,
-)
 
 
 @dataclass(frozen=True)
