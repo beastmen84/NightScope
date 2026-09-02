@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## NightScope 1.45.14 - 2026-09-02
+
+- Aggiornata la toolchain della `.venv` Python 3.14.5 a pip 26.2.1, Ruff 0.16.5,
+  coverage 7.16.0, PyInstaller 6.22.2 e `pyinstaller-hooks-contrib` 2026.7.
+- Alzati i minimi dichiarati di Ruff, coverage e PyInstaller e rigenerato
+  l'archivio deterministico delle licenze con i metadati di PyInstaller 6.22.2.
+- Il gate sorgente completo con coverage e sicurezza passa con 1.169 test e 10
+  subtest in 423,58 secondi, coverage aggregata 86%, nessuna vulnerabilita' nota
+  e smoke test backend, QML normale e Red Night Vision riusciti.
+- Nessun comportamento runtime e' stato modificato. La versione sorgente passa
+  a `1.45.14`; `dist` non e' stata rigenerata o modificata e non sono stati
+  creati tag o artefatti di release.
+
 ## NightScope 1.45.13 - 2026-09-02
 
 - Ispezionati tutti gli 88 moduli Python di test/supporto e documentati i 87 che

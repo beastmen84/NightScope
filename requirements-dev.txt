@@ -2,9 +2,10 @@
 # Contract: Major-version bounds keep the validation gate reproducible across environments.
 
 bandit>=1.9,<2
+coverage>=7.16,<8
 Pillow>=12,<13
 pip-audit>=2.10,<3
 pytest>=8,<10
 pytest-cov>=6,<8
 pytest-xdist>=3.8,<4
-ruff>=0.15,<1
+ruff>=0.16.5,<1

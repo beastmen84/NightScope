@@ -1,7 +1,7 @@
 # NightScope 1.45 Architecture Review
 
 Date: 2026-09-02
-Scope: source `1.44.0` through `1.45.13`
+Scope: source `1.44.0` through `1.45.14`
 
 ## Verdict
 
@@ -34,15 +34,16 @@ stated.
 | Area | Evidence | Assessment |
 | --- | --- | --- |
 | Production Python | 121 modules, 46,811 lines | Broad domain surface; every module now states its responsibility and package boundaries are discoverable. |
-| Tests | 86 test files plus 2 support/package modules, 35,268 lines; 1,169 tests and 10 subtests at the 1.45.13 gate | Very strong regression protection relative to production size. |
-| `AppController` | 9,836 lines at 1.44.0; 7,910 at 1.45.13, including its new module header; 1,926 net lines removed (19.6%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
+| Tests | 86 test files plus 2 support/package modules, 35,268 lines; 1,169 tests and 10 subtests at the 1.45.14 gate | Very strong regression protection relative to production size. |
+| `AppController` | 9,836 lines at 1.44.0; 7,910 at 1.45.14, including its module header; 1,926 net lines removed (19.6%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
 | Controller surface | 562 methods, including 114 slots and 141 properties | Large compatibility/API surface makes wholesale rewriting risky. |
 | Largest persistence modules | `equipment_catalog_repository.py` 3,027 lines; `bootstrap.py` 2,492 | Transactionally cohesive but too concentrated for easy local reasoning. |
 | Astronomy implementation | `skyfield_engine.py` 2,434 lines | Complex by domain necessity; provider/event subcomponents can still be separated. |
 | Largest QML pages | Home 1,708 lines; Object Detail 1,245 | Backend decisions are mostly extracted, but layout/component complexity remains. |
 | Import structure | 0 cycles; 0 protected-layer violations | Good and now mechanically enforced. |
 | Documentation inventory | 240 Python, 34 QML, and 15 operational files | Complete governed coverage, enforced before the long test suite. |
-| Static/security gate | Ruff, compileall, documentation inventory, exact Bandit baseline; 0 high findings | Good incremental protection; whole-project type checking remains absent. |
+| Static/security gate | Ruff 0.16.5, compileall, documentation inventory, exact Bandit baseline and pip-audit; 0 high findings and no known dependency vulnerabilities | Good incremental protection; whole-project type checking remains absent. |
+| Validated build toolchain | pip 26.2.1, coverage 7.16.0, PyInstaller 6.22.2 and `pyinstaller-hooks-contrib` 2026.7 on Windows/Python 3.14.5 | Current source floors and local environment are aligned; portable bundles still require a separate final build and audit. |
 | Runtime gate | Backend plus normal and red QML smoke tests in disposable runtimes | Strong protection of construction and UI loading paths. |
 
 ## What Changed In 1.45.x

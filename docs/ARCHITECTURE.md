@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.45.13
+This document describes the architecture implemented by the NightScope 1.45.14
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -274,7 +274,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.45.13`:
+Current runtime status for `1.45.14`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.

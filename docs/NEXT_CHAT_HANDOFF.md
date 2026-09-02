@@ -4,7 +4,7 @@ Updated: 2026-09-02
 
 ## Current State
 
-- Source version: `1.45.13`.
+- Source version: `1.45.14`.
 - Current public release: `v1.43.0`.
 - Public-release source commit: `26dfaf49df8f9b8e73e84f406396f406170400b2`.
 - The `1.45.x` architectural series is source-only. No `1.45.x` tag, checksum,
@@ -30,7 +30,8 @@ Updated: 2026-09-02
 | 1.45.10 | `35972b7` | Documents persistence, astronomy, Qt view models, and runtime composition boundaries. |
 | 1.45.11 | `6719979` | Documents the responsibility and boundary contract of every QML file. |
 | 1.45.12 | `8f4a9f2` | Documents maintenance, packaging, CI, configuration, schema, and manual files. |
-| 1.45.13 | current source | Documents every test/support module and enforces the complete source-documentation inventory. |
+| 1.45.13 | `0caf68f` | Documents every test/support module and enforces the complete source-documentation inventory. |
+| 1.45.14 | current source | Updates the validated development and portable-packaging toolchain without changing runtime behavior. |
 
 ## Resulting Architecture
 
@@ -54,16 +55,19 @@ engine, and the largest QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.45.13` coverage source gate passed on Windows/Python 3.14.5:
+The final local `1.45.14` coverage/security source gate passed on
+Windows/Python 3.14.5:
 
-- 1,169 tests and 10 subtests in 437.71 seconds, with 86% aggregate application
+- 1,169 tests and 10 subtests in 423.58 seconds, with 86% aggregate application
   coverage and no unexpected warning summary;
+- validated toolchain: pip 26.2.1, Ruff 0.16.5, coverage 7.16.0, PyInstaller
+  6.22.2, and `pyinstaller-hooks-contrib` 2026.7;
 - complete documentation inventory: 240 Python, 34 QML, and 15 operational
   files;
 - Ruff, compilation, license archive, MPC/OpenNGC snapshot checks;
 - 0 import cycles and 0 protected-layer violations;
 - Bandit baseline unchanged: 0 high, 37 medium, 14 low reviewed findings;
-- `pip check`; a direct `pip-audit` afterward found no known vulnerabilities;
+- `pip check`; the in-gate `pip-audit` found no known vulnerabilities;
 - backend, normal QML, and Red Night Vision smoke tests.
 
 The GitHub workflow definition and its commands were checked locally. Do not
