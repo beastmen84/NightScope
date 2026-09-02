@@ -1,3 +1,5 @@
+"""Define astronomy ports, shared location values, and deterministic mock behavior."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

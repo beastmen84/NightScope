@@ -1,3 +1,5 @@
+"""Expose virtualized catalogue rows and targeted updates through Qt's model API."""
+
 from __future__ import annotations
 
 from collections import defaultdict

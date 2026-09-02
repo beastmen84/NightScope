@@ -1,3 +1,5 @@
+"""Coordinate Qt signals, slots, asynchronous work, and QML-facing application state."""
+
 from __future__ import annotations
 
 import logging

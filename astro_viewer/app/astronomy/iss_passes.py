@@ -1,3 +1,5 @@
+"""Fetch, cache, and calculate locally visible ISS pass intervals."""
+
 from __future__ import annotations
 
 import json

@@ -1,3 +1,5 @@
+"""Persist raw Open-Meteo responses for bounded offline reuse."""
+
 from __future__ import annotations
 
 import sqlite3

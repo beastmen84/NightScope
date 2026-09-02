@@ -1,3 +1,5 @@
+"""Filter and import GeoNames city records into the normalized search index."""
+
 from __future__ import annotations
 
 import csv

@@ -1,3 +1,5 @@
+"""Persist provider orbital elements used by short-horizon event sources."""
+
 from __future__ import annotations
 
 import sqlite3

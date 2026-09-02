@@ -1,3 +1,5 @@
+"""Fetch, cache, and calculate practical observing windows for bright comets."""
+
 from __future__ import annotations
 
 import json

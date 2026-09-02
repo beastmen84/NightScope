@@ -1,3 +1,5 @@
+"""Search and project embedded cities and MPC observatories as locations."""
+
 from __future__ import annotations
 
 import sqlite3

@@ -1,3 +1,5 @@
+"""Persist physical targets, designations, and recommendation eligibility."""
+
 from __future__ import annotations
 
 import sqlite3

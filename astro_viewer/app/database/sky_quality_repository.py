@@ -1,3 +1,5 @@
+"""Persist cached provider-derived sky-quality estimates by location."""
+
 from __future__ import annotations
 
 import sqlite3

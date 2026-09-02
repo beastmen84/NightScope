@@ -1,3 +1,5 @@
+"""Replace the embedded MPC observatory catalogue from a normalized CSV snapshot."""
+
 from __future__ import annotations
 
 import csv

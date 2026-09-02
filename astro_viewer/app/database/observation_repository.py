@@ -1,3 +1,5 @@
+"""Provide SQLite CRUD operations for the completed-observation log."""
+
 from __future__ import annotations
 
 import sqlite3

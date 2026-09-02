@@ -1,3 +1,5 @@
+"""Read local object imagery, editorial descriptions, and curiosity metadata."""
+
 from __future__ import annotations
 
 import sqlite3

@@ -1,3 +1,5 @@
+"""Resolve runtime resources, compose services, and launch application or smoke modes."""
+
 from __future__ import annotations
 
 import argparse

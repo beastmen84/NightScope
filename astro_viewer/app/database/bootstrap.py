@@ -1,3 +1,5 @@
+"""Create, migrate, validate, repair, and seed the NightScope SQLite database."""
+
 from __future__ import annotations
 
 import csv

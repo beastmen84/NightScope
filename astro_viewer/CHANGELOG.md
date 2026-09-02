@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## NightScope 1.45.10 - 2026-09-02
+
+- Documentati file per file i 12 moduli SQLite, i 6 moduli astronomici, i due
+  viewmodel Qt e la composition/entry point in `main.py`.
+- I confini ora dichiarano esplicitamente proprieta' di persistenza, import e
+  bootstrap, calcoli Skyfield, provider orbitali e orchestrazione asincrona QML.
+- Nessun comportamento runtime e' stato modificato. La versione sorgente passa
+  a `1.45.10`; `dist` non e' stata rigenerata o modificata e non sono stati
+  creati tag o artefatti di release.
+
 ## NightScope 1.45.9 - 2026-09-02
 
 - Documentati a livello di modulo tutti i 71 servizi applicativi non vuoti:

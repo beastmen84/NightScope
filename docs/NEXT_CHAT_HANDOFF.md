@@ -4,7 +4,7 @@ Updated: 2026-09-02
 
 ## Current State
 
-- Source version: `1.45.9`.
+- Source version: `1.45.10`.
 - Current public release: `v1.43.0`.
 - Public-release source commit: `26dfaf49df8f9b8e73e84f406396f406170400b2`.
 - The `1.45.x` architectural series is source-only. No `1.45.x` tag, checksum,
@@ -26,7 +26,8 @@ Updated: 2026-09-02
 | 1.45.6 | `60a964f` | Added CI, strict warning policy, incremental Bandit review, and standard architecture gates. |
 | 1.45.7 | `1fec5df` | Consolidates architecture/testing documentation and closes the final structural audit. |
 | 1.45.8 | `cef54b3` | Defines the code-documentation contract and documents application/model boundaries. |
-| 1.45.9 | current source | Documents every domain, provider, presentation, equipment, catalogue, and localization service. |
+| 1.45.9 | `06b514e` | Documents every domain, provider, presentation, equipment, catalogue, and localization service. |
+| 1.45.10 | current source | Documents persistence, astronomy, Qt view models, and runtime composition boundaries. |
 
 ## Resulting Architecture
 

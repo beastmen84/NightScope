@@ -1,3 +1,5 @@
+"""Provide deterministic mock sky objects and events for fallback engine behavior."""
+
 from __future__ import annotations
 
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary

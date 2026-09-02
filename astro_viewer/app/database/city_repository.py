@@ -1,3 +1,5 @@
+"""Query the embedded city catalogue through normalized geographic search."""
+
 from __future__ import annotations
 
 import math

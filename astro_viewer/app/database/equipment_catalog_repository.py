@@ -1,3 +1,5 @@
+"""Persist and project equipment catalogues and profile inventory through SQLite."""
+
 from __future__ import annotations
 
 import math

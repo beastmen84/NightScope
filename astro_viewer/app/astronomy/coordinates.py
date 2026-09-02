@@ -1,3 +1,5 @@
+"""Parse right ascension and declination strings into decimal coordinates."""
+
 from __future__ import annotations
 
 import re
