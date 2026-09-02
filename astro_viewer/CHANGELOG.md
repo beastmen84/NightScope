@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## NightScope 1.45.16 - 2026-09-02
+
+- Aggiornata come singola unita' compatibile la famiglia runtime Earthdata:
+  `earthaccess` 0.18.0, `s3fs`/`fsspec` 2026.7.0, `aiobotocore` 3.9.0 e
+  `botocore` 1.43.56.
+- Resi espliciti e adiacenti in `requirements.txt` i cinque vincoli del provider
+  NASA AOD; il limite `botocore<1.43.57` segue la finestra supportata da
+  `aiobotocore` 3.9.0 invece di installare una release piu' nuova ma
+  incompatibile.
+- Aggiunta una salvaguardia automatica contro aggiornamenti parziali della
+  famiglia e rigenerato l'archivio deterministico delle licenze.
+- Passano l'import reale dello stack, `pip check` e 47 test mirati del provider
+  NASA AOD e dei vincoli di packaging.
+- Il gate sorgente completo con coverage e sicurezza passa con 1.170 test e 10
+  subtest in 310,65 secondi, coverage aggregata 86% e nessuna vulnerabilita'
+  nota; passano anche gli smoke backend e QML nelle due modalita'.
+
 ## NightScope 1.45.15 - 2026-09-02
 
 - Aggiornata la baseline runtime della `.venv` a PySide6/Qt/shiboken6 6.11.2,

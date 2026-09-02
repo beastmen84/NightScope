@@ -723,6 +723,24 @@ def test_legal_files_are_current_and_windows_build_enforces_them() -> None:
     )
 
 
+def test_earthdata_dependencies_are_constrained_as_one_resolver_unit() -> None:
+    requirements = {
+        line.strip()
+        for line in (
+            PROJECT_ROOT / "astro_viewer" / "requirements.txt"
+        ).read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    }
+
+    assert {
+        "earthaccess>=0.18,<0.19",
+        "s3fs==2026.7.0",
+        "fsspec==2026.7.0",
+        "aiobotocore>=3.9,<3.10",
+        "botocore>=1.43.3,<1.43.57",
+    } <= requirements
+
+
 def test_linux_build_enforces_licenses_and_platform_bundle_audit() -> None:
     build_script_path = PROJECT_ROOT / "packaging" / "build_linux.sh"
     build_script = build_script_path.read_text(encoding="utf-8")

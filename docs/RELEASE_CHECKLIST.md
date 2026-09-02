@@ -3,8 +3,8 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.45.15`. Current public release: `v1.43.0`. Unless a row says
-otherwise, every gate below applies to newly generated 1.45.15 artifacts.
+Current target: `v1.45.16`. Current public release: `v1.43.0`. Unless a row says
+otherwise, every gate below applies to newly generated 1.45.16 artifacts.
 Completed 1.43.0 evidence remains in the changelog, testing record and handoff;
 it does not approve the new bundles.
 
@@ -15,10 +15,10 @@ it does not approve the new bundles.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   survey image, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.45.15` source tag referenced by the
+- [ ] Create and verify the public `v1.45.16` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [x] Confirm source version, changelog, source-availability notices, and
-  About/build metadata agree on `1.45.15`.
+  About/build metadata agree on `1.45.16`.
 - [x] Freeze the release scope; defer unrelated refactors.
 
 ## 2. Automated Validation
@@ -125,10 +125,10 @@ Do not commit credentials or exact personal locations.
 - [ ] Confirm GIO modules remain isolated so newer-host GVFS plugins are not
   loaded against the bundled Debian 12 GLib.
 - [ ] Create the deterministic
-  `NightScope-v1.45.15-debian-12-x64.tar.gz` and adjacent SHA-256 file.
+  `NightScope-v1.45.16-debian-12-x64.tar.gz` and adjacent SHA-256 file.
 - [ ] Verify checksum, extraction, audit and smoke tests from the final archive.
 - [ ] Publish the tarball and checksum together with the matching Windows ZIP
-  in the public `v1.45.15` GitHub release, so stable-update notifications have
+  in the public `v1.45.16` GitHub release, so stable-update notifications have
   assets for both supported platforms.
 
 ## 8. Release Approval

@@ -20,10 +20,13 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.45.15` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
+The `1.45.16` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
 Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
 `pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
-Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, and NumPy 2.5.2.
+Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, NumPy 2.5.2,
+earthaccess 0.18.0, s3fs/fsspec 2026.7.0, aiobotocore 3.9.0, and botocore
+1.43.56. The five Earthdata requirements are intentionally constrained and
+must be upgraded as one resolver unit.
 
 ## Standard Source Gates
 
@@ -163,8 +166,8 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
-The `1.45.15` coverage/security source gate passed on Windows/Python 3.14.5 with
-1,169 tests and 10 subtests in 220.73 seconds, 86% aggregate application
+The `1.45.16` coverage/security source gate passed on Windows/Python 3.14.5 with
+1,170 tests and 10 subtests in 310.65 seconds, 86% aggregate application
 coverage, no unexpected warning summary, complete documentation coverage for
 240 Python, 34 QML, and 15 operational files, an acyclic production graph, zero
 protected-layer violations, an unchanged Bandit baseline (0 high, 37 medium, 14
