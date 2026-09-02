@@ -1,3 +1,6 @@
+// Purpose: Present eyepiece and Barlow catalogue search and CRUD dialogs.
+// Contract: Keeps dialog state locally while optical validation and persistence remain in Python.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

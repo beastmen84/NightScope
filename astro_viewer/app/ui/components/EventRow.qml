@@ -1,3 +1,6 @@
+// Purpose: Render one interactive event summary card for the calendar timeline.
+// Contract: Consumes eventData and semantic accents, then emits clicked without mutating selection.
+
 import QtQuick
 import QtQuick.Layouts
 

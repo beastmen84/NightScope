@@ -1,3 +1,6 @@
+// Purpose: Render a compact semantic status label with an accent color.
+// Contract: Accepts presentation-ready text and owns no status interpretation.
+
 import QtQuick
 import QtQuick.Layouts
 

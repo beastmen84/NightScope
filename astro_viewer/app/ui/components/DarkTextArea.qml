@@ -1,3 +1,6 @@
+// Purpose: Provide the shared theme-aware multiline text editor.
+// Contract: Preserves the Qt TextArea API and adds only palette, padding, and focus styling.
+
 import QtQuick
 import QtQuick.Controls
 

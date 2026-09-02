@@ -1,3 +1,6 @@
+// Purpose: Provide the shared modal dialog frame with configurable accept and cancel actions.
+// Contract: Emits accepted or rejected; closeOnAccept controls whether the wrapper closes itself.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

@@ -1,3 +1,6 @@
+// Purpose: Render a horizontally scrollable hourly cloud-cover chart.
+// Contract: Consumes normalized hourly presentation rows and highlights rows marked as night.
+
 pragma ComponentBehavior: Bound
 
 import QtQuick

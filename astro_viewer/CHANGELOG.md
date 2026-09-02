@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## NightScope 1.45.11 - 2026-09-02
+
+- Documentati tutti i 34 file QML con responsabilita' e contratto espliciti:
+  shell di navigazione, 15 pagine e 18 componenti condivisi.
+- I commenti distinguono stato puramente visuale, segnali di navigazione,
+  read model consumati e operazioni che devono restare nei servizi Python.
+- Nessun comportamento runtime e' stato modificato. La versione sorgente passa
+  a `1.45.11`; `dist` non e' stata rigenerata o modificata e non sono stati
+  creati tag o artefatti di release.
+
 ## NightScope 1.45.10 - 2026-09-02
 
 - Documentati file per file i 12 moduli SQLite, i 6 moduli astronomici, i due

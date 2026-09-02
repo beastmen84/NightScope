@@ -1,3 +1,6 @@
+// Purpose: Present one calendar event, its practical guidance, and linked target objects.
+// Contract: Requires eventData and emits only back-navigation or linked-object requests.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

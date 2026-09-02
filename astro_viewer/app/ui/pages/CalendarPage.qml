@@ -1,3 +1,6 @@
+// Purpose: Filter and present the score-free astronomical event timeline.
+// Contract: Consumes calendarOverview and emits event, object, and location navigation signals.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

@@ -1,3 +1,6 @@
+// Purpose: Present forecast hours, observing windows, and provider-derived sky quality.
+// Contract: Consumes normalized controller read models; selected-hour state is local UI state.
+
 pragma ComponentBehavior: Bound
 
 import QtQuick

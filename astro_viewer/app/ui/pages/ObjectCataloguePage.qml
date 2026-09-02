@@ -1,3 +1,6 @@
+// Purpose: Present virtualized catalogue search, filters, and recommendation eligibility controls.
+// Contract: Delegates queries and mutations to the controller and emits physical-object selection.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

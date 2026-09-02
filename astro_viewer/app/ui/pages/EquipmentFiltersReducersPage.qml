@@ -1,3 +1,6 @@
+// Purpose: Present filter and focal-reducer catalogues, compatibility, and CRUD dialogs.
+// Contract: Collects compatibility choices; taxonomy validation and persistence stay in services.
+
 pragma ComponentBehavior: Bound
 
 import QtQuick

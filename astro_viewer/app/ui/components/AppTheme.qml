@@ -1,3 +1,6 @@
+// Purpose: Define the shared visual palette for normal and red-night-vision modes.
+// Contract: Derives colors from appearanceManager and carries no independent persistent state.
+
 import QtQuick
 
 QtObject {

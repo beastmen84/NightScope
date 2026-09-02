@@ -1,3 +1,6 @@
+// Purpose: Present telescope and smart-telescope catalogue CRUD workflows.
+// Contract: Performs form affordance checks; canonicalization and persistence stay behind controller slots.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

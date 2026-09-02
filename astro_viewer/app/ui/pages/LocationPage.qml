@@ -1,3 +1,6 @@
+// Purpose: Present automatic, searchable, recent, and manual observer-location workflows.
+// Contract: Invokes controller location actions; coordinate and timezone resolution stay in services.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

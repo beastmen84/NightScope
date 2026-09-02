@@ -1,3 +1,6 @@
+// Purpose: Provide the shared theme-aware single-line field with an optional embedded label.
+// Contract: Preserves the Qt TextField API and adds only layout, palette, and focus styling.
+
 import QtQuick
 import QtQuick.Controls
 

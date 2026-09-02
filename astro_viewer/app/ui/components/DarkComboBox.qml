@@ -1,3 +1,6 @@
+// Purpose: Provide the shared theme-aware combo box with an optional embedded label.
+// Contract: Preserves the Qt ComboBox model contract and adds delegates, palette, and focus styling.
+
 import QtQuick
 import QtQuick.Controls
 

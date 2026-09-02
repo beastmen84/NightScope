@@ -1,3 +1,6 @@
+// Purpose: Present binocular catalogue search and CRUD dialogs.
+// Contract: Collects typed form fields and delegates validation and persistence to the controller.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

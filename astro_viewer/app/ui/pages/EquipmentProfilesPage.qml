@@ -1,3 +1,6 @@
+// Purpose: Present equipment profiles and assignment or removal of catalogue items.
+// Contract: Delegates profile and inventory persistence to the controller; local state drives dialogs.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

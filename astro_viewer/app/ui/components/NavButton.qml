@@ -1,3 +1,6 @@
+// Purpose: Render one selectable sidebar navigation action.
+// Contract: Displays caller-owned route state and emits clicked without changing navigation itself.
+
 import QtQuick
 import QtQuick.Layouts
 

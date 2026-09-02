@@ -1,3 +1,6 @@
+// Purpose: Render one compact label, value, and optional semantic accent.
+// Contract: Accepts presentation-ready strings and performs no unit or score conversion.
+
 import QtQuick
 import QtQuick.Layouts
 

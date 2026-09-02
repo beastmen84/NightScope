@@ -1,3 +1,6 @@
+// Purpose: Present Earthdata and OpenAQ credential setup and connection status.
+// Contract: Credentials cross only controller APIs; secure storage and provider tests stay in services.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

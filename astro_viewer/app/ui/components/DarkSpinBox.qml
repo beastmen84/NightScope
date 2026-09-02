@@ -1,3 +1,6 @@
+// Purpose: Provide the shared theme-aware numeric spin box.
+// Contract: Preserves the Qt SpinBox value and validator contract while replacing its visuals.
+
 import QtQuick
 import QtQuick.Controls
 

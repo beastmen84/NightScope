@@ -1,3 +1,6 @@
+// Purpose: Own the application window, navigation shell, and page/dialog composition.
+// Contract: Consumes injected context objects and routes UI events; domain decisions stay in Python.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

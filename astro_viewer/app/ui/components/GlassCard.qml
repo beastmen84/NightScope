@@ -1,3 +1,6 @@
+// Purpose: Provide the reusable framed card with optional header, badge, and action.
+// Contract: Owns layout and styling only; callers supply content and handle the emitted action.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

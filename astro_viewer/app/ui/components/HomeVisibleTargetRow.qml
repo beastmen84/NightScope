@@ -1,3 +1,6 @@
+// Purpose: Render a Home target in table, compact, or header form.
+// Contract: Consumes presentation-ready itemData and emits openRequested without selecting targets.
+
 import QtQuick
 import QtQuick.Layouts
 

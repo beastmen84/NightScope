@@ -1,3 +1,6 @@
+// Purpose: Render an icon and colorize it when red-night-vision mode is active.
+// Contract: Preserves the source and fill-mode contract while deriving color from AppTheme.
+
 pragma ComponentBehavior: Bound
 
 import QtQuick

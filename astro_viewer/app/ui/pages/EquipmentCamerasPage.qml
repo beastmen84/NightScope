@@ -1,3 +1,6 @@
+// Purpose: Present astronomy-camera and camera-body catalogue CRUD workflows.
+// Contract: Collects sensor metadata while canonicalization and persistence stay behind controller slots.
+
 pragma ComponentBehavior: Bound
 
 import QtQuick

@@ -1,3 +1,6 @@
+// Purpose: Render one numbered instruction in a provider credential guide.
+// Contract: Accepts presentation-ready step text and contains no provider or credential behavior.
+
 import QtQuick
 import QtQuick.Layouts
 

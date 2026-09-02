@@ -1,3 +1,6 @@
+// Purpose: Present searchable observation history and its create, edit, and delete dialogs.
+// Contract: Collects form values while validation and persistence remain controller responsibilities.
+
 pragma ComponentBehavior: Bound
 
 import QtQuick

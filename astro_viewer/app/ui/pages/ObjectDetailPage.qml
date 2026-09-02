@@ -1,3 +1,6 @@
+// Purpose: Present observing or catalogue detail plus visual and photographic setup guidance.
+// Contract: Consumes dedicated read models and never recalculates observability or setup scores.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

@@ -1,3 +1,6 @@
+// Purpose: Provide the shared themed button for normal, checked, disabled, and danger states.
+// Contract: Preserves the Qt Button API; callers own command execution and toggle policy.
+
 import QtQuick
 import QtQuick.Controls
 

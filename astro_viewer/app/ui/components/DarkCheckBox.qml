@@ -1,3 +1,6 @@
+// Purpose: Provide a theme-aware checkbox with a custom high-contrast indicator.
+// Contract: Preserves the Qt CheckBox contract and repaints its mark when night mode changes.
+
 import QtQuick
 import QtQuick.Controls
 

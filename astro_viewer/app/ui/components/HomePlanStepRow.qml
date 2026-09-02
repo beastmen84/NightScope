@@ -1,3 +1,6 @@
+// Purpose: Render one actionable step from the Home observing plan.
+// Contract: Consumes a presentation item and emits openRequested for a non-empty object identifier.
+
 import QtQuick
 import QtQuick.Layouts
 

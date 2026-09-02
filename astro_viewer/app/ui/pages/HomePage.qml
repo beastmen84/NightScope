@@ -1,3 +1,6 @@
+// Purpose: Present the observing dashboard, night plan, compass, and upcoming events.
+// Contract: Consumes Home read models and emits navigation signals; filtering here is display-only.
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
