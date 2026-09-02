@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+## NightScope 1.45.7 - 2026-09-02
+
+- Esteso il gate AST: oltre ai cicli, modelli, database, astronomia e servizi
+  non possono importare il livello Qt `viewmodels` o la composition root
+  `application`. Il vincolo e' coperto anche da una regressione sintetica.
+- Completata la valutazione architetturale della serie 1.45.x con misure,
+  responsabilita', punti forti e debito residuo prioritizzato. La descrizione
+  corrente distingue esplicitamente i confini realmente applicati dalle
+  dipendenze pragmatiche ancora presenti.
+- Separati i documenti operativi correnti dallo storico: i precedenti handoff e
+  risultati di test restano conservati in `docs/archive`, mentre le guide vive
+  sono brevi e orientate al prossimo intervento.
+- Definito il contratto editoriale per le future descrizioni e curiosita' NGC:
+  ricerca per oggetto, fonti verificabili, revisione italiana/inglese/spagnola,
+  batch versionati e separazione assoluta da ranking e visibilita'. Nessun
+  contenuto NGC mancante e' stato generato in questo step architetturale.
+- La versione sorgente passa a `1.45.7`. `dist` non e' stata rigenerata o
+  modificata; nessun tag, checksum o artefatto di release e' stato creato.
+
 ## NightScope 1.45.6 - 2026-09-02
 
 - Integrati nel runner standard il controllo dei cicli di importazione e una

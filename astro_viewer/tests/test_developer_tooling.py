@@ -606,9 +606,27 @@ def test_source_and_public_release_versions_are_documented_separately() -> None:
     assert f"NightScope {version}" in third_party_notices
     assert f"tag `v{version}`" in third_party_notices
     assert f"## NightScope {version} -" in changelog
-    assert f"Versione sorgente: `{version}`" in handoff
-    assert f"Release pubblica stabile: `v{public_release}`" in handoff
+    assert f"Source version: `{version}`" in handoff
+    assert f"Current public release: `v{public_release}`" in handoff
     assert manual.count(f"NightScope {public_release}") == 3
+
+
+def test_living_architecture_documents_keep_history_separate() -> None:
+    docs_root = PROJECT_ROOT / "docs"
+    testing = (docs_root / "TESTING.md").read_text(encoding="utf-8")
+    handoff = (docs_root / "NEXT_CHAT_HANDOFF.md").read_text(encoding="utf-8")
+    architecture = (docs_root / "ARCHITECTURE.md").read_text(encoding="utf-8")
+    review = (docs_root / "ARCHITECTURE_REVIEW_1_45.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert (docs_root / "archive" / "TESTING_HISTORY_THROUGH_1.45.6.md").is_file()
+    assert (docs_root / "archive" / "NEXT_CHAT_HANDOFF_1.45.6.md").is_file()
+    assert "docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md" in testing
+    assert "docs/archive/NEXT_CHAT_HANDOFF_1.45.6.md" in handoff
+    assert "docs/ARCHITECTURE_REVIEW_1_45.md" in architecture
+    assert "docs/CATALOGUE_EDITORIAL_WORKFLOW.md" in review
+    assert "docs/CATALOGUE_EDITORIAL_WORKFLOW.md" in handoff
 
 
 def test_legal_files_are_current_and_windows_build_enforces_them() -> None:

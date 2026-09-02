@@ -11,7 +11,7 @@ active profile to answer a practical question: **what is worth observing
 tonight, from here, with this setup?**
 
 > [!NOTE]
-> NightScope is a released application. Source version 1.45.6 is prepared for
+> NightScope is a released application. Source version 1.45.7 is prepared for
 > the next stable release and is ahead of the current public 1.43.0 Windows and
 > Linux portable bundles.
 > Release artifacts remain platform-specific portable builds rather than
@@ -351,10 +351,12 @@ Include an installed-environment dependency audit:
 .\.venv\Scripts\python.exe tools\run_checks.py --security
 ```
 
-The standard runner performs dependency consistency, Ruff, bytecode
-compilation, one parallel test-suite pass, a backend smoke test, and a QML smoke
-test. Security mode additionally runs `pip-audit`. More focused commands and
-the latest measured baseline are in [`docs/TESTING.md`](docs/TESTING.md).
+The standard runner performs dependency consistency, Ruff, production import
+and protected-layer checks, exact Bandit-baseline review, bytecode compilation,
+one parallel test-suite pass with unexpected warnings promoted to errors, a
+backend smoke test, and normal/red QML smoke tests. Security mode additionally
+runs `pip-audit`. More focused commands and the latest measured baseline are in
+[`docs/TESTING.md`](docs/TESTING.md).
 
 ## Build For Linux
 
@@ -370,7 +372,7 @@ The wrapper creates a Debian 12/Python 3.12 build image, runs PyInstaller, and
 writes the portable application to `dist/NightScope`. It then creates the
 deterministic release archive and checksum:
 
-`dist/NightScope-v1.45.6-debian-12-x64.tar.gz` and its adjacent `.sha256`
+`dist/NightScope-v1.45.7-debian-12-x64.tar.gz` and its adjacent `.sha256`
 file. The inner build scripts copy the project notices, generate the installed
 Linux Python dependency license archive, inventory every copied Debian ELF
 file, bundle the matching copyright and common-license texts, and run the
@@ -441,8 +443,11 @@ manuale.html          Self-contained Italian/English/Spanish user manual
 ```
 
 Architecture details are in
-[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). The original release-readiness
-audit is retained in
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), with the `1.45.x` assessment in
+[`docs/ARCHITECTURE_REVIEW_1_45.md`](docs/ARCHITECTURE_REVIEW_1_45.md). The
+acceptance contract for the next multilingual catalogue-content phase is
+[`docs/CATALOGUE_EDITORIAL_WORKFLOW.md`](docs/CATALOGUE_EDITORIAL_WORKFLOW.md).
+The original release-readiness audit is retained in
 [`docs/RELEASE_AUDIT.md`](docs/RELEASE_AUDIT.md); the
 current approval gate is
 [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md).

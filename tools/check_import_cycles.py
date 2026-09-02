@@ -13,6 +13,25 @@ EXCLUDED_DIRECTORY_NAMES = frozenset(
         "tools",
     }
 )
+FORBIDDEN_DEPENDENCY_PREFIXES = {
+    "astro_viewer.app.models": (
+        "astro_viewer.app.application",
+        "astro_viewer.app.database",
+        "astro_viewer.app.viewmodels",
+    ),
+    "astro_viewer.app.database": (
+        "astro_viewer.app.application",
+        "astro_viewer.app.viewmodels",
+    ),
+    "astro_viewer.app.astronomy": (
+        "astro_viewer.app.application",
+        "astro_viewer.app.viewmodels",
+    ),
+    "astro_viewer.app.services": (
+        "astro_viewer.app.application",
+        "astro_viewer.app.viewmodels",
+    ),
+}
 
 
 def production_modules(source_root: Path) -> dict[str, Path]:
@@ -99,8 +118,35 @@ def find_import_cycles(source_root: Path) -> list[tuple[str, ...]]:
     return sorted(cycles)
 
 
+def find_layer_violations(source_root: Path) -> list[tuple[str, str]]:
+    graph = import_graph(source_root)
+    violations = []
+    for module, dependencies in graph.items():
+        forbidden_prefixes = next(
+            (
+                prefixes
+                for layer, prefixes in FORBIDDEN_DEPENDENCY_PREFIXES.items()
+                if _is_module_or_child(module, layer)
+            ),
+            (),
+        )
+        for dependency in dependencies:
+            if any(
+                _is_module_or_child(dependency, prefix)
+                for prefix in forbidden_prefixes
+            ):
+                violations.append((module, dependency))
+    return sorted(violations)
+
+
 def render_cycles(cycles: Iterable[tuple[str, ...]]) -> str:
     return "\n\n".join(" -> ".join(cycle) for cycle in cycles)
+
+
+def render_layer_violations(violations: Iterable[tuple[str, str]]) -> str:
+    return "\n".join(
+        f"{module} -> {dependency}" for module, dependency in violations
+    )
 
 
 def _resolved_import_base(node: ast.ImportFrom, package: str) -> str:
@@ -127,6 +173,10 @@ def _add_known_module(
         candidate = candidate.rpartition(".")[0]
 
 
+def _is_module_or_child(module: str, prefix: str) -> bool:
+    return module == prefix or module.startswith(f"{prefix}.")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Reject circular imports in NightScope production modules."
@@ -139,11 +189,16 @@ def main() -> int:
     )
     args = parser.parse_args()
     cycles = find_import_cycles(args.source_root)
+    layer_violations = find_layer_violations(args.source_root)
     if cycles:
         print("Circular production imports detected:")
         print(render_cycles(cycles))
+    if layer_violations:
+        print("Protected production layer dependencies violated:")
+        print(render_layer_violations(layer_violations))
+    if cycles or layer_violations:
         return 1
-    print("Production import graph is acyclic.")
+    print("Production import graph is acyclic and protected layer boundaries are intact.")
     return 0
 
 

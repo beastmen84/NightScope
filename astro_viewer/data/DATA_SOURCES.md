@@ -329,6 +329,10 @@ seeds. Their catalogue detail uses a type-specific compatibility image and the
 localized `Work in progress` placeholder for description and curiosity until
 individual source-backed content is added.
 
+The required provenance, three-language review, batching, and acceptance gates
+for that work are defined in
+[`docs/CATALOGUE_EDITORIAL_WORKFLOW.md`](../../docs/CATALOGUE_EDITORIAL_WORKFLOW.md).
+
 `ObjectDescription` and `ObjectCuriosity` rows supplied by these seeds are
 managed content (`is_builtin = 1`) and receive editorial corrections during
 bootstrap. Description imports performed with `import_object_content.py` are

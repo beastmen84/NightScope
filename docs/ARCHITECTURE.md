@@ -1,7 +1,9 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the current NightScope
-source tree. It is descriptive, not a redesign proposal.
+This document describes the architecture implemented by the NightScope 1.45.7
+source tree. It is descriptive, not a redesign proposal. The evidence-backed
+assessment, residual risks, and 1.44.0 comparison are in
+`docs/ARCHITECTURE_REVIEW_1_45.md`.
 
 ## Project Structure
 
@@ -54,9 +56,12 @@ The application follows a pragmatic MVVM-style structure:
 - Models are simple dataclasses used to move structured data between layers.
 
 The current implementation is coherent, but the ViewModel/controller layer has
-grown beyond a narrow presentation adapter. `AppController` also orchestrates
-refresh flows, profile mutation, object formatting, weather digests, calendar
-presentation and recommendation enrichment.
+grown beyond a narrow presentation adapter. `AppController` still orchestrates
+refresh flows, profile mutations, asynchronous work, stale-result rejection,
+calendar integration and publication of QML-facing state. Recommendation,
+catalogue, observing/weather and equipment preparation now live in explicit
+application or service boundaries and return framework-independent snapshots or
+read models.
 
 Concrete construction is owned by
 `astro_viewer.app.application.dependencies`. `astro_viewer.main` builds one
@@ -269,7 +274,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.27.0`:
+Current runtime status for `1.45.7`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -363,6 +368,10 @@ Current runtime status for `1.27.0`:
   catalogue seed and is excluded from the structured-content translation
   generator. The seeds remain UTF-8 without BOM because bootstrap reads
   canonical CSV headers with the standard `utf-8` codec.
+- Future NGC-only enrichment follows the source, batching, three-language, and
+  review contract in
+  [CATALOGUE_EDITORIAL_WORKFLOW.md](CATALOGUE_EDITORIAL_WORKFLOW.md); editorial
+  completion remains independent from catalogue identity and ranking.
 - If Sky Compass ranking raises unexpectedly, the controller logs the failure
   and uses a geometry-only payload. Missing sky-quality input is neutral inside
   the canonical environment and does not switch ranking implementation.
@@ -527,17 +536,26 @@ network calls or runtime file writes.
 
 The intended dependency flow is:
 
-`QML -> AppController -> services/repositories -> models/data`
+`QML -> AppController -> application workflows/services -> repositories/models/data`
 
-The services do not depend on QML. Repositories do not depend on services. The
-controller composes repositories and services and converts dataclasses into
-QML-friendly dictionaries.
+`astro_viewer.main` calls the application composition root before constructing
+the controller. Services do not depend on QML, and the composition root is the
+only normal path that assembles the complete concrete graph. The controller
+publishes QML-friendly state and delegates framework-independent preparation to
+the injected graph.
+
+The codebase is pragmatic rather than perfectly layered: persistence modules
+reuse controlled taxonomy/localization helpers, astronomy uses concrete
+catalogue/cache repositories, and localization is a cross-cutting service. The
+enforced invariant is narrower and accurate: models, database, astronomy and
+services may not import `viewmodels` or `application`.
 
 The astronomy layer depends on Skyfield/Astropy when available and provides a
 mock fallback through `MockAstronomyEngine`. Weather, VIIRS and NASA AOD network
 clients are isolated behind service classes.
 
-No circular Python package dependency was found in the reviewed structure.
+The production import graph is acyclic. `tools/check_import_cycles.py` checks
+both cycles and the protected outer-layer rules in every standard source gate.
 
 ## Responsibilities
 
@@ -584,9 +602,20 @@ Important pages:
   detail workflows. `WeatherPage.qml` presents AOD/OpenAQ as condition data
   sources with freshness, not as an NSOM ranking explanation surface.
 
+### Application Layer
+
+- `dependencies.py` is the composition root. It constructs concrete
+  repositories, provider clients, services, astronomy fallback and application
+  workflows, then returns one immutable `AppControllerDependencies` graph.
+- `catalogue_recommendations.py` prepares equipment enrichment, condition read
+  models, NSOM ranking, Best Object, night planning and Sky Compass data outside
+  Qt. It receives explicit runtime context and returns a prepared snapshot.
+- `snapshots.py` owns immutable contracts crossing background-worker and Qt
+  state-application boundaries.
+
 ### AppController
 
-`AppController` is the central Qt-facing object. It owns:
+`AppController` is the central Qt-facing object. It holds and publishes:
 
 - current location state,
 - current weather hours and weather summary,
@@ -605,7 +634,7 @@ Important pages:
 - calendar event setup text and object-detail target mapping,
 - QML signals for every major dependent property.
 
-It also coordinates:
+It coordinates:
 
 - startup loading,
 - location refresh,
@@ -615,9 +644,32 @@ It also coordinates:
 - recomputation of best object, plan, Sky Compass and
   selected detail.
 
+It does not construct the normal dependency graph and no longer owns the pure
+algorithms used to prepare catalogue search/detail, recommendation snapshots,
+observing/weather presentation or equipment read models. Compatibility wrappers
+delegate historical internal entry points to those services.
+
 ### Services
 
 Services hold business logic:
+
+- `ObservingPresentationService`: localized observing-quality, limiting-factor,
+  session-decision and status read models from explicit runtime inputs.
+- `WeatherPresentationService`: night-hour selection, digest rows, useful
+  windows and session guidance. Shared date/night parsing lives in
+  `observing_time`.
+- `CatalogueQueryService`: repository-backed physical records, alias-aware
+  search, catalogue/type/constellation/observation filters, localized list
+  projections and static observability checks.
+- `CatalogueDetailService`: detail-ready object construction and designation
+  metadata without Qt state or recommendation side effects.
+- `EquipmentCatalogService`: framework-independent loading and mapping of all
+  equipment catalogue families.
+- `ProfileEquipmentService`: active-profile inventory selection and assignment
+  queries over explicit repository data.
+- `EquipmentPresentationService`: QML-ready profile/equipment read models from
+  typed inventory; `equipment_input` owns locale-aware form parsing and
+  validation.
 
 - `ObservingScoreService`: forecast/Moon observing-weather summary and labels.
   It keeps the complete explanation separate from structured adverse
@@ -800,11 +852,6 @@ Repositories own SQLite persistence:
   valid profiles and reducer rows expose normalized exact telescope
   compatibility. An empty exact set is explicit unconfigured state and remains
   excluded from recommendation calculations.
-- `ImagingTrainBuilder`: enumerates ordinary telescope/external-camera trains
-  and smart integrated trains behind the same photographic configuration
-  contract. Smart equipment is fail-closed: unrelated profile cameras and
-  modifiers are not crossed into the train unless their capability flags say
-  they are supported. Incomplete integrated sensor geometry produces no train.
 - `WeatherCacheRepository`: weather response cache.
 - `OrbitalElementCacheRepository`: provider-neutral OMM/TLE cache for
   short-horizon orbital event sources.
@@ -819,12 +866,16 @@ repositories mostly respect this boundary.
 
 Startup flow:
 
-1. `main.py` creates the application and `AppController`.
-2. `AppController` initializes database-backed catalogs and profiles.
-3. The astronomy engine builds base solar-system, Moon, calendar and deep-sky
+1. `main.py` resolves runtime paths, initializes the database and asks the
+   composition root for `AppControllerDependencies`.
+2. `main.py` injects that graph into `AppController`; the compatibility factory
+   is reserved for direct test/integration construction.
+3. The controller starts asynchronous refresh orchestration. The astronomy
+   engine builds base Solar System, Moon, calendar and deep-sky
    data for the current location if one is available.
-4. Weather, sky quality, seeing, NSOM category summaries, equipment recommendations and
-   planning are layered on top.
+4. Application workflows and presentation services layer weather, sky quality,
+   seeing, NSOM summaries, equipment recommendations and planning on immutable
+   or captured inputs.
 5. QML receives property change signals and renders dictionaries exposed by the
    controller.
 
@@ -836,9 +887,11 @@ Home recommendation flow:
    NumPy-backed Skyfield batches for fixed-target nightly geometry. It retains
    scalar fallbacks without multiprocessing or platform-specific process
    sharing.
-3. `AppController` applies the same admission map defensively to cached data
-   and then adds active-profile equipment recommendations. Disabling is
-   immediate; enabling starts a deep-sky-only background astronomy refresh.
+3. The controller applies the same admission map defensively to cached data and
+   captures the current runtime context. `CatalogueRecommendationWorkflow`
+   prepares active-profile equipment recommendations and all downstream
+   recommendation read models. Disabling is immediate; enabling starts a
+   deep-sky-only background astronomy refresh.
 4. Deep-sky objects may be adjusted by light-pollution context and Home/Detail
    Moon context through `ObservationConditionsService`.
 5. `BestObjectNsomSelectionService` always selects Best Object from canonical
@@ -854,9 +907,10 @@ Home recommendation flow:
 
 Catalogue browsing flow:
 
-1. `AppController` loads one row per physical target from repository-backed
-   local data. The unfiltered view therefore shows 7,585 deep-sky rows plus
-   nine Solar System rows.
+1. `CatalogueQueryService` loads one row per physical target from
+   repository-backed local data and adds the nine Solar System records. The
+   unfiltered view therefore shows 7,585 deep-sky rows plus nine Solar System
+   rows.
 2. `CatalogueRepository` attaches every designation to that target. The
    presentation keeps compatibility fields `catalogue` and `catalogue_id`, plus
    `catalogues` and `designations`; selecting a catalogue projects its code
@@ -910,9 +964,12 @@ Catalogue browsing flow:
 Object detail flow:
 
 1. QML selects an object.
-2. `AppController` resolves the selected object from current enriched lists.
-3. Detail fields, setup options and reasoning are generated from the selected
-   object, active equipment, weather, Moon, seeing and sky quality.
+2. `CatalogueDetailService` resolves catalogue-native objects; the controller
+   also reuses current enriched recommendation objects where appropriate.
+3. Dedicated detail, equipment and imaging presentation services generate the
+   fields, setup options and reasoning from the selected object, active
+   equipment, weather, Moon, seeing and sky quality. The controller publishes
+   the combined dictionary and its change signal.
 
 Calendar event detail flow:
 
@@ -1194,11 +1251,18 @@ The following duplication or concentration of responsibility should be tracked:
   `NsomObservationEnvironmentService`; Planner adds only observer, timing and
   session layers.
 - `AppController` remains oversized and mixes controller, presenter and
-  orchestration responsibilities. Concrete dependency construction has moved
-  to the application composition root; the remaining workflows should be
-  extracted by coherent use case rather than by arbitrary file slices.
-- `HomePage.qml` is also large. Upper-Home and lower-Home decisions are moving
-  into explicit presentation contracts, while visual formatting remains QML.
+  orchestration responsibilities. Concrete construction and the largest pure
+  preparation workflows have moved out; further work should target coherent
+  mutation/orchestration use cases rather than arbitrary file slices.
+- `EquipmentCatalogRepository` and database bootstrap remain concentrated
+  persistence modules. Their transaction and migration behavior is well tested,
+  so future splits should follow aggregates or migration families.
+- `HomePage.qml` and `ObjectDetailPage.qml` are also large. Their decisions use
+  explicit Python presentation contracts, while component extraction remains a
+  UI maintainability task.
+- Localization helpers are cross-cutting and imported from lower-level models,
+  astronomy and persistence code. This is acyclic but not an ideal inward
+  dependency; a neutral localization package is a future focused seam.
 - `EquipmentProfile.telescope_id` remains as a legacy single-telescope field
   while many-to-many profile assignment tables hold the current multi-equipment
   model.
@@ -1214,6 +1278,10 @@ For future changes:
 - Keep repositories focused on persistence.
 - Treat `AppController` as an orchestration boundary; avoid adding new
   algorithms there unless they are purely presentation-specific.
+- Keep new application use cases independent from QObject and pass immutable or
+  explicit inputs across worker boundaries.
+- Preserve the protected-layer gate: lower production layers must not import
+  `viewmodels` or the application composition root.
 - When changing profile/equipment behavior, add tests that assert immediate
   refresh of home, detail and calendar/profile-dependent outputs.
 - When changing weather blocking thresholds, update
