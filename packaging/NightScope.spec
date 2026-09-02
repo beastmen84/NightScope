@@ -1,4 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
+# Purpose: Define the cross-platform PyInstaller graph for the portable application.
+# Contract: Bundle only declared code, data, hooks, and platform backends into build/dist.
 
 import sys
 from pathlib import Path

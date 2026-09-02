@@ -1,3 +1,5 @@
+"""Analyze GeoNames deduplication decisions in an isolated database and render evidence."""
+
 from __future__ import annotations
 
 import argparse

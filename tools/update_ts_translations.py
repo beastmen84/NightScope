@@ -1,3 +1,5 @@
+"""Populate Qt TS catalogues from language packs while preserving placeholders and reviews."""
+
 from __future__ import annotations
 
 import argparse

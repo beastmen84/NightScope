@@ -1,3 +1,5 @@
+"""Update multilingual content packs through reviewed, placeholder-safe machine translation."""
+
 from __future__ import annotations
 
 import argparse

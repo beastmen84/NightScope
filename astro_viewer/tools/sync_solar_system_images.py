@@ -1,3 +1,5 @@
+"""Download, normalize, verify, and index curated NASA/JPL object imagery."""
+
 from __future__ import annotations
 
 import argparse

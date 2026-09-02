@@ -1,3 +1,5 @@
+"""Extract literal Python tr() messages into temporary C++ input for Qt lupdate."""
+
 from __future__ import annotations
 
 import argparse

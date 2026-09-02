@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Purpose: Audit and archive an existing portable Linux application directory.
+# Contract: Replaces the versioned archive and checksum under dist after a clean audit.
 
 set -euo pipefail
 

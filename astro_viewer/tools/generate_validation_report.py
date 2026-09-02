@@ -1,3 +1,5 @@
+"""Run multi-location astronomy checks and render the developer validation report."""
+
 from __future__ import annotations
 
 import re

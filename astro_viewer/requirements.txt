@@ -1,3 +1,6 @@
+# Purpose: Declare application runtime and portable-bundle build dependencies.
+# Contract: Keep provider compatibility bounds and release-audited packages explicit.
+
 PySide6_Essentials>=6.9
 PySide6_Addons>=6.9
 skyfield>=1.50

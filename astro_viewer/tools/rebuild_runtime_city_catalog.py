@@ -1,3 +1,5 @@
+"""Rebuild a runtime city catalogue and report its search and merge characteristics."""
+
 from __future__ import annotations
 
 import argparse

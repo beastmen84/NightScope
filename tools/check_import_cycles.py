@@ -1,3 +1,5 @@
+"""Reject production import cycles and forbidden dependencies across protected layers."""
+
 from __future__ import annotations
 
 import argparse

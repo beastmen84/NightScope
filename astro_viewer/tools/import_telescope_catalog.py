@@ -1,3 +1,5 @@
+"""Validate and import telescope catalogue CSV rows into a selected SQLite database."""
+
 from __future__ import annotations
 
 from import_utils import optional_float, parser, read_rows, run_import

@@ -1,3 +1,6 @@
+# Purpose: Validate source commits on supported Windows and Linux Python baselines.
+# Contract: Runs quality and dependency gates only; it never builds or publishes releases.
+
 name: Source validation
 
 on:

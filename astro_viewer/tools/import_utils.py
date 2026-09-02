@@ -1,3 +1,5 @@
+"""Share CSV validation and transactional SQLite helpers across maintenance importers."""
+
 from __future__ import annotations
 
 import argparse

@@ -1,3 +1,5 @@
+"""Audit a PyInstaller bundle against NightScope's Qt, data, and legal allowlists."""
+
 from __future__ import annotations
 
 import argparse

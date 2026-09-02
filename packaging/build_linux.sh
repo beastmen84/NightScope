@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Purpose: Build and legally audit the portable Linux application directory.
+# Contract: Writes build/ and dist/NightScope; invoke only for explicit artifact work.
 
 set -euo pipefail
 

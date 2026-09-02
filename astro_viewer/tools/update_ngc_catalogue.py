@@ -1,3 +1,5 @@
+"""Regenerate or verify catalogue seeds from the pinned offline OpenNGC snapshot."""
+
 from __future__ import annotations
 
 import argparse

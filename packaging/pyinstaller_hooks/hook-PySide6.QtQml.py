@@ -1,3 +1,5 @@
+"""Whitelist the LGPL-compatible QML modules required by NightScope."""
+
 from pathlib import PurePosixPath
 
 from PyInstaller.utils.hooks.qt import add_qt6_dependencies, pyside6_library_info

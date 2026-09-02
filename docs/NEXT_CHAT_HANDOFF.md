@@ -4,7 +4,7 @@ Updated: 2026-09-02
 
 ## Current State
 
-- Source version: `1.45.11`.
+- Source version: `1.45.12`.
 - Current public release: `v1.43.0`.
 - Public-release source commit: `26dfaf49df8f9b8e73e84f406396f406170400b2`.
 - The `1.45.x` architectural series is source-only. No `1.45.x` tag, checksum,
@@ -28,7 +28,8 @@ Updated: 2026-09-02
 | 1.45.8 | `cef54b3` | Defines the code-documentation contract and documents application/model boundaries. |
 | 1.45.9 | `06b514e` | Documents every domain, provider, presentation, equipment, catalogue, and localization service. |
 | 1.45.10 | `35972b7` | Documents persistence, astronomy, Qt view models, and runtime composition boundaries. |
-| 1.45.11 | current source | Documents the responsibility and boundary contract of every QML file. |
+| 1.45.11 | `6719979` | Documents the responsibility and boundary contract of every QML file. |
+| 1.45.12 | current source | Documents maintenance, packaging, CI, configuration, schema, and manual files. |
 
 ## Resulting Architecture
 

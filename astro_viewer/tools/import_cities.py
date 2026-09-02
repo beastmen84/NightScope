@@ -1,3 +1,5 @@
+"""Initialize a database and import a bounded GeoNames city dataset with a JSON report."""
+
 from __future__ import annotations
 
 import argparse

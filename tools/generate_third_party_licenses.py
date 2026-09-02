@@ -1,3 +1,5 @@
+"""Generate or verify the deterministic third-party license archive from the environment."""
+
 from __future__ import annotations
 
 import argparse

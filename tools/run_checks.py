@@ -1,3 +1,5 @@
+"""Run the ordered local source-quality gate with isolated application smoke tests."""
+
 from __future__ import annotations
 
 import argparse

@@ -1,3 +1,5 @@
+"""Isolate the frozen Linux process from incompatible host GIO modules."""
+
 import os
 import sys
 

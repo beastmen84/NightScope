@@ -1,3 +1,5 @@
+"""Compare Bandit findings with the reviewed baseline and reject security regressions."""
+
 from __future__ import annotations
 
 import argparse

@@ -1,3 +1,5 @@
+"""Download, normalize, verify, and index survey cutouts for catalogue targets."""
+
 from __future__ import annotations
 
 import argparse

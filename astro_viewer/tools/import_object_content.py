@@ -1,3 +1,5 @@
+"""Import object imagery or editorial descriptions into a selected SQLite database."""
+
 from __future__ import annotations
 
 from import_utils import parser, read_rows, run_import

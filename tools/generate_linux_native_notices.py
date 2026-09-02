@@ -1,3 +1,5 @@
+"""Inventory bundled Linux binaries and write exact package and license provenance."""
+
 from __future__ import annotations
 
 import argparse

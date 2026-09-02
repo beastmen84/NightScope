@@ -1,3 +1,5 @@
+"""Collect only the Astropy data and modules exercised by NightScope."""
+
 from PyInstaller.utils.hooks import collect_data_files, copy_metadata, is_module_satisfies
 
 

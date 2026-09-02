@@ -1,3 +1,5 @@
+"""Provide the timeout-bounded HTTP translation adapter used only by maintenance tools."""
+
 from __future__ import annotations
 
 from html.parser import HTMLParser

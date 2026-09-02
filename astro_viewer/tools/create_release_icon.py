@@ -1,3 +1,5 @@
+"""Render the deterministic multi-resolution Windows release icon without GUI tooling."""
+
 from __future__ import annotations
 
 import math

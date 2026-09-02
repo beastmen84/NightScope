@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## NightScope 1.45.12 - 2026-09-02
+
+- Documentati 29 moduli Python di manutenzione e packaging e 15 file operativi
+  tra script, specifica PyInstaller, CI, configurazione, schema e manuale.
+- Le intestazioni dichiarano input autorevoli, uso della rete, file riscritti e
+  confine esplicito dei comandi che possono modificare `build` o `dist`.
+- Nessun comando di build e' stato eseguito. La versione sorgente passa a
+  `1.45.12`; `dist` non e' stata rigenerata o modificata e non sono stati
+  creati tag o artefatti di release.
+
 ## NightScope 1.45.11 - 2026-09-02
 
 - Documentati tutti i 34 file QML con responsabilita' e contratto espliciti:

@@ -1,3 +1,6 @@
+-- Purpose: Declare the complete idempotent SQLite schema for a new NightScope database.
+-- Contract: Bootstrap owns versioned migrations, repair, and built-in seed population.
+
 CREATE TABLE IF NOT EXISTS City (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     city_name TEXT NOT NULL,

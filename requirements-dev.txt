@@ -1,3 +1,6 @@
+# Purpose: Declare local and CI quality, test, coverage, and security dependencies.
+# Contract: Major-version bounds keep the validation gate reproducible across environments.
+
 bandit>=1.9,<2
 Pillow>=12,<13
 pip-audit>=2.10,<3

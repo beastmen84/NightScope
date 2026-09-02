@@ -1,5 +1,7 @@
-# These are supported funding model platforms
+# Purpose: Declare the funding links shown by GitHub for the NightScope repository.
+# Contract: Contains sponsorship metadata only and has no build or runtime effect.
 
+# These are supported funding model platforms
 github: # Replace with up to 4 GitHub Sponsors-enabled usernames e.g., [user1, user2]
 patreon: # Replace with a single Patreon username
 open_collective: # Replace with a single Open Collective username

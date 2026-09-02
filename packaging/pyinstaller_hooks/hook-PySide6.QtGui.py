@@ -1,3 +1,5 @@
+"""Filter unsupported or unnecessary QtGui binaries from portable bundles."""
+
 import sys
 
 from PyInstaller.utils.hooks.qt import add_qt6_dependencies

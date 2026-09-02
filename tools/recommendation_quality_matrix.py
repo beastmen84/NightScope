@@ -1,3 +1,5 @@
+"""Generate and assert the deterministic optical recommendation quality matrix."""
+
 from __future__ import annotations
 
 import csv

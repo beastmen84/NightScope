@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Purpose: Run the Linux build and archive pipeline inside the Debian 12 image.
+# Contract: Builds a local container image and writes build/dist through the workspace mount.
 
 set -euo pipefail
 

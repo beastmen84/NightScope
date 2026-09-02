@@ -1,3 +1,5 @@
+"""Import eyepiece or Barlow CSV rows transactionally into a selected SQLite database."""
+
 from __future__ import annotations
 
 from import_utils import optional_float, parser, read_rows, run_import

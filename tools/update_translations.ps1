@@ -1,3 +1,6 @@
+# Purpose: Extract, update, and compile every configured Qt translation catalogue.
+# Contract: Rewrites TS/QM outputs unless narrowed by CompileOnly or UpdateOnly.
+
 param(
     [switch]$CompileOnly,
     [switch]$UpdateOnly

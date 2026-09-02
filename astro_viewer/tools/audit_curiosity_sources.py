@@ -1,3 +1,5 @@
+"""Verify every distinct editorial curiosity URL through bounded parallel HTTP requests."""
+
 from __future__ import annotations
 
 import argparse

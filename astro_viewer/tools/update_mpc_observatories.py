@@ -1,3 +1,5 @@
+"""Regenerate or verify the pinned MPC observatory seed with structural safeguards."""
+
 from __future__ import annotations
 
 import argparse
