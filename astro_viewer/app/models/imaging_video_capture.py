@@ -1,3 +1,5 @@
+"""Define planetary-video capture advice, confidence, and FPS provenance."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,3 +1,5 @@
+"""Define hourly weather, summary, blocking, and session-decision records."""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass

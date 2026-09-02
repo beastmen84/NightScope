@@ -1,3 +1,5 @@
+"""Resolve portable and XDG runtime storage paths before app construction."""
+
 from __future__ import annotations
 
 import os

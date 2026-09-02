@@ -1,3 +1,5 @@
+"""Represent one concrete visual-observation equipment configuration."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

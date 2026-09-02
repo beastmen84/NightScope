@@ -1,3 +1,5 @@
+"""Normalize catalogue targets into optical observation traits."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

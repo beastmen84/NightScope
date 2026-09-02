@@ -1,3 +1,5 @@
+"""Define celestial targets, lunar geometry, and astronomical event records."""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field

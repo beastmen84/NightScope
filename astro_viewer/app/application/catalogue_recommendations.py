@@ -1,3 +1,5 @@
+"""Prepare catalogue recommendation results outside the mutable Qt boundary."""
+
 from __future__ import annotations
 
 import logging

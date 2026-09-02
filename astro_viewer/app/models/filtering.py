@@ -1,3 +1,5 @@
+"""Declare canonical filter classes and target-specific filter preferences."""
+
 from __future__ import annotations
 
 from astro_viewer.app.services.localization import tr

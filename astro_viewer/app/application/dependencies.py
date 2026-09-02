@@ -1,3 +1,5 @@
+"""Assemble the concrete dependency graph injected into the Qt controller."""
+
 from __future__ import annotations
 
 import logging

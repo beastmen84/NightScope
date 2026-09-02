@@ -1,3 +1,5 @@
+"""Define immutable snapshots exchanged across worker and Qt boundaries."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

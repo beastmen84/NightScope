@@ -1,3 +1,5 @@
+"""Implement the typed ownership boundaries and value objects of NSOM 1.0."""
+
 from __future__ import annotations
 
 import math

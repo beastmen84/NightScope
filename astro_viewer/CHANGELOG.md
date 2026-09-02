@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## NightScope 1.45.8 - 2026-09-02
+
+- Definito un contratto esplicito per documentare ogni file sorgente scritto a
+  mano, con esclusioni limitate a dati, asset, output generati e storico.
+- Documentati a livello di modulo composition root, snapshot asincrone,
+  capability/piattaforma, percorsi runtime e tutti i modelli applicativi. Le
+  descrizioni chiariscono responsabilita' e confini senza cambiare comportamento.
+- La versione sorgente passa a `1.45.8`. `dist` non e' stata rigenerata o
+  modificata; nessun tag o artefatto di release e' stato creato.
+
 ## NightScope 1.45.7 - 2026-09-02
 
 - Esteso il gate AST: oltre ai cicli, modelli, database, astronomia e servizi

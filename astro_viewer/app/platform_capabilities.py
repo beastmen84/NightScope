@@ -1,3 +1,5 @@
+"""Describe platform families and the host capabilities exposed to QML."""
+
 from __future__ import annotations
 
 import sys

@@ -1,3 +1,5 @@
+"""Define sky-quality, seeing, category-score, and night-plan read models."""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass

@@ -1,3 +1,5 @@
+"""Define photographic target traits, score components, and candidates."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

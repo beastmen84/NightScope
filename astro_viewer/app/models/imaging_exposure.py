@@ -1,3 +1,5 @@
+"""Define inspectable still-imaging exposure advice and its input facts."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

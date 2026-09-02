@@ -1,3 +1,5 @@
+"""Define optical equipment records and their QML-facing projections."""
+
 from __future__ import annotations
 
 import math

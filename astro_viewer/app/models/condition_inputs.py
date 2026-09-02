@@ -1,3 +1,5 @@
+"""Carry immutable atmosphere, Moon, seeing, and sky-condition inputs."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

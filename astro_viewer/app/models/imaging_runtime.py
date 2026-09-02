@@ -1,3 +1,5 @@
+"""Define immutable runtime inputs and outcomes for photographic advice."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

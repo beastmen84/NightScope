@@ -1,3 +1,5 @@
+"""Define normalized cameras and target-neutral photographic train geometry."""
+
 from __future__ import annotations
 
 import math
