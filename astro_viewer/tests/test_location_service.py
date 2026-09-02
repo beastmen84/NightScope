@@ -21,6 +21,7 @@ from astro_viewer.app.platform_capabilities import (
     NIGHTSCOPE_DESKTOP_ID,
     detect_platform_capabilities,
 )
+from astro_viewer.app.services import location_providers, location_service
 from astro_viewer.app.services.location_service import (
     APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE,
     GeoClueLocationProvider,
@@ -43,9 +44,35 @@ class LocationServiceWindowsTests(unittest.TestCase):
     def setUp(self) -> None:
         self.service = LocationService()
 
+    def test_location_service_keeps_provider_imports_compatible(self) -> None:
+        self.assertIs(
+            location_service.WindowsLocationProvider,
+            location_providers.WindowsLocationProvider,
+        )
+        self.assertIs(
+            location_service.GeoClueLocationProvider,
+            location_providers.GeoClueLocationProvider,
+        )
+        self.assertIs(
+            location_service.LocationDetectionResult,
+            location_providers.LocationDetectionResult,
+        )
+
+    def test_adapter_bundle_supplies_the_linux_system_provider(self) -> None:
+        adapters = location_providers.build_location_provider_adapters()
+        service = LocationService(
+            platform_capabilities=detect_platform_capabilities("linux"),
+            provider_adapters=adapters,
+        )
+
+        self.assertIs(service.windows_provider, adapters.windows)
+        self.assertIs(service.windows_coarse_provider, adapters.windows_coarse)
+        self.assertIs(service.ip_provider, adapters.ip)
+        self.assertEqual(service.system_providers, (adapters.geoclue,))
+
     def test_valid_windows_location_payload(self) -> None:
         with patch(
-            "astro_viewer.app.services.location_service.system_timezone",
+            "astro_viewer.app.services.location_providers.system_timezone",
             side_effect=AssertionError("Known Windows timezones must not start the fallback."),
         ):
             location = self.service._location_from_windows_payload(
@@ -68,7 +95,7 @@ class LocationServiceWindowsTests(unittest.TestCase):
             stdout='{"ok":true,"access_status":"Allowed","latitude":41.9028,"longitude":12.4964,"timezone":"W. Europe Standard Time","accuracy":20}',
             stderr="",
         )
-        with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed):
+        with patch("astro_viewer.app.services.location_providers.subprocess.run", return_value=completed):
             result = self.service.detect_windows_location()
 
         self.assertEqual(result.provider, "windows_precise")
@@ -93,7 +120,7 @@ class LocationServiceWindowsTests(unittest.TestCase):
             stderr="",
         )
 
-        with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed) as run:
+        with patch("astro_viewer.app.services.location_providers.subprocess.run", return_value=completed) as run:
             self.service.detect_windows_location()
 
         kwargs = run.call_args.kwargs
@@ -130,7 +157,7 @@ class LocationServiceWindowsTests(unittest.TestCase):
                 timezone_resolver=_StaticTimezoneResolver("Africa/Addis_Ababa"),
             )
 
-            with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed):
+            with patch("astro_viewer.app.services.location_providers.subprocess.run", return_value=completed):
                 result = service.detect_windows_location()
 
         self.assertEqual(result.provider, "windows_precise")
@@ -175,7 +202,7 @@ class LocationServiceWindowsTests(unittest.TestCase):
             "accuracy_radius": 25,
         }
 
-        with patch("astro_viewer.app.services.location_service.requests.get", return_value=response):
+        with patch("astro_viewer.app.services.location_providers.requests.get", return_value=response):
             result = LocationService(
                 city_resolver=_ExplodingCityResolver(),
                 timezone_resolver=_ExplodingTimezoneResolver(),
@@ -226,7 +253,7 @@ class LocationServiceWindowsTests(unittest.TestCase):
             timezone_resolver=_StaticTimezoneResolver("Etc/GMT+11"),
         )
 
-        with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed):
+        with patch("astro_viewer.app.services.location_providers.subprocess.run", return_value=completed):
             result = service.detect_windows_location()
 
         self.assertEqual(result.location.city, "Posizione Windows")
@@ -318,21 +345,21 @@ class LocationServiceWindowsTests(unittest.TestCase):
         self.assertEqual(result.location.timezone, "Africa/Addis_Ababa")
 
     def test_windows_location_latitude_none(self) -> None:
-        with self.assertLogs("astro_viewer.app.services.location_service", level="WARNING"):
+        with self.assertLogs("astro_viewer.app.services.location_providers", level="WARNING"):
             with self.assertRaisesRegex(LocationUnavailableError, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE):
                 self.service._location_from_windows_payload(
                     {"latitude": None, "longitude": 36.8219, "timezone": "E. Africa Standard Time"}
                 )
 
     def test_windows_location_longitude_none(self) -> None:
-        with self.assertLogs("astro_viewer.app.services.location_service", level="WARNING"):
+        with self.assertLogs("astro_viewer.app.services.location_providers", level="WARNING"):
             with self.assertRaisesRegex(LocationUnavailableError, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE):
                 self.service._location_from_windows_payload(
                     {"latitude": -1.2921, "longitude": None, "timezone": "E. Africa Standard Time"}
                 )
 
     def test_windows_location_both_coordinates_none(self) -> None:
-        with self.assertLogs("astro_viewer.app.services.location_service", level="WARNING"):
+        with self.assertLogs("astro_viewer.app.services.location_providers", level="WARNING"):
             with self.assertRaisesRegex(LocationUnavailableError, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE):
                 self.service._location_from_windows_payload(
                     {"latitude": None, "longitude": None, "timezone": "E. Africa Standard Time"}
@@ -340,7 +367,7 @@ class LocationServiceWindowsTests(unittest.TestCase):
 
     def test_out_of_range_coordinate_log_does_not_expose_value(self) -> None:
         with self.assertLogs(
-            "astro_viewer.app.services.location_service", level="WARNING"
+            "astro_viewer.app.services.location_providers", level="WARNING"
         ) as logs:
             with self.assertRaisesRegex(
                 LocationUnavailableError, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE
@@ -364,8 +391,8 @@ class LocationServiceWindowsTests(unittest.TestCase):
             stdout="",
             stderr="Access denied",
         )
-        with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed):
-            with self.assertLogs("astro_viewer.app.services.location_service", level="WARNING"):
+        with patch("astro_viewer.app.services.location_providers.subprocess.run", return_value=completed):
+            with self.assertLogs("astro_viewer.app.services.location_providers", level="WARNING"):
                 with self.assertRaisesRegex(LocationUnavailableError, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE):
                     self.service.from_windows_location()
 
@@ -376,8 +403,8 @@ class LocationServiceWindowsTests(unittest.TestCase):
             stdout='{"ok":false,"reason":"permission denied","access_status":"Denied"}',
             stderr="",
         )
-        with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed):
-            with self.assertLogs("astro_viewer.app.services.location_service", level="WARNING"):
+        with patch("astro_viewer.app.services.location_providers.subprocess.run", return_value=completed):
+            with self.assertLogs("astro_viewer.app.services.location_providers", level="WARNING"):
                 with self.assertRaisesRegex(LocationUnavailableError, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE) as context:
                     self.service.detect_windows_location()
 
@@ -390,8 +417,8 @@ class LocationServiceWindowsTests(unittest.TestCase):
             stdout='{"ok":true,"access_status":"Allowed","latitude":null,"longitude":12.4964,"timezone":"W. Europe Standard Time"}',
             stderr="",
         )
-        with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed):
-            with self.assertLogs("astro_viewer.app.services.location_service", level="WARNING"):
+        with patch("astro_viewer.app.services.location_providers.subprocess.run", return_value=completed):
+            with self.assertLogs("astro_viewer.app.services.location_providers", level="WARNING"):
                 with self.assertRaisesRegex(LocationUnavailableError, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE) as context:
                     self.service.detect_windows_location()
 
@@ -399,10 +426,10 @@ class LocationServiceWindowsTests(unittest.TestCase):
 
     def test_windows_timeout(self) -> None:
         with patch(
-            "astro_viewer.app.services.location_service.subprocess.run",
+            "astro_viewer.app.services.location_providers.subprocess.run",
             side_effect=subprocess.TimeoutExpired(cmd="powershell", timeout=18),
         ):
-            with self.assertLogs("astro_viewer.app.services.location_service", level="WARNING"):
+            with self.assertLogs("astro_viewer.app.services.location_providers", level="WARNING"):
                 with self.assertRaisesRegex(LocationUnavailableError, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE) as context:
                     self.service.detect_windows_location()
 
@@ -428,8 +455,8 @@ class LocationServiceWindowsTests(unittest.TestCase):
             stderr="",
         )
 
-        with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed):
-            with self.assertLogs("astro_viewer.app.services.location_service", level="INFO") as logs:
+        with patch("astro_viewer.app.services.location_providers.subprocess.run", return_value=completed):
+            with self.assertLogs("astro_viewer.app.services.location_providers", level="INFO") as logs:
                 report = self.service.windows_location_diagnostics()
 
         self.assertEqual(report["accessStatus"], "not-requested")
@@ -468,7 +495,7 @@ class LocationServiceWindowsTests(unittest.TestCase):
             "accuracy_radius": 25,
         }
 
-        with patch("astro_viewer.app.services.location_service.requests.get", return_value=response):
+        with patch("astro_viewer.app.services.location_providers.requests.get", return_value=response):
             result = IpGeolocationProvider().detect()
 
         self.assertTrue(result.approximate)
@@ -489,15 +516,15 @@ class LocationServiceWindowsTests(unittest.TestCase):
             timezone_resolver=_StaticTimezoneResolver("Africa/Addis_Ababa")
         )
 
-        with patch("astro_viewer.app.services.location_service.requests.get", return_value=response):
+        with patch("astro_viewer.app.services.location_providers.requests.get", return_value=response):
             result = service.detect_ip_location(allow_online=True)
 
         self.assertEqual(result.location.timezone, "Africa/Addis_Ababa")
         self.assertEqual(result.raw_provider_timezone, "")
 
     def test_ip_geolocation_failure(self) -> None:
-        with patch("astro_viewer.app.services.location_service.requests.get", side_effect=requests.Timeout):
-            with self.assertLogs("astro_viewer.app.services.location_service", level="WARNING"):
+        with patch("astro_viewer.app.services.location_providers.requests.get", side_effect=requests.Timeout):
+            with self.assertLogs("astro_viewer.app.services.location_providers", level="WARNING"):
                 with self.assertRaisesRegex(LocationUnavailableError, APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE):
                     IpGeolocationProvider().detect()
 
@@ -523,11 +550,11 @@ class LocationServiceWindowsTests(unittest.TestCase):
             )
 
             with patch(
-                "astro_viewer.app.services.location_service.requests.get",
+                "astro_viewer.app.services.location_providers.requests.get",
                 side_effect=requests.Timeout,
             ):
                 with self.assertLogs(
-                    "astro_viewer.app.services.location_service",
+                    "astro_viewer.app.services.location_providers",
                     level="WARNING",
                 ):
                     result = provider.detect()
@@ -563,11 +590,11 @@ class LocationServiceWindowsTests(unittest.TestCase):
             clock["now"] = now + timedelta(hours=24, seconds=1)
 
             with patch(
-                "astro_viewer.app.services.location_service.requests.get",
+                "astro_viewer.app.services.location_providers.requests.get",
                 side_effect=requests.Timeout,
             ):
                 with self.assertLogs(
-                    "astro_viewer.app.services.location_service",
+                    "astro_viewer.app.services.location_providers",
                     level="WARNING",
                 ):
                     with self.assertRaises(LocationUnavailableError):
@@ -710,7 +737,7 @@ class GeoClueLocationProviderTests(unittest.TestCase):
         )
 
         with patch(
-            "astro_viewer.app.services.location_service.system_timezone",
+            "astro_viewer.app.services.location_providers.system_timezone",
             return_value="Europe/Rome",
         ):
             result = provider.detect()

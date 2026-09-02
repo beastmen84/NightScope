@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.45.16
+This document describes the architecture implemented by the NightScope 1.45.17
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -68,8 +68,9 @@ Concrete construction is owned by
 `AppControllerDependencies` graph and injects it into `AppController`; the
 controller retains a factory-backed compatibility path for direct test and
 integration construction. Repository paths, provider credentials, the
-Skyfield fallback and domain-service selection therefore have one application
-composition boundary instead of being assembled inside the Qt ViewModel.
+Skyfield fallback, location-provider adapters and domain-service selection
+therefore have one application composition boundary instead of being assembled
+inside the Qt ViewModel.
 
 ## Runtime Data Ownership
 
@@ -274,7 +275,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.45.16`:
+Current runtime status for `1.45.17`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -790,13 +791,17 @@ Services hold business logic:
   from already prepared Home targets; it does not call weather, VIIRS, Planner
   or recommendation services. Direction ranking combines current altitude,
   target value and density; plan/Best flags are annotations only.
-- `LocationService`: Windows, GeoClue, IP, manual and MPC-observatory location
-  providers. Geographic
-  timezone resolution is separate from city metadata: `CoordinateTimezoneService`
-  lazily reuses the offline `timezonefinder` polygon index to map exact WGS84
-  coordinates to an IANA timezone. Manual coordinates, manual city or MPC
-    observatory selection, and system-location modes use that result; a valid
-    timezone supplied by the IP provider remains authoritative. The computer timezone is only a defensive
+- `location_providers`: concrete Windows/WinRT, Linux/GeoClue, online IP,
+  cache, city and manual-coordinate adapters. The composition root constructs
+  one immutable adapter bundle; `LocationService` retains the old provider
+  imports as a compatibility facade.
+- `LocationService`: provider ordering, fallback, result enrichment and
+  timezone policy. Geographic timezone resolution is separate from city
+  metadata: `CoordinateTimezoneService` lazily reuses the offline
+  `timezonefinder` polygon index to map exact WGS84 coordinates to an IANA
+  timezone. Manual coordinates, manual city or MPC-observatory selection, and
+  system-location modes use that result; a valid timezone supplied by the IP
+  provider remains authoritative. The computer timezone is only a defensive
   fallback when the polygon lookup is unavailable, and its PowerShell probe is
   evaluated lazily. Precise Windows positions may use a GeoNames city within
   50 km to enrich city, country and region, but that lookup neither changes the

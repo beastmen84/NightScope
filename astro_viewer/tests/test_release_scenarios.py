@@ -719,7 +719,7 @@ class _ControllerContext:
         self.weather_requests = self._patcher.start()
         if self._patch_location_requests:
             self._location_patcher = patch(
-                "astro_viewer.app.services.location_service.requests.get",
+                "astro_viewer.app.services.location_providers.requests.get",
                 return_value=self._response,
                 side_effect=self._side_effect,
             )

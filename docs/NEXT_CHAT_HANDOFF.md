@@ -4,7 +4,7 @@ Updated: 2026-09-02
 
 ## Current State
 
-- Source version: `1.45.16`.
+- Source version: `1.45.17`.
 - Current public release: `v1.43.0`.
 - Public-release source commit: `26dfaf49df8f9b8e73e84f406396f406170400b2`.
 - The `1.45.x` architectural series is source-only. No `1.45.x` tag, checksum,
@@ -33,7 +33,8 @@ Updated: 2026-09-02
 | 1.45.13 | `0caf68f` | Documents every test/support module and enforces the complete source-documentation inventory. |
 | 1.45.14 | `de25eab` | Updates the validated development and portable-packaging toolchain without changing runtime behavior. |
 | 1.45.15 | `8c11175` | Updates the validated Qt and astronomy runtime baseline while preserving application contracts. |
-| 1.45.16 | current source | Updates and constrains the Earthdata transport family as one tested resolver unit. |
+| 1.45.16 | `a8584a8` | Updates and constrains the Earthdata transport family as one tested resolver unit. |
+| 1.45.17 | current source | Extracts concrete location adapters behind an explicit composition-root bundle while retaining compatibility imports. |
 
 ## Resulting Architecture
 
@@ -42,7 +43,9 @@ Updated: 2026-09-02
 signals, slots, asynchronous scheduling, stale-result rejection, and publication
 of runtime state. Framework-independent application workflows and presentation
 services now prepare recommendation, catalogue, observing/weather, and equipment
-read models. Repositories own SQLite transactions and models carry typed data.
+read models. The composition root also builds the concrete location-adapter
+bundle; `LocationService` owns provider selection, fallback and result
+normalization. Repositories own SQLite transactions and models carry typed data.
 
 The production graph is acyclic. The architecture gate also prevents models,
 database, astronomy, and service modules from importing the controller or the
@@ -51,16 +54,16 @@ tests or integrations construct the controller directly.
 
 The detailed assessment is in `docs/ARCHITECTURE_REVIEW_1_45.md`. The concise
 verdict is that the codebase is robust, well tested, and materially better
-organized than `1.44.0`, but not uniformly modular: `AppController`, the
-location and NASA providers, equipment repository/bootstrap, the Skyfield
-engine, and the largest QML pages remain concentrated maintenance areas.
+organized than `1.44.0`, but not uniformly modular: `AppController`, the NASA
+provider, equipment repository/bootstrap, the Skyfield engine, and the largest
+QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.45.16` coverage/security source gate passed on
+The final local `1.45.17` coverage/security source gate passed on
 Windows/Python 3.14.5:
 
-- 1,170 tests and 10 subtests in 310.65 seconds, with 86% aggregate application
+- 1,172 tests and 10 subtests in 330.30 seconds, with 86% aggregate application
   coverage and no unexpected warning summary;
 - validated toolchain: pip 26.2.1, Ruff 0.16.5, coverage 7.16.0, PyInstaller
   6.22.2, and `pyinstaller-hooks-contrib` 2026.7;
@@ -68,7 +71,7 @@ Windows/Python 3.14.5:
   Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, and NumPy 2.5.2;
 - validated Earthdata runtime: earthaccess 0.18.0, s3fs/fsspec 2026.7.0,
   aiobotocore 3.9.0, and maximum compatible botocore 1.43.56;
-- complete documentation inventory: 240 Python, 34 QML, and 15 operational
+- complete documentation inventory: 241 Python, 34 QML, and 15 operational
   files;
 - Ruff, compilation, license archive, MPC/OpenNGC snapshot checks;
 - 0 import cycles and 0 protected-layer violations;
@@ -82,17 +85,15 @@ claim a remote CI pass until GitHub has run it.
 
 ## Next Architectural Step
 
-The Earthdata dependency family was completed in `1.45.16` as one resolver
-unit. Keep `earthaccess`, `s3fs`, `fsspec`, `aiobotocore`, and `botocore`
-adjacent and update their guarded constraints together. Keep
-`timezonefinder==8.2.5` until an 8.3.x Windows wheel exists or a deliberate,
-tested source-build policy is adopted; PyPI currently publishes 8.3.0 only as a
-source archive and Linux wheels.
+`1.45.17` extracted concrete Windows, GeoClue, IP, cache and manual location
+adapters from selection/normalization policy. The composition root owns their
+construction, and the previous `location_service` import surface remains
+compatible.
 
-Resume the architecture roadmap in `1.45.17` with location/provider adapters,
-then controller command workflows. Preserve current Qt properties, signals,
-asynchronous stale-result rejection, cache behavior, and provider error
-semantics while moving concrete adapter construction behind narrower seams.
+Resume in `1.45.18` with the controller-facing location selection and provider
+refresh commands. Preserve current Qt properties, signals, refresh timing,
+asynchronous stale-result rejection, cache behavior and provider error
+semantics while introducing explicit workflow inputs and results.
 
 ## Deferred Product Work: Catalogue Editorial Content
 

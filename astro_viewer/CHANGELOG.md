@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+## NightScope 1.45.17 - 2026-09-02
+
+- Estratti da `location_service.py` gli adapter concreti Windows/WinRT,
+  Linux/GeoClue, geolocalizzazione IP con cache e inserimento manuale.
+- La composition root costruisce ora un bundle immutabile di adapter e lo
+  inietta nel servizio; ordinamento, fallback, arricchimento città e politica
+  timezone restano isolati in `LocationService`.
+- Conservati gli import storici tramite una facciata compatibile e verificati
+  precedenza dei provider, errori, timeout, cache e payload QML con 115 test
+  mirati.
+- Il gate sorgente completo con coverage e sicurezza passa con 1.172 test e 10
+  subtest in 330,30 secondi, coverage aggregata 86%, nessuna vulnerabilità nota
+  e smoke test backend, QML normale e Red Night Vision riusciti.
+- La versione sorgente passa a `1.45.17`; `dist` non è stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release.
+
 ## NightScope 1.45.16 - 2026-09-02
 
 - Aggiornata come singola unita' compatibile la famiglia runtime Earthdata:

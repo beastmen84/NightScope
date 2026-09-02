@@ -70,6 +70,9 @@ from astro_viewer.app.services.imaging_runtime_assembler import (
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
 from astro_viewer.app.services.localization import tr
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
+from astro_viewer.app.services.location_providers import (
+    build_location_provider_adapters,
+)
 from astro_viewer.app.services.location_service import LocationService
 from astro_viewer.app.services.nasa_aod_provider import NasaAodProvider
 from astro_viewer.app.services.night_planner_service import NightPlannerService
@@ -216,9 +219,13 @@ def build_app_controller_dependencies(
     openaq_credential_store = OpenAQCredentialStore(
         preferences_path=resolved_preferences_path,
     )
+    location_provider_adapters = build_location_provider_adapters(
+        resolved_location_cache_path
+    )
     location_service = LocationService(
         city_resolver=city_repository,
         cache_path=resolved_location_cache_path,
+        provider_adapters=location_provider_adapters,
     )
 
     startup_service_status: object = ""

@@ -52,9 +52,9 @@
       "test_id": "B404",
       "severity": "LOW",
       "confidence": "HIGH",
-      "path": "astro_viewer/app/services/location_service.py",
+      "path": "astro_viewer/app/services/location_providers.py",
       "source": "import subprocess",
-      "code_hash": "29edd6ffdaa3759aed48b2c160f12d289c6e9e31f1862d19ffd989da666c06cb"
+      "code_hash": "27a89a4e6aa601057215572079766b9b5db6e05cbe342bee911d921b636cfec3"
     },
     {
       "test_id": "B404",
@@ -84,7 +84,7 @@
       "test_id": "B603",
       "severity": "LOW",
       "confidence": "HIGH",
-      "path": "astro_viewer/app/services/location_service.py",
+      "path": "astro_viewer/app/services/location_providers.py",
       "source": "result = subprocess.run(",
       "code_hash": "5508bcdab26f49700e7b056aefdb1111aad65ad81a109c8f1690e04af1c6c587"
     },
@@ -92,7 +92,7 @@
       "test_id": "B603",
       "severity": "LOW",
       "confidence": "HIGH",
-      "path": "astro_viewer/app/services/location_service.py",
+      "path": "astro_viewer/app/services/location_providers.py",
       "source": "result = subprocess.run(",
       "code_hash": "844d8acd605280e89865ff6a313be69148f23cacc91788eb0cca445d3e0ba062"
     },
@@ -100,7 +100,7 @@
       "test_id": "B603",
       "severity": "LOW",
       "confidence": "HIGH",
-      "path": "astro_viewer/app/services/location_service.py",
+      "path": "astro_viewer/app/services/location_providers.py",
       "source": "result = subprocess.run(",
       "code_hash": "e21724622a269b77a0a9b50dbde4b111dc7cc9749573cc96b677e8c5b9707bde"
     },
@@ -132,7 +132,7 @@
       "test_id": "B607",
       "severity": "LOW",
       "confidence": "HIGH",
-      "path": "astro_viewer/app/services/location_service.py",
+      "path": "astro_viewer/app/services/location_providers.py",
       "source": "result = subprocess.run(",
       "code_hash": "5508bcdab26f49700e7b056aefdb1111aad65ad81a109c8f1690e04af1c6c587"
     },
@@ -140,7 +140,7 @@
       "test_id": "B607",
       "severity": "LOW",
       "confidence": "HIGH",
-      "path": "astro_viewer/app/services/location_service.py",
+      "path": "astro_viewer/app/services/location_providers.py",
       "source": "result = subprocess.run(",
       "code_hash": "844d8acd605280e89865ff6a313be69148f23cacc91788eb0cca445d3e0ba062"
     },
@@ -148,7 +148,7 @@
       "test_id": "B607",
       "severity": "LOW",
       "confidence": "HIGH",
-      "path": "astro_viewer/app/services/location_service.py",
+      "path": "astro_viewer/app/services/location_providers.py",
       "source": "result = subprocess.run(",
       "code_hash": "e21724622a269b77a0a9b50dbde4b111dc7cc9749573cc96b677e8c5b9707bde"
     },
