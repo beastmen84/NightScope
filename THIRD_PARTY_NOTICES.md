@@ -6,8 +6,8 @@ Public License 2.0. The complete project license is in `LICENSE`.
 Public NightScope source repository:
 `https://github.com/beastmen84/NightScope`
 
-NightScope 1.45.14 portable bundles correspond to source tag `v1.45.14`:
-`https://github.com/beastmen84/NightScope/tree/v1.45.14`. The bundles must not
+NightScope 1.45.15 portable bundles correspond to source tag `v1.45.15`:
+`https://github.com/beastmen84/NightScope/tree/v1.45.15`. The bundles must not
 be published until that tag is publicly reachable. The adjacent
 `SOURCE_CODE.md` gives direct source-archive links and source-availability
 instructions.
@@ -22,8 +22,8 @@ respective owners. Inclusion does not imply endorsement of NightScope.
 
 ## Qt And Qt For Python
 
-NightScope uses unmodified PySide6 Essentials and Addons 6.11.1, shiboken6,
-and the Qt 6.11.1 libraries needed by Qt Core, GUI, Widgets, QML, Qt Quick,
+NightScope uses unmodified PySide6 Essentials and Addons 6.11.2, shiboken6,
+and the Qt 6.11.2 libraries needed by Qt Core, GUI, Widgets, QML, Qt Quick,
 Qt Quick Controls, Layouts, Effects, Shapes, Window, and Positioning. Addons is
 used for the Qt Positioning system-location adapter. NightScope selects the
 `LGPL-3.0-only` open-source licensing option for these components. The complete

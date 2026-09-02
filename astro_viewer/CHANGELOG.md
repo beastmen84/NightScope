@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## NightScope 1.45.15 - 2026-09-02
+
+- Aggiornata la baseline runtime della `.venv` a PySide6/Qt/shiboken6 6.11.2,
+  Skyfield 1.55, NumPy 2.5.2 e dati IERS del 31 agosto 2026; Astropy resta alla
+  versione corrente 8.0.1.
+- Alzati i minimi dichiarati per PySide6 Essentials/Addons, Skyfield e NumPy e
+  rigenerato l'archivio deterministico delle licenze con le versioni installate.
+- Conservato `timezonefinder==8.2.5`: la 8.3.0 non pubblica un wheel Windows e
+  imporrebbe una compilazione da sorgente nel percorso d'installazione
+  supportato.
+- Il gate sorgente completo con coverage e sicurezza passa con 1.169 test e 10
+  subtest in 220,73 secondi, coverage aggregata 86% e nessuna vulnerabilita'
+  nota; passano anche 85 test astronomici/timezone mirati, entrambi gli smoke
+  QML e `qmllint` 6.11.2 su tutti i 34 file QML.
+- Nessun sorgente applicativo o QML e' stato modificato. La versione sorgente
+  passa a `1.45.15`; `dist` non e' stata rigenerata o modificata e non sono
+  stati creati tag o artefatti di release.
+
 ## NightScope 1.45.14 - 2026-09-02
 
 - Aggiornata la toolchain della `.venv` Python 3.14.5 a pip 26.2.1, Ruff 0.16.5,

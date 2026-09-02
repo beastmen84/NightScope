@@ -1,7 +1,7 @@
 # NightScope 1.45 Architecture Review
 
 Date: 2026-09-02
-Scope: source `1.44.0` through `1.45.14`
+Scope: source `1.44.0` through `1.45.15`
 
 ## Verdict
 
@@ -34,8 +34,8 @@ stated.
 | Area | Evidence | Assessment |
 | --- | --- | --- |
 | Production Python | 121 modules, 46,811 lines | Broad domain surface; every module now states its responsibility and package boundaries are discoverable. |
-| Tests | 86 test files plus 2 support/package modules, 35,268 lines; 1,169 tests and 10 subtests at the 1.45.14 gate | Very strong regression protection relative to production size. |
-| `AppController` | 9,836 lines at 1.44.0; 7,910 at 1.45.14, including its module header; 1,926 net lines removed (19.6%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
+| Tests | 86 test files plus 2 support/package modules, 35,268 lines; 1,169 tests and 10 subtests at the 1.45.15 gate | Very strong regression protection relative to production size. |
+| `AppController` | 9,836 lines at 1.44.0; 7,910 at 1.45.15, including its module header; 1,926 net lines removed (19.6%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
 | Controller surface | 562 methods, including 114 slots and 141 properties | Large compatibility/API surface makes wholesale rewriting risky. |
 | Largest persistence modules | `equipment_catalog_repository.py` 3,027 lines; `bootstrap.py` 2,492 | Transactionally cohesive but too concentrated for easy local reasoning. |
 | Astronomy implementation | `skyfield_engine.py` 2,434 lines | Complex by domain necessity; provider/event subcomponents can still be separated. |
@@ -44,6 +44,7 @@ stated.
 | Documentation inventory | 240 Python, 34 QML, and 15 operational files | Complete governed coverage, enforced before the long test suite. |
 | Static/security gate | Ruff 0.16.5, compileall, documentation inventory, exact Bandit baseline and pip-audit; 0 high findings and no known dependency vulnerabilities | Good incremental protection; whole-project type checking remains absent. |
 | Validated build toolchain | pip 26.2.1, coverage 7.16.0, PyInstaller 6.22.2 and `pyinstaller-hooks-contrib` 2026.7 on Windows/Python 3.14.5 | Current source floors and local environment are aligned; portable bundles still require a separate final build and audit. |
+| Validated UI/astronomy runtime | PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55, Astropy 8.0.1, current IERS data and NumPy 2.5.2 | Focused astronomy/timezone tests, QML smoke modes and all-file `qmllint` pass without changing application or QML source. |
 | Runtime gate | Backend plus normal and red QML smoke tests in disposable runtimes | Strong protection of construction and UI loading paths. |
 
 ## What Changed In 1.45.x

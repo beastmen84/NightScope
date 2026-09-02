@@ -20,9 +20,10 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.45.14` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
-Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2, and
-`pyinstaller-hooks-contrib` 2026.7.
+The `1.45.15` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
+Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
+`pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
+Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, and NumPy 2.5.2.
 
 ## Standard Source Gates
 
@@ -94,8 +95,9 @@ Use `--write-baseline` only after reviewing every difference and its rationale.
 Pytest promotes unexpected warnings to errors. `pytest.ini` contains only two
 repository-wide exceptions: the exact Skyfield `dtype` and `shape` deprecation
 signatures caused by NumPy 2.5, constrained by message, category, and module.
-Remove those filters when the upstream behavior is fixed and rerun the complete
-astronomy suite.
+The `dtype` exception remains reproducible with Skyfield 1.55 and NumPy 2.5.2.
+Remove both filters only when the corresponding upstream behavior is fixed and
+rerun the complete astronomy suite.
 
 ## Continuous Integration
 
@@ -161,14 +163,16 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
-The `1.45.14` coverage/security source gate passed on Windows/Python 3.14.5 with
-1,169 tests and 10 subtests in 423.58 seconds, 86% aggregate application
+The `1.45.15` coverage/security source gate passed on Windows/Python 3.14.5 with
+1,169 tests and 10 subtests in 220.73 seconds, 86% aggregate application
 coverage, no unexpected warning summary, complete documentation coverage for
 240 Python, 34 QML, and 15 operational files, an acyclic production graph, zero
 protected-layer violations, an unchanged Bandit baseline (0 high, 37 medium, 14
 low), clean dependency/license/MPC/OpenNGC checks, and successful backend,
 normal QML, and Red Night Vision QML smoke tests. The in-gate installed-
-environment `pip-audit` found no known vulnerabilities.
+environment `pip-audit` found no known vulnerabilities. A separate PySide6
+6.11.2 `qmllint` pass over all 34 QML files exited successfully; its existing
+non-fatal diagnostics remain tracked technical debt.
 
 No remote CI result, distribution build, source tag, checksum, or release is
 implied by that local source measurement.

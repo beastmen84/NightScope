@@ -4,7 +4,7 @@ Updated: 2026-09-02
 
 ## Current State
 
-- Source version: `1.45.14`.
+- Source version: `1.45.15`.
 - Current public release: `v1.43.0`.
 - Public-release source commit: `26dfaf49df8f9b8e73e84f406396f406170400b2`.
 - The `1.45.x` architectural series is source-only. No `1.45.x` tag, checksum,
@@ -31,7 +31,8 @@ Updated: 2026-09-02
 | 1.45.11 | `6719979` | Documents the responsibility and boundary contract of every QML file. |
 | 1.45.12 | `8f4a9f2` | Documents maintenance, packaging, CI, configuration, schema, and manual files. |
 | 1.45.13 | `0caf68f` | Documents every test/support module and enforces the complete source-documentation inventory. |
-| 1.45.14 | current source | Updates the validated development and portable-packaging toolchain without changing runtime behavior. |
+| 1.45.14 | `de25eab` | Updates the validated development and portable-packaging toolchain without changing runtime behavior. |
+| 1.45.15 | current source | Updates the validated Qt and astronomy runtime baseline while preserving application contracts. |
 
 ## Resulting Architecture
 
@@ -55,25 +56,40 @@ engine, and the largest QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.45.14` coverage/security source gate passed on
+The final local `1.45.15` coverage/security source gate passed on
 Windows/Python 3.14.5:
 
-- 1,169 tests and 10 subtests in 423.58 seconds, with 86% aggregate application
+- 1,169 tests and 10 subtests in 220.73 seconds, with 86% aggregate application
   coverage and no unexpected warning summary;
 - validated toolchain: pip 26.2.1, Ruff 0.16.5, coverage 7.16.0, PyInstaller
   6.22.2, and `pyinstaller-hooks-contrib` 2026.7;
+- validated UI/astronomy runtime: PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
+  Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, and NumPy 2.5.2;
 - complete documentation inventory: 240 Python, 34 QML, and 15 operational
   files;
 - Ruff, compilation, license archive, MPC/OpenNGC snapshot checks;
 - 0 import cycles and 0 protected-layer violations;
 - Bandit baseline unchanged: 0 high, 37 medium, 14 low reviewed findings;
 - `pip check`; the in-gate `pip-audit` found no known vulnerabilities;
-- backend, normal QML, and Red Night Vision smoke tests.
+- backend, normal QML, and Red Night Vision smoke tests;
+- PySide6 6.11.2 `qmllint` over all 34 QML files exited successfully.
 
 The GitHub workflow definition and its commands were checked locally. Do not
 claim a remote CI pass until GitHub has run it.
 
-## Next Product Work: Catalogue Editorial Content
+## Next Architectural Step
+
+Treat the Earthdata dependency family as one resolver unit in `1.45.16`:
+`earthaccess`, `s3fs`, `fsspec`, `aiobotocore`, and `botocore` must move together
+without relaxing the tested botocore compatibility bound prematurely. Keep
+`timezonefinder==8.2.5` until an 8.3.x Windows wheel exists or a deliberate,
+tested source-build policy is adopted; PyPI currently publishes 8.3.0 only as a
+source archive and Linux wheels.
+
+After dependency maintenance, resume the architecture roadmap with the
+location/provider adapters and controller command workflows.
+
+## Deferred Product Work: Catalogue Editorial Content
 
 The next planned stream is source-backed descriptions and curiosities for the
 NGC-only physical targets, in Italian, English, and Spanish. The existing 228
