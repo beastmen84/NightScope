@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+## NightScope 1.45.0 - 2026-09-02
+
+- Introdotta una composition root applicativa esplicita che costruisce
+  repository, provider, servizi di dominio e motore astronomico fuori da
+  `AppController`. L'entry point passa ora al controller un contenitore di
+  dipendenze gia' risolto, mantenendo il costruttore storico come percorso di
+  compatibilita' per test e integrazioni esistenti.
+- Il fallback da Skyfield ai dati astronomici di emergenza appartiene ora alla
+  composizione dell'applicazione; percorsi runtime, cache, credenziali, refresh,
+  punteggi e contratti QML restano invariati.
+- La versione sorgente passa a `1.45.0`. La cartella `dist` non e' stata
+  rigenerata: i futuri artefatti Windows e Linux richiederanno una richiesta e
+  una validazione di release separate.
+
 ## NightScope 1.44.0 - 2026-09-01
 
 - Stabilizzata la direzione live di Sky Compass senza rallentare il refresh

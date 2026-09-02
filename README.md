@@ -11,7 +11,7 @@ active profile to answer a practical question: **what is worth observing
 tonight, from here, with this setup?**
 
 > [!NOTE]
-> NightScope is a released application. Source version 1.44.0 is prepared for
+> NightScope is a released application. Source version 1.45.0 is prepared for
 > the next stable release and is ahead of the current public 1.43.0 Windows and
 > Linux portable bundles.
 > Release artifacts remain platform-specific portable builds rather than
@@ -370,7 +370,7 @@ The wrapper creates a Debian 12/Python 3.12 build image, runs PyInstaller, and
 writes the portable application to `dist/NightScope`. It then creates the
 deterministic release archive and checksum:
 
-`dist/NightScope-v1.44.0-debian-12-x64.tar.gz` and its adjacent `.sha256`
+`dist/NightScope-v1.45.0-debian-12-x64.tar.gz` and its adjacent `.sha256`
 file. The inner build scripts copy the project notices, generate the installed
 Linux Python dependency license archive, inventory every copied Debian ELF
 file, bundle the matching copyright and common-license texts, and run the
@@ -423,10 +423,11 @@ release bundle.
 ```text
 astro_viewer/
   app/
+    application/     Composition root and application workflows
     astronomy/       Local ephemerides, event and visibility calculations
     database/        SQLite bootstrap, repositories and migrations
-    domain/          Observation, equipment and recommendation contracts
-    services/        Providers, caches, localization and orchestration
+    models/          Observation, equipment and recommendation contracts
+    services/        Providers, domain services, caches and localization
     ui/              QML application and reusable controls
     viewmodels/      QML-facing read models and commands
   data/              Schemas, seeds, GeoNames, MPC sites and local ephemeris data

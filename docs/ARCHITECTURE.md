@@ -9,6 +9,8 @@ NightScope is organized around a small desktop application package:
 
 - `astro_viewer/main.py`: application entry point, CLI smoke-test entry points,
   QApplication setup and QML loading.
+- `astro_viewer/app/application`: composition root and application-level
+  orchestration boundaries shared by the entry point and Qt controller.
 - `astro_viewer/app/ui`: QML pages, components, theme and presentation logic.
 - `astro_viewer/app/viewmodels`: Qt-facing controller/ViewModel layer. The main
   object is `AppController`.
@@ -55,6 +57,14 @@ The current implementation is coherent, but the ViewModel/controller layer has
 grown beyond a narrow presentation adapter. `AppController` also orchestrates
 refresh flows, profile mutation, object formatting, weather digests, calendar
 presentation and recommendation enrichment.
+
+Concrete construction is owned by
+`astro_viewer.app.application.dependencies`. `astro_viewer.main` builds one
+`AppControllerDependencies` graph and injects it into `AppController`; the
+controller retains a factory-backed compatibility path for direct test and
+integration construction. Repository paths, provider credentials, the
+Skyfield fallback and domain-service selection therefore have one application
+composition boundary instead of being assembled inside the Qt ViewModel.
 
 ## Runtime Data Ownership
 
@@ -1183,8 +1193,10 @@ The following duplication or concentration of responsibility should be tracked:
 - Moon illumination and target geometry are composed once by
   `NsomObservationEnvironmentService`; Planner adds only observer, timing and
   session layers.
-- `AppController` is oversized and mixes controller, presenter and orchestration
-  responsibilities.
+- `AppController` remains oversized and mixes controller, presenter and
+  orchestration responsibilities. Concrete dependency construction has moved
+  to the application composition root; the remaining workflows should be
+  extracted by coherent use case rather than by arbitrary file slices.
 - `HomePage.qml` is also large. Upper-Home and lower-Home decisions are moving
   into explicit presentation contracts, while visual formatting remains QML.
 - `EquipmentProfile.telescope_id` remains as a legacy single-telescope field

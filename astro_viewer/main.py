@@ -157,6 +157,9 @@ def _copy_legacy_sidecar(source: Path, target: Path) -> None:
 
 
 def _build_controller(progress_callback=None):
+    from astro_viewer.app.application.dependencies import (
+        build_app_controller_dependencies,
+    )
     from astro_viewer.app.astronomy.comet_windows import CometWindowEventSource
     from astro_viewer.app.astronomy.iss_passes import IssPassEventSource
     from astro_viewer.app.database.bootstrap import initialize_database
@@ -177,13 +180,21 @@ def _build_controller(progress_callback=None):
     orbital_cache = OrbitalElementCacheRepository(database_path)
     iss_pass_source = IssPassEventSource(orbital_cache)
     comet_window_source = CometWindowEventSource(orbital_cache)
-    return AppController(
+    dependencies = build_app_controller_dependencies(
         base_dir=BASE_DIR,
         database_path=database_path,
         preferences_path=RUNTIME_PATHS.preferences_path,
         location_cache_path=RUNTIME_PATHS.location_cache_path,
         nasa_aod_cache_path=RUNTIME_PATHS.nasa_aod_cache_path,
         transient_event_sources=(iss_pass_source, comet_window_source),
+    )
+    return AppController(
+        base_dir=BASE_DIR,
+        database_path=database_path,
+        preferences_path=RUNTIME_PATHS.preferences_path,
+        location_cache_path=RUNTIME_PATHS.location_cache_path,
+        nasa_aod_cache_path=RUNTIME_PATHS.nasa_aod_cache_path,
+        dependencies=dependencies,
     )
 
 

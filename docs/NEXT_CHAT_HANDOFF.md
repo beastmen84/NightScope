@@ -4,7 +4,7 @@ Aggiornato: 2026-09-02
 
 ## Stato Versioni
 
-- Versione sorgente: `1.44.0`
+- Versione sorgente: `1.45.0`
 - Repository pubblico: `https://github.com/beastmen84/NightScope`
 - Release pubblica stabile: `v1.43.0`, tag sul commit sorgente
   `26dfaf49df8f9b8e73e84f406396f406170400b2`.
@@ -17,8 +17,9 @@ Aggiornato: 2026-09-02
   con file checksum adiacente.
 - Metadati, tag, asset Windows/Linux e digest della release stabile `v1.43.0`
   sono stati verificati su GitHub il 2026-09-01.
-- Il sorgente `1.44.0` aggiunge la stabilizzazione live di Sky Compass. Dist,
-  checksum e release GitHub `v1.44.0` restano da creare e verificare.
+- Il sorgente `1.45.0` avvia la serie architetturale 1.45.x con una composition
+  root applicativa esplicita. Dist, checksum e release GitHub `v1.45.0` non sono
+  stati creati e restano fuori ambito fino a richiesta esplicita.
 - Commit sorgente della release pubblica validato:
   `26dfaf4 Record Debian 1.43 release candidate`
 
@@ -26,6 +27,27 @@ La localizzazione spagnola e' stata introdotta nel sorgente `1.34.0`; il
 follow-up di hardening e le guide provider appartengono a `1.34.1`. I fix
 Earthdata e layout appartengono a `1.34.2`; la review editoriale italiana e
 inglese descritta sotto appartiene al sorgente `1.34.3`.
+
+## Serie Architetturale 1.45.x
+
+La `1.45.0` sposta la costruzione concreta di repository, provider, servizi e
+motore astronomico in `astro_viewer.app.application.dependencies`. L'entry point
+costruisce e inietta `AppControllerDependencies`; il controller conserva un
+percorso factory compatibile per i test e le integrazioni che lo istanziano
+direttamente. Nessun contratto QML, calcolo NSOM, refresh o schema dati cambia.
+
+La serie proseguira' con commit e versioni sorgente distinti per workflow
+catalogo, presentazione osservativa, profili/equipaggiamento, pulizia dei cicli
+di importazione e gate statici. `dist` non deve essere rigenerata durante questi
+step.
+
+Validazione sorgente `1.45.0` su Python 3.14.5:
+
+- `tools/run_checks.py --fast`: `1.140 passed`, `715` warning noti e `10`
+  subtests passed;
+- Ruff, `compileall`, dipendenze, licenze e snapshot MPC/OpenNGC puliti;
+- smoke backend e QML normale/Red Night Vision passati;
+- nessun artefatto sotto `dist` rigenerato o modificato.
 
 ## Release Candidate Sorgente 1.44.0
 

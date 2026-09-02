@@ -6,6 +6,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
+from astro_viewer.app.application.dependencies import AppControllerDependencies
 from astro_viewer.app.models.equipment import Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.services.equipment_service import EquipmentService
@@ -201,11 +202,12 @@ def test_app_controller_naked_eye_block_policy_still_matches_legacy_output() -> 
 
 
 def test_equipment_setup_read_model_has_no_qml_property_exposure() -> None:
-    source = inspect.getsource(AppController)
+    controller_source = inspect.getsource(AppController)
+    dependency_source = inspect.getsource(AppControllerDependencies)
 
-    assert "EquipmentSetupReadModelBuilder" in source
-    assert "equipment_setup_read_model" in source
-    assert "def equipmentSetupReadModel" not in source
+    assert "EquipmentSetupReadModelBuilder" in dependency_source
+    assert "equipment_setup_read_model_builder" in controller_source
+    assert "def equipmentSetupReadModel" not in controller_source
     assert "equipmentSetupReadModel" not in _qml_sources()
 
 

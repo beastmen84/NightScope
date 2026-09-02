@@ -197,6 +197,9 @@ def test_database_bootstrap_cli_uses_canonical_runtime_paths() -> None:
 def test_app_controller_uses_explicit_config_and_cache_paths(
     tmp_path: Path,
 ) -> None:
+    from astro_viewer.app.application.dependencies import (
+        build_app_controller_dependencies,
+    )
     from astro_viewer.app.database.bootstrap import initialize_database
     from astro_viewer.app.viewmodels.app_controller import AppController
 
@@ -211,6 +214,13 @@ def test_app_controller_uses_explicit_config_and_cache_paths(
         base_dir / "data" / "schema.sql",
         geonames_data_dir=base_dir / "data",
     )
+    dependencies = build_app_controller_dependencies(
+        base_dir=base_dir,
+        database_path=database_path,
+        preferences_path=preferences_path,
+        location_cache_path=location_cache_path,
+        nasa_aod_cache_path=nasa_aod_cache_path,
+    )
 
     with patch.object(
         AppController,
@@ -223,6 +233,7 @@ def test_app_controller_uses_explicit_config_and_cache_paths(
             preferences_path=preferences_path,
             location_cache_path=location_cache_path,
             nasa_aod_cache_path=nasa_aod_cache_path,
+            dependencies=dependencies,
         )
 
     try:
@@ -238,6 +249,8 @@ def test_app_controller_uses_explicit_config_and_cache_paths(
             location_cache_path
         )
         assert controller._nasa_aod_provider._cache_path == nasa_aod_cache_path
+        assert controller._catalogue_repository is dependencies.catalogue_repository
+        assert controller._weather_service is dependencies.weather_service
         assert app is QCoreApplication.instance()
     finally:
         if hasattr(controller._astronomy_engine, "close"):

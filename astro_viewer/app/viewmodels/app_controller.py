@@ -12,6 +12,10 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from PySide6.QtCore import QCoreApplication, QObject, Property, QTimer, QUrl, Signal, Slot
 
+from astro_viewer.app.application.dependencies import (
+    AppControllerDependencies,
+    build_app_controller_dependencies,
+)
 from astro_viewer.app.astronomy.coordinates import parse_dec_degrees
 from astro_viewer.app.astronomy.engine import (
     MockAstronomyEngine,
@@ -21,17 +25,8 @@ from astro_viewer.app.astronomy.engine import (
 )
 from astro_viewer.app.astronomy.skyfield_engine import (
     DEEP_SKY_USEFUL_ALTITUDE_DEG,
-    EphemerisUnavailableError,
     SkyfieldAstronomyEngine,
 )
-from astro_viewer.app.database.catalogue_repository import CatalogueRepository
-from astro_viewer.app.database.city_repository import CityRepository
-from astro_viewer.app.database.location_repository import LocationRepository
-from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
-from astro_viewer.app.database.object_image_repository import ObjectImageRepository
-from astro_viewer.app.database.observation_repository import ObservationRepository
-from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
-from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
 from astro_viewer.app.models.equipment import (
     Barlow,
     Binocular,
@@ -68,8 +63,6 @@ from astro_viewer.app.models.sky import (
 from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlockingStatus, WeatherHour, WeatherSummary
 from astro_viewer.app.services.earthdata_credentials import (
     EARTHDATA_LAADS_AUTHORIZATION_URL,
-    EarthdataConnectionTester,
-    EarthdataCredentialStore,
 )
 from astro_viewer.app.services.equipment_taxonomy import (
     ASTRONOMY_CAMERA_CLASS_OPTIONS,
@@ -82,16 +75,8 @@ from astro_viewer.app.services.equipment_taxonomy import (
     TELESCOPE_CATEGORY_OPTIONS,
     TELESCOPE_OPTICAL_TYPE_OPTIONS,
 )
-from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.equipment_setup_read_model import (
     EquipmentSetupReadModel,
-    EquipmentSetupReadModelBuilder,
-)
-from astro_viewer.app.services.filter_recommendation_service import (
-    FilterRecommendationService,
-)
-from astro_viewer.app.services.reducer_recommendation_service import (
-    ReducerRecommendationService,
 )
 from astro_viewer.app.services.light_pollution_service import LightPollutionService, ViirsCacheState
 from astro_viewer.app.services.localization import (
@@ -109,15 +94,12 @@ from astro_viewer.app.services.localization import (
 from astro_viewer.app.services.location_service import (
     APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE,
     LocationDetectionResult,
-    LocationService,
     LocationUnavailableError,
 )
-from astro_viewer.app.services.location_preferences import LocationPreferenceStore
-from astro_viewer.app.services.nasa_aod_provider import NasaAodProvider, NasaAodResult
+from astro_viewer.app.services.nasa_aod_provider import NasaAodResult
 from astro_viewer.app.services.best_object_nsom_ranking import (
     BestObjectNsomSelectionService,
 )
-from astro_viewer.app.services.calendar_overview import CalendarOverviewService
 from astro_viewer.app.services.catalogue_presentation import (
     catalogue_constellation_label,
     catalogue_display_name,
@@ -127,9 +109,7 @@ from astro_viewer.app.services.catalogue_presentation import (
 from astro_viewer.app.services.home_nsom_ranking import (
     HomeRecommendedDeepSkyNsomRankingService,
 )
-from astro_viewer.app.services.home_night_plan_overview import HomeNightPlanOverviewService
 from astro_viewer.app.services.home_observing_overview import (
-    HomeObservingOverviewService,
     bortle_observing_warning,
 )
 from astro_viewer.app.services.imaging_camera_adapter import ImagingCameraAdapter
@@ -145,14 +125,12 @@ from astro_viewer.app.services.imaging_runtime_conditions_adapter import (
 from astro_viewer.app.services.imaging_target_traits import (
     ImagingTargetTraitsAdapter,
 )
-from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.nsom_category_score_service import NsomCategoryScoreService
 from astro_viewer.app.services.nsom_target import unique_targets_by_id
 from astro_viewer.app.services.observation_conditions_service import (
     AodConditionInput,
     MoonGeometryConditionInput,
     ObservationConditionInputs,
-    ObservationConditionsService,
     ParticulateConditionInput,
 )
 from astro_viewer.app.services.observation_conditions_read_model import (
@@ -160,23 +138,18 @@ from astro_viewer.app.services.observation_conditions_read_model import (
     ObservationConditionsReadModelBuilder,
 )
 from astro_viewer.app.services.observation_log_service import (
-    ObservationLogService,
     ObservationLogValidationError,
 )
-from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.observing_night_service import (
     consecutive_weather_groups,
     weather_hour_datetime,
     weather_hours_for_next_24,
     weather_hours_for_night,
 )
-from astro_viewer.app.services.observing_object_detail import ObservingObjectDetailService
-from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere, OpenAQLocalAtmosphereService
-from astro_viewer.app.services.openaq_credentials import OpenAQConnectionTester, OpenAQCredentialStore
+from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere
 from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshManager, RefreshReason
-from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
-from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE, OpenMeteoWeatherService
+from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE
 from astro_viewer.app.viewmodels.catalogue_object_list_model import (
     CatalogueObjectListModel,
 )
@@ -330,6 +303,7 @@ class AppController(QObject):
         nsom_category_score_service: NsomCategoryScoreService | None = None,
         sky_compass_service: SkyCompassService | None = None,
         transient_event_sources: Sequence[TransientCalendarEventSource] = (),
+        dependencies: AppControllerDependencies | None = None,
     ):
         super().__init__()
         self._photographic_recommendation_input_state: object | None = None
@@ -367,32 +341,46 @@ class AppController(QObject):
             self._notify_photographic_recommendation_if_changed
         )
         self._base_dir = base_dir
-        preferences_path = preferences_path or database_path.parent / "user_preferences.json"
-        location_cache_path = location_cache_path or database_path.parent / "location_cache.json"
-        nasa_aod_cache_path = nasa_aod_cache_path or database_path.parent / "nasa_aod_cache.json"
-        self._city_repository = CityRepository(database_path)
-        self._location_repository = LocationRepository(database_path)
-        self._catalogue_repository = CatalogueRepository(database_path)
-        self._equipment_catalog_repository = EquipmentCatalogRepository(database_path)
-        self._sky_quality_repository = SkyQualityRepository(database_path)
-        self._object_image_repository = ObjectImageRepository(database_path)
-        self._weather_cache_repository = WeatherCacheRepository(database_path)
-        self._observation_repository = ObservationRepository(database_path)
-        self._location_preferences = LocationPreferenceStore(
+        controller_dependencies = dependencies or build_app_controller_dependencies(
+            base_dir=base_dir,
+            database_path=database_path,
             preferences_path=preferences_path,
-            cache_path=location_cache_path,
+            location_cache_path=location_cache_path,
+            nasa_aod_cache_path=nasa_aod_cache_path,
+            best_object_nsom_selection_service=best_object_nsom_selection_service,
+            home_recommended_deep_sky_nsom_ranking_service=(
+                home_recommended_deep_sky_nsom_ranking_service
+            ),
+            nsom_category_score_service=nsom_category_score_service,
+            sky_compass_service=sky_compass_service,
+            transient_event_sources=transient_event_sources,
         )
-        self._earthdata_credential_store = EarthdataCredentialStore(
-            preferences_path=preferences_path,
+        self._city_repository = controller_dependencies.city_repository
+        self._location_repository = controller_dependencies.location_repository
+        self._catalogue_repository = controller_dependencies.catalogue_repository
+        self._equipment_catalog_repository = (
+            controller_dependencies.equipment_catalog_repository
         )
-        self._earthdata_connection_tester = EarthdataConnectionTester()
+        self._sky_quality_repository = controller_dependencies.sky_quality_repository
+        self._object_image_repository = controller_dependencies.object_image_repository
+        self._weather_cache_repository = controller_dependencies.weather_cache_repository
+        self._observation_repository = controller_dependencies.observation_repository
+        self._location_preferences = controller_dependencies.location_preferences
+        self._earthdata_credential_store = (
+            controller_dependencies.earthdata_credential_store
+        )
+        self._earthdata_connection_tester = (
+            controller_dependencies.earthdata_connection_tester
+        )
         self._earthdata_credentials_state = self._earthdata_credential_store.state()
         self._earthdata_connection_test_running = False
-        self._openaq_credential_store = OpenAQCredentialStore(
-            preferences_path=preferences_path,
+        self._openaq_credential_store = controller_dependencies.openaq_credential_store
+        self._openaq_connection_tester = (
+            controller_dependencies.openaq_connection_tester
         )
-        self._openaq_connection_tester = OpenAQConnectionTester()
-        self._local_atmosphere_service = OpenAQLocalAtmosphereService()
+        self._local_atmosphere_service = (
+            controller_dependencies.local_atmosphere_service
+        )
         self._openaq_credentials_state = self._openaq_credential_store.state()
         self._openaq_connection_test_running = False
         self._local_atmosphere_refresh_running = False
@@ -405,12 +393,9 @@ class AppController(QObject):
         self._startup_location_detection_running = False
         self._startup_location_detection_request_id = 0
         self._startup_location_preferences = self._location_preferences.preferences()
-        self._location_service = LocationService(
-            city_resolver=self._city_repository,
-            cache_path=location_cache_path,
-        )
+        self._location_service = controller_dependencies.location_service
         self._is_loading = False
-        self._service_status = ""
+        self._service_status = controller_dependencies.startup_service_status
         self._weather_status = ""
         self._weather_refresh_running = False
         self._weather_refresh_request_id = 0
@@ -444,55 +429,57 @@ class AppController(QObject):
         self._sky_compass_live_timer.timeout.connect(self._refresh_sky_compass_live)
         self._sky_compass_live_refresh_running = False
         self._sky_compass_live_refresh_request_id = 0
-        try:
-            self._astronomy_engine = SkyfieldAstronomyEngine(
-                base_dir / "data",
-                self._catalogue_repository,
-                transient_event_sources,
-            )
-        except EphemerisUnavailableError:
-            logger.error("Skyfield engine unavailable; using fallback astronomy data.", exc_info=True)
-            self._astronomy_engine = MockAstronomyEngine()
-            self._service_status = tr(
-                "Effemeridi astronomiche non disponibili. Uso i dati cielo di fallback."
-            )
-        self._weather_service = OpenMeteoWeatherService(self._weather_cache_repository)
-        self._equipment_service = EquipmentService()
-        self._equipment_setup_read_model_builder = EquipmentSetupReadModelBuilder()
-        self._filter_recommendation_service = FilterRecommendationService()
-        self._reducer_recommendation_service = ReducerRecommendationService()
-        self._score_service = ObservingScoreService()
-        self._light_pollution_service = LightPollutionService(
-            self._sky_quality_repository,
-            data_dir=base_dir / "data",
-            earthdata_credentials=self._earthdata_credential_store,
+        self._astronomy_engine = controller_dependencies.astronomy_engine
+        self._weather_service = controller_dependencies.weather_service
+        self._equipment_service = controller_dependencies.equipment_service
+        self._equipment_setup_read_model_builder = (
+            controller_dependencies.equipment_setup_read_model_builder
         )
-        self._nasa_aod_provider = NasaAodProvider(
-            self._earthdata_credential_store,
-            cache_path=nasa_aod_cache_path,
+        self._filter_recommendation_service = (
+            controller_dependencies.filter_recommendation_service
         )
-        self._seeing_service = SeeingTransparencyService()
-        self._nsom_category_score_service = nsom_category_score_service or NsomCategoryScoreService()
-        self._conditions_service = ObservationConditionsService()
-        self._conditions_read_model_builder = ObservationConditionsReadModelBuilder()
-        self._observation_log_service = ObservationLogService()
+        self._reducer_recommendation_service = (
+            controller_dependencies.reducer_recommendation_service
+        )
+        self._score_service = controller_dependencies.score_service
+        self._light_pollution_service = controller_dependencies.light_pollution_service
+        self._nasa_aod_provider = controller_dependencies.nasa_aod_provider
+        self._seeing_service = controller_dependencies.seeing_service
+        self._nsom_category_score_service = (
+            controller_dependencies.nsom_category_score_service
+        )
+        self._conditions_service = controller_dependencies.conditions_service
+        self._conditions_read_model_builder = (
+            controller_dependencies.conditions_read_model_builder
+        )
+        self._observation_log_service = controller_dependencies.observation_log_service
         self._best_object_nsom_selection_service = (
-            best_object_nsom_selection_service or BestObjectNsomSelectionService()
+            controller_dependencies.best_object_nsom_selection_service
         )
         self._home_recommended_deep_sky_nsom_ranking_service = (
-            home_recommended_deep_sky_nsom_ranking_service or HomeRecommendedDeepSkyNsomRankingService()
+            controller_dependencies.home_recommended_deep_sky_nsom_ranking_service
         )
-        self._home_observing_overview_service = HomeObservingOverviewService()
-        self._home_night_plan_overview_service = HomeNightPlanOverviewService()
-        self._calendar_overview_service = CalendarOverviewService()
-        self._night_planner_service = NightPlannerService()
-        self._sky_compass_service = sky_compass_service or SkyCompassService()
-        self._observing_object_detail_service = ObservingObjectDetailService()
-        self._imaging_runtime_assembler = ImagingRuntimeAssembler()
+        self._home_observing_overview_service = (
+            controller_dependencies.home_observing_overview_service
+        )
+        self._home_night_plan_overview_service = (
+            controller_dependencies.home_night_plan_overview_service
+        )
+        self._calendar_overview_service = (
+            controller_dependencies.calendar_overview_service
+        )
+        self._night_planner_service = controller_dependencies.night_planner_service
+        self._sky_compass_service = controller_dependencies.sky_compass_service
+        self._observing_object_detail_service = (
+            controller_dependencies.observing_object_detail_service
+        )
+        self._imaging_runtime_assembler = (
+            controller_dependencies.imaging_runtime_assembler
+        )
         self._imaging_recommendation_presenter = (
-            ImagingRecommendationPresenter()
+            controller_dependencies.imaging_recommendation_presenter
         )
-        self._refresh_manager = RefreshManager()
+        self._refresh_manager = controller_dependencies.refresh_manager
 
         self._city_results = []
         self._city_search_has_query = False
