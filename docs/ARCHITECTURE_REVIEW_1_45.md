@@ -1,7 +1,7 @@
 # NightScope 1.45 Architecture Review
 
 Date: 2026-09-03
-Scope: source `1.44.0` through `1.45.21`
+Scope: source `1.44.0` through `1.45.22`
 
 ## Verdict
 
@@ -33,9 +33,9 @@ stated.
 
 | Area | Evidence | Assessment |
 | --- | --- | --- |
-| Production Python | 124 modules, 47,650 lines | Broad domain surface; every module now states its responsibility and package boundaries are discoverable. |
-| Tests | 88 test files plus 2 support/package modules, 36,051 lines; 1,209 tests and 10 subtests at the 1.45.21 gate | Very strong regression protection relative to production size. |
-| `AppController` | 9,836 lines at 1.44.0; 7,855 at 1.45.21, including its module header; 1,981 net lines removed (20.1%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
+| Production Python | 124 modules, 47,852 lines | Broad domain surface; every module now states its responsibility and package boundaries are discoverable. |
+| Tests | 88 test files plus 2 support/package modules, 36,224 lines; 1,215 tests and 10 subtests at the 1.45.22 gate | Very strong regression protection relative to production size. |
+| `AppController` | 9,836 lines at 1.44.0; 7,855 at 1.45.22, including its module header; 1,981 net lines removed (20.1%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
 | Controller surface | 561 methods, including 114 slots and 141 properties | Large compatibility/API surface makes wholesale rewriting risky. |
 | Largest persistence modules | `equipment_catalog_repository.py` 2,578 lines; `bootstrap.py` 2,492; `equipment_profile_repository.py` 720 | Profile persistence has one owner; catalogue and bootstrap families remain concentrated. |
 | Astronomy implementation | `skyfield_engine.py` 2,434 lines | Complex by domain necessity; provider/event subcomponents can still be separated. |

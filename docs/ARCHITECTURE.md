@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.45.21
+This document describes the architecture implemented by the NightScope 1.45.22
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -193,6 +193,29 @@ emits presentation signals only and does not recompute astronomy, weather,
 equipment, scoring or NSOM. The complete file contract and the code-free process
 for adding another language are documented in [LOCALIZATION.md](LOCALIZATION.md).
 
+## Startup Feedback
+
+The normal GUI path installs `TranslationManager` and opens a frameless startup
+splash before database bootstrap, service composition, or QML loading begins.
+The splash is shown on every launch and reports four monotonic stages: database,
+local catalogues, application services, and interface. Database bootstrap emits
+the detailed progress events; `main.py` adds the service and interface stages.
+
+A runtime with no database, legacy database, or preferences file is classified
+as first use and preserves the fixed English onboarding copy. Existing users see
+the routine startup copy in the language already stored in
+`user_preferences.json`; Italian remains the fallback, and English and Spanish
+use the same reviewed Qt catalogues as the rest of the interface. The initial
+status also distinguishes opening an existing database from creating a missing
+one, while a health-check rebuild is reported explicitly.
+
+The splash closes only after the first QML frame is presented, with a two-second
+readiness fallback for platform backends that do not emit `frameSwapped`. The
+one-shot completion callback records `startup_completed` without discarding any
+shared preference and logs database/service, QML-load, and first-frame timings.
+Backend and QML smoke-test entry points remain headless and do not create the
+splash.
+
 ## UI Appearance
 
 `AppearanceManager` owns the presentation-only
@@ -275,7 +298,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.45.21`:
+Current runtime status for `1.45.22`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -887,18 +910,20 @@ repositories mostly respect this boundary.
 
 Startup flow:
 
-1. `main.py` resolves runtime paths, initializes the database and asks the
-   composition root for `AppControllerDependencies`.
-2. `main.py` injects that graph into `AppController`; the compatibility factory
-   is reserved for direct test/integration construction.
-3. The controller starts asynchronous refresh orchestration. The astronomy
-   engine builds base Solar System, Moon, calendar and deep-sky
-   data for the current location if one is available.
-4. Application workflows and presentation services layer weather, sky quality,
+1. `main.py` resolves runtime paths, installs the persisted language, classifies
+   first use versus an existing runtime, and presents the startup splash.
+2. Database bootstrap or migration reports progress while the composition root
+   builds `AppControllerDependencies`; `main.py` injects that graph into
+   `AppController`. The compatibility factory is reserved for direct
+   test/integration construction.
+3. `main.py` loads the QML scene and closes the splash after its first rendered
+   frame. QML receives the controller dictionaries and property change signals.
+4. The controller starts asynchronous refresh orchestration. The astronomy
+   engine builds base Solar System, Moon, calendar and deep-sky data for the
+   current location if one is available.
+5. Application workflows and presentation services layer weather, sky quality,
    seeing, NSOM summaries, equipment recommendations and planning on immutable
    or captured inputs.
-5. QML receives property change signals and renders dictionaries exposed by the
-   controller.
 
 Location command flow:
 

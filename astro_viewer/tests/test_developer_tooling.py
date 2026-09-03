@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import importlib.metadata
 import inspect
+import json
 import logging
 import re
 import sys
@@ -344,8 +345,9 @@ def test_main_exposes_appearance_manager_to_both_qml_startup_paths() -> None:
 
 
 def test_first_run_progress_uses_english_stage_copy() -> None:
+    context = main_module._StartupContext(first_use=True, existing_database=False)
     states = [
-        main_module._initialization_progress_state(message)
+        main_module._startup_progress_state(message, context)
         for message in (
             "Creazione database...",
             "Importazione cataloghi...",
@@ -361,6 +363,105 @@ def test_first_run_progress_uses_english_stage_copy() -> None:
         italian_word not in " ".join(state.detail for state in states).lower()
         for italian_word in ("creazione", "importazione", "preparazione", "finalizzazione")
     )
+
+
+def test_first_use_startup_copy_remains_english() -> None:
+    context = main_module._StartupContext(first_use=True, existing_database=False)
+
+    copy = main_module._startup_copy(context)
+
+    assert copy.message == "Preparing NightScope for first use"
+    assert copy.secondary == "This one-time setup may take a minute."
+    assert copy.step_labels == (
+        "Database",
+        "Local catalogues",
+        "Application services",
+        "Interface",
+    )
+    assert copy.initial_status == "Creating the local database..."
+
+
+def test_startup_context_distinguishes_new_and_existing_runtime_state(
+    tmp_path: Path,
+) -> None:
+    database_path = tmp_path / "nightscope.db"
+    preferences_path = tmp_path / "user_preferences.json"
+    runtime_paths = Mock(
+        database_path=database_path,
+        preferences_path=preferences_path,
+    )
+
+    with (
+        patch.object(main_module, "RUNTIME_PATHS", runtime_paths),
+        patch.object(main_module, "_legacy_runtime_paths", return_value=[]),
+    ):
+        assert main_module._startup_context() == main_module._StartupContext(
+            first_use=True,
+            existing_database=False,
+        )
+
+        preferences_path.write_text('{"language": "es"}', encoding="utf-8")
+        assert main_module._startup_context() == main_module._StartupContext(
+            first_use=False,
+            existing_database=False,
+        )
+
+        preferences_path.unlink()
+        database_path.touch()
+        assert main_module._startup_context() == main_module._StartupContext(
+            first_use=False,
+            existing_database=True,
+        )
+
+
+def test_startup_context_recognizes_a_legacy_database(tmp_path: Path) -> None:
+    legacy_database_path = tmp_path / "legacy" / "nightscope.db"
+    legacy_database_path.parent.mkdir()
+    legacy_database_path.touch()
+    runtime_paths = Mock(
+        database_path=tmp_path / "runtime" / "nightscope.db",
+        preferences_path=tmp_path / "state" / "user_preferences.json",
+    )
+
+    with (
+        patch.object(main_module, "RUNTIME_PATHS", runtime_paths),
+        patch.object(
+            main_module,
+            "_legacy_runtime_paths",
+            return_value=[legacy_database_path],
+        ),
+    ):
+        assert main_module._startup_context() == main_module._StartupContext(
+            first_use=False,
+            existing_database=True,
+        )
+
+
+def test_startup_completion_preserves_existing_preferences(tmp_path: Path) -> None:
+    preferences_path = tmp_path / "state" / "user_preferences.json"
+    preferences_path.parent.mkdir()
+    preferences_path.write_text(
+        json.dumps({"language": "es", "red_night_vision_enabled": True}),
+        encoding="utf-8",
+    )
+    runtime_paths = Mock(preferences_path=preferences_path)
+
+    with patch.object(main_module, "RUNTIME_PATHS", runtime_paths):
+        main_module._mark_startup_completed()
+
+    assert json.loads(preferences_path.read_text(encoding="utf-8")) == {
+        "language": "es",
+        "red_night_vision_enabled": True,
+        "startup_completed": True,
+    }
+    assert not preferences_path.with_suffix(".json.tmp").exists()
+
+
+def test_run_app_always_creates_the_startup_splash() -> None:
+    source = inspect.getsource(main_module.run_app)
+
+    assert "splash = _create_startup_splash(app, startup_context)" in source
+    assert "_database_initialization_required" not in source
 
 
 def test_github_source_validation_reuses_the_local_gate() -> None:
@@ -444,11 +545,14 @@ def test_third_party_license_notice_filter_excludes_code_and_bytecode(
 def test_first_run_city_progress_is_bounded_and_readable() -> None:
     from astro_viewer.app.services.localization import tr
 
-    early = main_module._initialization_progress_state(
-        tr("Importazione catalogo città... {rows} righe", rows=500)
+    context = main_module._StartupContext(first_use=True, existing_database=False)
+    early = main_module._startup_progress_state(
+        tr("Importazione catalogo città... {rows} righe", rows=500),
+        context,
     )
-    late = main_module._initialization_progress_state(
-        tr("Importazione catalogo città... {rows} righe", rows=50_000)
+    late = main_module._startup_progress_state(
+        tr("Importazione catalogo città... {rows} righe", rows=50_000),
+        context,
     )
 
     assert early.stage == late.stage == 1
@@ -458,7 +562,7 @@ def test_first_run_city_progress_is_bounded_and_readable() -> None:
 
 
 def test_first_run_splash_has_real_transparent_rounded_corners() -> None:
-    source = inspect.getsource(main_module._create_initialization_splash)
+    source = inspect.getsource(main_module._create_startup_splash)
 
     assert "dialog.setAttribute(Qt.WA_TranslucentBackground, True)" in source
     assert 'surface.setObjectName("splashSurface")' in source
@@ -470,25 +574,31 @@ def test_first_run_splash_has_real_transparent_rounded_corners() -> None:
 def test_first_run_splash_waits_for_first_qml_frame() -> None:
     app = Mock()
     dialog = Mock()
-    splash = main_module._InitializationSplash(
+    ready_callback = Mock()
+    splash = main_module._StartupSplash(
         dialog=dialog,
         status=Mock(),
         progress=Mock(),
         step_labels=(),
         step_counter=Mock(),
+        context=main_module._StartupContext(
+            first_use=True,
+            existing_database=False,
+        ),
     )
     frame_swapped = Mock()
     root_object = Mock(frameSwapped=frame_swapped)
 
     with (
-        patch.object(main_module, "_update_initialization_splash") as update_splash,
+        patch.object(main_module, "_update_startup_splash") as update_splash,
         patch("PySide6.QtCore.QTimer.singleShot") as single_shot,
     ):
-        main_module._close_initialization_splash_after_first_frame(
+        main_module._close_startup_splash_after_first_frame(
             app,
             splash,
             root_object,
             fallback_ms=1_234,
+            ready_callback=ready_callback,
         )
 
         dialog.close.assert_not_called()
@@ -498,6 +608,12 @@ def test_first_run_splash_waits_for_first_qml_frame() -> None:
             call.args[2] for call in single_shot.call_args_list if call.args[0] == 0
         )
         immediate_close()
+        fallback_close = next(
+            call.args[2]
+            for call in single_shot.call_args_list
+            if call.args[0] == 1_234
+        )
+        fallback_close()
 
         update_splash.assert_called_once_with(
             app,
@@ -505,6 +621,7 @@ def test_first_run_splash_waits_for_first_qml_frame() -> None:
             main_module._STARTUP_READY_MESSAGE,
         )
         dialog.close.assert_called_once_with()
+        ready_callback.assert_called_once_with()
         frame_swapped.disconnect.assert_called_once_with(frame_callback)
         assert any(call.args[0] == 1_234 for call in single_shot.call_args_list)
 
@@ -512,25 +629,31 @@ def test_first_run_splash_waits_for_first_qml_frame() -> None:
 def test_first_run_splash_has_a_readiness_fallback() -> None:
     app = Mock()
     dialog = Mock()
-    splash = main_module._InitializationSplash(
+    ready_callback = Mock()
+    splash = main_module._StartupSplash(
         dialog=dialog,
         status=Mock(),
         progress=Mock(),
         step_labels=(),
         step_counter=Mock(),
+        context=main_module._StartupContext(
+            first_use=True,
+            existing_database=False,
+        ),
     )
     frame_swapped = Mock()
     root_object = Mock(frameSwapped=frame_swapped)
 
     with (
-        patch.object(main_module, "_update_initialization_splash") as update_splash,
+        patch.object(main_module, "_update_startup_splash") as update_splash,
         patch("PySide6.QtCore.QTimer.singleShot") as single_shot,
     ):
-        main_module._close_initialization_splash_after_first_frame(
+        main_module._close_startup_splash_after_first_frame(
             app,
             splash,
             root_object,
             fallback_ms=1_234,
+            ready_callback=ready_callback,
         )
 
         fallback_close = next(
@@ -546,6 +669,7 @@ def test_first_run_splash_has_a_readiness_fallback() -> None:
             main_module._STARTUP_READY_MESSAGE,
         )
         dialog.close.assert_called_once_with()
+        ready_callback.assert_called_once_with()
 
 
 def test_multilingual_manual_has_complete_navigation_and_current_provider_semantics() -> None:

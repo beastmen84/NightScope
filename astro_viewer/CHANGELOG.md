@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+## NightScope 1.45.22 - 2026-09-03
+
+- Lo splash di avvio viene ora mostrato a ogni lancio normale, prima del lavoro
+  sul database e del caricamento QML, così l'utente riceve un riscontro continuo
+  fino al primo frame dell'interfaccia.
+- Il primo utilizzo conserva il testo introduttivo inglese. Dagli avvii
+  successivi titolo, passaggi e stato seguono la lingua salvata italiana,
+  inglese o spagnola e distinguono apertura, creazione e ricostruzione del
+  database locale.
+- Eliminato il preflight duplicato usato soltanto per decidere se mostrare lo
+  splash; il bootstrap effettivo resta l'unico proprietario di controllo,
+  migrazione e seeding del database. Aggiunti tempi diagnostici per servizi,
+  scena QML e primo frame e una preferenza di completamento scritta senza
+  perdere le impostazioni esistenti.
+- Aggiunti 17 testi di avvio revisionati ai cataloghi Qt; italiano, inglese e
+  spagnolo contengono ora 2.063 messaggi finiti e zero traduzioni incomplete.
+- Verificate nativamente su Windows le varianti primo utilizzo inglese e avvio
+  ordinario IT/EN/ES, senza tagli, sovrapposizioni o regressioni dei bordi
+  trasparenti.
+- Gate sorgente locale completo: 1.215 test e 10 subtest superati in 290,96
+  secondi, copertura aggregata 86%, audit dipendenze senza vulnerabilita' note e
+  smoke test backend, QML normale e Red Night Vision riusciti. Superati anche
+  due avvii reali isolati, prima con database nuovo e poi con database esistente
+  e lingua spagnola salvata.
+- La versione sorgente passa a `1.45.22`; `dist` non e' stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release.
+
 ## NightScope 1.45.21 - 2026-09-03
 
 - Corretta la seconda causa del confronto licenze non riproducibile emersa

@@ -4,7 +4,7 @@ Updated: 2026-09-03
 
 ## Current State
 
-- Source version: `1.45.21`.
+- Source version: `1.45.22`.
 - Current public release: `v1.43.0`.
 - Public-release source commit: `26dfaf49df8f9b8e73e84f406396f406170400b2`.
 - The `1.45.x` architectural series is source-only. No `1.45.x` tag, checksum,
@@ -38,7 +38,8 @@ Updated: 2026-09-03
 | 1.45.18 | `d18e7d9` | Extracts controller-facing location commands into a framework-independent workflow with explicit inputs and outcomes. |
 | 1.45.19 | `62f6383` | Separates installed profile inventory from global equipment catalogues without changing the SQLite schema or identifiers. |
 | 1.45.20 | `4cf60a1` | Pins the Windows Python/dependency closure; its remote run exposed path-dependent bytecode in the legal archive. |
-| 1.45.21 | current source | Excludes code and bytecode from license notices so clean Windows environments generate an identical archive. |
+| 1.45.21 | `d06300b` | Excludes code and bytecode from license notices so clean Windows environments generate an identical archive. |
+| 1.45.22 | current source | Shows localized startup progress on every launch while preserving fixed English copy for a genuinely new runtime. |
 
 ## Resulting Architecture
 
@@ -66,6 +67,13 @@ License collection accepts arbitrary notice filenames only below the standard
 directories. The regenerated archive is identical between the project venv and
 a clean Windows environment despite their different absolute paths.
 
+The normal GUI path now installs the saved language and presents one startup
+splash before database bootstrap, service composition and QML loading. A new
+runtime with neither database nor preferences retains the English first-use
+copy; existing users see routine progress in Italian, English or Spanish. The
+splash closes after the first QML frame, records completion without replacing
+other preferences, and logs phase timings. Headless smoke paths are unchanged.
+
 The production graph is acyclic. The architecture gate also prevents models,
 database, astronomy, and service modules from importing the controller or the
 application composition layer. Compatibility wrappers remain where existing
@@ -79,10 +87,10 @@ QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.45.21` coverage/security source gate passed on
+The final local `1.45.22` coverage/security source gate passed on
 Windows/Python 3.14.5:
 
-- 1,209 tests and 10 subtests in 371.21 seconds, with 86% aggregate application
+- 1,215 tests and 10 subtests in 290.96 seconds, with 86% aggregate application
   coverage and no unexpected warning summary;
 - validated toolchain: pip 26.2.1, Ruff 0.16.5, coverage 7.16.0, PyInstaller
   6.22.2, and `pyinstaller-hooks-contrib` 2026.7;
@@ -98,6 +106,10 @@ Windows/Python 3.14.5:
 - `pip check`; the in-gate `pip-audit` found no known vulnerabilities;
 - backend, normal QML, and Red Night Vision smoke tests;
 - PySide6 6.11.2 `qmllint` over all 34 QML files exited successfully.
+- first-use and saved-Spanish `run_app` launches against an isolated temporary
+  runtime both reached the first frame and exited successfully;
+- native Windows splash renders passed for first-use English and routine
+  Italian, English, and Spanish copy.
 
 The GitHub workflow definition and its commands were checked locally. Do not
 claim a remote CI pass until GitHub has run it.

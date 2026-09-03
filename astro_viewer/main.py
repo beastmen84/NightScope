@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import os
 import shutil
 import sys
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -15,22 +17,38 @@ from pathlib import Path
 _STARTUP_SERVICES_MESSAGE = "Preparing application services..."
 _STARTUP_INTERFACE_MESSAGE = "Opening the interface..."
 _STARTUP_READY_MESSAGE = "NightScope is ready."
+_STARTUP_COMPLETED_PREFERENCE = "startup_completed"
 
 
 @dataclass(frozen=True)
-class _InitializationProgressState:
+class _StartupContext:
+    first_use: bool
+    existing_database: bool
+
+
+@dataclass(frozen=True)
+class _StartupCopy:
+    message: str
+    secondary: str
+    step_labels: tuple[str, ...]
+    initial_status: str
+
+
+@dataclass(frozen=True)
+class _StartupProgressState:
     stage: int
     percent: int
     detail: str
 
 
 @dataclass
-class _InitializationSplash:
+class _StartupSplash:
     dialog: object
     status: object
     progress: object
     step_labels: tuple[object, ...]
     step_counter: object
+    context: _StartupContext
 
 
 def _resolve_base_dir() -> Path:
@@ -224,14 +242,89 @@ def _build_update_manager():
     )
 
 
-def _database_initialization_required() -> bool:
-    from astro_viewer.app.database.bootstrap import database_initialization_required
+def _read_startup_preferences() -> dict:
+    preferences_path = RUNTIME_PATHS.preferences_path
+    if not preferences_path.exists():
+        return {}
+    try:
+        payload = json.loads(preferences_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        logging.getLogger(__name__).warning(
+            "Startup preferences could not be read: %s",
+            preferences_path,
+            exc_info=True,
+        )
+        return {}
+    return payload if isinstance(payload, dict) else {}
 
-    database_path, schema_path = _database_paths()
-    return database_initialization_required(database_path, schema_path, geonames_data_dir=_data_dir())
+
+def _startup_context() -> _StartupContext:
+    existing_database = RUNTIME_PATHS.database_path.exists() or any(
+        path.exists() for path in _legacy_runtime_paths()
+    )
+    previous_state = existing_database or RUNTIME_PATHS.preferences_path.exists()
+    return _StartupContext(
+        first_use=not previous_state,
+        existing_database=existing_database,
+    )
 
 
-def _create_initialization_splash(app):
+def _mark_startup_completed() -> None:
+    preferences_path = RUNTIME_PATHS.preferences_path
+    payload = _read_startup_preferences()
+    if payload.get(_STARTUP_COMPLETED_PREFERENCE) is True:
+        return
+    payload[_STARTUP_COMPLETED_PREFERENCE] = True
+    temporary_path = preferences_path.with_suffix(preferences_path.suffix + ".tmp")
+    try:
+        preferences_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary_path.write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        temporary_path.replace(preferences_path)
+    except OSError:
+        logging.getLogger(__name__).warning(
+            "Startup completion could not be written: %s",
+            preferences_path,
+            exc_info=True,
+        )
+        try:
+            temporary_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def _startup_copy(context: _StartupContext) -> _StartupCopy:
+    if context.first_use:
+        return _StartupCopy(
+            message="Preparing NightScope for first use",
+            secondary="This one-time setup may take a minute.",
+            step_labels=("Database", "Local catalogues", "Application services", "Interface"),
+            initial_status="Creating the local database...",
+        )
+
+    from astro_viewer.app.services.localization import render_text, tr
+
+    initial_status = (
+        render_text(tr("Apertura del database locale..."))
+        if context.existing_database
+        else render_text(tr("Creazione del database locale..."))
+    )
+    return _StartupCopy(
+        message=render_text(tr("Avvio di NightScope")),
+        secondary=render_text(tr("Caricamento del database e dell'interfaccia.")),
+        step_labels=(
+            render_text(tr("Database locale")),
+            render_text(tr("Cataloghi locali")),
+            render_text(tr("Servizi applicativi")),
+            render_text(tr("Interfaccia")),
+        ),
+        initial_status=initial_status,
+    )
+
+
+def _create_startup_splash(app, context: _StartupContext):
     from PySide6.QtCore import Qt
     from PySide6.QtGui import QIcon, QPixmap
     from PySide6.QtWidgets import (
@@ -243,6 +336,7 @@ def _create_initialization_splash(app):
         QWidget,
     )
 
+    copy = _startup_copy(context)
     dialog = QDialog()
     dialog.setWindowTitle(APP_NAME)
     dialog.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
@@ -368,10 +462,10 @@ def _create_initialization_splash(app):
     app_name = QLabel(APP_NAME)
     app_name.setObjectName("appName")
     title_layout.addWidget(app_name)
-    message = QLabel("Preparing NightScope for first use")
+    message = QLabel(copy.message)
     message.setObjectName("message")
     title_layout.addWidget(message)
-    secondary = QLabel("This one-time setup may take a minute.")
+    secondary = QLabel(copy.secondary)
     secondary.setObjectName("secondary")
     title_layout.addWidget(secondary)
     title_layout.addStretch()
@@ -384,9 +478,7 @@ def _create_initialization_splash(app):
     steps_layout.setContentsMargins(16, 12, 16, 12)
     steps_layout.setSpacing(9)
     step_labels = []
-    for index, label_text in enumerate(
-        ("Database", "Local catalogues", "Application services", "Interface")
-    ):
+    for index, label_text in enumerate(copy.step_labels):
         step_row = QHBoxLayout()
         step_row.setSpacing(10)
         badge = QLabel(str(index + 1))
@@ -403,10 +495,10 @@ def _create_initialization_splash(app):
     layout.addWidget(steps_widget)
 
     status_row = QHBoxLayout()
-    status = QLabel("Creating the local database...")
+    status = QLabel(copy.initial_status)
     status.setObjectName("status")
     status_row.addWidget(status, 1)
-    step_counter = QLabel("Step 1 of 4")
+    step_counter = QLabel(_startup_step_counter_text(context, 1, len(copy.step_labels)))
     step_counter.setObjectName("stepCounter")
     step_counter.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
     status_row.addWidget(step_counter)
@@ -420,48 +512,137 @@ def _create_initialization_splash(app):
 
     dialog.show()
     app.processEvents()
-    return _InitializationSplash(
+    return _StartupSplash(
         dialog=dialog,
         status=status,
         progress=progress,
         step_labels=tuple(step_labels),
         step_counter=step_counter,
+        context=context,
     )
 
 
-def _initialization_progress_state(message: object) -> _InitializationProgressState:
+def _startup_step_counter_text(
+    context: _StartupContext,
+    current: int,
+    total: int,
+) -> str:
+    if context.first_use:
+        return f"Step {current} of {total}"
+
+    from astro_viewer.app.services.localization import render_text, tr
+
+    return render_text(tr("Passaggio {current} di {total}", current=current, total=total))
+
+
+def _startup_progress_state(
+    message: object,
+    context: _StartupContext,
+) -> _StartupProgressState:
     source = str(getattr(message, "source", message))
     values = getattr(message, "values", {})
 
+    if not context.first_use:
+        from astro_viewer.app.services.localization import format_number, render_text, tr
+
+        if source == "Creazione database...":
+            detail = (
+                render_text(tr("Apertura del database locale..."))
+                if context.existing_database
+                else render_text(tr("Creazione del database locale..."))
+            )
+            return _StartupProgressState(0, 12, detail)
+        if source == "Ricostruzione database locale...":
+            return _StartupProgressState(
+                0,
+                14,
+                render_text(tr("Ricostruzione del database locale...")),
+            )
+        if source == "Importazione cataloghi...":
+            return _StartupProgressState(
+                1,
+                28,
+                render_text(tr("Sincronizzazione dei cataloghi locali...")),
+            )
+        if source == "Importazione catalogo città... {rows} righe":
+            try:
+                rows = max(0, int(values.get("rows", 0)))
+            except (TypeError, ValueError):
+                rows = 0
+            percent = min(68, 34 + rows // 1_000)
+            return _StartupProgressState(
+                1,
+                percent,
+                render_text(
+                    tr(
+                        "Aggiornamento del catalogo città - {rows} righe elaborate",
+                        rows=format_number(rows),
+                    )
+                ),
+            )
+        if source == "Finalizzazione...":
+            return _StartupProgressState(
+                1,
+                74,
+                render_text(tr("Finalizzazione dei cataloghi locali...")),
+            )
+        if source == _STARTUP_SERVICES_MESSAGE:
+            return _StartupProgressState(
+                2,
+                82,
+                render_text(tr("Preparazione dei servizi applicativi...")),
+            )
+        if source == _STARTUP_INTERFACE_MESSAGE:
+            return _StartupProgressState(
+                3,
+                94,
+                render_text(tr("Apertura dell'interfaccia...")),
+            )
+        if source == _STARTUP_READY_MESSAGE:
+            return _StartupProgressState(
+                3,
+                100,
+                render_text(tr("NightScope è pronto.")),
+            )
+        if source == "Impossibile inizializzare il database locale.":
+            return _StartupProgressState(0, 8, render_text(message))
+        return _StartupProgressState(
+            0,
+            8,
+            render_text(tr("Preparazione dei dati locali...")),
+        )
+
     if source == "Creazione database...":
-        return _InitializationProgressState(0, 12, "Creating the local database...")
+        return _StartupProgressState(0, 12, "Creating the local database...")
     if source == "Ricostruzione database locale...":
-        return _InitializationProgressState(0, 14, "Rebuilding the local database...")
+        return _StartupProgressState(0, 14, "Rebuilding the local database...")
     if source == "Importazione cataloghi...":
-        return _InitializationProgressState(1, 28, "Preparing the local catalogues...")
+        return _StartupProgressState(1, 28, "Preparing the local catalogues...")
     if source == "Importazione catalogo città... {rows} righe":
         try:
             rows = max(0, int(values.get("rows", 0)))
         except (TypeError, ValueError):
             rows = 0
         percent = min(68, 34 + rows // 1_000)
-        return _InitializationProgressState(
+        return _StartupProgressState(
             1,
             percent,
             f"Importing the city catalogue - {rows:,} rows processed",
         )
     if source == "Finalizzazione...":
-        return _InitializationProgressState(1, 74, "Finalizing the local catalogues...")
+        return _StartupProgressState(1, 74, "Finalizing the local catalogues...")
     if source == _STARTUP_SERVICES_MESSAGE:
-        return _InitializationProgressState(2, 82, source)
+        return _StartupProgressState(2, 82, source)
     if source == _STARTUP_INTERFACE_MESSAGE:
-        return _InitializationProgressState(3, 94, source)
+        return _StartupProgressState(3, 94, source)
     if source == _STARTUP_READY_MESSAGE:
-        return _InitializationProgressState(3, 100, source)
-    return _InitializationProgressState(0, 8, "Preparing local data...")
+        return _StartupProgressState(3, 100, source)
+    if source == "Impossibile inizializzare il database locale.":
+        return _StartupProgressState(0, 8, "Unable to initialize the local database.")
+    return _StartupProgressState(0, 8, "Preparing local data...")
 
 
-def _set_initialization_step_state(splash: _InitializationSplash, active_stage: int) -> None:
+def _set_startup_step_state(splash: _StartupSplash, active_stage: int) -> None:
     for index, (badge, label) in enumerate(splash.step_labels):
         step_state = (
             "complete"
@@ -476,26 +657,28 @@ def _set_initialization_step_state(splash: _InitializationSplash, active_stage: 
             widget.style().polish(widget)
 
 
-def _update_initialization_splash(
-    app, splash: _InitializationSplash | None, message: object
-) -> None:
-    if not splash:
-        return
-
-    state = _initialization_progress_state(message)
+def _update_startup_splash(app, splash: _StartupSplash, message: object) -> None:
+    state = _startup_progress_state(message, splash.context)
     splash.status.setText(state.detail)
     splash.progress.setValue(max(splash.progress.value(), state.percent))
-    splash.step_counter.setText(f"Step {state.stage + 1} of {len(splash.step_labels)}")
-    _set_initialization_step_state(splash, state.stage)
+    splash.step_counter.setText(
+        _startup_step_counter_text(
+            splash.context,
+            state.stage + 1,
+            len(splash.step_labels),
+        )
+    )
+    _set_startup_step_state(splash, state.stage)
     app.processEvents()
 
 
-def _close_initialization_splash_after_first_frame(
+def _close_startup_splash_after_first_frame(
     app,
-    splash: _InitializationSplash,
+    splash: _StartupSplash,
     root_object,
     *,
     fallback_ms: int = 2_000,
+    ready_callback: Callable[[], None] | None = None,
 ) -> None:
     from PySide6.QtCore import QTimer
 
@@ -513,7 +696,9 @@ def _close_initialization_splash_after_first_frame(
                 frame_swapped.disconnect(schedule_close)
             except (RuntimeError, TypeError):
                 pass
-        _update_initialization_splash(app, splash, _STARTUP_READY_MESSAGE)
+        _update_startup_splash(app, splash, _STARTUP_READY_MESSAGE)
+        if ready_callback:
+            ready_callback()
         splash.dialog.close()
 
     def schedule_close() -> None:
@@ -568,6 +753,7 @@ def _wait_for_startup_location(controller, timeout_seconds: float = 8.0) -> bool
 
 
 def run_app() -> int:
+    startup_started = time.perf_counter()
     try:
         from PySide6.QtCore import QTimer, QUrl
         from PySide6.QtQml import QQmlApplicationEngine
@@ -584,26 +770,26 @@ def run_app() -> int:
     _configure_application_metadata(app)
     translation_manager = _build_translation_manager()
     translation_manager.install()
+    startup_context = _startup_context()
+    splash = _create_startup_splash(app, startup_context)
     appearance_manager = _build_appearance_manager()
     update_manager = _build_update_manager()
 
     try:
-        initialization_required = _database_initialization_required()
-    except Exception:
-        logging.getLogger(__name__).warning("Database initialization preflight failed.", exc_info=True)
-        initialization_required = True
-    splash = _create_initialization_splash(app) if initialization_required else None
-    progress_callback = (lambda message: _update_initialization_splash(app, splash, message)) if splash else None
-    try:
-        controller = _build_controller(progress_callback=progress_callback)
+        controller = _build_controller(
+            progress_callback=lambda message: _update_startup_splash(
+                app,
+                splash,
+                message,
+            )
+        )
     except Exception:
         from astro_viewer.app.services.localization import render_text, tr
 
         logging.getLogger(__name__).exception("NightScope database initialization failed.")
         error_title = tr("Impossibile inizializzare il database locale.")
-        if splash:
-            _update_initialization_splash(app, splash, error_title)
-            splash.dialog.close()
+        _update_startup_splash(app, splash, error_title)
+        splash.dialog.close()
         QMessageBox.critical(
             None,
             APP_NAME,
@@ -615,10 +801,14 @@ def run_app() -> int:
             ),
         )
         return 1
+    logging.getLogger(__name__).info(
+        "Startup database and services ready after %.3f s.",
+        time.perf_counter() - startup_started,
+    )
     translation_manager.languageChanged.connect(controller.retranslatePresentation)
-    if splash:
-        _update_initialization_splash(app, splash, _STARTUP_INTERFACE_MESSAGE)
+    _update_startup_splash(app, splash, _STARTUP_INTERFACE_MESSAGE)
 
+    qml_started = time.perf_counter()
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(BASE_DIR / "app" / "ui"))
     engine.rootContext().setContextProperty("appController", controller)
@@ -633,17 +823,29 @@ def run_app() -> int:
     translation_manager.attach_engine(engine)
 
     if not engine.rootObjects():
-        if splash:
-            splash.dialog.close()
+        splash.dialog.close()
         translation_manager.detach_engine()
         del engine
         return 1
-    if splash:
-        _close_initialization_splash_after_first_frame(
-            app,
-            splash,
-            engine.rootObjects()[0],
+
+    logging.getLogger(__name__).info(
+        "Startup QML scene loaded in %.3f s.",
+        time.perf_counter() - qml_started,
+    )
+
+    def startup_ready() -> None:
+        _mark_startup_completed()
+        logging.getLogger(__name__).info(
+            "Startup first frame ready after %.3f s.",
+            time.perf_counter() - startup_started,
         )
+
+    _close_startup_splash_after_first_frame(
+        app,
+        splash,
+        engine.rootObjects()[0],
+        ready_callback=startup_ready,
+    )
     QTimer.singleShot(750, update_manager.checkForUpdates)
     exit_code = app.exec()
     translation_manager.detach_engine()

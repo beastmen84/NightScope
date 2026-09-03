@@ -6,7 +6,7 @@ Questo documento conserva i controlli visuali di release iniziati con la
 sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
 verifiche gia' concluse sugli artefatti pubblici `1.43.0` restano nello storico
 in `archive/TESTING_HISTORY_THROUGH_1.45.6.md`. Le verifiche dei nuovi artefatti
-`1.45.21` sono separate in `RELEASE_CHECKLIST.md` e devono essere ripetute dopo
+`1.45.22` sono separate in `RELEASE_CHECKLIST.md` e devono essere ripetute dopo
 la rigenerazione delle dist Windows e Linux.
 
 ## Verifica Sorgente Spagnolo 1.34.0
@@ -627,6 +627,12 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   personalizzato e il dialogo largo in Red Night Vision: il pannello misura
   rispettivamente `671 x 221` e `439 x 303` px, senza tagli o sovrapposizioni,
   e resta interamente raggiungibile nello `ScrollView`.
+- [x] **VIS-V51 (`VERIFICATA`)** - Lo splash e' stato renderizzato nativamente
+  su Windows nelle quattro varianti richieste: primo utilizzo in inglese e avvio
+  ordinario in italiano, inglese e spagnolo. Le acquisizioni `780 x 531` px alla
+  scala di sistema mostrano titolo, quattro passaggi, stato localizzato e
+  contatore coerente senza tagli o sovrapposizioni; i bordi arrotondati e gli
+  angoli trasparenti restano corretti in tutte le varianti.
 
 ## Verifica Delle Correzioni 1.33.1
 

@@ -50,6 +50,13 @@ stored in `user_preferences.json`. Switching language reloads the Qt translator,
 locale and structured content, then emits presentation-only signals. Astronomy,
 weather, equipment, scoring and NSOM are not recomputed.
 
+The normal GUI entry point installs that saved language before creating its
+startup splash. A genuinely new runtime, with no database or preferences yet,
+uses fixed English onboarding copy for the first-use setup. Every later launch
+uses the selected Italian, English, or Spanish pack for the routine database,
+service, and interface progress. These routine strings follow the same reviewed
+Qt catalogue workflow as other Python presentation copy.
+
 Python presentation strings remain lazy through `tr()`, `content_text()` and the
 locale-aware date/number helpers. Services consume canonical values; rendering
 happens only at the Qt/QML boundary. User-entered names, notes and observation

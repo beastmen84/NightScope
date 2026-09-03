@@ -13,6 +13,7 @@ from xml.etree import ElementTree
 import pytest
 from PySide6.QtCore import QCoreApplication, QLocale, QObject
 
+from astro_viewer import main as main_module
 from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
 from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.services.localization import (
@@ -736,6 +737,54 @@ def test_translation_manager_switches_live_and_preserves_preferences(
     manager.detach_engine()
     assert manager.setLanguage("en")
     assert engine.retranslate_calls == 3
+
+
+def test_routine_startup_copy_and_progress_follow_the_saved_language(
+    tmp_path: Path,
+) -> None:
+    app = QCoreApplication.instance() or QCoreApplication([])
+    manager = TranslationManager(TRANSLATIONS_DIR, tmp_path / "preferences.json")
+    context = main_module._StartupContext(first_use=False, existing_database=True)
+    expected = {
+        "it": (
+            "Avvio di NightScope",
+            "Apertura del database locale...",
+            "Preparazione dei servizi applicativi...",
+            "Passaggio 3 di 4",
+        ),
+        "en": (
+            "Starting NightScope",
+            "Opening the local database...",
+            "Preparing application services...",
+            "Step 3 of 4",
+        ),
+        "es": (
+            "Iniciando NightScope",
+            "Abriendo la base de datos local...",
+            "Preparando los servicios de la aplicación...",
+            "Paso 3 de 4",
+        ),
+    }
+
+    assert app is not None
+    assert manager.install()
+    for language_code, texts in expected.items():
+        assert manager.setLanguage(language_code)
+        copy = main_module._startup_copy(context)
+        progress = main_module._startup_progress_state(
+            main_module._STARTUP_SERVICES_MESSAGE,
+            context,
+        )
+        assert copy.message == texts[0]
+        assert copy.initial_status == texts[1]
+        assert progress.detail == texts[2]
+        assert main_module._startup_step_counter_text(context, 3, 4) == texts[3]
+
+    first_use_copy = main_module._startup_copy(
+        main_module._StartupContext(first_use=True, existing_database=False)
+    )
+    assert first_use_copy.message == "Preparing NightScope for first use"
+    assert manager.setLanguage("it")
 
 
 def test_catalogue_choices_are_sorted_after_localization(tmp_path: Path) -> None:
