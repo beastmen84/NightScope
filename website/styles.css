@@ -409,6 +409,7 @@ h1 {
 
 .screenshot-shell img {
   width: 100%;
+  height: auto;
   aspect-ratio: 2559 / 1486;
   object-fit: cover;
 }

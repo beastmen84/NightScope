@@ -14,10 +14,11 @@ Updated: 2026-09-03
 - Source `1.45.22` is not published: no `v1.45.22` tag, bundle, checksum, or
   GitHub release has been created.
 - `dist` was deliberately not regenerated or modified for `1.45.22`.
-- The multilingual static website is prepared under `website/`, and
-  `.github/workflows/pages.yml` uploads only that directory. Public deployment
-  is not yet verified; GitHub Pages must first be set to `GitHub Actions` in the
-  repository settings and the committed change must reach `master`.
+- The multilingual static website lives under `website/`, and
+  `.github/workflows/pages.yml` uploads only that directory. GitHub Pages is
+  enabled with the `workflow` source, HTTPS is enforced, and the public homepage
+  at `https://beastmen84.github.io/NightScope/` returned HTTP 200 after the first
+  successful deployment.
 - Historical handoff detail through `1.45.6` is preserved in
   `docs/archive/NEXT_CHAT_HANDOFF_1.45.6.md`.
 
@@ -124,8 +125,9 @@ tooling tests passed in 7.36 seconds and Ruff remained clean. These focused
 checks validate the three language pages, local links, release URLs, canonical
 and `hreflang` metadata, JSON-LD, sitemap, `robots.txt`, copied image/icon bytes,
 and the 17-file operational documentation inventory. They are not a repeated
-full application coverage/security gate or proof of a successful remote Pages
-deployment.
+full application coverage/security gate. The first remote Pages run initially
+raced repository enablement, then passed unchanged after GitHub registered the
+site; the published homepage was independently checked over HTTPS.
 
 The GitHub workflow definition and its commands were checked locally. Do not
 claim a remote CI pass until GitHub has run it.

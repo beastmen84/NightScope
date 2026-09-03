@@ -34,6 +34,8 @@
   prodotto responsive, download distinti per piattaforma, metadati SEO e social,
   dati strutturati `SoftwareApplication`, sitemap, `robots.txt` e pubblicazione
   isolata della sola cartella `website/` tramite GitHub Pages.
+- Corretto il ridimensionamento dello screenshot nella testata del sito: conserva
+  ora il formato panoramico e non estende più verticalmente la prima sezione.
 - La versione sorgente passa a `1.45.22`; `dist` non e' stata rigenerata o
   modificata e non sono stati creati tag o artefatti di release.
 
