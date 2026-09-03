@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://beastmen84.github.io/NightScope/sitemap.xml

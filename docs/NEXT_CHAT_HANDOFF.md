@@ -14,6 +14,10 @@ Updated: 2026-09-03
 - Source `1.45.22` is not published: no `v1.45.22` tag, bundle, checksum, or
   GitHub release has been created.
 - `dist` was deliberately not regenerated or modified for `1.45.22`.
+- The multilingual static website is prepared under `website/`, and
+  `.github/workflows/pages.yml` uploads only that directory. Public deployment
+  is not yet verified; GitHub Pages must first be set to `GitHub Actions` in the
+  repository settings and the committed change must reach `master`.
 - Historical handoff detail through `1.45.6` is preserved in
   `docs/archive/NEXT_CHAT_HANDOFF_1.45.6.md`.
 
@@ -102,8 +106,8 @@ Windows/Python 3.14.5:
   Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, and NumPy 2.5.2;
 - validated Earthdata runtime: earthaccess 0.18.0, s3fs/fsspec 2026.7.0,
   aiobotocore 3.9.0, and maximum compatible botocore 1.43.56;
-- complete documentation inventory: 245 Python, 34 QML, and 16 operational
-  files;
+- complete documentation inventory at the coverage/security gate: 245 Python,
+  34 QML, and 16 operational files;
 - Ruff, compilation, license archive, MPC/OpenNGC snapshot checks;
 - 0 import cycles and 0 protected-layer violations;
 - Bandit baseline unchanged: 0 high, 34 medium, 14 low reviewed findings;
@@ -114,6 +118,14 @@ Windows/Python 3.14.5:
   runtime both reached the first frame and exited successfully;
 - native Windows splash renders passed for first-use English and routine
   Italian, English, and Spanish copy.
+
+After the static website and its Pages workflow were added, all 46 developer-
+tooling tests passed in 7.36 seconds and Ruff remained clean. These focused
+checks validate the three language pages, local links, release URLs, canonical
+and `hreflang` metadata, JSON-LD, sitemap, `robots.txt`, copied image/icon bytes,
+and the 17-file operational documentation inventory. They are not a repeated
+full application coverage/security gate or proof of a successful remote Pages
+deployment.
 
 The GitHub workflow definition and its commands were checked locally. Do not
 claim a remote CI pass until GitHub has run it.
@@ -171,3 +183,4 @@ source tag, and only then publish it. Follow `docs/RELEASE_CHECKLIST.md`.
 - `docs/CATALOGUE_EDITORIAL_WORKFLOW.md`: next multilingual content workflow.
 - `docs/RELEASE_CHECKLIST.md`: artifact and publication approval.
 - `astro_viewer/CHANGELOG.md`: source-version history.
+- `website/`: official static EN/IT/ES product website and SEO assets.

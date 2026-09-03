@@ -30,6 +30,10 @@
   `v1.45.21` e' la release Windows corrente, mentre il pacchetto Linux resta a
   `v1.43.0`. L'icona iniziale del README e' stata sostituita con una schermata
   reale della Home dell'applicazione.
+- Aggiunto il sito ufficiale statico in inglese, italiano e spagnolo, con pagina
+  prodotto responsive, download distinti per piattaforma, metadati SEO e social,
+  dati strutturati `SoftwareApplication`, sitemap, `robots.txt` e pubblicazione
+  isolata della sola cartella `website/` tramite GitHub Pages.
 - La versione sorgente passa a `1.45.22`; `dist` non e' stata rigenerata o
   modificata e non sono stati creati tag o artefatti di release.
 

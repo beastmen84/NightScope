@@ -176,13 +176,18 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 The `1.45.22` coverage/security source gate passed on Windows/Python 3.14.5 with
 1,215 tests and 10 subtests in 290.96 seconds, 86% aggregate application
 coverage, no unexpected warning summary, complete documentation coverage for
-245 Python, 34 QML, and 16 operational files, an acyclic production graph, zero
+245 Python, 34 QML, and 16 operational files at that gate, an acyclic production graph, zero
 protected-layer violations, a reviewed Bandit baseline (0 high, 34 medium, 14
 low), clean dependency/license/MPC/OpenNGC checks, and successful backend,
 normal QML, and Red Night Vision QML smoke tests. The in-gate installed-
 environment `pip-audit` found no known vulnerabilities. A separate PySide6
 6.11.2 `qmllint` pass over all 34 QML files exited successfully; its existing
 non-fatal diagnostics remain tracked technical debt.
+
+The later GitHub Pages workflow raises the current governed inventory to 17
+operational files. Its focused validation covers the multilingual static pages,
+local links, copied assets, canonical and alternate URLs, structured data,
+sitemap, crawler policy, and Pages action contract.
 
 No remote CI result, distribution build, source tag, checksum, or release is
 implied by that local source measurement.

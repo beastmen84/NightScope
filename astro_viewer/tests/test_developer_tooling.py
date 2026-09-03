@@ -9,6 +9,7 @@ import json
 import logging
 import re
 import sys
+import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -93,6 +94,52 @@ class _ManualStructureParser(HTMLParser):
         href = str(attributes.get("href") or "")
         if href.startswith("#"):
             self.internal_links.append(href[1:])
+
+
+class _WebsitePageParser(HTMLParser):
+    """Collect links and SEO metadata from one committed static website page."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.document_language = ""
+        self.ids: list[str] = []
+        self.references: list[str] = []
+        self.canonical = ""
+        self.alternates: dict[str, str] = {}
+        self.json_ld_blocks: list[str] = []
+        self._json_ld_parts: list[str] | None = None
+
+    def handle_starttag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        attributes = dict(attrs)
+        if tag == "html":
+            self.document_language = str(attributes.get("lang") or "")
+        if attributes.get("id"):
+            self.ids.append(str(attributes["id"]))
+
+        for attribute in ("href", "src"):
+            reference = str(attributes.get(attribute) or "")
+            if reference:
+                self.references.append(reference)
+
+        relation = set(str(attributes.get("rel") or "").split())
+        href = str(attributes.get("href") or "")
+        if tag == "link" and "canonical" in relation:
+            self.canonical = href
+        if tag == "link" and "alternate" in relation and attributes.get("hreflang"):
+            self.alternates[str(attributes["hreflang"])] = href
+        if tag == "script" and attributes.get("type") == "application/ld+json":
+            self._json_ld_parts = []
+
+    def handle_data(self, data: str) -> None:
+        if self._json_ld_parts is not None:
+            self._json_ld_parts.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "script" and self._json_ld_parts is not None:
+            self.json_ld_blocks.append("".join(self._json_ld_parts))
+            self._json_ld_parts = None
 
 
 def _response(*, text: str, status_code: int = 200) -> Mock:
@@ -198,7 +245,7 @@ def test_code_documentation_gate_covers_the_repository_and_rejects_empty_headers
     assert documentation_counts(PROJECT_ROOT) == {
         "Python": 245,
         "QML": 34,
-        "operational": 16,
+        "operational": 17,
     }
 
     python_source = tmp_path / "undocumented.py"
@@ -803,6 +850,11 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     assert "astro_viewer/CHANGELOG.md" in readme
     assert "Versione corrente sorgente" not in readme
     assert '<img src="docs/images/nightscope-home.png"' in readme
+    assert (
+        '<a href="https://beastmen84.github.io/NightScope/">Official website</a>'
+        in readme
+    )
+    assert (PROJECT_ROOT / "website" / "index.html").is_file()
     assert screenshot.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
 
     local_targets = {
@@ -814,6 +866,115 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     assert not [
         target for target in sorted(local_targets) if not (PROJECT_ROOT / target).exists()
     ]
+
+
+def test_multilingual_website_has_complete_local_links_and_seo_metadata() -> None:
+    website_root = PROJECT_ROOT / "website"
+    pages = {
+        "en": (website_root / "index.html", "https://beastmen84.github.io/NightScope/"),
+        "it": (
+            website_root / "it" / "index.html",
+            "https://beastmen84.github.io/NightScope/it/",
+        ),
+        "es": (
+            website_root / "es" / "index.html",
+            "https://beastmen84.github.io/NightScope/es/",
+        ),
+    }
+    expected_alternates = {
+        "en": "https://beastmen84.github.io/NightScope/",
+        "it": "https://beastmen84.github.io/NightScope/it/",
+        "es": "https://beastmen84.github.io/NightScope/es/",
+        "x-default": "https://beastmen84.github.io/NightScope/",
+    }
+
+    for language, (page_path, canonical_url) in pages.items():
+        source = page_path.read_text(encoding="utf-8")
+        parser = _WebsitePageParser()
+        parser.feed(source)
+
+        assert parser.document_language == language
+        assert parser.canonical == canonical_url
+        assert parser.alternates == expected_alternates
+        assert len(parser.ids) == len(set(parser.ids))
+        assert {"main-content", "why", "features", "downloads", "faq"}.issubset(
+            parser.ids
+        )
+        assert "v1.45.21" in source
+        assert "v1.43.0" in source
+        assert "1.45.22" not in source
+
+        assert len(parser.json_ld_blocks) == 1
+        structured_data = json.loads(parser.json_ld_blocks[0])
+        assert structured_data["@type"] == "SoftwareApplication"
+        assert structured_data["name"] == "NightScope"
+        assert structured_data["url"] == canonical_url
+        assert structured_data["offers"]["price"] == "0"
+        assert structured_data["downloadUrl"] == [
+            "https://github.com/beastmen84/NightScope/releases/tag/v1.45.21",
+            "https://github.com/beastmen84/NightScope/releases/tag/v1.43.0",
+        ]
+
+        for reference in parser.references:
+            if reference.startswith(("http://", "https://", "/")):
+                continue
+            if reference.startswith("#"):
+                assert reference[1:] in parser.ids
+                continue
+            relative_path, _, fragment = reference.partition("#")
+            destination = (page_path.parent / relative_path).resolve()
+            assert destination.is_relative_to(website_root.resolve())
+            assert destination.exists(), f"Missing website target: {reference}"
+            if fragment:
+                assert fragment in parser.ids
+
+
+def test_website_assets_sitemap_and_pages_workflow_are_consistent() -> None:
+    website_root = PROJECT_ROOT / "website"
+    for source, deployed in (
+        (
+            PROJECT_ROOT / "docs" / "images" / "nightscope-home.png",
+            website_root / "assets" / "nightscope-home.png",
+        ),
+        (
+            PROJECT_ROOT / "astro_viewer" / "resources" / "icons" / "nightscope.ico",
+            website_root / "assets" / "nightscope.ico",
+        ),
+    ):
+        assert hashlib.sha256(deployed.read_bytes()).digest() == hashlib.sha256(
+            source.read_bytes()
+        ).digest()
+
+    sitemap = ET.parse(website_root / "sitemap.xml")
+    namespace = {"sitemap": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+    locations = {
+        element.text
+        for element in sitemap.findall("sitemap:url/sitemap:loc", namespace)
+    }
+    assert locations == {
+        "https://beastmen84.github.io/NightScope/",
+        "https://beastmen84.github.io/NightScope/it/",
+        "https://beastmen84.github.io/NightScope/es/",
+    }
+    robots = (website_root / "robots.txt").read_text(encoding="utf-8")
+    assert "Allow: /" in robots
+    assert "https://beastmen84.github.io/NightScope/sitemap.xml" in robots
+    assert (website_root / ".nojekyll").is_file()
+
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "pages.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "branches: [master]" in workflow
+    assert "path: website" in workflow
+    assert "pages: write" in workflow
+    assert "id-token: write" in workflow
+    for action in (
+        "actions/checkout@v6",
+        "actions/configure-pages@v5",
+        "actions/upload-pages-artifact@v4",
+        "actions/deploy-pages@v4",
+    ):
+        assert action in workflow
 
 
 def test_source_and_platform_release_versions_are_documented_separately() -> None:

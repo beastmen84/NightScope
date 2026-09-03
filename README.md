@@ -4,6 +4,12 @@
   <img src="docs/images/nightscope-home.png" width="1200" alt="NightScope Home dashboard showing observing conditions, Sky Compass, and the night plan">
 </p>
 
+<p align="center">
+  <a href="https://beastmen84.github.io/NightScope/">Official website</a> ·
+  <a href="https://github.com/beastmen84/NightScope/releases">Downloads</a> ·
+  <a href="manuale.html">User manual</a>
+</p>
+
 NightScope is a Windows and Linux desktop application for planning visual and
 photographic astronomy sessions. It combines local astronomical calculations,
 an observer location, weather and sky-quality data, and the equipment in the
@@ -443,6 +449,7 @@ astro_viewer/
 docs/                 Architecture, model, testing and release documentation
 packaging/            PyInstaller spec, hooks, and Windows/Linux build scripts
 tools/                Validation and localization maintenance tools
+website/              Static English/Italian/Spanish GitHub Pages website
 manuale.html          Self-contained Italian/English/Spanish user manual
 ```
 

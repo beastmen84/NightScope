@@ -41,7 +41,7 @@ stated.
 | Astronomy implementation | `skyfield_engine.py` 2,434 lines | Complex by domain necessity; provider/event subcomponents can still be separated. |
 | Largest QML pages | Home 1,708 lines; Object Detail 1,245 | Backend decisions are mostly extracted, but layout/component complexity remains. |
 | Import structure | 0 cycles; 0 protected-layer violations | Good and now mechanically enforced. |
-| Documentation inventory | 245 Python, 34 QML, and 16 operational files | Complete governed coverage, enforced before the long test suite. |
+| Documentation inventory | 245 Python, 34 QML, and 17 operational files after adding the Pages workflow | Complete governed coverage, enforced before the long test suite. |
 | Static/security gate | Ruff 0.16.5, compileall, documentation inventory, exact Bandit baseline and pip-audit; 0 high findings and no known dependency vulnerabilities | Good incremental protection; whole-project type checking remains absent. |
 | Validated build toolchain | pip 26.2.1, coverage 7.16.0, PyInstaller 6.22.2 and `pyinstaller-hooks-contrib` 2026.7 on Windows/Python 3.14.5 | Current source floors and local environment are aligned; portable bundles still require a separate final build and audit. |
 | Validated UI/astronomy runtime | PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55, Astropy 8.0.1, current IERS data and NumPy 2.5.2 | Focused astronomy/timezone tests, QML smoke modes and all-file `qmllint` pass without changing application or QML source. |
