@@ -1,7 +1,7 @@
 # NightScope 1.45 Architecture Review
 
-Date: 2026-09-02
-Scope: source `1.44.0` through `1.45.18`
+Date: 2026-09-03
+Scope: source `1.44.0` through `1.45.19`
 
 ## Verdict
 
@@ -33,15 +33,15 @@ stated.
 
 | Area | Evidence | Assessment |
 | --- | --- | --- |
-| Production Python | 123 modules, 47,332 lines | Broad domain surface; every module now states its responsibility and package boundaries are discoverable. |
-| Tests | 87 test files plus 2 support/package modules, 35,805 lines; 1,201 tests and 10 subtests at the 1.45.18 gate | Very strong regression protection relative to production size. |
-| `AppController` | 9,836 lines at 1.44.0; 7,814 at 1.45.18, including its module header; 2,022 net lines removed (20.6%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
+| Production Python | 124 modules, 47,650 lines | Broad domain surface; every module now states its responsibility and package boundaries are discoverable. |
+| Tests | 88 test files plus 2 support/package modules, 35,986 lines; 1,203 tests and 10 subtests at the 1.45.19 gate | Very strong regression protection relative to production size. |
+| `AppController` | 9,836 lines at 1.44.0; 7,855 at 1.45.19, including its module header; 1,981 net lines removed (20.1%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
 | Controller surface | 561 methods, including 114 slots and 141 properties | Large compatibility/API surface makes wholesale rewriting risky. |
-| Largest persistence modules | `equipment_catalog_repository.py` 3,027 lines; `bootstrap.py` 2,492 | Transactionally cohesive but too concentrated for easy local reasoning. |
+| Largest persistence modules | `equipment_catalog_repository.py` 2,578 lines; `bootstrap.py` 2,492; `equipment_profile_repository.py` 720 | Profile persistence has one owner; catalogue and bootstrap families remain concentrated. |
 | Astronomy implementation | `skyfield_engine.py` 2,434 lines | Complex by domain necessity; provider/event subcomponents can still be separated. |
 | Largest QML pages | Home 1,708 lines; Object Detail 1,245 | Backend decisions are mostly extracted, but layout/component complexity remains. |
 | Import structure | 0 cycles; 0 protected-layer violations | Good and now mechanically enforced. |
-| Documentation inventory | 243 Python, 34 QML, and 15 operational files | Complete governed coverage, enforced before the long test suite. |
+| Documentation inventory | 245 Python, 34 QML, and 15 operational files | Complete governed coverage, enforced before the long test suite. |
 | Static/security gate | Ruff 0.16.5, compileall, documentation inventory, exact Bandit baseline and pip-audit; 0 high findings and no known dependency vulnerabilities | Good incremental protection; whole-project type checking remains absent. |
 | Validated build toolchain | pip 26.2.1, coverage 7.16.0, PyInstaller 6.22.2 and `pyinstaller-hooks-contrib` 2026.7 on Windows/Python 3.14.5 | Current source floors and local environment are aligned; portable bundles still require a separate final build and audit. |
 | Validated UI/astronomy runtime | PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55, Astropy 8.0.1, current IERS data and NumPy 2.5.2 | Focused astronomy/timezone tests, QML smoke modes and all-file `qmllint` pass without changing application or QML source. |
@@ -114,7 +114,7 @@ The standard runner checks code-documentation coverage, architecture, and Bandit
 before the long test suite. The documentation inventory recursively covers all
 Python and QML sources plus governed automation/configuration families; it
 checks structure mechanically while review remains responsible for truthfulness.
-Bandit's 51 existing findings are not globally skipped: each exact code context
+Bandit's 48 existing findings are not globally skipped: each exact code context
 is recorded with a review rationale, any change reopens review, and high
 severity cannot be baselined. Unexpected pytest warnings fail. This policy
 immediately exposed one SQLite test connection that the older warning summary
@@ -133,7 +133,7 @@ remote CI pass.
 | Recommendation decisions | NSOM/equipment/planner services plus application workflow | Strong: decisions remain in Python and are covered by matrix tests. |
 | Qt state and concurrency | `AppController` | Correct boundary, excessive surface area. |
 | Runtime composition | `application.dependencies` | Strong: one normal construction path with explicit compatibility fallback. |
-| Equipment persistence | `EquipmentCatalogRepository` | Functionally strong, structurally concentrated. |
+| Equipment persistence | `EquipmentCatalogRepository`, `EquipmentProfileRepository` | Global catalogues and user profile inventory are separate; legacy callers remain compatible. |
 | Database migration/seeding | `database.bootstrap` | Deterministic and tested, but large and multi-purpose. |
 | Astronomy/provider implementation | astronomy and provider services | Good isolation at package level; several individual modules remain large. |
 | UI decisions | Python read models; QML visual rendering | Direction is good; largest pages still contain substantial local presentation structure. |
@@ -142,9 +142,9 @@ remote CI pass.
 
 ## Residual Risks And Priorities
 
-### Completed focus: controller and location/provider orchestration
+### Completed focus: controller, location/provider, and profile persistence
 
-At 7,814 physical lines and 561 methods, `AppController` is still expensive to
+At 7,855 physical lines and 561 methods, `AppController` is still expensive to
 understand and easy to touch accidentally. Its remaining responsibilities are
 not all misplaced: Qt properties, slots, signals, timers, thread handoff, and
 compatibility adapters belong at this boundary. Future extraction should target
@@ -162,18 +162,28 @@ results. The controller no longer reaches directly into the location repository
 or service. Its Qt signal timing, asynchronous request generations, provider
 errors, persistence and cache precedence remain covered by focused tests.
 
-Do not split the file mechanically. Every extraction should reduce controller
-state access, accept explicit inputs, preserve signal timing, and land with
-focused plus full-gate evidence.
+`1.45.19` separates the profile aggregate from global equipment catalogues.
+`EquipmentProfileRepository` owns profile lifecycle and all existing assignment
+tables; the composition root injects it independently into the profile service
+and controller. `EquipmentCatalogRepository` retains the former methods through
+a compatibility surface, while its forced catalogue deletions call shared
+helpers on the same SQLite connection. No schema or identifier migration is
+introduced. A populated-database regression test covers every assignment family
+across bootstrap, and a forced-failure test proves catalogue deletion and
+profile detachment still roll back together.
 
-### Priority 1: persistence concentration
+Further controller work must not split `AppController` mechanically. Every
+extraction should reduce controller state access, accept explicit inputs,
+preserve signal timing, and land with focused plus full-gate evidence.
 
-`EquipmentCatalogRepository` spans multiple aggregates and
-`database.bootstrap` spans schema creation, migration, seed reconciliation, and
-data import. The current transaction behavior is well tested, so a rewrite
-would carry more risk than benefit. Split by aggregate or migration family only
-when a feature requires sustained edits there, while keeping cross-equipment
-transactions explicit.
+### Priority 1: remaining persistence concentration
+
+`EquipmentCatalogRepository` no longer owns profile SQL, but it still spans the
+individual equipment catalogue families. `database.bootstrap` spans schema
+creation, migration, seed reconciliation, and data import. Their transaction
+behavior is well tested, so a rewrite would carry more risk than benefit. Split
+another catalogue aggregate or one migration/seed family only when its boundary
+is stable, while retaining the installed-database preservation tests.
 
 ### Priority 2: provider, astronomy, and presentation concentration
 
@@ -240,8 +250,8 @@ make incremental improvement safe.
 
 Recommended status: the codebase is safe for editorial work, but architecture
 still has worthwhile focused work. Continue in small reviewed versions in this
-order: persistence aggregates, Skyfield event/calculation seams, remaining
-controller command workflows, large QML sections, and finally a neutral home
-for localization primitives. Each extraction must reduce coupling or state
-reach and preserve observable contracts; line-count reduction alone is not a
-success criterion.
+order: remaining persistence aggregates or migration families, Skyfield
+event/calculation seams, remaining controller command workflows, large QML
+sections, and finally a neutral home for localization primitives. Each
+extraction must reduce coupling or state reach and preserve observable
+contracts; line-count reduction alone is not a success criterion.

@@ -25,6 +25,9 @@ from astro_viewer.app.database.city_repository import CityRepository
 from astro_viewer.app.database.equipment_catalog_repository import (
     EquipmentCatalogRepository,
 )
+from astro_viewer.app.database.equipment_profile_repository import (
+    EquipmentProfileRepository,
+)
 from astro_viewer.app.database.location_repository import LocationRepository
 from astro_viewer.app.database.object_image_repository import ObjectImageRepository
 from astro_viewer.app.database.observation_repository import ObservationRepository
@@ -125,6 +128,7 @@ class AppControllerDependencies:
     location_repository: LocationRepository
     catalogue_repository: CatalogueRepository
     equipment_catalog_repository: EquipmentCatalogRepository
+    equipment_profile_repository: EquipmentProfileRepository
     sky_quality_repository: SkyQualityRepository
     object_image_repository: ObjectImageRepository
     weather_cache_repository: WeatherCacheRepository
@@ -206,6 +210,7 @@ def build_app_controller_dependencies(
     location_repository = LocationRepository(database_path)
     catalogue_repository = CatalogueRepository(database_path)
     equipment_catalog_repository = EquipmentCatalogRepository(database_path)
+    equipment_profile_repository = EquipmentProfileRepository(database_path)
     sky_quality_repository = SkyQualityRepository(database_path)
     object_image_repository = ObjectImageRepository(database_path)
     weather_cache_repository = WeatherCacheRepository(database_path)
@@ -257,7 +262,7 @@ def build_app_controller_dependencies(
         equipment_service,
     )
     profile_equipment_service = ProfileEquipmentService(
-        equipment_catalog_repository,
+        equipment_profile_repository,
         equipment_service,
         equipment_catalog_service,
     )
@@ -301,6 +306,7 @@ def build_app_controller_dependencies(
         location_repository=location_repository,
         catalogue_repository=catalogue_repository,
         equipment_catalog_repository=equipment_catalog_repository,
+        equipment_profile_repository=equipment_profile_repository,
         sky_quality_repository=sky_quality_repository,
         object_image_repository=object_image_repository,
         weather_cache_repository=weather_cache_repository,

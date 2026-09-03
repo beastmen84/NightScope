@@ -288,6 +288,9 @@ class AppController(QObject):
         self._equipment_catalog_repository = (
             controller_dependencies.equipment_catalog_repository
         )
+        self._equipment_profile_repository = (
+            controller_dependencies.equipment_profile_repository
+        )
         self._sky_quality_repository = controller_dependencies.sky_quality_repository
         self._object_image_repository = controller_dependencies.object_image_repository
         self._weather_cache_repository = controller_dependencies.weather_cache_repository
@@ -485,7 +488,7 @@ class AppController(QObject):
         self._beginner_presets = self._equipment_service.beginner_presets()
         equipment_catalog = self._equipment_catalog_service.load()
         self._apply_equipment_catalog_snapshot(equipment_catalog)
-        self._equipment_profiles = self._equipment_catalog_repository.profiles()
+        self._equipment_profiles = self._equipment_profile_repository.profiles()
         self._object_images = self._object_image_repository.all()
         self._object_image_map = {item["object_id"]: item for item in self._object_images}
         self._object_descriptions = self._localized_object_content(
@@ -2152,7 +2155,11 @@ class AppController(QObject):
             self._equipment_message = tr("Questo profilo esiste già.")
             self.equipmentChanged.emit()
             return
-        self._equipment_catalog_repository.add_profile(clean_name, self._equipment_service.NAKED_EYE_ID, active=False)
+        self._equipment_profile_repository.add_profile(
+            clean_name,
+            self._equipment_service.NAKED_EYE_ID,
+            active=False,
+        )
         self._refresh_profiles_from_repository()
         self._profile_equipment.setdefault(self._profile_key_by_name(clean_name), self._empty_profile_equipment_state())
         self._equipment_message = tr("Profilo creato: {name}.", name=clean_name)
@@ -2173,7 +2180,7 @@ class AppController(QObject):
             int(profile["id"]) == profile_id and int(profile.get("active", 0)) == 1
             for profile in self._equipment_profiles
         )
-        self._equipment_catalog_repository.rename_profile(profile_id, clean_name)
+        self._equipment_profile_repository.rename_profile(profile_id, clean_name)
         self._refresh_profiles_from_repository()
         self._equipment_message = tr("Profilo rinominato: {name}.", name=clean_name)
         if was_active:
@@ -2188,7 +2195,7 @@ class AppController(QObject):
             self._equipment_message = tr("Mantieni almeno un profilo attrezzatura.")
             self.equipmentChanged.emit()
             return
-        self._equipment_catalog_repository.delete_profile(profile_id)
+        self._equipment_profile_repository.delete_profile(profile_id)
         self._profile_equipment.pop(str(profile_id), None)
         self._refresh_profiles_from_repository()
         self._equipment_message = tr("Profilo eliminato.")
@@ -2205,8 +2212,14 @@ class AppController(QObject):
             state["telescope_ids"].append(telescope.id)
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.assign_profile_telescope(int(profile["id"]), telescope.id)
-            self._equipment_catalog_repository.update_profile_telescope(int(profile["id"]), telescope.id)
+            self._equipment_profile_repository.assign_profile_telescope(
+                int(profile["id"]),
+                telescope.id,
+            )
+            self._equipment_profile_repository.update_profile_telescope(
+                int(profile["id"]),
+                telescope.id,
+            )
             self._refresh_profiles_from_repository()
         self._equipment_message = self._equipment_status_message()
         self._refresh_active_profile_dependencies(reload_profile_equipment=True)
@@ -2224,9 +2237,15 @@ class AppController(QObject):
         ]
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.remove_profile_telescope(int(profile["id"]), telescope_id)
+            self._equipment_profile_repository.remove_profile_telescope(
+                int(profile["id"]),
+                telescope_id,
+            )
             replacement = state["telescope_ids"][0] if state["telescope_ids"] else self._equipment_service.NAKED_EYE_ID
-            self._equipment_catalog_repository.update_profile_telescope(int(profile["id"]), replacement)
+            self._equipment_profile_repository.update_profile_telescope(
+                int(profile["id"]),
+                replacement,
+            )
             self._refresh_profiles_from_repository()
         self._equipment_message = self._equipment_status_message()
         self._refresh_active_profile_dependencies(reload_profile_equipment=True)
@@ -2251,7 +2270,7 @@ class AppController(QObject):
         if profile is None:
             return
         updated = (
-            self._equipment_catalog_repository
+            self._equipment_profile_repository
             .set_profile_full_aperture_solar_filter(
                 int(profile["id"]),
                 telescope_id,
@@ -2287,7 +2306,10 @@ class AppController(QObject):
             state["eyepiece_ids"].append(eyepiece_id)
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.assign_profile_eyepiece(int(profile["id"]), eyepiece_id)
+            self._equipment_profile_repository.assign_profile_eyepiece(
+                int(profile["id"]),
+                eyepiece_id,
+            )
         self._equipment_message = self._equipment_status_message()
         self._refresh_active_profile_dependencies(reload_profile_equipment=True)
         self._emit_profile_dependent_changes()
@@ -2298,7 +2320,10 @@ class AppController(QObject):
         state["eyepiece_ids"] = [item for item in state["eyepiece_ids"] if item != eyepiece_id]
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.remove_profile_eyepiece(int(profile["id"]), eyepiece_id)
+            self._equipment_profile_repository.remove_profile_eyepiece(
+                int(profile["id"]),
+                eyepiece_id,
+            )
         self._equipment_message = self._equipment_status_message()
         self._refresh_active_profile_dependencies(reload_profile_equipment=True)
         self._emit_profile_dependent_changes()
@@ -2312,7 +2337,10 @@ class AppController(QObject):
             state["barlow_ids"].append(barlow_id)
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.assign_profile_barlow(int(profile["id"]), barlow_id)
+            self._equipment_profile_repository.assign_profile_barlow(
+                int(profile["id"]),
+                barlow_id,
+            )
         self._equipment_message = self._equipment_status_message()
         self._refresh_active_profile_dependencies(reload_profile_equipment=True)
         self._emit_profile_dependent_changes()
@@ -2323,7 +2351,10 @@ class AppController(QObject):
         state["barlow_ids"] = [item for item in state["barlow_ids"] if item != barlow_id]
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.remove_profile_barlow(int(profile["id"]), barlow_id)
+            self._equipment_profile_repository.remove_profile_barlow(
+                int(profile["id"]),
+                barlow_id,
+            )
         self._equipment_message = self._equipment_status_message()
         self._refresh_active_profile_dependencies(reload_profile_equipment=True)
         self._emit_profile_dependent_changes()
@@ -2337,7 +2368,10 @@ class AppController(QObject):
             state["binocular_ids"].append(binocular_id)
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.assign_profile_binocular(int(profile["id"]), binocular_id)
+            self._equipment_profile_repository.assign_profile_binocular(
+                int(profile["id"]),
+                binocular_id,
+            )
         self._equipment_message = self._equipment_status_message()
         self.equipmentChanged.emit()
 
@@ -2347,7 +2381,10 @@ class AppController(QObject):
         state["binocular_ids"] = [item for item in state["binocular_ids"] if item != binocular_id]
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.remove_profile_binocular(int(profile["id"]), binocular_id)
+            self._equipment_profile_repository.remove_profile_binocular(
+                int(profile["id"]),
+                binocular_id,
+            )
         self._equipment_message = self._equipment_status_message()
         self.equipmentChanged.emit()
 
@@ -2360,7 +2397,7 @@ class AppController(QObject):
             state["filter_ids"].append(filter_id)
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.assign_profile_filter(
+            self._equipment_profile_repository.assign_profile_filter(
                 int(profile["id"]),
                 filter_id,
             )
@@ -2373,7 +2410,7 @@ class AppController(QObject):
         state["filter_ids"] = [item for item in state["filter_ids"] if item != filter_id]
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.remove_profile_filter(
+            self._equipment_profile_repository.remove_profile_filter(
                 int(profile["id"]),
                 filter_id,
             )
@@ -2390,7 +2427,7 @@ class AppController(QObject):
             state["reducer_ids"].append(reducer_id)
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.assign_profile_reducer(
+            self._equipment_profile_repository.assign_profile_reducer(
                 int(profile["id"]),
                 reducer_id,
             )
@@ -2422,7 +2459,7 @@ class AppController(QObject):
         state["reducer_ids"] = [item for item in state["reducer_ids"] if item != reducer_id]
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.remove_profile_reducer(
+            self._equipment_profile_repository.remove_profile_reducer(
                 int(profile["id"]),
                 reducer_id,
             )
@@ -2438,7 +2475,7 @@ class AppController(QObject):
             state["astronomy_camera_ids"].append(camera_id)
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.assign_profile_astronomy_camera(
+            self._equipment_profile_repository.assign_profile_astronomy_camera(
                 int(profile["id"]),
                 camera_id,
             )
@@ -2458,7 +2495,7 @@ class AppController(QObject):
         ]
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.remove_profile_astronomy_camera(
+            self._equipment_profile_repository.remove_profile_astronomy_camera(
                 int(profile["id"]),
                 camera_id,
             )
@@ -2477,7 +2514,7 @@ class AppController(QObject):
             state["camera_body_ids"].append(camera_id)
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.assign_profile_camera_body(
+            self._equipment_profile_repository.assign_profile_camera_body(
                 int(profile["id"]),
                 camera_id,
             )
@@ -2495,7 +2532,7 @@ class AppController(QObject):
         ]
         profile = self._active_profile()
         if profile:
-            self._equipment_catalog_repository.remove_profile_camera_body(
+            self._equipment_profile_repository.remove_profile_camera_body(
                 int(profile["id"]),
                 camera_id,
             )
@@ -2556,7 +2593,7 @@ class AppController(QObject):
 
     @Slot(str, str, result=int)
     def equipmentUsage(self, kind: str, item_id: str) -> int:
-        return self._equipment_catalog_repository.profile_usage_count(kind, item_id)
+        return self._equipment_profile_repository.profile_usage_count(kind, item_id)
 
     @Slot(
         str,
@@ -3143,7 +3180,11 @@ class AppController(QObject):
     @Slot(str, str)
     def addCatalogProfile(self, catalog_id: str, profile_name: str) -> None:
         clean_name = profile_name.strip() or tr("Nuovo profilo")
-        self._equipment_catalog_repository.add_profile(clean_name, catalog_id, active=True)
+        self._equipment_profile_repository.add_profile(
+            clean_name,
+            catalog_id,
+            active=True,
+        )
         self._refresh_profiles_from_repository()
         self._equipment_message = self._equipment_status_message()
         self._refresh_active_profile_dependencies(reload_profile_equipment=True)
@@ -3180,7 +3221,7 @@ class AppController(QObject):
 
     @Slot(int)
     def setActiveEquipmentProfile(self, profile_id: int) -> None:
-        self._equipment_catalog_repository.set_active_profile(profile_id)
+        self._equipment_profile_repository.set_active_profile(profile_id)
         self._refresh_profiles_from_repository()
         self._equipment_message = self._equipment_status_message()
         self._refresh_active_profile_dependencies(reload_profile_equipment=True)
@@ -7232,7 +7273,7 @@ class AppController(QObject):
         service = getattr(self, "_profile_equipment_service", None)
         if service is None:
             service = profile_equipment_service.ProfileEquipmentService(
-                self._equipment_catalog_repository,
+                self._equipment_profile_repository,
                 self._equipment_service,
                 self._equipment_catalog_manager(),
             )

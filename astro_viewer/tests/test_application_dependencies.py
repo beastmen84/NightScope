@@ -98,7 +98,11 @@ def test_dependency_factory_owns_ephemeris_fallback(tmp_path: Path) -> None:
     )
     assert (
         dependencies.profile_equipment_service._repository
-        is dependencies.equipment_catalog_repository
+        is dependencies.equipment_profile_repository
+    )
+    assert (
+        dependencies.equipment_profile_repository._database_path
+        == dependencies.equipment_catalog_repository._database_path
     )
     assert (
         dependencies.profile_equipment_service._equipment_service

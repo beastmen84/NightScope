@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## NightScope 1.45.19 - 2026-09-03
+
+- Estratto `EquipmentProfileRepository`, responsabile del ciclo di vita dei
+  profili e di tutte le assegnazioni di telescopi, oculari, Barlow, binocoli,
+  filtri, riduttori e camere.
+- La composition root inietta separatamente repository dei cataloghi e dei
+  profili; `ProfileEquipmentService` e `AppController` non usano più il
+  repository globale per la persistenza dell'inventario utente.
+- Conservata sul vecchio `EquipmentCatalogRepository` l'API profili per
+  compatibilità. Le cancellazioni forzate continuano a rimuovere catalogo e
+  assegnazioni nella stessa transazione SQLite.
+- Aggiunti test che riaprono dopo il bootstrap un database popolato con tutte le
+  famiglie di equipaggiamento e verificano il rollback completo di una
+  cancellazione interrotta. Non è stata introdotta alcuna migrazione dello
+  schema o degli identificatori esistenti.
+- Il gate sorgente completo con coverage e sicurezza passa con 1.203 test e 10
+  subtest in 359,33 secondi, coverage aggregata 86%, nessuna vulnerabilità nota
+  e smoke test backend, QML normale e Red Night Vision riusciti.
+- La versione sorgente passa a `1.45.19`; `dist` non è stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release.
+
 ## NightScope 1.45.18 - 2026-09-02
 
 - Estratto dal controller Qt `LocationCommandWorkflow`, che ora gestisce

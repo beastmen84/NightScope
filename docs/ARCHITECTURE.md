@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.45.18
+This document describes the architecture implemented by the NightScope 1.45.19
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -275,7 +275,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.45.18`:
+Current runtime status for `1.45.19`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -829,9 +829,16 @@ Repositories own SQLite persistence:
   persistent per-object recommendation-eligibility overrides. Batch preference
   changes validate every requested identity before one SQLite transaction.
 - `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter,
-  focal-reducer, astronomy-camera and camera-body CRUD. Visual equipment keeps
-  its profile assignments; schema 21 stores camera assignments, schema 22
-  stores the full-aperture-solar-filter declaration for each
+  focal-reducer, astronomy-camera and camera-body CRUD. It retains the former
+  profile methods only as a compatibility surface; normal application wiring
+  never uses that inherited API.
+- `EquipmentProfileRepository`: profile lifecycle plus telescope, eyepiece,
+  Barlow, binocular, filter, reducer and camera assignments. It reads and writes
+  the existing tables without a schema migration. Transaction-scoped helpers
+  let catalogue deletions detach assignments through the catalogue operation's
+  original SQLite connection, so a forced delete remains atomic. Schema 21
+  stores camera assignments, schema 22 stores the full-aperture-solar-filter
+  declaration for each
   profile-to-telescope link, and schema 23 retires unmodeled eyepiece/Barlow
   barrel fields plus generic reducer-compatibility text. The exact
   `ReducerTelescopeCompatibility` links remain the only reducer admission
@@ -1283,9 +1290,11 @@ The following duplication or concentration of responsibility should be tracked:
   orchestration responsibilities. Concrete construction and the largest pure
   preparation workflows have moved out; further work should target coherent
   mutation/orchestration use cases rather than arbitrary file slices.
-- `EquipmentCatalogRepository` and database bootstrap remain concentrated
-  persistence modules. Their transaction and migration behavior is well tested,
-  so future splits should follow aggregates or migration families.
+- The profile aggregate is now separate from `EquipmentCatalogRepository`, but
+  the remaining catalogue repository and database bootstrap are still
+  concentrated persistence modules. Their transaction and migration behavior
+  is well tested, so future splits should continue to follow coherent catalogue
+  aggregates or migration families.
 - `HomePage.qml` and `ObjectDetailPage.qml` are also large. Their decisions use
   explicit Python presentation contracts, while component extraction remains a
   UI maintainability task.

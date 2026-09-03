@@ -20,7 +20,7 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.45.18` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
+The `1.45.19` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
 Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
 `pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
 Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, NumPy 2.5.2,
@@ -166,11 +166,11 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
-The `1.45.18` coverage/security source gate passed on Windows/Python 3.14.5 with
-1,201 tests and 10 subtests in 306.74 seconds, 86% aggregate application
+The `1.45.19` coverage/security source gate passed on Windows/Python 3.14.5 with
+1,203 tests and 10 subtests in 359.33 seconds, 86% aggregate application
 coverage, no unexpected warning summary, complete documentation coverage for
-243 Python, 34 QML, and 15 operational files, an acyclic production graph, zero
-protected-layer violations, an unchanged Bandit baseline (0 high, 37 medium, 14
+245 Python, 34 QML, and 15 operational files, an acyclic production graph, zero
+protected-layer violations, a reviewed Bandit baseline (0 high, 34 medium, 14
 low), clean dependency/license/MPC/OpenNGC checks, and successful backend,
 normal QML, and Red Night Vision QML smoke tests. The in-gate installed-
 environment `pip-audit` found no known vulnerabilities. A separate PySide6

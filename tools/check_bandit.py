@@ -163,7 +163,7 @@ def run_bandit(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
 def baseline_payload(findings: list[Finding]) -> dict[str, Any]:
     return {
         "schema_version": BASELINE_SCHEMA_VERSION,
-        "reviewed_on": "2026-09-02",
+        "reviewed_on": "2026-09-03",
         "policy": (
             "Exact reviewed findings only. New, removed, reclassified, or changed "
             "source lines fail the gate; high-severity findings are never accepted."

@@ -62,9 +62,9 @@ contracts.
 The documentation series landed in bounded `1.45.x` batches. Version `1.45.13`
 completed a file-by-file pass and introduced
 `tools/check_code_documentation.py`, which is part of the standard source gate.
-Its audited inventory at that version is:
+Its current audited inventory is:
 
-- 243 Python modules: 123 production modules, 89 test/support modules, and 31
+- 245 Python modules: 124 production modules, 90 test/support modules, and 31
   maintenance or packaging modules;
 - 34 QML pages and components;
 - 15 automation, packaging, CI, configuration, schema, and manual files.

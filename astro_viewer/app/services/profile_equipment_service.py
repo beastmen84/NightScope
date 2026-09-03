@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from astro_viewer.app.database.equipment_catalog_repository import (
-    EquipmentCatalogRepository,
+from astro_viewer.app.database.equipment_profile_repository import (
+    EquipmentProfileRepository,
 )
 from astro_viewer.app.models.equipment import (
     Barlow,
@@ -39,7 +39,7 @@ class ProfileEquipmentService:
 
     def __init__(
         self,
-        repository: EquipmentCatalogRepository,
+        repository: EquipmentProfileRepository,
         equipment_service: EquipmentService,
         catalogue_service: EquipmentCatalogService,
     ) -> None:
