@@ -4,7 +4,7 @@ Updated: 2026-09-03
 
 ## Current State
 
-- Source version: `1.45.20`.
+- Source version: `1.45.21`.
 - Current public release: `v1.43.0`.
 - Public-release source commit: `26dfaf49df8f9b8e73e84f406396f406170400b2`.
 - The `1.45.x` architectural series is source-only. No `1.45.x` tag, checksum,
@@ -37,7 +37,8 @@ Updated: 2026-09-03
 | 1.45.17 | `98b7b67` | Extracts concrete location adapters behind an explicit composition-root bundle while retaining compatibility imports. |
 | 1.45.18 | `d18e7d9` | Extracts controller-facing location commands into a framework-independent workflow with explicit inputs and outcomes. |
 | 1.45.19 | `62f6383` | Separates installed profile inventory from global equipment catalogues without changing the SQLite schema or identifiers. |
-| 1.45.20 | current source | Makes Windows source CI reproducible against the committed legal archive while retaining floating compatibility and audit jobs. |
+| 1.45.20 | `4cf60a1` | Pins the Windows Python/dependency closure; its remote run exposed path-dependent bytecode in the legal archive. |
+| 1.45.21 | current source | Excludes code and bytecode from license notices so clean Windows environments generate an identical archive. |
 
 ## Resulting Architecture
 
@@ -60,6 +61,11 @@ file that is mechanically matched to `THIRD_PARTY_LICENSES.txt`. Linux testing
 and the separate Python 3.14 dependency audit remain floating compatibility
 signals rather than release-record environments.
 
+License collection accepts arbitrary notice filenames only below the standard
+`.dist-info/licenses` directory and excludes Python source, bytecode and cache
+directories. The regenerated archive is identical between the project venv and
+a clean Windows environment despite their different absolute paths.
+
 The production graph is acyclic. The architecture gate also prevents models,
 database, astronomy, and service modules from importing the controller or the
 application composition layer. Compatibility wrappers remain where existing
@@ -73,10 +79,10 @@ QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.45.20` coverage/security source gate passed on
+The final local `1.45.21` coverage/security source gate passed on
 Windows/Python 3.14.5:
 
-- 1,204 tests and 10 subtests in 298.98 seconds, with 86% aggregate application
+- 1,209 tests and 10 subtests in 371.21 seconds, with 86% aggregate application
   coverage and no unexpected warning summary;
 - validated toolchain: pip 26.2.1, Ruff 0.16.5, coverage 7.16.0, PyInstaller
   6.22.2, and `pyinstaller-hooks-contrib` 2026.7;

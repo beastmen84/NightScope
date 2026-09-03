@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata
 import inspect
 import logging
 import re
@@ -42,7 +43,7 @@ from tools.generate_linux_native_notices import (
     read_collected_system_binaries,
     source_package_url,
 )
-from tools.generate_third_party_licenses import render_archive
+from tools.generate_third_party_licenses import _is_notice_path, render_archive
 from tools.run_checks import Check, _checks, _run_check
 from tools.translation_provider import (
     GOOGLE_TRANSLATE_URL,
@@ -421,6 +422,23 @@ def test_windows_release_constraints_match_the_legal_archive() -> None:
         PROJECT_ROOT / ".github" / "workflows" / "source-validation.yml"
     ).read_text(encoding="utf-8")
     assert f'python-version: "{python_version["version"]}"' in workflow
+
+
+@pytest.mark.parametrize(
+    ("path", "expected"),
+    (
+        ("packaging/licenses/__init__.py", False),
+        ("packaging/licenses/__pycache__/_spdx.cpython-314.pyc", False),
+        ("packaging-26.2.dist-info/licenses/LICENSE", True),
+        ("astropy-8.0.1.dist-info/licenses/licenses/ERFA.rst", True),
+        ("tzdata/licenses/LICENSE_APACHE", True),
+    ),
+)
+def test_third_party_license_notice_filter_excludes_code_and_bytecode(
+    path: str,
+    expected: bool,
+) -> None:
+    assert _is_notice_path(importlib.metadata.PackagePath(path)) is expected
 
 
 def test_first_run_city_progress_is_bounded_and_readable() -> None:

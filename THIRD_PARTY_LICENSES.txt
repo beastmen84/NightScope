@@ -6112,2178 +6112,6 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-Notice source: packaging/licenses/__init__.py
--------------------------------------------------------------------------------
-#######################################################################################
-#
-# Adapted from:
-#  https://github.com/pypa/hatch/blob/5352e44/backend/src/hatchling/licenses/parse.py
-#
-# MIT License
-#
-# Copyright (c) 2017-present Ofek Lev <oss@ofek.dev>
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this
-# software and associated documentation files (the "Software"), to deal in the Software
-# without restriction, including without limitation the rights to use, copy, modify,
-# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to the following
-# conditions:
-#
-# The above copyright notice and this permission notice shall be included in all copies
-# or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
-# OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-#
-# With additional allowance of arbitrary `LicenseRef-` identifiers, not just
-# `LicenseRef-Public-Domain` and `LicenseRef-Proprietary`.
-#
-#######################################################################################
-from __future__ import annotations
-
-import re
-from typing import NewType, cast
-
-from ._spdx import EXCEPTIONS, LICENSES
-
-__all__ = [
-    "InvalidLicenseExpression",
-    "NormalizedLicenseExpression",
-    "canonicalize_license_expression",
-]
-
-
-# Simple __dir__ implementation since there are no public submodules
-def __dir__() -> list[str]:
-    return __all__
-
-
-license_ref_allowed = re.compile("^[A-Za-z0-9.-]*$")
-
-NormalizedLicenseExpression = NewType("NormalizedLicenseExpression", str)
-"""
-A :class:`typing.NewType` of :class:`str`, representing a normalized
-License-Expression.
-"""
-
-
-class InvalidLicenseExpression(ValueError):
-    """Raised when a license-expression string is invalid
-
-    >>> from packaging.licenses import canonicalize_license_expression
-    >>> canonicalize_license_expression("invalid")
-    Traceback (most recent call last):
-        ...
-    packaging.licenses.InvalidLicenseExpression: Invalid license expression: 'invalid'
-    """
-
-
-def canonicalize_license_expression(
-    raw_license_expression: str,
-) -> NormalizedLicenseExpression:
-    """
-    This function takes a valid License-Expression, and returns the normalized
-    form of it.
-
-    The return type is typed as :class:`NormalizedLicenseExpression`. This
-    allows type checkers to help require that a string has passed through this
-    function before use.
-
-    :param str raw_license_expression: The License-Expression to canonicalize.
-    :raises InvalidLicenseExpression: If the License-Expression is invalid due to an
-        invalid/unknown license identifier or invalid syntax.
-
-    .. doctest::
-
-        >>> from packaging.licenses import canonicalize_license_expression
-        >>> canonicalize_license_expression("mit")
-        'MIT'
-        >>> canonicalize_license_expression("mit and (apache-2.0 or bsd-2-clause)")
-        'MIT AND (Apache-2.0 OR BSD-2-Clause)'
-        >>> canonicalize_license_expression("(mit")
-        Traceback (most recent call last):
-          ...
-        InvalidLicenseExpression: Invalid license expression: '(mit'
-        >>> canonicalize_license_expression("Use-it-after-midnight")
-        Traceback (most recent call last):
-          ...
-        InvalidLicenseExpression: Unknown license: 'Use-it-after-midnight'
-    """
-    if not raw_license_expression:
-        message = f"Invalid license expression: {raw_license_expression!r}"
-        raise InvalidLicenseExpression(message)
-
-    # Pad any parentheses so tokenization can be achieved by merely splitting on
-    # whitespace.
-    license_expression = raw_license_expression.replace("(", " ( ").replace(")", " ) ")
-    licenseref_prefix = "LicenseRef-"
-    license_refs = {
-        ref.lower(): "LicenseRef-" + ref[len(licenseref_prefix) :]
-        for ref in license_expression.split()
-        if ref.lower().startswith(licenseref_prefix.lower())
-    }
-
-    # Normalize to lower case so we can look up licenses/exceptions
-    # and so boolean operators are Python-compatible.
-    license_expression = license_expression.lower()
-
-    tokens = license_expression.split()
-
-    # Rather than implementing a parenthesis/boolean logic parser, create an
-    # expression that Python can parse. Everything that is not involved with the
-    # grammar itself is replaced with the placeholder `False` and the resultant
-    # expression should become a valid Python expression.
-    python_tokens = []
-    for token in tokens:
-        if token not in {"or", "and", "with", "(", ")"}:
-            python_tokens.append("False")
-        elif token == "with":
-            python_tokens.append("or")
-        elif (
-            token == "("
-            and python_tokens
-            and python_tokens[-1] not in {"or", "and", "("}
-        ) or (token == ")" and python_tokens and python_tokens[-1] == "("):
-            message = f"Invalid license expression: {raw_license_expression!r}"
-            raise InvalidLicenseExpression(message)
-        else:
-            python_tokens.append(token)
-
-    python_expression = " ".join(python_tokens)
-    try:
-        compile(python_expression, "", "eval")
-    except SyntaxError:
-        message = f"Invalid license expression: {raw_license_expression!r}"
-        raise InvalidLicenseExpression(message) from None
-
-    # Take a final pass to check for unknown licenses/exceptions.
-    normalized_tokens = []
-    for token in tokens:
-        if token in {"or", "and", "with", "(", ")"}:
-            normalized_tokens.append(token.upper())
-            continue
-
-        if normalized_tokens and normalized_tokens[-1] == "WITH":
-            if token not in EXCEPTIONS:
-                message = f"Unknown license exception: {token!r}"
-                raise InvalidLicenseExpression(message)
-
-            normalized_tokens.append(EXCEPTIONS[token]["id"])
-        else:
-            if token.endswith("+"):
-                final_token = token[:-1]
-                suffix = "+"
-            else:
-                final_token = token
-                suffix = ""
-
-            if final_token.startswith("licenseref-"):
-                if not license_ref_allowed.match(final_token):
-                    message = f"Invalid licenseref: {final_token!r}"
-                    raise InvalidLicenseExpression(message)
-                normalized_tokens.append(license_refs[final_token] + suffix)
-            else:
-                if final_token not in LICENSES:
-                    message = f"Unknown license: {final_token!r}"
-                    raise InvalidLicenseExpression(message)
-                normalized_tokens.append(LICENSES[final_token]["id"] + suffix)
-
-    normalized_expression = " ".join(normalized_tokens)
-
-    return cast(
-        "NormalizedLicenseExpression",
-        normalized_expression.replace("( ", "(").replace(" )", ")"),
-    )
-Notice source: packaging/licenses/__pycache__/__init__.cpython-314.pyc
--------------------------------------------------------------------------------
-+
-    
-�7j}  �                  �   � ^ RI Ht ^ RIt^ RIHtHt ^RIHtHt . R
-Ot	R R lt
-]P                  ! R	4      t]! R]
-4      t  ! R
- R]4      tR R ltR# )�    )�annotationsN)�NewType�cast)�
-EXCEPTIONS�LICENSES�InvalidLicenseExpression�NormalizedLicenseExpressionc               �   � V ^8�  d   QhRR/# )�   �returnz	list[str]� )�formats   "�`C:\Users\beast\PycharmProjects\NightScope\.venv\Lib\site-packages\packaging/licenses/__init__.py�__annotate__r   /   s   � � � �� �    c                 �   � \         # )N)�__all__r
-   r   r   �__dir__r   /   s   � ��Nr   z^[A-Za-z0-9.-]*$c                  �   � ] tR t^<tRtRtR# )r   a$  Raised when a license-expression string is invalid
-
->>> from packaging.licenses import canonicalize_license_expression
->>> canonicalize_license_expression("invalid")
-Traceback (most recent call last):
-    ...
-packaging.licenses.InvalidLicenseExpression: Invalid license expression: 'invalid'
-r
-   N)�__name__�
-__module__�__qualname__�__firstlineno__�__doc__�__static_attributes__r
-   r   r   r   r   <   s   � �r   c               �    � V ^8�  d   QhRRRR/# )r   �raw_license_expression�strr   r	   r
-   )r   s   "r   r   r   G   s    � � s� s��s� �sr   c           	     �  � V '       g   RV : 2p\        V4      hV P                  RR4      P                  RR4      pRpVP                  4        Uu/ uF\  pVP                  4       P	                  VP                  4       4      '       g   K8  VP                  4       RV\        V4      R ,           bK^  	  ppVP                  4       pVP                  4       p. pV F�  pVR9  d   VP
-                  R
-4       K  VR	8X  d   VP
-                  R4       K7  VR8X  d   V'       d   VR,          R9  g   VR8X  d(   V'       d    VR,          R8X  d   RV : 2p\        V4      hVP
-                  V4       K�  	  RP                  V4      p	 \        V	RR
-4       . p
-T EFP  pTR9   d"   T
-P
-                  TP                  4       4       K,  T
-'       dP   T
-R,          R8X  dB   T\        9  d   RT: 2p\        T4      hT
-P
-                  \        T,          R,          4       K�  TP                  R4      '       d	   TRR pRpMTpRpTP	                  R4      '       dN   \        P                  T4      '       g   RT: 2p\        T4      hT
-P
-                  Y[,          T,           4       EK
-  T\        9  d   RT: 2p\        T4      hT
-P
-                  \        T,          R,          T,           4       EKS  	  RP                  T
-4      p
-\!        RT
-P                  RR4      P                  RR4      4      # u upi   \         d    RT : 2p\        T4      Rhi ; i)a<  
-This function takes a valid License-Expression, and returns the normalized
-form of it.
-
-The return type is typed as :class:`NormalizedLicenseExpression`. This
-allows type checkers to help require that a string has passed through this
-function before use.
-
-:param str raw_license_expression: The License-Expression to canonicalize.
-:raises InvalidLicenseExpression: If the License-Expression is invalid due to an
-    invalid/unknown license identifier or invalid syntax.
-
-.. doctest::
-
-    >>> from packaging.licenses import canonicalize_license_expression
-    >>> canonicalize_license_expression("mit")
-    'MIT'
-    >>> canonicalize_license_expression("mit and (apache-2.0 or bsd-2-clause)")
-    'MIT AND (Apache-2.0 OR BSD-2-Clause)'
-    >>> canonicalize_license_expression("(mit")
-    Traceback (most recent call last):
-      ...
-    InvalidLicenseExpression: Invalid license expression: '(mit'
-    >>> canonicalize_license_expression("Use-it-after-midnight")
-    Traceback (most recent call last):
-      ...
-    InvalidLicenseExpression: Unknown license: 'Use-it-after-midnight'
-zInvalid license expression: �(z ( �)z ) zLicenseRef-N�or�with�False� � �eval�WITHzUnknown license exception: �id�+zlicenseref-zInvalid licenseref: zUnknown license: r	   z( z )>   r    r!   r"   �andr#   �����>   r    r"   r+   )r   �replace�split�lower�
-startswith�len�append�join�compile�SyntaxError�upperr   �endswith�license_ref_allowed�matchr   r   )r   �message�license_expression�licenseref_prefix�ref�license_refs�tokens�
-python_tokens�token�python_expression�normalized_tokens�final_token�suffix�normalized_expressions   &             r   �canonicalize_license_expressionrG   G   s%  � �> "�0�1G�0J�K��&�w�/�/� 0�7�7��U�C�K�K�C�QV�W��%�� &�+�+�-��-�C��9�9�;�!�!�"3�"9�"9�";�<� 	C��	�	��]�S��->�)?�)A�%B�B�B�-� � � ,�1�1�3��
-�
-%�
-%�
-'�F� �M����7�7�� � ��)�
-�f�_�� � ��&��S�L���b�!�);�;��s�l�}��r�1B�c�1I�4�5K�4N�O�G�*�7�3�3�� � ��'� � ����/��:��!�2�v�.� �����3�3��$�$�U�[�[�]�3���!2�2�!6�&�!@��J�&�7��y�A��.�w�7�7��$�$�Z��%6�t�%<�=��~�~�c�"�"�#�C�R�j����#�����%�%�m�4�4�*�0�0��=�=� 4�[�O�D�G�2�7�;�;�!�(�(��)B�V�)K�L��h�.� 1�+��A�G�2�7�;�;�!�(�(��+�)>�t�)D�v�)M�N�9 �<  �H�H�%6�7���%��%�%�d�C�0�8�8��s�C�� ��S��F � :�0�1G�0J�K��&�w�/�T�9�:�s   �5L$�
-(L$�
-L) �)M)r   r	   rG   )�
-__future__r   �re�typingr   r   �_spdxr   r   r   r   r4   r8   r   r	   �
-ValueErrorr   rG   r
-   r   r   �<module>rM      sW   ��@ #� 	�  � '���� �j�j�!3�4� �%�&C�S�I� ���z� �sr   
-Notice source: packaging/licenses/__pycache__/_spdx.cpython-314.pyc
--------------------------------------------------------------------------------
-+
-    
-�7j��  �                  ��5  a � 0 t $ ^ RIHt ^ RIHt  ! R R]4      t ! R R]4      tRt/ RR	R
-RR/bR
-R	RRR/bRR	RRR/bRR	RRR/bRR	RRR/bRR	RRR/bRR	RRR/bRR	RRR/bRR	RRR/bRR	RRR/bRR	R RR/bR!R	R"RR/bR#R	R$RR/bR%R	R&RR/bR'R	R(RR/bR)R	R*RR/bR+R	R,RR-/b/ R.R	R/RR/bR0R	R1RR/bR2R	R3RR-/bR4R	R5RR/bR6R	R7RR/bR8R	R9RR/bR:R	R;RR/bR<R	R=RR/bR>R	R?RR/bR@R	RARR/bRBR	RCRR/bRDR	RERR/bRFR	RGRR/bRHR	RIRR/bRJR	RKRR/bRLR	RMRR/bRNR	RORR/bC/ RPR	RQRR/bRRR	RSRR/bRTR	RURR/bRVR	RWRR/bRXR	RYRR/bRZR	R[RR/bR\R	R]RR/bR^R	R_RR/bR`R	RaRR/bRbR	RcRR/bRdR	ReRR/bRfR	RgRR/bRhR	RiRR/bRjR	RkRR/bRlR	RmRR/bRnR	RoRR/bRpR	RqRR/bC/ RrR	RsRR/bRtR	RuRR/bRvR	RwRR/bRxR	RyRR/bRzR	R{RR/bR|R	R}RR/bR~R	RRR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bC/ R�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR-/bR�R	R�RR-/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bC/ R�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bC/ R�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR-/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bC/ R�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	R�RR/bR�R	ER RR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bER	R	ER
-RR/bERR	ERRR/bER
-R	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bC/ ERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ER RR/bER!R	ER"RR/bER#R	ER$RR/bER%R	ER&RR/bER'R	ER(RR/bER)R	ER*RR/bER+R	ER,RR/bER-R	ER.RR/bER/R	ER0RR/bER1R	ER2RR/bER3R	ER4RR/bER5R	ER6RR/bER7R	ER8RR/bER9R	ER:RR/bC/ ER;R	ER<RR/bER=R	ER>RR/bER?R	ER@RR/bERAR	ERBRR/bERCR	ERDRR/bERER	ERFRR/bERGR	ERHRR/bERIR	ERJRR/bERKR	ERLRR/bERMR	ERNRR/bEROR	ERPRR/bERQR	ERRRR/bERSR	ERTRR/bERUR	ERVRR/bERWR	ERXRR/bERYR	ERZRR/bER[R	ER\RR/bC/ ER]R	ER^RR/bER_R	ER`RR/bERaR	ERbRR/bERcR	ERdRR/bEReR	ERfRR/bERgR	ERhRR/bERiR	ERjRR/bERkR	ERlRR/bERmR	ERnRR/bERoR	ERpRR/bERqR	ERrRR/bERsR	ERtRR/bERuR	ERvRR/bERwR	ERxRR/bERyR	ERzRR/bER{R	ER|RR/bER}R	ER~RR/bC/ ERR	ERRR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR-/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER RR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bER	R	ER
-RR/bERR	ERRR/bER
-R	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR-/bERR	ERRR/bERR	ERRR/bC/ ERR	ERRR/bERR	ER RR/bER!R	ER"RR/bER#R	ER$RR/bER%R	ER&RR-/bER'R	ER(RR/bER)R	ER*RR/bER+R	ER,RR/bER-R	ER.RR/bER/R	ER0RR/bER1R	ER2RR/bER3R	ER4RR-/bER5R	ER6RR/bER7R	ER8RR/bER9R	ER:RR/bER;R	ER<RR/bER=R	ER>RR/bC/ ER?R	ER@RR/bERAR	ERBRR/bERCR	ERDRR/bERER	ERFRR/bERGR	ERHRR/bERIR	ERJRR/bERKR	ERKRR/bERLR	ERMRR-/bERNR	ERORR-/bERPR	ERQRR/bERRR	ERSRR/bERTR	ERURR-/bERVR	ERWRR-/bERXR	ERYRR/bERZR	ER[RR/bER\R	ER]RR-/bER^R	ER_RR-/bC/ ER`R	ERaRR-/bERbR	ERcRR-/bERdR	EReRR-/bERfR	ERgRR-/bERhR	ERiRR-/bERjR	ERkRR/bERlR	ERmRR/bERnR	ERoRR-/bERpR	ERqRR-/bERrR	ERsRR/bERtR	ERuRR/bERvR	ERvRR/bERwR	ERxRR/bERyR	ERzRR/bER{R	ER|RR/bER}R	ER}RR/bER~R	ERRR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR-/bER�R	ER�RR-/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER RR-/bERR	ERRR-/bERR	ERRR/bERR	ERRR/bC/ ERR	ERRR-/bER	R	ER
-RR-/bERR	ERRR/bER
-R	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ER RR/bER!R	ER"RR/bER#R	ER$RR/bC/ ER%R	ER&RR/bER'R	ER(RR/bER)R	ER*RR/bER+R	ER,RR/bER-R	ER.RR/bER/R	ER0RR/bER1R	ER2RR/bER3R	ER4RR/bER5R	ER6RR/bER7R	ER8RR/bER9R	ER:RR/bER;R	ER;RR/bER<R	ER=RR/bER>R	ER?RR/bER@R	ERARR/bERBR	ERCRR/bERDR	ERERR/bC/ ERFR	ERFRR/bERGR	ERGRR/bERHR	ERIRR/bERJR	ERJRR/bERKR	ERLRR/bERMR	ERNRR/bEROR	ERORR/bERPR	ERQRR/bERRR	ERSRR/bERTR	ERURR/bERVR	ERWRR/bERXR	ERYRR/bERZR	ER[RR/bER\R	ER]RR/bER^R	ER_RR/bER`R	ERaRR/bERbR	ERcRR/bC/ ERdR	EReRR/bERfR	ERgRR/bERhR	ERiRR/bERjR	ERkRR/bERlR	ERmRR/bERnR	ERoRR/bERpR	ERqRR/bERrR	ERsRR/bERtR	ERuRR/bERvR	ERwRR/bERxR	ERxRR/bERyR	ERyRR/bERzR	ER{RR/bER|R	ER}RR/bER~R	ERRR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR-/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR-/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER R	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ER	RR/bC/ ER
-R	ERRR/bERR	ER
-RR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bER R	ER!RR/bER"R	ER#RR/bER$R	ER%RR/bER&R	ER'RR/bER(R	ER)RR/bER*R	ER+RR/bC/ ER,R	ER-RR/bER.R	ER/RR/bER0R	ER1RR/bER2R	ER3RR/bER4R	ER5RR/bER6R	ER7RR/bER8R	ER9RR/bER:R	ER;RR/bER<R	ER=RR/bER>R	ER?RR/bER@R	ERARR/bERBR	ERCRR/bERDR	ERDRR/bERER	ERFRR/bERGR	ERGRR/bERHR	ERIRR/bERJR	ERKRR/bC/ ERLR	ERMRR/bERNR	ERORR/bERPR	ERQRR/bERRR	ERRRR/bERSR	ERSRR/bERTR	ERURR/bERVR	ERWRR/bERXR	ERXRR/bERYR	ERZRR/bER[R	ER\RR/bER]R	ER^RR/bER_R	ER_RR/bER`R	ERaRR/bERbR	ERcRR/bERdR	EReRR/bERfR	ERgRR/bERhR	ERiRR/bC/ ERjR	ERkRR/bERlR	ERmRR/bERnR	ERoRR/bERpR	ERqRR/bERrR	ERsRR/bERtR	ERuRR/bERvR	ERwRR/bERxR	ERyRR/bERzR	ER{RR/bER|R	ER}RR/bER~R	ERRR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR-/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER RR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bER	R	ER
-RR/bERR	ERRR/bER
-R	ERRR/bC/ ERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ERRR/bERR	ER RR-/bER!R	ER"RR/bER#R	ER$RR/bER%R	ER&RR/bER'R	ER(RR/bER)R	ER*RR/bER+R	ER,RR/bER-R	ER.RR/bC/ ER/R	ER/RR/bER0R	ER1RR/bER2R	ER2RR/bER3R	ER4RR/bER5R	ER5RR/bER6R	ER7RR/bER8R	ER8RR/bER9R	ER:RR/bER;R	ER<RR/bER=R	ER>RR/bER?R	ER@RR/bERAR	ERBRR/bERCR	ERDRR/bERER	ERFRR/bERGR	ERHRR/bERIR	ERIRR/bERJR	ERKRR/bCERLR	ERMRR/ERNR	ERORR//CtERP]	ERQ&   / ERRR	ERRRR/bERSR	ERTRR/bERUR	ERVRR/bERWR	ERXRR/bERYR	ERZRR/bER[R	ER\RR/bER]R	ER^RR/bER_R	ER`RR/bERaR	ERbRR/bERcR	ERdRR/bEReR	ERfRR/bERgR	ERhRR/bERiR	ERjRR/bERkR	ERlRR/bERmR	ERnRR/bERoR	ERpRR/bERqR	ERrRR/b/ ERsR	ERtRR/bERuR	ERuRR/bERvR	ERwRR/bERxR	ERyRR/bERzR	ERzRR/bER{R	ER|RR/bER}R	ER}RR/bER~R	ERRR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bC/ ER�R	ER�RR/bER�R	ER�RR-/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bER�R	ER�RR/bCER�R	ER�RR/ER�R	ER�RR/ER�R	ER�RR/ER�R	ER�RR/ER�R	ER�RR/ER�R	ER�RR/ER�R	ER�RR/ER�R	ER�RR/ER�R	ER�RR/ER�R	ER�RR/ER�R	ER�RR//Ct
-ER�]	ER�&   ER�# (�  �    )�annotations)�	TypedDictc                  �,   � ] tR t^t$ R]R&   R]R&   RtR# )�SPDXLicense�str�id�bool�
-deprecated� N��__name__�
-__module__�__qualname__�__firstlineno__�__annotations__�__static_attributes__r   �    �]C:\Users\beast\PycharmProjects\NightScope\.venv\Lib\site-packages\packaging/licenses/_spdx.pyr   r      �
-   � ��G��r   r   c                  �,   � ] tR t^
-t$ R]R&   R]R&   RtR# )�
-SPDXExceptionr   r   r	   r
-   r   Nr   r   r   r   r   r   
-   r   r   r   z3.27.0�0bsdr   �0BSDr
-   Fz
-3d-slicer-1.0z
-3D-Slicer-1.0�aal�AAL�abstyles�Abstyleszadacore-doczAdaCore-docz
-adobe-2006z
-Adobe-2006zadobe-display-postscriptzAdobe-Display-PostScriptzadobe-glyphzAdobe-Glyphzadobe-utopiazAdobe-Utopia�adsl�ADSLzafl-1.1zAFL-1.1zafl-1.2zAFL-1.2zafl-2.0zAFL-2.0zafl-2.1zAFL-2.1zafl-3.0zAFL-3.0�afmparse�Afmparsezagpl-1.0zAGPL-1.0Tz
-agpl-1.0-onlyz
-AGPL-1.0-onlyzagpl-1.0-or-laterzAGPL-1.0-or-laterzagpl-3.0zAGPL-3.0z
-agpl-3.0-onlyz
-AGPL-3.0-onlyzagpl-3.0-or-laterzAGPL-3.0-or-later�aladdin�Aladdinz
-amd-newlibz
-AMD-newlib�amdplpa�AMDPLPA�aml�AMLzaml-glslangzAML-glslang�ampas�AMPASzantlr-pdzANTLR-PDzantlr-pd-fallbackzANTLR-PD-fallbackzany-osizany-OSIzany-osi-perl-moduleszany-OSI-perl-modulesz
-apache-1.0z
-Apache-1.0z
-apache-1.1z
-Apache-1.1z
-apache-2.0z
-Apache-2.0�apafml�APAFMLzapl-1.0zAPL-1.0zapp-s2pzApp-s2pzapsl-1.0zAPSL-1.0zapsl-1.1zAPSL-1.1zapsl-1.2zAPSL-1.2zapsl-2.0zAPSL-2.0zarphic-1999zArphic-1999zartistic-1.0zArtistic-1.0zartistic-1.0-cl8zArtistic-1.0-cl8zartistic-1.0-perlzArtistic-1.0-Perlzartistic-2.0zArtistic-2.0z
-artistic-distz
-Artistic-distz	aspell-ruz	Aspell-RUzaswf-digital-assets-1.0zASWF-Digital-Assets-1.0zaswf-digital-assets-1.1zASWF-Digital-Assets-1.1�baekmuk�Baekmuk�bahyph�Bahyph�barr�Barrzbcrypt-solar-designerzbcrypt-Solar-Designer�beerware�Beerwarezbitstream-charterzBitstream-Charterzbitstream-verazBitstream-Verazbittorrent-1.0zBitTorrent-1.0zbittorrent-1.1zBitTorrent-1.1�blessingz
-blueoak-1.0.0z
-BlueOak-1.0.0zboehm-gczBoehm-GCzboehm-gc-without-feezBoehm-GC-without-fee�borceux�Borceuxzbrian-gladman-2-clausezBrian-Gladman-2-Clausezbrian-gladman-3-clausezBrian-Gladman-3-Clausezbsd-1-clausezBSD-1-Clausezbsd-2-clausezBSD-2-Clausezbsd-2-clause-darwinzBSD-2-Clause-Darwinzbsd-2-clause-first-lineszBSD-2-Clause-first-lineszbsd-2-clause-freebsdzBSD-2-Clause-FreeBSDzbsd-2-clause-netbsdzBSD-2-Clause-NetBSDzbsd-2-clause-patentzBSD-2-Clause-Patentzbsd-2-clause-pkgconf-disclaimerzBSD-2-Clause-pkgconf-disclaimerzbsd-2-clause-viewszBSD-2-Clause-Viewszbsd-3-clausezBSD-3-Clausezbsd-3-clause-acpicazBSD-3-Clause-acpicazbsd-3-clause-attributionzBSD-3-Clause-Attributionzbsd-3-clause-clearzBSD-3-Clause-Clearzbsd-3-clause-flexzBSD-3-Clause-flexzbsd-3-clause-hpzBSD-3-Clause-HPzbsd-3-clause-lbnlzBSD-3-Clause-LBNLzbsd-3-clause-modificationzBSD-3-Clause-Modificationz bsd-3-clause-no-military-licensez BSD-3-Clause-No-Military-Licensezbsd-3-clause-no-nuclear-licensezBSD-3-Clause-No-Nuclear-Licensez$bsd-3-clause-no-nuclear-license-2014z$BSD-3-Clause-No-Nuclear-License-2014z bsd-3-clause-no-nuclear-warrantyz BSD-3-Clause-No-Nuclear-Warrantyzbsd-3-clause-open-mpizBSD-3-Clause-Open-MPIzbsd-3-clause-sunzBSD-3-Clause-Sunzbsd-4-clausezBSD-4-Clausezbsd-4-clause-shortenedzBSD-4-Clause-Shortenedzbsd-4-clause-uczBSD-4-Clause-UCzbsd-4.3renozBSD-4.3RENOzbsd-4.3tahoezBSD-4.3TAHOEzbsd-advertising-acknowledgementzBSD-Advertising-Acknowledgementzbsd-attribution-hpnd-disclaimerzBSD-Attribution-HPND-disclaimerzbsd-inferno-nettverkzBSD-Inferno-Nettverkzbsd-protectionzBSD-Protectionzbsd-source-beginning-filezBSD-Source-beginning-filezbsd-source-codezBSD-Source-Codez
-bsd-systemicsz
-BSD-Systemicszbsd-systemics-w3workszBSD-Systemics-W3Workszbsl-1.0zBSL-1.0zbusl-1.1zBUSL-1.1zbzip2-1.0.5zbzip2-1.0.6z	c-uda-1.0z	C-UDA-1.0zcal-1.0zCAL-1.0zcal-1.0-combined-work-exceptionzCAL-1.0-Combined-Work-Exception�caldera�Calderazcaldera-no-preamblezCaldera-no-preamble�catharon�Catharonz
-catosl-1.1z
-CATOSL-1.1z	cc-by-1.0z	CC-BY-1.0z	cc-by-2.0z	CC-BY-2.0z	cc-by-2.5z	CC-BY-2.5zcc-by-2.5-auzCC-BY-2.5-AUz	cc-by-3.0z	CC-BY-3.0zcc-by-3.0-atzCC-BY-3.0-ATzcc-by-3.0-auzCC-BY-3.0-AUzcc-by-3.0-dezCC-BY-3.0-DEz
-cc-by-3.0-igoz
-CC-BY-3.0-IGOzcc-by-3.0-nlzCC-BY-3.0-NLzcc-by-3.0-uszCC-BY-3.0-USz	cc-by-4.0z	CC-BY-4.0zcc-by-nc-1.0zCC-BY-NC-1.0zcc-by-nc-2.0zCC-BY-NC-2.0zcc-by-nc-2.5zCC-BY-NC-2.5zcc-by-nc-3.0zCC-BY-NC-3.0zcc-by-nc-3.0-dezCC-BY-NC-3.0-DEzcc-by-nc-4.0zCC-BY-NC-4.0zcc-by-nc-nd-1.0zCC-BY-NC-ND-1.0zcc-by-nc-nd-2.0zCC-BY-NC-ND-2.0zcc-by-nc-nd-2.5zCC-BY-NC-ND-2.5zcc-by-nc-nd-3.0zCC-BY-NC-ND-3.0zcc-by-nc-nd-3.0-dezCC-BY-NC-ND-3.0-DEzcc-by-nc-nd-3.0-igozCC-BY-NC-ND-3.0-IGOzcc-by-nc-nd-4.0zCC-BY-NC-ND-4.0zcc-by-nc-sa-1.0zCC-BY-NC-SA-1.0zcc-by-nc-sa-2.0zCC-BY-NC-SA-2.0zcc-by-nc-sa-2.0-dezCC-BY-NC-SA-2.0-DEzcc-by-nc-sa-2.0-frzCC-BY-NC-SA-2.0-FRzcc-by-nc-sa-2.0-ukzCC-BY-NC-SA-2.0-UKzcc-by-nc-sa-2.5zCC-BY-NC-SA-2.5zcc-by-nc-sa-3.0zCC-BY-NC-SA-3.0zcc-by-nc-sa-3.0-dezCC-BY-NC-SA-3.0-DEzcc-by-nc-sa-3.0-igozCC-BY-NC-SA-3.0-IGOzcc-by-nc-sa-4.0zCC-BY-NC-SA-4.0zcc-by-nd-1.0zCC-BY-ND-1.0zcc-by-nd-2.0zCC-BY-ND-2.0zcc-by-nd-2.5zCC-BY-ND-2.5zcc-by-nd-3.0zCC-BY-ND-3.0zcc-by-nd-3.0-dezCC-BY-ND-3.0-DEzcc-by-nd-4.0zCC-BY-ND-4.0zcc-by-sa-1.0zCC-BY-SA-1.0zcc-by-sa-2.0zCC-BY-SA-2.0zcc-by-sa-2.0-ukzCC-BY-SA-2.0-UKzcc-by-sa-2.1-jpzCC-BY-SA-2.1-JPzcc-by-sa-2.5zCC-BY-SA-2.5zcc-by-sa-3.0zCC-BY-SA-3.0zcc-by-sa-3.0-atzCC-BY-SA-3.0-ATzcc-by-sa-3.0-dezCC-BY-SA-3.0-DEzcc-by-sa-3.0-igozCC-BY-SA-3.0-IGOzcc-by-sa-4.0zCC-BY-SA-4.0zcc-pddczCC-PDDCz
-cc-pdm-1.0z
-CC-PDM-1.0z	cc-sa-1.0z	CC-SA-1.0zcc0-1.0zCC0-1.0zcddl-1.0zCDDL-1.0zcddl-1.1zCDDL-1.1zcdl-1.0zCDL-1.0zcdla-permissive-1.0zCDLA-Permissive-1.0zcdla-permissive-2.0zCDLA-Permissive-2.0zcdla-sharing-1.0zCDLA-Sharing-1.0z
-cecill-1.0z
-CECILL-1.0z
-cecill-1.1z
-CECILL-1.1z
-cecill-2.0z
-CECILL-2.0z
-cecill-2.1z
-CECILL-2.1zcecill-bzCECILL-Bzcecill-czCECILL-Czcern-ohl-1.1zCERN-OHL-1.1zcern-ohl-1.2zCERN-OHL-1.2zcern-ohl-p-2.0zCERN-OHL-P-2.0zcern-ohl-s-2.0zCERN-OHL-S-2.0zcern-ohl-w-2.0zCERN-OHL-W-2.0�cfitsio�CFITSIOz	check-cvs�checkmk�
-clartistic�
-ClArtistic�clips�Clipszcmu-machzCMU-Machzcmu-mach-nodoczCMU-Mach-nodoczcnri-jythonzCNRI-Jythonzcnri-pythonzCNRI-Pythonzcnri-python-gpl-compatiblezCNRI-Python-GPL-Compatiblezcoil-1.0zCOIL-1.0zcommunity-spec-1.0zCommunity-Spec-1.0z
-condor-1.1z
-Condor-1.1zcopyleft-next-0.3.0zcopyleft-next-0.3.1zcornell-lossless-jpegzCornell-Lossless-JPEGzcpal-1.0zCPAL-1.0zcpl-1.0zCPL-1.0z	cpol-1.02z	CPOL-1.02�cronyx�Cronyx�	crossword�	Crossword�cryptoswift�CryptoSwift�crystalstacker�CrystalStackerzcua-opl-1.0zCUA-OPL-1.0�cube�Cube�curlzcve-touz	d-fsl-1.0z	D-FSL-1.0zdec-3-clausezDEC-3-Clause�diffmarkzdl-de-by-2.0zDL-DE-BY-2.0zdl-de-zero-2.0zDL-DE-ZERO-2.0�doc�DOCzdocbook-dtdzDocBook-DTDzdocbook-schemazDocBook-Schemazdocbook-stylesheetzDocBook-Stylesheetzdocbook-xmlzDocBook-XML�dotseqn�Dotseqnzdrl-1.0zDRL-1.0zdrl-1.1zDRL-1.1�dsdp�DSDP�dtoa�dvipdfmzecl-1.0zECL-1.0zecl-2.0zECL-2.0zecos-2.0zeCos-2.0zefl-1.0zEFL-1.0zefl-2.0zEFL-2.0�egenix�eGenixzelastic-2.0zElastic-2.0�entessa�Entessa�epics�EPICSzepl-1.0zEPL-1.0zepl-2.0zEPL-2.0z	erlpl-1.1z	ErlPL-1.1z
-etalab-2.0�
-eudatagrid�
-EUDatagridzeupl-1.0zEUPL-1.0zeupl-1.1zEUPL-1.1zeupl-1.2zEUPL-1.2�eurosym�Eurosym�fair�Fair�fbm�FBMzfdk-aaczFDK-AACzferguson-twofishzFerguson-Twofishz
-frameworx-1.0z
-Frameworx-1.0zfreebsd-doczFreeBSD-DOC�	freeimage�	FreeImage�fsfap�FSFAPzfsfap-no-warranty-disclaimerzFSFAP-no-warranty-disclaimer�fsful�FSFUL�fsfullr�FSFULLR�	fsfullrsd�	FSFULLRSD�	fsfullrwd�	FSFULLRWDzfsl-1.1-alv2zFSL-1.1-ALv2zfsl-1.1-mitzFSL-1.1-MIT�ftl�FTL�furuseth�Furuseth�fwlwzgame-programming-gemszGame-Programming-Gemszgcr-docszGCR-docs�gd�GDzgeneric-xtszgfdl-1.1zGFDL-1.1zgfdl-1.1-invariants-onlyzGFDL-1.1-invariants-onlyzgfdl-1.1-invariants-or-laterzGFDL-1.1-invariants-or-laterzgfdl-1.1-no-invariants-onlyzGFDL-1.1-no-invariants-onlyzgfdl-1.1-no-invariants-or-laterzGFDL-1.1-no-invariants-or-laterz
-gfdl-1.1-onlyz
-GFDL-1.1-onlyzgfdl-1.1-or-laterzGFDL-1.1-or-laterzgfdl-1.2zGFDL-1.2zgfdl-1.2-invariants-onlyzGFDL-1.2-invariants-onlyzgfdl-1.2-invariants-or-laterzGFDL-1.2-invariants-or-laterzgfdl-1.2-no-invariants-onlyzGFDL-1.2-no-invariants-onlyzgfdl-1.2-no-invariants-or-laterzGFDL-1.2-no-invariants-or-laterz
-gfdl-1.2-onlyz
-GFDL-1.2-onlyzgfdl-1.2-or-laterzGFDL-1.2-or-laterzgfdl-1.3zGFDL-1.3zgfdl-1.3-invariants-onlyzGFDL-1.3-invariants-onlyzgfdl-1.3-invariants-or-laterzGFDL-1.3-invariants-or-laterzgfdl-1.3-no-invariants-onlyzGFDL-1.3-no-invariants-onlyzgfdl-1.3-no-invariants-or-laterzGFDL-1.3-no-invariants-or-laterz
-gfdl-1.3-onlyz
-GFDL-1.3-onlyzgfdl-1.3-or-laterzGFDL-1.3-or-later�giftware�Giftware�gl2ps�GL2PS�glide�Glide�glulxe�Glulxe�glwtpl�GLWTPL�gnuplotzgpl-1.0zGPL-1.0zgpl-1.0+zGPL-1.0+zgpl-1.0-onlyzGPL-1.0-onlyzgpl-1.0-or-laterzGPL-1.0-or-laterzgpl-2.0zGPL-2.0zgpl-2.0+zGPL-2.0+zgpl-2.0-onlyzGPL-2.0-onlyzgpl-2.0-or-laterzGPL-2.0-or-laterzgpl-2.0-with-autoconf-exceptionzGPL-2.0-with-autoconf-exceptionzgpl-2.0-with-bison-exceptionzGPL-2.0-with-bison-exceptionz gpl-2.0-with-classpath-exceptionz GPL-2.0-with-classpath-exceptionzgpl-2.0-with-font-exceptionzGPL-2.0-with-font-exceptionzgpl-2.0-with-gcc-exceptionzGPL-2.0-with-GCC-exceptionzgpl-3.0zGPL-3.0zgpl-3.0+zGPL-3.0+zgpl-3.0-onlyzGPL-3.0-onlyzgpl-3.0-or-laterzGPL-3.0-or-laterzgpl-3.0-with-autoconf-exceptionzGPL-3.0-with-autoconf-exceptionzgpl-3.0-with-gcc-exceptionzGPL-3.0-with-GCC-exceptionz
-graphics-gemsz
-Graphics-Gemsz
-gsoap-1.3bz
-gSOAP-1.3b�gtkbook�gutmann�Gutmann�
-haskellreport�
-HaskellReport�hdf5�HDF5�hdparm�hidapi�HIDAPIzhippocratic-2.1zHippocratic-2.1zhp-1986zHP-1986zhp-1989zHP-1989�hpnd�HPNDzhpnd-deczHPND-DECzhpnd-doczHPND-docz
-hpnd-doc-sellz
-HPND-doc-sellzhpnd-export-uszHPND-export-USzhpnd-export-us-acknowledgementzHPND-export-US-acknowledgementzhpnd-export-us-modifyzHPND-export-US-modifyzhpnd-export2-uszHPND-export2-USzhpnd-fenneberg-livingstonzHPND-Fenneberg-Livingstonzhpnd-inria-imagzHPND-INRIA-IMAGz
-hpnd-intelz
-HPND-Intelzhpnd-kevlin-henneyzHPND-Kevlin-Henneyzhpnd-markus-kuhnzHPND-Markus-Kuhnzhpnd-merchantability-variantzHPND-merchantability-variantzhpnd-mit-disclaimerzHPND-MIT-disclaimerzhpnd-netrekzHPND-Netrekzhpnd-pbmpluszHPND-Pbmplusz hpnd-sell-mit-disclaimer-xserverz HPND-sell-MIT-disclaimer-xserverzhpnd-sell-regexprzHPND-sell-regexprzhpnd-sell-variantzHPND-sell-variantz hpnd-sell-variant-mit-disclaimerz HPND-sell-variant-MIT-disclaimerz$hpnd-sell-variant-mit-disclaimer-revz$HPND-sell-variant-MIT-disclaimer-revzhpnd-uczHPND-UCzhpnd-uc-export-uszHPND-UC-export-US�htmltidy�HTMLTIDYzibm-pibszIBM-pibs�icu�ICUziec-code-components-eulazIEC-Code-Components-EULA�ijg�IJGz	ijg-shortz	IJG-short�imagemagick�ImageMagick�imatix�iMatix�imlib2�Imlib2zinfo-zipzInfo-ZIPz
-inner-net-2.0z
-Inner-Net-2.0�	innosetup�	InnoSetup�intel�Intelz
-intel-acpiz
-Intel-ACPIz
-interbase-1.0z
-Interbase-1.0�ipa�IPAzipl-1.0zIPL-1.0�isc�ISCzisc-veillardzISC-Veillard�jam�Jamz
-jasper-2.0z
-JasPer-2.0�jovez	jpl-imagez	JPL-image�jpnic�JPNIC�json�JSON�kastrup�Kastrup�kazlib�Kazlibz
-knuth-ctanz
-Knuth-CTANzlal-1.2zLAL-1.2zlal-1.3zLAL-1.3�latex2e�Latex2ezlatex2e-translated-noticezLatex2e-translated-notice�	leptonica�	Leptonicazlgpl-2.0zLGPL-2.0z	lgpl-2.0+z	LGPL-2.0+z
-lgpl-2.0-onlyz
-LGPL-2.0-onlyzlgpl-2.0-or-laterzLGPL-2.0-or-laterzlgpl-2.1zLGPL-2.1z	lgpl-2.1+z	LGPL-2.1+z
-lgpl-2.1-onlyz
-LGPL-2.1-onlyzlgpl-2.1-or-laterzLGPL-2.1-or-laterzlgpl-3.0zLGPL-3.0z	lgpl-3.0+z	LGPL-3.0+z
-lgpl-3.0-onlyz
-LGPL-3.0-onlyzlgpl-3.0-or-laterzLGPL-3.0-or-later�lgpllr�LGPLLR�libpng�Libpngz
-libpng-1.6.35z
-libpng-2.0zlibselinux-1.0�libtiffzlibutil-david-nugentzlibutil-David-Nugentzliliq-p-1.1zLiLiQ-P-1.1zliliq-r-1.1zLiLiQ-R-1.1zliliq-rplus-1.1zLiLiQ-Rplus-1.1zlinux-man-pages-1-parazLinux-man-pages-1-parazlinux-man-pages-copyleftzLinux-man-pages-copyleftzlinux-man-pages-copyleft-2-parazLinux-man-pages-copyleft-2-parazlinux-man-pages-copyleft-varzLinux-man-pages-copyleft-varzlinux-openibzLinux-OpenIB�loop�LOOPzlpd-documentzLPD-documentzlpl-1.0zLPL-1.0zlpl-1.02zLPL-1.02zlppl-1.0zLPPL-1.0zlppl-1.1zLPPL-1.1zlppl-1.2zLPPL-1.2z	lppl-1.3az	LPPL-1.3az	lppl-1.3cz	LPPL-1.3c�lsofzlucida-bitmap-fontszLucida-Bitmap-Fontszlzma-sdk-9.11-to-9.20zLZMA-SDK-9.11-to-9.20z
-lzma-sdk-9.22z
-LZMA-SDK-9.22zmackerras-3-clausezMackerras-3-Clausez!mackerras-3-clause-acknowledgmentz!Mackerras-3-Clause-acknowledgment�magaz�mailprio�	makeindex�	MakeIndex�man2htmlzmartin-birgmeierzMartin-Birgmeierzmcphee-slideshowzMcPhee-slideshow�metamail�minpack�Minpack�mips�MIPS�miros�MirOS�mit�MITzmit-0zMIT-0zmit-advertisingzMIT-advertisingz	mit-clickz	MIT-Clickzmit-cmuzMIT-CMUzmit-ennazMIT-ennazmit-fehzMIT-fehzmit-festivalzMIT-Festivalzmit-khronos-oldzMIT-Khronos-oldzmit-modern-variantzMIT-Modern-Variantzmit-open-groupzMIT-open-groupz
-mit-testregexz
-MIT-testregexzmit-wuzMIT-Wu�mitnfa�MITNFA�mmixware�MMIXware�motosoto�Motosotozmpeg-ssgzMPEG-SSGzmpi-permissive�mpich2zmpl-1.0zMPL-1.0zmpl-1.1zMPL-1.1zmpl-2.0zMPL-2.0zmpl-2.0-no-copyleft-exceptionzMPL-2.0-no-copyleft-exception�mpluszms-lplzMS-LPLzms-plzMS-PLzms-rlzMS-RL�mtll�MTLLzmulanpsl-1.0zMulanPSL-1.0zmulanpsl-2.0zMulanPSL-2.0�multics�Multics�mup�Mupz
-naist-2003z
-NAIST-2003znasa-1.3zNASA-1.3�naumen�Naumenznbpl-1.0zNBPL-1.0zncbi-pdzNCBI-PDzncgl-uk-2.0zNCGL-UK-2.0�ncl�NCL�ncsa�NCSAznet-snmpzNet-SNMP�netcdf�NetCDF�newsletr�Newsletr�ngpl�NGPL�ngrepz	nicta-1.0z	NICTA-1.0znist-pdzNIST-PDznist-pd-fallbackzNIST-PD-fallbackz
-nist-softwarez
-NIST-Softwareznlod-1.0zNLOD-1.0znlod-2.0zNLOD-2.0�nlpl�NLPL�nokia�Nokia�nosl�NOSL�noweb�Nowebznpl-1.0zNPL-1.0znpl-1.1zNPL-1.1z	nposl-3.0z	NPOSL-3.0�nrl�NRLzntia-pdzNTIA-PD�ntp�NTPzntp-0zNTP-0�nunit�Nunitz	o-uda-1.0z	O-UDA-1.0�oar�OARzocct-plzOCCT-PLzoclc-2.0zOCLC-2.0zodbl-1.0zODbL-1.0z
-odc-by-1.0z
-ODC-By-1.0�offis�OFFISzofl-1.0zOFL-1.0zofl-1.0-no-rfnzOFL-1.0-no-RFNzofl-1.0-rfnzOFL-1.0-RFNzofl-1.1zOFL-1.1zofl-1.1-no-rfnzOFL-1.1-no-RFNzofl-1.1-rfnzOFL-1.1-RFNzogc-1.0zOGC-1.0zogdl-taiwan-1.0zOGDL-Taiwan-1.0zogl-canada-2.0zOGL-Canada-2.0z
-ogl-uk-1.0z
-OGL-UK-1.0z
-ogl-uk-2.0z
-OGL-UK-2.0z
-ogl-uk-3.0z
-OGL-UK-3.0�ogtsl�OGTSLz	oldap-1.1z	OLDAP-1.1z	oldap-1.2z	OLDAP-1.2z	oldap-1.3z	OLDAP-1.3z	oldap-1.4z	OLDAP-1.4z	oldap-2.0z	OLDAP-2.0zoldap-2.0.1zOLDAP-2.0.1z	oldap-2.1z	OLDAP-2.1z	oldap-2.2z	OLDAP-2.2zoldap-2.2.1zOLDAP-2.2.1zoldap-2.2.2zOLDAP-2.2.2z	oldap-2.3z	OLDAP-2.3z	oldap-2.4z	OLDAP-2.4z	oldap-2.5z	OLDAP-2.5z	oldap-2.6z	OLDAP-2.6z	oldap-2.7z	OLDAP-2.7z	oldap-2.8z	OLDAP-2.8zolfl-1.3zOLFL-1.3�oml�OMLzopenpbs-2.3zOpenPBS-2.3�openssl�OpenSSLzopenssl-standalonezOpenSSL-standalone�
-openvision�
-OpenVisionzopl-1.0zOPL-1.0z
-opl-uk-3.0z
-OPL-UK-3.0z	opubl-1.0z	OPUBL-1.0zoset-pl-2.1zOSET-PL-2.1zosl-1.0zOSL-1.0zosl-1.1zOSL-1.1zosl-2.0zOSL-2.0zosl-2.1zOSL-2.1zosl-3.0zOSL-3.0�padl�PADLzparity-6.0.0zParity-6.0.0zparity-7.0.0zParity-7.0.0zpddl-1.0zPDDL-1.0zphp-3.0zPHP-3.0zphp-3.01zPHP-3.01�pixar�Pixar�pkgconf�plexus�Plexus�	pnmstitchzpolyform-noncommercial-1.0.0zPolyForm-Noncommercial-1.0.0zpolyform-small-business-1.0.0zPolyForm-Small-Business-1.0.0�
-postgresql�
-PostgreSQL�ppl�PPLzpsf-2.0zPSF-2.0�psfrag�psutilsz
-python-2.0z
-Python-2.0zpython-2.0.1zPython-2.0.1zpython-ldap�qhull�Qhullzqpl-1.0zQPL-1.0zqpl-1.0-inria-2004zQPL-1.0-INRIA-2004�radvd�rdisc�Rdiscz
-rhecos-1.1z
-RHeCos-1.1zrpl-1.1zRPL-1.1zrpl-1.5zRPL-1.5zrpsl-1.0zRPSL-1.0zrsa-mdzRSA-MD�rscpl�RSCPL�ruby�Rubyzruby-ptyzRuby-ptyzsax-pdzSAX-PDz
-sax-pd-2.0z
-SAX-PD-2.0�saxpath�Saxpath�scea�SCEA�schemereport�SchemeReport�sendmail�Sendmailz
-sendmail-8.23z
-Sendmail-8.23zsendmail-open-source-1.1zSendmail-Open-Source-1.1z	sgi-b-1.0z	SGI-B-1.0z	sgi-b-1.1z	SGI-B-1.1z	sgi-b-2.0z	SGI-B-2.0z
-sgi-openglz
-SGI-OpenGL�sgp4�SGP4zshl-0.5zSHL-0.5zshl-0.51zSHL-0.51z	simpl-2.0z	SimPL-2.0�sissl�SISSLz	sissl-1.2z	SISSL-1.2�sl�SL�	sleepycat�	Sleepycatz	smail-gplz	SMAIL-GPL�smlnj�SMLNJ�smppl�SMPPL�snia�SNIA�snprintf�sofa�SOFA�
-softsurfer�
-softSurfer�soundex�Soundexz
-spencer-86z
-Spencer-86z
-spencer-94z
-Spencer-94z
-spencer-99z
-Spencer-99zspl-1.0zSPL-1.0zssh-keyscanzssh-opensshzSSH-OpenSSHz	ssh-shortz	SSH-shortzssleay-standalonezSSLeay-standalonezsspl-1.0zSSPL-1.0z
-standardml-njz
-StandardML-NJzsugarcrm-1.1.3zSugarCRM-1.1.3zsul-1.0zSUL-1.0zsun-pppzSun-PPPzsun-ppp-2000zSun-PPP-2000�sunpro�SunPro�swl�SWL�swrule�symlinks�Symlinksztapr-ohl-1.0zTAPR-OHL-1.0�tcl�TCLztcp-wrapperszTCP-wrappers�termreadkey�TermReadKeyz	tgppl-1.0z	TGPPL-1.0�thirdeye�ThirdEye�threeparttable�tmate�TMatez
-torque-1.1z
-TORQUE-1.1�tosl�TOSL�tpdl�TPDLztpl-1.0zTPL-1.0�
-trustedqsl�
-TrustedQSL�ttwl�TTWL�ttyp0�TTYP0z
-tu-berlin-1.0z
-TU-Berlin-1.0z
-tu-berlin-2.0z
-TU-Berlin-2.0zubuntu-font-1.0zUbuntu-font-1.0�ucar�UCARzucl-1.0zUCL-1.0�ulemzumich-meritzUMich-Meritzunicode-3.0zUnicode-3.0zunicode-dfs-2015zUnicode-DFS-2015zunicode-dfs-2016zUnicode-DFS-2016zunicode-touzUnicode-TOU�	unixcrypt�	UnixCrypt�	unlicense�	Unlicensezunlicense-libtelnetzUnlicense-libtelnetzunlicense-libwhirlpoolzUnlicense-libwhirlpoolzupl-1.0zUPL-1.0zurt-rlezURT-RLE�vim�Vim�vostrom�VOSTROMzvsl-1.0zVSL-1.0�w3c�W3Czw3c-19980720zW3C-19980720zw3c-20150513zW3C-20150513�w3mz
-watcom-1.0z
-Watcom-1.0zwidget-workshopzWidget-Workshop�wsuipa�Wsuipa�wtfpl�WTFPL�wwl�	wxwindows�	wxWindows�x11�X11z$x11-distribute-modifications-variantz$X11-distribute-modifications-variantzx11-swappedzX11-swappedzxdebug-1.03zXdebug-1.03�xerox�Xerox�xfig�Xfigzxfree86-1.1zXFree86-1.1�xinetdzxkeyboard-config-zinovievzxkeyboard-config-Zinoviev�xlock�xnet�Xnet�xpp�xskat�XSkat�xzoomzypl-1.0zYPL-1.0zypl-1.1zYPL-1.1�zed�Zed�zeeff�Zeeffzzend-2.0zZend-2.0z
-zimbra-1.3z
-Zimbra-1.3z
-zimbra-1.4z
-Zimbra-1.4�zlib�Zlibzzlib-acknowledgementzzpl-1.1zZPL-1.1zzpl-2.0zZPL-2.0zzpl-2.1zZPL-2.1zdict[str, SPDXLicense]�LICENSESz
-389-exceptionzasterisk-exceptionzAsterisk-exceptionz$asterisk-linking-protocols-exceptionz$Asterisk-linking-protocols-exceptionzautoconf-exception-2.0zAutoconf-exception-2.0zautoconf-exception-3.0zAutoconf-exception-3.0zautoconf-exception-genericzAutoconf-exception-genericzautoconf-exception-generic-3.0zAutoconf-exception-generic-3.0zautoconf-exception-macrozAutoconf-exception-macrozbison-exception-1.24zBison-exception-1.24zbison-exception-2.2zBison-exception-2.2zbootloader-exceptionzBootloader-exceptionzcgal-linking-exceptionzCGAL-linking-exceptionzclasspath-exception-2.0zClasspath-exception-2.0zclisp-exception-2.0zCLISP-exception-2.0zcryptsetup-openssl-exceptionzcryptsetup-OpenSSL-exceptionzdigia-qt-lgpl-exception-1.1zDigia-Qt-LGPL-exception-1.1zdigirule-foss-exceptionzDigiRule-FOSS-exceptionzecos-exception-2.0zeCos-exception-2.0zerlang-otp-linking-exceptionzfawkes-runtime-exceptionzFawkes-Runtime-exceptionzfltk-exceptionzFLTK-exceptionz
-fmt-exceptionzfont-exception-2.0zFont-exception-2.0zfreertos-exception-2.0zgcc-exception-2.0zGCC-exception-2.0zgcc-exception-2.0-notezGCC-exception-2.0-notezgcc-exception-3.1zGCC-exception-3.1zgmsh-exceptionzGmsh-exceptionzgnat-exceptionzGNAT-exceptionzgnome-examples-exceptionzGNOME-examples-exceptionzgnu-compiler-exceptionzGNU-compiler-exceptionzgnu-javamail-exceptionzgpl-3.0-389-ds-base-exceptionzGPL-3.0-389-ds-base-exceptionzgpl-3.0-interface-exceptionzGPL-3.0-interface-exceptionzgpl-3.0-linking-exceptionzGPL-3.0-linking-exceptionz gpl-3.0-linking-source-exceptionz GPL-3.0-linking-source-exceptionz
-gpl-cc-1.0z
-GPL-CC-1.0zgstreamer-exception-2005zGStreamer-exception-2005zgstreamer-exception-2008zGStreamer-exception-2008zharbour-exceptionzi2p-gpl-java-exceptionzindependent-modules-exceptionzIndependent-modules-exceptionzkicad-libraries-exceptionzKiCad-libraries-exceptionzlgpl-3.0-linking-exceptionzLGPL-3.0-linking-exceptionzlibpri-openh323-exceptionzlibpri-OpenH323-exceptionzlibtool-exceptionzLibtool-exceptionzlinux-syscall-notezLinux-syscall-note�llgpl�LLGPLzllvm-exceptionzLLVM-exceptionzlzma-exceptionzLZMA-exceptionz
-mif-exceptionzmxml-exceptionznokia-qt-exception-1.1zNokia-Qt-exception-1.1zocaml-lgpl-linking-exceptionzOCaml-LGPL-linking-exceptionzocct-exception-1.0zOCCT-exception-1.0zopenjdk-assembly-exception-1.0zOpenJDK-assembly-exception-1.0zopenvpn-openssl-exceptionzpcre2-exceptionzPCRE2-exceptionzpolyparse-exceptionz!ps-or-pdf-font-exception-20170817z!PS-or-PDF-font-exception-20170817zqpl-1.0-inria-2004-exceptionzQPL-1.0-INRIA-2004-exceptionzqt-gpl-exception-1.0zQt-GPL-exception-1.0zqt-lgpl-exception-1.1zQt-LGPL-exception-1.1zqwt-exception-1.0zQwt-exception-1.0zromic-exceptionzrrdtool-floss-exception-2.0zRRDtool-FLOSS-exception-2.0zsane-exceptionzSANE-exceptionzshl-2.0zSHL-2.0zshl-2.1zSHL-2.1zstunnel-exceptionz
-swi-exceptionz
-SWI-exceptionzswift-exceptionzSwift-exceptionztexinfo-exceptionzTexinfo-exceptionzu-boot-exception-2.0zubdl-exceptionzUBDL-exceptionzuniversal-foss-exception-1.0zUniversal-FOSS-exception-1.0zvsftpd-openssl-exceptionzwxwindows-exception-3.1zWxWindows-exception-3.1zx11vnc-openssl-exceptionzdict[str, SPDXException]�
-EXCEPTIONSN)�__conditional_annotations__�
-__future__r   �typingr   r   r   �VERSIONrs  r   rv  )rw  s   @r   �<module>r{     s�I  ��� "� "� ��)� ��I� �
- ��|
-$�
-�T�6�<��/�|
-$��d�O�\�5�A�|
-$� 
-�D�%��u�-�|
-$� ��z�<��7�	|
-$�
- �D�-��u�=�|
-$� �4��|�U�;�
-|
-$� ��'A�<�QV� W�|
-$� �D�-��u�=�|
-$� �T�>�<��?�|
-$� �T�6�<��/�|
-$� ��i��u�5�|
-$� ��i��u�5�|
-$� ��i��u�5�|
-$� ��i��u�5�|
-$� ��i��u�5�|
-$�  ��z�<��7�!|
-$�" ��z�<��6�#|
-$�$ �d�O�\�5�A�%|
-$�& �$� 3�\�5�I�'|
-$�( ��z�<��6�)|
-$�* �d�O�\�5�A�+|
-$�, �$� 3�\�5�I�-|
-$�. ��i��u�5�/|
-$�0 �4��|�U�;�1|
-$�2 ��i��u�5�3|
-$�4 
-�D�%��u�-�5|
-$�6 �D�-��u�=�7|
-$�8 �d�G�\�5�
-1�9|
-$�: ��z�<��7�;|
-$�< �$� 3�\�5�I�=|
-$�> ��i��u�5�?|
-$�@ �T�#9�<��O�A|
-$�B �4��|�U�;�C|
-$�D �4��|�U�;�E|
-$�F �4��|�U�;�G|
-$�H 
-�t�X�|�U�3�I|
-$�J ��i��u�5�K|
-$�L ��i��u�5�M|
-$�N ��z�<��7�O|
-$�P ��z�<��7�Q|
-$�R ��z�<��7�S|
-$�T ��z�<��7�U|
-$�V �D�-��u�=�W|
-$�X �T�>�<��?�Y|
-$�Z ��1�<��G�[|
-$�\ �$� 3�\�5�I�]|
-$�^ �T�>�<��?�_|
-$�` �d�O�\�5�A�a|
-$�b �$��\�5�9�c|
-$�d ��&?��u�U�e|
-$�f ��&?��u�U�g|
-$�h ��i��u�5�i|
-$�j 
-�t�X�|�U�3�k|
-$�l �T�6�<��/�m|
-$�n �d�$;�\�5�Q�o|
-$�p ��z�<��7�q|
-$�r �$� 3�\�5�I�s|
-$�t �t�-�|�U�C�u|
-$�v �t�-�|�U�C�w|
-$�x �t�-�|�U�C�y|
-$�z ��z�<��7�{|
-$�| �d�O�\�5�A�}|
-$�~ ��z�<��7�|
-$�@ �T�#9�<��O�A|
-$�B ��i��u�5�C|
-$�D �t�%=�|�U�S�E|
-$�F �t�%=�|�U�S�G|
-$�H �T�>�<��?�I|
-$�J �T�>�<��?�K|
-$�L �D�"7��u�M�M|
-$�N ��'A�<�QV� W�O|
-$�P �T�#9�<��N�Q|
-$�R �D�"7��t�L�S|
-$�T �D�"7��u�M�U|
-$�V &��.O�Q]�_d�'e�W|
-$�X �4�!5�|�U�K�Y|
-$�Z �T�>�<��?�[|
-$�\ �D�"7��u�M�]|
-$�^ ��'A�<�QV� W�_|
-$�` �4�!5�|�U�K�a|
-$�b �$� 3�\�5�I�c|
-$�d ��/��u�E�e|
-$�f �$� 3�\�5�I�g|
-$�h  �$�(C�\�SX�!Y�i|
-$�j '��/Q�S_�af�(g�k|
-$�l &��.O�Q]�_d�'e�m|
-$�n +�T�3Y�[g�in�,o�o|
-$�p '��/Q�S_�af�(g�q|
-$�r �d�$;�\�5�Q�s|
-$�t ��1�<��G�u|
-$�v �T�>�<��?�w|
-$�x �t�%=�|�U�S�y|
-$�z ��/��u�E�{|
-$�| �D�-��u�=�}|
-$�~ �T�>�<��?�|
-$�@ &��.O�Q]�_d�'e�A|
-$�B &��.O�Q]�_d�'e�C|
-$�D �T�#9�<��O�E|
-$�F �t�-�|�U�C�G|
-$�H  �$�(C�\�SX�!Y�I|
-$�J ��/��u�E�K|
-$�L �d�O�\�5�A�M|
-$�N �d�$;�\�5�Q�O|
-$�P ��i��u�5�Q|
-$�R ��z�<��7�S|
-$�T �D�-��t�<�U|
-$�V �D�-��u�=�W|
-$�X �$��\�5�9�Y|
-$�Z ��i��u�5�[|
-$�\ &��.O�Q]�_d�'e�]|
-$�^ ��i��u�5�_|
-$�` �D�"7��u�M�a|
-$�b ��z�<��7�c|
-$�d �4��|�U�;�e|
-$�f �$��\�5�9�g|
-$�h �$��\�5�9�i|
-$�j �$��\�5�9�k|
-$�l �T�>�<��?�m|
-$�n �$��\�5�9�o|
-$�p �T�>�<��?�q|
-$�r �T�>�<��?�s|
-$�t �T�>�<��?�u|
-$�v �d�O�\�5�A�w|
-$�x �T�>�<��?�y|
-$�z �T�>�<��?�{|
-$�| �$��\�5�9�}|
-$�~ �T�>�<��?�|
-$�@ �T�>�<��?�A|
-$�B �T�>�<��?�C|
-$�D �T�>�<��?�E|
-$�F ��/��u�E�G|
-$�H �T�>�<��?�I|
-$�J ��/��u�E�K|
-$�L ��/��u�E�M|
-$�N ��/��u�E�O|
-$�P ��/��u�E�Q|
-$�R �4�!5�|�U�K�S|
-$�T �D�"7��u�M�U|
-$�V ��/��u�E�W|
-$�X ��/��u�E�Y|
-$�Z ��/��u�E�[|
-$�\ �4�!5�|�U�K�]|
-$�^ �4�!5�|�U�K�_|
-$�` �4�!5�|�U�K�a|
-$�b ��/��u�E�c|
-$�d ��/��u�E�e|
-$�f �4�!5�|�U�K�g|
-$�h �D�"7��u�M�i|
-$�j ��/��u�E�k|
-$�l �T�>�<��?�m|
-$�n �T�>�<��?�o|
-$�p �T�>�<��?�q|
-$�r �T�>�<��?�s|
-$�t ��/��u�E�u|
-$�v �T�>�<��?�w|
-$�x �T�>�<��?�y|
-$�z �T�>�<��?�{|
-$�| ��/��u�E�}|
-$�~ ��/��u�E�|
-$�@ �T�>�<��?�A|
-$�B �T�>�<��?�C|
-$�D ��/��u�E�E|
-$�F ��/��u�E�G|
-$�H ��1�<��G�I|
-$�J �T�>�<��?�K|
-$�L ��i��u�5�M|
-$�N �4��|�U�;�O|
-$�P �$��\�5�9�Q|
-$�R ��i��u�5�S|
-$�T ��z�<��7�U|
-$�V ��z�<��7�W|
-$�X ��i��u�5�Y|
-$�Z �D�"7��u�M�[|
-$�\ �D�"7��u�M�]|
-$�^ ��1�<��G�_|
-$�` �4��|�U�;�a|
-$�b �4��|�U�;�c|
-$�d �4��|�U�;�e|
-$�f �4��|�U�;�g|
-$�h ��z�<��7�i|
-$�j ��z�<��7�k|
-$�l �T�>�<��?�m|
-$�n �T�>�<��?�o|
-$�p �t�-�|�U�C�q|
-$�r �t�-�|�U�C�s|
-$�t �t�-�|�U�C�u|
-$�v ��i��u�5�w|
-$�x �$��\�5�9�y|
-$�z ��i��u�5�{|
-$�| �4��|�U�;�}|
-$�~ �d�G�\�5�
-1�|
-$�@ ��z�<��7�A|
-$�B �t�-�|�U�C�C|
-$�D �D�-��u�=�E|
-$�F �D�-��u�=�G|
-$�H !�4�)E�|�UZ�"[�I|
-$�J ��z�<��7�K|
-$�L �4�!5�|�U�K�M|
-$�N �4��|�U�;�O|
-$�P �D�"7��u�M�Q|
-$�R �D�"7��u�M�S|
-$�T �d�$;�\�5�Q�U|
-$�V ��z�<��7�W|
-$�X ��i��u�5�Y|
-$�Z �$��\�5�9�[|
-$�\ 
-�t�X�|�U�3�]|
-$�^ �$��\�5�9�_|
-$�` �D�-��u�=�a|
-$�b �t�-�|�U�C�c|
-$�d �D�-��u�=�e|
-$�f �T�6�<��/�g|
-$�h �T�6�<��/�i|
-$�j ��i��u�5�k|
-$�l �$��\�5�9�m|
-$�n �T�>�<��?�o|
-$�p ��z�<��7�q|
-$�r �T�>�<��?�s|
-$�t �t�-�|�U�C�u|
-$�v 
-�D�%��u�-�w|
-$�x �D�-��u�=�y|
-$�z �t�-�|�U�C�{|
-$�| �4�!5�|�U�K�}|
-$�~ �D�-��u�=�|
-$�@ ��i��u�5�A|
-$�B ��i��u�5�C|
-$�D ��i��u�5�E|
-$�F �T�6�<��/�G|
-$�H �T�6�<��/�I|
-$�J ��i��u�5�K|
-$�L ��i��u�5�M|
-$�N ��i��u�5�O|
-$�P ��z�<��6�Q|
-$�R ��i��u�5�S|
-$�T ��i��u�5�U|
-$�V 
-�t�X�|�U�3�W|
-$�X �D�-��u�=�Y|
-$�Z ��i��u�5�[|
-$�\ �d�G�\�5�
-1�]|
-$�^ ��i��u�5�_|
-$�` ��i��u�5�a|
-$�b �$��\�5�9�c|
-$�d �4��|�U�;�e|
-$�f �4��|�U�;�g|
-$�h ��z�<��7�i|
-$�j ��z�<��7�k|
-$�l ��z�<��7�m|
-$�n ��i��u�5�o|
-$�p �T�6�<��/�q|
-$�r 
-�D�%��u�-�s|
-$�t ��i��u�5�u|
-$�v ��1�<��G�w|
-$�x �d�O�\�5�A�y|
-$�z �D�-��u�=�{|
-$�| �$��\�5�9�}|
-$�~ �d�G�\�5�
-1�|
-$�@ #�T�+I�<�Y^�$_�A|
-$�B �d�G�\�5�
-1�C|
-$�D ��i��u�5�E|
-$�F �$��\�5�9�G|
-$�H �$��\�5�9�I|
-$�J �T�>�<��?�K|
-$�L �D�-��u�=�M|
-$�N 
-�D�%��u�-�O|
-$�P ��z�<��7�Q|
-$�R �T�6�<��/�S|
-$�T �d�$;�\�5�Q�U|
-$�V ��z�<��7�W|
-$�X 	�4��|�U�
-+�Y|
-$�Z �D�-��u�=�[|
-$�\ ��z�<��6�]|
-$�^ ��'A�<�QV� W�_|
-$�` #�T�+I�<�Y^�$_�a|
-$�b "�D�*G��W\�#]�c|
-$�d &��.O�Q]�_d�'e�e|
-$�f �d�O�\�5�A�g|
-$�h �$� 3�\�5�I�i|
-$�j ��z�<��6�k|
-$�l ��'A�<�QV� W�m|
-$�n #�T�+I�<�Y^�$_�o|
-$�p "�D�*G��W\�#]�q|
-$�r &��.O�Q]�_d�'e�s|
-$�t �d�O�\�5�A�u|
-$�v �$� 3�\�5�I�w|
-$�x ��z�<��6�y|
-$�z ��'A�<�QV� W�{|
-$�| #�T�+I�<�Y^�$_�}|
-$�~ "�D�*G��W\�#]�|
-$�@	 &��.O�Q]�_d�'e�A	|
-$�B	 �d�O�\�5�A�C	|
-$�D	 �$� 3�\�5�I�E	|
-$�F	 ��z�<��7�G	|
-$�H	 �d�G�\�5�
-1�I	|
-$�J	 �d�G�\�5�
-1�K	|
-$�L	 
-�t�X�|�U�3�M	|
-$�N	 
-�t�X�|�U�3�O	|
-$�P	 ��i��u�5�Q	|
-$�R	 ��i��t�4�S	|
-$�T	 ��z�<��6�U	|
-$�V	 �T�>�<��?�W	|
-$�X	 ��1�<��G�Y	|
-$�Z	 ��i��t�4�[	|
-$�\	 ��z�<��6�]	|
-$�^	 �T�>�<��?�_	|
-$�`	 ��1�<��G�a	|
-$�b	 &��.O�Q]�_c�'d�c	|
-$�d	 #�T�+I�<�Y]�$^�e	|
-$�f	 '��/Q�S_�ae�(f�g	|
-$�h	 "�D�*G��W[�#\�i	|
-$�j	 !�4�)E�|�UY�"Z�k	|
-$�l	 ��i��t�4�m	|
-$�n	 ��z�<��6�o	|
-$�p	 �T�>�<��?�q	|
-$�r	 ��1�<��G�s	|
-$�t	 &��.O�Q]�_c�'d�u	|
-$�v	 !�4�)E�|�UY�"Z�w	|
-$�x	 �d�O�\�5�A�y	|
-$�z	 �4��|�U�;�{	|
-$�|	 ��i��u�5�}	|
-$�~	 ��i��u�5�	|
-$�@
- �d�O�\�5�A�A
-|
-$�B
- �T�6�<��/�C
-|
-$�D
- 
-�t�X�|�U�3�E
-|
-$�F
- 
-�t�X�|�U�3�G
-|
-$�H
- ��/��u�E�I
-|
-$�J
- ��i��u�5�K
-|
-$�L
- ��i��u�5�M
-|
-$�N
- �T�6�<��/�O
-|
-$�P
- ��z�<��7�Q
-|
-$�R
- ��z�<��7�S
-|
-$�T
- �d�O�\�5�A�U
-|
-$�V
- �t�-�|�U�C�W
-|
-$�X
- %�t�-M�|�]b�&c�Y
-|
-$�Z
- �d�$;�\�5�Q�[
-|
-$�\
- ��/��u�E�]
-|
-$�^
-  �$�(C�\�SX�!Y�_
-|
-$�`
- ��/��u�E�a
-|
-$�b
- �4��|�U�;�c
-|
-$�d
- �4�!5�|�U�K�e
-|
-$�f
- ��1�<��G�g
-|
-$�h
- #�T�+I�<�Y^�$_�i
-|
-$�j
- �D�"7��u�M�k
-|
-$�l
- �D�-��u�=�m
-|
-$�n
- �T�>�<��?�o
-|
-$�p
- '��/Q�S_�af�(g�q
-|
-$�r
- �$� 3�\�5�I�s
-|
-$�t
- �$� 3�\�5�I�u
-|
-$�v
- '��/Q�S_�af�(g�w
-|
-$�x
- +�T�3Y�[g�in�,o�y
-|
-$�z
- ��i��u�5�{
-|
-$�|
- �$� 3�\�5�I�}
-|
-$�~
- ��z�<��7�
-|
-$�@ ��z�<��7�A|
-$�B 
-�D�%��u�-�C|
-$�D ��'A�<�QV� W�E|
-$�F 
-�D�%��u�-�G|
-$�H �$��\�5�9�I|
-$�J �D�-��u�=�K|
-$�L 
-�t�X�|�U�3�M|
-$�N 
-�t�X�|�U�3�O|
-$�P ��z�<��7�Q|
-$�R �d�O�\�5�A�S|
-$�T �$��\�5�9�U|
-$�V �d�G�\�5�
-1�W|
-$�X �4��|�U�;�Y|
-$�Z �d�O�\�5�A�[|
-$�\ 
-�D�%��u�-�]|
-$�^ ��i��u�5�_|
-$�` 
-�D�%��u�-�a|
-$�b �T�>�<��?�c|
-$�d 
-�D�%��u�-�e|
-$�f �4��|�U�;�g|
-$�h �T�6�<��/�i|
-$�j �$��\�5�9�k|
-$�l �d�G�\�5�
-1�m|
-$�n �T�6�<��/�o|
-$�p ��i��u�5�q|
-$�r 
-�t�X�|�U�3�s|
-$�t �4��|�U�;�u|
-$�v ��i��u�5�w|
-$�x ��i��u�5�y|
-$�z ��i��u�5�{|
-$�|  �$�(C�\�SX�!Y�}|
-$�~ �$��\�5�9�|
-$�@ ��z�<��6�A|
-$�B �$��\�4�8�C|
-$�D �d�O�\�5�A�E|
-$�F �$� 3�\�5�I�G|
-$�H ��z�<��6�I|
-$�J �$��\�4�8�K|
-$�L �d�O�\�5�A�M|
-$�N �$� 3�\�5�I�O|
-$�P ��z�<��6�Q|
-$�R �$��\�4�8�S|
-$�T �d�O�\�5�A�U|
-$�V �$� 3�\�5�I�W|
-$�X 
-�t�X�|�U�3�Y|
-$�Z 
-�t�X�|�U�3�[|
-$�\ �d�O�\�5�A�]|
-$�^ �4��|�U�;�_|
-$�` �t�-�|�U�C�a|
-$�b ��i��u�5�c|
-$�d �T�#9�<��O�e|
-$�f �D�-��u�=�g|
-$�h �D�-��u�=�i|
-$�j ��/��u�E�k|
-$�l �t�%=�|�U�S�m|
-$�n ��'A�<�QV� W�o|
-$�p &��.O�Q]�_d�'e�q|
-$�r #�T�+I�<�Y^�$_�s|
-$�t �T�>�<��?�u|
-$�v �T�6�<��/�w|
-$�x �T�>�<��?�y|
-$�z ��i��u�5�{|
-$�| ��z�<��7�}|
-$�~ ��z�<��7�|
-$�@
- ��z�<��7�A
-|
-$�B
- ��z�<��7�C
-|
-$�D
- �$��\�5�9�E
-|
-$�F
- �$��\�5�9�G
-|
-$�H
- �T�6�<��/�I
-|
-$�J
- �D�"7��u�M�K
-|
-$�L
- �d�$;�\�5�Q�M
-|
-$�N
- �d�O�\�5�A�O
-|
-$�P
- �4�!5�|�U�K�Q
-|
-$�R
- (�$�0S�Ua�ch�)i�S
-|
-$�T
- �d�G�\�5�
-1�U
-|
-$�V
- ��z�<��7�W
-|
-$�X
- �$��\�5�9�Y
-|
-$�Z
- ��z�<��7�[
-|
-$�\
- ��1�<��G�]
-|
-$�^
- ��1�<��G�_
-|
-$�`
- ��z�<��7�a
-|
-$�b
- ��i��u�5�c
-|
-$�d
- �T�6�<��/�e
-|
-$�f
- �d�G�\�5�
-1�g
-|
-$�h
- 
-�D�%��u�-�i
-|
-$�j
- �d�G�\�5�
-1�k
-|
-$�l
- ��/��u�E�m
-|
-$�n
- �$��\�5�9�o
-|
-$�p
- ��i��u�5�q
-|
-$�r
- ��z�<��7�s
-|
-$�t
- ��i��u�5�u
-|
-$�v
- �T�>�<��?�w
-|
-$�x
- ��/��u�E�y
-|
-$�z
- �4�!5�|�U�K�{
-|
-$�|
- �t�-�|�U�C�}
-|
-$�~
- �d�O�\�5�A�
-|
-$�@ 
-�t�X�|�U�3�A|
-$�B 
-�t�X�|�U�3�C|
-$�D ��z�<��7�E|
-$�F ��z�<��7�G|
-$�H ��z�<��7�I|
-$�J �t�-�|�U�C�K|
-$�L 
-�t�X�|�U�3�M|
-$�N ��i��u�5�O|
-$�P ��i��u�5�Q|
-$�R ��i��u�5�S|
-$�T $�d�,K�\�[`�%a�U|
-$�V �d�G�\�5�
-1�W|
-$�X 
-�t�X�|�U�3�Y|
-$�Z �d�G�\�5�
-1�[|
-$�\ �d�G�\�5�
-1�]|
-$�^ �T�6�<��/�_|
-$�` �T�>�<��?�a|
-$�b �T�>�<��?�c|
-$�d ��i��u�5�e|
-$�f 
-�D�%��u�-�g|
-$�h �4��|�U�;�i|
-$�j ��z�<��7�k|
-$�l 
-�t�X�|�U�3�m|
-$�n ��z�<��7�o|
-$�p ��i��u�5�q|
-$�r �D�-��u�=�s|
-$�t 
-�D�%��u�-�u|
-$�v �T�6�<��/�w|
-$�x ��z�<��6�y|
-$�z 
-�t�X�|�U�3�{|
-$�| ��z�<��7�}|
-$�~ �T�6�<��/�|
-$�@ �d�G�\�5�
-1�A|
-$�B �$��\�5�9�C|
-$�D ��i��u�5�E|
-$�F ��1�<��G�G|
-$�H �d�O�\�5�A�I|
-$�J ��z�<��7�K|
-$�L ��z�<��7�M|
-$�N �T�6�<��/�O|
-$�P �d�G�\�5�
-1�Q|
-$�R �T�6�<��/�S|
-$�T �d�G�\�5�
-1�U|
-$�V ��i��u�5�W|
-$�X ��i��u�5�Y|
-$�Z �$��\�5�9�[|
-$�\ 
-�D�%��u�-�]|
-$�^ ��i��u�5�_|
-$�` 
-�D�%��u�-�a|
-$�b �d�G�\�5�
-1�c|
-$�d �d�G�\�4�
-0�e|
-$�f �$��\�5�9�g|
-$�h 
-�D�%��u�-�i|
-$�j ��i��u�5�k|
-$�l ��z�<��7�m|
-$�n ��z�<��7�o|
-$�p �4��|�U�;�q|
-$�r �d�G�\�5�
-1�s|
-$�t ��i��u�5�u|
-$�v �t�-�|�U�C�w|
-$�x �D�-��u�=�y|
-$�z ��i��u�5�{|
-$�| �t�-�|�U�C�}|
-$�~ �D�-��u�=�|
-$�@ ��i��u�5�A|
-$�B ��/��u�E�C|
-$�D �t�-�|�U�C�E|
-$�F �4��|�U�;�G|
-$�H �4��|�U�;�I|
-$�J �4��|�U�;�K|
-$�L �d�G�\�5�
-1�M|
-$�N �$��\�5�9�O|
-$�P �$��\�5�9�Q|
-$�R �$��\�5�9�S|
-$�T �$��\�5�9�U|
-$�V �$��\�5�9�W|
-$�X �D�-��u�=�Y|
-$�Z �$��\�5�9�[|
-$�\ �$��\�5�9�]|
-$�^ �D�-��u�=�_|
-$�` �D�-��u�=�a|
-$�b �$��\�5�9�c|
-$�d �$��\�5�9�e|
-$�f �$��\�5�9�g|
-$�h �$��\�5�9�i|
-$�j �$��\�5�9�k|
-$�l �$��\�5�9�m|
-$�n ��z�<��7�o|
-$�p 
-�D�%��u�-�q|
-$�r �D�-��u�=�s|
-$�t ��i��u�5�u|
-$�v �4�!5�|�U�K�w|
-$�x �4��|�U�;�y|
-$�z ��i��u�5�{|
-$�| �4��|�U�;�}|
-$�~ �$��\�5�9�|
-$�@ �D�-��u�=�A|
-$�B ��i��u�5�C|
-$�D ��i��u�5�E|
-$�F ��i��u�5�G|
-$�H ��i��u�5�I|
-$�J ��i��u�5�K|
-$�L �T�6�<��/�M|
-$�N �T�>�<��?�O|
-$�P �T�>�<��?�Q|
-$�R ��z�<��7�S|
-$�T ��i��u�5�U|
-$�V ��z�<��7�W|
-$�X �d�G�\�5�
-1�Y|
-$�Z ��i��u�5�[|
-$�\ 
-�t�X�|�U�3�]|
-$�^ �$��\�5�9�_|
-$�` #�T�+I�<�Y^�$_�a|
-$�b $�d�,K�\�[`�%a�c|
-$�d �4��|�U�;�e|
-$�f 
-�D�%��u�-�g|
-$�h ��i��u�5�i|
-$�j 
-�t�X�|�U�3�k|
-$�l ��i��u�5�m|
-$�n �4��|�U�;�o|
-$�p �T�>�<��?�q|
-$�r �D�-��u�=�s|
-$�t �d�G�\�5�
-1�u|
-$�v ��i��u�5�w|
-$�x �4�!5�|�U�K�y|
-$�z �d�G�\�5�
-1�{|
-$�| �d�G�\�5�
-1�}|
-$�~ �4��|�U�;�|
-$�@ ��i��u�5�A|
-$�B ��i��u�5�C|
-$�D ��z�<��7�E|
-$�F 
-�t�X�|�U�3�G|
-$�H �d�G�\�5�
-1�I|
-$�J �T�6�<��/�K|
-$�L ��z�<��7�M|
-$�N 
-�t�X�|�U�3�O|
-$�P �4��|�U�;�Q|
-$�R ��i��u�5�S|
-$�T �T�6�<��/�U|
-$�V �T�>�<��?�W|
-$�X ��z�<��7�Y|
-$�Z �d�O�\�5�A�[|
-$�\ ��'A�<�QV� W�]|
-$�^ �$��\�5�9�_|
-$�` �$��\�5�9�a|
-$�b �$��\�5�9�c|
-$�d �4��|�U�;�e|
-$�f �T�6�<��/�g|
-$�h ��i��u�5�i|
-$�j ��z�<��7�k|
-$�l �$��\�5�9�m|
-$�n �d�G�\�5�
-1�o|
-$�p �$��\�5�9�q|
-$�r 	�4��|�U�
-+�s|
-$�t �$��\�5�9�u|
-$�v �$��\�5�9�w|
-$�x �d�G�\�5�
-1�y|
-$�z �d�G�\�5�
-1�{|
-$�| �T�6�<��/�}|
-$�~ ��z�<��7�|
-$�@ �T�6�<��/�A|
-$�B �4��|�U�;�C|
-$�D ��i��u�5�E|
-$�F �4��|�U�;�G|
-$�H �4��|�U�;�I|
-$�J �4��|�U�;�K|
-$�L ��i��u�5�M|
-$�N �D�-��u�=�O|
-$�P �D�-��u�=�Q|
-$�R �$��\�5�9�S|
-$�T �$� 3�\�5�I�U|
-$�V ��z�<��7�W|
-$�X �d�O�\�4�@�Y|
-$�Z �t�-�|�U�C�[|
-$�\ ��i��u�5�]|
-$�^ ��i��u�5�_|
-$�` �T�>�<��?�a|
-$�b 
-�t�X�|�U�3�c|
-$�d 
-�D�%��u�-�e|
-$�f 
-�t�X�|�U�3�g|
-$�h ��z�<��7�i|
-$�j �T�>�<��?�k|
-$�l 
-�D�%��u�-�m|
-$�n �T�>�<��?�o|
-$�p �D�-��u�=�q|
-$�r �$��\�5�9�s|
-$�t ��z�<��7�u|
-$�v �t�-�|�U�C�w|
-$�x �d�G�\�5�
-1�y|
-$�z �4��|�U�;�{|
-$�| �T�6�<��/�}|
-$�~ �T�6�<��/�|
-$�@ ��i��u�5�A|
-$�B �4��|�U�;�C|
-$�D �T�6�<��/�E|
-$�F �d�G�\�5�
-1�G|
-$�H �d�O�\�5�A�I|
-$�J �d�O�\�5�A�K|
-$�L ��/��u�E�M|
-$�N �T�6�<��/�O|
-$�P ��i��u�5�Q|
-$�R �T�6�<��/�S|
-$�T �D�-��u�=�U|
-$�V �D�-��u�=�W|
-$�X ��1�<��G�Y|
-$�Z ��1�<��G�[|
-$�\ �D�-��u�=�]|
-$�^ �$��\�5�9�_|
-$�` �$��\�5�9�a|
-$�b �D�"7��u�M�c|
-$�d �t�%=�|�U�S�e|
-$�f ��i��u�5�g|
-$�h ��i��u�5�i|
-$�j 
-�D�%��u�-�k|
-$�l ��i��u�5�m|
-$�n ��i��u�5�o|
-$�p 
-�D�%��u�-�q|
-$�r �T�>�<��?�s|
-$�t �T�>�<��?�u|
-$�v 
-�D�%��u�-�w|
-$�x �4��|�U�;�y|
-$�z ��/��u�E�{|
-$�| 
-�t�X�|�U�3�}|
-$�~ �d�G�\�5�
-1�|
-$�@ 
-�D�%��u�-�A|
-$�B �$��\�4�8�C|
-$�D 
-�D�%��u�-�E|
-$�F +�T�3Y�[g�in�,o�G|
-$�H �D�-��u�=�I|
-$�J �D�-��u�=�K|
-$�L �d�G�\�5�
-1�M|
-$�N �T�6�<��/�O|
-$�P �D�-��u�=�Q|
-$�R 
-�t�X�|�U�3�S|
-$�T  �$�(C�\�SX�!Y�U|
-$�V �d�G�\�5�
-1�W|
-$�X �T�6�<��/�Y|
-$�Z 
-�D�%��u�-�[|
-$�\ �d�G�\�5�
-1�]|
-$�^ �d�G�\�5�
-1�_|
-$�` ��i��u�5�a|
-$�b ��i��u�5�c|
-$�d 
-�D�%��u�-�e|
-$�f �d�G�\�5�
-1�g|
-$�h ��z�<��7�i|
-$�j �4��|�U�;�k|
-$�l �4��|�U�;�m|
-$�n �T�6�<��/�o|
-$�p �T�#9�<��O�q|
-$�r ��i��u�5�s|
-$�t ��i��u�5�
-��i��u�5�w|
-$��
- � |
-�|P(��d�O�\�5�A�P(��4�!5�|�U�K�P(� +�T�3Y�[g�in�,o�P(� �t�%=�|�U�S�	P(�
- �t�%=�|�U�S�P(� !�4�)E�|�UZ�"[�
-P(� %�t�-M�|�]b�&c�P(� ��'A�<�QV� W�P(� �T�#9�<��O�P(� �D�"7��u�M�P(� �T�#9�<��O�P(� �t�%=�|�U�S�P(� ��&?��u�U�P(� �D�"7��u�M�P(� #�T�+I�<�Y^�$_�P(�  "�D�*G��W\�#]�!P(�" ��&?��u�U�#P(�$ �4�!5�|�U�K�%P(�& #�T�+I�<�Y^�$_�'P(�( ��'A�<�QV� W�)P(�* �t�-�|�U�C�+P(�, �d�O�\�5�A�-P(�. �4�!5�|�U�K�/P(�0 �t�%=�|�U�S�1P(�2 �$� 3�\�5�I�3P(�4 �t�%=�|�U�S�5P(�6 �$� 3�\�5�I�7P(�8 �t�-�|�U�C�9P(�: �t�-�|�U�C�;P(�< ��'A�<�QV� W�=P(�> �t�%=�|�U�S�?P(�@ �t�%=�|�U�S�AP(�B $�d�,K�\�[`�%a�CP(�D "�D�*G��W\�#]�EP(�F  �$�(C�\�SX�!Y�GP(�H '��/Q�S_�af�(g�IP(�J �4��|�U�;�KP(�L ��'A�<�QV� W�MP(�N ��'A�<�QV� W�OP(�P �$� 3�\�5�I�QP(�R �t�%=�|�U�S�SP(�T $�d�,K�\�[`�%a�UP(�V  �$�(C�\�SX�!Y�WP(�X !�4�)E�|�UZ�"[�YP(�Z  �$�(C�\�SX�!Y�[P(�\ �$� 3�\�5�I�]P(�^ �4�!5�|�U�K�_P(�` �d�G�\�5�
-1�aP(�b �t�-�|�U�C�cP(�d �t�-�|�U�C�eP(�f �d�O�\�5�A�gP(�h �t�-�|�U�C�iP(�j �t�%=�|�T�R�kP(�l #�T�+I�<�Y^�$_�mP(�n �4�!5�|�U�K�oP(�p %�t�-M�|�]b�&c�qP(�r  �$�(C�\�SX�!Y�sP(�t ��/��u�E�uP(�v �D�"7��u�M�wP(�x (�$�0S�Ua�ch�)i�yP(�z #�T�+I�<�Y^�$_�{P(�| �T�#9�<��O�}P(�~ �d�$;�\�5�Q�P(�@ �$� 3�\�5�I�AP(�B ��/��u�E�CP(�D "�D�*G��W\�#]�EP(�F �t�-�|�U�C�GP(�H ��i��u�5�IP(�J ��i��u�5��$� 3�\�5�I��d�O�\�5�A���/��u�E��$� 3�\�5�I��T�#9�<��O��t�-�|�U�C�"�T�+I�<�Y^�$_���'A�<�QV� W���&?��u�U���'A�<�QV� W�_P(�
-�$� Pr   
-Notice source: packaging/licenses/_spdx.py
--------------------------------------------------------------------------------
-
-from __future__ import annotations
-
-from typing import TypedDict
-
-class SPDXLicense(TypedDict):
-    id: str
-    deprecated: bool
-
-class SPDXException(TypedDict):
-    id: str
-    deprecated: bool
-
-
-VERSION = '3.27.0'
-
-LICENSES: dict[str, SPDXLicense] = {
-    '0bsd': {'id': '0BSD', 'deprecated': False},
-    '3d-slicer-1.0': {'id': '3D-Slicer-1.0', 'deprecated': False},
-    'aal': {'id': 'AAL', 'deprecated': False},
-    'abstyles': {'id': 'Abstyles', 'deprecated': False},
-    'adacore-doc': {'id': 'AdaCore-doc', 'deprecated': False},
-    'adobe-2006': {'id': 'Adobe-2006', 'deprecated': False},
-    'adobe-display-postscript': {'id': 'Adobe-Display-PostScript', 'deprecated': False},
-    'adobe-glyph': {'id': 'Adobe-Glyph', 'deprecated': False},
-    'adobe-utopia': {'id': 'Adobe-Utopia', 'deprecated': False},
-    'adsl': {'id': 'ADSL', 'deprecated': False},
-    'afl-1.1': {'id': 'AFL-1.1', 'deprecated': False},
-    'afl-1.2': {'id': 'AFL-1.2', 'deprecated': False},
-    'afl-2.0': {'id': 'AFL-2.0', 'deprecated': False},
-    'afl-2.1': {'id': 'AFL-2.1', 'deprecated': False},
-    'afl-3.0': {'id': 'AFL-3.0', 'deprecated': False},
-    'afmparse': {'id': 'Afmparse', 'deprecated': False},
-    'agpl-1.0': {'id': 'AGPL-1.0', 'deprecated': True},
-    'agpl-1.0-only': {'id': 'AGPL-1.0-only', 'deprecated': False},
-    'agpl-1.0-or-later': {'id': 'AGPL-1.0-or-later', 'deprecated': False},
-    'agpl-3.0': {'id': 'AGPL-3.0', 'deprecated': True},
-    'agpl-3.0-only': {'id': 'AGPL-3.0-only', 'deprecated': False},
-    'agpl-3.0-or-later': {'id': 'AGPL-3.0-or-later', 'deprecated': False},
-    'aladdin': {'id': 'Aladdin', 'deprecated': False},
-    'amd-newlib': {'id': 'AMD-newlib', 'deprecated': False},
-    'amdplpa': {'id': 'AMDPLPA', 'deprecated': False},
-    'aml': {'id': 'AML', 'deprecated': False},
-    'aml-glslang': {'id': 'AML-glslang', 'deprecated': False},
-    'ampas': {'id': 'AMPAS', 'deprecated': False},
-    'antlr-pd': {'id': 'ANTLR-PD', 'deprecated': False},
-    'antlr-pd-fallback': {'id': 'ANTLR-PD-fallback', 'deprecated': False},
-    'any-osi': {'id': 'any-OSI', 'deprecated': False},
-    'any-osi-perl-modules': {'id': 'any-OSI-perl-modules', 'deprecated': False},
-    'apache-1.0': {'id': 'Apache-1.0', 'deprecated': False},
-    'apache-1.1': {'id': 'Apache-1.1', 'deprecated': False},
-    'apache-2.0': {'id': 'Apache-2.0', 'deprecated': False},
-    'apafml': {'id': 'APAFML', 'deprecated': False},
-    'apl-1.0': {'id': 'APL-1.0', 'deprecated': False},
-    'app-s2p': {'id': 'App-s2p', 'deprecated': False},
-    'apsl-1.0': {'id': 'APSL-1.0', 'deprecated': False},
-    'apsl-1.1': {'id': 'APSL-1.1', 'deprecated': False},
-    'apsl-1.2': {'id': 'APSL-1.2', 'deprecated': False},
-    'apsl-2.0': {'id': 'APSL-2.0', 'deprecated': False},
-    'arphic-1999': {'id': 'Arphic-1999', 'deprecated': False},
-    'artistic-1.0': {'id': 'Artistic-1.0', 'deprecated': False},
-    'artistic-1.0-cl8': {'id': 'Artistic-1.0-cl8', 'deprecated': False},
-    'artistic-1.0-perl': {'id': 'Artistic-1.0-Perl', 'deprecated': False},
-    'artistic-2.0': {'id': 'Artistic-2.0', 'deprecated': False},
-    'artistic-dist': {'id': 'Artistic-dist', 'deprecated': False},
-    'aspell-ru': {'id': 'Aspell-RU', 'deprecated': False},
-    'aswf-digital-assets-1.0': {'id': 'ASWF-Digital-Assets-1.0', 'deprecated': False},
-    'aswf-digital-assets-1.1': {'id': 'ASWF-Digital-Assets-1.1', 'deprecated': False},
-    'baekmuk': {'id': 'Baekmuk', 'deprecated': False},
-    'bahyph': {'id': 'Bahyph', 'deprecated': False},
-    'barr': {'id': 'Barr', 'deprecated': False},
-    'bcrypt-solar-designer': {'id': 'bcrypt-Solar-Designer', 'deprecated': False},
-    'beerware': {'id': 'Beerware', 'deprecated': False},
-    'bitstream-charter': {'id': 'Bitstream-Charter', 'deprecated': False},
-    'bitstream-vera': {'id': 'Bitstream-Vera', 'deprecated': False},
-    'bittorrent-1.0': {'id': 'BitTorrent-1.0', 'deprecated': False},
-    'bittorrent-1.1': {'id': 'BitTorrent-1.1', 'deprecated': False},
-    'blessing': {'id': 'blessing', 'deprecated': False},
-    'blueoak-1.0.0': {'id': 'BlueOak-1.0.0', 'deprecated': False},
-    'boehm-gc': {'id': 'Boehm-GC', 'deprecated': False},
-    'boehm-gc-without-fee': {'id': 'Boehm-GC-without-fee', 'deprecated': False},
-    'borceux': {'id': 'Borceux', 'deprecated': False},
-    'brian-gladman-2-clause': {'id': 'Brian-Gladman-2-Clause', 'deprecated': False},
-    'brian-gladman-3-clause': {'id': 'Brian-Gladman-3-Clause', 'deprecated': False},
-    'bsd-1-clause': {'id': 'BSD-1-Clause', 'deprecated': False},
-    'bsd-2-clause': {'id': 'BSD-2-Clause', 'deprecated': False},
-    'bsd-2-clause-darwin': {'id': 'BSD-2-Clause-Darwin', 'deprecated': False},
-    'bsd-2-clause-first-lines': {'id': 'BSD-2-Clause-first-lines', 'deprecated': False},
-    'bsd-2-clause-freebsd': {'id': 'BSD-2-Clause-FreeBSD', 'deprecated': True},
-    'bsd-2-clause-netbsd': {'id': 'BSD-2-Clause-NetBSD', 'deprecated': True},
-    'bsd-2-clause-patent': {'id': 'BSD-2-Clause-Patent', 'deprecated': False},
-    'bsd-2-clause-pkgconf-disclaimer': {'id': 'BSD-2-Clause-pkgconf-disclaimer', 'deprecated': False},
-    'bsd-2-clause-views': {'id': 'BSD-2-Clause-Views', 'deprecated': False},
-    'bsd-3-clause': {'id': 'BSD-3-Clause', 'deprecated': False},
-    'bsd-3-clause-acpica': {'id': 'BSD-3-Clause-acpica', 'deprecated': False},
-    'bsd-3-clause-attribution': {'id': 'BSD-3-Clause-Attribution', 'deprecated': False},
-    'bsd-3-clause-clear': {'id': 'BSD-3-Clause-Clear', 'deprecated': False},
-    'bsd-3-clause-flex': {'id': 'BSD-3-Clause-flex', 'deprecated': False},
-    'bsd-3-clause-hp': {'id': 'BSD-3-Clause-HP', 'deprecated': False},
-    'bsd-3-clause-lbnl': {'id': 'BSD-3-Clause-LBNL', 'deprecated': False},
-    'bsd-3-clause-modification': {'id': 'BSD-3-Clause-Modification', 'deprecated': False},
-    'bsd-3-clause-no-military-license': {'id': 'BSD-3-Clause-No-Military-License', 'deprecated': False},
-    'bsd-3-clause-no-nuclear-license': {'id': 'BSD-3-Clause-No-Nuclear-License', 'deprecated': False},
-    'bsd-3-clause-no-nuclear-license-2014': {'id': 'BSD-3-Clause-No-Nuclear-License-2014', 'deprecated': False},
-    'bsd-3-clause-no-nuclear-warranty': {'id': 'BSD-3-Clause-No-Nuclear-Warranty', 'deprecated': False},
-    'bsd-3-clause-open-mpi': {'id': 'BSD-3-Clause-Open-MPI', 'deprecated': False},
-    'bsd-3-clause-sun': {'id': 'BSD-3-Clause-Sun', 'deprecated': False},
-    'bsd-4-clause': {'id': 'BSD-4-Clause', 'deprecated': False},
-    'bsd-4-clause-shortened': {'id': 'BSD-4-Clause-Shortened', 'deprecated': False},
-    'bsd-4-clause-uc': {'id': 'BSD-4-Clause-UC', 'deprecated': False},
-    'bsd-4.3reno': {'id': 'BSD-4.3RENO', 'deprecated': False},
-    'bsd-4.3tahoe': {'id': 'BSD-4.3TAHOE', 'deprecated': False},
-    'bsd-advertising-acknowledgement': {'id': 'BSD-Advertising-Acknowledgement', 'deprecated': False},
-    'bsd-attribution-hpnd-disclaimer': {'id': 'BSD-Attribution-HPND-disclaimer', 'deprecated': False},
-    'bsd-inferno-nettverk': {'id': 'BSD-Inferno-Nettverk', 'deprecated': False},
-    'bsd-protection': {'id': 'BSD-Protection', 'deprecated': False},
-    'bsd-source-beginning-file': {'id': 'BSD-Source-beginning-file', 'deprecated': False},
-    'bsd-source-code': {'id': 'BSD-Source-Code', 'deprecated': False},
-    'bsd-systemics': {'id': 'BSD-Systemics', 'deprecated': False},
-    'bsd-systemics-w3works': {'id': 'BSD-Systemics-W3Works', 'deprecated': False},
-    'bsl-1.0': {'id': 'BSL-1.0', 'deprecated': False},
-    'busl-1.1': {'id': 'BUSL-1.1', 'deprecated': False},
-    'bzip2-1.0.5': {'id': 'bzip2-1.0.5', 'deprecated': True},
-    'bzip2-1.0.6': {'id': 'bzip2-1.0.6', 'deprecated': False},
-    'c-uda-1.0': {'id': 'C-UDA-1.0', 'deprecated': False},
-    'cal-1.0': {'id': 'CAL-1.0', 'deprecated': False},
-    'cal-1.0-combined-work-exception': {'id': 'CAL-1.0-Combined-Work-Exception', 'deprecated': False},
-    'caldera': {'id': 'Caldera', 'deprecated': False},
-    'caldera-no-preamble': {'id': 'Caldera-no-preamble', 'deprecated': False},
-    'catharon': {'id': 'Catharon', 'deprecated': False},
-    'catosl-1.1': {'id': 'CATOSL-1.1', 'deprecated': False},
-    'cc-by-1.0': {'id': 'CC-BY-1.0', 'deprecated': False},
-    'cc-by-2.0': {'id': 'CC-BY-2.0', 'deprecated': False},
-    'cc-by-2.5': {'id': 'CC-BY-2.5', 'deprecated': False},
-    'cc-by-2.5-au': {'id': 'CC-BY-2.5-AU', 'deprecated': False},
-    'cc-by-3.0': {'id': 'CC-BY-3.0', 'deprecated': False},
-    'cc-by-3.0-at': {'id': 'CC-BY-3.0-AT', 'deprecated': False},
-    'cc-by-3.0-au': {'id': 'CC-BY-3.0-AU', 'deprecated': False},
-    'cc-by-3.0-de': {'id': 'CC-BY-3.0-DE', 'deprecated': False},
-    'cc-by-3.0-igo': {'id': 'CC-BY-3.0-IGO', 'deprecated': False},
-    'cc-by-3.0-nl': {'id': 'CC-BY-3.0-NL', 'deprecated': False},
-    'cc-by-3.0-us': {'id': 'CC-BY-3.0-US', 'deprecated': False},
-    'cc-by-4.0': {'id': 'CC-BY-4.0', 'deprecated': False},
-    'cc-by-nc-1.0': {'id': 'CC-BY-NC-1.0', 'deprecated': False},
-    'cc-by-nc-2.0': {'id': 'CC-BY-NC-2.0', 'deprecated': False},
-    'cc-by-nc-2.5': {'id': 'CC-BY-NC-2.5', 'deprecated': False},
-    'cc-by-nc-3.0': {'id': 'CC-BY-NC-3.0', 'deprecated': False},
-    'cc-by-nc-3.0-de': {'id': 'CC-BY-NC-3.0-DE', 'deprecated': False},
-    'cc-by-nc-4.0': {'id': 'CC-BY-NC-4.0', 'deprecated': False},
-    'cc-by-nc-nd-1.0': {'id': 'CC-BY-NC-ND-1.0', 'deprecated': False},
-    'cc-by-nc-nd-2.0': {'id': 'CC-BY-NC-ND-2.0', 'deprecated': False},
-    'cc-by-nc-nd-2.5': {'id': 'CC-BY-NC-ND-2.5', 'deprecated': False},
-    'cc-by-nc-nd-3.0': {'id': 'CC-BY-NC-ND-3.0', 'deprecated': False},
-    'cc-by-nc-nd-3.0-de': {'id': 'CC-BY-NC-ND-3.0-DE', 'deprecated': False},
-    'cc-by-nc-nd-3.0-igo': {'id': 'CC-BY-NC-ND-3.0-IGO', 'deprecated': False},
-    'cc-by-nc-nd-4.0': {'id': 'CC-BY-NC-ND-4.0', 'deprecated': False},
-    'cc-by-nc-sa-1.0': {'id': 'CC-BY-NC-SA-1.0', 'deprecated': False},
-    'cc-by-nc-sa-2.0': {'id': 'CC-BY-NC-SA-2.0', 'deprecated': False},
-    'cc-by-nc-sa-2.0-de': {'id': 'CC-BY-NC-SA-2.0-DE', 'deprecated': False},
-    'cc-by-nc-sa-2.0-fr': {'id': 'CC-BY-NC-SA-2.0-FR', 'deprecated': False},
-    'cc-by-nc-sa-2.0-uk': {'id': 'CC-BY-NC-SA-2.0-UK', 'deprecated': False},
-    'cc-by-nc-sa-2.5': {'id': 'CC-BY-NC-SA-2.5', 'deprecated': False},
-    'cc-by-nc-sa-3.0': {'id': 'CC-BY-NC-SA-3.0', 'deprecated': False},
-    'cc-by-nc-sa-3.0-de': {'id': 'CC-BY-NC-SA-3.0-DE', 'deprecated': False},
-    'cc-by-nc-sa-3.0-igo': {'id': 'CC-BY-NC-SA-3.0-IGO', 'deprecated': False},
-    'cc-by-nc-sa-4.0': {'id': 'CC-BY-NC-SA-4.0', 'deprecated': False},
-    'cc-by-nd-1.0': {'id': 'CC-BY-ND-1.0', 'deprecated': False},
-    'cc-by-nd-2.0': {'id': 'CC-BY-ND-2.0', 'deprecated': False},
-    'cc-by-nd-2.5': {'id': 'CC-BY-ND-2.5', 'deprecated': False},
-    'cc-by-nd-3.0': {'id': 'CC-BY-ND-3.0', 'deprecated': False},
-    'cc-by-nd-3.0-de': {'id': 'CC-BY-ND-3.0-DE', 'deprecated': False},
-    'cc-by-nd-4.0': {'id': 'CC-BY-ND-4.0', 'deprecated': False},
-    'cc-by-sa-1.0': {'id': 'CC-BY-SA-1.0', 'deprecated': False},
-    'cc-by-sa-2.0': {'id': 'CC-BY-SA-2.0', 'deprecated': False},
-    'cc-by-sa-2.0-uk': {'id': 'CC-BY-SA-2.0-UK', 'deprecated': False},
-    'cc-by-sa-2.1-jp': {'id': 'CC-BY-SA-2.1-JP', 'deprecated': False},
-    'cc-by-sa-2.5': {'id': 'CC-BY-SA-2.5', 'deprecated': False},
-    'cc-by-sa-3.0': {'id': 'CC-BY-SA-3.0', 'deprecated': False},
-    'cc-by-sa-3.0-at': {'id': 'CC-BY-SA-3.0-AT', 'deprecated': False},
-    'cc-by-sa-3.0-de': {'id': 'CC-BY-SA-3.0-DE', 'deprecated': False},
-    'cc-by-sa-3.0-igo': {'id': 'CC-BY-SA-3.0-IGO', 'deprecated': False},
-    'cc-by-sa-4.0': {'id': 'CC-BY-SA-4.0', 'deprecated': False},
-    'cc-pddc': {'id': 'CC-PDDC', 'deprecated': False},
-    'cc-pdm-1.0': {'id': 'CC-PDM-1.0', 'deprecated': False},
-    'cc-sa-1.0': {'id': 'CC-SA-1.0', 'deprecated': False},
-    'cc0-1.0': {'id': 'CC0-1.0', 'deprecated': False},
-    'cddl-1.0': {'id': 'CDDL-1.0', 'deprecated': False},
-    'cddl-1.1': {'id': 'CDDL-1.1', 'deprecated': False},
-    'cdl-1.0': {'id': 'CDL-1.0', 'deprecated': False},
-    'cdla-permissive-1.0': {'id': 'CDLA-Permissive-1.0', 'deprecated': False},
-    'cdla-permissive-2.0': {'id': 'CDLA-Permissive-2.0', 'deprecated': False},
-    'cdla-sharing-1.0': {'id': 'CDLA-Sharing-1.0', 'deprecated': False},
-    'cecill-1.0': {'id': 'CECILL-1.0', 'deprecated': False},
-    'cecill-1.1': {'id': 'CECILL-1.1', 'deprecated': False},
-    'cecill-2.0': {'id': 'CECILL-2.0', 'deprecated': False},
-    'cecill-2.1': {'id': 'CECILL-2.1', 'deprecated': False},
-    'cecill-b': {'id': 'CECILL-B', 'deprecated': False},
-    'cecill-c': {'id': 'CECILL-C', 'deprecated': False},
-    'cern-ohl-1.1': {'id': 'CERN-OHL-1.1', 'deprecated': False},
-    'cern-ohl-1.2': {'id': 'CERN-OHL-1.2', 'deprecated': False},
-    'cern-ohl-p-2.0': {'id': 'CERN-OHL-P-2.0', 'deprecated': False},
-    'cern-ohl-s-2.0': {'id': 'CERN-OHL-S-2.0', 'deprecated': False},
-    'cern-ohl-w-2.0': {'id': 'CERN-OHL-W-2.0', 'deprecated': False},
-    'cfitsio': {'id': 'CFITSIO', 'deprecated': False},
-    'check-cvs': {'id': 'check-cvs', 'deprecated': False},
-    'checkmk': {'id': 'checkmk', 'deprecated': False},
-    'clartistic': {'id': 'ClArtistic', 'deprecated': False},
-    'clips': {'id': 'Clips', 'deprecated': False},
-    'cmu-mach': {'id': 'CMU-Mach', 'deprecated': False},
-    'cmu-mach-nodoc': {'id': 'CMU-Mach-nodoc', 'deprecated': False},
-    'cnri-jython': {'id': 'CNRI-Jython', 'deprecated': False},
-    'cnri-python': {'id': 'CNRI-Python', 'deprecated': False},
-    'cnri-python-gpl-compatible': {'id': 'CNRI-Python-GPL-Compatible', 'deprecated': False},
-    'coil-1.0': {'id': 'COIL-1.0', 'deprecated': False},
-    'community-spec-1.0': {'id': 'Community-Spec-1.0', 'deprecated': False},
-    'condor-1.1': {'id': 'Condor-1.1', 'deprecated': False},
-    'copyleft-next-0.3.0': {'id': 'copyleft-next-0.3.0', 'deprecated': False},
-    'copyleft-next-0.3.1': {'id': 'copyleft-next-0.3.1', 'deprecated': False},
-    'cornell-lossless-jpeg': {'id': 'Cornell-Lossless-JPEG', 'deprecated': False},
-    'cpal-1.0': {'id': 'CPAL-1.0', 'deprecated': False},
-    'cpl-1.0': {'id': 'CPL-1.0', 'deprecated': False},
-    'cpol-1.02': {'id': 'CPOL-1.02', 'deprecated': False},
-    'cronyx': {'id': 'Cronyx', 'deprecated': False},
-    'crossword': {'id': 'Crossword', 'deprecated': False},
-    'cryptoswift': {'id': 'CryptoSwift', 'deprecated': False},
-    'crystalstacker': {'id': 'CrystalStacker', 'deprecated': False},
-    'cua-opl-1.0': {'id': 'CUA-OPL-1.0', 'deprecated': False},
-    'cube': {'id': 'Cube', 'deprecated': False},
-    'curl': {'id': 'curl', 'deprecated': False},
-    'cve-tou': {'id': 'cve-tou', 'deprecated': False},
-    'd-fsl-1.0': {'id': 'D-FSL-1.0', 'deprecated': False},
-    'dec-3-clause': {'id': 'DEC-3-Clause', 'deprecated': False},
-    'diffmark': {'id': 'diffmark', 'deprecated': False},
-    'dl-de-by-2.0': {'id': 'DL-DE-BY-2.0', 'deprecated': False},
-    'dl-de-zero-2.0': {'id': 'DL-DE-ZERO-2.0', 'deprecated': False},
-    'doc': {'id': 'DOC', 'deprecated': False},
-    'docbook-dtd': {'id': 'DocBook-DTD', 'deprecated': False},
-    'docbook-schema': {'id': 'DocBook-Schema', 'deprecated': False},
-    'docbook-stylesheet': {'id': 'DocBook-Stylesheet', 'deprecated': False},
-    'docbook-xml': {'id': 'DocBook-XML', 'deprecated': False},
-    'dotseqn': {'id': 'Dotseqn', 'deprecated': False},
-    'drl-1.0': {'id': 'DRL-1.0', 'deprecated': False},
-    'drl-1.1': {'id': 'DRL-1.1', 'deprecated': False},
-    'dsdp': {'id': 'DSDP', 'deprecated': False},
-    'dtoa': {'id': 'dtoa', 'deprecated': False},
-    'dvipdfm': {'id': 'dvipdfm', 'deprecated': False},
-    'ecl-1.0': {'id': 'ECL-1.0', 'deprecated': False},
-    'ecl-2.0': {'id': 'ECL-2.0', 'deprecated': False},
-    'ecos-2.0': {'id': 'eCos-2.0', 'deprecated': True},
-    'efl-1.0': {'id': 'EFL-1.0', 'deprecated': False},
-    'efl-2.0': {'id': 'EFL-2.0', 'deprecated': False},
-    'egenix': {'id': 'eGenix', 'deprecated': False},
-    'elastic-2.0': {'id': 'Elastic-2.0', 'deprecated': False},
-    'entessa': {'id': 'Entessa', 'deprecated': False},
-    'epics': {'id': 'EPICS', 'deprecated': False},
-    'epl-1.0': {'id': 'EPL-1.0', 'deprecated': False},
-    'epl-2.0': {'id': 'EPL-2.0', 'deprecated': False},
-    'erlpl-1.1': {'id': 'ErlPL-1.1', 'deprecated': False},
-    'etalab-2.0': {'id': 'etalab-2.0', 'deprecated': False},
-    'eudatagrid': {'id': 'EUDatagrid', 'deprecated': False},
-    'eupl-1.0': {'id': 'EUPL-1.0', 'deprecated': False},
-    'eupl-1.1': {'id': 'EUPL-1.1', 'deprecated': False},
-    'eupl-1.2': {'id': 'EUPL-1.2', 'deprecated': False},
-    'eurosym': {'id': 'Eurosym', 'deprecated': False},
-    'fair': {'id': 'Fair', 'deprecated': False},
-    'fbm': {'id': 'FBM', 'deprecated': False},
-    'fdk-aac': {'id': 'FDK-AAC', 'deprecated': False},
-    'ferguson-twofish': {'id': 'Ferguson-Twofish', 'deprecated': False},
-    'frameworx-1.0': {'id': 'Frameworx-1.0', 'deprecated': False},
-    'freebsd-doc': {'id': 'FreeBSD-DOC', 'deprecated': False},
-    'freeimage': {'id': 'FreeImage', 'deprecated': False},
-    'fsfap': {'id': 'FSFAP', 'deprecated': False},
-    'fsfap-no-warranty-disclaimer': {'id': 'FSFAP-no-warranty-disclaimer', 'deprecated': False},
-    'fsful': {'id': 'FSFUL', 'deprecated': False},
-    'fsfullr': {'id': 'FSFULLR', 'deprecated': False},
-    'fsfullrsd': {'id': 'FSFULLRSD', 'deprecated': False},
-    'fsfullrwd': {'id': 'FSFULLRWD', 'deprecated': False},
-    'fsl-1.1-alv2': {'id': 'FSL-1.1-ALv2', 'deprecated': False},
-    'fsl-1.1-mit': {'id': 'FSL-1.1-MIT', 'deprecated': False},
-    'ftl': {'id': 'FTL', 'deprecated': False},
-    'furuseth': {'id': 'Furuseth', 'deprecated': False},
-    'fwlw': {'id': 'fwlw', 'deprecated': False},
-    'game-programming-gems': {'id': 'Game-Programming-Gems', 'deprecated': False},
-    'gcr-docs': {'id': 'GCR-docs', 'deprecated': False},
-    'gd': {'id': 'GD', 'deprecated': False},
-    'generic-xts': {'id': 'generic-xts', 'deprecated': False},
-    'gfdl-1.1': {'id': 'GFDL-1.1', 'deprecated': True},
-    'gfdl-1.1-invariants-only': {'id': 'GFDL-1.1-invariants-only', 'deprecated': False},
-    'gfdl-1.1-invariants-or-later': {'id': 'GFDL-1.1-invariants-or-later', 'deprecated': False},
-    'gfdl-1.1-no-invariants-only': {'id': 'GFDL-1.1-no-invariants-only', 'deprecated': False},
-    'gfdl-1.1-no-invariants-or-later': {'id': 'GFDL-1.1-no-invariants-or-later', 'deprecated': False},
-    'gfdl-1.1-only': {'id': 'GFDL-1.1-only', 'deprecated': False},
-    'gfdl-1.1-or-later': {'id': 'GFDL-1.1-or-later', 'deprecated': False},
-    'gfdl-1.2': {'id': 'GFDL-1.2', 'deprecated': True},
-    'gfdl-1.2-invariants-only': {'id': 'GFDL-1.2-invariants-only', 'deprecated': False},
-    'gfdl-1.2-invariants-or-later': {'id': 'GFDL-1.2-invariants-or-later', 'deprecated': False},
-    'gfdl-1.2-no-invariants-only': {'id': 'GFDL-1.2-no-invariants-only', 'deprecated': False},
-    'gfdl-1.2-no-invariants-or-later': {'id': 'GFDL-1.2-no-invariants-or-later', 'deprecated': False},
-    'gfdl-1.2-only': {'id': 'GFDL-1.2-only', 'deprecated': False},
-    'gfdl-1.2-or-later': {'id': 'GFDL-1.2-or-later', 'deprecated': False},
-    'gfdl-1.3': {'id': 'GFDL-1.3', 'deprecated': True},
-    'gfdl-1.3-invariants-only': {'id': 'GFDL-1.3-invariants-only', 'deprecated': False},
-    'gfdl-1.3-invariants-or-later': {'id': 'GFDL-1.3-invariants-or-later', 'deprecated': False},
-    'gfdl-1.3-no-invariants-only': {'id': 'GFDL-1.3-no-invariants-only', 'deprecated': False},
-    'gfdl-1.3-no-invariants-or-later': {'id': 'GFDL-1.3-no-invariants-or-later', 'deprecated': False},
-    'gfdl-1.3-only': {'id': 'GFDL-1.3-only', 'deprecated': False},
-    'gfdl-1.3-or-later': {'id': 'GFDL-1.3-or-later', 'deprecated': False},
-    'giftware': {'id': 'Giftware', 'deprecated': False},
-    'gl2ps': {'id': 'GL2PS', 'deprecated': False},
-    'glide': {'id': 'Glide', 'deprecated': False},
-    'glulxe': {'id': 'Glulxe', 'deprecated': False},
-    'glwtpl': {'id': 'GLWTPL', 'deprecated': False},
-    'gnuplot': {'id': 'gnuplot', 'deprecated': False},
-    'gpl-1.0': {'id': 'GPL-1.0', 'deprecated': True},
-    'gpl-1.0+': {'id': 'GPL-1.0+', 'deprecated': True},
-    'gpl-1.0-only': {'id': 'GPL-1.0-only', 'deprecated': False},
-    'gpl-1.0-or-later': {'id': 'GPL-1.0-or-later', 'deprecated': False},
-    'gpl-2.0': {'id': 'GPL-2.0', 'deprecated': True},
-    'gpl-2.0+': {'id': 'GPL-2.0+', 'deprecated': True},
-    'gpl-2.0-only': {'id': 'GPL-2.0-only', 'deprecated': False},
-    'gpl-2.0-or-later': {'id': 'GPL-2.0-or-later', 'deprecated': False},
-    'gpl-2.0-with-autoconf-exception': {'id': 'GPL-2.0-with-autoconf-exception', 'deprecated': True},
-    'gpl-2.0-with-bison-exception': {'id': 'GPL-2.0-with-bison-exception', 'deprecated': True},
-    'gpl-2.0-with-classpath-exception': {'id': 'GPL-2.0-with-classpath-exception', 'deprecated': True},
-    'gpl-2.0-with-font-exception': {'id': 'GPL-2.0-with-font-exception', 'deprecated': True},
-    'gpl-2.0-with-gcc-exception': {'id': 'GPL-2.0-with-GCC-exception', 'deprecated': True},
-    'gpl-3.0': {'id': 'GPL-3.0', 'deprecated': True},
-    'gpl-3.0+': {'id': 'GPL-3.0+', 'deprecated': True},
-    'gpl-3.0-only': {'id': 'GPL-3.0-only', 'deprecated': False},
-    'gpl-3.0-or-later': {'id': 'GPL-3.0-or-later', 'deprecated': False},
-    'gpl-3.0-with-autoconf-exception': {'id': 'GPL-3.0-with-autoconf-exception', 'deprecated': True},
-    'gpl-3.0-with-gcc-exception': {'id': 'GPL-3.0-with-GCC-exception', 'deprecated': True},
-    'graphics-gems': {'id': 'Graphics-Gems', 'deprecated': False},
-    'gsoap-1.3b': {'id': 'gSOAP-1.3b', 'deprecated': False},
-    'gtkbook': {'id': 'gtkbook', 'deprecated': False},
-    'gutmann': {'id': 'Gutmann', 'deprecated': False},
-    'haskellreport': {'id': 'HaskellReport', 'deprecated': False},
-    'hdf5': {'id': 'HDF5', 'deprecated': False},
-    'hdparm': {'id': 'hdparm', 'deprecated': False},
-    'hidapi': {'id': 'HIDAPI', 'deprecated': False},
-    'hippocratic-2.1': {'id': 'Hippocratic-2.1', 'deprecated': False},
-    'hp-1986': {'id': 'HP-1986', 'deprecated': False},
-    'hp-1989': {'id': 'HP-1989', 'deprecated': False},
-    'hpnd': {'id': 'HPND', 'deprecated': False},
-    'hpnd-dec': {'id': 'HPND-DEC', 'deprecated': False},
-    'hpnd-doc': {'id': 'HPND-doc', 'deprecated': False},
-    'hpnd-doc-sell': {'id': 'HPND-doc-sell', 'deprecated': False},
-    'hpnd-export-us': {'id': 'HPND-export-US', 'deprecated': False},
-    'hpnd-export-us-acknowledgement': {'id': 'HPND-export-US-acknowledgement', 'deprecated': False},
-    'hpnd-export-us-modify': {'id': 'HPND-export-US-modify', 'deprecated': False},
-    'hpnd-export2-us': {'id': 'HPND-export2-US', 'deprecated': False},
-    'hpnd-fenneberg-livingston': {'id': 'HPND-Fenneberg-Livingston', 'deprecated': False},
-    'hpnd-inria-imag': {'id': 'HPND-INRIA-IMAG', 'deprecated': False},
-    'hpnd-intel': {'id': 'HPND-Intel', 'deprecated': False},
-    'hpnd-kevlin-henney': {'id': 'HPND-Kevlin-Henney', 'deprecated': False},
-    'hpnd-markus-kuhn': {'id': 'HPND-Markus-Kuhn', 'deprecated': False},
-    'hpnd-merchantability-variant': {'id': 'HPND-merchantability-variant', 'deprecated': False},
-    'hpnd-mit-disclaimer': {'id': 'HPND-MIT-disclaimer', 'deprecated': False},
-    'hpnd-netrek': {'id': 'HPND-Netrek', 'deprecated': False},
-    'hpnd-pbmplus': {'id': 'HPND-Pbmplus', 'deprecated': False},
-    'hpnd-sell-mit-disclaimer-xserver': {'id': 'HPND-sell-MIT-disclaimer-xserver', 'deprecated': False},
-    'hpnd-sell-regexpr': {'id': 'HPND-sell-regexpr', 'deprecated': False},
-    'hpnd-sell-variant': {'id': 'HPND-sell-variant', 'deprecated': False},
-    'hpnd-sell-variant-mit-disclaimer': {'id': 'HPND-sell-variant-MIT-disclaimer', 'deprecated': False},
-    'hpnd-sell-variant-mit-disclaimer-rev': {'id': 'HPND-sell-variant-MIT-disclaimer-rev', 'deprecated': False},
-    'hpnd-uc': {'id': 'HPND-UC', 'deprecated': False},
-    'hpnd-uc-export-us': {'id': 'HPND-UC-export-US', 'deprecated': False},
-    'htmltidy': {'id': 'HTMLTIDY', 'deprecated': False},
-    'ibm-pibs': {'id': 'IBM-pibs', 'deprecated': False},
-    'icu': {'id': 'ICU', 'deprecated': False},
-    'iec-code-components-eula': {'id': 'IEC-Code-Components-EULA', 'deprecated': False},
-    'ijg': {'id': 'IJG', 'deprecated': False},
-    'ijg-short': {'id': 'IJG-short', 'deprecated': False},
-    'imagemagick': {'id': 'ImageMagick', 'deprecated': False},
-    'imatix': {'id': 'iMatix', 'deprecated': False},
-    'imlib2': {'id': 'Imlib2', 'deprecated': False},
-    'info-zip': {'id': 'Info-ZIP', 'deprecated': False},
-    'inner-net-2.0': {'id': 'Inner-Net-2.0', 'deprecated': False},
-    'innosetup': {'id': 'InnoSetup', 'deprecated': False},
-    'intel': {'id': 'Intel', 'deprecated': False},
-    'intel-acpi': {'id': 'Intel-ACPI', 'deprecated': False},
-    'interbase-1.0': {'id': 'Interbase-1.0', 'deprecated': False},
-    'ipa': {'id': 'IPA', 'deprecated': False},
-    'ipl-1.0': {'id': 'IPL-1.0', 'deprecated': False},
-    'isc': {'id': 'ISC', 'deprecated': False},
-    'isc-veillard': {'id': 'ISC-Veillard', 'deprecated': False},
-    'jam': {'id': 'Jam', 'deprecated': False},
-    'jasper-2.0': {'id': 'JasPer-2.0', 'deprecated': False},
-    'jove': {'id': 'jove', 'deprecated': False},
-    'jpl-image': {'id': 'JPL-image', 'deprecated': False},
-    'jpnic': {'id': 'JPNIC', 'deprecated': False},
-    'json': {'id': 'JSON', 'deprecated': False},
-    'kastrup': {'id': 'Kastrup', 'deprecated': False},
-    'kazlib': {'id': 'Kazlib', 'deprecated': False},
-    'knuth-ctan': {'id': 'Knuth-CTAN', 'deprecated': False},
-    'lal-1.2': {'id': 'LAL-1.2', 'deprecated': False},
-    'lal-1.3': {'id': 'LAL-1.3', 'deprecated': False},
-    'latex2e': {'id': 'Latex2e', 'deprecated': False},
-    'latex2e-translated-notice': {'id': 'Latex2e-translated-notice', 'deprecated': False},
-    'leptonica': {'id': 'Leptonica', 'deprecated': False},
-    'lgpl-2.0': {'id': 'LGPL-2.0', 'deprecated': True},
-    'lgpl-2.0+': {'id': 'LGPL-2.0+', 'deprecated': True},
-    'lgpl-2.0-only': {'id': 'LGPL-2.0-only', 'deprecated': False},
-    'lgpl-2.0-or-later': {'id': 'LGPL-2.0-or-later', 'deprecated': False},
-    'lgpl-2.1': {'id': 'LGPL-2.1', 'deprecated': True},
-    'lgpl-2.1+': {'id': 'LGPL-2.1+', 'deprecated': True},
-    'lgpl-2.1-only': {'id': 'LGPL-2.1-only', 'deprecated': False},
-    'lgpl-2.1-or-later': {'id': 'LGPL-2.1-or-later', 'deprecated': False},
-    'lgpl-3.0': {'id': 'LGPL-3.0', 'deprecated': True},
-    'lgpl-3.0+': {'id': 'LGPL-3.0+', 'deprecated': True},
-    'lgpl-3.0-only': {'id': 'LGPL-3.0-only', 'deprecated': False},
-    'lgpl-3.0-or-later': {'id': 'LGPL-3.0-or-later', 'deprecated': False},
-    'lgpllr': {'id': 'LGPLLR', 'deprecated': False},
-    'libpng': {'id': 'Libpng', 'deprecated': False},
-    'libpng-1.6.35': {'id': 'libpng-1.6.35', 'deprecated': False},
-    'libpng-2.0': {'id': 'libpng-2.0', 'deprecated': False},
-    'libselinux-1.0': {'id': 'libselinux-1.0', 'deprecated': False},
-    'libtiff': {'id': 'libtiff', 'deprecated': False},
-    'libutil-david-nugent': {'id': 'libutil-David-Nugent', 'deprecated': False},
-    'liliq-p-1.1': {'id': 'LiLiQ-P-1.1', 'deprecated': False},
-    'liliq-r-1.1': {'id': 'LiLiQ-R-1.1', 'deprecated': False},
-    'liliq-rplus-1.1': {'id': 'LiLiQ-Rplus-1.1', 'deprecated': False},
-    'linux-man-pages-1-para': {'id': 'Linux-man-pages-1-para', 'deprecated': False},
-    'linux-man-pages-copyleft': {'id': 'Linux-man-pages-copyleft', 'deprecated': False},
-    'linux-man-pages-copyleft-2-para': {'id': 'Linux-man-pages-copyleft-2-para', 'deprecated': False},
-    'linux-man-pages-copyleft-var': {'id': 'Linux-man-pages-copyleft-var', 'deprecated': False},
-    'linux-openib': {'id': 'Linux-OpenIB', 'deprecated': False},
-    'loop': {'id': 'LOOP', 'deprecated': False},
-    'lpd-document': {'id': 'LPD-document', 'deprecated': False},
-    'lpl-1.0': {'id': 'LPL-1.0', 'deprecated': False},
-    'lpl-1.02': {'id': 'LPL-1.02', 'deprecated': False},
-    'lppl-1.0': {'id': 'LPPL-1.0', 'deprecated': False},
-    'lppl-1.1': {'id': 'LPPL-1.1', 'deprecated': False},
-    'lppl-1.2': {'id': 'LPPL-1.2', 'deprecated': False},
-    'lppl-1.3a': {'id': 'LPPL-1.3a', 'deprecated': False},
-    'lppl-1.3c': {'id': 'LPPL-1.3c', 'deprecated': False},
-    'lsof': {'id': 'lsof', 'deprecated': False},
-    'lucida-bitmap-fonts': {'id': 'Lucida-Bitmap-Fonts', 'deprecated': False},
-    'lzma-sdk-9.11-to-9.20': {'id': 'LZMA-SDK-9.11-to-9.20', 'deprecated': False},
-    'lzma-sdk-9.22': {'id': 'LZMA-SDK-9.22', 'deprecated': False},
-    'mackerras-3-clause': {'id': 'Mackerras-3-Clause', 'deprecated': False},
-    'mackerras-3-clause-acknowledgment': {'id': 'Mackerras-3-Clause-acknowledgment', 'deprecated': False},
-    'magaz': {'id': 'magaz', 'deprecated': False},
-    'mailprio': {'id': 'mailprio', 'deprecated': False},
-    'makeindex': {'id': 'MakeIndex', 'deprecated': False},
-    'man2html': {'id': 'man2html', 'deprecated': False},
-    'martin-birgmeier': {'id': 'Martin-Birgmeier', 'deprecated': False},
-    'mcphee-slideshow': {'id': 'McPhee-slideshow', 'deprecated': False},
-    'metamail': {'id': 'metamail', 'deprecated': False},
-    'minpack': {'id': 'Minpack', 'deprecated': False},
-    'mips': {'id': 'MIPS', 'deprecated': False},
-    'miros': {'id': 'MirOS', 'deprecated': False},
-    'mit': {'id': 'MIT', 'deprecated': False},
-    'mit-0': {'id': 'MIT-0', 'deprecated': False},
-    'mit-advertising': {'id': 'MIT-advertising', 'deprecated': False},
-    'mit-click': {'id': 'MIT-Click', 'deprecated': False},
-    'mit-cmu': {'id': 'MIT-CMU', 'deprecated': False},
-    'mit-enna': {'id': 'MIT-enna', 'deprecated': False},
-    'mit-feh': {'id': 'MIT-feh', 'deprecated': False},
-    'mit-festival': {'id': 'MIT-Festival', 'deprecated': False},
-    'mit-khronos-old': {'id': 'MIT-Khronos-old', 'deprecated': False},
-    'mit-modern-variant': {'id': 'MIT-Modern-Variant', 'deprecated': False},
-    'mit-open-group': {'id': 'MIT-open-group', 'deprecated': False},
-    'mit-testregex': {'id': 'MIT-testregex', 'deprecated': False},
-    'mit-wu': {'id': 'MIT-Wu', 'deprecated': False},
-    'mitnfa': {'id': 'MITNFA', 'deprecated': False},
-    'mmixware': {'id': 'MMIXware', 'deprecated': False},
-    'motosoto': {'id': 'Motosoto', 'deprecated': False},
-    'mpeg-ssg': {'id': 'MPEG-SSG', 'deprecated': False},
-    'mpi-permissive': {'id': 'mpi-permissive', 'deprecated': False},
-    'mpich2': {'id': 'mpich2', 'deprecated': False},
-    'mpl-1.0': {'id': 'MPL-1.0', 'deprecated': False},
-    'mpl-1.1': {'id': 'MPL-1.1', 'deprecated': False},
-    'mpl-2.0': {'id': 'MPL-2.0', 'deprecated': False},
-    'mpl-2.0-no-copyleft-exception': {'id': 'MPL-2.0-no-copyleft-exception', 'deprecated': False},
-    'mplus': {'id': 'mplus', 'deprecated': False},
-    'ms-lpl': {'id': 'MS-LPL', 'deprecated': False},
-    'ms-pl': {'id': 'MS-PL', 'deprecated': False},
-    'ms-rl': {'id': 'MS-RL', 'deprecated': False},
-    'mtll': {'id': 'MTLL', 'deprecated': False},
-    'mulanpsl-1.0': {'id': 'MulanPSL-1.0', 'deprecated': False},
-    'mulanpsl-2.0': {'id': 'MulanPSL-2.0', 'deprecated': False},
-    'multics': {'id': 'Multics', 'deprecated': False},
-    'mup': {'id': 'Mup', 'deprecated': False},
-    'naist-2003': {'id': 'NAIST-2003', 'deprecated': False},
-    'nasa-1.3': {'id': 'NASA-1.3', 'deprecated': False},
-    'naumen': {'id': 'Naumen', 'deprecated': False},
-    'nbpl-1.0': {'id': 'NBPL-1.0', 'deprecated': False},
-    'ncbi-pd': {'id': 'NCBI-PD', 'deprecated': False},
-    'ncgl-uk-2.0': {'id': 'NCGL-UK-2.0', 'deprecated': False},
-    'ncl': {'id': 'NCL', 'deprecated': False},
-    'ncsa': {'id': 'NCSA', 'deprecated': False},
-    'net-snmp': {'id': 'Net-SNMP', 'deprecated': True},
-    'netcdf': {'id': 'NetCDF', 'deprecated': False},
-    'newsletr': {'id': 'Newsletr', 'deprecated': False},
-    'ngpl': {'id': 'NGPL', 'deprecated': False},
-    'ngrep': {'id': 'ngrep', 'deprecated': False},
-    'nicta-1.0': {'id': 'NICTA-1.0', 'deprecated': False},
-    'nist-pd': {'id': 'NIST-PD', 'deprecated': False},
-    'nist-pd-fallback': {'id': 'NIST-PD-fallback', 'deprecated': False},
-    'nist-software': {'id': 'NIST-Software', 'deprecated': False},
-    'nlod-1.0': {'id': 'NLOD-1.0', 'deprecated': False},
-    'nlod-2.0': {'id': 'NLOD-2.0', 'deprecated': False},
-    'nlpl': {'id': 'NLPL', 'deprecated': False},
-    'nokia': {'id': 'Nokia', 'deprecated': False},
-    'nosl': {'id': 'NOSL', 'deprecated': False},
-    'noweb': {'id': 'Noweb', 'deprecated': False},
-    'npl-1.0': {'id': 'NPL-1.0', 'deprecated': False},
-    'npl-1.1': {'id': 'NPL-1.1', 'deprecated': False},
-    'nposl-3.0': {'id': 'NPOSL-3.0', 'deprecated': False},
-    'nrl': {'id': 'NRL', 'deprecated': False},
-    'ntia-pd': {'id': 'NTIA-PD', 'deprecated': False},
-    'ntp': {'id': 'NTP', 'deprecated': False},
-    'ntp-0': {'id': 'NTP-0', 'deprecated': False},
-    'nunit': {'id': 'Nunit', 'deprecated': True},
-    'o-uda-1.0': {'id': 'O-UDA-1.0', 'deprecated': False},
-    'oar': {'id': 'OAR', 'deprecated': False},
-    'occt-pl': {'id': 'OCCT-PL', 'deprecated': False},
-    'oclc-2.0': {'id': 'OCLC-2.0', 'deprecated': False},
-    'odbl-1.0': {'id': 'ODbL-1.0', 'deprecated': False},
-    'odc-by-1.0': {'id': 'ODC-By-1.0', 'deprecated': False},
-    'offis': {'id': 'OFFIS', 'deprecated': False},
-    'ofl-1.0': {'id': 'OFL-1.0', 'deprecated': False},
-    'ofl-1.0-no-rfn': {'id': 'OFL-1.0-no-RFN', 'deprecated': False},
-    'ofl-1.0-rfn': {'id': 'OFL-1.0-RFN', 'deprecated': False},
-    'ofl-1.1': {'id': 'OFL-1.1', 'deprecated': False},
-    'ofl-1.1-no-rfn': {'id': 'OFL-1.1-no-RFN', 'deprecated': False},
-    'ofl-1.1-rfn': {'id': 'OFL-1.1-RFN', 'deprecated': False},
-    'ogc-1.0': {'id': 'OGC-1.0', 'deprecated': False},
-    'ogdl-taiwan-1.0': {'id': 'OGDL-Taiwan-1.0', 'deprecated': False},
-    'ogl-canada-2.0': {'id': 'OGL-Canada-2.0', 'deprecated': False},
-    'ogl-uk-1.0': {'id': 'OGL-UK-1.0', 'deprecated': False},
-    'ogl-uk-2.0': {'id': 'OGL-UK-2.0', 'deprecated': False},
-    'ogl-uk-3.0': {'id': 'OGL-UK-3.0', 'deprecated': False},
-    'ogtsl': {'id': 'OGTSL', 'deprecated': False},
-    'oldap-1.1': {'id': 'OLDAP-1.1', 'deprecated': False},
-    'oldap-1.2': {'id': 'OLDAP-1.2', 'deprecated': False},
-    'oldap-1.3': {'id': 'OLDAP-1.3', 'deprecated': False},
-    'oldap-1.4': {'id': 'OLDAP-1.4', 'deprecated': False},
-    'oldap-2.0': {'id': 'OLDAP-2.0', 'deprecated': False},
-    'oldap-2.0.1': {'id': 'OLDAP-2.0.1', 'deprecated': False},
-    'oldap-2.1': {'id': 'OLDAP-2.1', 'deprecated': False},
-    'oldap-2.2': {'id': 'OLDAP-2.2', 'deprecated': False},
-    'oldap-2.2.1': {'id': 'OLDAP-2.2.1', 'deprecated': False},
-    'oldap-2.2.2': {'id': 'OLDAP-2.2.2', 'deprecated': False},
-    'oldap-2.3': {'id': 'OLDAP-2.3', 'deprecated': False},
-    'oldap-2.4': {'id': 'OLDAP-2.4', 'deprecated': False},
-    'oldap-2.5': {'id': 'OLDAP-2.5', 'deprecated': False},
-    'oldap-2.6': {'id': 'OLDAP-2.6', 'deprecated': False},
-    'oldap-2.7': {'id': 'OLDAP-2.7', 'deprecated': False},
-    'oldap-2.8': {'id': 'OLDAP-2.8', 'deprecated': False},
-    'olfl-1.3': {'id': 'OLFL-1.3', 'deprecated': False},
-    'oml': {'id': 'OML', 'deprecated': False},
-    'openpbs-2.3': {'id': 'OpenPBS-2.3', 'deprecated': False},
-    'openssl': {'id': 'OpenSSL', 'deprecated': False},
-    'openssl-standalone': {'id': 'OpenSSL-standalone', 'deprecated': False},
-    'openvision': {'id': 'OpenVision', 'deprecated': False},
-    'opl-1.0': {'id': 'OPL-1.0', 'deprecated': False},
-    'opl-uk-3.0': {'id': 'OPL-UK-3.0', 'deprecated': False},
-    'opubl-1.0': {'id': 'OPUBL-1.0', 'deprecated': False},
-    'oset-pl-2.1': {'id': 'OSET-PL-2.1', 'deprecated': False},
-    'osl-1.0': {'id': 'OSL-1.0', 'deprecated': False},
-    'osl-1.1': {'id': 'OSL-1.1', 'deprecated': False},
-    'osl-2.0': {'id': 'OSL-2.0', 'deprecated': False},
-    'osl-2.1': {'id': 'OSL-2.1', 'deprecated': False},
-    'osl-3.0': {'id': 'OSL-3.0', 'deprecated': False},
-    'padl': {'id': 'PADL', 'deprecated': False},
-    'parity-6.0.0': {'id': 'Parity-6.0.0', 'deprecated': False},
-    'parity-7.0.0': {'id': 'Parity-7.0.0', 'deprecated': False},
-    'pddl-1.0': {'id': 'PDDL-1.0', 'deprecated': False},
-    'php-3.0': {'id': 'PHP-3.0', 'deprecated': False},
-    'php-3.01': {'id': 'PHP-3.01', 'deprecated': False},
-    'pixar': {'id': 'Pixar', 'deprecated': False},
-    'pkgconf': {'id': 'pkgconf', 'deprecated': False},
-    'plexus': {'id': 'Plexus', 'deprecated': False},
-    'pnmstitch': {'id': 'pnmstitch', 'deprecated': False},
-    'polyform-noncommercial-1.0.0': {'id': 'PolyForm-Noncommercial-1.0.0', 'deprecated': False},
-    'polyform-small-business-1.0.0': {'id': 'PolyForm-Small-Business-1.0.0', 'deprecated': False},
-    'postgresql': {'id': 'PostgreSQL', 'deprecated': False},
-    'ppl': {'id': 'PPL', 'deprecated': False},
-    'psf-2.0': {'id': 'PSF-2.0', 'deprecated': False},
-    'psfrag': {'id': 'psfrag', 'deprecated': False},
-    'psutils': {'id': 'psutils', 'deprecated': False},
-    'python-2.0': {'id': 'Python-2.0', 'deprecated': False},
-    'python-2.0.1': {'id': 'Python-2.0.1', 'deprecated': False},
-    'python-ldap': {'id': 'python-ldap', 'deprecated': False},
-    'qhull': {'id': 'Qhull', 'deprecated': False},
-    'qpl-1.0': {'id': 'QPL-1.0', 'deprecated': False},
-    'qpl-1.0-inria-2004': {'id': 'QPL-1.0-INRIA-2004', 'deprecated': False},
-    'radvd': {'id': 'radvd', 'deprecated': False},
-    'rdisc': {'id': 'Rdisc', 'deprecated': False},
-    'rhecos-1.1': {'id': 'RHeCos-1.1', 'deprecated': False},
-    'rpl-1.1': {'id': 'RPL-1.1', 'deprecated': False},
-    'rpl-1.5': {'id': 'RPL-1.5', 'deprecated': False},
-    'rpsl-1.0': {'id': 'RPSL-1.0', 'deprecated': False},
-    'rsa-md': {'id': 'RSA-MD', 'deprecated': False},
-    'rscpl': {'id': 'RSCPL', 'deprecated': False},
-    'ruby': {'id': 'Ruby', 'deprecated': False},
-    'ruby-pty': {'id': 'Ruby-pty', 'deprecated': False},
-    'sax-pd': {'id': 'SAX-PD', 'deprecated': False},
-    'sax-pd-2.0': {'id': 'SAX-PD-2.0', 'deprecated': False},
-    'saxpath': {'id': 'Saxpath', 'deprecated': False},
-    'scea': {'id': 'SCEA', 'deprecated': False},
-    'schemereport': {'id': 'SchemeReport', 'deprecated': False},
-    'sendmail': {'id': 'Sendmail', 'deprecated': False},
-    'sendmail-8.23': {'id': 'Sendmail-8.23', 'deprecated': False},
-    'sendmail-open-source-1.1': {'id': 'Sendmail-Open-Source-1.1', 'deprecated': False},
-    'sgi-b-1.0': {'id': 'SGI-B-1.0', 'deprecated': False},
-    'sgi-b-1.1': {'id': 'SGI-B-1.1', 'deprecated': False},
-    'sgi-b-2.0': {'id': 'SGI-B-2.0', 'deprecated': False},
-    'sgi-opengl': {'id': 'SGI-OpenGL', 'deprecated': False},
-    'sgp4': {'id': 'SGP4', 'deprecated': False},
-    'shl-0.5': {'id': 'SHL-0.5', 'deprecated': False},
-    'shl-0.51': {'id': 'SHL-0.51', 'deprecated': False},
-    'simpl-2.0': {'id': 'SimPL-2.0', 'deprecated': False},
-    'sissl': {'id': 'SISSL', 'deprecated': False},
-    'sissl-1.2': {'id': 'SISSL-1.2', 'deprecated': False},
-    'sl': {'id': 'SL', 'deprecated': False},
-    'sleepycat': {'id': 'Sleepycat', 'deprecated': False},
-    'smail-gpl': {'id': 'SMAIL-GPL', 'deprecated': False},
-    'smlnj': {'id': 'SMLNJ', 'deprecated': False},
-    'smppl': {'id': 'SMPPL', 'deprecated': False},
-    'snia': {'id': 'SNIA', 'deprecated': False},
-    'snprintf': {'id': 'snprintf', 'deprecated': False},
-    'sofa': {'id': 'SOFA', 'deprecated': False},
-    'softsurfer': {'id': 'softSurfer', 'deprecated': False},
-    'soundex': {'id': 'Soundex', 'deprecated': False},
-    'spencer-86': {'id': 'Spencer-86', 'deprecated': False},
-    'spencer-94': {'id': 'Spencer-94', 'deprecated': False},
-    'spencer-99': {'id': 'Spencer-99', 'deprecated': False},
-    'spl-1.0': {'id': 'SPL-1.0', 'deprecated': False},
-    'ssh-keyscan': {'id': 'ssh-keyscan', 'deprecated': False},
-    'ssh-openssh': {'id': 'SSH-OpenSSH', 'deprecated': False},
-    'ssh-short': {'id': 'SSH-short', 'deprecated': False},
-    'ssleay-standalone': {'id': 'SSLeay-standalone', 'deprecated': False},
-    'sspl-1.0': {'id': 'SSPL-1.0', 'deprecated': False},
-    'standardml-nj': {'id': 'StandardML-NJ', 'deprecated': True},
-    'sugarcrm-1.1.3': {'id': 'SugarCRM-1.1.3', 'deprecated': False},
-    'sul-1.0': {'id': 'SUL-1.0', 'deprecated': False},
-    'sun-ppp': {'id': 'Sun-PPP', 'deprecated': False},
-    'sun-ppp-2000': {'id': 'Sun-PPP-2000', 'deprecated': False},
-    'sunpro': {'id': 'SunPro', 'deprecated': False},
-    'swl': {'id': 'SWL', 'deprecated': False},
-    'swrule': {'id': 'swrule', 'deprecated': False},
-    'symlinks': {'id': 'Symlinks', 'deprecated': False},
-    'tapr-ohl-1.0': {'id': 'TAPR-OHL-1.0', 'deprecated': False},
-    'tcl': {'id': 'TCL', 'deprecated': False},
-    'tcp-wrappers': {'id': 'TCP-wrappers', 'deprecated': False},
-    'termreadkey': {'id': 'TermReadKey', 'deprecated': False},
-    'tgppl-1.0': {'id': 'TGPPL-1.0', 'deprecated': False},
-    'thirdeye': {'id': 'ThirdEye', 'deprecated': False},
-    'threeparttable': {'id': 'threeparttable', 'deprecated': False},
-    'tmate': {'id': 'TMate', 'deprecated': False},
-    'torque-1.1': {'id': 'TORQUE-1.1', 'deprecated': False},
-    'tosl': {'id': 'TOSL', 'deprecated': False},
-    'tpdl': {'id': 'TPDL', 'deprecated': False},
-    'tpl-1.0': {'id': 'TPL-1.0', 'deprecated': False},
-    'trustedqsl': {'id': 'TrustedQSL', 'deprecated': False},
-    'ttwl': {'id': 'TTWL', 'deprecated': False},
-    'ttyp0': {'id': 'TTYP0', 'deprecated': False},
-    'tu-berlin-1.0': {'id': 'TU-Berlin-1.0', 'deprecated': False},
-    'tu-berlin-2.0': {'id': 'TU-Berlin-2.0', 'deprecated': False},
-    'ubuntu-font-1.0': {'id': 'Ubuntu-font-1.0', 'deprecated': False},
-    'ucar': {'id': 'UCAR', 'deprecated': False},
-    'ucl-1.0': {'id': 'UCL-1.0', 'deprecated': False},
-    'ulem': {'id': 'ulem', 'deprecated': False},
-    'umich-merit': {'id': 'UMich-Merit', 'deprecated': False},
-    'unicode-3.0': {'id': 'Unicode-3.0', 'deprecated': False},
-    'unicode-dfs-2015': {'id': 'Unicode-DFS-2015', 'deprecated': False},
-    'unicode-dfs-2016': {'id': 'Unicode-DFS-2016', 'deprecated': False},
-    'unicode-tou': {'id': 'Unicode-TOU', 'deprecated': False},
-    'unixcrypt': {'id': 'UnixCrypt', 'deprecated': False},
-    'unlicense': {'id': 'Unlicense', 'deprecated': False},
-    'unlicense-libtelnet': {'id': 'Unlicense-libtelnet', 'deprecated': False},
-    'unlicense-libwhirlpool': {'id': 'Unlicense-libwhirlpool', 'deprecated': False},
-    'upl-1.0': {'id': 'UPL-1.0', 'deprecated': False},
-    'urt-rle': {'id': 'URT-RLE', 'deprecated': False},
-    'vim': {'id': 'Vim', 'deprecated': False},
-    'vostrom': {'id': 'VOSTROM', 'deprecated': False},
-    'vsl-1.0': {'id': 'VSL-1.0', 'deprecated': False},
-    'w3c': {'id': 'W3C', 'deprecated': False},
-    'w3c-19980720': {'id': 'W3C-19980720', 'deprecated': False},
-    'w3c-20150513': {'id': 'W3C-20150513', 'deprecated': False},
-    'w3m': {'id': 'w3m', 'deprecated': False},
-    'watcom-1.0': {'id': 'Watcom-1.0', 'deprecated': False},
-    'widget-workshop': {'id': 'Widget-Workshop', 'deprecated': False},
-    'wsuipa': {'id': 'Wsuipa', 'deprecated': False},
-    'wtfpl': {'id': 'WTFPL', 'deprecated': False},
-    'wwl': {'id': 'wwl', 'deprecated': False},
-    'wxwindows': {'id': 'wxWindows', 'deprecated': True},
-    'x11': {'id': 'X11', 'deprecated': False},
-    'x11-distribute-modifications-variant': {'id': 'X11-distribute-modifications-variant', 'deprecated': False},
-    'x11-swapped': {'id': 'X11-swapped', 'deprecated': False},
-    'xdebug-1.03': {'id': 'Xdebug-1.03', 'deprecated': False},
-    'xerox': {'id': 'Xerox', 'deprecated': False},
-    'xfig': {'id': 'Xfig', 'deprecated': False},
-    'xfree86-1.1': {'id': 'XFree86-1.1', 'deprecated': False},
-    'xinetd': {'id': 'xinetd', 'deprecated': False},
-    'xkeyboard-config-zinoviev': {'id': 'xkeyboard-config-Zinoviev', 'deprecated': False},
-    'xlock': {'id': 'xlock', 'deprecated': False},
-    'xnet': {'id': 'Xnet', 'deprecated': False},
-    'xpp': {'id': 'xpp', 'deprecated': False},
-    'xskat': {'id': 'XSkat', 'deprecated': False},
-    'xzoom': {'id': 'xzoom', 'deprecated': False},
-    'ypl-1.0': {'id': 'YPL-1.0', 'deprecated': False},
-    'ypl-1.1': {'id': 'YPL-1.1', 'deprecated': False},
-    'zed': {'id': 'Zed', 'deprecated': False},
-    'zeeff': {'id': 'Zeeff', 'deprecated': False},
-    'zend-2.0': {'id': 'Zend-2.0', 'deprecated': False},
-    'zimbra-1.3': {'id': 'Zimbra-1.3', 'deprecated': False},
-    'zimbra-1.4': {'id': 'Zimbra-1.4', 'deprecated': False},
-    'zlib': {'id': 'Zlib', 'deprecated': False},
-    'zlib-acknowledgement': {'id': 'zlib-acknowledgement', 'deprecated': False},
-    'zpl-1.1': {'id': 'ZPL-1.1', 'deprecated': False},
-    'zpl-2.0': {'id': 'ZPL-2.0', 'deprecated': False},
-    'zpl-2.1': {'id': 'ZPL-2.1', 'deprecated': False},
-}
-
-EXCEPTIONS: dict[str, SPDXException] = {
-    '389-exception': {'id': '389-exception', 'deprecated': False},
-    'asterisk-exception': {'id': 'Asterisk-exception', 'deprecated': False},
-    'asterisk-linking-protocols-exception': {'id': 'Asterisk-linking-protocols-exception', 'deprecated': False},
-    'autoconf-exception-2.0': {'id': 'Autoconf-exception-2.0', 'deprecated': False},
-    'autoconf-exception-3.0': {'id': 'Autoconf-exception-3.0', 'deprecated': False},
-    'autoconf-exception-generic': {'id': 'Autoconf-exception-generic', 'deprecated': False},
-    'autoconf-exception-generic-3.0': {'id': 'Autoconf-exception-generic-3.0', 'deprecated': False},
-    'autoconf-exception-macro': {'id': 'Autoconf-exception-macro', 'deprecated': False},
-    'bison-exception-1.24': {'id': 'Bison-exception-1.24', 'deprecated': False},
-    'bison-exception-2.2': {'id': 'Bison-exception-2.2', 'deprecated': False},
-    'bootloader-exception': {'id': 'Bootloader-exception', 'deprecated': False},
-    'cgal-linking-exception': {'id': 'CGAL-linking-exception', 'deprecated': False},
-    'classpath-exception-2.0': {'id': 'Classpath-exception-2.0', 'deprecated': False},
-    'clisp-exception-2.0': {'id': 'CLISP-exception-2.0', 'deprecated': False},
-    'cryptsetup-openssl-exception': {'id': 'cryptsetup-OpenSSL-exception', 'deprecated': False},
-    'digia-qt-lgpl-exception-1.1': {'id': 'Digia-Qt-LGPL-exception-1.1', 'deprecated': False},
-    'digirule-foss-exception': {'id': 'DigiRule-FOSS-exception', 'deprecated': False},
-    'ecos-exception-2.0': {'id': 'eCos-exception-2.0', 'deprecated': False},
-    'erlang-otp-linking-exception': {'id': 'erlang-otp-linking-exception', 'deprecated': False},
-    'fawkes-runtime-exception': {'id': 'Fawkes-Runtime-exception', 'deprecated': False},
-    'fltk-exception': {'id': 'FLTK-exception', 'deprecated': False},
-    'fmt-exception': {'id': 'fmt-exception', 'deprecated': False},
-    'font-exception-2.0': {'id': 'Font-exception-2.0', 'deprecated': False},
-    'freertos-exception-2.0': {'id': 'freertos-exception-2.0', 'deprecated': False},
-    'gcc-exception-2.0': {'id': 'GCC-exception-2.0', 'deprecated': False},
-    'gcc-exception-2.0-note': {'id': 'GCC-exception-2.0-note', 'deprecated': False},
-    'gcc-exception-3.1': {'id': 'GCC-exception-3.1', 'deprecated': False},
-    'gmsh-exception': {'id': 'Gmsh-exception', 'deprecated': False},
-    'gnat-exception': {'id': 'GNAT-exception', 'deprecated': False},
-    'gnome-examples-exception': {'id': 'GNOME-examples-exception', 'deprecated': False},
-    'gnu-compiler-exception': {'id': 'GNU-compiler-exception', 'deprecated': False},
-    'gnu-javamail-exception': {'id': 'gnu-javamail-exception', 'deprecated': False},
-    'gpl-3.0-389-ds-base-exception': {'id': 'GPL-3.0-389-ds-base-exception', 'deprecated': False},
-    'gpl-3.0-interface-exception': {'id': 'GPL-3.0-interface-exception', 'deprecated': False},
-    'gpl-3.0-linking-exception': {'id': 'GPL-3.0-linking-exception', 'deprecated': False},
-    'gpl-3.0-linking-source-exception': {'id': 'GPL-3.0-linking-source-exception', 'deprecated': False},
-    'gpl-cc-1.0': {'id': 'GPL-CC-1.0', 'deprecated': False},
-    'gstreamer-exception-2005': {'id': 'GStreamer-exception-2005', 'deprecated': False},
-    'gstreamer-exception-2008': {'id': 'GStreamer-exception-2008', 'deprecated': False},
-    'harbour-exception': {'id': 'harbour-exception', 'deprecated': False},
-    'i2p-gpl-java-exception': {'id': 'i2p-gpl-java-exception', 'deprecated': False},
-    'independent-modules-exception': {'id': 'Independent-modules-exception', 'deprecated': False},
-    'kicad-libraries-exception': {'id': 'KiCad-libraries-exception', 'deprecated': False},
-    'lgpl-3.0-linking-exception': {'id': 'LGPL-3.0-linking-exception', 'deprecated': False},
-    'libpri-openh323-exception': {'id': 'libpri-OpenH323-exception', 'deprecated': False},
-    'libtool-exception': {'id': 'Libtool-exception', 'deprecated': False},
-    'linux-syscall-note': {'id': 'Linux-syscall-note', 'deprecated': False},
-    'llgpl': {'id': 'LLGPL', 'deprecated': False},
-    'llvm-exception': {'id': 'LLVM-exception', 'deprecated': False},
-    'lzma-exception': {'id': 'LZMA-exception', 'deprecated': False},
-    'mif-exception': {'id': 'mif-exception', 'deprecated': False},
-    'mxml-exception': {'id': 'mxml-exception', 'deprecated': False},
-    'nokia-qt-exception-1.1': {'id': 'Nokia-Qt-exception-1.1', 'deprecated': True},
-    'ocaml-lgpl-linking-exception': {'id': 'OCaml-LGPL-linking-exception', 'deprecated': False},
-    'occt-exception-1.0': {'id': 'OCCT-exception-1.0', 'deprecated': False},
-    'openjdk-assembly-exception-1.0': {'id': 'OpenJDK-assembly-exception-1.0', 'deprecated': False},
-    'openvpn-openssl-exception': {'id': 'openvpn-openssl-exception', 'deprecated': False},
-    'pcre2-exception': {'id': 'PCRE2-exception', 'deprecated': False},
-    'polyparse-exception': {'id': 'polyparse-exception', 'deprecated': False},
-    'ps-or-pdf-font-exception-20170817': {'id': 'PS-or-PDF-font-exception-20170817', 'deprecated': False},
-    'qpl-1.0-inria-2004-exception': {'id': 'QPL-1.0-INRIA-2004-exception', 'deprecated': False},
-    'qt-gpl-exception-1.0': {'id': 'Qt-GPL-exception-1.0', 'deprecated': False},
-    'qt-lgpl-exception-1.1': {'id': 'Qt-LGPL-exception-1.1', 'deprecated': False},
-    'qwt-exception-1.0': {'id': 'Qwt-exception-1.0', 'deprecated': False},
-    'romic-exception': {'id': 'romic-exception', 'deprecated': False},
-    'rrdtool-floss-exception-2.0': {'id': 'RRDtool-FLOSS-exception-2.0', 'deprecated': False},
-    'sane-exception': {'id': 'SANE-exception', 'deprecated': False},
-    'shl-2.0': {'id': 'SHL-2.0', 'deprecated': False},
-    'shl-2.1': {'id': 'SHL-2.1', 'deprecated': False},
-    'stunnel-exception': {'id': 'stunnel-exception', 'deprecated': False},
-    'swi-exception': {'id': 'SWI-exception', 'deprecated': False},
-    'swift-exception': {'id': 'Swift-exception', 'deprecated': False},
-    'texinfo-exception': {'id': 'Texinfo-exception', 'deprecated': False},
-    'u-boot-exception-2.0': {'id': 'u-boot-exception-2.0', 'deprecated': False},
-    'ubdl-exception': {'id': 'UBDL-exception', 'deprecated': False},
-    'universal-foss-exception-1.0': {'id': 'Universal-FOSS-exception-1.0', 'deprecated': False},
-    'vsftpd-openssl-exception': {'id': 'vsftpd-openssl-exception', 'deprecated': False},
-    'wxwindows-exception-3.1': {'id': 'WxWindows-exception-3.1', 'deprecated': False},
-    'x11vnc-openssl-exception': {'id': 'x11vnc-openssl-exception', 'deprecated': False},
-}
 
 ===============================================================================
 Component: pandas 3.0.5

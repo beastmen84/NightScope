@@ -152,13 +152,25 @@ def _resolve_components() -> list[Component]:
 def _is_notice_path(path: importlib.metadata.PackagePath) -> bool:
     pure_path = PurePosixPath(str(path).replace("\\", "/"))
     filename = pure_path.name.lower()
+    path_parts = tuple(part.lower() for part in pure_path.parts)
     if filename == "licenseref-qt-commercial.txt":
+        return False
+    if "__pycache__" in path_parts or pure_path.suffix.lower() in {
+        ".py",
+        ".pyc",
+        ".pyo",
+    }:
         return False
     if filename in {"data_license", "notice"}:
         return True
     if filename.startswith(("license", "licence", "copying", "notice")):
         return True
-    return "licenses" in {part.lower() for part in pure_path.parts}
+    return any(
+        part.endswith(".dist-info")
+        and index + 1 < len(path_parts)
+        and path_parts[index + 1] == "licenses"
+        for index, part in enumerate(path_parts)
+    )
 
 
 def _component_notices(component: Component) -> list[tuple[list[str], str]]:

@@ -20,7 +20,7 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.45.20` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
+The `1.45.21` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
 Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
 `pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
 Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, NumPy 2.5.2,
@@ -115,9 +115,11 @@ latest resolvable dependency closure. Runtime requirements continue to express
 supported ranges, while the Windows constraints file pins the 62 runtime/build
 components recorded in `THIRD_PARTY_LICENSES.txt`. A tooling test enforces exact
 name/version equality and requires the workflow's Windows Python patch to match
-the archive. The workflow has read-only repository permission, uses the official
-checkout and Python setup actions, caches pip downloads, and does not run
-packaging commands.
+the archive. License collection excludes Python source, bytecode and cache
+directories; arbitrary notice filenames are accepted only below the standard
+`.dist-info/licenses` directory. The workflow has read-only repository
+permission, uses the official checkout and Python setup actions, caches pip
+downloads, and does not run packaging commands.
 
 Local validation proves the workflow contract and commands; it does not prove a
 remote GitHub run. Record remote results separately when CI has actually run.
@@ -171,8 +173,8 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
-The `1.45.20` coverage/security source gate passed on Windows/Python 3.14.5 with
-1,204 tests and 10 subtests in 298.98 seconds, 86% aggregate application
+The `1.45.21` coverage/security source gate passed on Windows/Python 3.14.5 with
+1,209 tests and 10 subtests in 371.21 seconds, 86% aggregate application
 coverage, no unexpected warning summary, complete documentation coverage for
 245 Python, 34 QML, and 16 operational files, an acyclic production graph, zero
 protected-layer violations, a reviewed Bandit baseline (0 high, 34 medium, 14

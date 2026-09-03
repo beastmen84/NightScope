@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## NightScope 1.45.21 - 2026-09-03
+
+- Corretta la seconda causa del confronto licenze non riproducibile emersa
+  nella run GitHub di `1.45.20`: il generatore interpretava il modulo
+  `packaging/licenses/` come raccolta di documenti legali e incorporava anche
+  sorgenti Python e bytecode `.pyc` dipendente da percorso e timestamp.
+- Il rilevamento include ora i documenti con nomi legali noti e i contenuti
+  arbitrari solo sotto la directory standard `<package>.dist-info/licenses`;
+  codice, bytecode e `__pycache__` sono sempre esclusi.
+- Rigenerato l'archivio Windows eliminando 2.172 righe spurie, senza cambiare
+  l'inventario legale di 62 componenti. Due installazioni Windows pulite e
+  indipendenti producono ora lo stesso SHA-256 dell'archivio.
+- Gate sorgente locale completo: 1.209 test e 10 subtest superati, copertura
+  aggregata 86%, audit dipendenze senza vulnerabilità note e smoke test backend,
+  QML normale e Red Night Vision riusciti.
+- La versione sorgente passa a `1.45.21`; `dist` non è stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release.
+
 ## NightScope 1.45.20 - 2026-09-03
 
 - Corretta la causa comune delle run GitHub `Source validation` fallite su
