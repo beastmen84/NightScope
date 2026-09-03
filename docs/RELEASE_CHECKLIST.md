@@ -3,10 +3,11 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.45.22`. Current public release: `v1.43.0`. Unless a row says
-otherwise, every gate below applies to newly generated 1.45.22 artifacts.
-Completed 1.43.0 evidence remains in the changelog, testing record and handoff;
-it does not approve the new bundles.
+Current target: `v1.45.22`. Current public Windows release: `v1.45.21`. Current
+public Linux release: `v1.43.0`. Unless a row says otherwise, every gate below
+applies independently to each newly generated 1.45.22 artifact. Completed
+Windows 1.45.21 and Linux 1.43.0 evidence remains in the changelog, testing
+record and handoff; it does not approve a new bundle for either platform.
 
 ## 1. Product And Legal
 

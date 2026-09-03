@@ -276,7 +276,10 @@ stable `major.minor.patch` version newer than the bundled version, and validates
 that `html_url` is an HTTPS release path for
 `beastmen84/NightScope`. It never downloads or installs an artifact. QML opens
 the validated release page through the operating-system browser only after an
-explicit user action.
+explicit user action. The check follows the repository-wide latest release and
+does not inspect its asset names by platform; README, manual, and release notes
+therefore remain the authoritative source for current Windows and Linux package
+availability when their published versions differ.
 
 The localized `DarkDialog` can be deferred on every startup or suppressed for
 one specific release. Suppression stores `ignored_update_version` while

@@ -4,10 +4,11 @@ Aggiornato: 2026-09-01
 
 Questo documento conserva i controlli visuali di release iniziati con la
 sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
-verifiche gia' concluse sugli artefatti pubblici `1.43.0` restano nello storico
-in `archive/TESTING_HISTORY_THROUGH_1.45.6.md`. Le verifiche dei nuovi artefatti
-`1.45.22` sono separate in `RELEASE_CHECKLIST.md` e devono essere ripetute dopo
-la rigenerazione delle dist Windows e Linux.
+verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
+`archive/TESTING_HISTORY_THROUGH_1.45.6.md`. Il bundle pubblico corrente e'
+`1.45.21` su Windows, mentre Linux resta a `1.43.0`; le verifiche dei futuri
+artefatti `1.45.22` sono separate in `RELEASE_CHECKLIST.md` e devono essere
+ripetute per ciascuna dist effettivamente rigenerata.
 
 ## Verifica Sorgente Spagnolo 1.34.0
 
@@ -650,3 +651,7 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 
 - [ ] Prima di pubblicare immagini su GitHub, oscurare identificativi account,
   coordinate personali e qualsiasi altro dato non destinato alla diffusione.
+- [x] Lo screenshot Home fornito per il README e' stato verificato nel file
+  finale: non mostra identificativi account o coordinate numeriche; il nome
+  della citta' e i dati della sessione sono parte dell'immagine scelta
+  esplicitamente per la pubblicazione.

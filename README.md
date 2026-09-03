@@ -1,7 +1,7 @@
 # NightScope
 
 <p align="center">
-  <img src="astro_viewer/resources/icons/telescope.svg" width="88" alt="NightScope telescope icon">
+  <img src="docs/images/nightscope-home.png" width="1200" alt="NightScope Home dashboard showing observing conditions, Sky Compass, and the night plan">
 </p>
 
 NightScope is a Windows and Linux desktop application for planning visual and
@@ -12,16 +12,20 @@ tonight, from here, with this setup?**
 
 > [!NOTE]
 > NightScope is a released application. Source version 1.45.22 is prepared for
-> the next stable release and is ahead of the current public 1.43.0 Windows and
-> Linux portable bundles.
+> the next release and is ahead of the current public Windows 1.45.21 and Linux
+> 1.43.0 portable bundles.
 > Release artifacts remain platform-specific portable builds rather than
 > universal installers.
 
-Current public Windows and Linux release:
-[NightScope 1.43.0](https://github.com/beastmen84/NightScope/releases/tag/v1.43.0).
-Its release assets include the portable Windows ZIP and the Debian 12 x86-64
-tarball with an adjacent SHA-256 file. The release notes identify the
-corresponding source commit and publish the artifact digests.
+Current public downloads:
+
+- Windows: [NightScope 1.45.21](https://github.com/beastmen84/NightScope/releases/tag/v1.45.21),
+  published as a portable Windows x64 ZIP.
+- Linux: [NightScope 1.43.0](https://github.com/beastmen84/NightScope/releases/tag/v1.43.0),
+  published as a Debian 12 x86-64 tarball with an adjacent SHA-256 file.
+
+The release notes identify the corresponding source commits and artifact
+digests. The `v1.45.21` release does not contain a Linux package.
 
 ## What It Does
 
@@ -502,8 +506,9 @@ exact corresponding public source commit.
 
 ## Release And Development Status
 
-NightScope has stable public Windows and Linux releases. The `master` branch can
-be ahead of the latest published bundles while the next pair of artifacts is
-validated. User-facing changes and fixes are recorded in
+NightScope has stable public builds on separate platform versions: Windows
+`1.45.21` and Linux `1.43.0`. The `master` branch can be ahead of either
+published bundle while the next artifacts are validated. User-facing changes
+and fixes are recorded in
 [`astro_viewer/CHANGELOG.md`](astro_viewer/CHANGELOG.md); this README describes
 the current source tree instead of duplicating the release history.

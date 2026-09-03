@@ -5,11 +5,15 @@ Updated: 2026-09-03
 ## Current State
 
 - Source version: `1.45.22`.
-- Current public release: `v1.43.0`.
-- Public-release source commit: `26dfaf49df8f9b8e73e84f406396f406170400b2`.
-- The `1.45.x` architectural series is source-only. No `1.45.x` tag, checksum,
-  Windows/Linux bundle, or GitHub release has been created.
-- `dist` was deliberately not regenerated or modified during the series.
+- Current public Windows release: `v1.45.21`, from source commit
+  `d06300b43db0b3df2acbcb7cde2761158704f7b5`; its GitHub release contains the
+  portable Windows x64 ZIP and no Linux package.
+- Current public Linux release: `v1.43.0`, from source commit
+  `26dfaf49df8f9b8e73e84f406396f406170400b2`; its GitHub release contains the
+  Debian 12 x86-64 tarball and adjacent checksum.
+- Source `1.45.22` is not published: no `v1.45.22` tag, bundle, checksum, or
+  GitHub release has been created.
+- `dist` was deliberately not regenerated or modified for `1.45.22`.
 - Historical handoff detail through `1.45.6` is preserved in
   `docs/archive/NEXT_CHAT_HANDOFF_1.45.6.md`.
 
@@ -39,7 +43,7 @@ Updated: 2026-09-03
 | 1.45.19 | `62f6383` | Separates installed profile inventory from global equipment catalogues without changing the SQLite schema or identifiers. |
 | 1.45.20 | `4cf60a1` | Pins the Windows Python/dependency closure; its remote run exposed path-dependent bytecode in the legal archive. |
 | 1.45.21 | `d06300b` | Excludes code and bytecode from license notices so clean Windows environments generate an identical archive. |
-| 1.45.22 | current source | Shows localized startup progress on every launch while preserving fixed English copy for a genuinely new runtime. |
+| 1.45.22 | `d99e03c` | Shows localized startup progress on every launch while preserving fixed English copy for a genuinely new runtime. |
 
 ## Resulting Architecture
 
@@ -151,12 +155,13 @@ boundaries:
 
 ## Release Boundary
 
-The stable public bundles remain `v1.43.0`. Source readiness is not publication.
-Before a future release, update the target version, run the coverage/security
-gate, compile translations, complete QML and visual review, build fresh Windows
-and Debian 12 artifacts, audit their legal/runtime contents, calculate and
-verify checksums, create the source tag, and only then publish the GitHub
-release. Follow `docs/RELEASE_CHECKLIST.md`.
+The stable public versions are `v1.45.21` for Windows and `v1.43.0` for Linux.
+Source readiness is not publication, and validation or publication of one
+platform does not approve the other. Before a future artifact, update the target
+version, run the coverage/security gate, compile translations, complete QML and
+visual review, build the requested platform from a clean environment, audit its
+legal/runtime contents, calculate and verify checksums, create the matching
+source tag, and only then publish it. Follow `docs/RELEASE_CHECKLIST.md`.
 
 ## Living References
 

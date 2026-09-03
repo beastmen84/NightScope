@@ -26,6 +26,10 @@
   smoke test backend, QML normale e Red Night Vision riusciti. Superati anche
   due avvii reali isolati, prima con database nuovo e poi con database esistente
   e lingua spagnola salvata.
+- Allineati README, manuale e documentazione allo stato pubblico effettivo:
+  `v1.45.21` e' la release Windows corrente, mentre il pacchetto Linux resta a
+  `v1.43.0`. L'icona iniziale del README e' stata sostituita con una schermata
+  reale della Home dell'applicazione.
 - La versione sorgente passa a `1.45.22`; `dist` non e' stata rigenerata o
   modificata e non sono stati creati tag o artefatti di release.
 
@@ -45,7 +49,9 @@
   aggregata 86%, audit dipendenze senza vulnerabilità note e smoke test backend,
   QML normale e Red Night Vision riusciti.
 - La versione sorgente passa a `1.45.21`; `dist` non è stata rigenerata o
-  modificata e non sono stati creati tag o artefatti di release.
+  modificata in questo commit. Successivamente sono stati pubblicati il tag, la
+  release GitHub e il solo ZIP Windows x64; Linux resta disponibile alla
+  `v1.43.0`.
 
 ## NightScope 1.45.20 - 2026-09-03
 
