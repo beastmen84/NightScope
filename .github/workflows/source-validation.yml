@@ -26,9 +26,11 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            python-version: "3.14"
+            python-version: "3.14.5"
+            constraints: "-c packaging/windows-release-constraints.txt"
           - os: ubuntu-latest
             python-version: "3.12"
+            constraints: ""
     env:
       QT_QPA_PLATFORM: offscreen
       QT_QUICK_BACKEND: software
@@ -41,6 +43,7 @@ jobs:
           cache-dependency-path: |
             astro_viewer/requirements.txt
             requirements-dev.txt
+            packaging/windows-release-constraints.txt
       - name: Install Linux Qt runtime libraries
         if: runner.os == 'Linux'
         run: |
@@ -52,8 +55,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r astro_viewer/requirements.txt
-          python -m pip install -r requirements-dev.txt
+          python -m pip install -r astro_viewer/requirements.txt ${{ matrix.constraints }}
+          python -m pip install -r requirements-dev.txt ${{ matrix.constraints }}
       - name: Run complete source gate
         run: python tools/run_checks.py --fast
 

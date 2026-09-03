@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+## NightScope 1.45.20 - 2026-09-03
+
+- Corretta la causa comune delle run GitHub `Source validation` fallite su
+  Windows: il runner flottante installava Python e dipendenze transitive diverse
+  dall'ambiente registrato in `THIRD_PARTY_LICENSES.txt`.
+- Aggiunta una closure Windows di 62 componenti con versioni esatte, condivisa
+  dalle installazioni runtime e sviluppo del job sorgente. Il job usa ora
+  Python 3.14.5, la stessa patch registrata nell'archivio legale.
+- Linux/Python 3.12 e l'audit separato su Python 3.14 restano flottanti, così il
+  progetto conserva un segnale sulle dipendenze più recenti senza rendere
+  instabile il confronto legale byte-per-byte di Windows.
+- Aggiunti controlli che impongono la corrispondenza esatta tra constraints,
+  inventario dell'archivio licenze e versione Python del workflow.
+- Gate sorgente locale completo: 1.204 test e 10 subtest superati, copertura
+  aggregata 86%, audit dipendenze senza vulnerabilità note e smoke test backend,
+  QML normale e Red Night Vision riusciti.
+- La versione sorgente passa a `1.45.20`; `dist` non è stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release.
+
 ## NightScope 1.45.19 - 2026-09-03
 
 - Estratto `EquipmentProfileRepository`, responsabile del ciclo di vita dei

@@ -13,6 +13,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 import requests
+from packaging.requirements import Requirement
+from packaging.utils import canonicalize_name
 
 from astro_viewer import main as main_module
 from astro_viewer.app.services.logging_service import (
@@ -194,7 +196,7 @@ def test_code_documentation_gate_covers_the_repository_and_rejects_empty_headers
     assert documentation_counts(PROJECT_ROOT) == {
         "Python": 245,
         "QML": 34,
-        "operational": 15,
+        "operational": 16,
     }
 
     python_source = tmp_path / "undocumented.py"
@@ -368,12 +370,57 @@ def test_github_source_validation_reuses_the_local_gate() -> None:
     assert "permissions:\n  contents: read" in workflow
     assert workflow.count("actions/checkout@v7") == 2
     assert workflow.count("actions/setup-python@v7") == 2
-    assert 'python-version: "3.14"' in workflow
+    assert 'python-version: "3.14.5"' in workflow
+    assert workflow.count('python-version: "3.14"') == 1
     assert 'python-version: "3.12"' in workflow
+    assert 'constraints: "-c packaging/windows-release-constraints.txt"' in workflow
+    assert workflow.count("${{ matrix.constraints }}") == 2
     assert "python tools/run_checks.py --fast" in workflow
     assert "python -m pip_audit --progress-spinner off" in workflow
     assert "QT_QPA_PLATFORM: offscreen" in workflow
     assert "dist/" not in workflow
+
+
+def test_windows_release_constraints_match_the_legal_archive() -> None:
+    constraints_path = PROJECT_ROOT / "packaging" / "windows-release-constraints.txt"
+    constraints = constraints_path.read_text(encoding="utf-8")
+    pins: dict[str, str] = {}
+    for raw_line in constraints.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        requirement = Requirement(line)
+        specifiers = list(requirement.specifier)
+        assert len(specifiers) == 1
+        assert specifiers[0].operator == "=="
+        canonical_name = canonicalize_name(requirement.name)
+        assert canonical_name not in pins
+        pins[canonical_name] = specifiers[0].version
+
+    archive = (PROJECT_ROOT / "THIRD_PARTY_LICENSES.txt").read_text(
+        encoding="utf-8"
+    )
+    inventory = archive.split(
+        "Component inventory\n-------------------\n",
+        maxsplit=1,
+    )[1].split("\n\nNightScope selects", maxsplit=1)[0]
+    archive_pins: dict[str, str] = {}
+    for line in inventory.splitlines():
+        match = re.fullmatch(r"- (?P<name>\S+) (?P<version>\S+): .+", line)
+        assert match is not None
+        archive_pins[canonicalize_name(match["name"])] = match["version"]
+
+    assert pins == archive_pins
+    python_version = re.search(
+        r"^Python runtime: (?P<version>\S+) ",
+        archive,
+        flags=re.MULTILINE,
+    )
+    assert python_version is not None
+    workflow = (
+        PROJECT_ROOT / ".github" / "workflows" / "source-validation.yml"
+    ).read_text(encoding="utf-8")
+    assert f'python-version: "{python_version["version"]}"' in workflow
 
 
 def test_first_run_city_progress_is_bounded_and_readable() -> None:

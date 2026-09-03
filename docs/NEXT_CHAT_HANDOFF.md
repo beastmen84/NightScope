@@ -4,7 +4,7 @@ Updated: 2026-09-03
 
 ## Current State
 
-- Source version: `1.45.19`.
+- Source version: `1.45.20`.
 - Current public release: `v1.43.0`.
 - Public-release source commit: `26dfaf49df8f9b8e73e84f406396f406170400b2`.
 - The `1.45.x` architectural series is source-only. No `1.45.x` tag, checksum,
@@ -36,7 +36,8 @@ Updated: 2026-09-03
 | 1.45.16 | `a8584a8` | Updates and constrains the Earthdata transport family as one tested resolver unit. |
 | 1.45.17 | `98b7b67` | Extracts concrete location adapters behind an explicit composition-root bundle while retaining compatibility imports. |
 | 1.45.18 | `d18e7d9` | Extracts controller-facing location commands into a framework-independent workflow with explicit inputs and outcomes. |
-| 1.45.19 | current source | Separates installed profile inventory from global equipment catalogues without changing the SQLite schema or identifiers. |
+| 1.45.19 | `62f6383` | Separates installed profile inventory from global equipment catalogues without changing the SQLite schema or identifiers. |
+| 1.45.20 | current source | Makes Windows source CI reproducible against the committed legal archive while retaining floating compatibility and audit jobs. |
 
 ## Resulting Architecture
 
@@ -54,6 +55,11 @@ and assignments independently from global catalogue CRUD; the legacy repository
 surface remains compatible and forced removals still share one SQLite
 transaction. Repositories own SQLite transactions and models carry typed data.
 
+The Windows source job uses Python 3.14.5 plus an exact 62-component constraints
+file that is mechanically matched to `THIRD_PARTY_LICENSES.txt`. Linux testing
+and the separate Python 3.14 dependency audit remain floating compatibility
+signals rather than release-record environments.
+
 The production graph is acyclic. The architecture gate also prevents models,
 database, astronomy, and service modules from importing the controller or the
 application composition layer. Compatibility wrappers remain where existing
@@ -67,10 +73,10 @@ QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.45.19` coverage/security source gate passed on
+The final local `1.45.20` coverage/security source gate passed on
 Windows/Python 3.14.5:
 
-- 1,203 tests and 10 subtests in 359.33 seconds, with 86% aggregate application
+- 1,204 tests and 10 subtests in 298.98 seconds, with 86% aggregate application
   coverage and no unexpected warning summary;
 - validated toolchain: pip 26.2.1, Ruff 0.16.5, coverage 7.16.0, PyInstaller
   6.22.2, and `pyinstaller-hooks-contrib` 2026.7;
@@ -78,7 +84,7 @@ Windows/Python 3.14.5:
   Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, and NumPy 2.5.2;
 - validated Earthdata runtime: earthaccess 0.18.0, s3fs/fsspec 2026.7.0,
   aiobotocore 3.9.0, and maximum compatible botocore 1.43.56;
-- complete documentation inventory: 245 Python, 34 QML, and 15 operational
+- complete documentation inventory: 245 Python, 34 QML, and 16 operational
   files;
 - Ruff, compilation, license archive, MPC/OpenNGC snapshot checks;
 - 0 import cycles and 0 protected-layer violations;

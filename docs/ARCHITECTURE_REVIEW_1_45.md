@@ -1,7 +1,7 @@
 # NightScope 1.45 Architecture Review
 
 Date: 2026-09-03
-Scope: source `1.44.0` through `1.45.19`
+Scope: source `1.44.0` through `1.45.20`
 
 ## Verdict
 
@@ -34,14 +34,14 @@ stated.
 | Area | Evidence | Assessment |
 | --- | --- | --- |
 | Production Python | 124 modules, 47,650 lines | Broad domain surface; every module now states its responsibility and package boundaries are discoverable. |
-| Tests | 88 test files plus 2 support/package modules, 35,986 lines; 1,203 tests and 10 subtests at the 1.45.19 gate | Very strong regression protection relative to production size. |
-| `AppController` | 9,836 lines at 1.44.0; 7,855 at 1.45.19, including its module header; 1,981 net lines removed (20.1%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
+| Tests | 88 test files plus 2 support/package modules, 36,033 lines; 1,204 tests and 10 subtests at the 1.45.20 gate | Very strong regression protection relative to production size. |
+| `AppController` | 9,836 lines at 1.44.0; 7,855 at 1.45.20, including its module header; 1,981 net lines removed (20.1%) | Still the largest risk, but now more clearly a Qt orchestration boundary. |
 | Controller surface | 561 methods, including 114 slots and 141 properties | Large compatibility/API surface makes wholesale rewriting risky. |
 | Largest persistence modules | `equipment_catalog_repository.py` 2,578 lines; `bootstrap.py` 2,492; `equipment_profile_repository.py` 720 | Profile persistence has one owner; catalogue and bootstrap families remain concentrated. |
 | Astronomy implementation | `skyfield_engine.py` 2,434 lines | Complex by domain necessity; provider/event subcomponents can still be separated. |
 | Largest QML pages | Home 1,708 lines; Object Detail 1,245 | Backend decisions are mostly extracted, but layout/component complexity remains. |
 | Import structure | 0 cycles; 0 protected-layer violations | Good and now mechanically enforced. |
-| Documentation inventory | 245 Python, 34 QML, and 15 operational files | Complete governed coverage, enforced before the long test suite. |
+| Documentation inventory | 245 Python, 34 QML, and 16 operational files | Complete governed coverage, enforced before the long test suite. |
 | Static/security gate | Ruff 0.16.5, compileall, documentation inventory, exact Bandit baseline and pip-audit; 0 high findings and no known dependency vulnerabilities | Good incremental protection; whole-project type checking remains absent. |
 | Validated build toolchain | pip 26.2.1, coverage 7.16.0, PyInstaller 6.22.2 and `pyinstaller-hooks-contrib` 2026.7 on Windows/Python 3.14.5 | Current source floors and local environment are aligned; portable bundles still require a separate final build and audit. |
 | Validated UI/astronomy runtime | PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55, Astropy 8.0.1, current IERS data and NumPy 2.5.2 | Focused astronomy/timezone tests, QML smoke modes and all-file `qmllint` pass without changing application or QML source. |
@@ -120,10 +120,13 @@ severity cannot be baselined. Unexpected pytest warnings fail. This policy
 immediately exposed one SQLite test connection that the older warning summary
 did not reveal; it was closed explicitly.
 
-CI reuses the local runner on Windows/Python 3.14 and Linux/Python 3.12, with a
-separate Python 3.14 dependency audit. This reduces divergence between local and
-remote validation. A checked workflow definition is not itself evidence of a
-remote CI pass.
+CI reuses the local runner on a deterministic Windows/Python 3.14.5 closure and
+a floating Linux/Python 3.12 closure. The 62 exact Windows component pins must
+match the committed legal archive, while a separate floating Python 3.14
+dependency audit retains early warning for newly resolvable versions. This
+reduces divergence without confusing a compatibility environment with the
+release-record environment. A checked workflow definition is not itself
+evidence of a remote CI pass.
 
 ## Organization By Area
 

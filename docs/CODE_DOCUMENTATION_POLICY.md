@@ -67,7 +67,8 @@ Its current audited inventory is:
 - 245 Python modules: 124 production modules, 90 test/support modules, and 31
   maintenance or packaging modules;
 - 34 QML pages and components;
-- 15 automation, packaging, CI, configuration, schema, and manual files.
+- 16 automation, packaging, CI, configuration, dependency, schema, and manual
+  files.
 
 Python and QML families are discovered recursively. Operational families are
 discovered from their governed extensions and locations, with explicit entries

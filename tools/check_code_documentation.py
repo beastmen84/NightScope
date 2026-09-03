@@ -17,6 +17,7 @@ OPERATIONAL_EXACT_PATHS = (
     "astro_viewer/data/schema.sql",
     "astro_viewer/requirements.txt",
     "manuale.html",
+    "packaging/windows-release-constraints.txt",
     "requirements-dev.txt",
 )
 OPERATIONAL_PATTERNS = (

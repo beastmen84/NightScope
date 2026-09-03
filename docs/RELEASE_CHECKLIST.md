@@ -3,8 +3,8 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.45.19`. Current public release: `v1.43.0`. Unless a row says
-otherwise, every gate below applies to newly generated 1.45.19 artifacts.
+Current target: `v1.45.20`. Current public release: `v1.43.0`. Unless a row says
+otherwise, every gate below applies to newly generated 1.45.20 artifacts.
 Completed 1.43.0 evidence remains in the changelog, testing record and handoff;
 it does not approve the new bundles.
 
@@ -15,22 +15,24 @@ it does not approve the new bundles.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   survey image, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.45.19` source tag referenced by the
+- [ ] Create and verify the public `v1.45.20` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [x] Confirm source version, changelog, source-availability notices, and
-  About/build metadata agree on `1.45.19`.
+  About/build metadata agree on `1.45.20`.
 - [x] Freeze the release scope; defer unrelated refactors.
 
 ## 2. Automated Validation
 
 - [ ] Install runtime and developer requirements in a clean virtual environment.
+- [x] Keep the Windows release constraints, Python patch, and committed
+  third-party license inventory exactly aligned.
 - [ ] Run `python tools/run_checks.py --security` against the source candidate.
 - [ ] Run all translation compilation and catalogue tests.
 - [x] Run both normal and Red Night Vision QML smoke tests from source.
 - [ ] Run `qmllint` over all packaged QML files.
 - [ ] Run deep-sky and Solar System asset checks.
 - [ ] Record exact Python, dependency, test, warning, and translation counts.
-- [ ] Produce a frozen dependency list or SBOM for the release environment.
+- [ ] Produce an artifact-derived SBOM for the final release environment.
 
 ## 3. Visual Matrix
 
@@ -125,10 +127,10 @@ Do not commit credentials or exact personal locations.
 - [ ] Confirm GIO modules remain isolated so newer-host GVFS plugins are not
   loaded against the bundled Debian 12 GLib.
 - [ ] Create the deterministic
-  `NightScope-v1.45.19-debian-12-x64.tar.gz` and adjacent SHA-256 file.
+  `NightScope-v1.45.20-debian-12-x64.tar.gz` and adjacent SHA-256 file.
 - [ ] Verify checksum, extraction, audit and smoke tests from the final archive.
 - [ ] Publish the tarball and checksum together with the matching Windows ZIP
-  in the public `v1.45.19` GitHub release, so stable-update notifications have
+  in the public `v1.45.20` GitHub release, so stable-update notifications have
   assets for both supported platforms.
 
 ## 8. Release Approval
