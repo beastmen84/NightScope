@@ -140,15 +140,15 @@ def test_editorial_baseline_and_ngc_backlog_are_audited() -> None:
     assert report.completed_objects == 303
     assert report.completed_ngc_objects == 75
     assert report.remaining_ngc_objects == 7_291
-    assert report.accepted_batches == 3
+    assert report.accepted_batches == 4
     assert report.accepted_enrichment_batches == 2
-    assert report.accepted_remediation_batches == 1
-    assert report.remediated_baseline_objects == 17
+    assert report.accepted_remediation_batches == 2
+    assert report.remediated_baseline_objects == 65
     assert report.draft_batches == 0
-    assert report.baseline_description_template_families == 9
-    assert report.baseline_description_template_objects == 20
-    assert report.baseline_observing_template_families == 22
-    assert report.baseline_observing_template_objects == 160
+    assert report.baseline_description_template_families == 5
+    assert report.baseline_description_template_objects == 10
+    assert report.baseline_observing_template_families == 16
+    assert report.baseline_observing_template_objects == 112
     assert any("prose debt" in warning for warning in report.warnings)
 
 
@@ -310,10 +310,10 @@ def test_baseline_remediation_manifest_is_field_scoped(tmp_path: Path) -> None:
     report = audit_catalogue_editorial(batch_path=manifest)
 
     assert report.errors == ()
-    assert report.accepted_batches == 4
+    assert report.accepted_batches == 5
     assert report.accepted_enrichment_batches == 2
-    assert report.accepted_remediation_batches == 2
-    assert report.remediated_baseline_objects == 18
+    assert report.accepted_remediation_batches == 3
+    assert report.remediated_baseline_objects == 66
 
 
 def test_baseline_remediation_rejects_ngc_only_ids_and_undeclared_claims(

@@ -4,7 +4,8 @@ This document is the acceptance contract for adding descriptions, observing
 guidance, and source-backed curiosities to the catalogue in Italian, English,
 and Spanish. Source `1.46.0` established the pipeline and acceptance gates;
 sources `1.46.1` and `1.46.2` apply that contract to 75 NGC-only galaxies,
-while `1.46.3` applies the same standard to field-scoped baseline remediation.
+while sources `1.46.3` and `1.46.4` apply the same standard to field-scoped
+baseline remediation.
 
 ## Baseline And Scope
 
@@ -25,6 +26,12 @@ Source `1.46.3` does not alter those coverage counts. It replaces one generic
 four descriptions from two duplicated families, with independent IT/EN/ES
 review and direct NASA evidence.
 
+Source `1.46.4` likewise leaves coverage unchanged. It replaces the remaining
+formulaic observing guidance for 48 baseline open clusters and rewrites ten
+descriptions from four duplicated families. Its object-specific advice covers
+field scale, stellar patterns, colour contrast, companions, extinction and the
+few cases where a filter belongs to adjacent nebulosity rather than the cluster.
+
 Catalogue aliases do not create duplicate editorial work. Content belongs to
 the stable physical `object_id`; Messier, Caldwell, NGC, and historical aliases
 all render the same physical object's content.
@@ -43,9 +50,9 @@ debt: 11 connected description families affect 24 objects and 23 observing-note
 families affect 177 objects after catalogue IDs, parenthetical aliases, and
 measurements are normalized. Historical curiosity texts remain distinct.
 
-After the accepted `1.46.3` remediation, the remaining measured debt is 9
-description families affecting 20 objects and 22 observing-note families
-affecting 160 objects. These are backlog figures, not a quality waiver for the
+After the accepted `1.46.4` remediation, the remaining measured debt is 5
+description families affecting 10 objects and 16 observing-note families
+affecting 112 objects. These are backlog figures, not a quality waiver for the
 remaining prose.
 
 The deterministic audit reports those figures as a warning, not as acceptance
@@ -160,8 +167,9 @@ Accepted batch ledger:
 | `1.46.1` | NGC enrichment | 50 varied, well-documented galaxies | 50 | 0 | 7,316 |
 | `1.46.2` | NGC enrichment | 25 additional distinctive, strongly sourced galaxies | 75 | 0 | 7,291 |
 | `1.46.3` | Baseline remediation | One 17-galaxy observing-note family; four descriptions | 75 | 17 | 7,291 |
+| `1.46.4` | Baseline remediation | Remaining formulaic open-cluster notes; ten descriptions | 75 | 65 | 7,291 |
 
-The next editorial source patch is `1.46.4`; it must define and review its own
+The next editorial source patch is `1.46.5`; it must define and review its own
 bounded manifest rather than extending either accepted set.
 
 Work in bounded batches, each with its own source version and commit. A batch

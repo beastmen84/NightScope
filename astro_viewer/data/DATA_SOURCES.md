@@ -302,10 +302,11 @@ defensive compatibility assets and are not used by current target rows.
 `object_descriptions_seed.csv` contains NightScope-style descriptions and
 separate observing notes for 303 reviewed targets: the 228-object baseline of
 Sun, Moon, the seven displayed planets, all 110 Messier entries and all 109
-Caldwell entries, plus the first 75 accepted NGC-only galaxies. Source `1.46.3`
-also replaces one generic observing-note family across 17 baseline galaxies
-and rewrites four of their descriptions; this remediation changes prose, not
-the 303-object coverage count. The Sun entry requires a certified
+Caldwell entries, plus the first 75 accepted NGC-only galaxies. Sources
+`1.46.3` and `1.46.4` replace formulaic observing-note families across 17
+baseline galaxies and 48 baseline open clusters; fourteen descriptions are
+also rewritten. This remediation changes prose, not the 303-object coverage
+count. The Sun entry requires a certified
 full-aperture front-mounted solar filter and explicitly excludes eyepiece solar
 filters. Caldwell observing copy was initially derived conservatively from the
 verified catalogue type, coordinates, magnitude and apparent size. Remediated
@@ -333,7 +334,9 @@ each new curiosity; its 99 distinct URLs were checked successfully on
 URLs, all checked successfully on 2026-09-04. The `1.46.3` remediation records
 17 direct NASA Hubble catalogue pages supporting the exact description and/or
 observing-note fields changed; all 17 URLs were checked successfully on
-2026-09-04. The seed deliberately remains
+2026-09-04. The `1.46.4` open-cluster remediation records 48 distinct
+object-specific pages, all checked successfully on 2026-09-04. The seed
+deliberately remains
 separate from observing notes and
 does not participate in NSOM, Equipment or ranking calculations.
 
@@ -367,7 +370,8 @@ batch manifests, duplicate text, and remaining NGC coverage. Source `1.46.1`
 records the first accepted 50-object manifest and `1.46.2` adds a second,
 deliberately smaller 25-object manifest plus a visible legacy-template warning.
 Source `1.46.3` extends the manifest contract with field-scoped baseline
-remediation and records the first accepted 17-object correction batch:
+remediation; source `1.46.4` records the second accepted correction batch and
+brings the cumulative remediated baseline to 65 objects:
 
 ```powershell
 .\.venv\Scripts\python.exe astro_viewer\tools\audit_catalogue_editorial.py

@@ -1,0 +1,362 @@
+{
+  "schema_version": 1,
+  "source_version": "1.46.4",
+  "batch_kind": "baseline_remediation",
+  "status": "accepted",
+  "selection_basis": "Replace every remaining repeated or near-identical open-cluster observing note in the historical baseline and rewrite the ten descriptions from the same class that still belong to duplicated families.",
+  "created_on": "2026-09-04",
+  "reviewed_on": "2026-09-04",
+  "objects": [
+    {
+      "object_id": "caldwell-C10",
+      "designations": ["C10", "NGC 663"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_663", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C100",
+      "designations": ["C100"],
+      "fields": ["short_description", "observing_notes"],
+      "sources": [{"label": "NASA Hubble", "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-100/", "accessed_on": "2026-09-04", "supports": ["short_description", "observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C102",
+      "designations": ["C102"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/IC_2602", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C13",
+      "designations": ["C13", "NGC 457"],
+      "fields": ["short_description", "observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_457", "accessed_on": "2026-09-04", "supports": ["short_description", "observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C16",
+      "designations": ["C16", "NGC 7243"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_7243", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C28",
+      "designations": ["C28", "NGC 752"],
+      "fields": ["short_description", "observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_752", "accessed_on": "2026-09-04", "supports": ["short_description", "observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C37",
+      "designations": ["C37", "NGC 6882", "NGC 6885"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_6885", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C50",
+      "designations": ["C50", "NGC 2244"],
+      "fields": ["short_description", "observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_2244", "accessed_on": "2026-09-04", "supports": ["short_description", "observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C54",
+      "designations": ["C54", "NGC 2506"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_2506", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C58",
+      "designations": ["C58", "NGC 2360"],
+      "fields": ["short_description", "observing_notes"],
+      "sources": [{"label": "NASA Hubble", "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-58/", "accessed_on": "2026-09-04", "supports": ["short_description", "observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C64",
+      "designations": ["C64", "NGC 2362"],
+      "fields": ["short_description", "observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_2362", "accessed_on": "2026-09-04", "supports": ["short_description", "observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C71",
+      "designations": ["C71", "NGC 2477"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "NASA Hubble", "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-71/", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C75",
+      "designations": ["C75", "NGC 6124"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_6124", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C76",
+      "designations": ["C76", "NGC 6231"],
+      "fields": ["short_description", "observing_notes"],
+      "sources": [{"label": "NASA Hubble", "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-76/", "accessed_on": "2026-09-04", "supports": ["short_description", "observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C8",
+      "designations": ["C8", "NGC 559"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_559", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C82",
+      "designations": ["C82", "NGC 6193"],
+      "fields": ["short_description", "observing_notes"],
+      "sources": [{"label": "NASA Hubble", "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-82/", "accessed_on": "2026-09-04", "supports": ["short_description", "observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C85",
+      "designations": ["C85"],
+      "fields": ["short_description", "observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/IC_2391", "accessed_on": "2026-09-04", "supports": ["short_description", "observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C88",
+      "designations": ["C88", "NGC 5823"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_5823", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C89",
+      "designations": ["C89", "NGC 6087"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "NASA Hubble", "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-89/", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C91",
+      "designations": ["C91", "NGC 3532"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_3532", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C94",
+      "designations": ["C94", "NGC 4755"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "NASA Hubble", "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-94/", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C95",
+      "designations": ["C95", "NGC 6025"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_6025", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C96",
+      "designations": ["C96", "NGC 2516"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "NASA Hubble", "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-96/", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C97",
+      "designations": ["C97", "NGC 3766"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_3766", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "caldwell-C98",
+      "designations": ["C98", "NGC 4609"],
+      "fields": ["short_description", "observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/NGC_4609", "accessed_on": "2026-09-04", "supports": ["short_description", "observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M103",
+      "designations": ["M103", "NGC 581"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_103", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M18",
+      "designations": ["M18", "NGC 6613"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_18", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M21",
+      "designations": ["M21", "NGC 6531"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_21", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M23",
+      "designations": ["M23", "NGC 6494"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_23", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M25",
+      "designations": ["M25"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_25", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M26",
+      "designations": ["M26", "NGC 6694"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_26", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M29",
+      "designations": ["M29", "NGC 6913"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_29", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M34",
+      "designations": ["M34", "NGC 1039"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_34", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M35",
+      "designations": ["M35", "NGC 2168"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "NASA Hubble", "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-35/", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M36",
+      "designations": ["M36", "NGC 1960"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_36", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M37",
+      "designations": ["M37", "NGC 2099"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_37", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M38",
+      "designations": ["M38", "NGC 1912"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_38", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M39",
+      "designations": ["M39", "NGC 7092"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_39", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M41",
+      "designations": ["M41", "NGC 2287"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_41", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M46",
+      "designations": ["M46", "NGC 2437"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "NASA Hubble", "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-46/", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M47",
+      "designations": ["M47", "NGC 2422", "NGC 2478"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_47", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M48",
+      "designations": ["M48", "NGC 2548"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_48", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M50",
+      "designations": ["M50", "NGC 2323"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_50", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M52",
+      "designations": ["M52", "NGC 7654"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_52", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M6",
+      "designations": ["M6", "NGC 6405"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Butterfly_Cluster", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M67",
+      "designations": ["M67", "NGC 2682"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "NASA Hubble", "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-67/", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M7",
+      "designations": ["M7", "NGC 6475"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "NASA Hubble", "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-7/", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "messier-M93",
+      "designations": ["M93", "NGC 2447"],
+      "fields": ["observing_notes"],
+      "sources": [{"label": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Messier_93", "accessed_on": "2026-09-04", "supports": ["observing_notes"]}],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    }
+  ],
+  "visual_review": {
+    "samples": [
+      {"object_id": "caldwell-C100", "reason": "Embedded cluster and nebula with rewritten description and filter-sensitive guidance.", "normal": "accepted", "red_night_vision": "accepted"},
+      {"object_id": "caldwell-C13", "reason": "Named asterism with long three-language description and practical orientation cues.", "normal": "accepted", "red_night_vision": "accepted"},
+      {"object_id": "caldwell-C28", "reason": "Very wide sparse cluster whose full extent tests wrapping and field guidance.", "normal": "accepted", "red_night_vision": "accepted"},
+      {"object_id": "caldwell-C50", "reason": "Cluster-nebula relationship with separate filtered and unfiltered observing steps.", "normal": "accepted", "red_night_vision": "accepted"},
+      {"object_id": "caldwell-C71", "reason": "Dense southern open cluster with high-power resolution guidance.", "normal": "accepted", "red_night_vision": "accepted"},
+      {"object_id": "caldwell-C94", "reason": "Bright southern cluster with colour terminology in every language.", "normal": "accepted", "red_night_vision": "accepted"},
+      {"object_id": "messier-M35", "reason": "Wide cluster plus compact companion comparison in every language.", "normal": "accepted", "red_night_vision": "accepted"},
+      {"object_id": "messier-M46", "reason": "Rich cluster with projected planetary nebula and filter guidance.", "normal": "accepted", "red_night_vision": "accepted"},
+      {"object_id": "messier-M7", "reason": "Largest field and low-altitude northern observing case.", "normal": "accepted", "red_night_vision": "accepted"}
+    ]
+  },
+  "similarity_waivers": [],
+  "deferred": []
+}

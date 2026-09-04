@@ -98,13 +98,13 @@
       },
       "messier-M6": {
         "short_description": "M6 (Butterfly Cluster) is an open cluster in Scorpius. The nickname Butterfly Cluster is not accidental: the brightest stars draw an open and light figure, very pleasant at low magnification.",
-        "observing_notes": "For M6 (Butterfly Cluster), 25′ across and integrated magnitude 4.2, choose a field that leaves a margin of sky around the cluster before increasing magnification.",
+        "observing_notes": "Binoculars or a low-power telescope best frame the Butterfly's two wings; pick out orange BM Scorpii among the bluer stars, and observe near culmination with a clear southern horizon.",
         "best_seen": "Summer",
         "curiosity_text": "The silhouette of M6 resembles a butterfly, but its most notable color contrast is BM Scorpii: an orange giant that stands out among the blue and younger stars of the cluster."
       },
       "messier-M7": {
         "short_description": "M7 (Ptolemy's Cluster) is an open cluster in Scorpius. It has been known since ancient times and fills the field with obvious stellar richness; low on the horizon, it becomes magnificent only with an unobstructed southern horizon and transparent skies.",
-        "observing_notes": "In M7 (Ptolemy's Cluster) the integrated magnitude 3.3 does not describe the faintest stars: it uses the 80′ diameter to set the initial field.",
+        "observing_notes": "It is already a stellar patch to the unaided eye; use binoculars or a telescopic field at least 2° wide to contain the cluster and its rich Milky Way background. From northern latitudes, observe at culmination with a completely open southern horizon.",
         "best_seen": "Summer",
         "curiosity_text": "M7 was already described by Ptolemy in the 2nd century as a nebulosity near the sting of Scorpio. It is the southernmost Messier object and one of the few with such ancient observational evidence."
       },
@@ -170,7 +170,7 @@
       },
       "messier-M18": {
         "short_description": "M18 (Black Swan Cluster) is an open cluster in Sagittarius. It is a small and discrete cluster, often observed in transit between M17 and M24; its value lies in the very rich context of Sagittarius.",
-        "observing_notes": "For M18 (Black Swan Cluster), which extends 9.8′ and has an integrated magnitude of 7.5, choose a field that leaves a margin of sky around the cluster before increasing magnification.",
+        "observing_notes": "Include it in a low-power sweep between M17 and the M24 star cloud, then use medium power to distinguish the small group from the Sagittarius background. Its structure is sparse, so do not expect the richness of its better-known neighbors.",
         "best_seen": "Summer",
         "curiosity_text": "M18 is a very young cluster, born about 30 million years ago. Its few dozen stars show how quickly an open cluster can disperse under the action of the Galaxy and gravitational encounters."
       },
@@ -188,7 +188,7 @@
       },
       "messier-M21": {
         "short_description": "M21 (Webb's Cross Cluster) is an open cluster in Sagittarius. It is the small stellar companion of the Trifid, less famous but useful for giving breathing space to the field and completing the M20 area.",
-        "observing_notes": "Use the 14′ extent as a scale to recognize M21 (Webb's Cross Cluster); at integrated magnitude 6.5, note how many components emerge by switching to medium magnification.",
+        "observing_notes": "At very low power you can frame it with the Trifid Nebula; then center M21 without a filter and raise the power moderately to trace Webb's Cross. A nebula filter may help M20, but it only dims the cluster's stars.",
         "best_seen": "Summer",
         "curiosity_text": "The stars of M21 are only about 4.6 million years old: on an astronomical scale the cluster is almost newborn. It does not yet contain red giants, because none of its stars have had time to reach that stage."
       },
@@ -200,7 +200,7 @@
       },
       "messier-M23": {
         "short_description": "M23 is an open cluster in Sagittarius. It is a large and rich cluster, immersed in the summer Milky Way; It looks better when you leave space around it instead of pushing it too hard with enlargements.",
-        "observing_notes": "For M23, with integrated magnitude 5.5, compare richness and concentration while keeping the entire 35′ extent visible.",
+        "observing_notes": "Use a field at least 1° wide to separate M23's boundary from the Milky Way and follow its winding stellar chains. Medium power reveals finer members, but avoid filters and powers that break up the cluster's overall pattern.",
         "best_seen": "Summer",
         "curiosity_text": "M23 includes about 150 stars spread over an area larger than the full Moon. The dust in front of the cluster attenuates and reddens its light, modifying the colors that reach us."
       },
@@ -212,13 +212,13 @@
       },
       "messier-M25": {
         "short_description": "M25 is an open cluster in Sagittarius. It is a bright and relaxing open cluster, with enough scattered stars to immediately draw a structure; a Cepheid variable also stands out in the field.",
-        "observing_notes": "In M25 the integrated magnitude 4.6 does not describe the faintest stars: it uses the 36′ diameter to set the initial field.",
+        "observing_notes": "Start at low power to follow the entire broad, irregular pattern; identify the Cepheid U Sagittarii near the center and compare it on later visits. High power isolates individual stars but loses the cluster's design.",
         "best_seen": "Summer",
         "curiosity_text": "M25 hosts U Sagittarii, a Cepheid variable whose pulsating rhythm reveals its true brightness. Stars like this have made it possible to build the scale of cosmic distances."
       },
       "messier-M26": {
         "short_description": "M26 is an open cluster in Scutum. It is compact and partially affected by interstellar dust, so it appears more delicate than other clusters in Scutum. The observational pleasure lies in separating the group from the stellar background and recognizing how the brightest stars define its structure.",
-        "observing_notes": "M26 is about 14′ wide and has integrated magnitude 8.0; examine the cluster as a whole before evaluating its closest stellar pairs.",
+        "observing_notes": "Medium power lifts the compact core out of Scutum's rich field. Under a dark sky, use averted vision to seek the star-poor patch beside the center caused by obscuring dust; a nebula filter does not improve the cluster.",
         "best_seen": "Summer",
         "curiosity_text": "The center of M26 appears strangely poor in stars. It is not necessarily empty: a cloud of interstellar dust between us and the cluster could hide its central region."
       },
@@ -236,7 +236,7 @@
       },
       "messier-M29": {
         "short_description": "M29 (Cooling Tower Cluster) is an open cluster in Cygnus. It is small and a little hidden by the dust of the Swan; it doesn't impress in terms of number of stars, but it is in a very pleasant summer region to explore.",
-        "observing_notes": "For M29 (Cooling Tower Cluster), with integrated magnitude 7.1, compare richness and concentration while keeping the entire 7′ extent visible.",
+        "observing_notes": "Start from Gamma Cygni and use medium power: the brightest members form the characteristic Cooling Tower. Keep enough surrounding field to recognize the group against the crowded background, but expect relatively few stars because interstellar extinction obscures it.",
         "best_seen": "Summer",
         "curiosity_text": "Swan dust obscures M29 so irregularly that its distance and age have long remained uncertain. Without that absorption, several of its stars would appear many times brighter."
       },
@@ -266,37 +266,37 @@
       },
       "messier-M34": {
         "short_description": "M34 (Spiral Cluster) is an open cluster in Perseus. It's a large, airy open cluster, perfect for going from binoculars to telescope without losing a sense of the star field.",
-        "observing_notes": "For M34 (Spiral Cluster), with integrated magnitude 5.5, start with a field wider than 35′; only narrow it if component separation improves.",
+        "observing_notes": "Binoculars show a broad group; at the telescope, use low power to follow the curved chains and numerous pairs that give it an airy appearance. Only then raise the power moderately to split the tighter pairs.",
         "best_seen": "Autumn",
         "curiosity_text": "M34 was probably observed by Giovanni Battista Hoggi before 1654, over a century before its inclusion in Messier's catalogue. It is one of several cases in which early discoveries were independently rediscovered."
       },
       "messier-M35": {
         "short_description": "M35 (Shoe-Buckle Cluster) is an open cluster in Gemini. It is one of the most beautiful winter clusters: large, bright and full of stars. Next door, with larger openings, you can glimpse the more remote NGC 2158.",
-        "observing_notes": "For M35 (Shoe-Buckle Cluster), with integrated magnitude 5.3, compare richness and concentration while keeping the entire 28′ extent visible.",
+        "observing_notes": "Frame M35's broad stellar spread at low power first; in the same field look for the much smaller, fainter and more distant NGC 2158. Medium power makes their contrast especially clear under a dark sky.",
         "best_seen": "Winter",
         "curiosity_text": "In the same field as M35 is NGC 2158, much further away and about ten times older. The comparison immediately shows how distance and evolution change the density and apparent color of two open clusters."
       },
       "messier-M36": {
         "short_description": "M36 (Pinwheel Cluster) is an open cluster in Auriga. It is the most compact of the Auriga trio, bright and easy to recognize. It works well as a first step in a winter cluster scan.",
-        "observing_notes": "For M36 (Pinwheel Cluster), 12′ across and integrated magnitude 6.3, choose a field that leaves a margin of sky around the cluster before increasing magnification.",
+        "observing_notes": "At medium-low power look for the irregular cross or pinwheel drawn by the main stars. A modest increase splits several pairs; then return to a wider field to compare its sparse structure with M37 and M38.",
         "best_seen": "Winter",
         "curiosity_text": "Among the three large open clusters in Auriga, M36 is the youngest. Its brightest stars are only about 25 million years old and have not yet evolved into numerous red giants."
       },
       "messier-M37": {
         "short_description": "M37 (Salt and Pepper Cluster) is an open cluster in Auriga. It is the richest and finest of the Auriga clusters: many tiny stars, a dense center and a deeper sensation than neighboring M36 and M38.",
-        "observing_notes": "In M37 (Salt and Pepper Cluster) the integrated magnitude 6.2 does not describe the fainter stars: it uses the 24′ diameter to set the initial field.",
+        "observing_notes": "Let your eyes dark-adapt, then use medium power to turn the granular glow into a crowd of fine stars. Find the orange star near the center and compare it with the paler stellar population around it.",
         "best_seen": "Winter",
         "curiosity_text": "M37 is the richest of the three Auriga Messier clusters and contains several red giants. Their presence signals a greater age than the nearby M36, dominated by young blue stars."
       },
       "messier-M38": {
         "short_description": "M38 (Starfish Cluster) is an open cluster in Auriga. It has a large, irregular structure, often described as a starfish. It is less concentrated than M37, but very pleasant in wide fields.",
-        "observing_notes": "With M38 (Starfish Cluster), about 21′ wide and with integrated magnitude 7.4, first check the entire profile of the cluster and only then evaluate the closest pairs.",
+        "observing_notes": "At low power follow the irregular arms that suggest a starfish. Then find small NGC 1907 in the same area and use medium power to compare its concentration with M38's much broader pattern.",
         "best_seen": "Winter",
         "curiosity_text": "Not far from M38 appears NGC 1907, smaller and more compact. Measurements of their motions indicate that the two clusters are crossing the same region without having originated as a bonded pair."
       },
       "messier-M39": {
         "short_description": "M39 (Pyramid Cluster) is an open cluster in Cygnus. It is a scattered cluster in Cygnus, almost more binocular-like than telescope-like. Its charm is simplicity: a few bright stars in a very rich summer area.",
-        "observing_notes": "Use the 29′ extension as a scale to recognize M39 (Pyramid Cluster); at integrated magnitude 4.6, note how many components emerge by switching to medium magnification.",
+        "observing_notes": "This is a binocular or finder target: leave at least 2° of sky to recognize its large triangle of bright stars. Through a narrow-field telescope the group is easily mistaken for part of the surrounding Milky Way.",
         "best_seen": "Summer and autumn",
         "curiosity_text": "M39 is so close and dispersed that it only gathers around thirty confirmed members in a very large field. Its triangular shape emerges better at low magnification than in a narrow telescope."
       },
@@ -308,7 +308,7 @@
       },
       "messier-M41": {
         "short_description": "M41 (Little Beehive Cluster) is an open cluster in Canis Major. Below Sirius, M41 is a bright and easy cluster, already pleasing with small instruments. The bright stars make it one of the best quick winter targets.",
-        "observing_notes": "For M41 (Little Beehive Cluster), with integrated magnitude 4.5, compare richness and concentration while keeping the entire 38′ extent visible.",
+        "observing_notes": "Move about 4° south of Sirius and use binoculars or low power: M41 immediately resolves into arcs and rows of stars. At the telescope, seek the orange-red member near the center without narrowing the field enough to lose the whole cluster.",
         "best_seen": "Winter",
         "curiosity_text": "M41 could be the celestial spot described by Aristotle around 325 BC. If the identification is correct, it would be one of the star clusters with the oldest documented observations."
       },
@@ -338,19 +338,19 @@
       },
       "messier-M46": {
         "short_description": "M46 is an open cluster in Puppis. It is a rich cluster with a perspective surprise: the planetary nebula NGC 2438 appears in the field as a small ghost ring. At the eyepiece, the overall pattern of the group matters most: density, chains, voids and differences in brightness emerge better by keeping a bit of sky around.",
-        "observing_notes": "For M46, with integrated magnitude 6.0, start with a field wider than 22.8′; only narrow it if component separation improves.",
+        "observing_notes": "First examine the fine stellar population without a filter; at medium power find NGC 2438 on the northern edge. A UHC or O III filter can emphasize the planetary nebula but dims the stars, so alternate the two views rather than treating them as one target.",
         "best_seen": "Winter",
         "curiosity_text": "The planetary nebula NGC 2438 seems immersed in M46, but it is only a perspective alignment: it is much closer to us. It's a particularly compelling example of hidden depth in a two-dimensional field."
       },
       "messier-M47": {
         "short_description": "M47 is an open cluster in Puppis. It's more open and bright than M46, less dense but immediate. Together they form a perfect pair for comparing two very different clusters. The observational pleasure lies in separating the group from the stellar background and recognizing how the brightest stars define its structure.",
-        "observing_notes": "For M47, with integrated magnitude 4.4, compare richness and concentration while keeping the entire 30′ extent visible.",
+        "observing_notes": "Binoculars show a coarse, bright group, while a small telescope cleanly splits the double near its center. Keep M46 in the same field when possible to compare M47's few bright stars with its neighbor's fine-grained population.",
         "best_seen": "Winter",
         "curiosity_text": "M47 was considered lost for over a century due to a sign error in the coordinates published by Messier. The cluster was recognized again only when its observation path was reconstructed."
       },
       "messier-M48": {
         "short_description": "M48 is an open cluster in Hydra. It is large, bright, and often overlooked. At low magnification it shows a broad, loose structure that is well suited to winter or spring skies.",
-        "observing_notes": "For M48, 30′ across and integrated magnitude 5.5, choose a field that leaves a margin of sky around the cluster before increasing magnification.",
+        "observing_notes": "Begin with binoculars or a wide-angle eyepiece to recognize the triangular outline and long rows of stars. Use medium power only to explore the central region; a narrow field makes M48 look like an ordinary stretch of the Milky Way.",
         "best_seen": "Spring",
         "curiosity_text": "M48 also became a lost object: an incorrect declination moved it about five degrees. The modern correction identified the cluster as NGC 2548."
       },
@@ -362,7 +362,7 @@
       },
       "messier-M50": {
         "short_description": "M50 (Heart-Shaped Cluster) is an open cluster in Monoceros. It is a compact open cluster, often described as having a heart shape. It's not famous, but it offers clean and pleasant viewing.",
-        "observing_notes": "With M50 (Heart-Shaped Cluster), about 16′ wide and with integrated magnitude 5.9, first check the entire profile of the cluster and only then evaluate the closest pairs.",
+        "observing_notes": "At medium-low power look for the heart-shaped outline among the Monoceros stars; moderate power brings out a yellow-orange member that contrasts with the group. Keep a border of surrounding sky so the overall shape remains apparent.",
         "best_seen": "Winter",
         "curiosity_text": "A very obvious red giant contrasts with the blue-white stars of M50. The ensemble was nicknamed the Heart Cluster for a shape that depends above all on the brightest members."
       },
@@ -374,7 +374,7 @@
       },
       "messier-M52": {
         "short_description": "M52 (Scorpion Cluster) is an open cluster in Cassiopeia. It is a rich cluster near Cassiopeia, beautiful precisely because it is dense and minute. It requires some attention to separate it from the Milky Way's star field.",
-        "observing_notes": "For M52 (Scorpion Cluster), with integrated magnitude 7.3, start with a field wider than 13′; only narrow it if component separation improves.",
+        "observing_notes": "Use medium power to lift the compact fan of stars from the Cassiopeia background and find the brightest member near one end. The nearby Bubble Nebula needs a different scale and may benefit from a filter; observe M52 itself unfiltered.",
         "best_seen": "Summer and autumn",
         "curiosity_text": "M52 is in the same line of sight as the Bubble Nebula, but the two objects are not necessarily close in space. The strong extinction of Cassiopeia makes even the precise distance of the cluster uncertain."
       },
@@ -464,7 +464,7 @@
       },
       "messier-M67": {
         "short_description": "M67 (King Cobra or Golden Eye Cluster) is an open cluster in Cancer. It is one of the oldest and most studied open clusters, very different from the young blue clusters. To the eye it appears rich, mature and surprisingly balanced.",
-        "observing_notes": "In M67 (King Cobra or Golden Eye Cluster) the integrated magnitude 6.1 does not describe the fainter stars: it uses the 30′ diameter to set the initial field.",
+        "observing_notes": "At low power find its rounded haze; medium power dissolves the glow into many fine, fairly even stars. Transparent skies matter more than any filter, while larger apertures reveal the rich central region more clearly.",
         "best_seen": "Spring",
         "curiosity_text": "M67 is about four billion years old and has a composition similar to that of the Sun. For this reason it is a privileged laboratory for comparing the evolution of the Sun with stars born almost in the same period."
       },
@@ -620,7 +620,7 @@
       },
       "messier-M93": {
         "short_description": "M93 (Critter Cluster) is a bright open cluster in Puppis, with a triangular or wedge shape. It's simple, but very nice at low magnifications.",
-        "observing_notes": "Use the 10′ extent as a scale to recognize M93 (Critter Cluster); at integrated magnitude 6.0, note how many components emerge by switching to medium magnification.",
+        "observing_notes": "At medium-low power the principal stars draw a recognizable wedge or fan. Increase just enough to bring out fainter members between the bright rows, but back off if the triangular pattern no longer fits comfortably in the field.",
         "best_seen": "Winter",
         "curiosity_text": "The brightest stars of M93 draw a triangular or butterfly shape. The cluster is a few hundred million years old, enough for several massive components to have already become red giants."
       },
@@ -680,7 +680,7 @@
       },
       "messier-M103": {
         "short_description": "M103 is an open cluster in Cassiopeia. It's a small open cluster in Cassiopeia, easy to fit into an autumn Milky Way scan. It is not large, but has a compact and recognizable shape.",
-        "observing_notes": "In M103 the integrated magnitude 7.4 does not describe the fainter stars: it uses the 6′ diameter to set the initial field.",
+        "observing_notes": "Medium power separates the small triangle from Cassiopeia's rich background. Look for the contrast between its two orange members and the blue-white stars; at low power M103 can resemble an ordinary knot in the Milky Way.",
         "best_seen": "Autumn",
         "curiosity_text": "M103 contains only a few dozen confirmed members and is one of the most distant open clusters in the Messier catalog. Two red giants add a stark contrast to the dominant blue stars."
       },
@@ -770,7 +770,7 @@
       },
       "caldwell-C8": {
         "short_description": "C8 (NGC 559), Open cluster in the constellation Cassiopeia. It should not be observed as a simple sum of stars: its identity arises from the overall shape and the contrast with the field of the Milky Way. NGC 559 combines an apparent extent of 4′ with integrated magnitude 9.5, so both aperture and sky quality affect how much detail is visible.",
-        "observing_notes": "With C8 (NGC 559), about 4′ wide and with integrated magnitude 9.5, first check the entire profile of the cluster and only then evaluate the closest pairs.",
+        "observing_notes": "First seek a small granular glow in Cassiopeia's crowded field, then use medium power and at least 100 mm of aperture to separate its fainter members. Dark skies help more than a filter, which would also dim the stars.",
         "best_seen": "Autumn",
         "curiosity_text": "NGC 559 is older than the famous young clusters of Cassiopeia: it has lost its most massive stars and retains an evolved population of about two billion years. It is a rare survivor among the open clusters of the galactic disk."
       },
@@ -782,7 +782,7 @@
       },
       "caldwell-C10": {
         "short_description": "C10 (NGC 663), Open cluster in the constellation Cassiopeia. It should not be observed as a simple sum of stars: its identity arises from the overall shape and the contrast with the field of the Milky Way. The observable profile of C10 can be smaller than the cataloged 16′ if the sky background reduces the contrast; the total magnitude is 7.1.",
-        "observing_notes": "For C10 (NGC 663), integrated magnitude 7.1, start with a field wider than 16′; narrow it only if component separation improves.",
+        "observing_notes": "Begin at medium-low power to distinguish the concentration from Cassiopeia's rich background, then use medium power to resolve the center into many fine stars. Keep the brighter members that frame the group in view.",
         "best_seen": "Autumn",
         "curiosity_text": "NGC 663 contains an unusually large number of Be stars, hot, rapidly rotating stars surrounded by gaseous disks. Their emission lines allow us to study how rotation modifies stellar evolution."
       },
@@ -799,8 +799,8 @@
         "curiosity_text": "NGC 6946 deserves the name Fireworks: at least ten supernovae have been discovered there since 1917. The galaxy is rich in star formation, but the Milky Way dims its light with dust in the foreground."
       },
       "caldwell-C13": {
-        "short_description": "C13 (NGC 457), Open cluster in the constellation Cassiopeia. Its appearance changes considerably with magnification: a wide field shows the outline of the group, while higher power reveals pairs and small chains. NGC 457 - Owl Cluster covers about 13′ in the sky and has integrated magnitude 6.4, two data points to be read together with the background contrast.",
-        "observing_notes": "For C13 (NGC 457 - Owl Cluster), integrated magnitude 6.4 does not describe the fainter stars; use the 13′ diameter to set the initial field.",
+        "short_description": "C13 (NGC 457) is a Cassiopeia open cluster known as the Owl Cluster or ET Cluster. Two bright stars form its eyes, while fainter rows sketch a body and wings—a recognizable figure whose orientation changes with the telescope configuration.",
+        "observing_notes": "At low power identify the two bright eyes, then use medium power to follow the chains that form the body and wings. Before assigning the Owl an up or down direction, remember that a diagonal and different optical designs can flip the image.",
         "best_seen": "Autumn",
         "curiosity_text": "The two bright stars that form the eyes of the Owl Cluster also give it the appearance of a character with open arms. The bright Phi Cassiopeiae is projected into the same field, but its physical affiliation remains debated."
       },
@@ -818,7 +818,7 @@
       },
       "caldwell-C16": {
         "short_description": "C16 (NGC 7243), Open cluster in the constellation Lacerta. Its appearance changes considerably with magnification: a wide field shows the outline of the group, while higher power reveals pairs and small chains. With dimensions 21′ and integrated magnitude 6.4, it requires a field consistent with its scale before looking for details.",
-        "observing_notes": "For C16 (NGC 7243), with integrated magnitude 6.4, start with a field wider than 21′; only narrow it if component separation improves.",
+        "observing_notes": "Use low power to delimit this loose cluster in Lacerta and find the small groups that make up its irregular outline. Medium power separates pairs and short chains, but a narrow field erases the cluster's identity.",
         "best_seen": "Autumn",
         "curiosity_text": "NGC 7243 is a young and highly dispersed cluster, with stars distributed in small groups rather than around a clear core. This irregular structure shows a system already on its way to dissolution in the galactic disk."
       },
@@ -889,8 +889,8 @@
         "curiosity_text": "The Crescent Nebula is material ejected from the star Wolf-Rayet WR 136 that collides with a slower wind emitted when the star was a red supergiant. The impact produces the filamentous shell visible today."
       },
       "caldwell-C28": {
-        "short_description": "C28 (NGC 752), Open cluster in the constellation of Andromeda. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brighter components. With dimensions 50′ and integrated magnitude 5.7, it requires a field consistent with its scale before looking for details.",
-        "observing_notes": "For C28 (NGC 752), integrated magnitude 5.7, start with a field wider than 50′; narrow it only if component separation improves.",
+        "short_description": "C28 (NGC 752) is an old, nearby and very extended open cluster in Andromeda. Its stars are scattered through loosely concentrated pairs and arcs, with several yellow-orange members revealing a more evolved stellar population.",
+        "observing_notes": "It is ideal for binoculars or wide-field telescopes: leave at least 1.5° to include the outskirts and recognize its stellar arcs. At medium power inspect the pairs and warmer colors without sacrificing the overall structure.",
         "best_seen": "Autumn",
         "curiosity_text": "NGC 752 is about 1.4 billion years old and has already lost many original members. The remaining stars are scattered across a wide field: an advanced snapshot of the slow dissolution of an open cluster."
       },
@@ -944,7 +944,7 @@
       },
       "caldwell-C37": {
         "short_description": "C37 (NGC 6885), Open cluster in the constellation Vulpecula. At the eyepiece, the overall pattern of the group matters most: density, chains, voids and differences in brightness emerge better by keeping a bit of sky around. NGC 6885 covers about 7′ in the sky and has an integrated magnitude of 5.7, two data points to be read together with the background contrast.",
-        "observing_notes": "In C37 (NGC 6885) the integrated magnitude 5.7 does not describe the faintest stars: it uses the 7′ diameter to set the initial field.",
+        "observing_notes": "Use 20 Vulpeculae as the bright reference and inspect the loose group around it at medium-low power. The labels NGC 6882 and NGC 6885 have been applied inconsistently, so compare position and field rather than relying only on a chart label.",
         "best_seen": "Summer and autumn",
         "curiosity_text": "NGC 6885 and nearby NGC 6882 have generated a long confusion of boundaries and names. The region contains overlapping star groups and shows how difficult a dispersed open cluster is to define in the plane of the Milky Way."
       },
@@ -1021,8 +1021,8 @@
         "curiosity_text": "The central cavity of the Rosetta has been carved out by the radiation and winds of the young stars of NGC 2244. The compressed edge of the cloud contains globules and pillars where star formation can continue."
       },
       "caldwell-C50": {
-        "short_description": "C50 (NGC 2244) is an open cluster in Monoceros. Read it as a whole first, looking for its central concentration and the geometric patterns formed by its brightest members. Its apparent diameter is 24′; the integrated magnitude of 4.8 alone does not describe how prominent it will appear at the eyepiece.",
-        "observing_notes": "With C50 (NGC 2244), about 24′ wide and with an integrated magnitude of 4.8, inspect the cluster's full outline first, then examine its tighter stellar pairs.",
+        "short_description": "C50 (NGC 2244) is the young open cluster occupying the central cavity of the Rosette Nebula in Monoceros. Its hot, bright stars stand inside the broad shell of gas, placing a striking stellar population and emission nebula in the same field.",
+        "observing_notes": "Observe the cluster first without a filter at low power, keeping a field much wider than its 24′ diameter. Then insert a UHC or O III filter to seek the Rosette's shell: the nebula gains contrast while the stars become dimmer.",
         "best_seen": "Winter",
         "curiosity_text": "NGC 2244 is the young cluster born inside the Rosetta. Its O-type stars are a few million years old, ionize the nebula and are dispersing the material from which they formed."
       },
@@ -1046,7 +1046,7 @@
       },
       "caldwell-C54": {
         "short_description": "C54 (NGC 2506) is an open cluster in Monoceros. Read it as a whole first, looking for its central concentration and the geometric patterns formed by its brightest members. Its 7′ diameter and integrated magnitude of 7.6 help determine the initial field of view.",
-        "observing_notes": "For C54 (NGC 2506), which is 7′ across and has an integrated magnitude of 7.6, choose a field that leaves a margin of sky around the cluster before increasing magnification.",
+        "observing_notes": "Under a dark sky it first appears as a small granular cloud; use medium power and averted vision to bring out the rich pattern of faint stars. Do not be misled by its modest size: low power does not separate the group well.",
         "best_seen": "Spring",
         "curiosity_text": "NGC 2506 is an ancient, metal-poor open cluster located far from the galactic plane. Its composition makes it useful for comparing the chemical evolution of the inner and outer regions of the Milky Way."
       },
@@ -1069,8 +1069,8 @@
         "curiosity_text": "Barnard's Galaxy was one of the first dwarfs outside the Milky Way studied in detail. The Cepheid variables observed within it helped Edwin Hubble extend the distance scale beyond our Galaxy."
       },
       "caldwell-C58": {
-        "short_description": "C58 (NGC 2360), Open cluster in the constellation Canis Major. At the eyepiece, the overall pattern of the group matters most: density, chains, voids and differences in brightness emerge better by keeping a bit of sky around. The observable profile of C58 can be smaller than the cataloged 13′ if the sky background reduces the contrast; the total magnitude is 7.2.",
-        "observing_notes": "For C58 (NGC 2360), integrated magnitude 7.2, start with a field wider than 13′; narrow it only if component separation improves.",
+        "short_description": "C58 (NGC 2360), Caroline's Cluster, is an evolved open cluster in Canis Major. It shows a rich, notably even distribution of stars without the single dominant beacon found in many younger clusters.",
+        "observing_notes": "At low power find a rounded, finely granular glow; medium power turns it into an even spread of faint stars. Compare the center with the edge instead of seeking one dominant member, because richness is C58's defining visual feature.",
         "best_seen": "Winter",
         "curiosity_text": "NGC 2360 was discovered in 1783 by Caroline Herschel, years before its inclusion in her brother William's catalog. For this reason it is also known as the Caroline Cluster."
       },
@@ -1105,8 +1105,8 @@
         "curiosity_text": "The Helix Nebula contains thousands of cometary nodes, each as large as the Solar System. Dense heads resist central radiation, while long tails point radially outward."
       },
       "caldwell-C64": {
-        "short_description": "C64 (NGC 2362), Open cluster in the constellation of Canis Major. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brighter components. At 8′ in size and 4.1 integrated magnitude, it requires a field consistent with its scale before looking for details.",
-        "observing_notes": "For C64 (NGC 2362 - Tau Canis Majoris Cluster), with integrated magnitude 4.1, start with a field wider than 8′; only narrow it if component separation improves.",
+        "short_description": "C64 (NGC 2362) is a very young, compact open cluster in Canis Major. Brilliant Tau Canis Majoris dominates its center, surrounded by a concentration of fainter stars that can give the cluster a hazy appearance at low power.",
+        "observing_notes": "Center Tau Canis Majoris and increase power gradually: faint stars open around the central beacon like a small fan. Medium to medium-high power reduces the star's glare without dispersing the compact cluster.",
         "best_seen": "Winter",
         "curiosity_text": "Tau Canis Majoris dominates NGC 2362, but it is not a single star: it is a multiple system of massive stars. The cluster is only a few million years old and retains a compact shape around this central lighthouse."
       },
@@ -1148,7 +1148,7 @@
       },
       "caldwell-C71": {
         "short_description": "C71 (NGC 2477), Open cluster in the constellation of Puppis. At the eyepiece, the overall pattern of the group matters most: density, chains, voids and differences in brightness emerge better by keeping a bit of sky around. The measurement of 27′ defines the scale of C71, while the integrated magnitude 5.8 summarizes all its light.",
-        "observing_notes": "For C71 (NGC 2477), with integrated magnitude 5.8, compare richness and concentration while keeping the entire 27′ extension visible.",
+        "observing_notes": "At low power its density and shape can resemble a globular cluster; then raise the power to medium-high to resolve stars toward the center. From northern latitudes wait for culmination, because low-altitude extinction quickly smears the fine texture.",
         "best_seen": "Winter",
         "curiosity_text": "NGC 2477 is so rich and concentrated that it resembles a globular, despite being an open disk cluster. It brings together hundreds of stars of different ages along the post-main-sequence evolution."
       },
@@ -1172,13 +1172,13 @@
       },
       "caldwell-C75": {
         "short_description": "C75 (NGC 6124), Open cluster in the constellation of Scorpius. The observational pleasure lies in separating the group from the stellar background and recognizing how the brightest stars define its structure. In the field, C75 extends for 29′: magnitude 5.8 should be interpreted as overall brightness.",
-        "observing_notes": "Use the 29′ extension as a scale to recognize C75 (NGC 6124); at integrated magnitude 5.8, note how many components emerge by switching to medium magnification.",
+        "observing_notes": "Use binoculars or low power to follow its broad, irregular figure; the less populated patches belong to its dust-affected appearance and should not be chased by indiscriminately raising power. A wide field and transparent sky make the boundary clearer.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 6124 is a young cluster undergoing non-uniform interstellar extinction. The dust reddens some members more than others and can make a population born in the same period appear uneven."
       },
       "caldwell-C76": {
-        "short_description": "C76 (NGC 6231), Open cluster in the constellation of Scorpius. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brighter components. With dimensions 15′ and integrated magnitude 2.6, it requires a field consistent with its scale before looking for details.",
-        "observing_notes": "For C76 (NGC 6231), with integrated magnitude 2.6, start with a field wider than 15′; only narrow it if component separation improves.",
+        "short_description": "C76 (NGC 6231) is a young, bright and compact open cluster in Scorpius, at the heart of the Sco OB1 association. Its dense population of hot stars has earned it the nickname Northern Jewel Box, by analogy with NGC 4755.",
+        "observing_notes": "It is already visible to the unaided eye under a good southern sky; low power shows a tight blue-white concentration. Use medium power to split pairs and small groups, observing near culmination if Scorpius remains low from your site.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 6231 is the core of the large Scorpius OB1 association and contains numerous multiple massive stars. It was probably recorded by Hoggi in the seventeenth century, long before the great nineteenth-century catalogues."
       },
@@ -1213,8 +1213,8 @@
         "curiosity_text": "NGC 6352 is a relatively metal-rich globular, associated with the internal regions of the Galaxy. Its chemistry differs from that of the globulars poor in heavy elements that populate the remote halo."
       },
       "caldwell-C82": {
-        "short_description": "C82 (NGC 6193), Open cluster in the constellation of Ara. At the eyepiece, the overall pattern of the group matters most: density, chains, voids and differences in brightness emerge better by keeping a bit of sky around. The observable profile of C82 can be smaller than the 15′ cataloged if the sky background reduces the contrast; the total magnitude is 5.2.",
-        "observing_notes": "For C82 (NGC 6193), with integrated magnitude 5.2, start with a field wider than 15′; only narrow it if component separation improves.",
+        "short_description": "C82 (NGC 6193) is a young open cluster in Ara dominated by the massive stellar system HD 150136. It lies beside the emission nebula NGC 6188, placing concentrated blue stars and sculpted gas in the same star-forming region.",
+        "observing_notes": "Inspect the cluster first without a filter at medium-low power, using HD 150136 as the reference. Then move to nearby NGC 6188 and try a UHC or O III filter: it can help the gas, but not C82's stellar population.",
         "best_seen": "Summer",
         "curiosity_text": "The massive stars of NGC 6193 illuminate the bright edge of nearby NGC 6188. Among them lies HD 150136, one of the most massive multiple star systems known in the Milky Way."
       },
@@ -1231,8 +1231,8 @@
         "curiosity_text": "NGC 5286 contains populations with different iron abundances, rare behavior for a globular. It could be the surviving nucleus of a dwarf galaxy assimilated by the Milky Way."
       },
       "caldwell-C85": {
-        "short_description": "C85 (IC 2391), Open cluster in the constellation of Vela. Its appearance changes considerably with magnification: a wide field shows the outline of the group, while higher power reveals pairs and small chains. IC 2391 - Omicron Velorum Cluster covers about 50′ in the sky and has integrated magnitude 2.5, two data points to be read together with the background contrast.",
-        "observing_notes": "In C85 (IC 2391 - Omicron Velorum Cluster) the integrated magnitude 2.5 does not describe the faintest stars: it uses the 50′ diameter to set the initial field.",
+        "short_description": "C85 (IC 2391), the Omicron Velorum Cluster, is a young and very extended open cluster in Vela. Its bright, scattered stars occupy nearly a degree around Omicron Velorum, forming a southern group that is conspicuous even without a telescope.",
+        "observing_notes": "Locate it with the unaided eye and switch to binoculars: the wide field best shows Omicron Velorum and the full stellar pattern. A telescope is useful only at very low power; a narrow field immediately loses the cluster's shape.",
         "best_seen": "Spring",
         "curiosity_text": "IC 2391 is a nearby cluster about 50 million years old. The depletion limit of lithium in its less massive stars provides an independent and precise clock for estimating their age."
       },
@@ -1250,13 +1250,13 @@
       },
       "caldwell-C88": {
         "short_description": "C88 (NGC 5823), Open cluster in the constellation of Circinus. The observational pleasure lies in separating the group from the stellar background and recognizing how the brightest stars define its structure. With dimensions 10′ and integrated magnitude 7.9, it requires a field consistent with its scale before looking for details.",
-        "observing_notes": "For C88 (NGC 5823), with integrated magnitude 7.9, start with a field wider than 10′; only narrow it if component separation improves.",
+        "observing_notes": "Find it as a compact concentration in the crowded southern sky, then use medium power to separate the core and irregular extensions. If transparency is mediocre it remains granular; wait for culmination instead of reaching for a filter.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 5823 was cataloged by Scottish astronomer James Dunlop during Australian observations in 1826. It is about 800 million years old, enough for the original most massive stars to have already disappeared."
       },
       "caldwell-C89": {
         "short_description": "C89 (NGC 6087), Open cluster in the constellation Norma. The observational pleasure lies in separating the group from the stellar background and recognizing how the brightest stars define its structure. The integrated magnitude of 5.4 describes the entire object; the 12′ extension helps to estimate the real contrast.",
-        "observing_notes": "For C89 (NGC 6087 - Cluster S Normae), with integrated magnitude 5.4, compare richness and concentration while keeping the entire 12′ extension visible.",
+        "observing_notes": "Binoculars show a small group around the Cepheid S Normae, while medium power separates fainter members. Return on different nights to compare S Normae with nearby stars, keeping the instrument and magnification unchanged.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 6087 contains S Normae, a classical Cepheid variable. The fact that it belongs to a cluster allows us to compare its pulsation, distance and age with those of other stars born together."
       },
@@ -1268,7 +1268,7 @@
       },
       "caldwell-C91": {
         "short_description": "C91 (NGC 3532), Open cluster in the constellation Carina. The observational pleasure lies in separating the group from the stellar background and recognizing how the brightest stars define its structure. At the eyepiece it must be searched on a scale of 55′; the total brightness corresponds to an integrated magnitude of 3.0.",
-        "observing_notes": "In C91 (NGC 3532) the integrated magnitude 3.0 does not describe the fainter stars: it uses the 55′ diameter to set the initial field.",
+        "observing_notes": "The Wishing Well fills nearly a degree, so prefer binoculars or a wide-field telescope. At moderate power find yellow and orange members amid the blue-white crowd, then return to the wide view to appreciate its exceptional richness.",
         "best_seen": "Spring",
         "curiosity_text": "NGC 3532 was the first target imaged by the Hubble Space Telescope in May 1990. That first light appeared blurry and helped reveal the mirror defect later corrected by the maintenance mission."
       },
@@ -1286,31 +1286,31 @@
       },
       "caldwell-C94": {
         "short_description": "C94 (NGC 4755), Open cluster in the Southern Cross constellation. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brightest components. The observable profile of C94 can be smaller than the cataloged 10′ if the sky background reduces the contrast; the total magnitude is 4.2.",
-        "observing_notes": "For C94 (NGC 4755 - Jewel Box Cluster), integrated magnitude 4.2, begin with a field wider than 10′; narrow it only if component separation improves.",
+        "observing_notes": "To the unaided eye it resembles one star; binoculars and small telescopes turn it into the Jewel Box Cluster. Use medium power to emphasize the red-orange supergiant among blue stars, avoiding excessive power that disperses the small group.",
         "best_seen": "Spring",
         "curiosity_text": "The Jewel Box owes its name to the contrast between blue stars and a central red supergiant. John Herschel compared it to a precious colored jewel observed through the telescope."
       },
       "caldwell-C95": {
         "short_description": "C95 (NGC 6025), Open cluster in the constellation Triangulum Australe. Its appearance changes considerably with magnification: a wide field shows the outline of the group, while higher power reveals pairs and small chains. The 12′ measurement defines the scale of C95, while the integrated magnitude 5.1 summarizes all its light.",
-        "observing_notes": "For C95 (NGC 6025), with integrated magnitude 5.1, compare richness and concentration while keeping the entire 12′ extent visible.",
+        "observing_notes": "At low power identify the small bright wedge, then use medium power to separate the fainter rows that complete its shape. Do not use filters: transparency and good altitude above the horizon are what sharpen the boundary.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 6025 is a young and relatively compact cluster in the southern sky. The brightest stars trace a wedge shape, while the less conspicuous members extend the group well beyond the visual outline."
       },
       "caldwell-C96": {
         "short_description": "C96 (NGC 2516), Open cluster in the constellation Carina. At the eyepiece, the overall pattern of the group matters most: density, chains, voids and differences in brightness emerge better by keeping a bit of sky around. To plan your observation, consider the integrated magnitude 3.8 and the apparent extension 30′ together.",
-        "observing_notes": "For C96 (NGC 2516), which is 30′ across and has an integrated magnitude of 3.8, choose a field that leaves a margin of sky around the cluster before increasing magnification.",
+        "observing_notes": "The Southern Beehive is best in binoculars or at very low power. Follow its rows of bright stars and seek orange members that interrupt the prevailing blue-white color; too much magnification loses the half-degree structure.",
         "best_seen": "Winter",
         "curiosity_text": "NGC 2516 is called the Southern Beehive due to its similarity to M44. Its rich and nearby population includes chemically peculiar stars, useful for studying diffusion and magnetic fields in young stars."
       },
       "caldwell-C97": {
         "short_description": "C97 (NGC 3766), Open cluster in the constellation Centaurus. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brighter components. NGC 3766 covers about 12′ in the sky and has an integrated magnitude of 5.3, two data points to be read together with the background contrast.",
-        "observing_notes": "In C97 (NGC 3766) the integrated magnitude 5.3 does not describe the fainter stars: it uses the 12′ diameter to set the initial field.",
+        "observing_notes": "The bright Pearl Cluster takes medium power well: trace the short chains across its core and look for members with warmer hues. At low power it remains very compact; more aperture adds stars without erasing its shape.",
         "best_seen": "Spring",
         "curiosity_text": "Observations of NGC 3766 revealed a class of variables that did not fit into traditional models. Many rotate rapidly: tilt and rotation seem crucial to explaining the faint pulsations."
       },
       "caldwell-C98": {
-        "short_description": "C98 (NGC 4609), Open cluster in the Southern Cross constellation. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brightest components. Its apparent scale is 5′; an integrated magnitude of 6.9 does not by itself describe what will be evident at the eyepiece.",
-        "observing_notes": "With C98 (NGC 4609), about 5′ wide and with integrated magnitude 6.9, first check the entire profile of the cluster and only then evaluate the closest pairs.",
+        "short_description": "C98 (NGC 4609) is a small open cluster in Crux projected against the edge of the Coalsack Nebula. The compact group stands out against an unusually star-poor field, making its contrast with the dark cloud central to the object's identity.",
+        "observing_notes": "Use medium-low power to keep the cluster and part of the Coalsack together. Compare C98's stellar concentration with the sparse, dark background; no filter improves this contrast, which depends mainly on transparency and dark adaptation.",
         "best_seen": "Spring",
         "curiosity_text": "NGC 4609 appears projected against the much closer Coalsack Nebula. The dark dust absorbs and reddens the light from the cluster behind it, turning an array into a tool for measuring extinction."
       },
@@ -1321,8 +1321,8 @@
         "curiosity_text": "The Coalsack does not emit light: it is a nearby cloud that obscures the Milky Way. In Australian Aboriginal traditions it forms the head of the Emu in the sky, a constellation drawn by dark spaces rather than stars."
       },
       "caldwell-C100": {
-        "short_description": "C100 (IC 2944), Open cluster in the constellation of Centaurus. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brighter components. With dimensions 15′ and integrated magnitude 4.5, it requires a field consistent with its scale before looking for details.",
-        "observing_notes": "For C100 (IC 2944 - Lambda Centauri Cluster), with integrated magnitude 4.5, start with a field wider than 15′; only narrow it if component separation improves.",
+        "short_description": "C100 comprises the young Lambda Centauri Cluster immersed in the IC 2944 emission nebula in Centaurus. Its bright stars occupy a much easier field than the surrounding faint gas, where small dark clouds mark active star-forming material.",
+        "observing_notes": "First frame the cluster with binoculars or a wide-field telescope, without a filter. Under a dark southern sky, then try a UHC filter on IC 2944's faint gas; the small dark clouds require more aperture and excellent transparency.",
         "best_seen": "Spring",
         "curiosity_text": "IC 2944 contains Thackeray's globules, dense islands of dark dust silhouetted against bright hydrogen. Radiation from nearby stars is eroding them and may prevent some from collapsing into new stars."
       },
@@ -1334,7 +1334,7 @@
       },
       "caldwell-C102": {
         "short_description": "C102 (IC 2602), Open cluster in the constellation of Carina. Its appearance changes considerably with magnification: a wide field shows the outline of the group, while higher power reveals pairs and small chains. For C102, the comparison between 50′ extension and integrated magnitude 1.9 guides the choice of the initial field.",
-        "observing_notes": "For C102 (IC 2602 - Southern Pleiades), 50′ across and integrated magnitude 1.9, choose a field that leaves a margin of sky around the cluster before increasing magnification.",
+        "observing_notes": "The Southern Pleiades are obvious to the unaided eye around Theta Carinae; use binoculars or at least a 1.5° field to include their complete arrangement. A telescope at medium power serves only for pairs and colors, not for the overall view.",
         "best_seen": "Spring",
         "curiosity_text": "IC 2602 is called the Southern Pleiades, but it is closer and younger than the Northern Pleiades. The bright Theta Carinae dominates a population visible even to the naked eye in a very wide field."
       },

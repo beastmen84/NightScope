@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+## NightScope 1.46.4 - 2026-09-04
+
+- Completata la rimessa a punto dei 48 ammassi aperti coinvolti nel debito
+  editoriale storico: tutte le note osservative sono ora specifiche del
+  bersaglio e dieci descrizioni appartenenti a quattro famiglie duplicate sono
+  state riscritte. Curiosita', periodi e difficolta' non sono stati riaperti.
+- Le nuove indicazioni distinguono ampiezza del campo, morfologie stellari,
+  contrasti cromatici, compagni, assorbimento interstellare e casi misti
+  ammasso-nebulosa. I filtri sono consigliati soltanto per il gas adiacente a
+  C50, C82, C100 e M46, non per la luce continua degli ammassi.
+- Tutti i 48 testi italiani e i relativi overlay inglesi e spagnoli sono stati
+  revisionati individualmente. I 48 URL specifici dell'oggetto hanno superato
+  l'audit live.
+- Nove campioni rappresentativi hanno prodotto 108 scene Object Detail finali:
+  IT/EN/ES, modalita' normale e Red Night Vision, sia sull'intestazione con le
+  note sia sulle schede inferiori, senza tagli, sovrapposizioni o perdita della
+  monocromia rossa.
+- Il debito storico misurato scende da 9 famiglie/20 oggetti a 5/10 per le
+  descrizioni e da 22 famiglie/160 oggetti a 16/112 per le note osservative.
+  La copertura resta 303 oggetti completi, inclusi 75 NGC-only; ne restano 7.291.
+- Gate sorgente completo con sicurezza superato: 1.227 test e 10 subtest in
+  270,49 secondi, copertura aggregata 86%, documentazione completa per 247 file
+  Python, 34 QML e 17 operativi, grafo import aciclico, baseline Bandit
+  invariata, nessuna vulnerabilita' nota e smoke test backend/QML
+  normale/Red Night Vision riusciti. Il solo avviso resta il debito storico
+  residuo atteso.
+- La versione sorgente passa a `1.46.4`; `dist` non e' stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release. Le release
+  pubbliche restano Windows `v1.45.21` e Linux `v1.43.0`.
+
 ## NightScope 1.46.3 - 2026-09-04
 
 - Corretto il primo insieme organico di prosa generica del baseline storico:
