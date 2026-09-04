@@ -17,7 +17,7 @@ active profile to answer a practical question: **what is worth observing
 tonight, from here, with this setup?**
 
 > [!NOTE]
-> NightScope is a released application. Source version 1.45.22 is prepared for
+> NightScope is a released application. Source version 1.46.0 is prepared for
 > the next release and is ahead of the current public Windows 1.45.21 and Linux
 > 1.43.0 portable bundles.
 > Release artifacts remain platform-specific portable builds rather than
@@ -382,7 +382,7 @@ The wrapper creates a Debian 12/Python 3.12 build image, runs PyInstaller, and
 writes the portable application to `dist/NightScope`. It then creates the
 deterministic release archive and checksum:
 
-`dist/NightScope-v1.45.22-debian-12-x64.tar.gz` and its adjacent `.sha256`
+`dist/NightScope-v1.46.0-debian-12-x64.tar.gz` and its adjacent `.sha256`
 file. The inner build scripts copy the project notices, generate the installed
 Linux Python dependency license archive, inventory every copied Debian ELF
 file, bundle the matching copyright and common-license texts, and run the
@@ -442,7 +442,7 @@ astro_viewer/
     services/        Providers, domain services, caches and localization
     ui/              QML application and reusable controls
     viewmodels/      QML-facing read models and commands
-  data/              Schemas, seeds, GeoNames, MPC sites and local ephemeris data
+  data/              Schemas, seeds, editorial batches and local reference data
   resources/         Icons and credited catalogue images
   tests/             Deterministic unit, integration and presentation tests
   translations/      Runtime language packs and compiled Qt catalogues
@@ -456,7 +456,7 @@ manuale.html          Self-contained Italian/English/Spanish user manual
 Architecture details are in
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), with the `1.45.x` assessment in
 [`docs/ARCHITECTURE_REVIEW_1_45.md`](docs/ARCHITECTURE_REVIEW_1_45.md). The
-acceptance contract for the next multilingual catalogue-content phase is
+acceptance contract for the active multilingual catalogue-content phase is
 [`docs/CATALOGUE_EDITORIAL_WORKFLOW.md`](docs/CATALOGUE_EDITORIAL_WORKFLOW.md).
 The original release-readiness audit is retained in
 [`docs/RELEASE_AUDIT.md`](docs/RELEASE_AUDIT.md); the

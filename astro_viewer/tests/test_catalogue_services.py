@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from unittest.mock import Mock
+
 from astro_viewer.app.astronomy.engine import ObserverLocation
+from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.services.catalogue_detail_service import (
     CATALOGUE_SOURCE,
     CatalogueDetailService,
@@ -41,6 +44,41 @@ def test_query_service_filters_secondary_designation_without_qt_state() -> None:
     assert result[0]["object_id"] == "messier-M31"
     assert result[0]["catalogue"] == "Secondary"
     assert result[0]["catalogue_id"] == "S31"
+
+
+def test_query_service_uses_canonical_editorial_description_for_ngc_placeholder() -> None:
+    record = _multi_catalogue_record()
+    record.update(
+        {
+            "object_id": "ngc-NGC1",
+            "name": "NGC 1",
+            "description": "Work in progress",
+            "primary_catalogue": "NGC",
+            "primary_designation": "NGC 1",
+            "primary_sort_index": 1,
+            "catalogues": ["NGC"],
+            "designations": [
+                {
+                    "catalogue": "NGC",
+                    "designation": "NGC 1",
+                    "sort_index": 1,
+                    "is_primary": True,
+                }
+            ],
+        }
+    )
+
+    repository = Mock(spec=CatalogueRepository)
+    repository.list_objects.return_value = [record]
+    objects = CatalogueQueryService(repository).load_objects(
+        {
+            "ngc-NGC1": {
+                "short_description": "Descrizione editoriale canonica.",
+            }
+        }
+    )
+
+    assert objects[0]["description"] == "Descrizione editoriale canonica."
 
 
 def test_identifier_and_observability_queries_are_framework_independent() -> None:

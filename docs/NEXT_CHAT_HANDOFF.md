@@ -1,19 +1,19 @@
 # NightScope - Next Chat Handoff
 
-Updated: 2026-09-03
+Updated: 2026-09-04
 
 ## Current State
 
-- Source version: `1.45.22`.
+- Source version: `1.46.0`.
 - Current public Windows release: `v1.45.21`, from source commit
   `d06300b43db0b3df2acbcb7cde2761158704f7b5`; its GitHub release contains the
   portable Windows x64 ZIP and no Linux package.
 - Current public Linux release: `v1.43.0`, from source commit
   `26dfaf49df8f9b8e73e84f406396f406170400b2`; its GitHub release contains the
   Debian 12 x86-64 tarball and adjacent checksum.
-- Source `1.45.22` is not published: no `v1.45.22` tag, bundle, checksum, or
+- Source `1.46.0` is not published: no `v1.46.0` tag, bundle, checksum, or
   GitHub release has been created.
-- `dist` was deliberately not regenerated or modified for `1.45.22`.
+- `dist` was deliberately not regenerated or modified for `1.46.0`.
 - The multilingual static website lives under `website/`, and
   `.github/workflows/pages.yml` uploads only that directory. GitHub Pages is
   enabled with the `workflow` source, HTTPS is enforced, and the public homepage
@@ -49,6 +49,7 @@ Updated: 2026-09-03
 | 1.45.20 | `4cf60a1` | Pins the Windows Python/dependency closure; its remote run exposed path-dependent bytecode in the legal archive. |
 | 1.45.21 | `d06300b` | Excludes code and bytecode from license notices so clean Windows environments generate an identical archive. |
 | 1.45.22 | `d99e03c` | Shows localized startup progress on every launch while preserving fixed English copy for a genuinely new runtime. |
+| 1.46.0 | current source | Establishes the audited multilingual editorial pipeline without adding NGC prose. |
 
 ## Resulting Architecture
 
@@ -96,10 +97,10 @@ QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.45.22` coverage/security source gate passed on
+The final local `1.46.0` coverage/security source gate passed on
 Windows/Python 3.14.5:
 
-- 1,215 tests and 10 subtests in 290.96 seconds, with 86% aggregate application
+- 1,223 tests and 10 subtests in 300.73 seconds, with 86% aggregate application
   coverage and no unexpected warning summary;
 - validated toolchain: pip 26.2.1, Ruff 0.16.5, coverage 7.16.0, PyInstaller
   6.22.2, and `pyinstaller-hooks-contrib` 2026.7;
@@ -107,18 +108,17 @@ Windows/Python 3.14.5:
   Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, and NumPy 2.5.2;
 - validated Earthdata runtime: earthaccess 0.18.0, s3fs/fsspec 2026.7.0,
   aiobotocore 3.9.0, and maximum compatible botocore 1.43.56;
-- complete documentation inventory at the coverage/security gate: 245 Python,
-  34 QML, and 16 operational files;
-- Ruff, compilation, license archive, MPC/OpenNGC snapshot checks;
+- complete documentation inventory at the coverage/security gate: 246 Python,
+  34 QML, and 17 operational files;
+- Ruff, compilation, license archive, MPC/OpenNGC snapshot checks, and the new
+  network-free editorial baseline/manifest/translation/provenance audit;
 - 0 import cycles and 0 protected-layer violations;
 - Bandit baseline unchanged: 0 high, 34 medium, 14 low reviewed findings;
 - `pip check`; the in-gate `pip-audit` found no known vulnerabilities;
 - backend, normal QML, and Red Night Vision smoke tests;
-- PySide6 6.11.2 `qmllint` over all 34 QML files exited successfully.
-- first-use and saved-Spanish `run_app` launches against an isolated temporary
-  runtime both reached the first frame and exited successfully;
-- native Windows splash renders passed for first-use English and routine
-  Italian, English, and Spanish copy.
+- the earlier PySide6 6.11.2 `qmllint`, isolated first-use/saved-Spanish launches,
+  and native Windows splash renders from `1.45.22` remain the latest dedicated
+  visual/startup evidence; they were not repeated for this non-QML preparation.
 
 After the static website and its Pages workflow were added, all 46 developer-
 tooling tests passed in 7.36 seconds and Ruff remained clean. These focused
@@ -147,12 +147,25 @@ catalogue family from the remaining repository or one migration/seed family
 from `database.bootstrap`, only after mapping its transaction boundary. The
 Skyfield event/calculation seams remain the next non-persistence priority.
 
-## Deferred Product Work: Catalogue Editorial Content
+## Active Product Work: Catalogue Editorial Content
 
-The next planned stream is source-backed descriptions and curiosities for the
-NGC-only physical targets, in Italian, English, and Spanish. The existing 228
-curated Solar System/Messier/Caldwell entries are complete; 7,366 NGC-only
-physical targets currently retain the localized `Work in progress` fallback.
+Source `1.46.0` prepares source-backed descriptions and curiosities for the
+NGC-only physical targets in Italian, English, and Spanish. It intentionally
+adds zero NGC entries: the existing 228 curated Solar System/Messier/Caldwell
+entries remain complete and 7,366 NGC-only physical targets remain queued.
+
+The network-free audit freezes the baseline identity, verifies canonical fields,
+EN/ES overlay parity, provenance, duplicate text, accepted manifests and the
+remaining count. New manifests live under
+`astro_viewer/data/editorial_batches`; live source checks and near-duplicate
+screening can be bounded to the batch currently under review. Automatic object
+translation is opt-in through `--draft-editorial` and never constitutes review.
+
+Runtime and schema localization did not need redesign. Italian remains canonical
+in the description/curiosity CSVs and EN/ES remain structured overlays. When a
+future NGC record is complete, its `short_description` replaces the historic
+catalogue placeholder and its `observing_notes` replace placeholder runtime
+notes, so no fifth prose field is introduced.
 
 Use `docs/CATALOGUE_EDITORIAL_WORKFLOW.md` as the acceptance contract. Important
 boundaries:
@@ -166,6 +179,12 @@ boundaries:
 - keep editorial fields out of NSOM, equipment selection, visibility, and
   recommendation scores;
 - do not regenerate `dist` until explicitly requested.
+
+The next source step is `1.46.1`: choose one coherent batch of at most 100
+objects, research and review every Italian entry, review both translations,
+accept its manifest, run the batch-specific static/live audits and the full
+source gate, then commit that batch as one version. Public platform bundles can
+group several source batches; they are not implied by each patch version.
 
 ## Release Boundary
 
@@ -182,7 +201,9 @@ source tag, and only then publish it. Follow `docs/RELEASE_CHECKLIST.md`.
 - `docs/ARCHITECTURE.md`: detailed current runtime architecture.
 - `docs/ARCHITECTURE_REVIEW_1_45.md`: evidence-backed structural assessment.
 - `docs/TESTING.md`: current local and CI gate contract.
-- `docs/CATALOGUE_EDITORIAL_WORKFLOW.md`: next multilingual content workflow.
+- `docs/CATALOGUE_EDITORIAL_WORKFLOW.md`: active multilingual content workflow.
+- `astro_viewer/data/editorial_batches/`: baseline, batch schema and acceptance
+  evidence for the `1.46.x` programme.
 - `docs/RELEASE_CHECKLIST.md`: artifact and publication approval.
 - `astro_viewer/CHANGELOG.md`: source-version history.
 - `website/`: official static EN/IT/ES product website and SEO assets.

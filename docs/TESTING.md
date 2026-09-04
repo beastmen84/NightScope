@@ -20,7 +20,7 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.45.22` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
+The `1.46.0` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
 Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
 `pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
 Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, NumPy 2.5.2,
@@ -59,11 +59,13 @@ The runner performs these checks in order:
 7. Third-party license archive validation.
 8. Offline MPC observatory snapshot validation.
 9. Offline OpenNGC snapshot and derived-seed validation.
-10. Optional `pip-audit`.
-11. One complete pytest pass, with or without runtime-code coverage.
-12. Backend smoke test in a disposable runtime.
-13. Normal-mode QML smoke test in a disposable runtime.
-14. Red Night Vision QML smoke test in a disposable runtime.
+10. Network-free catalogue editorial baseline, translation, provenance, and
+    accepted-batch validation.
+11. Optional `pip-audit`.
+12. One complete pytest pass, with or without runtime-code coverage.
+13. Backend smoke test in a disposable runtime.
+14. Normal-mode QML smoke test in a disposable runtime.
+15. Red Night Vision QML smoke test in a disposable runtime.
 
 The source gate does not build, update, or approve `dist`.
 
@@ -165,7 +167,14 @@ Validate fixed MPC and OpenNGC inputs without network access:
 ```powershell
 .\.venv\Scripts\python.exe astro_viewer\tools\update_mpc_observatories.py --check
 .\.venv\Scripts\python.exe astro_viewer\tools\update_ngc_catalogue.py --check
+.\.venv\Scripts\python.exe astro_viewer\tools\audit_catalogue_editorial.py
 ```
+
+The editorial audit reports the immutable 228-object pre-programme identity,
+complete IT/EN/ES coverage, accepted manifests and the remaining NGC-only
+backlog. Pass `--batch` to screen one candidate batch for near-duplicate prose;
+run `audit_curiosity_sources.py --batch ...` separately because live URL state is
+review evidence rather than a deterministic source gate.
 
 Run `pyside6-qmllint` over every QML file below `astro_viewer/app/ui`. Existing
 `unqualified access` diagnostics for context properties and nested components
@@ -173,21 +182,16 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
-The `1.45.22` coverage/security source gate passed on Windows/Python 3.14.5 with
-1,215 tests and 10 subtests in 290.96 seconds, 86% aggregate application
+The `1.46.0` coverage/security source gate passed on Windows/Python 3.14.5 with
+1,223 tests and 10 subtests in 300.73 seconds, 86% aggregate application
 coverage, no unexpected warning summary, complete documentation coverage for
-245 Python, 34 QML, and 16 operational files at that gate, an acyclic production graph, zero
+246 Python, 34 QML, and 17 operational files, an acyclic production graph, zero
 protected-layer violations, a reviewed Bandit baseline (0 high, 34 medium, 14
-low), clean dependency/license/MPC/OpenNGC checks, and successful backend,
-normal QML, and Red Night Vision QML smoke tests. The in-gate installed-
-environment `pip-audit` found no known vulnerabilities. A separate PySide6
-6.11.2 `qmllint` pass over all 34 QML files exited successfully; its existing
-non-fatal diagnostics remain tracked technical debt.
-
-The later GitHub Pages workflow raises the current governed inventory to 17
-operational files. Its focused validation covers the multilingual static pages,
-local links, copied assets, canonical and alternate URLs, structured data,
-sitemap, crawler policy, and Pages action contract.
+low), clean dependency/license/MPC/OpenNGC/editorial checks, and successful
+backend, normal QML, and Red Night Vision QML smoke tests. The in-gate installed-
+environment `pip-audit` found no known vulnerabilities. The most recent separate
+PySide6 6.11.2 `qmllint` pass over all 34 QML files remains the `1.45.22` pass;
+its existing non-fatal diagnostics remain tracked technical debt.
 
 No remote CI result, distribution build, source tag, checksum, or release is
 implied by that local source measurement.

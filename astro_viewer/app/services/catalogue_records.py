@@ -17,6 +17,14 @@ from astro_viewer.app.services.localization import (
 
 SOLAR_SYSTEM_CATALOGUE = "Sistema Solare"
 RECOMMENDATION_EDITABLE_CATALOGUES = frozenset({"Messier", "Caldwell", "NGC"})
+EDITORIAL_PLACEHOLDERS = frozenset(
+    {
+        "work in progress",
+        "lavori in corso",
+        "trabajo en curso",
+        "trabajo en progreso",
+    }
+)
 
 
 class SolarSystemBodyConfig(Protocol):
@@ -92,6 +100,13 @@ def catalogue_item_from_record(row: dict) -> dict:
         "search_terms": search_terms,
         "catalogue_sort_index": row.get("primary_sort_index"),
     }
+
+
+def is_editorial_placeholder(value: str | None) -> bool:
+    """Return whether a catalogue string is only an unfinished-content marker."""
+
+    normalized = " ".join(str(value or "").split()).casefold()
+    return normalized in EDITORIAL_PLACEHOLDERS
 
 
 def solar_system_catalogue_objects(

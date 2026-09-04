@@ -2,8 +2,8 @@
 
 This document is the acceptance contract for adding descriptions, observing
 guidance, and source-backed curiosities to the catalogue in Italian, English,
-and Spanish. It defines the next work stream; source `1.45.7` does not add the
-missing editorial entries.
+and Spanish. Source `1.46.0` establishes the pipeline and acceptance gates but
+does not add any of the missing NGC-only editorial entries.
 
 ## Baseline And Scope
 
@@ -39,6 +39,15 @@ Every completed object needs an Italian canonical record with:
 English and Spanish structured-content overlays must cover every translatable
 field. Empty text, source-language leakage, placeholder text, and raw machine
 translation are incomplete work.
+
+For the `1.46.x` programme, `object_descriptions_seed.csv` and
+`object_curiosities_seed.csv` are the unambiguous Italian editorial sources.
+The `objects` sections of `translations/en.json` and `translations/es.json` are
+the reviewed overlays consumed at runtime. The historic catalogue seed still
+contains English technical values and `Work in progress` placeholders; do not
+duplicate new prose into its `descrizione` column. Presentation replaces that
+placeholder with the reviewed `short_description` and replaces placeholder
+notes with `observing_notes` as soon as a complete editorial record exists.
 
 ## Editorial Standard
 
@@ -100,7 +109,18 @@ Automatic translation may assist a draft but is never the acceptance step.
 Names, catalogue identifiers, object classes, filter terms, angular units, and
 historical proper nouns require explicit review.
 
+`tools/update_content_translations.py` does not generate or refresh object prose
+unless `--draft-editorial` is supplied explicitly. That option only prepares a
+working draft; it never records a review or makes a batch acceptable. Existing
+reviewed object overlays remain untouched by an ordinary `--refresh` run.
+
 ## Batch Strategy
+
+The editorial programme uses the `1.46.x` source series. Version `1.46.0` owns
+only the preparatory pipeline. Content starts at `1.46.1` and advances one patch
+version per accepted batch. This can legitimately result in many patch versions;
+public Windows or Linux bundles may group several source batches and remain a
+separate release decision.
 
 Work in bounded batches, each with its own source version and commit. A batch
 should be small enough for every source and all three languages to be reviewed;
@@ -123,6 +143,13 @@ Each batch must include:
 - version, changelog, and handoff updates;
 - no `dist` regeneration.
 
+Copy `astro_viewer/data/editorial_batches/_batch_template.json` to the matching
+`batch_1_46_N.json` file at the start of a batch. `draft` records may plan IDs
+and sources, but Italian seeds and EN/ES overlays land only with an `accepted`
+manifest. The manifest records exact designations, claim-level evidence,
+per-object factual and language review states, visual samples, deferrals, and
+any justified similarity waivers.
+
 ## Automated Acceptance Gates
 
 Extend tests as coverage grows. At minimum, every accepted batch must prove:
@@ -143,12 +170,29 @@ Extend tests as coverage grows. At minimum, every accepted batch must prove:
 - translation catalogues remain complete and QML detail rendering remains
   unclipped for representative long strings.
 
+The network-free repository audit is part of the standard source gate:
+
+```powershell
+.\.venv\Scripts\python.exe astro_viewer\tools\audit_catalogue_editorial.py
+```
+
+Before accepting one batch, run its near-duplicate screen and its bounded live
+source check:
+
+```powershell
+.\.venv\Scripts\python.exe astro_viewer\tools\audit_catalogue_editorial.py `
+  --batch astro_viewer\data\editorial_batches\batch_1_46_N.json
+.\.venv\Scripts\python.exe astro_viewer\tools\audit_curiosity_sources.py `
+  --batch astro_viewer\data\editorial_batches\batch_1_46_N.json
+```
+
 Similarity checks are screening tools, not proof of quality. Passing a token
 threshold does not make templated prose acceptable.
 
 ## Review Artifacts
 
-For each version, retain a concise batch record containing:
+For each version, retain the machine-readable manifest plus a concise review
+record containing:
 
 - object count and ID range/list;
 - source mix and failed/unavailable sources;

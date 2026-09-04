@@ -117,3 +117,20 @@ def test_content_adapter_applies_catalogue_metadata_and_fallback_image() -> None
     assert adapted.best_filter_class == "UHC"
     assert adapted.fallback_filter_class == "OIII"
     assert adapted.imaging_reducer_recommended is True
+
+
+def test_content_adapter_replaces_editorial_placeholder_with_observing_notes() -> None:
+    target = replace(_target("ngc-NGC1"), notes="Work in progress")
+
+    adapted = apply_object_content_from_sources(
+        target,
+        {},
+        {
+            "ngc-NGC1": {
+                "observing_notes": "Iniziare con un campo moderatamente ampio.",
+            }
+        },
+        {},
+    )
+
+    assert adapted.notes == "Iniziare con un campo moderatamente ampio."

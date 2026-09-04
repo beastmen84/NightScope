@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.45.22
+This document describes the architecture implemented by the NightScope 1.46.0
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -301,7 +301,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.45.22`:
+Current runtime status for `1.46.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -382,23 +382,30 @@ Current runtime status for `1.45.22`:
   Solar System bodies. Each has a dedicated local `512 x 512` JPEG, with
   survey cutouts for deep sky and normalized NASA/JPL PIA observations for
   Solar System bodies. NGC-only objects deliberately use a type-specific
-  fallback image and the localized `Work in progress` description/curiosity
-  until they are enriched individually. Source URL, attribution and usage
-  metadata do not enter ranking.
+  fallback image and a `Work in progress` description/curiosity until they are
+  enriched individually. Once an NGC-only editorial row exists, the catalogue
+  projection replaces its placeholder description with the same lazy localized
+  `short_description`; recommendation presentation likewise replaces, rather
+  than appends, placeholder notes with `observing_notes`. This avoids a second
+  canonical prose field. Source URL, attribution and usage metadata do not enter
+  ranking.
 - `ObjectCuriosity` remains a separate presentation table and has no NSOM,
   Equipment or observability role. Seeded descriptions and curiosities are
   managed through `is_builtin`; bootstrap refreshes them, while content
   imported by the user is marked custom and preserved.
 - The 228 curated Solar System and deep-sky descriptions keep identity, season
   and difficulty metadata separate from `short_description` and
-  `observing_notes`. NGC-only placeholder text remains in the physical
+  `observing_notes`. The historic NGC-only placeholder remains in the physical
   catalogue seed and is excluded from the structured-content translation
-  generator. The seeds remain UTF-8 without BOM because bootstrap reads
-  canonical CSV headers with the standard `utf-8` codec.
-- Future NGC-only enrichment follows the source, batching, three-language, and
-  review contract in
+  generator; new Italian prose lives only in the description/curiosity seeds.
+  The seeds remain UTF-8 without BOM because bootstrap reads canonical CSV
+  headers with the standard `utf-8` codec.
+- NGC-only enrichment follows the source, batching, three-language, manifest,
+  and review contract in
   [CATALOGUE_EDITORIAL_WORKFLOW.md](CATALOGUE_EDITORIAL_WORKFLOW.md); editorial
-  completion remains independent from catalogue identity and ranking.
+  completion remains independent from catalogue identity and ranking. The
+  network-free editorial audit is a standard source gate, while live link checks
+  remain bounded to the batch under review.
 - If Sky Compass ranking raises unexpectedly, the controller logs the failure
   and uses a geometry-only payload. Missing sky-quality input is neutral inside
   the canonical environment and does not switch ranking implementation.

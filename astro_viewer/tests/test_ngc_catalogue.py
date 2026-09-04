@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import csv
+import json
 from collections import Counter
 from pathlib import Path
 
+from astro_viewer.tools.audit_catalogue_editorial import audit_catalogue_editorial
+from astro_viewer.tools.audit_curiosity_sources import source_urls
 from astro_viewer.tools.update_ngc_catalogue import (
     DEFAULT_DESIGNATIONS,
     DEFAULT_OBJECTS,
@@ -121,3 +124,81 @@ def test_openngc_attribution_and_complete_license_are_redistributed() -> None:
     assert license_text.startswith(
         "Creative Commons Attribution-ShareAlike 4.0 International"
     )
+
+
+def test_editorial_baseline_and_ngc_backlog_are_audited() -> None:
+    report = audit_catalogue_editorial()
+
+    assert report.errors == ()
+    assert report.catalogue_objects == 7_585
+    assert report.ngc_only_objects == 7_366
+    assert report.baseline_objects == 228
+    assert report.completed_objects == 228
+    assert report.completed_ngc_objects == 0
+    assert report.remaining_ngc_objects == 7_366
+    assert report.accepted_batches == 0
+
+
+def test_accepted_editorial_batch_requires_all_reviews_and_completed_content(
+    tmp_path: Path,
+) -> None:
+    manifest = tmp_path / "batch_1_46_1.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "source_version": "1.46.1",
+                "status": "accepted",
+                "selection_basis": "Synthetic acceptance failure.",
+                "created_on": "2026-09-04",
+                "reviewed_on": "2026-09-04",
+                "objects": [
+                    {
+                        "object_id": "ngc-NGC1",
+                        "designations": ["NGC 1"],
+                        "sources": [
+                            {
+                                "label": "Source",
+                                "url": "https://example.org/ngc-1",
+                                "accessed_on": "2026-09-04",
+                                "supports": list(
+                                    (
+                                        "short_description",
+                                        "observing_notes",
+                                        "best_seen",
+                                        "curiosity_text",
+                                    )
+                                ),
+                            }
+                        ],
+                        "reviews": {
+                            "facts": "accepted",
+                            "it": "accepted",
+                            "en": "accepted",
+                            "es": "pending",
+                        },
+                    }
+                ],
+                "visual_review": {
+                    "samples": [
+                        {
+                            "object_id": "ngc-NGC1",
+                            "reason": "Synthetic sample.",
+                            "normal": "accepted",
+                            "red_night_vision": "accepted",
+                        }
+                    ]
+                },
+                "similarity_waivers": [],
+                "deferred": [],
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    report = audit_catalogue_editorial(batch_path=manifest)
+
+    assert any("review es must be accepted" in error for error in report.errors)
+    assert any("accepted object lacks complete Italian seeds" in error for error in report.errors)
+    assert source_urls(manifest) == ["https://example.org/ngc-1"]

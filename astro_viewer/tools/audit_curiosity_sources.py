@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -14,7 +15,17 @@ ROOT = Path(__file__).resolve().parents[2]
 SEED_PATH = ROOT / "astro_viewer" / "data" / "object_curiosities_seed.csv"
 
 
-def _source_urls() -> list[str]:
+def source_urls(batch_path: Path | None = None) -> list[str]:
+    if batch_path is not None:
+        payload = json.loads(batch_path.read_text(encoding="utf-8"))
+        return sorted(
+            {
+                str(source.get("url") or "").strip()
+                for item in payload.get("objects", [])
+                for source in item.get("sources", [])
+                if str(source.get("url") or "").strip()
+            }
+        )
     with SEED_PATH.open("r", encoding="utf-8", newline="") as file:
         return sorted({row["source_url"].strip() for row in csv.DictReader(file)})
 
@@ -39,11 +50,18 @@ def _check(url: str) -> tuple[str, int, str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Check every distinct curiosity source URL.")
     parser.add_argument("--workers", type=int, default=8, help="parallel request count")
+    parser.add_argument(
+        "--batch",
+        type=Path,
+        help="check only evidence URLs recorded in one editorial batch manifest",
+    )
     args = parser.parse_args()
     if args.workers < 1 or args.workers > 16:
         parser.error("--workers must be between 1 and 16")
 
-    urls = _source_urls()
+    urls = source_urls(args.batch)
+    if not urls:
+        parser.error("the selected source set is empty")
     failures = []
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
         pending = {pool.submit(_check, url): url for url in urls}

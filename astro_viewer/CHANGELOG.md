@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+## NightScope 1.46.0 - 2026-09-04
+
+- Preparata la serie editoriale `1.46.x` senza aggiungere ancora contenuti NGC:
+  il baseline identifica i 228 oggetti gia' completi e l'inventario misura
+  esplicitamente 7.366 oggetti NGC-only ancora da revisionare.
+- Aggiunti manifest JSON versionati per batch da 1 a 100 oggetti, con identita'
+  fisica e designazioni, fonti HTTPS per ciascun campo, date di accesso, stati di
+  revisione fattuale/IT/EN/ES, campioni visuali e deroghe motivate alla
+  similarita'. Un batch incompleto non puo' risultare accettato.
+- Aggiunto un audit editoriale deterministico al gate sorgente: verifica campi
+  canonici italiani, overlay inglesi e spagnoli, provenienza, duplicati,
+  copertura dei manifest e conteggio residuo; con `--batch` controlla anche le
+  quasi-duplicazioni rispetto al corpus esistente.
+- L'audit live delle fonti puo' ora essere limitato al manifest corrente, evitando
+  di ricontrollare l'intero archivio a ogni batch.
+- La generazione automatica non crea o sovrascrive piu' testi editoriali per
+  impostazione predefinita. L'opzione esplicita `--draft-editorial` produce solo
+  bozze che richiedono comunque revisione umana nelle tre lingue.
+- Per i futuri oggetti NGC completati, la descrizione canonica sostituisce il
+  placeholder nelle viste catalogo e le note osservative sostituiscono il
+  placeholder nei target runtime. Il testo non viene duplicato nel campo
+  storico `descrizione` del catalogo e non entra in punteggi o ranking.
+- Superati 86 test focalizzati su catalogo, localizzazione, strumenti e nuovi
+  casi di accettazione/rifiuto dei batch. Il gate sorgente completo ha superato
+  1.223 test e 10 subtest in 300,73 secondi con copertura aggregata 86%, audit
+  dipendenze senza vulnerabilita' note, grafo import e baseline Bandit invariati,
+  audit editoriale pulito e smoke test backend/QML normale/Red Night Vision
+  riusciti.
+- La versione sorgente passa a `1.46.0`; `dist` non e' stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release. Le release
+  pubbliche restano Windows `v1.45.21` e Linux `v1.43.0`.
+
 ## NightScope 1.45.22 - 2026-09-03
 
 - Lo splash di avvio viene ora mostrato a ogni lancio normale, prima del lavoro

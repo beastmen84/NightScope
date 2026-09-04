@@ -18,6 +18,7 @@ from astro_viewer.app.models.observing import CelestialObject, MoonGeometrySumma
 from astro_viewer.app.services.best_object_nsom_ranking import (
     BestObjectNsomSelectionService,
 )
+from astro_viewer.app.services.catalogue_records import is_editorial_placeholder
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.equipment_setup_read_model import (
     EquipmentSetupReadModel,
@@ -459,8 +460,10 @@ def apply_object_content_from_sources(
             description["observing_notes"],
             strip=True,
         )
+        if observing_notes and is_editorial_placeholder(notes):
+            notes = ""
         if observing_notes and observing_notes not in notes:
-            notes = join_text([observing_notes, item.notes], " ")
+            notes = join_text([observing_notes, notes], " ")
     return replace(
         item,
         image=image["image_path"] if image else item.image,

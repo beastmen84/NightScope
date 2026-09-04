@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "source_version": "1.46.1",
+  "status": "draft",
+  "selection_basis": "Replace with one coherent class, constellation range, or source collection.",
+  "created_on": "2026-09-04",
+  "reviewed_on": null,
+  "objects": [
+    {
+      "object_id": "ngc-NGC0000",
+      "designations": [
+        "NGC 0000"
+      ],
+      "sources": [
+        {
+          "label": "Authoritative source label",
+          "url": "https://example.org/direct-supporting-page",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "pending",
+        "it": "pending",
+        "en": "pending",
+        "es": "pending"
+      }
+    }
+  ],
+  "visual_review": {
+    "samples": [
+      {
+        "object_id": "ngc-NGC0000",
+        "reason": "Replace with the representative-case reason.",
+        "normal": "pending",
+        "red_night_vision": "pending"
+      }
+    ]
+  },
+  "similarity_waivers": [],
+  "deferred": []
+}

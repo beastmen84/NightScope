@@ -18,6 +18,7 @@ from astro_viewer.app.services.catalogue_records import (
     SOLAR_SYSTEM_CATALOGUE,
     catalogue_item_from_record,
     catalogue_sort_key,
+    is_editorial_placeholder,
     solar_system_catalogue_objects,
 )
 from astro_viewer.app.services.localization import (
@@ -48,10 +49,17 @@ class CatalogueQueryService:
     ) -> list[dict]:
         if self._catalogue_repository is None:
             raise RuntimeError("Catalogue repository is not configured.")
-        objects = [
-            catalogue_item_from_record(row)
-            for row in self._catalogue_repository.list_objects()
-        ]
+        objects = []
+        for row in self._catalogue_repository.list_objects():
+            item = catalogue_item_from_record(row)
+            editorial = object_descriptions.get(str(item["object_id"])) or {}
+            short_description = presentation_text(
+                editorial.get("short_description", ""),
+                strip=True,
+            )
+            if short_description and is_editorial_placeholder(item["description"]):
+                item["description"] = short_description
+            objects.append(item)
         objects.extend(solar_system_catalogue_objects(object_descriptions))
         return sorted(objects, key=catalogue_sort_key)
 

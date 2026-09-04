@@ -13,6 +13,7 @@ from xml.etree import ElementTree
 import pytest
 from PySide6.QtCore import QCoreApplication, QLocale, QObject
 
+from tools import update_content_translations as content_translation_tool
 from astro_viewer import main as main_module
 from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
 from astro_viewer.app.models.sky import SkyQuality
@@ -31,6 +32,7 @@ from astro_viewer.app.services.translation_manager import (
 from astro_viewer.app.viewmodels.app_controller import AppController
 from tools.update_content_translations import (
     curate_content_translation,
+    should_generate_translation,
     source_content,
     source_language,
 )
@@ -257,6 +259,80 @@ def test_structured_content_covers_every_translatable_seed_field() -> None:
     assert source_language("equipment_telescopes", "any", "notes") == "en"
     assert source_language("equipment_telescopes", "any", "optical_type") == "it"
     assert source_language("equipment_reducers", "any", "notes") == "it"
+
+
+def test_editorial_machine_translation_requires_explicit_draft_opt_in() -> None:
+    assert not should_generate_translation(
+        "objects",
+        "",
+        refresh=False,
+        draft_editorial=False,
+    )
+    assert not should_generate_translation(
+        "objects",
+        "reviewed",
+        refresh=True,
+        draft_editorial=False,
+    )
+    assert should_generate_translation(
+        "objects",
+        "",
+        refresh=False,
+        draft_editorial=True,
+    )
+    assert should_generate_translation(
+        "equipment_filters",
+        "",
+        refresh=False,
+        draft_editorial=False,
+    )
+
+
+def test_refresh_preserves_reviewed_editorial_and_does_not_fill_missing_drafts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fields = {
+        "short_description": "Reviewed description.",
+        "observing_notes": "Reviewed observing notes.",
+        "best_seen": "Reviewed season.",
+        "curiosity_text": "Reviewed curiosity.",
+    }
+    pack_path = tmp_path / "en.json"
+    pack_path.write_text(
+        json.dumps(
+            {
+                "language": {"code": "en", "translation_code": "en"},
+                "content": {"objects": {"reviewed": fields}},
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(content_translation_tool, "TRANSLATIONS_DIR", tmp_path)
+    monkeypatch.setattr(
+        content_translation_tool,
+        "source_content",
+        lambda: {
+            "objects": {
+                "reviewed": {key: f"Italian {key}" for key in fields},
+                "missing": {key: f"Italian missing {key}" for key in fields},
+            }
+        },
+    )
+
+    def unexpected_translation(*_args, **_kwargs):
+        raise AssertionError("object translation requires --draft-editorial")
+
+    monkeypatch.setattr(
+        content_translation_tool,
+        "translate_values",
+        unexpected_translation,
+    )
+
+    content_translation_tool.update_pack("en", refresh=True)
+
+    updated = json.loads(pack_path.read_text(encoding="utf-8"))
+    assert updated["content"]["objects"] == {"reviewed": fields}
 
 
 def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:

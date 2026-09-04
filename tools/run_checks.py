@@ -42,6 +42,10 @@ def _checks(*, include_coverage: bool, include_security: bool) -> list[Check]:
             "ngc-catalogue",
             ("astro_viewer/tools/update_ngc_catalogue.py", "--check"),
         ),
+        Check(
+            "catalogue-editorial",
+            ("astro_viewer/tools/audit_catalogue_editorial.py",),
+        ),
     ]
     if include_security:
         checks.append(

@@ -102,9 +102,11 @@ The files that belong in source control are `fr.json`, `fr.ts` and the generated
 `fr.qm`. The JSON and TS files can also be translated manually; compilation
 rejects empty, unfinished or placeholder-incompatible entries.
 
-The update tools preserve existing reviewed translations. Use `--refresh` only
-when intentionally replacing all generated text, because it can overwrite
-editorial corrections.
+The update tools preserve existing reviewed translations. `--refresh` replaces
+non-editorial generated content, but deliberately leaves object prose alone.
+Use `--draft-editorial` only to prepare missing or refreshed object text for
+human editing; a draft is incomplete until its batch manifest records factual,
+Italian, English, and Spanish acceptance.
 
 Reviewed TS corrections can be stored in
 `tools/translation_reviews/<code>.json`. The optional `translations` object
@@ -117,10 +119,12 @@ edits to generated XML.
 The current tree contains reviewed overlays for both `en` and `es`. The English
 overlay protects provider-account instructions and reviewed UI terminology;
 the broader Spanish overlay owns the complete Spanish UI review. Reviewed
-English structured-content corrections live in deterministic overrides and
-targeted replacements in `tools/update_content_translations.py`. Tests require
-both TS overlays and the structured-content curation to remain applicable and
-idempotent after catalogue regeneration.
+English structured-content corrections for the historic catalogue live in
+deterministic overrides and targeted replacements in
+`tools/update_content_translations.py`. New NGC object prose is governed by the
+accepted manifests under `astro_viewer/data/editorial_batches`; tests require
+both TS overlays and structured-content curation to remain complete after
+catalogue regeneration.
 
 The Italian and English object catalogues received a full editorial pass in
 source version `1.34.3`. Regression tests protect the corrected object
@@ -182,6 +186,9 @@ committed.
   field through `source_content()` in `tools/update_content_translations.py`;
   declare its real language through `source_language()`. Never infer the source
   language from the section or from the requested output language.
+- New NGC editorial text: keep Italian in the description/curiosity seeds,
+  review EN/ES in the structured object overlays, and record provenance plus all
+  four acceptance states in the matching `batch_1_46_N.json` manifest.
 - Domain codes and persisted values remain stable and untranslated. Add a
   presentation label instead of branching on translated text.
 - Derived labels, such as catalogue designation plus object name, are composed

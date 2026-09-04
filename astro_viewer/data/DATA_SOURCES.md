@@ -326,8 +326,11 @@ ranking calculations.
 
 NGC-only targets do not fabricate entries in these three editorial/image
 seeds. Their catalogue detail uses a type-specific compatibility image and the
-localized `Work in progress` placeholder for description and curiosity until
-individual source-backed content is added.
+localized `Work in progress` placeholder until individual source-backed content
+is added. Once an object has a complete editorial record, presentation derives
+the catalogue description and notes from the canonical `short_description` and
+`observing_notes`; new prose is not duplicated into the historic catalogue
+`descrizione` field.
 
 The required provenance, three-language review, batching, and acceptance gates
 for that work are defined in
@@ -344,3 +347,15 @@ The source check is repeatable without modifying data:
 ```powershell
 .\.venv\Scripts\python.exe astro_viewer\tools\audit_curiosity_sources.py --workers 8
 ```
+
+Source `1.46.0` also freezes the 228-object baseline identity and adds a
+network-free audit for canonical fields, EN/ES overlay parity, HTTPS provenance,
+accepted batch manifests, duplicate text, and remaining NGC coverage:
+
+```powershell
+.\.venv\Scripts\python.exe astro_viewer\tools\audit_catalogue_editorial.py
+```
+
+Use the `--batch` option on both audit tools while accepting one bounded
+`1.46.x` batch; this limits live URL checks to the evidence being reviewed and
+enables near-duplicate screening against the existing corpus.

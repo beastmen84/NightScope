@@ -2230,7 +2230,26 @@ def translate_values(
     return translations
 
 
-def update_pack(language_code: str, *, refresh: bool) -> None:
+def should_generate_translation(
+    section: str,
+    previous: str,
+    *,
+    refresh: bool,
+    draft_editorial: bool,
+) -> bool:
+    """Keep object prose human-owned unless draft generation is explicit."""
+
+    if section == "objects" and not draft_editorial:
+        return False
+    return refresh or not previous
+
+
+def update_pack(
+    language_code: str,
+    *,
+    refresh: bool,
+    draft_editorial: bool = False,
+) -> None:
     metadata_path = TRANSLATIONS_DIR / f"{language_code}.json"
     payload = json.loads(metadata_path.read_text(encoding="utf-8"))
     if payload.get("language", {}).get("code") != language_code:
@@ -2252,7 +2271,13 @@ def update_pack(language_code: str, *, refresh: bool) -> None:
                 field_source_language = source_language(section, item_key, field)
                 if translation_code == field_source_language:
                     continue
-                if refresh or not str(existing.get(field, "")).strip():
+                previous = str(existing.get(field, "")).strip()
+                if should_generate_translation(
+                    section,
+                    previous,
+                    refresh=refresh,
+                    draft_editorial=draft_editorial,
+                ):
                     required_by_source.setdefault(field_source_language, []).append(source)
     translated: dict[str, str] = {}
     for source_code, required in required_by_source.items():
@@ -2274,7 +2299,12 @@ def update_pack(language_code: str, *, refresh: bool) -> None:
                 if translation_code == source_language(section, item_key, field):
                     continue
                 previous = str(existing.get(field, "")).strip()
-                value = translated.get(source) if refresh or not previous else previous
+                if section == "objects" and not draft_editorial:
+                    if not previous:
+                        continue
+                    value = previous
+                else:
+                    value = translated.get(source) if refresh or not previous else previous
                 translated_fields[field] = curate_content_translation(
                     section,
                     item_key,
@@ -2305,7 +2335,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--refresh",
         action="store_true",
-        help="Replace existing generated content instead of filling only missing fields.",
+        help=(
+            "Replace existing non-editorial generated content instead of filling only "
+            "missing fields."
+        ),
+    )
+    parser.add_argument(
+        "--draft-editorial",
+        action="store_true",
+        help=(
+            "Allow machine-generated object prose as an explicitly unreviewed draft; "
+            "batch acceptance still requires manual IT/EN/ES review."
+        ),
     )
     return parser.parse_args()
 
@@ -2314,7 +2355,11 @@ def main() -> int:
     args = parse_args()
     languages = args.languages or sorted(path.stem for path in TRANSLATIONS_DIR.glob("*.json"))
     for language_code in languages:
-        update_pack(language_code, refresh=args.refresh)
+        update_pack(
+            language_code,
+            refresh=args.refresh,
+            draft_editorial=args.draft_editorial,
+        )
     return 0
 
 
