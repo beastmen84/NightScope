@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+## NightScope 1.46.7 - 2026-09-04
+
+- Conclusa la rimessa a punto del debito editoriale storico misurato: riscritte
+  le note osservative di 51 galassie Messier/Caldwell e, per C21, C48, C57 e
+  C60, anche le quattro descrizioni rimaste in famiglie duplicate. Curiosita',
+  periodi e difficolta' gia' distinti non sono stati riaperti.
+- Le nuove indicazioni distinguono scala e luminosita' superficiale, polvere,
+  barre, asimmetrie, compagne nello stesso campo, limiti visuali realistici e i
+  pochi casi in cui un filtro e' utile su una regione H II separata, non sulla
+  galassia nel suo insieme. Non sono sostituzioni lessicali della prosa
+  precedente.
+- Tutti i 51 testi italiani e i relativi overlay inglesi e spagnoli sono stati
+  revisionati individualmente. I 50 URL NASA Hubble distinti che sostengono i
+  51 oggetti del manifest hanno superato l'audit live.
+- Dieci campioni rappresentativi hanno prodotto 120 scene Object Detail finali:
+  IT/EN/ES, modalita' normale e Red Night Vision, sia sull'intestazione con le
+  note sia sulle schede inferiori, senza tagli, sovrapposizioni o perdita della
+  monocromia rossa.
+- Il controllo deterministico passa da 2 famiglie/4 oggetti a zero per le
+  descrizioni e da 5 famiglie/51 oggetti a zero per le note osservative. Le
+  cinque correzioni cumulative coprono 177 oggetti storici; la copertura resta
+  303 oggetti completi, inclusi 75 NGC-only, con 7.291 NGC-only ancora da
+  arricchire.
+- Gate sorgente completo con sicurezza superato: 1.227 test e 10 subtest in
+  269,93 secondi, copertura aggregata 86%, documentazione completa per 247 file
+  Python, 34 QML e 17 operativi, grafo import aciclico, baseline Bandit
+  invariata, nessuna vulnerabilita' nota e smoke test backend/QML
+  normale/Red Night Vision riusciti. L'audit editoriale passa senza avvisi.
+- La versione sorgente passa a `1.46.7`; `dist` non e' stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release. Le release
+  pubbliche restano Windows `v1.45.21` e Linux `v1.43.0`.
+
 ## NightScope 1.46.6 - 2026-09-04
 
 - Completata la rimessa a punto delle 20 nebulose a emissione, riflessione e

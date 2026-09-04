@@ -4,7 +4,7 @@ This document is the acceptance contract for adding descriptions, observing
 guidance, and source-backed curiosities to the catalogue in Italian, English,
 and Spanish. Source `1.46.0` established the pipeline and acceptance gates;
 sources `1.46.1` and `1.46.2` apply that contract to 75 NGC-only galaxies,
-while sources `1.46.3` through `1.46.6` apply the same standard to field-scoped
+while sources `1.46.3` through `1.46.7` apply the same standard to field-scoped
 baseline remediation.
 
 ## Baseline And Scope
@@ -44,6 +44,13 @@ field scale, surface brightness, mixed reflection/emission components,
 filter-versus-unfiltered comparisons, compact shells, and realistic visual
 limits without reopening their already distinct descriptions.
 
+Source `1.46.7` closes the measured historical baseline debt. It replaces the
+final five repeated or near-identical galaxy observing-note families across 51
+objects and rewrites the four descriptions still belonging to two duplicated
+families. The resulting notes distinguish field scale, surface brightness,
+companions, bars, dust, asymmetry, useful filter exceptions, and realistic
+visual limits for each galaxy rather than varying one shared template.
+
 Catalogue aliases do not create duplicate editorial work. Content belongs to
 the stable physical `object_id`; Messier, Caldwell, NGC, and historical aliases
 all render the same physical object's content.
@@ -62,15 +69,16 @@ debt: 11 connected description families affect 24 objects and 23 observing-note
 families affect 177 objects after catalogue IDs, parenthetical aliases, and
 measurements are normalized. Historical curiosity texts remain distinct.
 
-After the accepted `1.46.6` remediation, the remaining measured debt is 2
-description families affecting 4 objects and 5 observing-note families
-affecting 51 objects. These are backlog figures, not a quality waiver for the
-remaining prose.
+After the accepted `1.46.7` remediation, the deterministic screen reports zero
+repeated or near-identical description families and zero observing-note
+families in the historical baseline. This closes the measured template debt;
+it is not a claim that every singleton sentence can never be improved.
 
-The deterministic audit reports those figures as a warning, not as acceptance
-of the repeated prose and not as a failure of later NGC batches. Remediation
-must use bounded, reviewed versions with the same three-language and source
-requirements; bulk synonym replacement is not an acceptable fix.
+The deterministic audit will report any newly detected family as a warning,
+not as acceptance of repeated prose and not as a failure of unrelated later
+NGC batches. Any future remediation must still use bounded, reviewed versions
+with the same three-language and source requirements; bulk synonym replacement
+is not an acceptable fix.
 
 ## Required Fields
 
@@ -182,9 +190,11 @@ Accepted batch ledger:
 | `1.46.4` | Baseline remediation | Remaining formulaic open-cluster notes; ten descriptions | 75 | 65 | 7,291 |
 | `1.46.5` | Baseline remediation | Remaining formulaic globular-cluster notes; six descriptions | 75 | 106 | 7,291 |
 | `1.46.6` | Baseline remediation | Remaining formulaic nebula and planetary-nebula notes | 75 | 126 | 7,291 |
+| `1.46.7` | Baseline remediation | Final galaxy-note families; four descriptions | 75 | 177 | 7,291 |
 
-The next editorial source patch is `1.46.7`; it must define and review its own
-bounded manifest rather than extending either accepted set.
+The next editorial source patch is `1.46.8`; it may resume bounded NGC-only
+enrichment, with its own reviewed manifest rather than extending an accepted
+set.
 
 Work in bounded batches, each with its own source version and commit. A batch
 must be small enough for every source and all three languages to be reviewed.

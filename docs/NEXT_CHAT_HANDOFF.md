@@ -4,30 +4,29 @@ Updated: 2026-09-04
 
 ## Current State
 
-- Source version: `1.46.6`.
+- Source version: `1.46.7`.
 - Current public Windows release: `v1.45.21`, from source commit
   `d06300b43db0b3df2acbcb7cde2761158704f7b5`; its GitHub release contains the
   portable Windows x64 ZIP and no Linux package.
 - Current public Linux release: `v1.43.0`, from source commit
   `26dfaf49df8f9b8e73e84f406396f406170400b2`; its GitHub release contains the
   Debian 12 x86-64 tarball and adjacent checksum.
-- Source `1.46.6` is not published: no `v1.46.6` tag, bundle, checksum, or
+- Source `1.46.7` is not published: no `v1.46.7` tag, bundle, checksum, or
   GitHub release has been created.
-- `dist` was deliberately not regenerated or modified for `1.46.6`.
-- Six editorial batches are accepted: two enrich 75 NGC-only galaxies with
+- `dist` was deliberately not regenerated or modified for `1.46.7`.
+- Seven editorial batches are accepted: two enrich 75 NGC-only galaxies with
   complete canonical Italian content and reviewed English/Spanish overlays;
-  the other four remediate declared fields for 17 baseline galaxies, 48
+  the other five remediate declared fields for 68 baseline galaxies, 48
   baseline open clusters, 41 baseline globular clusters, and 20 baseline
-  nebulae or planetary nebulae. Catalogue
-  coverage remains 303 complete objects (228 baseline plus 75 NGC-only), with
+  nebulae or planetary nebulae. Catalogue coverage remains 303 complete objects
+  (228 baseline plus 75 NGC-only), with
   7,291 NGC-only targets remaining.
 - A retrospective quality screen confirms the 50 entries added in `1.46.1`
-  remain specific and useful. The older baseline has measurable formulaic debt:
-  the four remediation batches clear the open-cluster, globular-cluster and
-  nebula families plus the first galaxy family. The remaining warning reports
-  2 connected description families across 4 objects and 5 observing-note
-  families across 51 objects, all galaxies; they must be remediated in reviewed
-  batches rather than hidden by bulk rewrites.
+  remain specific and useful. Five remediation batches now clear every
+  repeated or near-identical description and observing-note family measured in
+  the older baseline: 177 objects were corrected under field-scoped manifests.
+  This closes the measured template debt without claiming that no individual
+  singleton sentence can ever be improved.
 - The multilingual static website lives under `website/`, and
   `.github/workflows/pages.yml` uploads only that directory. GitHub Pages is
   enabled with the `workflow` source, HTTPS is enforced, and the public homepage
@@ -69,7 +68,8 @@ Updated: 2026-09-04
 | 1.46.3 | `5f4a252` | Adds field-scoped baseline remediation and replaces generic prose for 17 reviewed galaxies. |
 | 1.46.4 | `f145b4a` | Replaces formulaic guidance for 48 baseline open clusters and rewrites ten duplicated descriptions. |
 | 1.46.5 | `8a2de9a` | Replaces formulaic guidance for 41 baseline globular clusters and rewrites six duplicated descriptions. |
-| 1.46.6 | current source | Replaces formulaic guidance for 20 baseline nebulae and planetary nebulae. |
+| 1.46.6 | `2d2d1b5` | Replaces formulaic guidance for 20 baseline nebulae and planetary nebulae. |
+| 1.46.7 | current source | Replaces the final formulaic galaxy guidance and four duplicated descriptions. |
 
 ## Resulting Architecture
 
@@ -117,12 +117,12 @@ QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.46.6` coverage/security source gate passed on
+The final local `1.46.7` coverage/security source gate passed on
 Windows/Python 3.14.5:
 
-- 1,227 tests and 10 subtests in 266.69 seconds, with 86% aggregate application
-  coverage; the only tool-level warning was the expected non-failing report of
-  residual historical formulaic prose;
+- 1,227 tests and 10 subtests in 269.93 seconds, with 86% aggregate application
+  coverage; the editorial audit passed without warnings and reports zero
+  residual repeated or near-identical historical prose families;
 - validated toolchain: pip 26.2.1, Ruff 0.16.5, coverage 7.16.0, PyInstaller
   6.22.2, and `pyinstaller-hooks-contrib` 2026.7;
 - validated UI/astronomy runtime: PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
@@ -152,9 +152,13 @@ Windows/Python 3.14.5:
 - separate `1.46.6` remediation evidence: 20 distinct object-specific URLs
   reached successfully and 84 final Object Detail scenes reviewed across seven
   objects, IT/EN/ES, normal/red, and both observing-note and lower-card positions;
+- separate `1.46.7` remediation evidence: 50 distinct NASA Hubble URLs reached
+  successfully for 51 objects and 120 final Object Detail scenes reviewed
+  across ten objects, IT/EN/ES, normal/red, and both observing-note and
+  lower-card positions;
 - the earlier PySide6 6.11.2 `qmllint`, isolated first-use/saved-Spanish launches,
   and native Windows splash renders from `1.45.22` remain the latest dedicated
-  startup evidence; no QML source changed from `1.46.1` through `1.46.6`.
+  startup evidence; no QML source changed from `1.46.1` through `1.46.7`.
 
 After the static website and its Pages workflow were added, all 46 developer-
 tooling tests passed in 7.36 seconds and Ruff remained clean. These focused
@@ -185,18 +189,19 @@ Skyfield event/calculation seams remain the next non-persistence priority.
 
 ## Active Product Work: Catalogue Editorial Content
 
-Sources through `1.46.6` apply the prepared editorial pipeline to 75 notable
+Sources through `1.46.7` apply the prepared editorial pipeline to 75 notable
 NGC-only galaxies chosen for morphology, surface brightness, observing value,
-and direct scientific evidence, then use four field-scoped remediations to
-replace generic prose for 17 baseline galaxies, 48 open clusters, 41 globular
-clusters, and 20 nebulae or planetary nebulae. The 228 Solar
-System/Messier/Caldwell entries remain the immutable identity baseline; 303
+and direct scientific evidence, then use five field-scoped remediations to
+replace generic prose for 68 baseline galaxies, 48 open clusters, 41 globular
+clusters, and 20 nebulae or planetary nebulae. The 228 Solar System/Messier/
+Caldwell entries remain the immutable identity baseline; 303
 physical objects are complete and 7,291 NGC-only targets remain queued.
 
 The network-free audit freezes the baseline identity, verifies canonical fields,
 EN/ES overlay parity, provenance, duplicate text, accepted manifests and the
-remaining count. It separately reports repeated or near-identical legacy
-baseline prose: identity stability does not certify historical wording. A
+remaining count. Its historical screen now reports zero repeated or
+near-identical description and observing-note families; identity stability
+still does not certify every individual sentence. A
 `baseline_remediation` manifest declares the exact changed fields, limits source
 claims and duplicate screening to that scope, and may revisit a baseline ID in
 a later justified correction; NGC enrichment remains complete-object work. New
@@ -263,12 +268,18 @@ objects produced 84 final scenes across both detail-page positions, all three
 languages, and both visual modes; all text remained complete and Red Night
 Vision stayed monochromatic.
 
-The next source step is `1.46.7`: remediate the 51 galaxies and four galaxy
-descriptions still present in the final measured baseline template families.
-Review every Italian field and both translations, accept a bounded manifest,
-run its static/live and visual checks plus the full source gate, then commit it
-as one version. Public platform bundles can group several source batches; they
-are not implied by each patch.
+The accepted `batch_1_46_7.json` manifest records rewritten observing notes for
+51 Messier/Caldwell galaxies and rewritten descriptions for C21, C48, C57, and
+C60. Fifty distinct NASA Hubble URLs passed the live audit. Ten representative
+objects produced 120 final scenes across both detail-page positions, all three
+languages, and both visual modes; all text remained complete and Red Night
+Vision stayed monochromatic. The measured historical template debt is now
+zero.
+
+The next editorial source step is `1.46.8`: resume NGC-only enrichment with a
+new bounded manifest and the same source, three-language, static/live, visual,
+and full-gate requirements. Public platform bundles can group several source
+batches; they are not implied by each patch.
 
 ## Release Boundary
 

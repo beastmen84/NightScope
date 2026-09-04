@@ -303,11 +303,12 @@ defensive compatibility assets and are not used by current target rows.
 separate observing notes for 303 reviewed targets: the 228-object baseline of
 Sun, Moon, the seven displayed planets, all 110 Messier entries and all 109
 Caldwell entries, plus the first 75 accepted NGC-only galaxies. Sources
-`1.46.3` through `1.46.6` replace formulaic observing-note families across 17
+`1.46.3` through `1.46.7` replace formulaic observing-note families across 68
 baseline galaxies, 48 baseline open clusters, 41 baseline globular clusters,
-and 20 baseline nebulae or planetary nebulae; twenty descriptions are also
-rewritten. This remediation changes prose, not the 303-object coverage
-count. The Sun entry requires a certified
+and 20 baseline nebulae or planetary nebulae; twenty-four descriptions are also
+rewritten. The deterministic screen now reports no repeated or near-identical
+historical description or observing-note families. This remediation changes
+prose, not the 303-object coverage count. The Sun entry requires a certified
 full-aperture front-mounted solar filter and explicitly excludes eyepiece solar
 filters. Caldwell observing copy was initially derived conservatively from the
 verified catalogue type, coordinates, magnitude and apparent size. Remediated
@@ -339,7 +340,9 @@ observing-note fields changed; all 17 URLs were checked successfully on
 object-specific pages, all checked successfully on 2026-09-04. The `1.46.5`
 globular-cluster remediation records 41 direct NASA Hubble catalogue pages,
 all checked successfully on 2026-09-04. The `1.46.6` nebula remediation records
-20 distinct object-specific pages, all checked successfully on 2026-09-04. The seed
+20 distinct object-specific pages, all checked successfully on 2026-09-04. The
+`1.46.7` final galaxy remediation records 50 distinct NASA Hubble pages for 51
+objects, all checked successfully on 2026-09-04. The seed
 deliberately remains
 separate from observing notes and
 does not participate in NSOM, Equipment or ranking calculations.
@@ -374,8 +377,10 @@ batch manifests, duplicate text, and remaining NGC coverage. Source `1.46.1`
 records the first accepted 50-object manifest and `1.46.2` adds a second,
 deliberately smaller 25-object manifest plus a visible legacy-template warning.
 Source `1.46.3` extends the manifest contract with field-scoped baseline
-remediation; sources `1.46.4` through `1.46.6` record the next three accepted
-correction batches and bring the cumulative remediated baseline to 126 objects:
+remediation; sources `1.46.4` through `1.46.7` record the next four accepted
+correction batches, bring the cumulative remediated baseline to 177 objects,
+and clear every repeated or near-identical historical family found by the
+deterministic screen:
 
 ```powershell
 .\.venv\Scripts\python.exe astro_viewer\tools\audit_catalogue_editorial.py

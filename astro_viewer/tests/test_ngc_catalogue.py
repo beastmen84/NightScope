@@ -140,16 +140,16 @@ def test_editorial_baseline_and_ngc_backlog_are_audited() -> None:
     assert report.completed_objects == 303
     assert report.completed_ngc_objects == 75
     assert report.remaining_ngc_objects == 7_291
-    assert report.accepted_batches == 6
+    assert report.accepted_batches == 7
     assert report.accepted_enrichment_batches == 2
-    assert report.accepted_remediation_batches == 4
-    assert report.remediated_baseline_objects == 126
+    assert report.accepted_remediation_batches == 5
+    assert report.remediated_baseline_objects == 177
     assert report.draft_batches == 0
-    assert report.baseline_description_template_families == 2
-    assert report.baseline_description_template_objects == 4
-    assert report.baseline_observing_template_families == 5
-    assert report.baseline_observing_template_objects == 51
-    assert any("prose debt" in warning for warning in report.warnings)
+    assert report.baseline_description_template_families == 0
+    assert report.baseline_description_template_objects == 0
+    assert report.baseline_observing_template_families == 0
+    assert report.baseline_observing_template_objects == 0
+    assert report.warnings == ()
 
 
 def test_editorial_visual_samples_are_read_from_the_latest_accepted_manifest() -> None:
@@ -158,17 +158,20 @@ def test_editorial_visual_samples_are_read_from_the_latest_accepted_manifest() -
         / "astro_viewer"
         / "data"
         / "editorial_batches"
-        / "batch_1_46_6.json"
+        / "batch_1_46_7.json"
     )
 
     assert _sample_ids(manifest) == [
-        "caldwell-C103",
-        "caldwell-C19",
-        "caldwell-C55",
-        "messier-M97",
-        "caldwell-C4",
-        "messier-M16",
-        "caldwell-C59",
+        "caldwell-C12",
+        "caldwell-C18",
+        "caldwell-C48",
+        "caldwell-C60",
+        "caldwell-C57",
+        "messier-M33",
+        "caldwell-C38",
+        "messier-M64",
+        "messier-M94",
+        "messier-M109",
     ]
 
 
@@ -310,10 +313,10 @@ def test_baseline_remediation_manifest_is_field_scoped(tmp_path: Path) -> None:
     report = audit_catalogue_editorial(batch_path=manifest)
 
     assert report.errors == ()
-    assert report.accepted_batches == 7
+    assert report.accepted_batches == 8
     assert report.accepted_enrichment_batches == 2
-    assert report.accepted_remediation_batches == 5
-    assert report.remediated_baseline_objects == 127
+    assert report.accepted_remediation_batches == 6
+    assert report.remediated_baseline_objects == 178
 
 
 def test_baseline_remediation_rejects_ngc_only_ids_and_undeclared_claims(

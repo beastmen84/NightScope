@@ -254,13 +254,13 @@
       },
       "messier-M32": {
         "short_description": "M32 (Satélite de Andrómeda n.º 1) es una galaxia elíptica enana en Andrómeda. Es la pequeña compañera elíptica de Andrómeda: en el campo M31 aparece como un núcleo compacto, casi una estrella hinchada, pero es una galaxia autónoma.",
-        "observing_notes": "Para M32 (Satélite de Andrómeda n.º 1), con magnitud integrada 8,1, observe la orientación y la relación núcleo-halo antes de buscar estructuras más débiles.",
+        "observing_notes": "M32 parece casi una estrella hinchada sobre las afueras luminosas de M31. Usa aumentos medios-altos para separar su núcleo puntual del pequeño halo redondo y compárala con la mucho más extensa M110; los filtros nebulares no ayudan a ninguna de las tres galaxias.",
         "best_seen": "Otoño",
         "curiosity_text": "M32 puede ser el núcleo superviviente de una galaxia que alguna vez fue más grande. Los encuentros cercanos con Andrómeda habrían destruido gran parte de sus estrellas exteriores, dejando un sistema inusualmente compacto."
       },
       "messier-M33": {
         "short_description": "M33 (Galaxia del Triángulo o del Molinete) es una galaxia espiral en Triángulo. La Galaxia del Triángulo es grande y cercana, pero su luz se distribuye en un área enorme. Con cielos oscuros se convierte en uno de los desafíos más bellos con bajo aumento.",
-        "observing_notes": "El perfil de M33 (Galaxia del Triángulo o del Molinete), de magnitud integrada 5,7, cubre aproximadamente 70,8′ × 41,7′: proteja la adaptación a la oscuridad y compruebe los bordes con visión periférica.",
+        "observing_notes": "M33 necesita un campo muy ancho y una pupila de salida amplia. No busques primero el núcleo, sino un cambio extenso del fondo celeste. Tras seguir el disco con visión lateral, apunta NGC 604 como nudo separado; OIII puede ayudar a ese complejo H II, no a toda la galaxia.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 604, en un brazo de M33, es una de las regiones de formación estelar más grandes del Grupo Local. Es unas cien veces más grande que la Nebulosa de Orión y contiene cientos de estrellas jóvenes masivas."
       },
@@ -356,7 +356,7 @@
       },
       "messier-M49": {
         "short_description": "M49 es una galaxia elíptica en Virgo. Es una gran elíptica del cúmulo de Virgo: visualmente es una luz suave y sin detalles, pero representa una gigantesca ciudad estelar.",
-        "observing_notes": "Para M49, con magnitud integrada 8,4, utilice las dimensiones 10,2′ × 8,3′ para elegir el campo y comparar hasta qué punto se extiende el halo más allá del núcleo.",
+        "observing_notes": "M49 es una de las galaxias más accesibles de Virgo. Con aumentos medios muestra un núcleo amplio, no estelar, que se desvanece suavemente en un halo casi redondo. Usa visión lateral para medir su extensión; la ausencia de bandas o brazos concuerda con su naturaleza elíptica.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M49 fue la primera galaxia del Cúmulo de Virgo descubierta por Messier en 1771. Es un gigante elíptico con un vasto sistema de cúmulos globulares y un agujero negro supermasivo central."
       },
@@ -410,7 +410,7 @@
       },
       "messier-M58": {
         "short_description": "M58 es una galaxia espiral barrada del Cúmulo de Virgo. Visualmente, es discreta: en el ocular suele mostrar un núcleo definido dentro de un halo tenue, mientras que la barra requiere condiciones excelentes.",
-        "observing_notes": "Para M58, con magnitud integrada de 9,7, compare el diámetro observado con 5,9′ × 4,7′; marcadas diferencias indican que el fondo del cielo oculta el halo externo.",
+        "observing_notes": "En el campo de Virgo M58 es un pequeño resplandor ovalado. Usa aumentos medios-altos para separar núcleo y bulbo y busca un alargamiento central transversal, primer indicio de la barra. Los brazos son mucho más tenues; una carta evita confundirla con las numerosas galaxias cercanas.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M58 es una de las cuatro únicas galaxias espirales barradas del catálogo de Messier. Su núcleo activo alberga un agujero negro supermasivo que acumula materia."
       },
@@ -422,13 +422,13 @@
       },
       "messier-M60": {
         "short_description": "M60 es una galaxia elíptica en Virgo, junto a la espiral NGC 4647. En el telescopio, la pareja muestra cuán variada puede ser la población de galaxias del Cúmulo de Virgo.",
-        "observing_notes": "Para M60, con una extensión de 7,4′ × 6,0′, compruebe primero el eje principal y la condensación central; la magnitud 8,8 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "Encuadra M60 con la espiral NGC 4647 pegada a su borde. Con aumentos medios M60 es redonda, brillante y muy concentrada, mientras su compañera es menor y más difusa. El contraste entre perfiles es el principal detalle visual; su posible interacción no puede deducirse en el ocular.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "Junto a M60 se encuentra M60-UCD1, una galaxia ultracompacta con una densidad estelar extrema y un agujero negro central desproporcionado. Podría ser el núcleo despojado de una galaxia más grande."
       },
       "messier-M61": {
         "short_description": "M61 (Galaxia Espiral Hinchada) es una galaxia espiral en Virgo. Se trata de una espiral vista casi de frente, famosa también por sus supernovas. Con cielos oscuros puede mostrar un núcleo fuerte y un halo más irregular.",
-        "observing_notes": "Para M61 (Galaxia Espiral Hinchada), con magnitud integrada de 9,7, utilice las dimensiones 6,5′ × 5,8′ para elegir el campo y comparar hasta qué punto se extiende el halo más allá del núcleo.",
+        "observing_notes": "M61 está casi de frente. Con aumentos medios busca un núcleo definido dentro de un halo redondo pero irregular. Bajo un cielo oscuro y con más apertura, tres realces curvos pueden insinuar la espiral y la barra; las supernovas históricas no dejan estructuras permanentes visibles.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M61 ha albergado numerosas supernovas observadas, más que la mayoría de las galaxias del catálogo de Messier. Su núcleo activo y sus regiones de formación estelar revelan un sistema todavía muy dinámico."
       },
@@ -440,13 +440,13 @@
       },
       "messier-M63": {
         "short_description": "M63 (Galaxia del Girasol) es una galaxia espiral en Lebreles. La Galaxia del Girasol tiene brazos fragmentados y franjas de polvo en imágenes profundas. En el ocular aparece como un resplandor ovalado con un perfil distintivo.",
-        "observing_notes": "El perfil de M63 (Galaxia del Girasol), de magnitud integrada 8,6, cubre aproximadamente 12,6′ × 7,2′: proteja la adaptación a la oscuridad y compruebe los bordes con visión periférica.",
+        "observing_notes": "Con aumentos medios M63 muestra un núcleo casi estelar dentro de un halo ovalado y orientado. Mantén el centro fuera de la visión directa para ampliar el disco; con gran apertura una textura granulosa puede insinuar los brazos floculentos, pero la corriente estelar exterior es fotográfica.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "Una delgada corriente de estrellas envuelve M63 a lo largo de decenas de miles de años luz. Es el remanente de una galaxia enana desgarrada y absorbida, una antigua fusión aún visible en la periferia de la Galaxia del Girasol."
       },
       "messier-M64": {
         "short_description": "M64 (Galaxia del Ojo Negro) es una galaxia espiral en Cabellera de Berenice. La Galaxia del Ojo Negro es famosa por la banda oscura cerca del núcleo. En instrumentos medianos y cielos oscuros, detectar ese contraste puede convertirse en un verdadero logro de observación.",
-        "observing_notes": "Para M64 (Galaxia del Ojo Negro), con magnitud integrada de 8,5, compare el diámetro observado con 10,7′ × 5,1′; marcadas diferencias indican que el fondo del cielo oculta el halo externo.",
+        "observing_notes": "Centra el núcleo brillante de M64 con aumentos medios y súbelos mientras el fondo siga oscuro. Busca una corta muesca oscura pegada a un lado del núcleo, no una banda que cruce toda la galaxia; la visión lateral también amplía el halo ovalado.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "En M64, el gas de las regiones exteriores gira en dirección opuesta al gas y a las estrellas interiores. Esta contrarotación es probablemente el legado de una pequeña galaxia rica en gas incorporada en el pasado."
       },
@@ -458,7 +458,7 @@
       },
       "messier-M66": {
         "short_description": "M66 (Triplete de Leo) es una galaxia espiral barrada en Leo. Es el componente más obvio del Triplete de Leo, con un núcleo fuerte y una forma más perturbada. Es una galaxia que habla de interacciones pasadas.",
-        "observing_notes": "Para M66 (Triplete de Leo), con una extensión de 9,1′ × 4,2′, compruebe primero el eje principal y la condensación central; la magnitud 8,9 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "Empieza con un campo amplio que incluya M65 y NGC 3628 y después aísla M66 con aumentos medios. Su núcleo brillante queda descentrado en un halo inclinado y asimétrico; bajo cielo oscuro un extremo parece más curvado, mientras las colas de marea son fotográficas.",
         "best_seen": "Primavera",
         "curiosity_text": "Un brazo de M66 está notablemente deformado y el núcleo está desplazado con respecto a la simetría del disco. El paso cercano de NGC 3628 ha remodelado la galaxia y provocado la formación de nuevas estrellas."
       },
@@ -506,7 +506,7 @@
       },
       "messier-M74": {
         "short_description": "M74 (Galaxia Fantasma) es una galaxia espiral en Piscis. Es grande, se observa de frente y tiene un brillo superficial bajo. Es fotogénica, pero visualmente solo recompensa los cielos realmente oscuros.",
-        "observing_notes": "Para M74 (Galaxia Fantasma), con magnitud integrada de 9,4, observe la orientación y la relación núcleo-halo antes de buscar estructuras más débiles.",
+        "observing_notes": "La Galaxia Fantasma exige cielo sin Luna y pocos aumentos. Mantén fijo el campo, no la mirada sobre el núcleo, y deja que la visión lateral reúna el disco casi circular. Si solo aparece el centro, no subas enseguida los aumentos; los brazos llegan después de estabilizar el halo.",
         "best_seen": "Otoño",
         "curiosity_text": "M74 es una espiral de gran diseño que es casi perfectamente frontal, pero tiene un brillo superficial muy bajo. Esta combinación la hace fotogénica y, al mismo tiempo, uno de los objetos Messier más difíciles de ver."
       },
@@ -566,31 +566,31 @@
       },
       "messier-M84": {
         "short_description": "M84 es una galaxia elíptica de Virgo y forma parte de la Cadena de Markarian. En el ocular destaca por su núcleo concentrado y por el contexto de galaxias cercanas más que por sus detalles internos.",
-        "observing_notes": "Para M84, con una extensión de 6,5′ × 5,6′, compruebe primero el eje principal y la condensación central; la magnitud 9,1 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "M84 y M86 forman la puerta occidental de la Cadena de Markarian. Mantenlas en el mismo campo medio-amplio antes de recorrer las demás galaxias. M84 es la condensación más redonda y compacta; el chorro de su núcleo activo no es un detalle visual realista.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M84 se encuentra en la Cadena de Markarian y alberga un núcleo activo. Un chorro relativista emerge de la región del agujero negro central, aunque resulta mucho menos llamativo que el del cercano M87."
       },
       "messier-M85": {
         "short_description": "M85 es una galaxia lenticular en Cabellera de Berenice. Es una galaxia lenticular que brilla suavemente en la región de Cabellera de Berenice. No revela detalles obvios, pero encaja bien en una búsqueda de galaxias en primavera.",
-        "observing_notes": "Para M85, con magnitud integrada 9,1, utilice las dimensiones 7,1′ × 5,5′ para elegir el campo y comparar hasta qué punto se extiende el halo más allá del núcleo.",
+        "observing_notes": "Usa un campo medio para encuadrar M85 con la cercana NGC 4394. M85 es mayor, lisa y ovalada, mientras la compañera es pequeña y menos concentrada. Unos 20 cm ya muestran M85 como una mancha alargada; más aumentos separan sobre todo ambos centros, no revelan brazos.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "La suave apariencia de M85 esconde una historia de fusiones: capas estelares, polvo y una población central relativamente joven indican que la galaxia incorporó una compañera en tiempos astronómicamente recientes."
       },
       "messier-M86": {
         "short_description": "M86 es una galaxia de Virgo cuya clasificación se debate entre el tipo elíptico y el lenticular. Forma parte de la Cadena de Markarian; observarla junto a M84 y las galaxias cercanas transmite la sensación de recorrer un cúmulo entero.",
-        "observing_notes": "Para M86, con magnitud integrada de 8,9, observe la orientación y la relación núcleo-halo antes de buscar estructuras más débiles.",
+        "observing_notes": "Observa M86 en el mismo campo que M84 al inicio de la Cadena de Markarian. M86 es más alargada y menos concentrada que su compañera; un campo aún más ancho incorpora los Ojos, NGC 4435/4438, que marcan la dirección de la secuencia de galaxias.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M86 se acerca a nosotros a cientos de kilómetros por segundo, a pesar de pertenecer al Cúmulo de Virgo. Al atravesar el gas caliente del cúmulo, deja tras de sí una cola de materia de cientos de miles de años luz de longitud."
       },
       "messier-M87": {
         "short_description": "M87 (Virgo A) es una galaxia elíptica en Virgo. Se trata de una gigantesca galaxia elíptica, famosa por el agujero negro fotografiado por el Event Horizon Telescope. Visualmente, es sobria, pero conceptualmente enorme.",
-        "observing_notes": "El perfil de M87 (Virgo A), de magnitud integrada 8,6, cubre aproximadamente 7,2′ × 6,8′: proteja la adaptación a la oscuridad y compruebe los bordes con visión periférica.",
+        "observing_notes": "M87 admite aumentos medios-altos gracias a su centro brillante. Busca un núcleo puntual dentro de un halo casi circular que se desvanece sin borde. El famoso chorro exige gran apertura y condiciones excepcionales; en una sesión normal el contexto del cúmulo de Virgo aporta el mayor interés.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "En 2019, el agujero negro de M87 se convirtió en el primero cuya sombra fue fotografiada con el Event Horizon Telescope. Tiene una masa de miles de millones de soles y alimenta un chorro visible desde miles de años luz."
       },
       "messier-M88": {
         "short_description": "M88 es una galaxia espiral en Cabellera de Berenice. Es una espiral inclinada del Cúmulo de Virgo, con un núcleo claro. Se necesita un cielo oscuro para ver algo más que un simple resplandor ovalado.",
-        "observing_notes": "Para M88, con magnitud integrada de 9,6, compare el diámetro observado con 6,9′ × 3,7′; marcadas diferencias indican que el fondo del cielo oculta el halo externo.",
+        "observing_notes": "M88 está inclinada y responde bien a aumentos medios. Identifica el núcleo brillante y después extiende con visión lateral un halo estrecho y fusiforme. Bajo cielo oscuro un extremo puede curvarse levemente; la estructura espiral es más plausible que en las elípticas cercanas, pero sigue siendo sutil.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M88 se precipita hacia el centro del Cúmulo de Virgo a lo largo de una órbita muy alargada. La presión del gas intergaláctico comienza a modificar su contenido de hidrógeno y, por tanto, el futuro de su formación estelar."
       },
@@ -602,13 +602,13 @@
       },
       "messier-M90": {
         "short_description": "M90 (Galaxia de Carabin) es una gran galaxia espiral del Cúmulo de Virgo, con un movimiento peculiar respecto a la Vía Láctea. En el ocular resulta delicada, pero su perfil alargado ayuda a reconocerla.",
-        "observing_notes": "Para M90 (Galaxia de Carabin), con una extensión de 9,5′ × 4,4′, compruebe primero el eje principal y la condensación central; la magnitud 9,5 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "M90 es grande pero de poco contraste. Usa aumentos bajos-medios para reconocer el pequeño núcleo dentro de un halo de casi 10′. En el campo poblado de Virgo confirma posición y eje con una carta; demasiados aumentos oscurecen el halo antes de revelar los brazos.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M90 es una de las pocas galaxias de Messier con desplazamiento al azul, porque se mueve en nuestra dirección dentro del Cúmulo de Virgo. El gas de su disco es arrancado por la presión del medio intergaláctico."
       },
       "messier-M91": {
         "short_description": "M91 es una galaxia espiral barrada tenue en Cabellera de Berenice e históricamente ha sido difícil de identificar. Localizarla con seguridad ya es parte de la satisfacción, especialmente bajo los cielos suburbanos.",
-        "observing_notes": "Para M91, con magnitud integrada 10,2, utilice las dimensiones 5,4′ × 4,3′ para elegir el campo y comparar hasta qué punto se extiende el halo más allá del núcleo.",
+        "observing_notes": "M91 es uno de los objetos Messier más débiles. Llega desde M88 con una carta precisa y usa aumentos medios. La primera señal fiable es una condensación central alargada, la barra; solo bajo un cielo muy oscuro la visión lateral añade el halo casi circular de los brazos.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M91 fue durante mucho tiempo uno de los grandes objetos perdidos de Messier. Un error en la referencia utilizada para calcular las coordenadas fue reconstruido en el siglo XX, identificándola con la espiral barrada NGC 4548."
       },
@@ -626,7 +626,7 @@
       },
       "messier-M94": {
         "short_description": "M94 (Ojo de Cocodrilo o Galaxia del Ojo de Gato) es una galaxia espiral en Lebreles. Tiene un núcleo muy brillante rodeado de estructuras en forma de anillos en imágenes profundas. Visualmente, es una de las galaxias más fáciles de Lebreles.",
-        "observing_notes": "Para M94 (Ojo de Cocodrilo o Galaxia del Ojo de Gato), con magnitud integrada de 8,2, compare el diámetro observado con 11,2′ × 9,1′; marcadas diferencias indican que el fondo del cielo oculta el halo externo.",
+        "observing_notes": "M94 ofrece dos escalas distintas. Con aumentos medios-altos el núcleo y el anillo interior forman un disco compacto y muy brillante; al volver a pocos aumentos, la visión lateral puede añadir un halo exterior mucho más ancho. No confundas el centro con toda la galaxia.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "Además del brillante anillo interior, M94 tiene un enorme disco exterior formado por débiles brazos en espiral. Esta estructura periférica todavía alberga formación estelar, aunque parece un anillo separado."
       },
@@ -638,7 +638,7 @@
       },
       "messier-M96": {
         "short_description": "M96 es una galaxia espiral en Leo. Es una galaxia brillante del Grupo de Leo, más accesible que M95. Muestra un núcleo obvio y un halo suave con instrumentos medianos.",
-        "observing_notes": "Para M96, con una extensión de 7,6′ × 5,2′, compruebe primero el eje y la condensación central; la magnitud 9,2 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "Localiza M96 en un campo amplio junto a M95 y M105 y después pasa a aumentos medios. Busca un núcleo definido pero algo descentrado y un halo ovalado que se extiende más por un lado; esa asimetría es más accesible que los brazos individuales.",
         "best_seen": "Primavera",
         "curiosity_text": "El núcleo de M96 no está centrado con los brazos y el disco parece asimétrico. Las perturbaciones gravitacionales del Grupo de Leo, quizás amplificadas por la cercana M95, han deformado su estructura."
       },
@@ -656,13 +656,13 @@
       },
       "messier-M99": {
         "short_description": "M99 (Rueda de Santa Catalina) es una galaxia espiral asimétrica casi de frente en Cabellera de Berenice. Las imágenes muestran brazos espectaculares; en el ocular, detectar el núcleo y el halo es un objetivo realista.",
-        "observing_notes": "El perfil de M99 (Rueda de Santa Catalina), de magnitud integrada 9,9, cubre aproximadamente 5,4′ × 4,7′: proteja la adaptación a la oscuridad y compruebe los bordes con visión periférica.",
+        "observing_notes": "M99 está casi de frente y su halo tiene poco contraste. Usa aumentos bajos-medios y visión lateral para separar un disco redondo alrededor del pequeño núcleo. Con gran apertura busca un lado más extendido y un brazo dominante; esperar una espiral simétrica sería engañoso.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "Uno de los brazos de M99 está mucho más extendido que los demás. La asimetría pudo haber sido producida por un encuentro con una galaxia cercana y por la presión ejercida por el gas del Cúmulo de Virgo."
       },
       "messier-M100": {
         "short_description": "M100 (Galaxia del Espejo) es una elegante galaxia espiral de gran diseño en Cabellera de Berenice. En el ocular es tenue y exige un cielo oscuro, pero su núcleo permite situarla en el rico entorno del Cúmulo de Virgo.",
-        "observing_notes": "Para M100 (Galaxia del Espejo), con magnitud integrada de 9,3, compare el diámetro observado con 7,4′ × 6,3′; marcadas diferencias indican que el fondo del cielo oculta el halo externo.",
+        "observing_notes": "M100 está casi de frente. Con aumentos bajos-medios busca primero el pequeño núcleo dentro de un halo ancho y redondo. Más apertura puede mostrar una barra corta y dos realces opuestos, pero sus brazos grand design exigen un fondo mucho más oscuro de lo que sugiere la magnitud integrada.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "Las Cefeidas observadas por el Hubble en M100 supusieron un hito en el proyecto que midió la constante de Hubble. Por tanto, esta galaxia contribuyó a calibrar el ritmo de expansión del Universo."
       },
@@ -674,7 +674,7 @@
       },
       "messier-M102": {
         "short_description": "M102 (Galaxia del Huso) es una galaxia lenticular de Dragón. Se ve de canto, delgada y atravesada por una franja de polvo que le confiere un aspecto elegante en las imágenes. Visualmente, es compacta, pero inconfundible.",
-        "observing_notes": "Para M102 (Galaxia del Huso), con una extensión de 4,7′ × 1,9′, compruebe primero el eje principal y la condensación central; la magnitud 9,9 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "M102 admite aumentos medios-altos. Busca un huso delgado de alto brillo superficial con un bulbo central definido. Con mayor apertura y cielo transparente, la estrecha banda de polvo puede recortar el núcleo; confirma primero la orientación del disco.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "La identidad de M102 todavía se debate porque Méchain la describió sin coordenadas fiables. El candidato más aceptado es NGC 5866, una galaxia lenticular vista casi de canto y atravesada por una fina banda de polvo."
       },
@@ -692,13 +692,13 @@
       },
       "messier-M105": {
         "short_description": "M105 es una galaxia elíptica de Leo, la mayor de este tipo en el catálogo de Messier y miembro del Grupo de Leo. Visualmente, es sencilla, pero revela un entorno galáctico rico y compacto.",
-        "observing_notes": "El perfil de M105, de magnitud integrada 9,3, cubre aproximadamente 5,4′ × 4,8′: proteja la adaptación a la oscuridad y compruebe los bordes con visión periférica.",
+        "observing_notes": "Usa un campo medio-amplio para reunir M105 con NGC 3384 y NGC 3389. M105 es el resplandor más redondo y concentrado, NGC 3384 resulta más alargada y NGC 3389 es la más difícil; compararlas aporta más que buscar estructura en la luz lisa de la elíptica.",
         "best_seen": "Primavera",
         "curiosity_text": "M105 se consideraba una galaxia completamente muerta, pero observaciones profundas encontraron estrellas jóvenes y nubes de hidrógeno. Por lo tanto, incluso una elíptica grande puede preservar pequeños focos de formación estelar."
       },
       "messier-M106": {
         "short_description": "M106 es una galaxia espiral activa de Lebreles, conocida por sus emisiones energéticas y sus máseres de agua. En el ocular es una de las galaxias más brillantes y accesibles de la región.",
-        "observing_notes": "Para M106, con magnitud integrada de 8,4, compare el diámetro observado con 18,6′ × 7,2′; marcadas diferencias indican que el fondo del cielo oculta el halo externo.",
+        "observing_notes": "M106 tiene suficiente contraste para mostrar un núcleo definido y un disco alargado con aumentos bajos-medios. Sigue el eje con visión lateral y busca un lado más brillante; después aumenta sobre el centro, sabiendo que los famosos brazos anómalos destacan sobre todo en radio y banda estrecha.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M106 muestra dos brazos anómalos que no siguen el disco estelar. Son producidos por ondas de choque y chorros asociados al agujero negro central, que calientan el gas a su paso por la galaxia."
       },
@@ -710,19 +710,19 @@
       },
       "messier-M108": {
         "short_description": "M108 (Galaxia de la Tabla de Surf) es una galaxia espiral barrada en la Osa Mayor. Es una espiral larga, estrecha y vista de canto, situada cerca de la Nebulosa del Búho en el cielo. Constituye una buena prueba para la visión periférica.",
-        "observing_notes": "Para M108 (Galaxia de la Tabla de Surf), con una extensión de 8,7′ × 2,2′, compruebe primero el eje principal y la condensación central; la magnitud 10,0 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "Bajo el Carro Mayor, M108 se aprecia mejor con aumentos bajos-medios como una tabla de surf estrecha y moteada, sin un abultamiento central verdadero. Con unos 20 cm o más prueba más aumentos para separar zonas claras y bandas de polvo; la cercana M97 es una referencia útil en el mismo recorrido de búsqueda, no un objeto de aspecto parecido.",
         "best_seen": "Primavera",
         "curiosity_text": "M108 se ve casi de canto y no muestra un bulbo central bien definido. Su disco irregular, rico en polvo y regiones de formación estelar, contiene numerosas fuentes compactas de rayos X."
       },
       "messier-M109": {
         "short_description": "M109 (Galaxia de la Aspiradora) es una galaxia espiral barrada de la Osa Mayor, situada cerca de Phecda. No es llamativa, pero su localización resulta agradable y la barra central le confiere interés estructural.",
-        "observing_notes": "Para M109 (Galaxia de la Aspiradora), con magnitud integrada de 9,8, utilice las dimensiones 7,6′ × 4,7′ para elegir el campo y comparar hasta qué punto se extiende el halo más allá del núcleo.",
+        "observing_notes": "Usa Phecda para localizar M109 al sudeste, pero lleva la estrella brillante al borde o fuera del campo antes de juzgar la galaxia. Con aumentos bajos-medios busca una franja tenue; con más apertura el núcleo y la barra alargada surgen dentro de un halo muy difuso.",
         "best_seen": "Primavera",
         "curiosity_text": "M109 es la galaxia más brillante de un grupo que incluye decenas de miembros. La barra central guía el gas hacia las regiones internas y ayuda a dibujar un anillo tenue alrededor del núcleo."
       },
       "messier-M110": {
         "short_description": "M110 (Satélite de Andrómeda n.º 2) es una galaxia elíptica enana en Andrómeda. Es una compañera elíptica de Andrómeda, más ancha y más difuminada que M32. En cielos oscuros se completa la visión de M31 como un pequeño sistema de galaxias, no como un objeto aislado.",
-        "observing_notes": "Para M110 (Satélite de Andrómeda n.º 2), con magnitud integrada 8,5, observe la orientación y la relación núcleo-halo antes de buscar estructuras más débiles.",
+        "observing_notes": "Mantén M31, M32 y M110 en el mismo campo amplio: M110 es la compañera mayor, pero también la más difusa. Búscala como un óvalo alargado sin núcleo definido, al lado opuesto de M32; solo después, con más apertura, intenta percibir irregularidades de polvo cerca del centro.",
         "best_seen": "Otoño",
         "curiosity_text": "A pesar de estar clasificada como una elíptica enana, M110 contiene polvo y estrellas relativamente jóvenes cerca del centro. Son indicios de formación estelar reciente, algo inusual para una galaxia de apariencia tan regular."
       },
@@ -740,7 +740,7 @@
       },
       "caldwell-C3": {
         "short_description": "C3 (NGC 4236), galaxia espiral en la constelación de Dragón. Empiece por examinar el núcleo, la orientación y la forma del halo; los detalles en espiral, cuando son accesibles, llegan solo después de una larga adaptación a la oscuridad. En el campo, C3 se extiende por 21′ x 7′: la magnitud 9,7 debe interpretarse como brillo general.",
-        "observing_notes": "El perfil de C3 (NGC 4236), de magnitud integrada 9,7, cubre aproximadamente 21′ x 7′: proteja la adaptación a la oscuridad y compruebe los bordes con visión periférica.",
+        "observing_notes": "La magnitud integrada engaña: C3 reparte su luz sobre 21′ y resulta mucho más esquiva de lo esperado. Usa los mínimos aumentos, un cielo sin calima y visión lateral para seguir una franja ancha y muy tenue; el núcleo poco marcado no es un buen punto de partida.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4236 es una gran espiral vista casi de canto, pero su luz se distribuye en un área tan grande que la hace difícil de detectar. Las zonas más obvias del disco son regiones donde las estrellas continúan formándose."
       },
@@ -764,7 +764,7 @@
       },
       "caldwell-C7": {
         "short_description": "C7 (NGC 2403), galaxia espiral en la constelación de Jirafa. Es un objetivo de contraste: un campo con el fondo bien oscuro permite pasar del núcleo más evidente al halo apenas perceptible. En el ocular debe buscarse una extensión de 18′ x 10′; el brillo total corresponde a una magnitud integrada de 8,9.",
-        "observing_notes": "Para C7 (NGC 2403), con magnitud integrada 8,9, utilice las dimensiones 18′ x 10′ para elegir el campo y comparar hasta qué punto se extiende el halo más allá del núcleo.",
+        "observing_notes": "C7 necesita pocos aumentos para contener su disco de 18′. Busca un resplandor alargado y granulado, con poco dominio central y estrellas de campo superpuestas. Con mayor apertura NGC 2404 se separa como un nudo brillante, mientras los brazos completos siguen difusos.",
         "best_seen": "Invierno",
         "curiosity_text": "En 2004, NGC 2403 albergó SN 2004dj, una de las supernovas de tipo II más cercanas observadas en la era moderna. La explosión se produjo dentro de un cúmulo estelar compacto, lo que permitió estudiar su población progenitora."
       },
@@ -794,7 +794,7 @@
       },
       "caldwell-C12": {
         "short_description": "C12 (NGC 6946), galaxia espiral en la constelación de Cefeo. El perfil y la distribución del brillo son más fiables que los detalles finos; las observaciones repetidas ayudan a reconocer su estructura. Para planificar su observación, considere la magnitud integrada 9,7 y la extensión aparente 11′ x 9′ juntas.",
-        "observing_notes": "Para C12 (NGC 6946 - Galaxia de los Fuegos Artificiales), con una extensión de 11′ x 9′, compruebe primero el eje principal y la condensación central; la magnitud 9,7 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "C12 está casi de frente y es muy extensa, pero el polvo de la Vía Láctea reduce su contraste. Empieza con pocos aumentos sobre el pequeño núcleo y usa visión lateral para buscar un disco irregular y zonas más brillantes; los brazos exigen un cielo realmente transparente.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "NGC 6946 merece el nombre de Fuegos artificiales: desde 1917 se han descubierto allí al menos diez supernovas. La galaxia es rica en formación estelar, pero la Vía Láctea atenúa su luz con el polvo en primer plano."
       },
@@ -830,7 +830,7 @@
       },
       "caldwell-C18": {
         "short_description": "C18 (NGC 185), galaxia elíptica enana en la constelación de Casiopea. No ofrece estructuras claras como una espiral; su carácter surge de la forma del halo y de la concentración del núcleo. Para C18, la comparación entre la extensión de 12′ x 9′ y la magnitud integrada de 9,2 guía la elección del campo inicial.",
-        "observing_notes": "Para C18 (NGC 185), con una extensión de 12′ x 9′, primero verifique el eje central y la condensación; la magnitud 9,2 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "Si el campo lo permite, observa C18 junto a la cercana C17: C18 es la más fácil y posee un centro más redondo y compacto. Con aumentos medios sigue su halo ovalado, sin esperar que las nubes de polvo visibles en las imágenes aparezcan en el ocular.",
         "best_seen": "Otoño",
         "curiosity_text": "Aunque es una galaxia enana elíptica, NGC 185 contiene nubes de polvo, estrellas jóvenes y restos de supernova. Es una prueba de que una morfología aparentemente tranquila no implica necesariamente una historia evolutiva sencilla."
       },
@@ -847,8 +847,8 @@
         "curiosity_text": "El perfil de América del Norte no es un borde físico del gas: lo dibuja la nube oscura LDN 935, que oculta la luz de la nebulosa detrás de ella y crea el Golfo de México."
       },
       "caldwell-C21": {
-        "short_description": "C21 (NGC 4449), galaxia irregular en la constelación de Lebreles. Busque primero la condensación central y la extensión general, luego utilice la visión periférica para seguir las regiones exteriores más débiles. La preparación del campo para C21 parte de una extensión de 5′ x 3′ y una magnitud integrada de 9,4.",
-        "observing_notes": "El perfil de C21 (NGC 4449), de magnitud integrada 9,4, cubre aproximadamente 5′ x 3′: proteja la adaptación a la oscuridad y compruebe los bordes con visión periférica.",
+        "short_description": "C21 (NGC 4449) es una galaxia enana irregular en Perros de Caza, con formación estelar intensa hasta sus regiones exteriores. Su cuerpo de cúmulos jóvenes, gas y polvo no sigue brazos ordenados; la estructura caótica conserva los efectos de interacciones recientes.",
+        "observing_notes": "C21 tiene un cuerpo corto y casi rectangular, con más contraste que muchas enanas irregulares. Con aumentos medios busca una superficie moteada, no un núcleo regular; con gran apertura los nudos más luminosos se separan como regiones de formación estelar.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4449 está formando estrellas en casi todo su cuerpo, no solo en regiones ordenadas como una espiral. Las corrientes estelares y el gas perturbado indican interacciones recientes o una fusión con una galaxia compañera menor."
       },
@@ -866,7 +866,7 @@
       },
       "caldwell-C24": {
         "short_description": "C24 (NGC 1275), galaxia Seyfert en la constelación de Perseo. Es un objetivo de contraste: un campo con el fondo bien oscuro permite pasar del núcleo más evidente al halo apenas perceptible. Para planificar su observación, considere la magnitud integrada 11,6 y la extensión aparente 2,6′ x 1′ juntas.",
-        "observing_notes": "Para C24 (NGC 1275 - Perseo A), con una extensión de 2,6′ x 1′, primero verifique el eje central y la condensación; la magnitud 11,6 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "C24 es la condensación dominante en el centro del cúmulo de Perseo. Usa aumentos medios para separar el núcleo casi estelar del pequeño halo ovalado y compáralo con las galaxias mucho más débiles del campo; los espectaculares filamentos fotográficos no son un objetivo visual realista.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 1275 domina el centro del Cúmulo de Perseo y está asociado con la fuente de radio Perseo A. El agujero negro central expulsa enormes burbujas de gas caliente, mientras que un segundo sistema galáctico se superpone a lo largo de la línea de visión."
       },
@@ -878,7 +878,7 @@
       },
       "caldwell-C26": {
         "short_description": "C26 (NGC 4244), galaxia espiral en la constelación de Lebreles. Empiece por examinar el núcleo, la orientación y la forma del halo; los detalles en espiral, cuando son accesibles, llegan solo después de una larga adaptación a la oscuridad. Su escala aparente es de 16′ x 2,5′; una magnitud integrada de 10,6 no describe por sí sola lo que será evidente en el ocular.",
-        "observing_notes": "Para C26 (NGC 4244 - Galaxia de la Aguja Plateada), con magnitud integrada 10,6, observe la orientación y la relación entre el núcleo y el halo antes de buscar estructuras más débiles.",
+        "observing_notes": "C26 es una lámina de 16′ de largo y solo 2,5′ de ancho. Elige un campo con espacio en ambos extremos y usa aumentos bajos-medios. El disco fino surge mejor al barrer lentamente con el telescopio; la ausencia de un bulbo marcado forma parte de su aspecto, no es un error de centrado.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4244 es una espiral muy delgada vista de canto, casi sin un bulbo central. Su estructura simple ayuda a estudiar cómo se distribuyen verticalmente las estrellas y el gas en los discos galácticos."
       },
@@ -902,7 +902,7 @@
       },
       "caldwell-C30": {
         "short_description": "C30 (NGC 7331), galaxia espiral en la constelación de Pegaso. Busque primero la condensación central y la extensión general, luego utilice la visión periférica para seguir las regiones exteriores más débiles. Para C30, la comparación entre la extensión de 11′ x 4′ y la magnitud integrada de 9,5 guía la elección del campo inicial.",
-        "observing_notes": "Para C30 (NGC 7331), con una extensión de 11′ x 4′, compruebe primero el eje principal y la condensación central; la magnitud 9,5 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "Con aumentos medios C30 muestra primero un núcleo luminoso y un disco muy alargado. Un cielo oscuro y más apertura pueden insinuar bandas de polvo y el inicio de los brazos; el Quinteto de Stephan, medio grado al sudoeste, es otro objetivo mucho más difícil.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 7331 a menudo ha sido llamada la gemela de la Vía Láctea, pero no tiene una barra central obvia. Detrás de ella aparecen las galaxias más lejanas del Grupo Deer Lick, una perspectiva que crea un falso grupo compacto."
       },
@@ -914,7 +914,7 @@
       },
       "caldwell-C32": {
         "short_description": "C32 (NGC 4631), galaxia espiral en la constelación de Lebreles. Empiece por examinar el núcleo, la orientación y la forma del halo; los detalles en espiral, cuando son accesibles, llegan solo después de una larga adaptación a la oscuridad. NGC 4631 - Galaxia de la Ballena combina una extensión aparente de 15′ x 3′ con una magnitud integrada de 9,3, por lo que la apertura y la calidad del cielo influyen de forma distinta.",
-        "observing_notes": "Para C32 (NGC 4631 - Galaxia de la Ballena), con magnitud integrada 9,3, observe la orientación y la relación entre el núcleo y el halo antes de buscar estructuras más débiles.",
+        "observing_notes": "La Ballena se aprecia bien con aumentos bajos-medios. Sigue su perfil curvo desde el vientre más luminoso hasta la cola afinada. Alterna visión directa y lateral para buscar manchas y bandas oscuras en el disco, no un núcleo puntual; la transparencia importa más que los aumentos altos.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4631 está rodeada por un halo de gas caliente visible en rayos X. Las supernovas y los vientos de las regiones de formación estelar expulsan la materia del disco, creando una especie de fuente galáctica."
       },
@@ -938,7 +938,7 @@
       },
       "caldwell-C36": {
         "short_description": "C36 (NGC 4559), galaxia espiral en la constelación de Cabellera de Berenice. En el ocular la luz es suave y progresiva: la calidad del cielo oscuro importa más que el aumento para separar el halo del fondo. Para planificar su observación, considere la magnitud integrada 9,8 y la extensión aparente 10′ x 4′ juntas.",
-        "observing_notes": "Para C36 (NGC 4559), con una extensión de 10′ x 4′, compruebe primero el eje principal y la condensación central; la magnitud 9,8 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "C36 carece de un núcleo dominante. Con aumentos bajos o medios busca una franja tenue e irregular salpicada de estrellas de campo. Mueve ligeramente el telescopio y alterna visión directa y lateral para confirmar las manchas del disco y no confundirlas con variaciones del fondo celeste.",
         "best_seen": "Primavera",
         "curiosity_text": "En el disco de NGC 4559 hay una fuente de rayos X ultraluminosa, demasiado intensa para una binaria estelar normal. Puede albergar un agujero negro que acreta materia de una compañera situada en una región de estrellas jóvenes."
       },
@@ -950,7 +950,7 @@
       },
       "caldwell-C38": {
         "short_description": "C38 (NGC 4565), galaxia espiral en la constelación de Cabellera de Berenice. Busque primero la condensación central y la extensión general, luego utilice la visión periférica para seguir las regiones exteriores más débiles. Su escala aparente es de 16′ x 3′; la magnitud integrada de 9,6 no describe por sí sola lo que será evidente en el ocular.",
-        "observing_notes": "Para C38 (NGC 4565 - Galaxia de la Aguja), con magnitud integrada 9,6, observe la orientación y la relación entre el núcleo y el halo antes de buscar estructuras más débiles.",
+        "observing_notes": "Con aumentos medios C38 ya muestra una larga lámina con bulbo central. Sube después los aumentos mientras el fondo siga oscuro: la fina banda de polvo puede cortar el bulbo y continuar por el disco, mientras la visión lateral prolonga ambos extremos más allá de la zona brillante.",
         "best_seen": "Primavera",
         "curiosity_text": "La Galaxia de la Aguja es uno de los ejemplos más claros de una espiral vista perfectamente de canto. Una fina franja de polvo divide el disco, mientras que un brillante bulbo central revela su estructura tridimensional."
       },
@@ -962,7 +962,7 @@
       },
       "caldwell-C40": {
         "short_description": "C40 (NGC 3626), galaxia espiral en la constelación de Leo. Es un objetivo de contraste: un campo con el fondo bien oscuro permite pasar del núcleo más evidente al halo apenas perceptible. Con dimensiones de 3′ x 2′ y magnitud integrada de 10,9, requiere un campo acorde con su escala antes de buscar detalles.",
-        "observing_notes": "Para C40 (NGC 3626), con magnitud integrada 10,9, compare el diámetro observado con 3′ x 2′; marcadas diferencias indican que el fondo del cielo oculta el halo externo.",
+        "observing_notes": "C40 es pequeña y admite aumentos medios-altos. Busca un centro brillante envuelto por un halo ovalado de pocos minutos de arco. El campo del grupo Leo II contiene otras galaxias; confirma su posición respecto a las estrellas antes de atribuir extensiones tenues a C40.",
         "best_seen": "Primavera",
         "curiosity_text": "En NGC 3626 el gas gira en sentido contrario a la mayoría de las estrellas. La explicación más probable es que adquirió material de una galaxia compañera, un encuentro que permanece registrado en la dinámica del disco."
       },
@@ -980,19 +980,19 @@
       },
       "caldwell-C43": {
         "short_description": "C43 (NGC 7814), galaxia espiral en la constelación de Pegaso. Busque primero la condensación central y la extensión general, luego utilice la visión periférica para seguir las regiones exteriores más débiles. En el ocular debe buscarse una extensión de 6′ x 2′; el brillo total corresponde a una magnitud integrada de 10,5.",
-        "observing_notes": "Para C43 (NGC 7814), con magnitud integrada 10,5, utilice las dimensiones de 6′ x 2′ para elegir el campo y comparar hasta qué punto se extiende el halo más allá del núcleo.",
+        "observing_notes": "C43 es un pequeño Sombrero visto de canto. Con aumentos medios-altos busca un gran bulbo redondo cruzado por un disco muy fino. Con apertura generosa y cielo estable, la banda de polvo puede aparecer como una línea que divide el bulbo; los extremos requieren visión lateral.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 7814 se parece a un Sombrero en miniatura, pero su disco se ve todavía más de canto. Una banda extremadamente delgada de polvo atraviesa un gran bulbo estelar casi esférico."
       },
       "caldwell-C44": {
         "short_description": "C44 (NGC 7479), galaxia espiral barrada en la constelación de Pegaso. En el ocular domina la zona central; bajo un buen cielo la distribución asimétrica de la luz puede sugerir la barra y el inicio de los brazos. NGC 7479 combina una extensión aparente de 4′ x 3′ con una magnitud integrada de 11,0, por lo que la apertura y la calidad del cielo influyen de forma distinta.",
-        "observing_notes": "Para C44 (NGC 7479), con magnitud integrada 11,0, observe la orientación y la relación núcleo-halo antes de buscar estructuras más débiles.",
+        "observing_notes": "En C44 el rasgo visual más accesible es la barra. Usa aumentos medios para buscar una condensación alargada que cruza el núcleo. Bajo un cielo muy oscuro, la visión lateral puede añadir dos extensiones curvas y sugerir la S invertida; el chorro de radio no es visible.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 7479 tiene forma de S invertida y un chorro de radio que se extiende en dirección opuesta a la rotación aparente de los brazos. Ambos podrían resultar de una fusión con una galaxia más pequeña."
       },
       "caldwell-C45": {
         "short_description": "C45 (NGC 5248), galaxia espiral en la constelación de Boyero. En el ocular la luz es suave y progresiva: la calidad del cielo oscuro importa más que el aumento para separar el halo del fondo. La preparación del campo para C45 parte de una extensión de 6′ x 4′ y una magnitud integrada de 10,2.",
-        "observing_notes": "El perfil de C45 (NGC 5248), de magnitud integrada 10,2, cubre aproximadamente 6′ x 4′: proteja la adaptación a la oscuridad y compruebe los bordes con visión periférica.",
+        "observing_notes": "C45 aparece casi de frente. Con aumentos medios identifica su pequeño centro brillante y deja que el halo redondo surja con visión lateral. Con mayor apertura busca dos realces curvos opuestos; los anillos circunnucleares de las imágenes son demasiado pequeños para la observación visual normal.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 5248 contiene dos anillos de formación de estrellas alrededor del núcleo. La barra y los brazos canalizan el gas hacia el centro, donde nacen nuevas estrellas en estructuras concéntricas a diferentes escalas."
       },
@@ -1009,8 +1009,8 @@
         "curiosity_text": "NGC 6934 contiene estrellas rezagadas azules, más calientes y luminosas de lo esperable para la edad del cúmulo. Su distribución ayuda a reconstruir cómo las colisiones y los sistemas binarios han mezclado el núcleo."
       },
       "caldwell-C48": {
-        "short_description": "C48 (NGC 2775), galaxia espiral en la constelación de Cáncer. Busque primero la condensación central y la extensión general, luego utilice la visión periférica para seguir las regiones exteriores más débiles. Para planificar su observación, considere la magnitud integrada 10,3 y la extensión aparente 4,5′ x 3′ juntas.",
-        "observing_notes": "Para C48 (NGC 2775), con una extensión de 4,5′ x 3′, compruebe primero el eje principal y la condensación central; la magnitud 10,3 no expresa por sí sola el brillo superficial.",
+        "short_description": "C48 (NGC 2775) es una galaxia espiral casi frontal en la constelación de Cangrejo. Un gran bulbo amarillento de estrellas viejas está rodeado por segmentos de brazos estrechos y plumosos, marcados por polvo y cúmulos azules jóvenes; el contraste entre el centro regular y el disco floculento es su rasgo distintivo.",
+        "observing_notes": "Centra el bulbo redondo y luminoso de C48 con aumentos medios y después usa visión lateral para seguir el disco más tenue. Incluso con gran apertura sus brazos floculentos son extremadamente difíciles; una textura granulosa es más realista que una espiral nítida.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 2775 tiene brazos floculantes: segmentos plumosos y discontinuos en lugar de dos espirales regulares. El gran bulbo amarillento está dominado por estrellas viejas, mientras que la formación estelar se concentra en los fragmentos exteriores."
       },
@@ -1034,7 +1034,7 @@
       },
       "caldwell-C52": {
         "short_description": "C52 (NGC 4697), galaxia elíptica en la constelación de Virgo. No ofrece estructuras claras como una espiral; su carácter surge de la forma del halo y de la concentración del núcleo. Con dimensiones de 6′ x 3′ y magnitud integrada de 9,3, requiere un campo acorde con su escala antes de buscar detalles.",
-        "observing_notes": "Para C52 (NGC 4697), con magnitud integrada 9,3, compare el diámetro observado con 6′ x 3′; marcadas diferencias indican que el fondo del cielo oculta el halo externo.",
+        "observing_notes": "C52 no es redonda como muchas elípticas. Con aumentos medios busca un halo fusiforme, aproximadamente dos veces más largo que ancho, con un centro que aumenta gradualmente de brillo. La visión lateral alarga sus extremos, no revela bandas ni brazos inexistentes.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4697 parece ser una elíptica silenciosa, pero las observaciones de rayos X revelan numerosas binarias compactas esparcidas por su envejecida población. Estas fuentes rastrean estrellas de neutrones y agujeros negros que acumulan materia."
       },
@@ -1063,8 +1063,8 @@
         "curiosity_text": "La estrella central de la Nebulosa Calavera pertenece a un sistema triple jerárquico. Las otras componentes, invisibles con instrumentos pequeños, pueden haber influido en las cavidades y en la geometría no esférica del gas expulsado."
       },
       "caldwell-C57": {
-        "short_description": "C57 (NGC 6822), galaxia irregular en la constelación de Sagitario. Busque primero la condensación central y la extensión general, luego utilice la visión periférica para seguir las regiones exteriores más débiles. La preparación del campo para C57 parte de una extensión de 10′ x 9′ y una magnitud integrada de 9,3.",
-        "observing_notes": "El perfil de C57 (NGC 6822 - Galaxia de Barnard), de magnitud integrada 9,3, cubre aproximadamente 10′ x 9′: proteja la adaptación a la oscuridad y compruebe los bordes con visión periférica.",
+        "short_description": "C57 (NGC 6822), la Galaxia de Barnard, es una enana irregular del Grupo Local en la constelación de Sagitario. Su tenue cuerpo estelar sin espiral alberga grandes viveros como Hubble V y Hubble X; su cercanía permite estudiar estrellas y poblaciones individuales.",
+        "observing_notes": "Observa C57 en el meridiano con los mínimos aumentos útiles: la galaxia es una barra ancha y muy tenue, no una mancha concentrada. Búscala sin filtro; con gran apertura puedes apuntar por separado Hubble V y Hubble X y probar OIII solo sobre esos nudos gaseosos.",
         "best_seen": "Verano",
         "curiosity_text": "La Galaxia de Barnard fue una de las primeras galaxias enanas situadas fuera de la Vía Láctea que se estudiaron en detalle. Las variables cefeidas observadas en su interior ayudaron a Edwin Hubble a extender la escala de distancias más allá de nuestra galaxia."
       },
@@ -1081,20 +1081,20 @@
         "curiosity_text": "El Fantasma de Júpiter tiene dimensiones aparentes cercanas a las del planeta, pero es una capa de gas muy distante. Las capas concéntricas y los pequeños chorros hablan de distintos episodios de pérdida de masa de la estrella central."
       },
       "caldwell-C60": {
-        "short_description": "C60 (NGC 4038), galaxia espiral en la constelación de Cuervo. Busque primero la condensación central y la extensión general, luego utilice la visión periférica para seguir las regiones exteriores más débiles. Para planificar su observación, considere la magnitud integrada 11,3 y la extensión aparente 2,6′ x 1,8′ juntas.",
-        "observing_notes": "Para C60 (NGC 4038 - Galaxias de las Antenas), con una extensión de 2,6′ x 1,8′, compruebe primero el eje principal y la condensación central; la magnitud 11,3 no expresa por sí sola el brillo superficial.",
+        "short_description": "C60 (NGC 4038) es el miembro septentrional de las Galaxias de las Antenas, una pareja de espirales en colisión en la constelación de Cuervo. Su disco se superpone a NGC 4039 (C61) en una región intrincada de polvo y formación estelar, mientras las mareas han extraído largas colas de la pareja.",
+        "observing_notes": "Observa C60 junto con C61, no como una galaxia aislada. Bajo un cielo oscuro y con aumentos medios busca dos condensaciones superpuestas dentro de un tenue resplandor en forma de coma; las largas colas que dan nombre a las Antenas suelen quedar reservadas a la fotografía.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4038 es una de las dos Galaxias de las Antenas. Las largas colas que dan nombre a la pareja son estrellas y gas despojados por mareas gravitacionales durante una colisión que comenzó hace cientos de millones de años."
       },
       "caldwell-C61": {
         "short_description": "C61 (NGC 4039), galaxia espiral en la constelación de Cuervo. Es un objetivo de contraste: un campo con el fondo bien oscuro permite pasar del núcleo más evidente al halo apenas perceptible. NGC 4039 - Galaxias de las Antenas cubre aproximadamente 3,2′ x 2,2′ en el cielo y tiene una magnitud integrada de 13,0, dos datos que deben valorarse junto con el contraste del fondo.",
-        "observing_notes": "Para C61 (NGC 4039 - Galaxias de las Antenas), con magnitud integrada 13,0, utilice las dimensiones 3,2′ x 2,2′ para elegir el campo y comparar hasta qué punto se extiende el halo más allá del núcleo.",
+        "observing_notes": "No busques C61 como una mancha aislada de magnitud 13: es la condensación meridional unida visualmente a C60. Con aumentos medios intenta distinguir los dos núcleos y la zona de solapamiento; toda la pareja sigue siendo una coma tenue y las Antenas extendidas son fotográficas.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4039 forma con NGC 4038 las Galaxias de las Antenas. En la zona de solapamiento, la compresión del gas ha encendido miles de cúmulos estelares jóvenes, algunos destinados a convertirse en futuros cúmulos globulares."
       },
       "caldwell-C62": {
         "short_description": "C62 (NGC 247), galaxia espiral en la constelación de Ballena. Es un objetivo de contraste: un campo con el fondo bien oscuro permite pasar del núcleo más evidente al halo apenas perceptible. Su escala aparente es de 20′ x 7′; una magnitud integrada de 8,9 no describe por sí sola lo que será evidente en el ocular.",
-        "observing_notes": "Para C62 (NGC 247), con magnitud integrada 8,9, observe la orientación y la relación entre el núcleo y el halo antes de buscar estructuras más débiles.",
+        "observing_notes": "C62 es una galaxia austral grande y tenue. Obsérvala en el meridiano con pocos aumentos y un campo de al menos medio grado. Busca una franja asimétrica con poca concentración central; el gran vacío del disco puede aparecer solo como brillo desigual, no como una cavidad nítida.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 247 contiene un gran vacío aparente en el disco, con muchas menos estrellas viejas que las áreas circundantes. Podría ser la huella de una interacción o procesos antiguos que interrumpieron localmente la formación estelar."
       },
@@ -1124,7 +1124,7 @@
       },
       "caldwell-C67": {
         "short_description": "C67 (NGC 1097), galaxia espiral barrada en la constelación de Horno. Lo mejor es empezar desde el núcleo y la orientación del halo; la barra y cualquier indicio de espiral requieren cielos oscuros y observación paciente. En el ocular debe buscarse una extensión de 9′ x 6′; el brillo total corresponde a una magnitud integrada de 9,2.",
-        "observing_notes": "Para C67 (NGC 1097), con magnitud integrada 9,2, utilice las dimensiones de 9′ x 6′ para elegir el campo y comparar hasta qué punto se extiende el halo más allá del núcleo.",
+        "observing_notes": "Desde latitudes septentrionales observa C67 en el meridiano. Con aumentos medios busca su núcleo muy brillante, la barra ovalada y el halo casi circular. Con más apertura puede surgir la pequeña compañera NGC 1097A junto a un brazo, mientras el anillo y los chorros centrales son fotográficos.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 1097 tiene un anillo circunnuclear donde el gas forma estrellas a un ritmo intenso. En el centro hay un agujero negro supermasivo, mientras que débiles chorros ópticos se extienden mucho más allá del disco."
       },
@@ -1142,7 +1142,7 @@
       },
       "caldwell-C70": {
         "short_description": "C70 (NGC 300), galaxia espiral en la constelación del Escultor. En el ocular la luz es suave y progresiva: la calidad del cielo oscuro importa más que el aumento para separar el halo del fondo. El perfil observable de C70 puede ser más pequeño que el catalogado de 20′ x 13′ si el fondo del cielo reduce el contraste; la magnitud total es 8,1.",
-        "observing_notes": "Para C70 (NGC 300), con magnitud integrada 8,1, compare el diámetro observado con 20′ x 13′; marcadas diferencias indican que el fondo del cielo oculta el halo externo.",
+        "observing_notes": "C70 ocupa unos dos tercios del diámetro lunar y no conviene ampliarla demasiado. Obsérvala cerca de la culminación con un campo ancho y visión lateral para reconocer un disco débilmente granulado sin núcleo fuerte; con gran apertura las concentraciones estelares surgen como manchas, no como brazos continuos.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 300 es una espiral relativamente aislada del Grupo Escultor. Las cefeidas y otras estrellas variables dentro de ella han proporcionado una de las mediciones de distancia más precisas para una galaxia cercana."
       },
@@ -1154,7 +1154,7 @@
       },
       "caldwell-C72": {
         "short_description": "C72 (NGC 55), galaxia espiral barrada en la constelación del Escultor. En el ocular domina la zona central; bajo un buen cielo la distribución asimétrica de la luz puede sugerir la barra y el inicio de los brazos. Para planificar su observación, considere la magnitud integrada 8,2 y la extensión aparente 32′ x 6′ juntas.",
-        "observing_notes": "Para C72 (NGC 55), con una extensión de 32′ x 6′, compruebe primero el eje principal y la condensación central; la magnitud 8,2 por sí sola no expresa el brillo superficial.",
+        "observing_notes": "Observa C72 en el meridiano con el campo más ancho posible: sus 32′ forman una franja delgada que puede desbordar el ocular. No busques un núcleo simétrico; su firma visual es una luz irregular, más intensa en algunos nudos y afinada hacia los extremos.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 55 es una galaxia barrada vista casi de canto con regiones de formación estelar dispersas y un perfil irregular. Su proximidad permite resolver estrellas individuales a pesar de la apariencia nebulosa general."
       },

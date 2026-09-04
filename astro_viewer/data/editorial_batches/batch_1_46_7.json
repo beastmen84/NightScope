@@ -1,0 +1,1412 @@
+{
+  "schema_version": 1,
+  "source_version": "1.46.7",
+  "batch_kind": "baseline_remediation",
+  "status": "accepted",
+  "selection_basis": "Replace the final five repeated or near-identical galaxy observing-note families and the two remaining duplicated description families in the historical baseline, without reopening already distinct seasons, difficulties, or curiosities.",
+  "created_on": "2026-09-04",
+  "reviewed_on": "2026-09-04",
+  "objects": [
+    {
+      "object_id": "caldwell-C12",
+      "designations": [
+        "C12",
+        "NGC 6946"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-12/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C18",
+      "designations": [
+        "C18",
+        "NGC 185"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-18/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C24",
+      "designations": [
+        "C24",
+        "NGC 1275"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-24/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C30",
+      "designations": [
+        "C30",
+        "NGC 7331"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-30/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C36",
+      "designations": [
+        "C36",
+        "NGC 4559"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-36/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C48",
+      "designations": [
+        "C48",
+        "NGC 2775"
+      ],
+      "fields": [
+        "short_description",
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-48/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "short_description",
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C60",
+      "designations": [
+        "C60",
+        "NGC 4038"
+      ],
+      "fields": [
+        "short_description",
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-60-61/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "short_description",
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C72",
+      "designations": [
+        "C72",
+        "NGC 55"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-72/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M102",
+      "designations": [
+        "M102",
+        "NGC 5866"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-102/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M108",
+      "designations": [
+        "M108",
+        "NGC 3556"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-108/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M60",
+      "designations": [
+        "M60",
+        "NGC 4649"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-60/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M66",
+      "designations": [
+        "M66",
+        "NGC 3627"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-66/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M84",
+      "designations": [
+        "M84",
+        "NGC 4374"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-84/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M90",
+      "designations": [
+        "M90",
+        "NGC 4569"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-90/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M96",
+      "designations": [
+        "M96",
+        "NGC 3368"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-96/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C21",
+      "designations": [
+        "C21",
+        "NGC 4449"
+      ],
+      "fields": [
+        "short_description",
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-21/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "short_description",
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C3",
+      "designations": [
+        "C3",
+        "NGC 4236"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-3/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C45",
+      "designations": [
+        "C45",
+        "NGC 5248"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-45/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C57",
+      "designations": [
+        "C57",
+        "NGC 6822"
+      ],
+      "fields": [
+        "short_description",
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-57/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "short_description",
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M105",
+      "designations": [
+        "M105",
+        "NGC 3379"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-105/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M33",
+      "designations": [
+        "M33",
+        "NGC 598"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-33/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M63",
+      "designations": [
+        "M63",
+        "NGC 5055"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-63/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M87",
+      "designations": [
+        "M87",
+        "NGC 4486"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-87/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M99",
+      "designations": [
+        "M99",
+        "NGC 4254"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-99/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C26",
+      "designations": [
+        "C26",
+        "NGC 4244"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-26/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C32",
+      "designations": [
+        "C32",
+        "NGC 4631"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-32/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C38",
+      "designations": [
+        "C38",
+        "NGC 4565"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-38/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C44",
+      "designations": [
+        "C44",
+        "NGC 7479"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-44/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C62",
+      "designations": [
+        "C62",
+        "NGC 247"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-62/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M110",
+      "designations": [
+        "M110",
+        "NGC 205"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-110/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M32",
+      "designations": [
+        "M32",
+        "NGC 221"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-32/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M74",
+      "designations": [
+        "M74",
+        "NGC 628"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-74/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M86",
+      "designations": [
+        "M86",
+        "NGC 4406"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-86/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C40",
+      "designations": [
+        "C40",
+        "NGC 3626",
+        "NGC 3632"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-40/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C52",
+      "designations": [
+        "C52",
+        "NGC 4697"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-52/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C70",
+      "designations": [
+        "C70",
+        "NGC 300"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-70/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M100",
+      "designations": [
+        "M100",
+        "NGC 4321"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-100/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M106",
+      "designations": [
+        "M106",
+        "NGC 4258"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-106/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M58",
+      "designations": [
+        "M58",
+        "NGC 4579"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-58/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M64",
+      "designations": [
+        "M64",
+        "NGC 4826"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-64/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M88",
+      "designations": [
+        "M88",
+        "NGC 4501"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-88/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M94",
+      "designations": [
+        "M94",
+        "NGC 4736"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-94/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C43",
+      "designations": [
+        "C43",
+        "NGC 7814"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-43/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C61",
+      "designations": [
+        "C61",
+        "NGC 4039"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-60-61/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C67",
+      "designations": [
+        "C67",
+        "NGC 1097"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-67/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C7",
+      "designations": [
+        "C7",
+        "NGC 2403"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-7/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M109",
+      "designations": [
+        "M109",
+        "NGC 3992"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-109/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M49",
+      "designations": [
+        "M49",
+        "NGC 4472"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-49/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M61",
+      "designations": [
+        "M61",
+        "NGC 4303"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-61/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M85",
+      "designations": [
+        "M85",
+        "NGC 4382"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-85/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M91",
+      "designations": [
+        "M91",
+        "NGC 4548"
+      ],
+      "fields": [
+        "observing_notes"
+      ],
+      "sources": [
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-91/",
+          "accessed_on": "2026-09-04",
+          "supports": [
+            "observing_notes"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    }
+  ],
+  "visual_review": {
+    "samples": [
+      {
+        "object_id": "caldwell-C12",
+        "reason": "Large face-on galaxy seen through foreground Milky Way extinction.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "caldwell-C18",
+        "reason": "Paired-field comparison with the nearby C17 galaxy.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "caldwell-C48",
+        "reason": "Rewritten description plus realistic limit for flocculent arms.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "caldwell-C60",
+        "reason": "Rewritten Antennae description and interacting-pair observing guidance.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "caldwell-C57",
+        "reason": "Low-surface-brightness dwarf with a filtered H II-region exception.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "messier-M33",
+        "reason": "Very extended, low-surface-brightness Local Group spiral.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "caldwell-C38",
+        "reason": "Edge-on profile with a difficult dust-lane target.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "messier-M64",
+        "reason": "Compact dust feature against a bright galactic core.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "messier-M94",
+        "reason": "Bright inner disk and much fainter outer structure at different scales.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "messier-M109",
+        "reason": "Low-contrast galaxy next to a bright guide star.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      }
+    ]
+  },
+  "similarity_waivers": [],
+  "deferred": []
+}

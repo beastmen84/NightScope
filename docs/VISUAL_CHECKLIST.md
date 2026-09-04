@@ -7,7 +7,7 @@ sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
 verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 `archive/TESTING_HISTORY_THROUGH_1.45.6.md`. Il bundle pubblico corrente e'
 `1.45.21` su Windows, mentre Linux resta a `1.43.0`; le verifiche dei futuri
-artefatti `1.46.6` sono separate in `RELEASE_CHECKLIST.md` e devono essere
+artefatti `1.46.7` sono separate in `RELEASE_CHECKLIST.md` e devono essere
 ripetute per ciascuna dist effettivamente rigenerata.
 
 ## Verifica Sorgente Spagnolo 1.34.0
@@ -643,6 +643,12 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   rossa resta monocromatica. Il renderer riutilizzabile
   `astro_viewer/tools/render_editorial_samples.py` usa un runtime isolato e
   salva i file di revisione fuori dal repository.
+- [x] **VIS-V53 (`VERIFICATA`)** - La correzione editoriale finale della base
+  storica e' stata renderizzata in 120 scene Object Detail: dieci galassie
+  rappresentative, italiano/inglese/spagnolo, modalita' normale/Red Night
+  Vision e sia intestazione con note osservative sia schede inferiori. Titoli,
+  testi e attribuzioni restano completi, senza tagli o sovrapposizioni, e tutte
+  le scene notturne sono monocromatiche.
 
 ## Verifica Delle Correzioni 1.33.1
 
