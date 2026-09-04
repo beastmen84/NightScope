@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.46.5
+This document describes the architecture implemented by the NightScope 1.46.6
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -301,7 +301,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.46.5`:
+Current runtime status for `1.46.6`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -380,9 +380,9 @@ Current runtime status for `1.46.5`:
 - `ObjectDescription` and `ObjectCuriosity` retain complete reviewed
   presentation for 303 targets: the 228-object Solar System/Messier/Caldwell
   baseline plus 75 NGC-only galaxies accepted through source `1.46.2`.
-  Sources `1.46.3` through `1.46.5` additionally record field-scoped
-  remediation of 106 baseline galaxy, open-cluster, and globular-cluster
-  entries without changing catalogue coverage.
+  Sources `1.46.3` through `1.46.6` additionally record field-scoped
+  remediation of 126 baseline galaxy, open-cluster, globular-cluster, and
+  nebula entries without changing catalogue coverage.
   `ObjectImages` remains complete for the 228 baseline targets; each has a
   dedicated local `512 x 512` JPEG, with survey cutouts for deep sky and
   normalized NASA/JPL PIA observations for Solar System bodies. NGC-only
@@ -398,7 +398,7 @@ Current runtime status for `1.46.5`:
   Equipment or observability role. Seeded descriptions and curiosities are
   managed through `is_builtin`; bootstrap refreshes them, while content
   imported by the user is marked custom and preserved.
-- The immutable 228-object Solar System and deep-sky baseline and the 50
+- The immutable 228-object Solar System and deep-sky baseline and the 75
   accepted NGC-only records keep identity, season
   and difficulty metadata separate from `short_description` and
   `observing_notes`. The historic NGC-only placeholder remains in the physical

@@ -110,7 +110,7 @@
       },
       "messier-M8": {
         "short_description": "M8 (Lagoon Nebula) is a nebula with star cluster in Sagittarius. The Lagoon is a true star-forming region: young stars, bright gas and dark structures coexist in the same field.",
-        "observing_notes": "On M8 (Lagoon Nebula), integrated magnitude 4.6, protect dark adaptation and evaluate edge, center and overlapping stars separately.",
+        "observing_notes": "M8 exceeds the field of many eyepieces, so use the lowest power to include the cluster, Lagoon, and dark lane. UHC boosts the gas and Hourglass region; without it, the stars of NGC 6530 regain prominence.",
         "best_seen": "Summer",
         "curiosity_text": "Inside the Lagoon, the region called the Hourglass Nebula is sculpted primarily by the young massive star Herschel 36. Radiation and stellar winds are eroding the clouds from which new stars continue to be born."
       },
@@ -158,13 +158,13 @@
       },
       "messier-M16": {
         "short_description": "M16 (Eagle Nebula) is an emission nebula with a star cluster in Serpens. The Eagle Nebula is famous for the Pillars of Creation photographed by Hubble, but at the eyepiece the cluster is often more evident than the nebulosity.",
-        "observing_notes": "For M16 (Eagle Nebula), integrated magnitude 6.4, alternate between direct and averted vision while keeping the same exit pupil so the comparison remains reliable.",
+        "observing_notes": "In M16, cluster NGC 6611 is conspicuous without a filter, while the nebula requires low power, a dark sky, and UHC. Compare the views with the same eyepiece and exit pupil; seek the Eagle outline and dark lanes. The Pillars of Creation are not a realistic detail for most visual instruments.",
         "best_seen": "Summer",
         "curiosity_text": "The Pillars of Creation are towers of gas and dust within M16, several light years long. The 1995 Hubble images made them iconic, but the columns are also incubators subjected to the erosion of newborn stars."
       },
       "messier-M17": {
         "short_description": "M17 (Omega, Swan, Horseshoe, Lobster, or Checkmark Nebula) is an emission nebula with a star cluster in Sagittarius. The Omega Nebula, or Swan, is among the most recognizable summer nebulae: a bright bar that takes shape with a filter and dark sky.",
-        "observing_notes": "For M17, record the effects of the filter and magnification separately; its integrated magnitude is 6.0 and its reference extent is 11′.",
+        "observing_notes": "Even unfiltered, M17 shows the Swan's bright bar; UHC broadens the body and sharpens the neck against the dark lane. Alternate low and medium power: the former traces outer nebulosity, while the latter reveals mottling in the bright region.",
         "best_seen": "Summer",
         "curiosity_text": "The bright part of M17 is only a small portion of a much larger molecular cloud. The young cluster hidden inside illuminates and excavates the gas, creating the shape of the Swan visible from Earth."
       },
@@ -182,7 +182,7 @@
       },
       "messier-M20": {
         "short_description": "M20, the Trifid Nebula, is a region in Sagittarius that combines emission and reflection nebulosity, dark lanes, and a young star cluster. It is a difficult visual target, but under a good sky it has a unique appearance.",
-        "observing_notes": "On M20 (Trifid Nebula), integrated magnitude 6.3, protect dark adaptation and evaluate edge, center and overlapping stars separately.",
+        "observing_notes": "Observe M20 at low power together with its cluster. UHC sharpens the emission region and the three central dark lanes, but dims the blue reflection lobe; comparing filtered and unfiltered views is part of the observation.",
         "best_seen": "Summer",
         "curiosity_text": "M20 brings together in the same field a red emission nebula, a blue reflection region and lanes of dark dust. The three bands that dissect its center inspired John Herschel to name it the Trifid Nebula."
       },
@@ -518,7 +518,7 @@
       },
       "messier-M76": {
         "short_description": "M76 (Little Dumbbell Nebula) is a planetary nebula in Perseus. The Little Dumbbell is a demanding planetary nebula: small, weak and structured. When it emerges, however, it gives greater satisfaction than many easier objects.",
-        "observing_notes": "For M76 (Little Dumbbell Nebula), integrated magnitude 10.1, alternate between direct and averted vision while keeping the same exit pupil so the comparison remains reliable.",
+        "observing_notes": "OIII immediately reveals M76's rectangular bar. Then use medium-high power to separate its two brighter knots; under a very dark sky, lower power may show the faint wings that complete the bipolar form.",
         "best_seen": "Autumn",
         "curiosity_text": "M76 has been given more names than almost any other planetary nebula: Little Dumbbell, Cork, and Butterfly. The two bright lobes are the walls of a structure expelled by a dying star."
       },
@@ -644,7 +644,7 @@
       },
       "messier-M97": {
         "short_description": "M97 (Owl Nebula) is a planetary nebula in Ursa Major. The Owl Nebula is a large and faint planetary: the 'eyes' are a visual challenge, but even without seeing them it remains a very characteristic target.",
-        "observing_notes": "For M97 (Owl Nebula), with integrated magnitude 9.9, use the 3.4′ × 3.3′ dimensions to keep the entire nebulosity in the field before narrowing the field.",
+        "observing_notes": "M97 has a broad disk but low surface brightness; an OIII filter and medium-low power make its edge conspicuous. Only then, under a dark sky, try more power and averted vision to distinguish the two darker eye cavities.",
         "best_seen": "Spring",
         "curiosity_text": "The eyes of the Owl Nebula are two less dense cavities in the shell of gas. The effect depends on the orientation: we observe a three-dimensional structure shaped by the wind of the central white dwarf."
       },
@@ -734,7 +734,7 @@
       },
       "caldwell-C2": {
         "short_description": "C2 (NGC 40), Planetary nebula in the constellation Cepheus. Small dimensions and relatively high contrast make it suitable for moderate magnification; atmospheric stability remains decisive for fine details. Its apparent scale is 0.6′; the integrated magnitude 11.6 does not alone describe what will be evident at the eyepiece.",
-        "observing_notes": "On C2 (NGC 40), integrated magnitude 11.6, protect dark adaptation and evaluate edge, center and overlapping stars separately.",
+        "observing_notes": "C2 is small, and its bright central star can wash out the shell. At medium power alternate direct and averted vision; UHC may separate the nebulosity more clearly, then remove it to recheck the star.",
         "best_seen": "Autumn",
         "curiosity_text": "The central star of NGC 40 is a very hot Wolf-Rayet that ejects material at great speed. The recent wind impacts previously lost slower layers and shapes the nebula's irregular shell."
       },
@@ -746,7 +746,7 @@
       },
       "caldwell-C4": {
         "short_description": "C4 (NGC 7023), Nebula in the constellation Cepheus. The structure is diffuse and must be read through gradual variations in brightness; a dark sky and wide field matter more than high magnification. With dimensions 18′ x 18′ and integrated magnitude 6.8, it requires a field consistent with its scale before looking for details.",
-        "observing_notes": "For C4 (NGC 7023 - Iris Nebula), integrated magnitude 6.8, alternate between direct and averted vision while keeping the same exit pupil so the comparison remains reliable.",
+        "observing_notes": "C4 is a reflection nebula, so do not use narrowband filters. Center bright HD 200775 in a medium-wide field and, under a dark sky, look for the blue haze and irregular edges where dust suppresses the light.",
         "best_seen": "Summer and autumn",
         "curiosity_text": "The Iris Nebula shines because the dust reflects the light of the star HD 200775. Reddish hues appear around the blue center produced by tiny grains and aromatic molecules illuminated by ultraviolet radiation."
       },
@@ -776,7 +776,7 @@
       },
       "caldwell-C9": {
         "short_description": "C9 (Sh2-155), Nebula in the constellation Cepheus. It is an object of contrast rather than detail: transparency and adaptation to the dark determine much of the rendering. Field preparation for C9 starts at 50′ x 10′ extent and integrated magnitude 7.7.",
-        "observing_notes": "The profile of C9 (Sh2-155 - Cave Nebula), integrated magnitude 7.7, occupies approximately 50′ x 10′: choose a field large enough to include the comparison sky background.",
+        "observing_notes": "C9 is a long, extremely low-contrast nebula. Use a wide-field eyepiece and look chiefly for the bright rim against the dark cloud. UHC can help the emission front, but a dark sky and adaptation matter more than magnification.",
         "best_seen": "Autumn",
         "curiosity_text": "The Cave Nebula is located on the edge of the Cepheus B molecular cloud. Radiation from massive stars compresses adjacent gas, creating bright fronts and new stellar generations along the cavity."
       },
@@ -812,7 +812,7 @@
       },
       "caldwell-C15": {
         "short_description": "C15 (NGC 6826), Planetary nebula in the constellation Cygnus. The shape is best read by alternating direct and averted viewing, looking for a disc, ring, or non-uniform internal structure. In the field, C15 extends for 0.5′ / 2.3′: the magnitude 9.8 should be interpreted as overall brightness.",
-        "observing_notes": "The profile of C15 (NGC 6826 - Blinking Nebula), integrated magnitude 9.8, occupies approximately 0.5′ / 2.3′: choose a field large enough to include the comparison sky background.",
+        "observing_notes": "Exploit the effect that gives C15 its name: fix your gaze on the central star and the shell fades, then use averted vision and it returns. OIII emphasizes the disk; medium-high power shows its shape without erasing the blinking effect.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 6826 appears to blink when alternating between direct and averted viewing. Looking at the center, the star dominates; by moving the gaze slightly, the peripheral retina brings out the weak shell and suddenly changes the appearance."
       },
@@ -836,7 +836,7 @@
       },
       "caldwell-C19": {
         "short_description": "C19 (IC 5146), Nebula in the constellation Cygnus. The structure is diffuse and must be read through gradual variations in brightness; a dark sky and wide field matter more than high magnification. At the eyepiece it should be searched on a scale of 12′ x 12′; the total brightness corresponds to an integrated magnitude of 10.0.",
-        "observing_notes": "For C19 (IC 5146 - Cocoon Nebula), with integrated magnitude 10.0, use the 12′ x 12′ dimensions to keep the entire nebulosity in the field before narrowing the field.",
+        "observing_notes": "C19 needs a genuinely dark sky: frame both the Cocoon and the beginning of dark lane Barnard 168. An H-beta filter can strengthen the emission component, but always compare the unfiltered view so the reflection component and cluster are not lost.",
         "best_seen": "Summer and autumn",
         "curiosity_text": "The Cocoon Nebula is located at the edge of the long dark nebula Barnard 168. The contrast between the bright cocoon and the black trail tells of two opposite ways in which the same dust can reflect or block light."
       },
@@ -854,7 +854,7 @@
       },
       "caldwell-C22": {
         "short_description": "C22 (NGC 7662), Planetary nebula in the constellation Andromeda. At low magnification it may look like a fuzzy star; once centered, it often holds greater powers than many other nebulae. The observable profile of C22 may be smaller than the cataloged 0.3′ / 2.2′ if the sky background reduces contrast; the total magnitude is 9.2.",
-        "observing_notes": "For C22 (NGC 7662 - Blue Snowball Nebula), integrated magnitude 9.2, alternate between direct and averted vision while keeping the same exit pupil so the comparison remains reliable.",
+        "observing_notes": "At low power C22 is easily mistaken for a blue star; a quick OIII blink makes it stand out from the field. Once centered, raise magnification substantially to seek its elliptical disk and differences between the inner shells.",
         "best_seen": "Autumn",
         "curiosity_text": "The Blue Snowball color comes from lines of ionized oxygen in the hot gas. The nebula has multiple expanding shells, produced by successive stages of mass loss of the central star."
       },
@@ -908,7 +908,7 @@
       },
       "caldwell-C31": {
         "short_description": "C31 (IC 405), Nebula in the constellation Auriga. It is an object of contrast rather than detail: transparency and adaptation to the dark determine much of the rendering. At the eyepiece it must be searched on a scale of 30′ x 19′; the total brightness corresponds to an integrated magnitude of 6.0.",
-        "observing_notes": "For C31 (IC 405 - Flaming Star Nebula), with integrated magnitude 6.0, use the 30′ x 19′ dimensions to keep the entire nebulosity in the field before narrowing the field.",
+        "observing_notes": "C31's integrated brightness is dominated by the star AE Aurigae, not by the faint nebula. Use a wide field, shield yourself from stray light, and try H-beta on the emission regions; recheck the reflection component without a filter.",
         "best_seen": "Winter",
         "curiosity_text": "AE Aurigae, the star that ignites the Flaming Star Nebula, is a fugitive expelled from the Orion region millions of years ago. It is by chance passing through a cloud that did not generate it."
       },
@@ -956,7 +956,7 @@
       },
       "caldwell-C39": {
         "short_description": "C39 (NGC 2392), Planetary nebula in the constellation Gemini. At low magnification it may look like a fuzzy star; once centered, it often holds greater powers than many other nebulae. In the field, C39 extends for 0.2′ / 0.7′: magnitude 9.9 should be interpreted as overall brightness.",
-        "observing_notes": "The profile of C39 (NGC 2392), integrated magnitude 9.9, occupies approximately 0.2′ / 0.7′: choose a field wide enough to include the comparison sky background.",
+        "observing_notes": "C39 is tiny and high in surface brightness. Identify it by passing an OIII filter in front of the eyepiece: the nebula stays bright while stars dim. With the filter removed, high power can separate its bright inner disk from the outer envelope.",
         "best_seen": "Winter",
         "curiosity_text": "NGC 2392 displays two envelopes: a shiny inner shell and fur-like outer filaments. Very rapid winds from the central star hit previously ejected material and generate this double architecture."
       },
@@ -998,7 +998,7 @@
       },
       "caldwell-C46": {
         "short_description": "C46 (NGC 2261), Nebula in the constellation Monoceros. The structure is diffuse and must be read through gradual variations in brightness; a dark sky and wide field matter more than high magnification. The observable profile of C46 may be smaller than the cataloged 2′ x 1′ if the sky background reduces contrast; the total magnitude is 10.0.",
-        "observing_notes": "For C46 (NGC 2261 - Hubble's Variable Nebula), integrated magnitude 10.0, alternate between direct and averted vision while keeping the same exit pupil so the comparison remains reliable.",
+        "observing_notes": "C46 is a small reflection nebula, so nebular filters do not help. Use medium power to distinguish its comet-shaped fan from R Monocerotis, and record its form and brighter side; comparison weeks later may reveal changes.",
         "best_seen": "Winter",
         "curiosity_text": "Hubble's Variable Nebula can change appearance in just a few weeks, too quickly for gas to actually move on that scale. They are mobile shadows, projected by dust near the young star R Monocerotis."
       },
@@ -1052,13 +1052,13 @@
       },
       "caldwell-C55": {
         "short_description": "C55 (NGC 7009), Planetary nebula in the constellation of Aquarius. It is compact and has high surface brightness: comparison with nearby stars and the response to an OIII filter help identify it. At the eyepiece it must be searched on a scale of 2.5′ / 1′; the total brightness corresponds to an integrated magnitude of 8.3.",
-        "observing_notes": "For C55 (NGC 7009 - Saturn Nebula), integrated magnitude 8.3, use its 2.5′ x 1′ dimensions to keep the entire nebula in view before narrowing the field.",
+        "observing_notes": "C55 is bright enough to withstand high magnification. Use OIII at medium power to isolate the blue-green disk, then remove it and increase power on steady nights; the inner oval and slender lateral ansae are the details to seek.",
         "best_seen": "Summer and autumn",
         "curiosity_text": "The two lateral extensions of the Saturn Nebula are called ansae, handles. They are high-velocity jets and knots that, when viewed at low magnification, reminded Lord Rosse of the planet's rings."
       },
       "caldwell-C56": {
         "short_description": "C56 (NGC 246), Planetary nebula in the constellation of Cetus. It is compact and has high surface brightness: comparison with nearby stars and the response to an OIII filter help identify it. NGC 246 combines an apparent extent of 3.8′ with integrated magnitude 8.0, so both aperture and sky quality affect how much detail is visible.",
-        "observing_notes": "On C56 (NGC 246), integrated magnitude 8.0, protect dark adaptation and evaluate edge, center, and overlapping stars separately.",
+        "observing_notes": "C56 is large for a planetary nebula and its ring is discontinuous. Use OIII at medium power to trace the brighter sections and dark cavities, then repeat without the filter to recover the central star and stars projected across the disk.",
         "best_seen": "Autumn",
         "curiosity_text": "The central star of the Skull Nebula belongs to a triple hierarchical system. Invisible companions in the small instruments may have influenced the cavities and non-spherical geometry of the expelled gas."
       },
@@ -1076,7 +1076,7 @@
       },
       "caldwell-C59": {
         "short_description": "C59 (NGC 3242), Planetary nebula in the constellation Hydra. The shape is best read by alternating direct and averted viewing, looking for a disc, ring, or non-uniform internal structure. The measurement of 0.3′ / 21′ defines the scale of C59, while the integrated magnitude 8.6 summarizes all its light.",
-        "observing_notes": "In C59 (NGC 3242 - Ghost of Jupiter) record the filter and magnification effects separately; integrated magnitude 8.6, reference extension 0.3′ / 21′.",
+        "observing_notes": "Separate C59's two scales: its bright inner disk, about 20 arcseconds across, accepts high power and responds to OIII, whereas the catalogued enormous outer halo is an extremely faint photographic target. Visually, seek the inner ring and central star.",
         "best_seen": "Spring",
         "curiosity_text": "The Ghost of Jupiter has apparent dimensions close to those of the planet, but it is a very distant shell of gas. Concentric layers and small jets tell of distinct episodes in the mass loss of the central star."
       },
@@ -1136,7 +1136,7 @@
       },
       "caldwell-C69": {
         "short_description": "C69 (NGC 6302), Planetary nebula in the constellation of Scorpius. At low magnification it may look like a fuzzy star; once centered, it often holds greater powers than many other nebulae. Field preparation for C69 starts from 0.8′ extension and integrated magnitude 12.8.",
-        "observing_notes": "The profile of C69 (NGC 6302 - Insect Nebula), integrated magnitude 12.8, occupies approximately 0.8′: choose a field large enough to include the comparison sky background.",
+        "observing_notes": "C69's southerly declination calls for a transparent night and observation on the meridian. OIII helps detach its two lobes from the Scorpius field; at medium-high power look for the dark waist dividing the bipolar structure.",
         "best_seen": "Summer",
         "curiosity_text": "The central star of the Butterfly Nebula exceeds 200,000 kelvin and is among the hottest known. A dense torus of dust hides the center and forces the gas to expand into the two opposite lobes."
       },
@@ -1340,7 +1340,7 @@
       },
       "caldwell-C103": {
         "short_description": "C103 (NGC 2070), Nebula in the constellation Dorado. Alternate direct and averted vision to follow edges, dark areas and condensations, keeping enough reference stars in the field. At the eyepiece it must be searched on a scale of 40′ x 25′; the total brightness corresponds to an integrated magnitude of 1.0.",
-        "observing_notes": "For C103 (NGC 2070 - Tarantula Nebula), with integrated magnitude 1.0, use the 40′ x 25′ dimensions to keep the entire nebulosity in the field before narrowing the field.",
+        "observing_notes": "The Tarantula extends far beyond the NGC 2070 core. Use the lowest power and a wide field to trace arcs and cavities in the Large Magellanic Cloud. A UHC filter boosts the gas contrast but suppresses the rich star field.",
         "best_seen": "Winter",
         "curiosity_text": "Tarantula is the largest star-forming region of the Local Group. If it were at the distance of the Orion Nebula, it would cast shadows; the supernova SN 1987A also exploded in its vicinity."
       },

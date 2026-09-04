@@ -110,7 +110,7 @@
       },
       "messier-M8": {
         "short_description": "M8 (Nebulosa de la Laguna) es una nebulosa con un cúmulo de estrellas en Sagitario. La Laguna es una auténtica región de formación estelar: en un mismo campo conviven estrellas jóvenes, gas brillante y estructuras oscuras.",
-        "observing_notes": "En M8 (Nebulosa de la Laguna), de magnitud integrada 4,6, proteja la adaptación a la oscuridad y evalúe el borde, el centro y las estrellas superpuestas por separado.",
+        "observing_notes": "M8 supera el campo de muchos oculares: usa la menor potencia para incluir el cúmulo, la Laguna y la franja oscura. Con UHC ganan contraste el gas y la región del Reloj de Arena; sin filtro vuelven a destacar las estrellas de NGC 6530.",
         "best_seen": "Verano",
         "curiosity_text": "Dentro de la Laguna, la región llamada Nebulosa del Reloj de Arena está esculpida principalmente por la joven estrella masiva Herschel 36. La radiación y los vientos estelares están erosionando las nubes de las que siguen naciendo nuevas estrellas."
       },
@@ -158,13 +158,13 @@
       },
       "messier-M16": {
         "short_description": "M16 (Nebulosa del Águila) es una nebulosa de emisión con un cúmulo de estrellas en Serpiente. La Nebulosa del Águila es famosa por los Pilares de la Creación fotografiados por el Hubble, pero en el ocular el cúmulo suele ser más evidente que la nebulosidad.",
-        "observing_notes": "Para M16 (Nebulosa del Águila), de magnitud integrada 6,4, alterne entre la visión directa y la periférica manteniendo la misma pupila de salida para que la comparación siga siendo fiable.",
+        "observing_notes": "En M16 el cúmulo NGC 6611 destaca sin filtro, mientras la nebulosidad exige pocos aumentos, cielo oscuro y UHC. Compara las vistas con el mismo ocular y la misma pupila de salida; busca el perfil del Águila y las franjas oscuras. Los Pilares de la Creación no son un detalle realista para la mayoría de instrumentos visuales.",
         "best_seen": "Verano",
         "curiosity_text": "Los Pilares de la Creación son torres de gas y polvo dentro de M16, de varios años luz de largo. Las imágenes del Hubble de 1995 las hicieron icónicas, pero las columnas son también incubadoras sometidas a la erosión de las estrellas recién nacidas."
       },
       "messier-M17": {
         "short_description": "M17 (Nebulosa Omega, Cisne, Herradura, Langosta o Marca de Verificación) es una nebulosa de emisión con un cúmulo de estrellas en Sagitario. La Nebulosa Omega, o Cisne, se encuentra entre las nebulosas de verano más reconocibles: una barra brillante que toma forma con un filtro y un cielo oscuro.",
-        "observing_notes": "En M17 (Nebulosa Omega, del Cisne, de la Herradura, de la Langosta o de la Marca de Verificación), registre por separado el efecto del filtro y del aumento; su magnitud integrada es 6,0 y su extensión de referencia, 11′.",
+        "observing_notes": "Incluso sin filtro, M17 muestra la barra brillante del Cisne; UHC ensancha el cuerpo y define el cuello contra la franja oscura. Alterna aumentos bajos y medios: los primeros siguen la nebulosidad exterior y los segundos revelan irregularidades en la zona luminosa.",
         "best_seen": "Verano",
         "curiosity_text": "La parte brillante de M17 es solo una pequeña porción de una nube molecular mucho más grande. El joven cúmulo escondido en su interior ilumina y excava el gas, creando la forma del Cisne visible desde la Tierra."
       },
@@ -182,7 +182,7 @@
       },
       "messier-M20": {
         "short_description": "M20 (Nebulosa Trífida) es una nebulosa de emisión con un cúmulo de estrellas en Sagitario. La Trífida combina nebulosa de emisión, reflexión y bandas oscuras: visualmente es difícil, pero cuando las condiciones son buenas muestra un carácter único.",
-        "observing_notes": "En M20 (Nebulosa Trífida), de magnitud integrada 6,3, proteja la adaptación a la oscuridad y evalúe el borde, el centro y las estrellas superpuestas por separado.",
+        "observing_notes": "Observa M20 con pocos aumentos junto a su cúmulo. UHC define la región de emisión y las tres franjas oscuras centrales, pero atenúa el lóbulo azul de reflexión; comparar las vistas con y sin filtro forma parte de la observación.",
         "best_seen": "Verano",
         "curiosity_text": "M20 reúne en el mismo campo una nebulosa de emisión roja, una región de reflexión azul y franjas de polvo oscuro. Las tres bandas que diseccionan su centro inspiraron a John Herschel a llamarla Trífida."
       },
@@ -518,7 +518,7 @@
       },
       "messier-M76": {
         "short_description": "M76 (Nebulosa de la Pequeña Mancuerna) es una nebulosa planetaria en Perseo. La Pequeña Mancuerna es una nebulosa planetaria exigente: pequeña, débil y estructurada. Sin embargo, cuando emerge, da mayor satisfacción que muchos objetos más fáciles.",
-        "observing_notes": "Para M76 (Nebulosa de la Pequeña Mancuerna), de magnitud integrada 10,1, alterne entre la visión directa y la periférica manteniendo la misma pupila de salida para que la comparación siga siendo fiable.",
+        "observing_notes": "OIII revela enseguida la barra rectangular de M76. Usa después aumentos medios-altos para separar sus dos nudos brillantes; bajo un cielo muy oscuro, una potencia menor puede mostrar las débiles alas que completan la forma bipolar.",
         "best_seen": "Otoño",
         "curiosity_text": "M76 ha recibido más nombres que casi cualquier otra nebulosa planetaria: Pequeña Mancuerna, Corcho y Mariposa. Los dos lóbulos brillantes son las paredes de una estructura expulsada por una estrella moribunda."
       },
@@ -644,7 +644,7 @@
       },
       "messier-M97": {
         "short_description": "M97 (Nebulosa del Búho) es una nebulosa planetaria en la Osa Mayor. La Nebulosa del Búho es una nebulosa planetaria grande y tenue: los 'ojos' son un desafío visual, pero incluso sin verlos sigue siendo un objetivo muy característico.",
-        "observing_notes": "Para M97 (Nebulosa del Búho), con magnitud integrada de 9,9, utilice las dimensiones de 3,4′ × 3,3′ para mantener toda la nebulosidad en el campo antes de estrecharlo.",
+        "observing_notes": "M97 tiene un disco amplio pero bajo brillo superficial; un filtro OIII y aumentos medios-bajos hacen evidente su borde. Solo entonces, bajo un cielo oscuro, prueba más potencia y visión lateral para distinguir las dos cavidades oscuras de los ojos.",
         "best_seen": "Primavera",
         "curiosity_text": "Los ojos de la Nebulosa del Búho son dos cavidades menos densas en una capa de gas. El efecto depende de la orientación: observamos una estructura tridimensional moldeada por el viento de la enana blanca central."
       },
@@ -734,7 +734,7 @@
       },
       "caldwell-C2": {
         "short_description": "C2 (NGC 40), nebulosa planetaria en la constelación de Cefeo. Sus pequeñas dimensiones y su contraste relativamente alto la hacen adecuada para un aumento moderado; la estabilidad atmosférica sigue siendo decisiva para los detalles finos. Su escala aparente es 0,6′; la magnitud integrada de 11,6 no describe por sí sola lo que será evidente en el ocular.",
-        "observing_notes": "En C2 (NGC 40), de magnitud integrada 11,6, proteja la adaptación a la oscuridad y evalúe el borde, el centro y las estrellas superpuestas por separado.",
+        "observing_notes": "C2 es pequeña y su brillante estrella central puede borrar la envoltura. Con aumentos medios alterna visión directa y lateral; UHC puede separar mejor la nebulosidad y después retíralo para revisar la estrella.",
         "best_seen": "Otoño",
         "curiosity_text": "La estrella central de NGC 40 es una Wolf-Rayet muy caliente que expulsa material a gran velocidad. El viento reciente choca con capas más lentas expulsadas anteriormente y da forma a la envoltura irregular de la nebulosa."
       },
@@ -746,7 +746,7 @@
       },
       "caldwell-C4": {
         "short_description": "C4 (NGC 7023), nebulosa en la constelación de Cefeo. La estructura es difusa y debe leerse a través de variaciones graduales de brillo; un cielo oscuro y un campo amplio importan más que un gran aumento. Con unas dimensiones de 18′ x 18′ y una magnitud integrada de 6,8, requiere un campo acorde con su escala antes de buscar detalles.",
-        "observing_notes": "Para C4 (NGC 7023 - Nebulosa Iris), magnitud integrada 6,8, alterne entre la visión directa y la periférica manteniendo la misma pupila de salida para que la comparación siga siendo fiable.",
+        "observing_notes": "C4 es una nebulosa de reflexión: no uses filtros de banda estrecha. Centra la brillante HD 200775 en un campo medio-amplio y, bajo un cielo oscuro, busca el halo azulado y los bordes irregulares donde el polvo atenúa la luz.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "La Nebulosa Iris brilla porque el polvo refleja la luz de la estrella HD 200775. Alrededor del centro azul aparecen tonos rojizos producidos por pequeños granos y moléculas aromáticas iluminadas por la radiación ultravioleta."
       },
@@ -776,7 +776,7 @@
       },
       "caldwell-C9": {
         "short_description": "C9 (Sh2-155), nebulosa en la constelación de Cefeo. Es un objeto de contraste más que de detalle: la transparencia y la adaptación a la oscuridad determinan en gran medida su visibilidad. La preparación del campo para C9 parte de una extensión de 50′ x 10′ y una magnitud integrada de 7,7.",
-        "observing_notes": "El perfil de C9 (Sh2-155 - Nebulosa de la Cueva), de magnitud integrada 7,7, ocupa aproximadamente 50′ x 10′: elija un campo lo suficientemente grande como para incluir el fondo del cielo de comparación.",
+        "observing_notes": "C9 es una nebulosa alargada de contraste extremadamente bajo. Usa un ocular de gran campo y busca sobre todo el borde luminoso contra la nube oscura. UHC puede ayudar al frente de emisión, pero el cielo oscuro y la adaptación importan más que los aumentos.",
         "best_seen": "Otoño",
         "curiosity_text": "La Nebulosa de la Cueva se encuentra en el borde de la nube molecular Cefeo B. La radiación de estrellas masivas comprime el gas adyacente, creando frentes brillantes y nuevas generaciones estelares a lo largo de la cavidad."
       },
@@ -812,7 +812,7 @@
       },
       "caldwell-C15": {
         "short_description": "C15 (NGC 6826), nebulosa planetaria en la constelación de Cisne. La forma se lee mejor alternando la visión directa y la periférica, buscando un disco, anillo o estructura interna no uniforme. En el campo, C15 se extiende por 0,5′/2,3′: la magnitud 9,8 debe interpretarse como brillo total.",
-        "observing_notes": "El perfil de C15 (NGC 6826 - Nebulosa parpadeante), de magnitud integrada 9,8, ocupa aproximadamente 0,5′/2,3′: elija un campo lo suficientemente grande como para incluir el fondo del cielo de comparación.",
+        "observing_notes": "Aprovecha el efecto que da nombre a C15: fija la estrella central y la envoltura se atenúa; usa visión lateral y reaparece. OIII realza el disco y aumentos medios-altos muestran su forma sin borrar el efecto de parpadeo.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6826 parece parpadear cuando se alterna entre la visión directa y la periférica. Mirando al centro, domina la estrella; al mover ligeramente la mirada, la retina periférica resalta la capa débil y cambia repentinamente de apariencia."
       },
@@ -836,7 +836,7 @@
       },
       "caldwell-C19": {
         "short_description": "C19 (IC 5146), nebulosa en la constelación de Cisne. La estructura es difusa y debe leerse a través de variaciones graduales de brillo; un cielo oscuro y un campo amplio importan más que un gran aumento. En el ocular debe buscarse una extensión de 12′ x 12′; el brillo total corresponde a una magnitud integrada de 10,0.",
-        "observing_notes": "Para C19 (IC 5146 - Nebulosa del Capullo), con magnitud integrada 10,0, utilice las dimensiones de 12′ x 12′ para mantener toda la nebulosidad en el campo antes de estrecharlo.",
+        "observing_notes": "C19 necesita un cielo realmente oscuro: encuadra el Capullo junto al inicio de la franja oscura Barnard 168. Un filtro H-beta puede reforzar la emisión, pero compara siempre la vista sin filtro para no perder la reflexión ni el cúmulo.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "La Nebulosa del Capullo se encuentra en el extremo de la larga nebulosa oscura Barnard 168. El contraste entre el capullo brillante y la franja oscura muestra dos formas opuestas en las que el mismo polvo puede reflejar o bloquear la luz."
       },
@@ -854,7 +854,7 @@
       },
       "caldwell-C22": {
         "short_description": "C22 (NGC 7662), nebulosa planetaria en la constelación de Andrómeda. A bajo aumento puede parecer una estrella borrosa; una vez centrada, suele admitir más aumento que muchas otras nebulosas. El perfil observable de C22 puede ser menor que el catalogado 0,3′/2,2′ si el fondo del cielo reduce el contraste; la magnitud total es 9,2.",
-        "observing_notes": "Para C22 (NGC 7662 - Nebulosa de la Bola de Nieve Azul), magnitud integrada 9,2, alterne entre la visión directa y la periférica manteniendo la misma pupila de salida para que la comparación siga siendo fiable.",
+        "observing_notes": "Con pocos aumentos C22 se confunde fácilmente con una estrella azul; una prueba rápida con OIII la destaca frente al campo. Una vez centrada, sube mucho los aumentos para buscar el disco elíptico y las diferencias entre las envolturas internas.",
         "best_seen": "Otoño",
         "curiosity_text": "El color azul de la bola de nieve proviene de líneas de oxígeno ionizado en el gas caliente. La nebulosa tiene múltiples capas en expansión, producidas por sucesivas etapas de pérdida de masa de la estrella central."
       },
@@ -908,7 +908,7 @@
       },
       "caldwell-C31": {
         "short_description": "C31 (IC 405), nebulosa en la constelación de Auriga. Es un objeto de contraste más que de detalle: la transparencia y la adaptación a la oscuridad determinan en gran medida su visibilidad. En el ocular debe buscarse una extensión de 30′ x 19′; el brillo total corresponde a una magnitud integrada de 6,0.",
-        "observing_notes": "Para C31 (IC 405 - Nebulosa de la Estrella Llameante), con magnitud integrada 6,0, utilice las dimensiones de 30′ x 19′ para mantener toda la nebulosidad en el campo antes de estrecharlo.",
+        "observing_notes": "El brillo integrado de C31 está dominado por la estrella AE Aurigae, no por la tenue nebulosa. Usa un campo ancho, protégete de luces parásitas y prueba H-beta en las zonas de emisión; revisa la componente de reflexión sin filtro.",
         "best_seen": "Invierno",
         "curiosity_text": "AE Aurigae, la estrella que ilumina la Nebulosa de la Estrella Llameante, es una fugitiva expulsada de la región de Orión hace millones de años. Su paso actual por una nube que no la originó es casual."
       },
@@ -956,7 +956,7 @@
       },
       "caldwell-C39": {
         "short_description": "C39 (NGC 2392), nebulosa planetaria en la constelación de Géminis. A bajo aumento puede parecer una estrella borrosa; una vez centrada, suele admitir más aumento que muchas otras nebulosas. En el campo, C39 se extiende por 0,2′/0,7′: la magnitud 9,9 debe interpretarse como brillo general.",
-        "observing_notes": "El perfil de C39 (NGC 2392), de magnitud integrada 9,9, ocupa aproximadamente 0,2′/0,7′: elija un campo lo suficientemente amplio como para incluir el fondo del cielo de comparación.",
+        "observing_notes": "C39 es diminuto y de alto brillo superficial. Identifícalo pasando un filtro OIII ante el ocular: la nebulosa sigue brillante mientras las estrellas se atenúan. Sin filtro, aumentos altos pueden separar el disco interior luminoso de la envoltura externa.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 2392 presenta dos envolturas: una capa interior brillante y una región exterior filamentosa. Los rápidos vientos de la estrella central golpean el material expulsado con anterioridad y generan esta doble arquitectura."
       },
@@ -998,7 +998,7 @@
       },
       "caldwell-C46": {
         "short_description": "C46 (NGC 2261), nebulosa en la constelación de Unicornio. La estructura es difusa y debe leerse a través de variaciones graduales de brillo; un cielo oscuro y un campo amplio importan más que un gran aumento. El perfil observable de C46 puede ser más pequeño que el catalogado de 2′ x 1′ si el fondo del cielo reduce el contraste; la magnitud total es 10,0.",
-        "observing_notes": "Para C46 (NGC 2261 - Nebulosa variable de Hubble), magnitud integrada 10,0, alterne entre la visión directa y la periférica manteniendo la misma pupila de salida para que la comparación siga siendo fiable.",
+        "observing_notes": "C46 es una pequeña nebulosa de reflexión, por lo que los filtros nebulares no ayudan. Usa aumentos medios para separar el abanico cometario de R Monocerotis y anota su forma y lado más brillante; una comparación semanas después puede revelar cambios.",
         "best_seen": "Invierno",
         "curiosity_text": "La Nebulosa Variable de Hubble puede cambiar de apariencia en tan solo unas pocas semanas, demasiado rápido para que el gas se mueva a esa escala. Son sombras móviles, proyectadas por el polvo cerca de la joven estrella R Monocerotis."
       },
@@ -1052,13 +1052,13 @@
       },
       "caldwell-C55": {
         "short_description": "C55 (NGC 7009) es una nebulosa planetaria de Acuario. Es compacta y posee un alto brillo superficial: la comparación con estrellas cercanas y la respuesta a un filtro OIII ayudan a identificarla. En el ocular debe buscarse una extensión de 2,5′/1′; el brillo total corresponde a una magnitud integrada de 8,3.",
-        "observing_notes": "Para C55 (NGC 7009 - Nebulosa de Saturno), con magnitud integrada 8,3, utilice sus dimensiones de 2,5′ x 1′ para mantener toda la nebulosa a la vista antes de estrechar el campo.",
+        "observing_notes": "C55 es lo bastante brillante para admitir aumentos altos. Usa OIII a potencia media para aislar el disco verde azulado, retíralo y sube los aumentos en noches estables; busca el óvalo interior y las finas ansas laterales.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "Las dos extensiones laterales de la Nebulosa de Saturno se llaman ansae, asas. Son chorros y nudos de alta velocidad que, vistos con poco aumento, le recordaron a Lord Rosse los anillos del planeta."
       },
       "caldwell-C56": {
         "short_description": "C56 (NGC 246) es una nebulosa planetaria de Ballena. Es compacta y posee un alto brillo superficial: la comparación con estrellas cercanas y la respuesta a un filtro OIII ayudan a identificarla. Su extensión aparente es de 3,8′ y su magnitud integrada, 8,0.",
-        "observing_notes": "En C56 (NGC 246), de magnitud integrada 8,0, proteja la adaptación a la oscuridad y evalúe el borde, el centro y las estrellas superpuestas por separado.",
+        "observing_notes": "C56 es grande para una nebulosa planetaria y su anillo es discontinuo. Usa OIII con aumentos medios para seguir las zonas brillantes y las cavidades oscuras; repite sin filtro para recuperar la estrella central y las estrellas proyectadas sobre el disco.",
         "best_seen": "Otoño",
         "curiosity_text": "La estrella central de la Nebulosa Calavera pertenece a un sistema triple jerárquico. Las otras componentes, invisibles con instrumentos pequeños, pueden haber influido en las cavidades y en la geometría no esférica del gas expulsado."
       },
@@ -1076,7 +1076,7 @@
       },
       "caldwell-C59": {
         "short_description": "C59 (NGC 3242) es una nebulosa planetaria de Hidra. Su forma se aprecia mejor alternando la visión directa y la periférica, en busca de un disco, un anillo o una estructura interna irregular. Su escala aparente es de 0,3′/21′ y su magnitud integrada, 8,6.",
-        "observing_notes": "En C59 (NGC 3242 - Fantasma de Júpiter), registre por separado los efectos del filtro y del aumento; su magnitud integrada es 8,6 y su extensión de referencia, 0,3′/21′.",
+        "observing_notes": "Distingue las dos escalas de C59: su disco interior brillante, de unos 20″, admite aumentos altos y responde a OIII, mientras el enorme halo exterior catalogado es un objetivo fotográfico extremadamente tenue. En visual busca el anillo interno y la estrella central.",
         "best_seen": "Primavera",
         "curiosity_text": "El Fantasma de Júpiter tiene dimensiones aparentes cercanas a las del planeta, pero es una capa de gas muy distante. Las capas concéntricas y los pequeños chorros hablan de distintos episodios de pérdida de masa de la estrella central."
       },
@@ -1136,7 +1136,7 @@
       },
       "caldwell-C69": {
         "short_description": "C69 (NGC 6302), nebulosa planetaria en la constelación de Escorpio. A bajo aumento puede parecer una estrella borrosa; una vez centrada, suele admitir más aumento que muchas otras nebulosas. La preparación del campo para C69 parte de una extensión de 0,8′ y una magnitud integrada de 12,8.",
-        "observing_notes": "El perfil de C69 (NGC 6302 - Nebulosa del Insecto), de magnitud integrada 12,8, ocupa aproximadamente 0,8′: elija un campo lo suficientemente grande como para incluir el fondo del cielo de comparación.",
+        "observing_notes": "La declinación austral de C69 exige una noche transparente y observar en el meridiano. OIII ayuda a separar sus dos lóbulos del campo de Escorpio; con aumentos medios-altos busca la cintura oscura que divide la estructura bipolar.",
         "best_seen": "Verano",
         "curiosity_text": "La estrella central de la Nebulosa de la Mariposa supera los 200.000 K y se encuentra entre las más calientes conocidas. Un denso toro de polvo oculta el centro y obliga al gas a expandirse hacia dos lóbulos opuestos."
       },
@@ -1340,7 +1340,7 @@
       },
       "caldwell-C103": {
         "short_description": "C103 (NGC 2070) es una nebulosa de la constelación de Dorado. Alterne la visión directa y la periférica para seguir bordes, zonas oscuras y condensaciones, manteniendo suficientes estrellas de referencia en el campo. En el ocular debe buscarse una extensión de 40′ x 25′; el brillo total corresponde a una magnitud integrada de 1,0.",
-        "observing_notes": "Para C103 (NGC 2070 - Nebulosa de la Tarántula), con magnitud integrada 1,0, utilice las dimensiones de 40′ x 25′ para mantener toda la nebulosidad en el campo antes de estrecharlo.",
+        "observing_notes": "La Tarántula se extiende mucho más allá del núcleo NGC 2070. Usa la menor potencia y un campo ancho para seguir arcos y cavidades en la Gran Nube de Magallanes. Un filtro UHC aumenta el contraste del gas, pero atenúa el rico campo estelar.",
         "best_seen": "Invierno",
         "curiosity_text": "La Nebulosa de la Tarántula es la región de formación estelar más grande del Grupo Local. Si estuviera a la distancia de la Nebulosa de Orión, proyectaría sombras; en sus proximidades también explotó la supernova SN 1987A."
       },

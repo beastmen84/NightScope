@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.46.5`:
+Current runtime status for `1.46.6`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries use one canonical NSOM environment.
@@ -1206,7 +1206,7 @@ Global caps:
 - planets should be protected from excessive transparency influence and instead
   be primarily affected by seeing and altitude.
 
-Runtime status in `1.46.5`: the AOD/PM, Moon and static-sky component caps are
+Runtime status in `1.46.6`: the AOD/PM, Moon and static-sky component caps are
 active. `max_total_visibility_influence` remains frozen reference metadata; it
 is not applied as a second aggregate floor across geometric visibility,
 horizon context and weather transparency. Enabling that aggregate limit

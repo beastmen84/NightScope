@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+## NightScope 1.46.6 - 2026-09-04
+
+- Completata la rimessa a punto delle 20 nebulose a emissione, riflessione e
+  planetarie ancora coinvolte nel debito editoriale storico. Sono state
+  riscritte le note osservative senza riaprire descrizioni, curiosita', periodi
+  o difficolta' gia' distinti.
+- Le nuove indicazioni distinguono scala del campo, luminosita' superficiale,
+  componenti miste emissione/riflessione, confronti con e senza filtro, gusci
+  compatti e limiti realistici dell'osservazione visuale. Non sono sostituzioni
+  lessicali della prosa precedente.
+- Tutti i 20 testi italiani e i relativi overlay inglesi e spagnoli sono stati
+  revisionati individualmente. I 20 URL oggetto-specifici del manifest hanno
+  superato l'audit live.
+- Sette campioni rappresentativi hanno prodotto 84 scene Object Detail finali:
+  IT/EN/ES, modalita' normale e Red Night Vision, sia sull'intestazione con le
+  note sia sulle schede inferiori, senza tagli, sovrapposizioni o perdita della
+  monocromia rossa.
+- Il debito storico misurato resta a 2 famiglie/4 oggetti per le descrizioni e
+  scende da 10 famiglie/71 oggetti a 5/51 per le note osservative. Rimangono
+  soltanto galassie; la copertura non cambia: 303 oggetti completi, inclusi 75
+  NGC-only, e 7.291 NGC-only ancora da arricchire.
+- Gate sorgente completo con sicurezza superato: 1.227 test e 10 subtest in
+  266,69 secondi, copertura aggregata 86%, documentazione completa per 247 file
+  Python, 34 QML e 17 operativi, grafo import aciclico, baseline Bandit
+  invariata, nessuna vulnerabilita' nota e smoke test backend/QML
+  normale/Red Night Vision riusciti. Il solo avviso resta il debito storico
+  residuo atteso.
+- La versione sorgente passa a `1.46.6`; `dist` non e' stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release. Le release
+  pubbliche restano Windows `v1.45.21` e Linux `v1.43.0`.
+
 ## NightScope 1.46.5 - 2026-09-04
 
 - Completata la rimessa a punto dei 41 ammassi globulari ancora coinvolti nel
