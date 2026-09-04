@@ -74,7 +74,7 @@
       },
       "messier-M2": {
         "short_description": "M2 is a globular cluster in Aquarius. It is an ancient and compact globular, far from the plane of the Milky Way; it first appears as a dense stain, then slowly reveals the grainy edge.",
-        "observing_notes": "For M2, with integrated magnitude 6.5, use the 16′ diameter as a reference as you search for the first resolved stars.",
+        "observing_notes": "M2 is already conspicuous at low power as a compact disk. Then move to medium-high magnification: the rim breaks into stars while the bright core remains almost unresolved.",
         "best_seen": "Summer and autumn",
         "curiosity_text": "M2 collects about 150,000 stars in an ancient sphere, formed approximately 13 billion years ago. Its densest stars occupy a volume that, on a galactic scale, is extremely compact."
       },
@@ -92,7 +92,7 @@
       },
       "messier-M5": {
         "short_description": "M5 (Rose Cluster) is a globular cluster in Serpens. It is one of the most beautiful globulars for amateur telescopes: bright, large and capable of transforming from a puff to a grainy star field.",
-        "observing_notes": "In M5 (Rose Cluster) look for the transition between nucleus and halo along all 23′ of the diameter, without relying on magnitude 5.6 alone.",
+        "observing_notes": "Leave room for M5's large halo with a medium field, then increase power until the outer stars arrange themselves into arcs and streamers. It is bright enough to tolerate high magnification in steady seeing.",
         "best_seen": "Spring and summer",
         "curiosity_text": "The stars of M5 formed over 12 billion years ago, but the cluster also contains apparently younger blue stars. They are blue stragglers, rejuvenated by mergers or transfers of matter between companions."
       },
@@ -116,13 +116,13 @@
       },
       "messier-M9": {
         "short_description": "M9 is a globular cluster in Ophiuchus. Projected toward the center of the Milky Way, it often appears against rich star fields in a challenging area of the sky.",
-        "observing_notes": "With M9, integrated magnitude 7.7, record central concentration and degree of peripheral resolution separately.",
+        "observing_notes": "M9 culminates low for many observers, and dust toward the Galactic center suppresses its halo. Choose a transparent night, locate it at low power, and use medium magnification only after securing the faint edge.",
         "best_seen": "Summer",
         "curiosity_text": "M9 is located unusually close to the galactic center. The Milky Way's gravity has deformed its shape, making it less spherical than many other globulars observed in the outer regions of the halo."
       },
       "messier-M10": {
         "short_description": "M10 is a globular cluster in Ophiuchus. It makes an ideal pair with M12 in Ophiuchus: it is more compact and performs best when magnification begins to separate the outer edge. Averted viewing shows the extent of the halo, while medium magnification helps capture the texture of the outer regions.",
-        "observing_notes": "To evaluate M10, with integrated magnitude 6.6, compare the 20′ profile at two magnifications and keep the one that does not extinguish the halo.",
+        "observing_notes": "Observe M10 and M12 in the same session: M10 shows a more definite center and a more compact profile. Medium power resolves the outskirts well without sacrificing the broad halo.",
         "best_seen": "Summer",
         "curiosity_text": "M10 contains numerous blue stragglers, stars that appear too hot and bright for the age of the cluster. Collisions and exchanges of matter in binary systems may have rekindled their evolution."
       },
@@ -134,7 +134,7 @@
       },
       "messier-M12": {
         "short_description": "M12 is a globular cluster in Ophiuchus. It is less concentrated and more open than M10; modern studies suggest that it lost many low-mass stars during repeated passages through the Galaxy.",
-        "observing_notes": "In M12, which extends 16′ and has an integrated magnitude of 6.7, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "observing_notes": "M12 is looser and less concentrated than nearby M10. Keep a medium field and use averted vision: stars detach readily from the haze, but the center never forms a sharply dominant core.",
         "best_seen": "Summer",
         "curiosity_text": "M12 appears to have lost many low-mass stars. During repeated passages through the Milky Way's disk, galactic tides may have stripped as many as a million low-mass stars from the cluster."
       },
@@ -146,13 +146,13 @@
       },
       "messier-M14": {
         "short_description": "M14 is a globular cluster in Ophiuchus. It is less immediate than the more famous globulars, but contains an enormous stellar population; It requires darkness and patience to get out of the sky.",
-        "observing_notes": "For M14, with integrated magnitude 7.6, use the 11′ diameter as a reference as you search for the first resolved stars.",
+        "observing_notes": "M14 is populous but low in contrast against the Ophiuchus field. Find it at low power, then try medium magnification and averted vision; resolving its rim requires aperture and a genuinely dark sky.",
         "best_seen": "Summer",
         "curiosity_text": "In 1938 a nova exploded in M14, but no one reported it live. It was only recognized in 1964, by comparing archival photographic plates taken decades earlier."
       },
       "messier-M15": {
         "short_description": "M15 (Great Pegasus Cluster) is a globular cluster in Pegasus. It has one of the most concentrated nuclei among Messier globulars, so dense that it appears almost pinpoint-like before the rim opens up into stars.",
-        "observing_notes": "With M15 (Great Pegasus Cluster), integrated magnitude 6.2, record central concentration and degree of peripheral resolution separately.",
+        "observing_notes": "M15's nearly stellar core accepts high magnification, but inspect it first at low power so the extended halo is not lost. In steady seeing, look for the abrupt rise in brightness toward the collapsed center.",
         "best_seen": "Autumn",
         "curiosity_text": "M15 contains Pease 1, the first planetary nebula identified within a globular cluster. It is a very rare find because this stellar phase lasts only a short time compared to the multi-billion-year age of the system."
       },
@@ -176,7 +176,7 @@
       },
       "messier-M19": {
         "short_description": "M19 is a globular cluster in Ophiuchus. It is a globular with a slightly elongated shape, more interesting than it seems at first glance when the seeing allows you to increase the magnification.",
-        "observing_notes": "For M19 the magnitude 6.8 is integrated: compare core and edge without expecting the same brightness from individual stars.",
+        "observing_notes": "At medium power M19 is not perfectly round: compare the two axes of its halo with averted vision. Low altitude and extinction can hide the elongation, so wait for culmination.",
         "best_seen": "Summer",
         "curiosity_text": "M19 is the flattest globular in the Messier catalogue. Part of the effect may be due to interstellar dust, but strong tides from the nearby galactic center also contribute to its unusual shape."
       },
@@ -230,7 +230,7 @@
       },
       "messier-M28": {
         "short_description": "M28 is a globular cluster in Sagittarius. It is a compact globular near the heart of Sagittarius; less scenic than M22, but interesting for its density and the surrounding star field.",
-        "observing_notes": "To evaluate M28, with integrated magnitude 6.8, compare the 11.2′ profile at two magnifications and keep the one that does not extinguish the halo.",
+        "observing_notes": "Start from bright Kaus Borealis to reach M28. The cluster is small and concentrated; medium-high power darkens Sagittarius's rich background and makes the granularity around the core more apparent.",
         "best_seen": "Summer",
         "curiosity_text": "In 1987 M28 became the first globular cluster in which a millisecond pulsar was discovered. The neutron star rotates hundreds of times per second, accelerated in the past by the transfer of matter from a companion."
       },
@@ -242,7 +242,7 @@
       },
       "messier-M30": {
         "short_description": "M30 (Jellyfish Cluster) is a globular cluster in Capricornus. It is a compact, low globular, with a bright core and stellar tails that become visible only when the sky cooperates.",
-        "observing_notes": "In M30 (Jellyfish Cluster), 12′ long and with integrated magnitude 7.2, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "observing_notes": "M30 has a highly concentrated center from which short stellar chains seem to extend. Use medium-high power and direct vision on the core, alternating with averted vision to trace the fainter extensions.",
         "best_seen": "Autumn",
         "curiosity_text": "In M30 there are two distinct sequences of blue stragglers. One appears to be produced by stellar collisions during core collapse, the other by the transfer of matter in binary systems."
       },
@@ -380,25 +380,25 @@
       },
       "messier-M53": {
         "short_description": "M53 is a globular cluster in Coma Berenices. It is a remote and compact globular, close to the star Diadem. It's not as spectacular as M13, but it has a quiet elegance and a very clear core.",
-        "observing_notes": "In M53 look for the transition between nucleus and halo along all 13′ of the diameter, without relying on magnitude 7.6 alone.",
+        "observing_notes": "The star Diadem makes the star-hop to M53 straightforward. A wide field can also include faint NGC 5053; then move to medium power to resolve M53's compact rim.",
         "best_seen": "Spring and summer",
         "curiosity_text": "M53 is one of the globulars furthest from the center of the Milky Way and has very few heavy elements. Its composition therefore retains a chemical signature from the early ages of the Galaxy."
       },
       "messier-M54": {
         "short_description": "M54 is a globular cluster in Sagittarius. It is a particular globular because it is associated with the Sagittarius dwarf galaxy: by observing it you are looking at an object linked to a small galaxy colliding with ours.",
-        "observing_notes": "In M54, which extends 12′ and has an integrated magnitude of 7.6, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "observing_notes": "M54 is small and highly concentrated in Sagittarius's crowded field. Once recognized at low power, use medium-high magnification to separate its nearly stellar core from the subdued outer envelope.",
         "best_seen": "Summer",
         "curiosity_text": "M54 probably does not belong to the original halo of the Milky Way: it resides in the nucleus of the Sagittarius Elliptical Dwarf Galaxy, which our Galaxy is incorporating. It is therefore a globular acquired through a merger."
       },
       "messier-M55": {
         "short_description": "M55 (Specter Cluster) is a globular cluster in Sagittarius. It is a large and relatively loose globular: less concentrated than many others, but very beautiful when the southern sky is clean and transparent.",
-        "observing_notes": "For M55 (Specter Cluster) with integrated magnitude 6.3: compare core and edge without expecting the same brightness from individual stars.",
+        "observing_notes": "M55 is broad, loose, and low in surface brightness, demanding a transparent southern sky more than high power. A wide field and medium magnification resolve many stars while preserving its overall form.",
         "best_seen": "Summer",
         "curiosity_text": "M55 has a loosely concentrated core, so its stars resolve more easily than many globulars. It also contains dozens of variables, useful for reconstructing its distance and evolution."
       },
       "messier-M56": {
         "short_description": "M56 is a globular cluster in Lyra, between Lyra and Cygnus in a region already rich in targets. It is a subtle globular cluster that rewards patient observation rather than a quick glance.",
-        "observing_notes": "For M56, with integrated magnitude 8.3, use the 8.8′ diameter as a reference as you search for the first resolved stars.",
+        "observing_notes": "To find M56, sweep the line between Albireo and Sulafat; in the rich field it can look like little more than a smudge. Medium power and averted vision isolate the core and reveal a few outer stars.",
         "best_seen": "Summer",
         "curiosity_text": "The retrograde orbit and composition of M56 suggest that it may have arrived from a small galaxy absorbed by the Milky Way. Its motion preserves the dynamic trace of that ancient merger."
       },
@@ -434,7 +434,7 @@
       },
       "messier-M62": {
         "short_description": "M62 (Flickering Globular) is an asymmetric, concentrated globular cluster in Ophiuchus, near the central region of the Galaxy. Its irregular shape makes it more interesting than expected.",
-        "observing_notes": "For M62 (Flickering Globular), with integrated magnitude 6.5, use the 15′ diameter as a reference as you search for the first resolved stars.",
+        "observing_notes": "M62 culminates low but has an intense core. Observe it at maximum altitude and use medium power; averted vision shows its asymmetric halo, while excessive magnification emphasizes low-altitude turbulence.",
         "best_seen": "Summer",
         "curiosity_text": "The shape of M62 is visibly asymmetrical. The proximity to the galactic center subjects the cluster to intense tidal forces, which compress and deform the distribution of its stars."
       },
@@ -470,31 +470,31 @@
       },
       "messier-M68": {
         "short_description": "M68 is a globular cluster in Hydra. It is a globular in Hydra, often low and not immediate. When the southern horizon is good, it shows a compact core in a fairly solitary field.",
-        "observing_notes": "For M68, with integrated magnitude 7.8, use the 11′ diameter as a reference as you search for the first resolved stars.",
+        "observing_notes": "For M68, the quality of the southern horizon is decisive. Locate it at low power between Hydra and Corvus, then move to medium magnification; the outskirts may resolve while the core remains comparatively soft.",
         "best_seen": "Spring and summer",
         "curiosity_text": "M68 follows a very eccentric and retrograde orbit with respect to the galactic rotation. This behavior, together with the low metallicity, suggests an origin in a subsequently captured system."
       },
       "messier-M69": {
         "short_description": "M69 is a globular cluster in Sagittarius. It is a small globular concentrated in Sagittarius, less spectacular than M22 but interesting for its stellar population rich in heavy elements.",
-        "observing_notes": "With M69, integrated magnitude 7.6, record central concentration and degree of peripheral resolution separately.",
+        "observing_notes": "M69 lies near Kaus Australis and stands out as a small concentrated disk against Sagittarius. Medium-high power emphasizes the core, but extinction makes the outer halo difficult to follow.",
         "best_seen": "Summer",
         "curiosity_text": "M69 is among the globulars richest in heavy elements in the Messier catalogue. Its position in the galactic bulge tells of a different formation environment from the metal-poor globulars of the halo."
       },
       "messier-M70": {
         "short_description": "M70 is a globular cluster in Sagittarius. It is a compact and difficult globular, close to the area where comet Hale-Bopp was discovered. It is a transparent sky target, not an urban evening one.",
-        "observing_notes": "To evaluate M70, with integrated magnitude 7.9, compare the 8′ profile at two magnifications and keep the one that does not extinguish the halo.",
+        "observing_notes": "Seek M70 along the line from M69 to Ascella; it is smaller and fainter than M69. Medium-high power helps separate its compact center from the stellar background, provided transparency is good.",
         "best_seen": "Summer",
         "curiosity_text": "Alan Hale and Thomas Bopp independently discovered comet Hale-Bopp in 1995 while observing the region near M70. The globular thus became the casual reference of one of the most famous comets of the twentieth century."
       },
       "messier-M71": {
         "short_description": "M71 (Angelfish Cluster) is a globular cluster in Sagitta. It is an ambiguous and fascinating object, halfway between a loose globular and a very dense cluster. In the Sagitta star field it appears as a grainy condensation.",
-        "observing_notes": "In M71 (Angelfish Cluster) look for the transition between core and halo along the entire 7.2′ of the diameter, without relying on magnitude 8.2 alone.",
+        "observing_notes": "M71 is loosely concentrated and embedded in Sagitta's rich field, so it can resemble an open cluster. Use a medium field: many stars resolve immediately, but also look for the unresolved glow between them.",
         "best_seen": "Summer",
         "curiosity_text": "For a long time M71 was classified sometimes as an open cluster, sometimes as globular, because it is not very concentrated and relatively rich in metals. Modern measurements place it among the youngest and most unusual globulars."
       },
       "messier-M72": {
         "short_description": "M72 is a globular cluster in Aquarius. It is one of the weakest globulars in the Messier catalog. It doesn't immediately impress, but it is rewarding precisely because it requires method and averted vision.",
-        "observing_notes": "In M72, which extends 6.6′ and has an integrated magnitude of 9.3, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "observing_notes": "M72 is one of the faintest Messier globulars, so identify it precisely in Aquarius before moving to higher power. Averted vision, a dark sky, and medium magnification reveal a small core inside a very faint halo.",
         "best_seen": "Summer and autumn",
         "curiosity_text": "M72 is one of the most distant globulars inserted by Messier. The great distance compresses its appearance into a faint blob, even though it actually contains a large and very ancient stellar population."
       },
@@ -512,7 +512,7 @@
       },
       "messier-M75": {
         "short_description": "M75 is a globular cluster in Sagittarius. It is one of the most concentrated globulars in the catalogue, with a compact and difficult to resolve core. It seems small, but hides a remarkable density.",
-        "observing_notes": "With M75, integrated magnitude 8.5, record central concentration and degree of peripheral resolution separately.",
+        "observing_notes": "At low power M75 can look almost stellar because of its extreme concentration. Increase magnification until the small halo appears; resolving stars remains difficult even when the core is sharply defined.",
         "best_seen": "Summer and autumn",
         "curiosity_text": "M75 has one of the most concentrated nuclei among Messier globulars. The light grows rapidly towards the center, where the density of stars is much higher than in the outer halo."
       },
@@ -536,13 +536,13 @@
       },
       "messier-M79": {
         "short_description": "M79 is a globular cluster in Lepus. It is an unusual winter globular, far from the classic summer fields of the Milky Way. In Lepus, it appears compact and surprising below Orion.",
-        "observing_notes": "For M79 the magnitude 7.7 is integrated: compare core and edge without expecting the same brightness from individual stars.",
+        "observing_notes": "M79 is a winter globular that stays low from northern latitudes. Observe it on the meridian; medium power separates its bright core from the compact halo and makes it more conspicuous in Lepus's sparse field.",
         "best_seen": "Winter",
         "curiosity_text": "M79 is located on the opposite side of the sky from the galactic center, an unusual location for a globular. Its orbit has fueled the hypothesis that it was acquired during a merger with a dwarf galaxy."
       },
       "messier-M80": {
         "short_description": "M80 is a globular cluster in Scorpius. It is a very dense globular, small but intense. With medium apertures the edge begins to sparkle while the core remains compact.",
-        "observing_notes": "For M80, with integrated magnitude 7.3, use the 10′ diameter as a reference as you search for the first resolved stars.",
+        "observing_notes": "M80 is small but very bright at the center. Once located between Antares and Acrab, use medium-high power; the core stays tight while fine stellar glints can appear around the rim.",
         "best_seen": "Summer",
         "curiosity_text": "M80 is one of the densest globulars in the Milky Way. In 1860 the nova T Scorpii appeared there, which for a few days reached a brightness comparable to that of the entire cluster."
       },
@@ -614,7 +614,7 @@
       },
       "messier-M92": {
         "short_description": "M92 is a globular cluster in Hercules. It is a magnificent globular often overshadowed by the fame of M13. More compact and ancient in appearance, it is worth a visit whenever Hercules is up.",
-        "observing_notes": "For M92, with integrated magnitude 6.4, use the 14′ diameter as a reference as you search for the first resolved stars.",
+        "observing_notes": "M92 is more compact and symmetric than nearby M13. Frame it at low power, then increase magnification; the core tolerates power well and the halo divides into stars along the rim.",
         "best_seen": "Summer",
         "curiosity_text": "Due to the Earth's precession, in about 14,000 years the north celestial pole will pass within one degree of M92. The cluster will thus become a spectacular neighbor of the point around which the sky will rotate."
       },
@@ -704,7 +704,7 @@
       },
       "messier-M107": {
         "short_description": "M107 (Crucifix Cluster) is a globular cluster in Ophiuchus. It is a relatively loose globular in Ophiuchus, less dense than the more famous classics. It requires dark skies, but has a delicate and personal appearance.",
-        "observing_notes": "In M107 (Crucifix Cluster) look for the transition between nucleus and halo along all 10′ of the diameter, without relying on magnitude 7.9 alone.",
+        "observing_notes": "M107 is loose, faint, and dimmed by dust, so wait until Ophiuchus is high. Medium power shows an uneven texture; excessive magnification erases the halo before the core gains detail.",
         "best_seen": "Summer",
         "curiosity_text": "M107 was the last Messier object discovered by Pierre Méchain and was only officially added to the catalog in 1947. With M105 and M106 he completed the modern version of the 110 objects."
       },
@@ -872,7 +872,7 @@
       },
       "caldwell-C25": {
         "short_description": "C25 (NGC 2419), Globular cluster in the constellation of Lynx. It is an object that rewards progressive magnifications: first you recognize the halo, then you look for the resolution of the peripheral stars. NGC 2419 - Intergalactic Wanderer covers approximately 4.1′ in the sky and has an integrated magnitude of 10.4, two data points to be read together with the background contrast.",
-        "observing_notes": "For C25 (NGC 2419 - Intergalactic Wanderer) the magnitude 10.4 is integrated: compare core and edge without expecting the same brightness from individual stars.",
+        "observing_notes": "C25 is small and faint despite its compact core. Locate it at low power under a very dark sky, then raise the magnification gradually and use averted vision to separate its halo from the background.",
         "best_seen": "Winter",
         "curiosity_text": "NGC 2419 is called the Intergalactic Wanderer because it orbits at an enormous distance, beyond the bright edge of the Milky Way. However, it is massive and complex, so much so that it could be the residual nucleus of a captured dwarf galaxy."
       },
@@ -973,8 +973,8 @@
         "curiosity_text": "The Hyades are the closest open cluster to Earth, about 150 light-years away. Aldebaran appears to be the brightest member, but is located much closer and is only aligned in the foreground."
       },
       "caldwell-C42": {
-        "short_description": "C42 (NGC 7006), Globular cluster in the constellation of Delphinus. Averted viewing shows the extent of the halo, while medium magnification helps capture the texture of the outer regions. For C42, the comparison between 2.8′ extension and integrated magnitude 10.6 guides the choice of the initial field.",
-        "observing_notes": "In C42 (NGC 7006), extended 2.8′ and integrated magnitude 10.6, note at which magnification the periphery changes from a uniform halo to a grainy texture.",
+        "short_description": "C42 (NGC 7006) is a remote globular cluster in the Milky Way's halo, projected in Delphinus. Its great distance compresses it into a small, concentrated disk: medium apertures reveal the core, while the outskirts remain a contrast challenge.",
+        "observing_notes": "Treat C42 as a compact target rather than a broad globular. Once identified at low power, try medium-high magnification to sharpen the core; resolving individual stars remains difficult.",
         "best_seen": "Summer and autumn",
         "curiosity_text": "NGC 7006 orbits in the remote regions of the galactic halo, over 100,000 light-years away from us. Its distance made it a historic topic in the debate over the actual size of the Milky Way."
       },
@@ -1003,8 +1003,8 @@
         "curiosity_text": "Hubble's Variable Nebula can change appearance in just a few weeks, too quickly for gas to actually move on that scale. They are mobile shadows, projected by dust near the young star R Monocerotis."
       },
       "caldwell-C47": {
-        "short_description": "C47 (NGC 6934), Globular cluster in the constellation of Delphinus. At first, it looks like a small round cloud, but prolonged observation reveals differences between the bright core and the granular outer region. The measurement of 5.9′ defines the scale of C47, while the integrated magnitude 8.9 summarizes all its light.",
-        "observing_notes": "In C47 (NGC 6934) look for the transition between nucleus and halo along the entire 5.9′ of the diameter, without relying on magnitude 8.9 alone.",
+        "short_description": "C47 (NGC 6934) is a compact globular cluster in Delphinus, with a clearly brighter center and a fainter halo. It looks nebulous in a small telescope; greater aperture and magnification give the rim a grainy texture.",
+        "observing_notes": "C47 responds well to medium magnification: concentrate on the sharp transition between its bright center and halo. In steady conditions, averted vision can make a few rim stars flicker into view.",
         "best_seen": "Summer and autumn",
         "curiosity_text": "NGC 6934 contains blue stragglers that are hotter than normal older stars in the cluster. Their distribution allows us to reconstruct how collisions and binary systems have mixed up the nucleus."
       },
@@ -1117,8 +1117,8 @@
         "curiosity_text": "NGC 253 is one of the closest starburst galaxies. In the dusty core, stars are born at a rapid rate, and their feedback pushes a superwind of hot gas out of the disk."
       },
       "caldwell-C66": {
-        "short_description": "C66 (NGC 5694), Globular cluster in the constellation Hydra. Averted viewing shows the extent of the halo, while medium magnification helps capture the texture of the outer regions. For C66, the comparison between 3.6′ extension and integrated magnitude 10.2 guides the choice of the initial field.",
-        "observing_notes": "In C66 (NGC 5694), extended 3.6′ and integrated magnitude 10.2, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "short_description": "C66 (NGC 5694) is a remote, compact globular cluster in Hydra, belonging to the outer Galactic halo. At the eyepiece it is a small round glow of moderate concentration, better suited to a transparent sky than to easy stellar resolution.",
+        "observing_notes": "C66's southerly declination and faintness demand a clear horizon. Start with a wide field to identify it, then use medium power and averted vision to trace the subdued outer edge.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 5694 is a remote and unusually compact globular, weakly tied to the outer regions of the Milky Way. Some chemical and dynamic properties suggest an origin in an acquired dwarf galaxy."
       },
@@ -1160,7 +1160,7 @@
       },
       "caldwell-C73": {
         "short_description": "C73 (NGC 1851), Globular cluster in the constellation of Columba. The concentration towards the center is its dominant feature: the transition from a compact core to a sparser periphery is the detail to follow. NGC 1851 covers about 11′ in the sky and has an integrated magnitude of 7.3, two data points to be read together with the background contrast.",
-        "observing_notes": "For C73 (NGC 1851) the magnitude 7.3 is integrated: compare core and edge without expecting the same brightness from individual stars.",
+        "observing_notes": "C73 is bright but strongly concentrated. At low power, distinguish it from the rich field near the Small Magellanic Cloud, then increase power to compare its nearly stellar core with the 11-arcminute halo.",
         "best_seen": "Winter",
         "curiosity_text": "NGC 1851 shows two distinct subgiant branches in the color-magnitude diagram. This double population could result from different formation episodes or even from the merger of two ancient clusters."
       },
@@ -1190,13 +1190,13 @@
       },
       "caldwell-C78": {
         "short_description": "C78 (NGC 6541), Globular cluster in the constellation Corona Australis. The concentration towards the center is its dominant feature: the transition from a compact core to a sparser periphery is the detail to follow. For C78, the comparison between 13′ extension and integrated magnitude 6.6 guides the choice of the initial field.",
-        "observing_notes": "In C78 (NGC 6541), extended 13′ and integrated magnitude 6.6, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "observing_notes": "C78 shows an intense core inside a broad halo. Frame it first at low power, then use medium magnification; in steady seeing the outer stars begin to resolve while the center stays compact.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 6541 is one of the most concentrated globulars in the southern sky. The strong central density favors stellar encounters and makes the core a natural laboratory for the dynamics of ancient systems."
       },
       "caldwell-C79": {
         "short_description": "C79 (NGC 3201), Globular cluster in the constellation of Vela. It is an object that rewards progressive magnifications: first you recognize the halo, then you look for the resolution of the peripheral stars. At the eyepiece it must be searched on an 18′ scale; the total brightness corresponds to an integrated magnitude of 6.7.",
-        "observing_notes": "For C79 (NGC 3201) the magnitude 6.7 is integrated: compare core and edge without expecting the same brightness from individual stars.",
+        "observing_notes": "C79 is broad and loosely concentrated, so it benefits from a reasonably wide field. Under a dark sky, medium power turns its uneven haze into many stars without losing the outermost extensions.",
         "best_seen": "Spring",
         "curiosity_text": "In NGC 3201, an inactive black hole candidate was identified by observing the orbital motion of its visible companion. The cluster also follows a retrograde orbit, indicating a possible external origin."
       },
@@ -1207,8 +1207,8 @@
         "curiosity_text": "Omega Centauri contains millions of stars with different compositions and ages, anomalous for a normal globular. It is probably the remnant core of a dwarf galaxy stripped from the Milky Way."
       },
       "caldwell-C81": {
-        "short_description": "C81 (NGC 6352), Globular cluster in the constellation of Ara. The concentration towards the center is its dominant feature: the transition from a compact core to a sparser periphery is the detail to follow. Field preparation for C81 starts at 7′ extent and integrated magnitude 8.1.",
-        "observing_notes": "With C81 (NGC 6352), integrated magnitude 8.1, record central concentration and degree of peripheral resolution separately.",
+        "short_description": "C81 (NGC 6352) is a compact, relatively metal-rich globular cluster in Ara. Its roughly 7-arcminute disk has a soft bright center, surrounded by an outskirts that medium-sized instruments can begin to resolve.",
+        "observing_notes": "For C81, favor a transparent night and sufficient altitude above the southern horizon. Medium power keeps its small disk visible while helping distinguish the central glow from the first outer stars.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 6352 is a relatively metal-rich globular, associated with the internal regions of the Galaxy. Its chemistry differs from that of the globulars poor in heavy elements that populate the remote halo."
       },
@@ -1226,7 +1226,7 @@
       },
       "caldwell-C84": {
         "short_description": "C84 (NGC 5286), Globular cluster in the constellation Centaurus. At low magnification it appears as a concentrated halo; with a larger aperture and steady seeing the edge can become grainy and begin to resolve into stars. To plan your observation, consider the integrated magnitude 7.6 and the apparent extension 9′ together.",
-        "observing_notes": "In C84 (NGC 5286), extended 9′ and with integrated magnitude 7.6, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "observing_notes": "Bright M Centauri makes C84 easy to locate but can impair dark adaptation. Keep it just outside the field and use medium power to seek granularity in the halo around the concentrated core.",
         "best_seen": "Spring",
         "curiosity_text": "NGC 5286 contains populations with different iron abundances, rare behavior for a globular. It could be the surviving nucleus of a dwarf galaxy assimilated by the Milky Way."
       },
@@ -1238,13 +1238,13 @@
       },
       "caldwell-C86": {
         "short_description": "C86 (NGC 6397), Globular cluster in the constellation of Ara. At low magnification it appears as a concentrated halo; with a larger aperture and steady seeing the edge can become grainy and begin to resolve into stars. Its apparent scale is 26′; an integrated magnitude of 5.6 does not by itself describe what will be evident at the eyepiece.",
-        "observing_notes": "For C86 (NGC 6397), with integrated magnitude 5.6, use the 26′ diameter as a reference as you search for the first resolved stars.",
+        "observing_notes": "C86 is broad and nearby: use low power to encompass its extent, then medium power to resolve numerous stars. Its tightly packed core remains the best test of seeing and aperture.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 6397 is one of the closest and oldest globulars, with an age close to that of the Universe. Its core has undergone gravitational collapse, strongly concentrating the stars towards the center."
       },
       "caldwell-C87": {
         "short_description": "C87 (NGC 1261), Globular cluster in the constellation of Horologium. At first, it looks like a small round cloud, but prolonged observation reveals differences between the bright core and the granular outer region. In the field, C87 extends for 7′: magnitude 8.4 should be interpreted as overall brightness.",
-        "observing_notes": "With C87 (NGC 1261), integrated magnitude 8.4, record central concentration and degree of peripheral resolution separately.",
+        "observing_notes": "C87 appears as a regular globe with a well-condensed center. After locating it, try medium magnification without narrowing the field too much; averted vision reveals the outskirts and a few rim stars.",
         "best_seen": "Winter",
         "curiosity_text": "In NGC 1261 the stellar populations are not distributed in the same way: the second generation stars are more concentrated. The difference preserves information about the initial formation and subsequent dynamic shuffling."
       },
@@ -1279,8 +1279,8 @@
         "curiosity_text": "Eta Carinae, inside the Carina Nebula, survived the Great Eruption of the 19th century. The event ejected the Homunculus Nebula and briefly made the star one of the brightest in the sky."
       },
       "caldwell-C93": {
-        "short_description": "C93 (NGC 6752), Globular cluster in the constellation Pavo. The concentration towards the center is its dominant feature: the transition from a compact core to a sparser periphery is the detail to follow. Field preparation for C93 starts from 20′ extension and integrated magnitude 5.4.",
-        "observing_notes": "With C93 (NGC 6752), integrated magnitude 5.4, record central concentration and degree of peripheral resolution separately.",
+        "short_description": "C93 (NGC 6752) is one of the nearest and brightest globular clusters in the southern sky, in the constellation Pavo. Its broad, roughly 20-arcminute halo resolves generously in moderate apertures, while the center retains a dense, bright texture.",
+        "observing_notes": "Frame C93 at low power so its broad halo is not clipped, then move to medium power to follow stellar chains toward the center. A dark field makes the contrast between core and outskirts obvious.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 6752 is so transparent between stars that much more distant galaxies appear behind the cluster in deep images. The field therefore superimposes objects separated by enormous cosmic distances."
       },
@@ -1346,13 +1346,13 @@
       },
       "caldwell-C104": {
         "short_description": "C104 (NGC 362), Globular cluster in the constellation of Tucana. At first, it looks like a small round cloud, but prolonged observation reveals differences between the bright core and the granular outer region. NGC 362 combines an apparent extent of 13′ with integrated magnitude 6.6, so both aperture and sky quality affect how much detail is visible.",
-        "observing_notes": "For C104 (NGC 362), with integrated magnitude 6.6, use the 13′ diameter as a reference as you search for the first resolved stars.",
+        "observing_notes": "C104 is a bright globular in front of the Small Magellanic Cloud's field, not one of its members. Medium power emphasizes its compact core; compare it under the same sky with the broader 47 Tucanae.",
         "best_seen": "Autumn",
         "curiosity_text": "NGC 362 appears close to the Small Magellanic Cloud, but it belongs to the Milky Way and is much closer. It is relatively metal-rich and a few billion years younger than many classical globulars."
       },
       "caldwell-C105": {
         "short_description": "C105 (NGC 4833), Globular cluster in the constellation of Musca. At first, it looks like a small round cloud, but prolonged observation reveals differences between the bright core and the granular outer region. Field preparation for C105 starts at 14′ extension and integrated magnitude 7.3.",
-        "observing_notes": "With C105 (NGC 4833), integrated magnitude 7.3, record central concentration and degree of peripheral resolution separately.",
+        "observing_notes": "Interstellar dust dims and reddens C105, so transparency and culmination matter more than high magnification. Use a medium field to catch its uneven halo and increase power only while the edge remains clear.",
         "best_seen": "Spring",
         "curiosity_text": "NGC 4833 is observed through a dusty region that dims its light. The orbit repeatedly takes it into the galactic disk, where tidal shocks may have taken away a substantial part of its original mass."
       },
@@ -1363,14 +1363,14 @@
         "curiosity_text": "In 47 Tucanae the more massive stars migrate towards the center while the lighter ones move outwards. The distribution of blue stragglers works like a dynamic clock that measures how much the cluster has shuffled."
       },
       "caldwell-C107": {
-        "short_description": "C107 (NGC 6101), Globular cluster in the constellation Apus. At first, it looks like a small round cloud, but prolonged observation reveals differences between the bright core and the granular outer region. The measurement of 11′ defines the scale of C107, while the integrated magnitude 9.3 summarizes all its light.",
-        "observing_notes": "In C107 (NGC 6101), look for the transition between core and halo along all 11′ of the diameter, without relying on magnitude 9.3 alone.",
+        "short_description": "C107 (NGC 6101) is a remote and unusually loose globular cluster in Apus. Its broad, even halo lacks a dominant core; under a dark sky it appears as a delicate cloud that larger apertures turn into a stellar texture.",
+        "observing_notes": "Do not expect the bright core typical of compact globulars in C107. Keep magnification low or medium and protect dark adaptation; the best result is a diffuse resolution across the whole disk.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 6101 shows surprisingly little segregation by mass, despite its age. A population of stellar black holes retained in the cluster may have slowed down its internal dynamic evolution."
       },
       "caldwell-C108": {
         "short_description": "C108 (NGC 4372), Globular cluster in the constellation of Musca. It is an object that rewards progressive magnifications: first you recognize the halo, then you look for the resolution of the peripheral stars. To plan your observation, consider the integrated magnitude 7.8 and the apparent extension 19′ together.",
-        "observing_notes": "In C108 (NGC 4372), which extends 19′ and has an integrated magnitude of 7.8, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "observing_notes": "C108 is broad but obscured by dust in the Coalsack. Observe it at maximum altitude with a wide field; averted vision recovers the faint halo, while excessive power quickly dilutes its contrast.",
         "best_seen": "Spring",
         "curiosity_text": "NGC 4372 lies behind the Coalsack dust and appears heavily red. It is a globular very low in metals, a relic of the early stages of formation of the Milky Way."
       },

@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+## NightScope 1.46.5 - 2026-09-04
+
+- Completata la rimessa a punto dei 41 ammassi globulari ancora coinvolti nel
+  debito editoriale storico: riscritte tutte le note osservative e, per C42,
+  C47, C66, C81, C93 e C107, anche le descrizioni duplicate. Curiosita',
+  periodi e difficolta' non sono stati riaperti.
+- Le nuove indicazioni distinguono concentrazione del nucleo, estensione
+  dell'alone, risoluzione stellare, assorbimento interstellare, campi affollati,
+  altezza sull'orizzonte e confronti visuali realmente utili. Non sono semplici
+  sostituzioni lessicali della prosa precedente.
+- Tutti i 41 testi italiani e i relativi overlay inglesi e spagnoli sono stati
+  revisionati individualmente. Le 41 pagine NASA Hubble dedicate hanno
+  superato l'audit live.
+- Otto campioni rappresentativi hanno prodotto 96 scene Object Detail finali:
+  IT/EN/ES, modalita' normale e Red Night Vision, sia sull'intestazione con le
+  note sia sulle schede inferiori, senza tagli, sovrapposizioni o perdita della
+  monocromia rossa.
+- Il debito storico misurato scende da 5 famiglie/10 oggetti a 2/4 per le
+  descrizioni e da 16 famiglie/112 oggetti a 10/71 per le note osservative.
+  Restano soltanto nebulose e galassie; la copertura non cambia: 303 oggetti
+  completi, inclusi 75 NGC-only, e 7.291 NGC-only ancora da arricchire.
+- Gate sorgente completo con sicurezza superato: 1.227 test e 10 subtest in
+  269,79 secondi, copertura aggregata 86%, documentazione completa per 247 file
+  Python, 34 QML e 17 operativi, grafo import aciclico, baseline Bandit
+  invariata, nessuna vulnerabilita' nota e smoke test backend/QML
+  normale/Red Night Vision riusciti. Il solo avviso resta il debito storico
+  residuo atteso.
+- La versione sorgente passa a `1.46.5`; `dist` non e' stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release. Le release
+  pubbliche restano Windows `v1.45.21` e Linux `v1.43.0`.
+
 ## NightScope 1.46.4 - 2026-09-04
 
 - Completata la rimessa a punto dei 48 ammassi aperti coinvolti nel debito

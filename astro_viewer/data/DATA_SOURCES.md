@@ -303,9 +303,9 @@ defensive compatibility assets and are not used by current target rows.
 separate observing notes for 303 reviewed targets: the 228-object baseline of
 Sun, Moon, the seven displayed planets, all 110 Messier entries and all 109
 Caldwell entries, plus the first 75 accepted NGC-only galaxies. Sources
-`1.46.3` and `1.46.4` replace formulaic observing-note families across 17
-baseline galaxies and 48 baseline open clusters; fourteen descriptions are
-also rewritten. This remediation changes prose, not the 303-object coverage
+`1.46.3` through `1.46.5` replace formulaic observing-note families across 17
+baseline galaxies, 48 baseline open clusters, and 41 baseline globular
+clusters; twenty descriptions are also rewritten. This remediation changes prose, not the 303-object coverage
 count. The Sun entry requires a certified
 full-aperture front-mounted solar filter and explicitly excludes eyepiece solar
 filters. Caldwell observing copy was initially derived conservatively from the
@@ -335,7 +335,9 @@ URLs, all checked successfully on 2026-09-04. The `1.46.3` remediation records
 17 direct NASA Hubble catalogue pages supporting the exact description and/or
 observing-note fields changed; all 17 URLs were checked successfully on
 2026-09-04. The `1.46.4` open-cluster remediation records 48 distinct
-object-specific pages, all checked successfully on 2026-09-04. The seed
+object-specific pages, all checked successfully on 2026-09-04. The `1.46.5`
+globular-cluster remediation records 41 direct NASA Hubble catalogue pages,
+all checked successfully on 2026-09-04. The seed
 deliberately remains
 separate from observing notes and
 does not participate in NSOM, Equipment or ranking calculations.
@@ -370,8 +372,8 @@ batch manifests, duplicate text, and remaining NGC coverage. Source `1.46.1`
 records the first accepted 50-object manifest and `1.46.2` adds a second,
 deliberately smaller 25-object manifest plus a visible legacy-template warning.
 Source `1.46.3` extends the manifest contract with field-scoped baseline
-remediation; source `1.46.4` records the second accepted correction batch and
-brings the cumulative remediated baseline to 65 objects:
+remediation; sources `1.46.4` and `1.46.5` record the next two accepted
+correction batches and bring the cumulative remediated baseline to 106 objects:
 
 ```powershell
 .\.venv\Scripts\python.exe astro_viewer\tools\audit_catalogue_editorial.py

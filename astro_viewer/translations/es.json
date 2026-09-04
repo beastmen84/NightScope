@@ -74,7 +74,7 @@
       },
       "messier-M2": {
         "short_description": "M2 es un cúmulo globular en Acuario. Se trata de un cúmulo globular antiguo y compacto, alejado del plano de la Vía Láctea; primero aparece como una mancha densa y luego lentamente revela el borde granulado.",
-        "observing_notes": "Para M2, con magnitud integrada 6,5, utilice el diámetro de 16′ como referencia mientras busca las primeras estrellas resueltas.",
+        "observing_notes": "M2 ya destaca con pocos aumentos como un disco compacto. Pasa después a una potencia media-alta: el borde se descompone en estrellas mientras el núcleo brillante permanece casi sin resolver.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "M2 reúne alrededor de 150.000 estrellas en una esfera antigua, formada hace unos 13.000 millones de años. Sus regiones más densas ocupan un volumen que, a escala galáctica, resulta extremadamente compacto."
       },
@@ -92,7 +92,7 @@
       },
       "messier-M5": {
         "short_description": "M5 (Cúmulo de la Rosa) es un cúmulo globular en Serpiente. Es uno de los globulares más bellos para los telescopios de aficionados: brillante, grande y capaz de transformarse de una nube a un campo estelar granulado.",
-        "observing_notes": "En M5 (Cúmulo de la Rosa), busque la transición entre el núcleo y el halo a lo largo de los 23′ del diámetro, sin depender únicamente de la magnitud 5,6.",
+        "observing_notes": "Deja espacio al gran halo de M5 con un campo medio y aumenta después hasta que las estrellas exteriores formen arcos y filamentos. Es lo bastante brillante para admitir aumentos altos con seeing estable.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "Las estrellas de M5 se formaron hace más de 12 mil millones de años, pero el cúmulo también contiene estrellas azules aparentemente más jóvenes. Son rezagados azules, rejuvenecidos por fusiones o transferencias de materia entre compañeros."
       },
@@ -116,13 +116,13 @@
       },
       "messier-M9": {
         "short_description": "M9 es un cúmulo globular en Ofiuco. Proyectado hacia el centro de la Vía Láctea, a menudo aparece contra ricos campos de estrellas en un área desafiante del cielo.",
-        "observing_notes": "Con M9, magnitud integrada 7,7, registre la concentración central y el grado de resolución periférica por separado.",
+        "observing_notes": "M9 culmina bajo para muchos observadores y el polvo hacia el centro galáctico apaga su halo. Elige una noche transparente, localízalo con poca potencia y usa aumentos medios solo tras fijar el borde débil.",
         "best_seen": "Verano",
         "curiosity_text": "M9 se encuentra inusualmente cerca del centro galáctico. La gravedad de la Vía Láctea ha deformado su estructura y lo ha hecho menos esférico que muchos otros cúmulos globulares de las regiones exteriores del halo."
       },
       "messier-M10": {
         "short_description": "M10 es un cúmulo globular en Ofiuco. Hace una pareja ideal con M12 en Ofiuco: es más compacto y funciona mejor cuando el aumento comienza a separar el borde exterior. La visión periférica muestra la extensión del halo, mientras que el aumento medio ayuda a apreciar la textura de las regiones exteriores.",
-        "observing_notes": "Para evaluar M10, con magnitud integrada 6,6, compare el perfil de 20′ a dos aumentos y conserve el que no apague el halo.",
+        "observing_notes": "Observa M10 y M12 en la misma sesión: M10 muestra un centro más marcado y un perfil más compacto. Los aumentos medios resuelven bien la periferia sin sacrificar el amplio halo.",
         "best_seen": "Verano",
         "curiosity_text": "M10 contiene numerosos rezagados azules, estrellas que parecen demasiado calientes y brillantes para la edad del cúmulo. Las colisiones e intercambios de materia en los sistemas binarios pueden haber reavivado su evolución."
       },
@@ -134,7 +134,7 @@
       },
       "messier-M12": {
         "short_description": "M12 es un cúmulo globular de Ofiuco, menos concentrado y más abierto que M10. Los estudios modernos sugieren que perdió muchas estrellas de baja masa durante sus pasos por el disco de la Galaxia.",
-        "observing_notes": "En M12, que se extiende 16′ y tiene una magnitud integrada de 6,7, observe con qué aumento la periferia cambia de un halo uniforme a una textura granulada.",
+        "observing_notes": "M12 es más abierto y menos concentrado que el cercano M10. Mantén un campo medio y usa visión lateral: las estrellas se separan pronto de la neblina, pero el centro no forma un núcleo claramente dominante.",
         "best_seen": "Verano",
         "curiosity_text": "M12 parece haber perdido gran parte de sus estrellas de baja masa. Durante los repetidos pasos a través del disco de la Vía Láctea, las mareas galácticas podrían haber arrancado del cúmulo hasta un millón de ellas."
       },
@@ -146,13 +146,13 @@
       },
       "messier-M14": {
         "short_description": "M14 es un cúmulo globular en Ofiuco. Resulta menos inmediato que los globulares más famosos, pero contiene una enorme población estelar; requiere oscuridad y paciencia para separarlo del fondo del cielo.",
-        "observing_notes": "Para M14, con magnitud integrada 7,6, utilice el diámetro de 11′ como referencia mientras busca las primeras estrellas resueltas.",
+        "observing_notes": "M14 es rico pero poco contrastado sobre el campo de Ofiuco. Encuéntralo con pocos aumentos y prueba después una potencia media y visión lateral; desgranar el borde exige apertura y un cielo realmente oscuro.",
         "best_seen": "Verano",
         "curiosity_text": "En 1938 explotó una nova en M14, pero nadie informó de ello en directo. No se reconoció hasta 1964, al comparar placas fotográficas de archivo tomadas décadas antes."
       },
       "messier-M15": {
         "short_description": "M15 (Gran Cúmulo de Pegaso) es un cúmulo globular en Pegaso. Tiene uno de los núcleos más concentrados entre los cúmulos globulares de Messier, tan denso que parece casi un punto antes de que el borde se abra en estrellas.",
-        "observing_notes": "Con M15 (Gran Cúmulo de Pegaso), de magnitud integrada 6,2, registre la concentración central y el grado de resolución periférica por separado.",
+        "observing_notes": "El núcleo casi estelar de M15 admite aumentos altos, pero obsérvalo primero con poca potencia para no perder el halo extenso. Con buen seeing, busca el brusco aumento de brillo hacia el centro colapsado.",
         "best_seen": "Otoño",
         "curiosity_text": "M15 contiene Pease 1, la primera nebulosa planetaria identificada dentro de un cúmulo globular. Es un hallazgo muy raro porque esta fase estelar dura poco tiempo en comparación con la edad de miles de millones de años del sistema."
       },
@@ -176,7 +176,7 @@
       },
       "messier-M19": {
         "short_description": "M19 es un cúmulo globular en Ofiuco. Se trata de un cúmulo globular de forma ligeramente alargada, más interesante de lo que parece a primera vista cuando el seeing permite subir el aumento.",
-        "observing_notes": "Para M19, con magnitud integrada 6,8, compare el núcleo y el borde sin esperar el mismo brillo de estrellas individuales.",
+        "observing_notes": "Con aumentos medios M19 no es perfectamente redondo: compara los dos ejes del halo mediante visión lateral. La baja altura y la extinción pueden ocultar el alargamiento, así que espera a la culminación.",
         "best_seen": "Verano",
         "curiosity_text": "M19 es el globular más plano del catálogo de Messier. Parte del efecto puede deberse al polvo interestelar, pero las fuertes mareas del cercano centro galáctico también contribuyen a su forma inusual."
       },
@@ -230,7 +230,7 @@
       },
       "messier-M28": {
         "short_description": "M28 es un cúmulo globular en Sagitario. Es un cúmulo globular compacto cerca del corazón de Sagitario; menos pintoresco que M22, pero interesante por su densidad y el campo estelar circundante.",
-        "observing_notes": "Para evaluar M28, con magnitud integrada 6,8, compare el perfil de 11,2′ a dos aumentos y conserve el que no apague el halo.",
+        "observing_notes": "Parte de la brillante Kaus Borealis para llegar a M28. El cúmulo es pequeño y concentrado; aumentos medios-altos oscurecen el rico fondo de Sagitario y hacen más visible la granulación alrededor del núcleo.",
         "best_seen": "Verano",
         "curiosity_text": "En 1987, M28 se convirtió en el primer cúmulo globular en el que se descubrió un púlsar de milisegundos. La estrella de neutrones gira cientos de veces por segundo, acelerada en el pasado por la transferencia de materia de una compañera."
       },
@@ -242,7 +242,7 @@
       },
       "messier-M30": {
         "short_description": "M30 (Cúmulo de la Medusa) es un cúmulo globular de Capricornio. Es compacto y queda bajo sobre el horizonte desde muchas latitudes, con un núcleo brillante y prolongaciones estelares que solo aparecen cuando el cielo acompaña.",
-        "observing_notes": "En M30 (Cúmulo de la Medusa), de 12′ de largo y con magnitud integrada de 7,2, observe a qué aumento la periferia cambia de un halo uniforme a una textura granulada.",
+        "observing_notes": "M30 posee un centro muy concentrado del que parecen partir cortas cadenas estelares. Usa aumentos medios-altos y visión directa sobre el núcleo, alternándola con visión lateral para seguir las prolongaciones débiles.",
         "best_seen": "Otoño",
         "curiosity_text": "En M30 hay dos secuencias distintas de rezagadas azules. Una parece producida por colisiones estelares durante el colapso del núcleo; la otra, por transferencia de materia en sistemas binarios."
       },
@@ -380,25 +380,25 @@
       },
       "messier-M53": {
         "short_description": "M53 es un cúmulo globular de la Cabellera de Berenice. Es remoto y compacto, cercano a la estrella Diadema. No resulta tan espectacular como M13, pero posee una elegancia serena y un núcleo muy definido.",
-        "observing_notes": "En M53, busque la transición entre el núcleo y el halo a lo largo de sus 13′ de diámetro, sin depender únicamente de la magnitud 7,6.",
+        "observing_notes": "La estrella Diadem facilita el salto hasta M53. Un campo amplio puede incluir también el débil NGC 5053; pasa después a aumentos medios para desgranar el borde compacto de M53.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M53 es uno de los globulares más alejados del centro de la Vía Láctea y tiene muy pocos elementos pesados. Por tanto, su composición conserva una firma química de las primeras edades de la Galaxia."
       },
       "messier-M54": {
         "short_description": "M54 es un cúmulo globular en Sagitario. Es un cúmulo globular particular porque está asociado a la galaxia enana de Sagitario: al observarlo se está ante un objeto vinculado a una pequeña galaxia que colisiona con la nuestra.",
-        "observing_notes": "En M54, que se extiende 12′ y tiene una magnitud integrada de 7,6, observe con qué aumento la periferia cambia de un halo uniforme a una textura granulada.",
+        "observing_notes": "M54 es pequeño y muy concentrado en el poblado campo de Sagitario. Tras reconocerlo con pocos aumentos, usa una potencia media-alta para separar el núcleo casi estelar de la tenue envoltura exterior.",
         "best_seen": "Verano",
         "curiosity_text": "Probablemente, M54 no pertenezca al halo original de la Vía Láctea: reside en el núcleo de la Galaxia Enana Elíptica de Sagitario, que nuestra galaxia está incorporando. Por tanto, sería un cúmulo globular adquirido mediante una fusión."
       },
       "messier-M55": {
         "short_description": "M55 (Cúmulo del Espectro) es un cúmulo globular de Sagitario. Es grande y relativamente poco concentrado: menos denso que muchos otros, pero muy hermoso cuando el cielo austral está limpio y transparente.",
-        "observing_notes": "Para M55 (Cúmulo del Espectro) con magnitud integrada 6,3: compare el núcleo y el borde sin esperar el mismo brillo de estrellas individuales.",
+        "observing_notes": "M55 es amplio, suelto y de bajo brillo superficial; exige un cielo austral transparente más que grandes aumentos. Un campo ancho y una potencia media resuelven muchas estrellas conservando su forma general.",
         "best_seen": "Verano",
         "curiosity_text": "M55 tiene un núcleo poco concentrado, por lo que sus estrellas se resuelven más fácilmente que muchos cúmulos globulares. También contiene decenas de variables, útiles para reconstruir su distancia y evolución."
       },
       "messier-M56": {
         "short_description": "M56 es un cúmulo globular en Lira, entre Lira y Cisne en una región que ya es rica en objetivos. Es un cúmulo globular sutil que recompensa la observación paciente en lugar de una mirada rápida.",
-        "observing_notes": "Para M56, con magnitud integrada 8,3, utilice el diámetro de 8,8′ como referencia mientras busca las primeras estrellas resueltas.",
+        "observing_notes": "Para encontrar M56 recorre la línea entre Albireo y Sulafat; en ese campo rico puede parecer solo una mancha. Los aumentos medios y la visión lateral aíslan el núcleo y revelan algunas estrellas periféricas.",
         "best_seen": "Verano",
         "curiosity_text": "La órbita retrógrada y la composición de M56 sugieren que pudo haber llegado desde una pequeña galaxia absorbida por la Vía Láctea. Su movimiento conserva la huella dinámica de aquella antigua fusión."
       },
@@ -434,7 +434,7 @@
       },
       "messier-M62": {
         "short_description": "M62 (Cúmulo Globular Parpadeante) es un cúmulo globular concentrado y asimétrico en Ofiuco, cerca de la región central de la Galaxia. Su forma irregular lo hace más interesante de lo esperado.",
-        "observing_notes": "Para M62 (Cúmulo Globular Parpadeante), con magnitud integrada 6,5, utilice el diámetro de 15′ como referencia mientras busca las primeras estrellas resueltas.",
+        "observing_notes": "M62 culmina bajo pero posee un núcleo intenso. Obsérvalo a máxima altura y usa aumentos medios; la visión lateral muestra el halo asimétrico, mientras demasiada potencia acentúa la turbulencia próxima al horizonte.",
         "best_seen": "Verano",
         "curiosity_text": "La forma de M62 es visiblemente asimétrica. La proximidad al centro galáctico somete al cúmulo a intensas fuerzas de marea, que comprimen y deforman la distribución de sus estrellas."
       },
@@ -470,31 +470,31 @@
       },
       "messier-M68": {
         "short_description": "M68 es un cúmulo globular en Hidra, a menudo bajo y poco evidente. Cuando el horizonte sur es bueno, muestra un núcleo compacto en un campo bastante aislado.",
-        "observing_notes": "Para M68, con magnitud integrada 7,8, utilice el diámetro de 11′ como referencia mientras busca las primeras estrellas resueltas.",
+        "observing_notes": "Para M68 la calidad del horizonte sur es decisiva. Localízalo con pocos aumentos entre Hidra y Cuervo y pasa después a una potencia media; la periferia puede desgranarse mientras el núcleo permanece relativamente suave.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M68 sigue una órbita muy excéntrica y retrógrada respecto a la rotación galáctica. Este comportamiento, junto con la baja metalicidad, sugiere un origen en un sistema capturado posteriormente."
       },
       "messier-M69": {
         "short_description": "M69 es un cúmulo globular en Sagitario. Se trata de un pequeño cúmulo globular concentrado en Sagitario, menos espectacular que M22 pero interesante por su población estelar rica en elementos pesados.",
-        "observing_notes": "Con M69, magnitud integrada 7,6, registre la concentración central y el grado de resolución periférica por separado.",
+        "observing_notes": "M69 está cerca de Kaus Australis y destaca como un pequeño disco concentrado sobre Sagitario. Los aumentos medios-altos realzan el núcleo, pero la extinción dificulta seguir el halo exterior.",
         "best_seen": "Verano",
         "curiosity_text": "M69 se encuentra entre los cúmulos globulares más ricos en elementos pesados del catálogo de Messier. Su posición en el bulbo galáctico indica un entorno de formación diferente al de los cúmulos pobres en metales del halo."
       },
       "messier-M70": {
         "short_description": "M70 es un cúmulo globular de Sagitario. Es compacto y difícil, cercano a la zona donde se descubrió el cometa Hale-Bopp. Es un objeto para cielos transparentes, no para una noche urbana.",
-        "observing_notes": "Para evaluar M70, con magnitud integrada 7,9, compare su perfil de 8′ con dos aumentos y conserve el que no haga desaparecer el halo.",
+        "observing_notes": "Busca M70 a lo largo de la línea entre M69 y Ascella; es más pequeño y débil que M69. Los aumentos medios-altos ayudan a separar su centro compacto del fondo estelar si la transparencia es buena.",
         "best_seen": "Verano",
         "curiosity_text": "Alan Hale y Thomas Bopp descubrieron de forma independiente el cometa Hale-Bopp en 1995 mientras observaban la región cercana a M70. El globular se convirtió así en la referencia casual de uno de los cometas más famosos del siglo XX."
       },
       "messier-M71": {
         "short_description": "M71 (Cúmulo del Pez Ángel) es un cúmulo globular en Flecha. Es un objeto ambiguo y fascinante, a medio camino entre un globular poco concentrado y un cúmulo muy denso. En el campo estelar de Flecha aparece como una condensación granulada.",
-        "observing_notes": "En M71 (Cúmulo del Pez Ángel), busque la transición entre el núcleo y el halo a lo largo de los 7,2′ completos del diámetro, sin depender únicamente de la magnitud 8,2.",
+        "observing_notes": "M71 está poco concentrado e inmerso en el rico campo de Flecha, por lo que puede parecer un cúmulo abierto. Usa un campo medio: muchas estrellas se resuelven enseguida, pero busca también el resplandor no resuelto entre ellas.",
         "best_seen": "Verano",
         "curiosity_text": "Durante mucho tiempo, M71 fue clasificado a veces como un cúmulo abierto, a veces como globular, porque está poco concentrado y es relativamente rico en metales. Las mediciones modernas lo sitúan entre los globulares más jóvenes e inusuales."
       },
       "messier-M72": {
         "short_description": "M72 es un cúmulo globular en Acuario. Es uno de los globulares más débiles del catálogo de Messier. No impresiona inmediatamente, pero es gratificante precisamente porque requiere método y visión periférica.",
-        "observing_notes": "En M72, que se extiende 6,6′ y tiene una magnitud integrada de 9,3, observe con qué aumento la periferia cambia de un halo uniforme a una textura granulada.",
+        "observing_notes": "M72 es uno de los globulares Messier más débiles; identifícalo con precisión en Acuario antes de pasar a más aumentos. Visión lateral, cielo oscuro y una potencia media revelan un pequeño núcleo dentro de un halo muy tenue.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "M72 es uno de los globulares más distantes incluidos por Messier. La gran distancia comprime su apariencia en una tenue masa, aunque en realidad contiene una población estelar grande y muy antigua."
       },
@@ -512,7 +512,7 @@
       },
       "messier-M75": {
         "short_description": "M75 es un cúmulo globular en Sagitario. Se trata de uno de los globulares más concentrados del catálogo, con un núcleo compacto y de difícil resolución. Parece pequeño, pero esconde una densidad notable.",
-        "observing_notes": "Con M75, magnitud integrada 8,5, registre la concentración central y el grado de resolución periférica por separado.",
+        "observing_notes": "Con pocos aumentos M75 puede parecer casi estelar por su extrema concentración. Aumenta la potencia hasta que aparezca el pequeño halo; resolver estrellas sigue siendo difícil incluso con el núcleo bien definido.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "M75 posee uno de los núcleos más concentrados entre los cúmulos globulares del catálogo de Messier. La luminosidad crece rápidamente hacia el centro, donde la densidad estelar es mucho mayor que en el halo exterior."
       },
@@ -536,13 +536,13 @@
       },
       "messier-M79": {
         "short_description": "M79 es un cúmulo globular de Liebre. Es un objeto invernal inusual, alejado de los campos estivales clásicos de la Vía Láctea. Bajo Orión aparece compacto y sorprendente.",
-        "observing_notes": "Para M79, con magnitud integrada 7,7, compare el núcleo y el borde sin esperar el mismo brillo de estrellas individuales.",
+        "observing_notes": "M79 es un globular invernal que queda bajo desde latitudes septentrionales. Obsérvalo en el meridiano; los aumentos medios separan el núcleo brillante del halo compacto y lo hacen más evidente en el campo pobre de Liebre.",
         "best_seen": "Invierno",
         "curiosity_text": "M79 se encuentra en el lado del cielo opuesto al centro galáctico, una ubicación inusual para un cúmulo globular. Su órbita ha dado pie a la hipótesis de que fue adquirido durante la fusión con una galaxia enana."
       },
       "messier-M80": {
         "short_description": "M80 es un cúmulo globular en Escorpio. Es un cúmulo globular muy denso, pequeño pero intenso. Con aperturas medias, el borde comienza a brillar mientras el núcleo permanece compacto.",
-        "observing_notes": "Para M80, con magnitud integrada 7,3, utilice el diámetro de 10′ como referencia mientras busca las primeras estrellas resueltas.",
+        "observing_notes": "M80 es pequeño pero muy brillante en el centro. Tras localizarlo entre Antares y Acrab, usa aumentos medios-altos; el núcleo permanece apretado mientras pueden aparecer finos destellos estelares en el borde.",
         "best_seen": "Verano",
         "curiosity_text": "M80 es uno de los globulares más densos de la Vía Láctea. En 1860 apareció allí la nova T Scorpii, que durante unos días alcanzó un brillo comparable al de todo el cúmulo."
       },
@@ -614,7 +614,7 @@
       },
       "messier-M92": {
         "short_description": "M92 es un cúmulo globular de Hércules. Es magnífico, aunque a menudo queda eclipsado por la fama de M13. De aspecto más compacto y antiguo, merece una visita siempre que Hércules esté alto en el cielo.",
-        "observing_notes": "Para M92, con magnitud integrada 6,4, utilice el diámetro de 14′ como referencia mientras busca las primeras estrellas resueltas.",
+        "observing_notes": "M92 es más compacto y simétrico que el cercano M13. Encuádralo con pocos aumentos y sube después la potencia; el núcleo admite bien los aumentos y el halo se divide en estrellas por el borde.",
         "best_seen": "Verano",
         "curiosity_text": "Debido a la precesión de la Tierra, dentro de unos 14.000 años el polo norte celeste pasará a un grado de M92. El cúmulo se convertirá así en un vecino espectacular del punto alrededor del cual girará el cielo."
       },
@@ -704,7 +704,7 @@
       },
       "messier-M107": {
         "short_description": "M107 (Cúmulo del Crucifijo) es un cúmulo globular de Ofiuco, relativamente disperso y menos denso que los ejemplos más famosos. Requiere cielos oscuros, pero ofrece una delicada textura estelar.",
-        "observing_notes": "En M107 (Cúmulo del Crucifijo), busque la transición entre el núcleo y el halo a lo largo de los 10′ del diámetro, sin depender únicamente de la magnitud 7,9.",
+        "observing_notes": "M107 es suelto, débil y está atenuado por el polvo; espera a que Ofiuco esté alto. Los aumentos medios muestran una textura irregular; demasiada potencia borra el halo antes de aportar detalle al núcleo.",
         "best_seen": "Verano",
         "curiosity_text": "M107 fue el último objeto Messier descubierto por Pierre Méchain y no se añadió oficialmente al catálogo hasta 1947. Con M105 y M106 completó la versión moderna de los 110 objetos."
       },
@@ -872,7 +872,7 @@
       },
       "caldwell-C25": {
         "short_description": "C25 (NGC 2419), cúmulo globular en la constelación de Lince. Es un objeto que premia los aumentos progresivos: primero se reconoce el halo, luego se busca la resolución de las estrellas periféricas. NGC 2419 - Vagabundo Intergaláctico cubre aproximadamente 4,1′ en el cielo y tiene una magnitud integrada de 10,4, dos datos que deben valorarse junto con el contraste del fondo.",
-        "observing_notes": "Para C25 (NGC 2419 - Vagabundo Intergaláctico), con magnitud integrada 10,4, compare el núcleo y el borde sin esperar el mismo brillo de estrellas individuales.",
+        "observing_notes": "C25 es pequeño y débil pese a su núcleo compacto. Localízalo con pocos aumentos bajo un cielo muy oscuro, sube la potencia gradualmente y usa visión lateral para separar el halo del fondo.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 2419 recibe el sobrenombre de Vagabundo Intergaláctico porque orbita a una distancia enorme, más allá del borde brillante de la Vía Láctea. Es tan masivo y complejo que podría ser el núcleo residual de una galaxia enana capturada."
       },
@@ -973,8 +973,8 @@
         "curiosity_text": "Las Híades son el cúmulo abierto más cercano a la Tierra, a unos 150 años luz de distancia. Aldebarán parece ser el miembro más brillante, pero está situado mucho más cerca y solo está alineado en primer plano."
       },
       "caldwell-C42": {
-        "short_description": "C42 (NGC 7006), cúmulo globular en la constelación de Delfín. La visión periférica muestra la extensión del halo, mientras que el aumento medio ayuda a apreciar la textura de las regiones exteriores. Para C42, la comparación entre la extensión de 2,8′ y la magnitud integrada de 10,6 guía la elección del campo inicial.",
-        "observing_notes": "En C42 (NGC 7006), con una extensión de 2,8′ y magnitud integrada 10,6, observe con qué aumento la periferia cambia de un halo uniforme a una textura granulada.",
+        "short_description": "C42 (NGC 7006) es un cúmulo globular remoto del halo de la Vía Láctea, proyectado en Delfín. Su enorme distancia lo reduce a un disco pequeño y concentrado: las aperturas medias muestran el núcleo, mientras la periferia sigue siendo un reto de contraste.",
+        "observing_notes": "Trata C42 como un objeto compacto, no como un globular extenso. Tras identificarlo con pocos aumentos, prueba aumentos medios-altos para definir el núcleo; resolver estrellas individuales sigue siendo difícil.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "NGC 7006 orbita en las regiones remotas del halo galáctico, a más de 100.000 años luz de nosotros. Su distancia lo convirtió en un tema histórico en el debate sobre el tamaño real de la Vía Láctea."
       },
@@ -1003,8 +1003,8 @@
         "curiosity_text": "La Nebulosa Variable de Hubble puede cambiar de apariencia en tan solo unas pocas semanas, demasiado rápido para que el gas se mueva a esa escala. Son sombras móviles, proyectadas por el polvo cerca de la joven estrella R Monocerotis."
       },
       "caldwell-C47": {
-        "short_description": "C47 (NGC 6934), cúmulo globular en la constelación de Delfín. Al principio parece una pequeña nube redonda, pero una observación prolongada revela diferencias entre el núcleo brillante y el borde punteado. La medida de 5,9′ define la escala de C47, mientras que la magnitud integrada 8,9 resume toda su luz.",
-        "observing_notes": "En C47 (NGC 6934), busque la transición entre el núcleo y el halo a lo largo de sus 5,9′ de diámetro, sin depender únicamente de la magnitud 8,9.",
+        "short_description": "C47 (NGC 6934) es un cúmulo globular compacto en Delfín, con un centro claramente más brillante y un halo tenue. En un telescopio pequeño parece nebuloso; más apertura y aumentos dan a su borde una textura granulosa.",
+        "observing_notes": "C47 responde bien a aumentos medios: observa la transición marcada entre el centro brillante y el halo. Con cielo estable, la visión lateral puede hacer centellear algunas estrellas del borde.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "NGC 6934 contiene estrellas rezagadas azules, más calientes y luminosas de lo esperable para la edad del cúmulo. Su distribución ayuda a reconstruir cómo las colisiones y los sistemas binarios han mezclado el núcleo."
       },
@@ -1117,8 +1117,8 @@
         "curiosity_text": "NGC 253 es una de las galaxias con formación estelar más cercanas. En el núcleo polvoriento, las estrellas nacen a un ritmo rápido y su retroalimentación empuja un superviento de gas caliente fuera del disco."
       },
       "caldwell-C66": {
-        "short_description": "C66 (NGC 5694), cúmulo globular en la constelación de Hidra. La visión periférica muestra la extensión del halo, mientras que el aumento medio ayuda a apreciar la textura de las regiones exteriores. Para C66, la comparación entre la extensión de 3,6′ y la magnitud integrada de 10,2 guía la elección del campo inicial.",
-        "observing_notes": "En C66 (NGC 5694), con una extensión de 3,6′ y magnitud integrada 10,2, observe con qué aumento la periferia cambia de un halo uniforme a una textura granulada.",
+        "short_description": "C66 (NGC 5694) es un cúmulo globular remoto y compacto en Hidra, perteneciente al halo galáctico exterior. Al ocular es un pequeño resplandor redondo de concentración moderada, más propicio para un cielo transparente que para resolver estrellas con facilidad.",
+        "observing_notes": "La declinación austral y la debilidad de C66 exigen un horizonte limpio. Empieza con un campo amplio para identificarlo y usa después aumentos medios y visión lateral para seguir el tenue borde exterior.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 5694 es un cúmulo globular remoto e inusualmente compacto situado en el halo exterior de la Vía Láctea. Sus propiedades químicas y dinámicas sugieren que pudo originarse en una galaxia enana absorbida posteriormente."
       },
@@ -1160,7 +1160,7 @@
       },
       "caldwell-C73": {
         "short_description": "C73 (NGC 1851), cúmulo globular en la constelación de Paloma. La concentración hacia el centro es su rasgo dominante: la transición de un núcleo compacto a una periferia más dispersa es el detalle a seguir. NGC 1851 cubre aproximadamente 11′ en el cielo y tiene una magnitud integrada de 7,3, dos datos que deben valorarse junto con el contraste del fondo.",
-        "observing_notes": "Para C73 (NGC 1851), con magnitud integrada 7,3, compare el núcleo y el borde sin esperar el mismo brillo de estrellas individuales.",
+        "observing_notes": "C73 es brillante pero muy concentrado. Con pocos aumentos sepáralo del rico campo próximo a la Pequeña Nube de Magallanes y luego aumenta la potencia para comparar el núcleo casi estelar con el halo de 11′.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 1851 muestra dos ramas subgigantes distintas en el diagrama de color-magnitud. Esta doble población podría resultar de diferentes episodios de formación o incluso de la fusión de dos cúmulos antiguos."
       },
@@ -1190,13 +1190,13 @@
       },
       "caldwell-C78": {
         "short_description": "C78 (NGC 6541), cúmulo globular en la constelación de la Corona Austral. La concentración hacia el centro es su rasgo dominante: la transición de un núcleo compacto a una periferia más dispersa es el detalle a seguir. Para C78, la comparación entre la extensión de 13′ y la magnitud integrada de 6,6 guía la elección del campo inicial.",
-        "observing_notes": "En C78 (NGC 6541), con una extensión de 13′ y magnitud integrada 6,6, observe a qué aumento la periferia cambia de un halo uniforme a una textura granulada.",
+        "observing_notes": "C78 muestra un núcleo intenso dentro de un halo amplio. Encuádralo primero con pocos aumentos y pasa después a una potencia media; con buen seeing empiezan a resolverse las estrellas exteriores mientras el centro permanece compacto.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6541 es uno de los globulares más concentrados del cielo austral. La fuerte densidad central favorece los encuentros estelares y convierte el núcleo en un laboratorio natural para la dinámica de los sistemas antiguos."
       },
       "caldwell-C79": {
         "short_description": "C79 (NGC 3201), cúmulo globular en la constelación de Vela. Es un objeto que premia los aumentos progresivos: primero se reconoce el halo, luego se busca la resolución de las estrellas periféricas. En el ocular debe buscarse una extensión de 18′; el brillo total corresponde a una magnitud integrada de 6,7.",
-        "observing_notes": "Para C79 (NGC 3201), con magnitud integrada 6,7, compare el núcleo y el borde sin esperar el mismo brillo de estrellas individuales.",
+        "observing_notes": "C79 es amplio y poco concentrado, por lo que agradece un campo bastante ancho. Bajo un cielo oscuro, aumentos medios convierten su neblina irregular en numerosas estrellas sin perder las prolongaciones exteriores.",
         "best_seen": "Primavera",
         "curiosity_text": "En NGC 3201, se identificó un candidato a agujero negro inactivo observando el movimiento orbital de su compañera visible. El cúmulo también sigue una órbita retrógrada, lo que indica un posible origen externo."
       },
@@ -1207,8 +1207,8 @@
         "curiosity_text": "Omega Centauri contiene millones de estrellas con diferentes composiciones y edades, anómalas para un cúmulo globular normal. Probablemente, sea el núcleo remanente de una galaxia enana despojada de la Vía Láctea."
       },
       "caldwell-C81": {
-        "short_description": "C81 (NGC 6352), cúmulo globular en la constelación de Altar. La concentración hacia el centro es su rasgo dominante: la transición de un núcleo compacto a una periferia más dispersa es el detalle a seguir. La preparación del campo para C81 parte de una extensión de 7′ y una magnitud integrada de 8,1.",
-        "observing_notes": "Con C81 (NGC 6352), de magnitud integrada 8,1, registre la concentración central y el grado de resolución periférica por separado.",
+        "short_description": "C81 (NGC 6352) es un cúmulo globular compacto y relativamente rico en metales en Altar. Su disco de unos 7′ presenta un centro suave y brillante, rodeado por una periferia que los instrumentos medianos pueden empezar a desgranar.",
+        "observing_notes": "Para C81 elige una noche transparente y suficiente altura sobre el horizonte sur. Los aumentos medios mantienen visible su pequeño disco y ayudan a distinguir el resplandor central de las primeras estrellas periféricas.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6352 es un cúmulo globular relativamente rico en metales, asociado a las regiones internas de la Galaxia. Su química difiere de la de los cúmulos globulares pobres en elementos pesados que pueblan el halo remoto."
       },
@@ -1226,7 +1226,7 @@
       },
       "caldwell-C84": {
         "short_description": "C84 (NGC 5286), cúmulo globular en la constelación de Centauro. A bajo aumento aparece como un halo concentrado; con una apertura más grande y un seeing estable, el borde puede volverse granulado y empezar a resolverse en estrellas. Para planificar su observación, considere la magnitud integrada 7,6 y la extensión aparente 9′ juntas.",
-        "observing_notes": "En C84 (NGC 5286), con una extensión de 9′ y magnitud integrada 7,6, observe a qué aumento la periferia cambia de un halo uniforme a una textura granulada.",
+        "observing_notes": "La brillante M Centauri facilita localizar C84, pero puede perjudicar la adaptación a la oscuridad. Déjala justo fuera del campo y usa aumentos medios para buscar granulación en el halo que rodea el núcleo concentrado.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 5286 contiene poblaciones con diferentes abundancias de hierro, comportamiento poco común para un globular. Podría ser el núcleo superviviente de una galaxia enana asimilada por la Vía Láctea."
       },
@@ -1238,13 +1238,13 @@
       },
       "caldwell-C86": {
         "short_description": "C86 (NGC 6397), cúmulo globular en la constelación de Altar. A bajo aumento aparece como un halo concentrado; con una apertura más grande y un seeing estable, el borde puede volverse granulado y empezar a resolverse en estrellas. Su escala aparente es 26′; una magnitud integrada de 5,6 no describe por sí sola lo que será evidente en el ocular.",
-        "observing_notes": "Para C86 (NGC 6397), con magnitud integrada 5,6, utilice el diámetro de 26′ como referencia mientras busca las primeras estrellas resueltas.",
+        "observing_notes": "C86 es amplio y cercano: usa pocos aumentos para abarcar su extensión y después una potencia media para resolver numerosas estrellas. Su núcleo muy apiñado sigue siendo la mejor prueba del seeing y la apertura.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6397 es uno de los globulares más cercanos y antiguos, con una edad cercana a la del Universo. Su núcleo ha sufrido un colapso gravitacional, concentrando fuertemente las estrellas hacia el centro."
       },
       "caldwell-C87": {
         "short_description": "C87 (NGC 1261), cúmulo globular en la constelación de Reloj. Al principio parece una pequeña nube redonda, pero una observación prolongada revela diferencias entre el núcleo brillante y el borde punteado. En el campo, C87 se extiende por 7′: la magnitud 8,4 debe interpretarse como brillo general.",
-        "observing_notes": "Con C87 (NGC 1261), magnitud integrada de 8,4, registre la concentración central y el grado de resolución periférica por separado.",
+        "observing_notes": "C87 aparece como un globo regular con un centro bien condensado. Tras localizarlo, prueba aumentos medios sin estrechar demasiado el campo; la visión lateral revela la periferia y algunas estrellas del borde.",
         "best_seen": "Invierno",
         "curiosity_text": "En NGC 1261 las poblaciones estelares no están distribuidas de la misma manera: las estrellas de segunda generación están más concentradas. La diferencia conserva información sobre la formación inicial y la posterior mezcla dinámica."
       },
@@ -1279,8 +1279,8 @@
         "curiosity_text": "Eta Carinae, dentro de la Nebulosa de Carina, sobrevivió a la Gran Erupción del siglo XIX. El episodio expulsó la Nebulosa del Homúnculo y convirtió brevemente a la estrella en una de las más brillantes del cielo."
       },
       "caldwell-C93": {
-        "short_description": "C93 (NGC 6752), cúmulo globular en la constelación de Pavo. La concentración hacia el centro es su rasgo dominante: la transición de un núcleo compacto a una periferia más dispersa es el detalle a seguir. La preparación del campo para C93 parte de una extensión de 20′ y una magnitud integrada de 5,4.",
-        "observing_notes": "Con C93 (NGC 6752), de magnitud integrada 5,4, registre la concentración central y el grado de resolución periférica por separado.",
+        "short_description": "C93 (NGC 6752) es uno de los cúmulos globulares más cercanos y brillantes del cielo austral, en la constelación de Pavo. Su amplio halo de unos 20′ se resuelve generosamente con aperturas moderadas, mientras el centro conserva una trama densa y luminosa.",
+        "observing_notes": "Encuadra C93 con pocos aumentos para no recortar su amplio halo y pasa después a una potencia media para seguir cadenas de estrellas hacia el centro. Un campo oscuro hace evidente la diferencia entre núcleo y periferia.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6752 presenta suficientes huecos entre sus estrellas para que en imágenes profundas aparezcan galaxias mucho más lejanas detrás del cúmulo. El campo superpone así objetos separados por distancias cósmicas enormes."
       },
@@ -1346,13 +1346,13 @@
       },
       "caldwell-C104": {
         "short_description": "C104 (NGC 362), cúmulo globular en la constelación de Tucán. Al principio parece una pequeña nube redonda, pero una observación prolongada revela diferencias entre el núcleo brillante y el borde punteado. NGC 362 combina una extensión aparente de 13′ con una magnitud integrada de 6,6, por lo que la apertura y la calidad del cielo influyen de forma distinta.",
-        "observing_notes": "Para C104 (NGC 362), con magnitud integrada 6,6, utilice el diámetro de 13′ como referencia mientras busca las primeras estrellas resueltas.",
+        "observing_notes": "C104 es un globular brillante situado delante del campo de la Pequeña Nube de Magallanes, no un miembro suyo. Los aumentos medios realzan su núcleo compacto; compáralo en el mismo cielo con el más extenso 47 Tucanae.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 362 aparece cerca de la Pequeña Nube de Magallanes, pero pertenece a la Vía Láctea y está mucho más cerca. Es relativamente rico en metales y unos miles de millones de años más joven que muchos globulares clásicos."
       },
       "caldwell-C105": {
         "short_description": "C105 (NGC 4833), cúmulo globular en la constelación de Mosca. Al principio parece una pequeña nube redonda, pero una observación prolongada revela diferencias entre el núcleo brillante y el borde punteado. La preparación del campo para C105 parte de una extensión de 14′ y una magnitud integrada de 7,3.",
-        "observing_notes": "Con C105 (NGC 4833), magnitud integrada 7,3, registre la concentración central y el grado de resolución periférica por separado.",
+        "observing_notes": "El polvo interestelar atenúa y enrojece C105, de modo que la transparencia y la culminación importan más que muchos aumentos. Usa un campo medio para captar su halo irregular y aumenta solo mientras el borde siga claro.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4833 se observa a través de una región polvorienta que atenúa su luz. La órbita lo lleva repetidamente al disco galáctico, donde las mareas pueden haberle quitado una parte sustancial de su masa original."
       },
@@ -1363,14 +1363,14 @@
         "curiosity_text": "En 47 Tucanae las estrellas más masivas migran hacia el centro, mientras que las más ligeras se desplazan hacia el exterior. La distribución de las rezagadas azules funciona como un reloj dinámico que permite medir la evolución interna del cúmulo."
       },
       "caldwell-C107": {
-        "short_description": "C107 (NGC 6101), cúmulo globular en la constelación de Ave del Paraíso. Al principio parece una pequeña nube redonda, pero una observación prolongada revela diferencias entre el núcleo brillante y el borde punteado. La medida de 11′ define la escala de C107, mientras que la magnitud integrada 9,3 resume toda su luz.",
-        "observing_notes": "En C107 (NGC 6101), busque la transición entre el núcleo y el halo a lo largo de los 11′ del diámetro, sin depender únicamente de la magnitud 9,3.",
+        "short_description": "C107 (NGC 6101) es un cúmulo globular remoto e inusualmente poco concentrado en Ave del Paraíso. Su halo amplio y uniforme carece de un núcleo dominante; bajo un cielo oscuro parece una nube delicada que las grandes aperturas convierten en trama estelar.",
+        "observing_notes": "No busques en C107 el núcleo brillante típico de los globulares compactos. Mantén aumentos bajos o medios y protege la adaptación a la oscuridad; el mejor resultado es una resolución difusa de todo el disco.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6101 muestra sorprendentemente poca segregación en masa, a pesar de su edad. Una población de agujeros negros estelares retenida en el cúmulo puede haber ralentizado su evolución dinámica interna."
       },
       "caldwell-C108": {
         "short_description": "C108 (NGC 4372), cúmulo globular en la constelación de Mosca. Es un objeto que premia los aumentos progresivos: primero se reconoce el halo, luego se busca la resolución de las estrellas periféricas. Para planificar su observación, considere la magnitud integrada 7,8 y la extensión aparente 19′ juntas.",
-        "observing_notes": "En C108 (NGC 4372), que se extiende 19′ y tiene una magnitud integrada de 7,8, observe con qué aumento la periferia cambia de un halo uniforme a una textura granulada.",
+        "observing_notes": "C108 es amplio, pero está oscurecido por el polvo del Saco de Carbón. Obsérvalo a máxima altura con un campo ancho; la visión lateral recupera el halo débil, mientras demasiados aumentos diluyen rápidamente su contraste.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4372 se encuentra detrás del polvo del Saco de Carbón y aparece muy rojo. Se trata de un cúmulo globular muy bajo en metales, una reliquia de las primeras etapas de formación de la Vía Láctea."
       },
