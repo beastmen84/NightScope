@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+## NightScope 1.46.3 - 2026-09-04
+
+- Corretto il primo insieme organico di prosa generica del baseline storico:
+  riscritte le note osservative di 17 galassie Messier/Caldwell e, nei quattro
+  casi coinvolti da famiglie duplicate, anche le descrizioni di C17, C53, C65
+  e C77. Curiosita' e periodo consigliato non sono stati riaperti.
+- Ogni testo italiano e i corrispondenti overlay inglesi e spagnoli sono stati
+  revisionati come contenuti specifici dell'oggetto: difficolta' reale,
+  ingrandimento o campo utile, dettagli visuali plausibili e contesto di
+  confronto sostituiscono formule costruite soltanto da magnitudine e misura.
+- Esteso il manifest editoriale con il tipo `baseline_remediation`: ogni voce
+  dichiara esattamente i campi cambiati, le fonti possono provare solo quei
+  campi e il controllo di similarita' non accredita come revisionato il testo
+  lasciato intatto. I batch NGC completi restano distinti e retrocompatibili.
+- Tutti i 17 URL NASA Hubble specifici dell'oggetto hanno superato l'audit live.
+  Sette campioni hanno prodotto 84 scene Object Detail finali: IT/EN/ES,
+  modalita' normale e Red Night Vision, sia sull'intestazione con le note sia
+  sulle schede descrizione/curiosita', senza tagli o sovrapposizioni.
+- Il debito storico misurato scende da 11 famiglie/24 oggetti a 9/20 per le
+  descrizioni e da 23 famiglie/177 oggetti a 22/160 per le note osservative.
+  La copertura non cambia: 303 oggetti completi, dei quali 75 NGC-only, e 7.291
+  NGC-only ancora da lavorare.
+- Gate sorgente completo con sicurezza superato: 1.227 test e 10 subtest in
+  392,39 secondi, copertura aggregata 86%, documentazione completa per 247 file
+  Python, 34 QML e 17 operativi, grafo import aciclico, baseline Bandit
+  invariata, nessuna vulnerabilita' nota e smoke test backend/QML
+  normale/Red Night Vision riusciti. Il solo avviso emesso e' il debito
+  editoriale storico residuo atteso.
+- La versione sorgente passa a `1.46.3`; `dist` non e' stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release. Le release
+  pubbliche restano Windows `v1.45.21` e Linux `v1.43.0`.
+
 ## NightScope 1.46.2 - 2026-09-04
 
 - Ricontrollati integralmente i 50 oggetti del batch `1.46.1` nelle tre lingue:

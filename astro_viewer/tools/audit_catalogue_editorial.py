@@ -41,6 +41,7 @@ NARRATIVE_FIELDS = (
 )
 REVIEW_KEYS = ("facts", "it", "en", "es")
 REVIEW_STATES = frozenset({"pending", "accepted"})
+BATCH_KINDS = frozenset({"ngc_enrichment", "baseline_remediation"})
 PLACEHOLDERS = frozenset(
     {
         "work in progress",
@@ -80,6 +81,9 @@ class EditorialAuditReport:
     completed_ngc_objects: int
     remaining_ngc_objects: int
     accepted_batches: int
+    accepted_enrichment_batches: int
+    accepted_remediation_batches: int
+    remediated_baseline_objects: int
     draft_batches: int
     baseline_description_template_families: int
     baseline_description_template_objects: int
@@ -97,8 +101,10 @@ class EditorialAuditReport:
 class _ManifestRecord:
     path: Path
     version: str
+    kind: str
     status: str
     object_ids: tuple[str, ...]
+    screened_fields: frozenset[tuple[str, str]]
     waivers: frozenset[tuple[str, str, str, str]]
 
 
@@ -233,6 +239,7 @@ def _validate_manifest(
     descriptions: dict[str, dict[str, str]],
     curiosities: dict[str, dict[str, str]],
     translations: dict[str, dict[str, dict]],
+    baseline_ids: set[str],
     errors: list[str],
 ) -> _ManifestRecord:
     label = path.name
@@ -247,6 +254,12 @@ def _validate_manifest(
     expected_name = f"batch_{version.replace('.', '_')}.json" if version else ""
     if expected_name and path.name != expected_name:
         errors.append(f"{label}: filename must be {expected_name}")
+
+    kind = str(payload.get("batch_kind") or "ngc_enrichment").strip()
+    if kind not in BATCH_KINDS:
+        errors.append(
+            f"{label}: batch_kind must be ngc_enrichment or baseline_remediation"
+        )
 
     status = str(payload.get("status") or "").strip()
     if status not in {"draft", "accepted"}:
@@ -267,6 +280,7 @@ def _validate_manifest(
 
     object_ids: list[str] = []
     seen_ids: set[str] = set()
+    screened_fields: set[tuple[str, str]] = set()
     for index, item in enumerate(raw_objects, start=1):
         item_label = f"{label}:objects[{index}]"
         if not isinstance(item, dict):
@@ -284,8 +298,41 @@ def _validate_manifest(
 
         if object_id not in catalogue:
             errors.append(f"{item_label}: unknown physical object_id {object_id}")
-        if not object_id.startswith("ngc-"):
+        if kind == "ngc_enrichment" and not object_id.startswith("ngc-"):
             errors.append(f"{item_label}: editorial batches are restricted to NGC-only IDs")
+        if kind == "baseline_remediation" and object_id not in baseline_ids:
+            errors.append(
+                f"{item_label}: baseline remediation requires an immutable baseline ID"
+            )
+
+        raw_fields = item.get("fields")
+        if kind == "baseline_remediation":
+            item_fields = (
+                {str(value).strip() for value in raw_fields if str(value).strip()}
+                if isinstance(raw_fields, list)
+                else set()
+            )
+            if not item_fields:
+                errors.append(
+                    f"{item_label}: baseline remediation requires at least one field"
+                )
+            unknown_fields = sorted(item_fields - set(TRANSLATED_FIELDS))
+            if unknown_fields:
+                errors.append(
+                    f"{item_label}: unsupported remediation fields "
+                    f"{', '.join(unknown_fields)}"
+                )
+            required_fields = item_fields & set(TRANSLATED_FIELDS)
+        else:
+            if raw_fields is not None:
+                errors.append(
+                    f"{item_label}: fields is only valid for baseline remediation"
+                )
+            required_fields = set(TRANSLATED_FIELDS)
+        screened_fields.update(
+            (object_id, field)
+            for field in required_fields & set(NARRATIVE_FIELDS)
+        )
 
         raw_designations = item.get("designations")
         manifest_designations = (
@@ -341,26 +388,34 @@ def _validate_manifest(
                 errors.append(
                     f"{source_label}: unsupported claims {', '.join(unknown_claims)}"
                 )
+            if kind == "baseline_remediation":
+                undeclared_claims = sorted(claims - required_fields)
+                if undeclared_claims:
+                    errors.append(
+                        f"{source_label}: claims outside remediation fields "
+                        f"{', '.join(undeclared_claims)}"
+                    )
             supported_claims.update(claims)
             source_pairs.add((visible_label, url))
 
         if status == "accepted":
-            missing_claims = sorted(set(TRANSLATED_FIELDS) - supported_claims)
+            missing_claims = sorted(required_fields - supported_claims)
             if missing_claims:
                 errors.append(
                     f"{item_label}: sources do not cover {', '.join(missing_claims)}"
                 )
             if object_id not in descriptions or object_id not in curiosities:
                 errors.append(f"{item_label}: accepted object lacks complete Italian seeds")
-            curiosity = curiosities.get(object_id) or {}
-            curiosity_pair = (
-                str(curiosity.get("source_label") or "").strip(),
-                str(curiosity.get("source_url") or "").strip(),
-            )
-            if curiosity_pair not in source_pairs:
-                errors.append(
-                    f"{item_label}: curiosity seed source is absent from manifest evidence"
+            if "curiosity_text" in required_fields:
+                curiosity = curiosities.get(object_id) or {}
+                curiosity_pair = (
+                    str(curiosity.get("source_label") or "").strip(),
+                    str(curiosity.get("source_url") or "").strip(),
                 )
+                if curiosity_pair not in source_pairs:
+                    errors.append(
+                        f"{item_label}: curiosity seed source is absent from manifest evidence"
+                    )
             for language, localized in translations.items():
                 fields = localized.get(object_id)
                 if not isinstance(fields, dict) or any(
@@ -430,8 +485,10 @@ def _validate_manifest(
     return _ManifestRecord(
         path=path,
         version=version,
+        kind=kind,
         status=status,
         object_ids=tuple(object_ids),
+        screened_fields=frozenset(screened_fields),
         waivers=frozenset(waivers),
     )
 
@@ -501,7 +558,7 @@ def _template_groups(
 
 
 def _near_duplicate_errors(
-    selected_ids: set[str],
+    screened_fields: frozenset[tuple[str, str]],
     completed_ids: set[str],
     descriptions: dict[str, dict[str, str]],
     curiosities: dict[str, dict[str, str]],
@@ -519,6 +576,11 @@ def _near_duplicate_errors(
     failures: list[str] = []
     for language, content in language_content.items():
         for field in NARRATIVE_FIELDS:
+            selected_ids = {
+                object_id
+                for object_id, selected_field in screened_fields
+                if selected_field == field
+            }
             prepared = {
                 object_id: _similarity_text(fields.get(field, ""))
                 for object_id, fields in content.items()
@@ -754,7 +816,7 @@ def audit_catalogue_editorial(
     manifests: list[_ManifestRecord] = []
     selected_manifest: _ManifestRecord | None = None
     seen_versions: set[str] = set()
-    seen_manifest_ids: set[str] = set()
+    seen_enrichment_ids: set[str] = set()
     selected_resolved = None
     if batch_path is not None:
         selected_resolved = (
@@ -770,6 +832,7 @@ def audit_catalogue_editorial(
             descriptions=descriptions,
             curiosities=curiosities,
             translations=translations,
+            baseline_ids=baseline_ids,
             errors=errors,
         )
         manifests.append(manifest)
@@ -778,27 +841,45 @@ def audit_catalogue_editorial(
         if manifest.version in seen_versions:
             errors.append(f"duplicate editorial batch version {manifest.version}")
         seen_versions.add(manifest.version)
-        for object_id in manifest.object_ids:
-            if object_id in seen_manifest_ids:
-                errors.append(f"{object_id}: appears in more than one batch manifest")
-            seen_manifest_ids.add(object_id)
+        if manifest.kind == "ngc_enrichment":
+            for object_id in manifest.object_ids:
+                if object_id in seen_enrichment_ids:
+                    errors.append(
+                        f"{object_id}: appears in more than one NGC enrichment manifest"
+                    )
+                seen_enrichment_ids.add(object_id)
 
     accepted_manifests = [manifest for manifest in manifests if manifest.status == "accepted"]
-    accepted_ids = {
-        object_id
+    accepted_enrichment_manifests = [
+        manifest
         for manifest in accepted_manifests
+        if manifest.kind == "ngc_enrichment"
+    ]
+    accepted_remediation_manifests = [
+        manifest
+        for manifest in accepted_manifests
+        if manifest.kind == "baseline_remediation"
+    ]
+    accepted_enrichment_ids = {
+        object_id
+        for manifest in accepted_enrichment_manifests
+        for object_id in manifest.object_ids
+    }
+    remediated_baseline_ids = {
+        object_id
+        for manifest in accepted_remediation_manifests
         for object_id in manifest.object_ids
     }
     managed_ids = completed_ids - baseline_ids
-    for object_id in sorted(managed_ids - accepted_ids):
+    for object_id in sorted(managed_ids - accepted_enrichment_ids):
         errors.append(f"{object_id}: completed content lacks an accepted batch manifest")
-    for object_id in sorted(accepted_ids - managed_ids):
+    for object_id in sorted(accepted_enrichment_ids - managed_ids):
         errors.append(f"{object_id}: accepted manifest lacks completed repository content")
 
     if selected_manifest is not None:
         errors.extend(
             _near_duplicate_errors(
-                set(selected_manifest.object_ids),
+                selected_manifest.screened_fields,
                 completed_ids,
                 descriptions,
                 curiosities,
@@ -817,6 +898,9 @@ def audit_catalogue_editorial(
         completed_ngc_objects=len(completed_ngc_ids),
         remaining_ngc_objects=len(ngc_ids - completed_ngc_ids),
         accepted_batches=len(accepted_manifests),
+        accepted_enrichment_batches=len(accepted_enrichment_manifests),
+        accepted_remediation_batches=len(accepted_remediation_manifests),
+        remediated_baseline_objects=len(remediated_baseline_ids),
         draft_batches=sum(manifest.status == "draft" for manifest in manifests),
         baseline_description_template_families=len(baseline_description_templates),
         baseline_description_template_objects=baseline_description_template_objects,
@@ -850,7 +934,10 @@ def main(argv: list[str] | None = None) -> int:
             f"objects ({report.baseline_objects} baseline, "
             f"{report.completed_ngc_objects} NGC-only); "
             f"{report.remaining_ngc_objects} NGC-only remaining; "
-            f"{report.accepted_batches} accepted batches."
+            f"{report.accepted_batches} accepted batches "
+            f"({report.accepted_enrichment_batches} enrichment, "
+            f"{report.accepted_remediation_batches} remediation); "
+            f"{report.remediated_baseline_objects} baseline objects remediated."
         )
         for warning in report.warnings:
             print(f"WARNING: {warning}")

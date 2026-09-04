@@ -3,7 +3,8 @@
 This document is the acceptance contract for adding descriptions, observing
 guidance, and source-backed curiosities to the catalogue in Italian, English,
 and Spanish. Source `1.46.0` established the pipeline and acceptance gates;
-sources `1.46.1` and `1.46.2` apply that contract to 75 NGC-only galaxies.
+sources `1.46.1` and `1.46.2` apply that contract to 75 NGC-only galaxies,
+while `1.46.3` applies the same standard to field-scoped baseline remediation.
 
 ## Baseline And Scope
 
@@ -18,6 +19,11 @@ already curated physical objects, while 7,366 are NGC-only targets. Sources
 through `1.46.2` complete 75 of those targets, bringing editorial coverage to
 303 physical objects and leaving 7,291 NGC-only targets on the localized
 `Work in progress` fallback.
+
+Source `1.46.3` does not alter those coverage counts. It replaces one generic
+17-object galaxy observing-note family in the historical baseline and rewrites
+four descriptions from two duplicated families, with independent IT/EN/ES
+review and direct NASA evidence.
 
 Catalogue aliases do not create duplicate editorial work. Content belongs to
 the stable physical `object_id`; Messier, Caldwell, NGC, and historical aliases
@@ -36,6 +42,11 @@ of the older Solar System/Messier/Caldwell baseline exposed genuine formulaic
 debt: 11 connected description families affect 24 objects and 23 observing-note
 families affect 177 objects after catalogue IDs, parenthetical aliases, and
 measurements are normalized. Historical curiosity texts remain distinct.
+
+After the accepted `1.46.3` remediation, the remaining measured debt is 9
+description families affecting 20 objects and 22 observing-note families
+affecting 160 objects. These are backlog figures, not a quality waiver for the
+remaining prose.
 
 The deterministic audit reports those figures as a warning, not as acceptance
 of the repeated prose and not as a failure of later NGC batches. Remediation
@@ -144,12 +155,13 @@ separate release decision.
 
 Accepted batch ledger:
 
-| Source | Scope | Cumulative NGC-only | Remaining NGC-only |
-| --- | --- | ---: | ---: |
-| `1.46.1` | 50 varied, well-documented galaxies | 50 | 7,316 |
-| `1.46.2` | 25 additional distinctive, strongly sourced galaxies | 75 | 7,291 |
+| Source | Kind | Scope | Cumulative NGC-only | Baseline remediated | Remaining NGC-only |
+| --- | --- | --- | ---: | ---: | ---: |
+| `1.46.1` | NGC enrichment | 50 varied, well-documented galaxies | 50 | 0 | 7,316 |
+| `1.46.2` | NGC enrichment | 25 additional distinctive, strongly sourced galaxies | 75 | 0 | 7,291 |
+| `1.46.3` | Baseline remediation | One 17-galaxy observing-note family; four descriptions | 75 | 17 | 7,291 |
 
-The next editorial source patch is `1.46.3`; it must define and review its own
+The next editorial source patch is `1.46.4`; it must define and review its own
 bounded manifest rather than extending either accepted set.
 
 Work in bounded batches, each with its own source version and commit. A batch
@@ -179,6 +191,14 @@ and sources, but Italian seeds and EN/ES overlays land only with an `accepted`
 manifest. The manifest records exact designations, claim-level evidence,
 per-object factual and language review states, visual samples, deferrals, and
 any justified similarity waivers.
+
+Use `batch_kind: ngc_enrichment` for new NGC-only content. Use
+`batch_kind: baseline_remediation` for corrections to the immutable baseline
+and add an exact `fields` list to every object. In remediation batches, source
+coverage and similarity screening apply only to those declared fields;
+untouched content is not represented as newly reviewed. An accepted enrichment
+ID may occur only once, whereas a later remediation may revisit a baseline ID
+when a distinct correction is justified.
 
 ## Automated Acceptance Gates
 
@@ -232,6 +252,17 @@ contact sheet for complete text, language selection, layout integrity, visible
 source attribution, and monochromatic Red Night Vision before changing the
 manifest's visual states to `accepted`.
 
+When `observing_notes` changes, also render the top of the catalogue detail,
+where that field appears, rather than reviewing only the lower description and
+curiosity cards:
+
+```powershell
+.\.venv\Scripts\python.exe astro_viewer\tools\render_editorial_samples.py `
+  --batch astro_viewer\data\editorial_batches\batch_1_46_N.json `
+  --output-dir "$env:TEMP\NightScope-editorial-review-top" `
+  --scroll-y 0
+```
+
 Similarity checks are screening tools, not proof of quality. Passing a token
 threshold does not make templated prose acceptable. The audit also reports
 legacy baseline template families as non-failing debt so they remain visible
@@ -259,6 +290,10 @@ An object is complete only when its Italian record, English overlay, Spanish
 overlay, observing guidance, distinct source-backed curiosity, provenance, and
 tests are all complete. A batch is complete only when every object in its
 manifest meets that definition and the full source gate passes.
+
+A baseline-remediation batch is complete when every declared field has source,
+factual, three-language, similarity, and relevant visual acceptance. It does
+not reopen or silently re-accept undeclared fields.
 
 The catalogue-wide project is complete only when the NGC-only fallback count is
 zero in all three languages and a final cross-catalogue, source, translation,

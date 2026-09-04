@@ -20,7 +20,7 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.46.2` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
+The `1.46.3` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
 Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
 `pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
 Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, NumPy 2.5.2,
@@ -171,11 +171,13 @@ Validate fixed MPC and OpenNGC inputs without network access:
 ```
 
 The editorial audit reports the immutable 228-object pre-programme identity,
-the 75 accepted NGC-only additions, complete IT/EN/ES coverage, accepted
-manifests and the remaining 7,291-object NGC-only backlog. It also emits a
-non-failing count of repeated or near-identical historical baseline prose so
-that identity stability cannot be mistaken for editorial approval. Pass `--batch` to
-screen one candidate batch for near-duplicate prose; run
+the 75 accepted NGC-only additions, complete IT/EN/ES coverage, two accepted
+enrichment manifests, one accepted 17-object baseline-remediation manifest,
+and the remaining 7,291-object NGC-only backlog. It also emits the non-failing
+remaining debt of 9 repeated or near-identical description families across 20
+baseline objects and 22 observing-note families across 160 objects, so identity
+stability cannot be mistaken for editorial approval. Pass `--batch` to screen
+one candidate batch for near-duplicate prose; run
 `audit_curiosity_sources.py --batch ...` separately because live URL state is
 review evidence rather than a deterministic source gate.
 
@@ -185,15 +187,16 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
-The `1.46.2` coverage/security source gate passed on Windows/Python 3.14.5 with
-1,225 tests and 10 subtests in 382.12 seconds, 86% aggregate application
+The `1.46.3` coverage/security source gate passed on Windows/Python 3.14.5 with
+1,227 tests and 10 subtests in 392.39 seconds, 86% aggregate application
 coverage, complete documentation coverage for 247 Python, 34 QML, and 17
 operational files, an acyclic production graph, zero protected-layer
 violations, a reviewed Bandit baseline (0 high, 34 medium, 14 low), clean
 dependency/license/MPC/OpenNGC/editorial checks, and successful backend, normal
 QML, and Red Night Vision QML smoke tests. The editorial check emitted only its
-expected non-failing historical-prose warning. The in-gate installed-environment
-`pip-audit` found no known vulnerabilities. The most recent separate PySide6
+expected non-failing residual historical-prose warning. The in-gate
+installed-environment `pip-audit` found no known vulnerabilities. The most
+recent separate PySide6
 6.11.2 `qmllint` pass over all 34 QML files remains the `1.45.22` pass; its
 existing non-fatal diagnostics remain tracked technical debt.
 
@@ -202,6 +205,12 @@ distinct manifest URLs and 36 reviewed Object Detail renders: six objects in
 IT/EN/ES, each in normal and Red Night Vision mode. The sample spans bright-star
 proximity, compact faint, southern edge-on, extended edge-on, cluster-context,
 and merger-remnant cases.
+
+The separate `1.46.3` remediation evidence includes a successful live audit of
+17 direct object-specific NASA URLs and 84 reviewed Object Detail scenes: seven
+objects in IT/EN/ES, normal and Red Night Vision mode, at both the top position
+that exposes observing notes and the lower description/curiosity position.
+All final text remained complete and free of clipping or overlap.
 
 No remote CI result, distribution build, source tag, checksum, or release is
 implied by that local source measurement.

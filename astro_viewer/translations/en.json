@@ -416,7 +416,7 @@
       },
       "messier-M59": {
         "short_description": "M59 is an elliptical galaxy in Virgo. It's an elliptical of the Virgo cluster: it offers no obvious detail, but becomes significant when you observe it as part of a network of nearby galaxies in the sky.",
-        "observing_notes": "In M59, magnitude 9.6 and dimensions 5.4′ × 3.7′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "A small telescope shows a compact oval with a bright center; medium power separates it cleanly from field stars, but extra aperture reveals little internal detail. Widen the field toward M58 and M60: comparing the three galaxies is the most instructive part of the observation.",
         "best_seen": "Spring and summer",
         "curiosity_text": "M59 appears elliptical and regular, but its center contains a black hole of enormous mass compared to the galaxy. Thousands of globular clusters also orbit around it."
       },
@@ -452,7 +452,7 @@
       },
       "messier-M65": {
         "short_description": "M65 (Leo Triplet) is a barred spiral galaxy in Leo. It is one of the three galaxies of the Leo Triplet. Thin and uncluttered, it is at its best when viewed alongside M66 and NGC 3628 in the same path.",
-        "observing_notes": "In M65 (Leo Triplet), magnitude 9.3 and dimensions 8.7′ × 2.5′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "Start at low power: M65, M66, and NGC 3628 can share one field, and the Triplet's geometry makes identification easier. Then use medium power on M65 to follow its slender outline and central brightening while keeping the sky background dark.",
         "best_seen": "Spring",
         "curiosity_text": "M65 forms the Leo Triplet with M66 and NGC 3628. Although appearing less perturbed than its companions, its disk shows deformations compatible with mutual gravitational interactions."
       },
@@ -524,7 +524,7 @@
       },
       "messier-M77": {
         "short_description": "M77 (Cetus A or Squid Galaxy) is a spiral galaxy in Cetus. It is an active Seyfert galaxy with an energetic core. At the eyepiece it looks like a compact spot, but physically it is a very powerful system.",
-        "observing_notes": "In M77 (Cetus A or Squid Galaxy), magnitude 8.9 and dimensions 7.1′ × 6.0′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "M77's very bright nucleus makes it easier than its integrated magnitude suggests: a small telescope shows a nearly stellar center inside a round haze. Use medium-high power on the core, then return to a wider field and averted vision for the much fainter outer disk.",
         "best_seen": "Autumn",
         "curiosity_text": "The center of M77 is one of the closest active galactic nuclei. A supermassive black hole, hidden by a torus of dust, fuels emissions so intense that it makes the galaxy the prototype of type 2 Seyferts."
       },
@@ -560,7 +560,7 @@
       },
       "messier-M83": {
         "short_description": "M83 (Southern Pinwheel Galaxy) is a barred spiral galaxy in Hydra. The Southern Pinwheel is a large barred spiral, beautiful but low to many European observers. When it gets high enough, it is one of the most rewarding galaxies in the South.",
-        "observing_notes": "In M83 (Southern Pinwheel Galaxy), magnitude 7.6 and dimensions 12.9′ × 11.5′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "Under a clear sky, M83's nucleus is detectable even in binoculars. With a telescope, begin with a wide field for the nearly face-on disk, then use medium power and averted vision on the condensations around the core; from southern Europe, observe near transit to limit atmospheric extinction.",
         "best_seen": "Spring and summer",
         "curiosity_text": "M83 is a supernova factory: at least six have been observed in the last century. The numerous pink regions along the arms reveal particularly intense star formation."
       },
@@ -596,7 +596,7 @@
       },
       "messier-M89": {
         "short_description": "M89 is an elliptical galaxy in Virgo. It is an almost round elliptical, not very spectacular but useful for understanding the variety of galaxies in Virgo. It is an object for systematic observation.",
-        "observing_notes": "In M89, magnitude 9.8 and dimensions 5.1′ × 4.7′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "M89 remains a faint ball of light even through an 8-inch (20 cm) aperture: a realistic goal is to separate the nucleus and judge how round the halo appears. Use medium power, a detailed chart, and quick comparisons with field stars; dark skies matter more than extreme magnification.",
         "best_seen": "Spring and summer",
         "curiosity_text": "M89 looks almost like a perfect sphere, but deep photographs show very faint shells and plumes. They are scars left by small galaxies incorporated into the past."
       },
@@ -632,7 +632,7 @@
       },
       "messier-M95": {
         "short_description": "M95 is a barred spiral galaxy in Leo. It is a barred spiral from the Leo group, subtle and not immediately obvious. It requires dark skies to stand out from its peers in the area.",
-        "observing_notes": "In M95, magnitude 9.7 and dimensions 3.1′ × 2.9′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "On a clear, dark night, good binoculars already show M95 as a hazy smudge; through a telescope, the center and bar call for medium power and averted vision. A wider field helps identify it with M96 and M105, while the outer structure remains a large-aperture challenge.",
         "best_seen": "Spring",
         "curiosity_text": "In 2012 the supernova SN 2012aw exploded in M95. Previous images identified the progenitor as a red supergiant, directly linking a star to its final explosion."
       },
@@ -668,7 +668,7 @@
       },
       "messier-M101": {
         "short_description": "M101 (Pinwheel Galaxy) is a spiral galaxy in Ursa Major. The Pinwheel Galaxy is huge and close, but with very low surface brightness. It does not forgive clear skies: when it appears, it is one of the finest visions of the Big Dipper.",
-        "observing_notes": "In M101 (Pinwheel Galaxy), magnitude 7.9 and dimensions 28.8′ × 26.9′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "The total magnitude is deceptive because M101's light is spread across almost half a degree. Under a dark sky, use low power, look slightly away from the nucleus, and seek the asymmetric halo first; more aperture and patient viewing can bring out condensations in the arms.",
         "best_seen": "Spring and summer",
         "curiosity_text": "M101 is almost twice the size of the Milky Way and contains hundreds of billions of stars, but its disk is highly asymmetric. Encounters with companion galaxies have stretched one side of the arms."
       },
@@ -752,7 +752,7 @@
       },
       "caldwell-C5": {
         "short_description": "C5 (IC 342), Barred spiral galaxy in the constellation of Camelopardalis. At the eyepiece the central area dominates; under a good sky the asymmetric distribution of light can suggest the bar and the start of the arms. The integrated magnitude of 9.2 describes the entire object; the 18′ x 17′ extension helps estimate its real contrast.",
-        "observing_notes": "In C5 (IC 342), magnitude 9.2 and dimensions 18′ x 17′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "The Hidden Galaxy is broad but dimmed by Milky Way dust: wait for an exceptionally clear, moonless night away from artificial light. Use the lowest practical power to find the core, then patience and averted vision to extend the faint disk; even slight haze can erase it.",
         "best_seen": "Winter",
         "curiosity_text": "IC 342 is nicknamed the Hidden Galaxy because it lies behind the dusty plane of the Milky Way. Without this veil it would appear among the brightest spirals in the sky, almost as large as the full Moon."
       },
@@ -823,8 +823,8 @@
         "curiosity_text": "NGC 7243 is a young and highly dispersed cluster, with stars distributed in small groups rather than around a clear core. This irregular structure shows a system already on its way to dissolution in the galactic disk."
       },
       "caldwell-C17": {
-        "short_description": "C17 (NGC 147), Dwarf elliptical galaxy in the constellation Cassiopeia. It shows a regular and concentrated light, without visible arms: the useful detail is the gradient from the core to the external halo. The integrated magnitude of 9.3 describes the entire object; the 13′ x 8′ extension helps estimate its real contrast.",
-        "observing_notes": "In C17 (NGC 147), magnitude 9.3 and dimensions 13′ x 8′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "short_description": "C17 (NGC 147) is a very diffuse dwarf elliptical satellite of Andromeda in Cassiopeia. Visually it forms a broad, slightly elongated glow with little central concentration and no sharp nucleus; that weak gradient makes it markedly harder than nearby C18 (NGC 185).",
+        "observing_notes": "C17 is a contrast challenge: do not look for a stellar nucleus, but for a very diffuse, elongated brightening. A genuinely dark, transparent sky, low power, and averted vision are decisive; the more compact and luminous C18 provides a useful comparison.",
         "best_seen": "Autumn",
         "curiosity_text": "NGC 147 is a dwarf satellite of Andromeda with almost no gas and recent star formation. The contrast with nearby NGC 185, which preserves dust and young stars, shows two different evolutions in the same environment."
       },
@@ -860,7 +860,7 @@
       },
       "caldwell-C23": {
         "short_description": "C23 (NGC 891), Spiral galaxy in the constellation Andromeda. Start by examining the nucleus, orientation, and shape of the halo; spiral details, when accessible, come only after long dark adaptation. The measurement of 14′ x 2′ defines the scale of C23, while the integrated magnitude 9.9 summarizes all its light.",
-        "observing_notes": "In C23 (NGC 891), magnitude 9.9 and dimensions 14′ x 2′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "First frame the full, slender 14′ spindle at low-medium power. Under a dark sky, move to medium power and let your gaze travel along its axis: the thin central dust lane is the detail to seek, rather than spiral arms.",
         "best_seen": "Winter",
         "curiosity_text": "NGC 891 is often used as an edge-on analogue of the Milky Way. Filaments of dust rise far above the disk, dragged by winds and supernovae from regions where new stars are born."
       },
@@ -896,7 +896,7 @@
       },
       "caldwell-C29": {
         "short_description": "C29 (NGC 5005), Spiral galaxy in the constellation of Canes Venatici. At the eyepiece the light is soft and progressive: dark-sky quality matters more than magnification to separate the halo from the background. The integrated magnitude of 9.8 describes the entire object; the 5.4′ x 2′ extension helps estimate its real contrast.",
-        "observing_notes": "In C29 (NGC 5005), magnitude 9.8 and dimensions 5.4′ x 2′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "C29's compact nucleus is detectable even in a small telescope; medium power makes the oval halo stand out more clearly. With a wide-field eyepiece, include NGC 5033 in the same view and compare the galaxies' different central concentrations.",
         "best_seen": "Spring",
         "curiosity_text": "The nucleus of NGC 5005 is classified as LINER, a weak form of galactic activity. Belts of dust envelop the central area, where gas and star formation coexist with the influence of the black hole."
       },
@@ -932,7 +932,7 @@
       },
       "caldwell-C35": {
         "short_description": "C35 (NGC 4889), Elliptical galaxy in the constellation Coma Berenices. It offers no clear structures like a spiral; its character emerges from the shape of the halo and the concentration of the nucleus. The measurement of 3′ x 2′ defines the scale of C35, while the integrated magnitude 11.4 summarizes all its light.",
-        "observing_notes": "In C35 (NGC 4889), magnitude 11.4 and dimensions 3′ x 2′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "Dark skies and preferably a large aperture are needed: C35 is a small elliptical glow in the heart of the rich Coma Cluster. At medium power, identify its more concentrated nucleus first; then lower the magnification to pick out the fainter galaxies sharing the field.",
         "best_seen": "Spring",
         "curiosity_text": "NGC 4889 hosts one of the most massive black holes measured in the nearby Universe, with a mass of many billion Suns. The giant galaxy occupies the heart of the Coma Cluster."
       },
@@ -1039,8 +1039,8 @@
         "curiosity_text": "NGC 4697 appears to be a quiet elliptical, but X-ray observations reveal numerous compact binaries scattered throughout its aging population. These sources track neutron stars and black holes that accrete matter."
       },
       "caldwell-C53": {
-        "short_description": "C53 (NGC 3115), the Spindle Galaxy, is a lenticular galaxy in Sextans. It has a smooth, concentrated glow without visible arms; the useful detail is the gradient from the core to the outer halo. Magnitude 9.1 describes the whole object, while its 8′ × 3′ extent helps estimate the actual surface contrast.",
-        "observing_notes": "For C53 (NGC 3115 - Spindle Galaxy), magnitude 9.1 and dimensions 8′ x 3′ must be considered together: surface contrast determines how much of the galaxy becomes visible.",
+        "short_description": "C53 (NGC 3115), the Spindle Galaxy, is a lenticular galaxy in Sextans seen nearly edge-on. Its smooth, armless disk tapers sharply on either side of a bright nucleus; this high-surface-brightness outline clearly shows the class's intermediate character between spirals and ellipticals.",
+        "observing_notes": "This is one of the more accessible Caldwell galaxies: even a small telescope shows a distinct spindle with a bright center. Begin at medium power to separate it from the stars, then increase magnification while contrast and seeing still let you follow the tapered ends.",
         "best_seen": "Spring",
         "curiosity_text": "NGC 3115 was one of the first recognized examples of a lenticular galaxy, intermediate between spiral and elliptical. Its central black hole is huge but almost inactive, because there is little gas left nearby to swallow."
       },
@@ -1111,8 +1111,8 @@
         "curiosity_text": "Tau Canis Majoris dominates NGC 2362, but it is not a single star: it is a multiple system of massive stars. The cluster is only a few million years old and retains a compact shape around this central lighthouse."
       },
       "caldwell-C65": {
-        "short_description": "C65 (NGC 253), Spiral galaxy in the constellation Sculptor. Look for central condensation and overall extension first, then use averted vision to follow the faintest outer regions. The integrated magnitude of 7.1 describes the entire object; the 25′ x 7′ extension helps estimate its real contrast.",
-        "observing_notes": "In C65 (NGC 253 - Sculptor Galaxy), magnitude 7.1 and dimensions 25′ x 7′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "short_description": "C65 (NGC 253), the Sculptor Galaxy, is a large starburst spiral seen nearly edge-on. At the eyepiece it forms an asymmetric, mottled spindle threaded by dark dust around an elongated center; its roughly 25′ span makes it a genuine wide-field showpiece.",
+        "observing_notes": "C65 is almost as long as the Moon's apparent diameter, so begin at low power with enough field to avoid clipping the spindle. Once centered, move to medium power and use averted vision for the disk's dark irregularities; from northern latitudes, observe it near transit.",
         "best_seen": "Autumn",
         "curiosity_text": "NGC 253 is one of the closest starburst galaxies. In the dusty core, stars are born at a rapid rate, and their feedback pushes a superwind of hot gas out of the disk."
       },
@@ -1183,8 +1183,8 @@
         "curiosity_text": "NGC 6231 is the core of the large Scorpius OB1 association and contains numerous multiple massive stars. It was probably recorded by Hoggi in the seventeenth century, long before the great nineteenth-century catalogues."
       },
       "caldwell-C77": {
-        "short_description": "C77 (NGC 5128), Peculiar galaxy in the constellation Centaurus. Look for central condensation and overall extension first, then use averted vision to follow the faintest outer regions. The integrated magnitude of 7.0 describes the entire object; the 18′ x 14′ extension helps estimate its real contrast.",
-        "observing_notes": "In C77 (NGC 5128 - Centaurus A), magnitude 7.0 and dimensions 18′ x 14′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "short_description": "C77 (NGC 5128), better known as Centaurus A, is the peculiar remnant of a galactic merger. A broad elliptical glow is cut by a thick, dark dust band; the intersection of a regular halo and distorted disk creates one of the most recognizable galaxy profiles in a telescope.",
+        "observing_notes": "It is visible even in binoculars, but a telescope reveals the defining feature: a dark dust band crossing the nearly circular glow. Frame it first at low power; at medium power, with good transparency and the object near transit, trace the split on both sides of the nucleus.",
         "best_seen": "Spring",
         "curiosity_text": "Centaurus A is the result of a merger: a band of dust cuts through a large elliptical galaxy, while the central black hole launches a relativistic jet observable from radio waves to X-rays."
       },
@@ -1220,7 +1220,7 @@
       },
       "caldwell-C83": {
         "short_description": "C83 (NGC 4945), Barred spiral galaxy in the constellation Centaurus. The central structure is more obvious than the outer regions: look for the core first, then the elongation of the bar, and finally the faintest halo. The measurement of 20′ x 4′ defines the scale of C83, while the integrated magnitude 9.5 summarizes all its light.",
-        "observing_notes": "In C83 (NGC 4945), magnitude 9.5 and dimensions 20′ x 4′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "From a dark site, a small telescope shows C83 as a long, thin blade of light with a slight central brightening. Use a wide field to contain its 20′ length and observe near transit: at northern latitudes, its low altitude makes transparency more valuable than extra magnification.",
         "best_seen": "Spring",
         "curiosity_text": "NGC 4945 hides an active nucleus and an intense starburst behind the dust. A water maser allows us to track gas orbiting very close to the central black hole and measure its mass."
       },
@@ -1328,7 +1328,7 @@
       },
       "caldwell-C101": {
         "short_description": "C101 (NGC 6744), Barred spiral galaxy in the constellation Pavo. It is best to start from the nucleus and the orientation of the halo; the bar and any hints of a spiral require dark skies and patient observation. The integrated magnitude of 9.0 describes the entire object; the 16′ x 10′ extension helps estimate its real contrast.",
-        "observing_notes": "In C101 (NGC 6744), magnitude 9.0 and dimensions 16′ x 10′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "observing_notes": "In a small telescope, C101 appears as a broad, faint halo around a brighter core. Start with the lowest magnification that comfortably frames its 16′ × 10′ extent; transparent skies and prolonged averted vision are more useful than extra power for following the disk.",
         "best_seen": "Summer",
         "curiosity_text": "NGC 6744 is one of the most convincing analogues of the Milky Way: large barred spiral with open arms and a small companion. Its disk, however, extends for almost double the diameter of our Galaxy."
       },

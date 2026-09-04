@@ -3,9 +3,9 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.46.2`. Current public Windows release: `v1.45.21`. Current
+Current target: `v1.46.3`. Current public Windows release: `v1.45.21`. Current
 public Linux release: `v1.43.0`. Unless a row says otherwise, every gate below
-applies independently to each newly generated 1.46.2 artifact. Completed
+applies independently to each newly generated 1.46.3 artifact. Completed
 Windows 1.45.21 and Linux 1.43.0 evidence remains in the changelog, testing
 record and handoff; it does not approve a new bundle for either platform.
 
@@ -16,10 +16,10 @@ record and handoff; it does not approve a new bundle for either platform.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   survey image, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.46.2` source tag referenced by the
+- [ ] Create and verify the public `v1.46.3` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [x] Confirm source version, changelog, source-availability notices, and
-  About/build metadata agree on `1.46.2`.
+  About/build metadata agree on `1.46.3`.
 - [x] Freeze the release scope; defer unrelated refactors.
 
 ## 2. Automated Validation
@@ -128,10 +128,10 @@ Do not commit credentials or exact personal locations.
 - [ ] Confirm GIO modules remain isolated so newer-host GVFS plugins are not
   loaded against the bundled Debian 12 GLib.
 - [ ] Create the deterministic
-  `NightScope-v1.46.2-debian-12-x64.tar.gz` and adjacent SHA-256 file.
+  `NightScope-v1.46.3-debian-12-x64.tar.gz` and adjacent SHA-256 file.
 - [ ] Verify checksum, extraction, audit and smoke tests from the final archive.
 - [ ] Publish the tarball and checksum together with the matching Windows ZIP
-  in the public `v1.46.2` GitHub release, so stable-update notifications have
+  in the public `v1.46.3` GitHub release, so stable-update notifications have
   assets for both supported platforms.
 
 ## 8. Release Approval

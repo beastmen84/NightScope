@@ -140,12 +140,15 @@ def test_editorial_baseline_and_ngc_backlog_are_audited() -> None:
     assert report.completed_objects == 303
     assert report.completed_ngc_objects == 75
     assert report.remaining_ngc_objects == 7_291
-    assert report.accepted_batches == 2
+    assert report.accepted_batches == 3
+    assert report.accepted_enrichment_batches == 2
+    assert report.accepted_remediation_batches == 1
+    assert report.remediated_baseline_objects == 17
     assert report.draft_batches == 0
-    assert report.baseline_description_template_families == 11
-    assert report.baseline_description_template_objects == 24
-    assert report.baseline_observing_template_families == 23
-    assert report.baseline_observing_template_objects == 177
+    assert report.baseline_description_template_families == 9
+    assert report.baseline_description_template_objects == 20
+    assert report.baseline_observing_template_families == 22
+    assert report.baseline_observing_template_objects == 160
     assert any("prose debt" in warning for warning in report.warnings)
 
 
@@ -155,16 +158,17 @@ def test_editorial_visual_samples_are_read_from_the_latest_accepted_manifest() -
         / "astro_viewer"
         / "data"
         / "editorial_batches"
-        / "batch_1_46_2.json"
+        / "batch_1_46_3.json"
     )
 
     assert _sample_ids(manifest) == [
-        "ngc-NGC404",
-        "ngc-NGC1266",
-        "ngc-NGC1511",
-        "ngc-NGC3079",
-        "ngc-NGC4388",
-        "ngc-NGC7727",
+        "caldwell-C17",
+        "caldwell-C23",
+        "caldwell-C35",
+        "caldwell-C53",
+        "caldwell-C65",
+        "caldwell-C77",
+        "messier-M101",
     ]
 
 
@@ -250,3 +254,119 @@ def test_accepted_editorial_batch_requires_all_reviews_and_completed_content(
     assert any("review es must be accepted" in error for error in report.errors)
     assert any("accepted object lacks complete Italian seeds" in error for error in report.errors)
     assert source_urls(manifest) == ["https://example.org/ngc-1"]
+
+
+def test_baseline_remediation_manifest_is_field_scoped(tmp_path: Path) -> None:
+    manifest = tmp_path / "batch_1_46_99.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "source_version": "1.46.99",
+                "batch_kind": "baseline_remediation",
+                "status": "accepted",
+                "selection_basis": "Synthetic field-scoped baseline correction.",
+                "created_on": "2026-09-04",
+                "reviewed_on": "2026-09-04",
+                "objects": [
+                    {
+                        "object_id": "messier-M1",
+                        "designations": ["M1", "NGC 1952"],
+                        "fields": ["best_seen"],
+                        "sources": [
+                            {
+                                "label": "Source",
+                                "url": "https://example.org/m1-season",
+                                "accessed_on": "2026-09-04",
+                                "supports": ["best_seen"],
+                            }
+                        ],
+                        "reviews": {
+                            "facts": "accepted",
+                            "it": "accepted",
+                            "en": "accepted",
+                            "es": "accepted",
+                        },
+                    }
+                ],
+                "visual_review": {
+                    "samples": [
+                        {
+                            "object_id": "messier-M1",
+                            "reason": "Synthetic baseline sample.",
+                            "normal": "accepted",
+                            "red_night_vision": "accepted",
+                        }
+                    ]
+                },
+                "similarity_waivers": [],
+                "deferred": [],
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    report = audit_catalogue_editorial(batch_path=manifest)
+
+    assert report.errors == ()
+    assert report.accepted_batches == 4
+    assert report.accepted_enrichment_batches == 2
+    assert report.accepted_remediation_batches == 2
+    assert report.remediated_baseline_objects == 18
+
+
+def test_baseline_remediation_rejects_ngc_only_ids_and_undeclared_claims(
+    tmp_path: Path,
+) -> None:
+    manifest = tmp_path / "batch_1_46_98.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "source_version": "1.46.98",
+                "batch_kind": "baseline_remediation",
+                "status": "draft",
+                "selection_basis": "Synthetic remediation boundary failure.",
+                "created_on": "2026-09-04",
+                "reviewed_on": None,
+                "objects": [
+                    {
+                        "object_id": "ngc-NGC1",
+                        "designations": ["NGC 1"],
+                        "fields": ["observing_notes"],
+                        "sources": [
+                            {
+                                "label": "Source",
+                                "url": "https://example.org/ngc-1",
+                                "accessed_on": "2026-09-04",
+                                "supports": ["short_description"],
+                            }
+                        ],
+                        "reviews": {
+                            "facts": "pending",
+                            "it": "pending",
+                            "en": "pending",
+                            "es": "pending",
+                        },
+                    }
+                ],
+                "visual_review": {"samples": []},
+                "similarity_waivers": [],
+                "deferred": [],
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    report = audit_catalogue_editorial(batch_path=manifest)
+
+    assert any(
+        "baseline remediation requires an immutable baseline ID" in error
+        for error in report.errors
+    )
+    assert any(
+        "claims outside remediation fields short_description" in error
+        for error in report.errors
+    )
