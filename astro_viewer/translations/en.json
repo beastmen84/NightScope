@@ -1679,6 +1679,156 @@
         "observing_notes": "Use large binoculars or a telescope at low magnification under a dark southern sky; seek surface variations rather than a single bright center.",
         "best_seen": "Moonless nights from August to November, favored by southern latitudes",
         "curiosity_text": "A binary system in NGC 7793 contains a stellar black hole whose jets are inflating a bubble of hot gas about one thousand light-years wide. That scale is enormous compared with the compact object powering it."
+      },
+      "ngc-NGC404": {
+        "short_description": "NGC 404, the Ghost of Mirach, is a small dwarf lenticular galaxy in Andromeda, almost superimposed on bright Mirach in our sky. Despite its favorable integrated magnitude, it is a faint roundish haze at the eyepiece, smothered by the star's glare.",
+        "observing_notes": "Move Mirach just outside the field and use medium magnification to reduce stray light; averted vision reveals the halo more readily, while nebula filters do not help.",
+        "best_seen": "Autumn, on a clear moonless night",
+        "curiosity_text": "NGC 404 looked like a quiet lenticular, but GALEX ultraviolet observations revealed an outer ring where new stars are forming. Mirach's glare helps observers find the galaxy yet makes it difficult to study in visible-light images."
+      },
+      "ngc-NGC1156": {
+        "short_description": "NGC 1156 is an isolated dwarf irregular galaxy in Aries, dotted with star-forming regions. In a telescope it appears as a small rectangular or oval glow whose uneven surface is more noticeable than its weak central brightening.",
+        "observing_notes": "First locate the full halo at medium-low power, then increase magnification gradually to seek condensations; transparent skies matter more than high power.",
+        "best_seen": "Autumn and early winter, on moonless nights",
+        "curiosity_text": "Some pockets of gas in NGC 1156 rotate in the opposite direction to the rest of the galaxy. This anomaly suggests that the dwarf, although very isolated today, underwent an encounter or acquired matter in the past."
+      },
+      "ngc-NGC1266": {
+        "short_description": "NGC 1266 is a compact lenticular in Eridanus, small and very faint in visible light. Even through a large aperture it remains a minute, concentrated oval, without the extended structure of more accessible spirals.",
+        "observing_notes": "A dark sky and a large telescope are required; alternate medium and medium-high magnifications to distinguish the tiny halo from field stars.",
+        "best_seen": "Late autumn and winter, near culmination",
+        "curiosity_text": "NGC 1266 is a rare post-starburst galaxy in transition: a minor merger about 500 million years ago fed its nucleus, but powerful gas outflows are now suppressing the birth of new stars."
+      },
+      "ngc-NGC1511": {
+        "short_description": "NGC 1511 is a southern, nearly edge-on spiral in Hydrus, distorted and rich in star formation. It appears as a spindle about 4′ long, with a bright center, unequal ends, and a texture that may look irregular through larger apertures.",
+        "observing_notes": "Medium magnification separates the central bulge from the thin disk; compare the two ends with averted vision, without expecting distinct spiral arms.",
+        "best_seen": "Southern summer, on a moonless night",
+        "curiosity_text": "A bridge of hydrogen links NGC 1511 to the small NGC 1511B. Tails, loops, and plumes show that the interaction stirred the group and may have almost completely disrupted a third member."
+      },
+      "ngc-NGC1559": {
+        "short_description": "NGC 1559 is a moderately inclined barred spiral in Reticulum, remarkably active despite its isolation. At the eyepiece it offers an oval halo about 4′ wide, a distinct nucleus, and, under excellent skies, hints of asymmetry in the disk.",
+        "observing_notes": "Begin at medium-low power to outline the disk, then use medium magnification on the nucleus and uneven areas, which are best perceived with averted vision.",
+        "best_seen": "November to February, favored by southern latitudes",
+        "curiosity_text": "Although it has no nearby companion, NGC 1559 produced four observed supernovae between 1984 and 2009. That is a notable sequence for a relatively isolated galaxy and matches its vigorous star formation."
+      },
+      "ngc-NGC1705": {
+        "short_description": "NGC 1705 is a compact irregular dwarf in Pictor, dominated by a young central cluster. Visually it is a small, almost round halo with a concentrated, nearly stellar center, easier to detect than its tiny size might suggest.",
+        "observing_notes": "Use medium-high magnification to separate the compact nucleus from the halo; the useful detail is the brightness gradient, not a spiral shape.",
+        "best_seen": "Southern summer, on dark nights",
+        "curiosity_text": "The giant cluster at the center of NGC 1705 formed during an intense burst of star birth that began about 30 million years ago. Winds from the young stars then expelled some of the small galaxy's gas."
+      },
+      "ngc-NGC1792": {
+        "short_description": "NGC 1792 is a dusty, star-forming spiral in Columba seen at a steep inclination. Its disk, more than 5′ long, looks like a broad granular spindle with a modest center and irregular patches in larger telescopes.",
+        "observing_notes": "Keep the whole disk in view at low power first, then explore the surface at medium magnification to pick out brighter areas and unequal edges.",
+        "best_seen": "December to March, favored by southern skies",
+        "curiosity_text": "The asymmetric distribution of young stars in NGC 1792 preserves evidence of its interaction with nearby NGC 1808. The gravitational passage compressed the gas and triggered new star formation mainly on one side of the disk."
+      },
+      "ngc-NGC1961": {
+        "short_description": "NGC 1961 is a large peculiar spiral in Camelopardalis, distorted and dominated by one arm much broader than the others. Its light is spread across an oval halo over 4′ wide: the nucleus is detectable, but the asymmetry requires a dark sky and good aperture.",
+        "observing_notes": "At low power seek the full extent, then use medium magnification and averted vision to compare both sides of the nucleus and identify the fuller one.",
+        "best_seen": "Winter, on moonless nights; circumpolar from many northern latitudes",
+        "curiosity_text": "NGC 1961's unusual broad arm is not its only distinction: four supernovae have been observed in the galaxy in just three decades. Its distorted disk points to a dynamical history that is still not fully understood."
+      },
+      "ngc-NGC2146": {
+        "short_description": "NGC 2146 is an inclined starburst galaxy in Camelopardalis, crossed by dust that distorts its appearance. In a telescope it is a broad, bright oval with an elongated central region and a less regular surface than an ordinary edge-on spiral.",
+        "observing_notes": "The galaxy takes medium magnification well: find the elongated nucleus first, then inspect variations across the disk; transparent skies help trace its almost boxy outline.",
+        "best_seen": "Winter, high in the northern sky",
+        "curiosity_text": "A dust lane in NGC 2146 crosses the nucleus and bends by as much as about 45 degrees from the disk. The deformation is probably the imprint of an ancient encounter that also fueled the present starburst."
+      },
+      "ngc-NGC2442": {
+        "short_description": "NGC 2442, the Meathook Galaxy, is a southern barred spiral with strongly asymmetric arms. At the eyepiece its roughly 5′ glow can look bent or unbalanced around a compact nucleus, while the photographic hook shape remains a demanding detail.",
+        "observing_notes": "A medium field shows the overall asymmetry; with a large aperture, increase power on the brighter side and seek faint condensations along the disk.",
+        "best_seen": "December to April, from southern latitudes",
+        "curiosity_text": "The unequal arms that give NGC 2442 its hook shape probably resulted from a close encounter. Supernova SN 1999ga also exploded in the more compact arm, illustrating how strongly the disturbance concentrated star formation."
+      },
+      "ngc-NGC3079": {
+        "short_description": "NGC 3079 is a large spiral in Ursa Major seen almost exactly edge-on. It stretches for more than 8′ as a thin blade with a prominent central bulge; dust and irregular structure make its two edges subtly different.",
+        "observing_notes": "Choose a field wide enough for the entire spindle, then move to medium magnification to inspect the nucleus and the sharper edge of the disk.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "A superbubble of hot gas rises from the center of NGC 3079, powered by nuclear activity and star formation. X-ray observations show filaments and cavities sculpted by material driven out of the galaxy."
+      },
+      "ngc-NGC3310": {
+        "short_description": "NGC 3310 is a compact peculiar starburst spiral in Ursa Major, crowded with young clusters. At the eyepiece it looks nearly round, with a bright center and a small halo that can take on a granular texture in large telescopes.",
+        "observing_notes": "Try medium-high powers: the strongly concentrated center tolerates magnification, while averted vision helps separate the nucleus from the irregular halo.",
+        "best_seen": "Spring, high in the northern sky",
+        "curiosity_text": "The many clusters in NGC 3310 are not all the same age. By comparing their colors, astronomers can reconstruct when successive waves of star formation crossed the galaxy after a probable merger."
+      },
+      "ngc-NGC3370": {
+        "short_description": "NGC 3370 is a nearly face-on spiral in Leo, with delicate arms and a small central bulge. Its light is spread across an oval about 2.5′ wide: the nucleus appears first, while the disk and arm texture require high contrast.",
+        "observing_notes": "Detect the nucleus at medium power, then reduce magnification slightly to recover the halo; through a large aperture look for subtle discontinuities rather than sharply drawn arms.",
+        "best_seen": "Spring, on dark nights",
+        "curiosity_text": "NGC 3370 contains both Cepheid variables and a Type Ia supernova. The two kinds of distance indicator can therefore be compared in the same galaxy, improving the calibration used to measure cosmic expansion."
+      },
+      "ngc-NGC3718": {
+        "short_description": "NGC 3718 is a peculiar spiral in Ursa Major, with a strongly warped disk and a dust lane crossing the nucleus. Visually it is a bright, unusual oval; its twisted form appears as an irregular center rather than recognizable arms.",
+        "observing_notes": "At medium power inspect the central region for an oblique break in the glow; leave room in the field to compare it with nearby NGC 3729.",
+        "best_seen": "Spring, high in the northern sky",
+        "curiosity_text": "NGC 3718's S shape and bent dust lane probably result from interaction with NGC 3729. Infrared light penetrates the dust and reveals the nucleus that appears almost split in two at visible wavelengths."
+      },
+      "ngc-NGC4102": {
+        "short_description": "NGC 4102 is an inclined barred spiral in Ursa Major with a very compact active nucleus. At the telescope its high-surface-brightness center dominates a small elongated halo, while the outer disk remains more elusive.",
+        "observing_notes": "Medium-high magnification emphasizes the nearly stellar nucleus; return to lower power and use averted vision to extend the halo along its major axis.",
+        "best_seen": "Spring, on clear nights",
+        "curiosity_text": "The nucleus of NGC 4102 is classified as a LINER and lies behind a column of matter dense enough to block even much of its X-ray emission. It is therefore described as a Compton-thick active nucleus."
+      },
+      "ngc-NGC4314": {
+        "short_description": "NGC 4314 is a nearly face-on barred spiral in Coma Berenices. Its bar and nucleus form a bright oval center surrounded by a fainter disk, where the inner ring and arms demand excellent skies and a large aperture.",
+        "observing_notes": "Concentrate first on the bar's elongation at medium power; then lower the magnification to follow the outer disk and seek a subtle change in brightness around the nucleus.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "An elongated ring of young stars and H II regions occupies the heart of NGC 4314, following the bar's orientation. This structure makes the galaxy a natural laboratory for studying how bars funnel gas inward and guide its slow evolution."
+      },
+      "ngc-NGC4388": {
+        "short_description": "NGC 4388 is an active spiral in the Virgo Cluster seen almost edge-on. In the field it appears as a narrow spindle over 5′ long, with an intense nucleus and a very thin disk that contrasts with the rounder galaxies nearby.",
+        "observing_notes": "Use medium magnification to separate the nucleus from the disk and trace the latter with averted vision; a moderate field helps identify nearby Virgo galaxies without confusion.",
+        "best_seen": "Spring, on a transparent moonless night",
+        "curiosity_text": "As NGC 4388 moves through the Virgo Cluster, pressure from the intergalactic medium strips away its gas. Some of it forms a vast plume, lit both by radiation from the active nucleus and by shocks in the stripped gas."
+      },
+      "ngc-NGC4666": {
+        "short_description": "NGC 4666 is a nearly edge-on starburst spiral in Virgo. Its roughly 5′ disk forms a tapered, somewhat thick halo with a bright center and an uneven surface caused by intense regions of star formation.",
+        "observing_notes": "At medium-low power outline both ends of the disk; a subsequent increase helps compare the center with fainter patches, with no benefit from nebula filters.",
+        "best_seen": "Spring, on dark nights",
+        "curiosity_text": "Intense star formation in NGC 4666 powers a superwind: hot gas escapes from the disk on a galactic scale. The starburst was probably triggered by gravitational interactions with neighboring galaxies."
+      },
+      "ngc-NGC5084": {
+        "short_description": "NGC 5084 is a large edge-on lenticular in Virgo, with a disk almost 10′ long and a pronounced central bulge. Its long, thin outline is accessible, but the outer extensions require a very dark sky.",
+        "observing_notes": "Start at low power to contain the whole galaxy, then use medium magnification on the bulge and thin equatorial lane, taking care not to lose the diffuse ends.",
+        "best_seen": "Spring, favored by southern latitudes",
+        "curiosity_text": "Chandra discovered four X-ray plasma plumes in NGC 5084, two along the galactic plane and two perpendicular to it. The small disk around the central black hole also appears tilted by about 90 degrees to the stellar disk."
+      },
+      "ngc-NGC5102": {
+        "short_description": "NGC 5102 is a nearby lenticular in Centaurus, almost 10′ across but with much of its light gathered around the nucleus. At the eyepiece a bright center sits within a broad, faint spindle that extends farther than it first appears.",
+        "observing_notes": "Large binoculars may pick up the nucleus under a southern sky; in a telescope, use low power to pursue the halo and medium magnification to define its center.",
+        "best_seen": "March to June, favored by the Southern Hemisphere",
+        "curiosity_text": "Although classified as a lenticular, NGC 5102 contains gas and an unusually young central population. It is regarded as a nearby post-starburst galaxy, useful for tracing the shift from an active system to a quieter one."
+      },
+      "ngc-NGC5746": {
+        "short_description": "NGC 5746 is a massive spiral in Virgo seen almost perfectly edge-on. Its disk, over 7′ long, is a thin blade around a boxy bulge; through larger apertures a dust lane cuts along the galactic plane.",
+        "observing_notes": "Observe it first at medium-low power to appreciate the extreme proportions, then increase magnification on the central bulge and seek the dark line along the disk's edge.",
+        "best_seen": "Spring and early summer, on moonless nights",
+        "curiosity_text": "NGC 5746's boxy swelling is not a classical bulge: it is mainly the inner bar seen edge-on, with a box-or-peanut shape. Its stars indicate that the bar is old and stable."
+      },
+      "ngc-NGC6000": {
+        "short_description": "NGC 6000 is a compact, dusty barred starburst spiral in Scorpius, very low for northern observers. Visually it remains a small, nearly round halo with a concentrated center; the bar is not an easy detail.",
+        "observing_notes": "Wait for meridian passage and use medium magnification above a clear southern horizon; large apertures are crucial for separating the halo from nearby stars.",
+        "best_seen": "May to August, near culmination; favored by southern latitudes",
+        "curiosity_text": "NGC 6000 hosted supernovae 2007ch and 2010as. During one Hubble exposure, a Solar System asteroid also crossed the field, leaving four short colored trails between the galaxy and background stars."
+      },
+      "ngc-NGC6951": {
+        "short_description": "NGC 6951 is a nearly face-on barred spiral in Cepheus, with an active nucleus and star formation arranged in a central ring. At the eyepiece it is a small oval with a distinct center; the bar and outer disk emerge only at high contrast.",
+        "observing_notes": "Exploit its high declination on a dark night: use medium power on the nucleus, then averted vision and a slightly wider field to seek the bar's elongation.",
+        "best_seen": "Late summer and autumn; circumpolar from many northern latitudes",
+        "curiosity_text": "A starburst ring about 3,800 light-years wide surrounds NGC 6951's nucleus and contains more than 80 candidate clusters. It has formed stars for 1–1.5 billion years, far longer than a single explosive episode."
+      },
+      "ngc-NGC7496": {
+        "short_description": "NGC 7496 is a dusty, nearly face-on barred spiral in Grus with an active nucleus. Its light is spread across a diffuse oval more than 3′ wide: the center is the safest landmark, while the bar and arms are difficult visually.",
+        "observing_notes": "A very dark southern sky and low power help collect the low-surface-brightness disk; increase magnification only after fixing the nucleus's position.",
+        "best_seen": "August to November, favored by the Southern Hemisphere",
+        "curiosity_text": "NGC 7496 was the first galaxy in the PHANGS program observed by the Webb telescope. Its dust, opaque in visible light, becomes a network of cavities and filaments in the mid-infrared, revealing the work of young stars."
+      },
+      "ngc-NGC7727": {
+        "short_description": "NGC 7727 is a peculiar galaxy in Aquarius, a merger remnant with distorted stellar shells and streams. In a telescope it shows a fairly bright oval halo and an irregular center; its faint outer structures require a large aperture and dark sky.",
+        "observing_notes": "At medium magnification study the nuclear region, which may appear asymmetric; then switch to lower power to seek arcing extensions around the main body.",
+        "best_seen": "Late summer and autumn, on moonless nights",
+        "curiosity_text": "Two supermassive black holes have been measured in NGC 7727's nucleus only 1,600 light-years apart, remnants of the original galaxies. They are expected to merge in about 250 million years."
       }
     },
     "catalogue_objects": {

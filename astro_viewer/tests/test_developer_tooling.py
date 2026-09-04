@@ -905,6 +905,7 @@ def test_multilingual_website_has_complete_local_links_and_seo_metadata() -> Non
         assert "v1.43.0" in source
         assert "1.46.0" not in source
         assert "1.46.1" not in source
+        assert "1.46.2" not in source
 
         assert len(parser.json_ld_blocks) == 1
         structured_data = json.loads(parser.json_ld_blocks[0])

@@ -470,7 +470,7 @@ def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
         "short_description"
     ]
     for objects in (italian_descriptions, descriptions):
-        assert len(objects) == 278
+        assert len(objects) == 303
         for field in ("short_description", "observing_notes", "curiosity_text"):
             values = [item[field] for item in objects.values()]
             assert len(values) == len(set(values))

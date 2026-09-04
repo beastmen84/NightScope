@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+## NightScope 1.46.2 - 2026-09-04
+
+- Ricontrollati integralmente i 50 oggetti del batch `1.46.1` nelle tre lingue:
+  descrizioni, indicazioni osservative e curiosita' restano specifiche, utili e
+  prive di duplicazioni editoriali sostanziali.
+- Reso esplicito il debito qualitativo precedente al programma: il baseline
+  immutabile protegge le 228 identita', non la formulazione storica. Il nuovo
+  controllo normalizza identificativi, alias tra parentesi e misure e segnala,
+  senza confonderle con errori dei nuovi batch, 11 famiglie di descrizioni quasi
+  identiche su 24 oggetti e 23 famiglie di note osservative su 177 oggetti.
+- Accettato un secondo batch deliberatamente contenuto di 25 galassie NGC-only,
+  scelte per valore osservativo o scientifico e disponibilita' di prove dirette.
+  Ogni oggetto riceve i quattro testi canonici italiani e overlay inglesi e
+  spagnoli revisionati, senza riempitivi generici o curiosita' derivate dal solo
+  tipo di catalogo.
+- Il manifest `batch_1_46_2.json` conserva identita', designazioni, fonti NED e
+  una fonte istituzionale o bibliografica specifica per ogni curiosita'. Tutti i
+  50 URL distinti hanno superato l'audit live; sei campioni hanno prodotto 36
+  scene Object Detail IT/EN/ES in modalita' normale e Red Night Vision, senza
+  tagli, sovrapposizioni o perdita dell'attribuzione.
+- La copertura sale a 303 oggetti completi: 228 nel baseline e 75 NGC-only;
+  restano 7.291 NGC-only da lavorare in batch successivi. Il gate protegge anche
+  il conteggio del debito editoriale storico per impedirne la scomparsa silente.
+- Gate sorgente completo con sicurezza superato: 1.225 test e 10 subtest in
+  382,12 secondi, copertura aggregata 86%, documentazione completa per 247 file
+  Python, 34 QML e 17 operativi, grafo import aciclico, baseline Bandit invariata,
+  nessuna vulnerabilita' nota e smoke test backend/QML normale/Red Night Vision
+  riusciti. Il solo avviso emesso e' il debito editoriale storico atteso.
+- La versione sorgente passa a `1.46.2`; `dist` non e' stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release. Le release
+  pubbliche restano Windows `v1.45.21` e Linux `v1.43.0`.
+
 ## NightScope 1.46.1 - 2026-09-04
 
 - Accettato il primo batch editoriale della serie `1.46.x`: 50 galassie

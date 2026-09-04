@@ -52,6 +52,7 @@ PLACEHOLDERS = frozenset(
 VERSION_PATTERN = re.compile(r"1\.46\.(?P<patch>\d+)")
 TOKEN_PATTERN = re.compile(r"[^\W\d_]+", re.UNICODE)
 CATALOGUE_ID_PATTERN = re.compile(r"\b(?:ngc|ic|m|c)\s*\d+[a-z]?\b", re.IGNORECASE)
+PARENTHETICAL_DETAIL_PATTERN = re.compile(r"\([^)]*\)")
 NEAR_DUPLICATE_THRESHOLD = 0.88
 SOLAR_SYSTEM_IDS = frozenset(
     {
@@ -80,6 +81,10 @@ class EditorialAuditReport:
     remaining_ngc_objects: int
     accepted_batches: int
     draft_batches: int
+    baseline_description_template_families: int
+    baseline_description_template_objects: int
+    baseline_observing_template_families: int
+    baseline_observing_template_objects: int
     errors: tuple[str, ...]
     warnings: tuple[str, ...]
 
@@ -437,6 +442,64 @@ def _similarity_text(value: str | None) -> tuple[str, frozenset[str]]:
     return normalized, frozenset(TOKEN_PATTERN.findall(normalized))
 
 
+def _template_fingerprint(value: str | None) -> str:
+    """Normalize identity and measurements to expose parameterized prose."""
+
+    without_parenthetical_details = PARENTHETICAL_DETAIL_PATTERN.sub(
+        " ", _normalized(value)
+    )
+    without_ids = CATALOGUE_ID_PATTERN.sub(" ", without_parenthetical_details)
+    return " ".join(TOKEN_PATTERN.findall(without_ids))
+
+
+def _template_groups(
+    values: dict[str, str],
+    *,
+    minimum_tokens: int = 12,
+) -> tuple[tuple[str, ...], ...]:
+    """Cluster repeated or near-identical long-form legacy fingerprints."""
+
+    prepared: dict[str, tuple[str, frozenset[str]]] = {}
+    for object_id, value in values.items():
+        fingerprint = _template_fingerprint(value)
+        if len(fingerprint.split()) >= minimum_tokens:
+            prepared[object_id] = (fingerprint, frozenset(fingerprint.split()))
+
+    neighbours: dict[str, set[str]] = defaultdict(set)
+    object_ids = sorted(prepared)
+    for index, object_id in enumerate(object_ids):
+        text, tokens = prepared[object_id]
+        for other_id in object_ids[index + 1 :]:
+            other_text, other_tokens = prepared[other_id]
+            if min(len(text), len(other_text)) / max(len(text), len(other_text)) < 0.72:
+                continue
+            token_score = len(tokens & other_tokens) / len(tokens | other_tokens)
+            if token_score < 0.68:
+                continue
+            score = SequenceMatcher(None, text, other_text, autojunk=False).ratio()
+            if score < NEAR_DUPLICATE_THRESHOLD:
+                continue
+            neighbours[object_id].add(other_id)
+            neighbours[other_id].add(object_id)
+
+    groups: list[tuple[str, ...]] = []
+    visited: set[str] = set()
+    for object_id in sorted(neighbours):
+        if object_id in visited:
+            continue
+        stack = [object_id]
+        component: set[str] = set()
+        while stack:
+            current = stack.pop()
+            if current in component:
+                continue
+            component.add(current)
+            stack.extend(neighbours[current] - component)
+        visited.update(component)
+        groups.append(tuple(sorted(component)))
+    return tuple(groups)
+
+
 def _near_duplicate_errors(
     selected_ids: set[str],
     completed_ids: set[str],
@@ -661,6 +724,33 @@ def audit_catalogue_editorial(
             f"expected {expected_baseline_digest}, found {actual_baseline_digest}"
         )
 
+    baseline_description_templates = _template_groups(
+        {
+            object_id: descriptions[object_id]["short_description"]
+            for object_id in baseline_ids
+        }
+    )
+    baseline_observing_templates = _template_groups(
+        {
+            object_id: descriptions[object_id]["observing_notes"]
+            for object_id in baseline_ids
+        }
+    )
+    baseline_description_template_objects = len(
+        {object_id for group in baseline_description_templates for object_id in group}
+    )
+    baseline_observing_template_objects = len(
+        {object_id for group in baseline_observing_templates for object_id in group}
+    )
+    if baseline_description_templates or baseline_observing_templates:
+        warnings.append(
+            "historical editorial baseline contains repeated or near-identical prose debt: "
+            f"{len(baseline_description_templates)} description families / "
+            f"{baseline_description_template_objects} objects; "
+            f"{len(baseline_observing_templates)} observing-note families / "
+            f"{baseline_observing_template_objects} objects"
+        )
+
     manifests: list[_ManifestRecord] = []
     selected_manifest: _ManifestRecord | None = None
     seen_versions: set[str] = set()
@@ -728,6 +818,10 @@ def audit_catalogue_editorial(
         remaining_ngc_objects=len(ngc_ids - completed_ngc_ids),
         accepted_batches=len(accepted_manifests),
         draft_batches=sum(manifest.status == "draft" for manifest in manifests),
+        baseline_description_template_families=len(baseline_description_templates),
+        baseline_description_template_objects=baseline_description_template_objects,
+        baseline_observing_template_families=len(baseline_observing_templates),
+        baseline_observing_template_objects=baseline_observing_template_objects,
         errors=tuple(dict.fromkeys(errors)),
         warnings=tuple(dict.fromkeys(warnings)),
     )

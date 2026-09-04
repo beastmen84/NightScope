@@ -17,7 +17,7 @@ active profile to answer a practical question: **what is worth observing
 tonight, from here, with this setup?**
 
 > [!NOTE]
-> NightScope is a released application. Source version 1.46.1 is prepared for
+> NightScope is a released application. Source version 1.46.2 is prepared for
 > the next release and is ahead of the current public Windows 1.45.21 and Linux
 > 1.43.0 portable bundles.
 > Release artifacts remain platform-specific portable builds rather than
@@ -70,7 +70,7 @@ digests. The `v1.45.21` release does not contain a Linux package.
   targets, 7,839 NGC designations deduplicated across physical identities,
   and nine Solar System targets. The 219 curated Messier/Caldwell targets and
   Solar System objects retain their complete descriptions, facts, and credited
-  scientific images; 50 NGC-only galaxies now also have reviewed Italian,
+  scientific images; 75 NGC-only galaxies now also have reviewed Italian,
   English, and Spanish editorial content, while the remaining NGC-only entries
   are explicitly marked as work in progress. Per-target Home eligibility is
   persistent; row updates are
@@ -384,7 +384,7 @@ The wrapper creates a Debian 12/Python 3.12 build image, runs PyInstaller, and
 writes the portable application to `dist/NightScope`. It then creates the
 deterministic release archive and checksum:
 
-`dist/NightScope-v1.46.1-debian-12-x64.tar.gz` and its adjacent `.sha256`
+`dist/NightScope-v1.46.2-debian-12-x64.tar.gz` and its adjacent `.sha256`
 file. The inner build scripts copy the project notices, generate the installed
 Linux Python dependency license archive, inventory every copied Debian ELF
 file, bundle the matching copyright and common-license texts, and run the

@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.46.1
+This document describes the architecture implemented by the NightScope 1.46.2
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -301,7 +301,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.46.1`:
+Current runtime status for `1.46.2`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -378,12 +378,12 @@ Current runtime status for `1.46.1`:
   consume each target's explicit observing metadata, without introducing
   catalogue-specific equipment categories.
 - `ObjectDescription` and `ObjectCuriosity` retain complete reviewed
-  presentation for 278 targets: the 228-object Solar System/Messier/Caldwell
-  baseline plus 50 NGC-only galaxies accepted in source `1.46.1`.
+  presentation for 303 targets: the 228-object Solar System/Messier/Caldwell
+  baseline plus 75 NGC-only galaxies accepted through source `1.46.2`.
   `ObjectImages` remains complete for the 228 baseline targets; each has a
   dedicated local `512 x 512` JPEG, with survey cutouts for deep sky and
   normalized NASA/JPL PIA observations for Solar System bodies. NGC-only
-  objects use a type-specific fallback image, and the 7,316 not yet enriched
+  objects use a type-specific fallback image, and the 7,291 not yet enriched
   keep the localized `Work in progress` description/curiosity. Once an
   NGC-only editorial row exists, the catalogue
   projection replaces its placeholder description with the same lazy localized

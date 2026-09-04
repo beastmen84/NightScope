@@ -1,0 +1,527 @@
+{
+  "schema_version": 1,
+  "source_version": "1.46.2",
+  "status": "accepted",
+  "selection_basis": "Twenty-five visually or scientifically distinctive NGC-only galaxies selected for strong object-specific observing value and direct institutional or primary-literature evidence; the deliberately smaller batch prioritizes editorial depth over throughput.",
+  "created_on": "2026-09-04",
+  "reviewed_on": "2026-09-04",
+  "objects": [
+    {
+      "object_id": "ngc-NGC404",
+      "designations": ["NGC 404"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%20404",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "NASA Science",
+          "url": "https://science.nasa.gov/photojournal/ghost-of-mirach-rears-its-spooky-head/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC1156",
+      "designations": ["NGC 1156"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%201156",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESA Hubble",
+          "url": "https://esahubble.org/images/potw1927a/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC1266",
+      "designations": ["NGC 1266"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%201266",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/missions/hubble/hubble-sights-galaxy-in-transition/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC1511",
+      "designations": ["NGC 1511"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%201511",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESA Hubble",
+          "url": "https://esahubble.org/images/potw2545a/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC1559",
+      "designations": ["NGC 1559"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%201559",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/missions/hubble/hubbles-lonely-firework-display/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC1705",
+      "designations": ["NGC 1705"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%201705",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESA Hubble",
+          "url": "https://esahubble.org/images/heic0302a/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC1792",
+      "designations": ["NGC 1792"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%201792",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESA Hubble",
+          "url": "https://esahubble.org/images/potw2548a/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC1961",
+      "designations": ["NGC 1961"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%201961",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESA Hubble",
+          "url": "https://esahubble.org/images/potw2517a/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC2146",
+      "designations": ["NGC 2146"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%202146",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/image-detail/41531066445-b9ebc4aca4-o1/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC2442",
+      "designations": ["NGC 2442", "NGC 2443"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%202442",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESO",
+          "url": "https://www.eso.org/public/images/ngc2442/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC3079",
+      "designations": ["NGC 3079"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%203079",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "Chandra X-ray Observatory",
+          "url": "https://chandra.harvard.edu/photo/2019/ngc3079/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC3310",
+      "designations": ["NGC 3310"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%203310",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/missions/hubble/a-galaxy-blazes-with-star-formation/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC3370",
+      "designations": ["NGC 3370"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%203370",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESA Hubble",
+          "url": "https://esahubble.org/images/potw2542a/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC3718",
+      "designations": ["NGC 3718"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%203718",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "NASA Hubble",
+          "url": "https://science.nasa.gov/missions/hubble/hubble-views-a-twisted-spiral/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC4102",
+      "designations": ["NGC 4102"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%204102",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESA Hubble",
+          "url": "https://esahubble.org/images/potw2544a/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC4314",
+      "designations": ["NGC 4314"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%204314",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "The Astronomical Journal",
+          "url": "https://arxiv.org/abs/astro-ph/0203027",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC4388",
+      "designations": ["NGC 4388"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%204388",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESA Hubble",
+          "url": "https://esahubble.org/images/potw2550a/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC4666",
+      "designations": ["NGC 4666"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%204666",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESA Hubble",
+          "url": "https://esahubble.org/images/potw2141a/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC5084",
+      "designations": ["NGC 5084"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%205084",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "Chandra X-ray Observatory",
+          "url": "https://chandra.harvard.edu/press/24_releases/press_121824.html",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC5102",
+      "designations": ["NGC 5102"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%205102",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "The Astronomical Journal",
+          "url": "https://arxiv.org/abs/1001.2236",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC5746",
+      "designations": ["NGC 5746"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%205746",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "Monthly Notices of the Royal Astronomical Society",
+          "url": "https://arxiv.org/abs/2109.09770",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC6000",
+      "designations": ["NGC 6000"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%206000",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESA Hubble",
+          "url": "https://esahubble.org/images/potw2539a/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC6951",
+      "designations": ["NGC 6951", "NGC 6952"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%206951",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESA Hubble",
+          "url": "https://esahubble.org/images/potw2540a/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC7496",
+      "designations": ["NGC 7496"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%207496",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESA Hubble",
+          "url": "https://esahubble.org/images/potw2541a/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    },
+    {
+      "object_id": "ngc-NGC7727",
+      "designations": ["NGC 7727"],
+      "sources": [
+        {
+          "label": "NASA/IPAC Extragalactic Database (NED)",
+          "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=NGC%207727",
+          "accessed_on": "2026-09-04",
+          "supports": ["short_description", "observing_notes", "best_seen"]
+        },
+        {
+          "label": "ESO",
+          "url": "https://www.eso.org/public/news/eso2211/",
+          "accessed_on": "2026-09-04",
+          "supports": ["curiosity_text"]
+        }
+      ],
+      "reviews": {"facts": "accepted", "it": "accepted", "en": "accepted", "es": "accepted"}
+    }
+  ],
+  "visual_review": {
+    "samples": [
+      {
+        "object_id": "ngc-NGC404",
+        "reason": "Bright-star proximity case with filter-specific observing guidance.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "ngc-NGC1266",
+        "reason": "Very difficult compact target and concise high-aperture guidance.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "ngc-NGC1511",
+        "reason": "Southern edge-on object with unequal ends and translated wrapping-sensitive copy.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "ngc-NGC3079",
+        "reason": "Long edge-on galaxy with distinct field-size and nucleus guidance.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "ngc-NGC4388",
+        "reason": "Virgo-cluster context and long localized scientific curiosity.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "ngc-NGC7727",
+        "reason": "Merger-remnant morphology and numerical black-hole curiosity in all languages.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      }
+    ]
+  },
+  "similarity_waivers": [],
+  "deferred": []
+}

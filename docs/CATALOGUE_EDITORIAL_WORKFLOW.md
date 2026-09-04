@@ -3,25 +3,44 @@
 This document is the acceptance contract for adding descriptions, observing
 guidance, and source-backed curiosities to the catalogue in Italian, English,
 and Spanish. Source `1.46.0` established the pipeline and acceptance gates;
-source `1.46.1` applies that contract to the first 50 NGC-only galaxies.
+sources `1.46.1` and `1.46.2` apply that contract to 75 NGC-only galaxies.
 
 ## Baseline And Scope
 
-NightScope's immutable pre-programme baseline contains 228 curated objects:
+NightScope's immutable pre-programme identity baseline contains 228 objects:
 
 - 9 Solar System targets;
 - 110 Messier targets;
 - 109 Caldwell targets.
 
 OpenNGC contributes 7,571 physical NGC targets. Two hundred five resolve to
-already curated physical objects, while 7,366 are NGC-only targets. Source
-`1.46.1` completes 50 of those targets, bringing reviewed editorial coverage to
-278 physical objects and leaving 7,316 NGC-only targets on the localized
+already curated physical objects, while 7,366 are NGC-only targets. Sources
+through `1.46.2` complete 75 of those targets, bringing editorial coverage to
+303 physical objects and leaving 7,291 NGC-only targets on the localized
 `Work in progress` fallback.
 
 Catalogue aliases do not create duplicate editorial work. Content belongs to
 the stable physical `object_id`; Messier, Caldwell, NGC, and historical aliases
 all render the same physical object's content.
+
+### Baseline identity is not a prose-quality waiver
+
+The baseline hash freezes the 228 stable object identities; it does not declare
+every historical sentence compliant with the stricter `1.46.x` editorial
+standard, and it does not make that prose immutable.
+
+Before accepting `1.46.2`, all 50 entries added by `1.46.1` were reread in
+Italian, English, and Spanish. Their descriptions, observing guidance, and
+curiosities remain object-specific and useful. A separate retrospective screen
+of the older Solar System/Messier/Caldwell baseline exposed genuine formulaic
+debt: 11 connected description families affect 24 objects and 23 observing-note
+families affect 177 objects after catalogue IDs, parenthetical aliases, and
+measurements are normalized. Historical curiosity texts remain distinct.
+
+The deterministic audit reports those figures as a warning, not as acceptance
+of the repeated prose and not as a failure of later NGC batches. Remediation
+must use bounded, reviewed versions with the same three-language and source
+requirements; bulk synonym replacement is not an acceptable fix.
 
 ## Required Fields
 
@@ -125,17 +144,18 @@ separate release decision.
 
 Accepted batch ledger:
 
-| Source | Scope | Completed NGC-only | Remaining NGC-only |
+| Source | Scope | Cumulative NGC-only | Remaining NGC-only |
 | --- | --- | ---: | ---: |
 | `1.46.1` | 50 varied, well-documented galaxies | 50 | 7,316 |
+| `1.46.2` | 25 additional distinctive, strongly sourced galaxies | 75 | 7,291 |
 
-The next editorial source patch is `1.46.2`; it must define and review its own
-bounded manifest rather than extending the accepted `1.46.1` set.
+The next editorial source patch is `1.46.3`; it must define and review its own
+bounded manifest rather than extending either accepted set.
 
 Work in bounded batches, each with its own source version and commit. A batch
-should be small enough for every source and all three languages to be reviewed;
-roughly 50 to 100 objects is a sensible initial ceiling, adjusted downward for
-poorly documented targets.
+must be small enough for every source and all three languages to be reviewed.
+One hundred objects is a hard ceiling, not a target or minimum; 25 or fewer is
+appropriate whenever research depth or language review would otherwise suffer.
 
 Prefer coherent batches such as one object class within a constellation range
 or one source collection. Do not batch solely by CSV row count when that mixes
@@ -171,7 +191,8 @@ Extend tests as coverage grows. At minimum, every accepted batch must prove:
 - source labels are present, URLs are HTTPS, and verified links pass the source
   audit at review time;
 - curiosity texts are unique and not near-duplicate templates;
-- descriptions and observing notes are not identical across objects;
+- descriptions and observing notes are neither identical nor near-identical
+  parameterized templates across objects;
 - object names, aliases, types, and constellations agree with catalogue data;
 - Solar safety wording remains exact wherever the Sun is involved;
 - editorial content never changes recommendation eligibility, NSOM scores,
@@ -212,7 +233,9 @@ source attribution, and monochromatic Red Night Vision before changing the
 manifest's visual states to `accepted`.
 
 Similarity checks are screening tools, not proof of quality. Passing a token
-threshold does not make templated prose acceptable.
+threshold does not make templated prose acceptable. The audit also reports
+legacy baseline template families as non-failing debt so they remain visible
+until deliberately rewritten.
 
 ## Review Artifacts
 

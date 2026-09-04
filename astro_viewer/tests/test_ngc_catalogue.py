@@ -7,7 +7,10 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from astro_viewer.tools.audit_catalogue_editorial import audit_catalogue_editorial
+from astro_viewer.tools.audit_catalogue_editorial import (
+    _template_groups,
+    audit_catalogue_editorial,
+)
 from astro_viewer.tools.audit_curiosity_sources import source_urls
 from astro_viewer.tools.render_editorial_samples import _sample_ids
 from astro_viewer.tools.update_ngc_catalogue import (
@@ -134,29 +137,54 @@ def test_editorial_baseline_and_ngc_backlog_are_audited() -> None:
     assert report.catalogue_objects == 7_585
     assert report.ngc_only_objects == 7_366
     assert report.baseline_objects == 228
-    assert report.completed_objects == 278
-    assert report.completed_ngc_objects == 50
-    assert report.remaining_ngc_objects == 7_316
-    assert report.accepted_batches == 1
+    assert report.completed_objects == 303
+    assert report.completed_ngc_objects == 75
+    assert report.remaining_ngc_objects == 7_291
+    assert report.accepted_batches == 2
+    assert report.draft_batches == 0
+    assert report.baseline_description_template_families == 11
+    assert report.baseline_description_template_objects == 24
+    assert report.baseline_observing_template_families == 23
+    assert report.baseline_observing_template_objects == 177
+    assert any("prose debt" in warning for warning in report.warnings)
 
 
-def test_editorial_visual_samples_are_read_from_the_accepted_manifest() -> None:
+def test_editorial_visual_samples_are_read_from_the_latest_accepted_manifest() -> None:
     manifest = (
         PROJECT_ROOT
         / "astro_viewer"
         / "data"
         / "editorial_batches"
-        / "batch_1_46_1.json"
+        / "batch_1_46_2.json"
     )
 
     assert _sample_ids(manifest) == [
-        "ngc-NGC292",
-        "ngc-NGC925",
-        "ngc-NGC2683",
-        "ngc-NGC4214",
-        "ngc-NGC4535",
-        "ngc-NGC5907",
+        "ngc-NGC404",
+        "ngc-NGC1266",
+        "ngc-NGC1511",
+        "ngc-NGC3079",
+        "ngc-NGC4388",
+        "ngc-NGC7727",
     ]
+
+
+def test_editorial_template_screen_ignores_ids_aliases_and_measurements() -> None:
+    values = {
+        "first": (
+            "Per M 42 (NGC 1976, Nebulosa di Orione), usa inizialmente un campo "
+            "di 1,5 gradi e 60 ingrandimenti per riconoscere tutta la struttura."
+        ),
+        "second": (
+            "Per M 43 (NGC 1982, Nebulosa di Mairan), usa inizialmente un campo "
+            "di 2,0 gradi e 80 ingrandimenti per riconoscere tutta la struttura."
+        ),
+        "distinct": (
+            "Il nucleo stellareggiante emerge ad alta potenza, mentre l'alone diffuso "
+            "richiede visione distolta e un fondo cielo molto trasparente."
+        ),
+    }
+
+    assert _template_groups(values) == (("first", "second"),)
 
 
 def test_accepted_editorial_batch_requires_all_reviews_and_completed_content(

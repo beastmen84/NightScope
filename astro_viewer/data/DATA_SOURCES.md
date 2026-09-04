@@ -300,9 +300,9 @@ in Object Detail. The full selection and redistribution rules are documented in
 defensive compatibility assets and are not used by current target rows.
 
 `object_descriptions_seed.csv` contains NightScope-style descriptions and
-separate observing notes for 278 reviewed targets: the 228-object baseline of
+separate observing notes for 303 reviewed targets: the 228-object baseline of
 Sun, Moon, the seven displayed planets, all 110 Messier entries and all 109
-Caldwell entries, plus the first 50 accepted NGC-only galaxies. The
+Caldwell entries, plus the first 75 accepted NGC-only galaxies. The
 Sun entry requires a certified full-aperture front-mounted solar filter and
 explicitly excludes eyepiece solar filters. Caldwell observing copy is derived
 conservatively from the verified catalogue type, coordinates, magnitude and
@@ -315,8 +315,9 @@ such as Uranus (`https://science.nasa.gov/uranus/`) and the NASA Sun facts page
 (`https://science.nasa.gov/sun/facts/`).
 
 `object_curiosities_seed.csv` is a separate, source-backed presentation layer
-for the same 278 reviewed targets. Every row contains an object-specific
-historical or scientific fact, a visible source label and an HTTPS source URL.
+for the same 303 editorially complete targets. Every row contains an
+object-specific historical or scientific fact, a visible source label and an
+HTTPS source URL.
 The primary
 references are NASA's Hubble Messier and Caldwell catalogues and NASA Solar
 System fact pages; objects without a dedicated NASA catalogue page use a
@@ -324,11 +325,13 @@ linked Wikipedia article as a secondary factual reference. All 227 distinct
 URLs were checked successfully on 2026-07-12. The 50-object `1.46.1` manifest
 adds direct NED evidence plus institutional or primary-literature support for
 each new curiosity; its 99 distinct URLs were checked successfully on
-2026-09-04. The seed deliberately remains separate from observing notes and
+2026-09-04. The 25-object `1.46.2` manifest adds another 50 direct evidence
+URLs, all checked successfully on 2026-09-04. The seed deliberately remains
+separate from observing notes and
 does not participate in NSOM, Equipment or ranking calculations.
 
 NGC-only targets never receive fabricated entries in these three
-editorial/image seeds. The 7,316 targets still awaiting review use a
+editorial/image seeds. The 7,291 targets still awaiting review use a
 type-specific compatibility image and the localized `Work in progress`
 placeholder. Once an object has a complete editorial record, presentation
 derives the catalogue description and notes from the canonical
@@ -354,7 +357,8 @@ The source check is repeatable without modifying data:
 Source `1.46.0` froze the 228-object baseline identity and added a network-free
 audit for canonical fields, EN/ES overlay parity, HTTPS provenance, accepted
 batch manifests, duplicate text, and remaining NGC coverage. Source `1.46.1`
-records the first accepted 50-object manifest:
+records the first accepted 50-object manifest and `1.46.2` adds a second,
+deliberately smaller 25-object manifest plus a visible legacy-template warning:
 
 ```powershell
 .\.venv\Scripts\python.exe astro_viewer\tools\audit_catalogue_editorial.py
