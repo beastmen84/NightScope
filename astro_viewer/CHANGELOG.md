@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+## NightScope 1.46.1 - 2026-09-04
+
+- Accettato il primo batch editoriale della serie `1.46.x`: 50 galassie
+  NGC-only scelte come insieme di riferimento per morfologia, luminosita'
+  superficiale, orientamento e accessibilita' dal cielo boreale e australe.
+- Aggiunti per ogni oggetto descrizione breve, note osservative, periodo
+  consigliato, difficolta' per cinque classi strumentali e curiosita' canoniche
+  italiane; gli overlay inglese e spagnolo sono completi e revisionati sugli
+  stessi quattro testi.
+- Il manifest `batch_1_46_1.json` conserva identita' e designazioni esatte,
+  prove NED per i dati di catalogo, una fonte istituzionale o bibliografica per
+  ciascuna curiosita', date di accesso e accettazione separata dei controlli
+  fattuali e linguistici. L'audit live ha verificato 99 URL distinti.
+- L'audit deterministico passa con 278 oggetti editorialmente completi: 228 nel
+  baseline immutabile e 50 NGC-only; restano 7.316 oggetti NGC-only da lavorare
+  in batch successivi.
+- Aggiunto `render_editorial_samples.py`, che apre un runtime isolato e produce
+  automaticamente i campioni Object Detail del manifest in IT/EN/ES e nelle
+  modalita' normale/Red Night Vision. Revisionate 36 scene `1440 x 1000` per
+  sei oggetti rappresentativi, incluso il caso multi-designazione NGC 5906/5907,
+  senza testi tagliati o sovrapposti.
+- Gate sorgente completo con sicurezza superato: 1.224 test e 10 subtest in
+  315,84 secondi, copertura aggregata 86%, 247 moduli Python documentati, grafo
+  import aciclico, baseline Bandit invariata, nessuna vulnerabilita' nota e
+  smoke test backend/QML normale/Red Night Vision riusciti.
+- La versione sorgente passa a `1.46.1`; `dist` non e' stata rigenerata o
+  modificata e non sono stati creati tag o artefatti di release. Le release
+  pubbliche restano Windows `v1.45.21` e Linux `v1.43.0`.
+
 ## NightScope 1.46.0 - 2026-09-04
 
 - Preparata la serie editoriale `1.46.x` senza aggiungere ancora contenuti NGC:

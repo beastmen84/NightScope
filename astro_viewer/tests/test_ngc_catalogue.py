@@ -9,6 +9,7 @@ from pathlib import Path
 
 from astro_viewer.tools.audit_catalogue_editorial import audit_catalogue_editorial
 from astro_viewer.tools.audit_curiosity_sources import source_urls
+from astro_viewer.tools.render_editorial_samples import _sample_ids
 from astro_viewer.tools.update_ngc_catalogue import (
     DEFAULT_DESIGNATIONS,
     DEFAULT_OBJECTS,
@@ -133,10 +134,29 @@ def test_editorial_baseline_and_ngc_backlog_are_audited() -> None:
     assert report.catalogue_objects == 7_585
     assert report.ngc_only_objects == 7_366
     assert report.baseline_objects == 228
-    assert report.completed_objects == 228
-    assert report.completed_ngc_objects == 0
-    assert report.remaining_ngc_objects == 7_366
-    assert report.accepted_batches == 0
+    assert report.completed_objects == 278
+    assert report.completed_ngc_objects == 50
+    assert report.remaining_ngc_objects == 7_316
+    assert report.accepted_batches == 1
+
+
+def test_editorial_visual_samples_are_read_from_the_accepted_manifest() -> None:
+    manifest = (
+        PROJECT_ROOT
+        / "astro_viewer"
+        / "data"
+        / "editorial_batches"
+        / "batch_1_46_1.json"
+    )
+
+    assert _sample_ids(manifest) == [
+        "ngc-NGC292",
+        "ngc-NGC925",
+        "ngc-NGC2683",
+        "ngc-NGC4214",
+        "ngc-NGC4535",
+        "ngc-NGC5907",
+    ]
 
 
 def test_accepted_editorial_batch_requires_all_reviews_and_completed_content(

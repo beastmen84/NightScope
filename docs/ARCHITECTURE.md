@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.46.0
+This document describes the architecture implemented by the NightScope 1.46.1
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -301,7 +301,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.46.0`:
+Current runtime status for `1.46.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -377,13 +377,15 @@ Current runtime status for `1.46.0`:
   common name containing words such as “Nebula”. Equipment continues to
   consume each target's explicit observing metadata, without introducing
   catalogue-specific equipment categories.
-- `ObjectDescription`, `ObjectCuriosity` and `ObjectImages` retain the complete
-  curated presentation for 228 targets: 219 Messier/Caldwell objects and nine
-  Solar System bodies. Each has a dedicated local `512 x 512` JPEG, with
-  survey cutouts for deep sky and normalized NASA/JPL PIA observations for
-  Solar System bodies. NGC-only objects deliberately use a type-specific
-  fallback image and a `Work in progress` description/curiosity until they are
-  enriched individually. Once an NGC-only editorial row exists, the catalogue
+- `ObjectDescription` and `ObjectCuriosity` retain complete reviewed
+  presentation for 278 targets: the 228-object Solar System/Messier/Caldwell
+  baseline plus 50 NGC-only galaxies accepted in source `1.46.1`.
+  `ObjectImages` remains complete for the 228 baseline targets; each has a
+  dedicated local `512 x 512` JPEG, with survey cutouts for deep sky and
+  normalized NASA/JPL PIA observations for Solar System bodies. NGC-only
+  objects use a type-specific fallback image, and the 7,316 not yet enriched
+  keep the localized `Work in progress` description/curiosity. Once an
+  NGC-only editorial row exists, the catalogue
   projection replaces its placeholder description with the same lazy localized
   `short_description`; recommendation presentation likewise replaces, rather
   than appends, placeholder notes with `observing_notes`. This avoids a second
@@ -393,7 +395,8 @@ Current runtime status for `1.46.0`:
   Equipment or observability role. Seeded descriptions and curiosities are
   managed through `is_builtin`; bootstrap refreshes them, while content
   imported by the user is marked custom and preserved.
-- The 228 curated Solar System and deep-sky descriptions keep identity, season
+- The immutable 228-object Solar System and deep-sky baseline and the 50
+  accepted NGC-only records keep identity, season
   and difficulty metadata separate from `short_description` and
   `observing_notes`. The historic NGC-only placeholder remains in the physical
   catalogue seed and is excluded from the structured-content translation

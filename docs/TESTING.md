@@ -20,7 +20,7 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.46.0` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
+The `1.46.1` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
 Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
 `pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
 Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, NumPy 2.5.2,
@@ -171,9 +171,10 @@ Validate fixed MPC and OpenNGC inputs without network access:
 ```
 
 The editorial audit reports the immutable 228-object pre-programme identity,
-complete IT/EN/ES coverage, accepted manifests and the remaining NGC-only
-backlog. Pass `--batch` to screen one candidate batch for near-duplicate prose;
-run `audit_curiosity_sources.py --batch ...` separately because live URL state is
+the 50 accepted NGC-only additions, complete IT/EN/ES coverage, accepted
+manifests and the remaining 7,316-object NGC-only backlog. Pass `--batch` to
+screen one candidate batch for near-duplicate prose; run
+`audit_curiosity_sources.py --batch ...` separately because live URL state is
 review evidence rather than a deterministic source gate.
 
 Run `pyside6-qmllint` over every QML file below `astro_viewer/app/ui`. Existing
@@ -182,16 +183,21 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
-The `1.46.0` coverage/security source gate passed on Windows/Python 3.14.5 with
-1,223 tests and 10 subtests in 300.73 seconds, 86% aggregate application
+The `1.46.1` coverage/security source gate passed on Windows/Python 3.14.5 with
+1,224 tests and 10 subtests in 315.84 seconds, 86% aggregate application
 coverage, no unexpected warning summary, complete documentation coverage for
-246 Python, 34 QML, and 17 operational files, an acyclic production graph, zero
+247 Python, 34 QML, and 17 operational files, an acyclic production graph, zero
 protected-layer violations, a reviewed Bandit baseline (0 high, 34 medium, 14
 low), clean dependency/license/MPC/OpenNGC/editorial checks, and successful
 backend, normal QML, and Red Night Vision QML smoke tests. The in-gate installed-
 environment `pip-audit` found no known vulnerabilities. The most recent separate
 PySide6 6.11.2 `qmllint` pass over all 34 QML files remains the `1.45.22` pass;
 its existing non-fatal diagnostics remain tracked technical debt.
+
+The separate `1.46.1` batch evidence includes a successful live audit of 99
+distinct manifest URLs and 36 reviewed Object Detail renders: six objects in
+IT/EN/ES, each in normal and Red Night Vision mode. The sample includes the
+multi-designation NGC 5906/5907 identity.
 
 No remote CI result, distribution build, source tag, checksum, or release is
 implied by that local source measurement.

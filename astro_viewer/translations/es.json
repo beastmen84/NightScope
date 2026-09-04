@@ -1379,6 +1379,306 @@
         "observing_notes": "Para C109 (NGC 3195), utilice su tamaño de 0,6′ para mantener a la vista toda la nebulosa antes de reducir el campo.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 3195 es una de las nebulosas planetarias más australes accesibles a los observadores. Su estructura alargada y sus flujos de alta velocidad indican que la eyección de la estrella central no fue esférica."
+      },
+      "ngc-NGC292": {
+        "short_description": "NGC 292, la Pequeña Nube de Magallanes, es una galaxia enana irregular en Tucana. Ocupa unos cinco grados de cielo: a simple vista parece una nube separada de la Vía Láctea, mientras que prismáticos y telescopios pequeños descomponen su contorno en campos estelares, cúmulos y nebulosidad.",
+        "observing_notes": "Comience a simple vista bajo un cielo austral oscuro y pase después a unos prismáticos de gran campo; con telescopio, explore regiones individuales sin pretender abarcar toda la galaxia en el mismo campo.",
+        "best_seen": "Noches oscuras de septiembre a diciembre, mejor desde el hemisferio sur",
+        "curiosity_text": "La Pequeña Nube de Magallanes es una galaxia enana cercana y luminosa. En su región Wing, la escasez de elementos pesados reproduce condiciones típicas del Universo joven y permite estudiar el nacimiento estelar en un entorno distinto al de la Vía Láctea."
+      },
+      "ngc-NGC613": {
+        "short_description": "NGC 613 es una espiral barrada en Escultor, compacta pero rica en estructura. En el ocular aparece primero como un halo ovalado con un núcleo marcado; la barra y el comienzo de los brazos requieren apertura, transparencia y observación prolongada.",
+        "observing_notes": "Utilice un aumento medio para separar el núcleo del halo de unos 5′; alterne visión directa y periférica y no emplee filtros nebulares.",
+        "best_seen": "Otoño, en noches sin Luna",
+        "curiosity_text": "En el centro de NGC 613 hay un agujero negro supermasivo cuya masa se estima en unas diez veces la del agujero negro de la Vía Láctea. A su alrededor, una estructura anular sostiene una intensa formación estelar y una brillante emisión de radio."
+      },
+      "ngc-NGC660": {
+        "short_description": "NGC 660, en Piscis, es una rara galaxia de anillo polar vista oblicuamente. Visualmente domina un huso irregular con centro débil; el anillo inclinado es un detalle de bajo contraste reservado a grandes aperturas y cielos excelentes.",
+        "observing_notes": "Localícela con un aumento medio y deje que la visión periférica reconstruya el halo alargado; aumente la potencia solo mientras el fondo del cielo permanezca oscuro.",
+        "best_seen": "Otoño, en noches sin Luna",
+        "curiosity_text": "El anillo de NGC 660 gira en un plano inclinado unos 45 grados respecto al disco principal. Probablemente sea el residuo de un encuentro galáctico ocurrido hace alrededor de mil millones de años."
+      },
+      "ngc-NGC772": {
+        "short_description": "NGC 772 es una gran espiral sin barra en Aries, convertida en asimétrica por un brazo mucho más desarrollado que los demás. En instrumentos medianos aparece como un óvalo difuso con núcleo concentrado; el brazo deformado solo emerge con cielo oscuro y gran apertura.",
+        "observing_notes": "Comience con un campo medio para reconocer el halo de unos 5′ y pruebe después un aumento moderado en el lado más extendido mediante visión periférica.",
+        "best_seen": "Otoño, en noches sin Luna",
+        "curiosity_text": "La pequeña compañera NGC 770 ejerce una atracción de marea sobre NGC 772. El resultado es un brazo muy alargado y asimétrico, tan característico que la galaxia se clasifica como peculiar."
+      },
+      "ngc-NGC925": {
+        "short_description": "NGC 925 es una espiral barrada muy abierta en Triángulo, de más de 10′ de anchura y brillo superficial modesto. Su núcleo no domina: bajo un cielo mediocre la galaxia puede resultar mucho más difícil de lo que sugiere la magnitud integrada.",
+        "observing_notes": "Prefiera poco aumento, una pupila de salida generosa y un campo rico en estrellas guía; desplace ligeramente el telescopio para que destaque el tenue halo asimétrico.",
+        "best_seen": "Otoño y principios de invierno, en noches sin Luna",
+        "curiosity_text": "En NGC 925 la barra no coincide del todo con el centro dinámico y los dos lados de la galaxia son muy diferentes. Su formación estelar se comporta más como la de una galaxia irregular que como la de una espiral ordinaria."
+      },
+      "ngc-NGC1023": {
+        "short_description": "NGC 1023 es una luminosa galaxia lenticular en Perseo, vista como un huso regular con núcleo intenso. El disco se prolonga más de 7′ y se desvanece sin brazos visibles; una pequeña compañera se adhiere al borde oriental, pero es mucho más difícil.",
+        "observing_notes": "Con un telescopio pequeño, centre el núcleo y utilice un aumento medio; con aperturas mayores, siga los extremos afilados y busque la débil NGC 1023A en el borde.",
+        "best_seen": "Otoño e invierno, en noches sin Luna",
+        "curiosity_text": "Hubble identificó en NGC 1023 dos poblaciones inusuales de cúmulos abiertos: 81 sistemas antiguos y longevos y 27 cúmulos jóvenes y azules, probablemente relacionados con la pequeña compañera NGC 1023A."
+      },
+      "ngc-NGC1055": {
+        "short_description": "NGC 1055 es una espiral vista de canto en Ballena. Su disco de casi 7′ parece una hoja gruesa y ligeramente curvada; la banda de polvo que vuelve irregular uno de sus lados requiere buena apertura y un fondo muy oscuro.",
+        "observing_notes": "Utilice primero un aumento medio para definir el huso; después suba gradualmente la potencia y compare ambos lados del disco en busca de absorción asimétrica.",
+        "best_seen": "Otoño e invierno, en noches sin Luna",
+        "curiosity_text": "El disco de NGC 1055 está deformado y puede ser hasta un 15 por ciento mayor que el de la Vía Láctea. La curvatura probablemente esté relacionada con su interacción con la cercana M77."
+      },
+      "ngc-NGC1232": {
+        "short_description": "NGC 1232 es una gran espiral casi frontal en Erídano, repleta de brazos y regiones de formación estelar. Sin embargo, su luz se distribuye por casi 7′, por lo que visualmente predominan un centro pequeño y un disco redondeado muy tenue.",
+        "observing_notes": "Obsérvela con el menor aumento útil bajo un cielo transparente; una vez fijado el núcleo, use visión periférica para estimar hasta dónde se extiende el disco.",
+        "best_seen": "Invierno, en noches sin Luna; favorecida por latitudes meridionales",
+        "curiosity_text": "Las imágenes del VLT separan claramente las poblaciones de NGC 1232: estrellas rojizas más antiguas en el centro y estrellas jóvenes y azules en los brazos. A su lado aparece una pequeña compañera con una curiosa forma de theta."
+      },
+      "ngc-NGC1300": {
+        "short_description": "NGC 1300 es una espiral barrada en Erídano, famosa por su barra recta y los dos brazos que nacen en sus extremos. En el ocular, el núcleo y el halo alargado son accesibles antes que la estructura en S, que sigue siendo difícil.",
+        "observing_notes": "Pruebe un aumento medio sobre el centro y redúzcalo después para incluir todo el perfil de unos 6′; una noche estable ayuda a separar la barra del núcleo.",
+        "best_seen": "Invierno, en noches sin Luna; favorecida por latitudes meridionales",
+        "curiosity_text": "Dentro de la gran barra de NGC 1300 se esconde una segunda estructura espiral de unos 3.300 años luz de anchura. Es una rara espiral dentro de otra espiral, enrollada alrededor del núcleo."
+      },
+      "ngc-NGC1313": {
+        "short_description": "NGC 1313 es una espiral barrada irregular en Retículo, de unos 11′ de anchura y marcada por regiones dispersas de formación estelar. Su magnitud integrada es favorable, pero el disco extendido y desordenado tiene poco contraste y recompensa especialmente los cielos australes despejados.",
+        "observing_notes": "Utilice un campo amplio y poco aumento; busque primero la barra y las condensaciones más luminosas y reconstruya después los bordes irregulares con visión periférica.",
+        "best_seen": "Noches sin Luna cerca de la culminación, desde el hemisferio sur",
+        "curiosity_text": "NGC 1313 forma estrellas con rapidez pese a estar aislada y no tener una compañera evidente que desencadene el brote. Su centro dinámico está desplazado respecto a la barra y alberga además dos fuentes ultraluminosas de rayos X."
+      },
+      "ngc-NGC1316": {
+        "short_description": "NGC 1316, Fornax A, es una gran galaxia lenticular peculiar en Fornax y el miembro dominante de un subgrupo. Un núcleo brillante dentro de un amplio halo ovalado ya es visible con instrumentos pequeños; los arcos y el polvo de su turbulento pasado son mucho más esquivos.",
+        "observing_notes": "Mantenga al principio un campo amplio para seguir el halo de más de 10′ e incluir NGC 1317; use después más aumento para estudiar el núcleo, sin filtros.",
+        "best_seen": "Invierno, en noches sin Luna; favorecida por latitudes meridionales",
+        "curiosity_text": "Arcos, anillos y tenues corrientes estelares alrededor de NGC 1316 son cicatrices de antiguas fusiones. Las bandas de polvo de su interior confirman que esta gran lenticular absorbió galaxias ricas en gas."
+      },
+      "ngc-NGC1365": {
+        "short_description": "NGC 1365 es una de las grandes espirales barradas de Fornax. Su barra brillante atraviesa un disco de unos 12′, mientras que los brazos abiertos dibujan una estructura más débil: son esenciales un cielo oscuro y un campo suficientemente amplio.",
+        "observing_notes": "Localice el núcleo con un aumento medio y vuelva luego a menor potencia para seguir la barra e intentar ver los dos brazos con visión periférica.",
+        "best_seen": "Invierno, en noches sin Luna; favorecida por latitudes meridionales",
+        "curiosity_text": "La barra de NGC 1365 no es meramente decorativa: canaliza gas hacia las regiones centrales y alimenta nueva formación estelar. El núcleo alberga además un agujero negro supermasivo activo."
+      },
+      "ngc-NGC1398": {
+        "short_description": "NGC 1398 es una espiral barrada casi frontal en Fornax, con un centro perlado rodeado por una barra, un anillo interior y brazos delgados. Visualmente muestra primero un núcleo firme dentro de un halo ovalado; el anillo y los brazos exigen aperturas generosas.",
+        "observing_notes": "Alterne un campo medio para el halo de unos 7′ con más aumento sobre el centro; busque diferencias de brillo en lugar de contornos fotográficos nítidos.",
+        "best_seen": "Invierno, en noches sin Luna; favorecida por latitudes meridionales",
+        "curiosity_text": "Los brazos de NGC 1398 no nacen directamente del núcleo, sino de los extremos de una barra recta de estrellas. Las manchas rosadas más exteriores señalan regiones donde están naciendo nuevas estrellas."
+      },
+      "ngc-NGC1433": {
+        "short_description": "NGC 1433 es una espiral barrada y anillada en Reloj. Su centro brillante está envuelto en estructuras casi circulares, pero en el ocular la galaxia aparece sobre todo como un óvalo concentrado y los segmentos del anillo son detalles delicados.",
+        "observing_notes": "Utilice un aumento medio para separar el núcleo del disco y pruebe después menor potencia para captar la extensión de unos 6′ mediante visión periférica.",
+        "best_seen": "Noches sin Luna cerca de la culminación, desde el hemisferio sur",
+        "curiosity_text": "ALMA reveló en el centro de NGC 1433 un flujo molecular de unos 150 años luz de longitud. En el momento del descubrimiento era el flujo más pequeño de este tipo observado fuera de la Vía Láctea."
+      },
+      "ngc-NGC1512": {
+        "short_description": "NGC 1512 es una espiral barrada casi frontal en Reloj, modelada por su interacción con la pequeña NGC 1510. El núcleo y la barra forman una mancha compacta; el enorme anillo exterior, espectacular en fotografías, tiene un contraste visual muy bajo.",
+        "observing_notes": "Encuadre ambas galaxias con poco aumento y amplíe después el centro de NGC 1512; considere el anillo exterior un objetivo para gran apertura y cielo impecable.",
+        "best_seen": "Noches sin Luna cerca de la culminación, desde el hemisferio sur",
+        "curiosity_text": "El encuentro con la enana NGC 1510 deformó la enorme estructura exterior de NGC 1512 y encendió nueva formación estelar. Las dos galaxias están separadas por apenas unos 68.000 años luz."
+      },
+      "ngc-NGC1532": {
+        "short_description": "NGC 1532 es una espiral casi de canto en Erídano, deformada por su compañera elíptica NGC 1531. Su disco se extiende más de 11′ como un huso delgado con bulbo central y extremos desiguales.",
+        "observing_notes": "Comience con poco aumento para abarcar la pareja y todo el disco; con una apertura mayor, compare los extremos y busque la pequeña compañera junto al bulbo.",
+        "best_seen": "Invierno, en noches sin Luna; favorecida por latitudes meridionales",
+        "curiosity_text": "La pequeña elíptica NGC 1531 está deformando gravitacionalmente a la mayor NGC 1532. Un brazo curvado, penachos y nuevas estrellas masivas hacen visible este lento ballet galáctico."
+      },
+      "ngc-NGC1566": {
+        "short_description": "NGC 1566 es una espiral casi frontal en Dorado, con núcleo activo y dos brazos principales bien trazados en las imágenes. Visualmente el centro destaca dentro de un disco amplio y suave; los indicios de estructura espiral solo aparecen en condiciones excelentes.",
+        "observing_notes": "Utilice una potencia media-baja para el disco de unos 7′ y mantenga el núcleo fuera de la visión directa al buscar variaciones en los brazos.",
+        "best_seen": "Noches sin Luna cerca de la culminación, desde el hemisferio sur",
+        "curiosity_text": "NGC 1566 forma parte de PHANGS, un programa que sigue todo el ciclo de formación estelar con distintos telescopios. En infrarrojo, Webb atraviesa el polvo y resalta la red de gas que alimenta los cúmulos jóvenes."
+      },
+      "ngc-NGC1672": {
+        "short_description": "NGC 1672 es una espiral barrada casi frontal en Dorado, con un núcleo activo e intensa formación estelar en los extremos de la barra. En el ocular, el centro y la barra corta aparecen antes que el débil disco redondeado.",
+        "observing_notes": "Con un aumento medio, establezca el eje de la barra y reduzca después la potencia para seguir el halo de unos 6′; la transparencia importa más que un filtro.",
+        "best_seen": "Noches sin Luna cerca de la culminación, desde el hemisferio sur",
+        "curiosity_text": "NGC 1672 reúne muchas fuentes energéticas: un núcleo Seyfert, viveros estelares en los extremos de la barra y fuentes compactas de rayos X. Por tanto, no toda su luz intensa procede del mismo proceso."
+      },
+      "ngc-NGC1808": {
+        "short_description": "NGC 1808 es una espiral barrada y polvorienta en Paloma, hogar de un vigoroso brote estelar central. Su perfil estrecho de unos 5′ tiene un núcleo compacto y una superficie irregular, por lo que resulta más fácil de reconocer que muchos discos frontales de igual magnitud.",
+        "observing_notes": "Utilice un aumento medio sobre el núcleo y busque una textura moteada a lo largo del eje mayor; un cielo austral transparente es decisivo.",
+        "best_seen": "Invierno, en noches sin Luna; favorecida por latitudes meridionales",
+        "curiosity_text": "En el centro de NGC 1808, una pequeña barra estelar gira como un sistema dinámicamente separado de la barra mayor. Las observaciones infrarrojas encontraron también una población joven de estrellas en un disco nuclear."
+      },
+      "ngc-NGC2683": {
+        "short_description": "NGC 2683, la Galaxia OVNI, es una espiral en Lince vista casi de canto. Es un huso brillante de unos 9′, con un bulbo central marcado y bordes afilados; su banda de polvo se vuelve perceptible con aperturas mayores.",
+        "observing_notes": "Un telescopio pequeño muestra bien el perfil con un aumento medio; con una apertura mayor, suba gradualmente la potencia y compare ambos lados del núcleo en busca de polvo.",
+        "best_seen": "Finales de invierno y primavera, en noches sin Luna",
+        "curiosity_text": "El apodo Galaxia OVNI procede de su disco casi de canto, parecido a un platillo volante. William Herschel la descubrió en 1788; hoy Hubble muestra cómo el polvo esculpe su perfil."
+      },
+      "ngc-NGC2841": {
+        "short_description": "NGC 2841 es una espiral floculenta en Osa Mayor, lo bastante inclinada para mostrar un óvalo compacto. Tiene un núcleo brillante y un disco inicialmente liso; las manchas de sus numerosos brazos cortos requieren paciencia y apertura.",
+        "observing_notes": "Centre el núcleo con potencia media y use después visión periférica a lo largo del eje mayor para extender el disco hacia sus aproximadamente 7′.",
+        "best_seen": "Finales de invierno y primavera, en noches sin Luna",
+        "curiosity_text": "NGC 2841 es una espiral floculenta, formada por muchos segmentos de brazo en lugar de dos grandes brazos continuos. También tiene una tasa de formación estelar inusualmente baja: las estrellas jóvenes han dispersado gran parte del gas circundante."
+      },
+      "ngc-NGC2903": {
+        "short_description": "NGC 2903 es una gran espiral barrada en Leo, entre las galaxias más brillantes omitidas del catálogo Messier. Los telescopios pequeños muestran un núcleo intenso en un halo alargado; los instrumentos medianos revelan una barra y condensaciones en el disco.",
+        "observing_notes": "Comience con poco aumento para incluir casi 12′ de halo; después amplíe el centro e intente distinguir las regiones más brillantes a lo largo de la barra.",
+        "best_seen": "Finales de invierno y primavera, en noches sin Luna",
+        "curiosity_text": "Aunque es más brillante que muchos objetos Messier, NGC 2903 escapó al catálogo de Charles Messier. Su barra canaliza material hacia el interior y alimenta una activa región central de formación estelar."
+      },
+      "ngc-NGC2976": {
+        "short_description": "NGC 2976 es una peculiar galaxia enana del grupo de M81 en Osa Mayor. Su contorno es rectangular y difuso, sin un núcleo dominante; la luz desigual se pierde fácilmente contra un fondo de cielo claro.",
+        "observing_notes": "Utilice poco aumento y un campo que conserve estrellas guía; la visión periférica ayuda a definir los bordes suavizados y la orientación del disco.",
+        "best_seen": "Finales de invierno y primavera, en noches sin Luna",
+        "curiosity_text": "Las interacciones con las grandes galaxias del grupo de M81 arrancaron gas de NGC 2976. La formación estelar ya se apagó en las regiones exteriores y la actividad central podría agotarse en unos cientos de millones de años."
+      },
+      "ngc-NGC2997": {
+        "short_description": "NGC 2997 es una espiral frontal en Máquina Neumática, dominada por dos brazos principales enrollados alrededor de un pequeño núcleo. Su amplio disco supera los 10′: la magnitud integrada es favorable, pero la estructura solo aparece bajo un cielo austral muy oscuro.",
+        "observing_notes": "Utilice la menor potencia que aún oscurezca el fondo y observe con paciencia; localice el núcleo y busque después discontinuidades en los brazos mediante visión periférica.",
+        "best_seen": "Noches sin Luna cerca de la culminación, favorecida por latitudes australes",
+        "curiosity_text": "NGC 2997 es un ejemplo especialmente regular de espiral de tipo Sc. Aunque se ramifican, sus dos brazos dominantes pueden seguirse durante una vuelta completa alrededor del centro."
+      },
+      "ngc-NGC3077": {
+        "short_description": "NGC 3077 es una pequeña galaxia peculiar del grupo de M81. Visualmente se parece a un óvalo brillante y algo irregular con condensación central; las huellas de su interacción con M81 y M82 se extienden mucho más allá de lo que muestra el ocular.",
+        "observing_notes": "Inclúyala en el mismo recorrido que M81 y M82: un campo medio define su perfil, mientras que más aumento pone a prueba la irregularidad del centro.",
+        "best_seen": "Finales de invierno y primavera, en noches sin Luna",
+        "curiosity_text": "NGC 3077 está unida a M81 y M82 por un puente difuso de gas arrancado durante encuentros gravitacionales. Hubble halló cúmulos estelares jóvenes en ese material huérfano: las colisiones pueden encender estrellas incluso fuera de los discos galácticos."
+      },
+      "ngc-NGC3184": {
+        "short_description": "NGC 3184 es una espiral casi perfectamente frontal en Osa Mayor. Su disco redondo de más de 7′ tiene un núcleo pequeño y brazos fragmentados; el bajo brillo superficial la vuelve más esquiva que su magnitud total.",
+        "observing_notes": "Manténgase en poco aumento y use estrellas próximas para fijar la posición; después de ver el centro, deje emerger el disco con movimientos mínimos y visión periférica.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "Imágenes profundas encontraron más de mil pequeños nudos semejantes a cúmulos estelares más allá del radio óptico convencional de NGC 3184. Por tanto, su disco de formación estelar continúa mucho más lejos de lo que sugiere el perfil brillante."
+      },
+      "ngc-NGC3344": {
+        "short_description": "NGC 3344 es una espiral casi frontal en Leo Menor, con una barra sutil y sistemas de anillos. Muestra un núcleo puntiforme dentro de un halo circular muy tenue; la estructura anular es más difícil que la simple detección de la galaxia.",
+        "observing_notes": "Utilice poco aumento para el disco de unos 7′ y una potencia media para comprobar si el centro se alarga; evite todos los filtros nebulares.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "NGC 3344 posee un anillo interior y otro exterior, además de una barra apenas perceptible. Las estrellas del anillo más lejano muestran también movimientos inesperados frente a la rotación ordenada del disco."
+      },
+      "ngc-NGC3521": {
+        "short_description": "NGC 3521 es una luminosa espiral floculenta en Leo, inclinada respecto a nuestra línea de visión. Un núcleo fuerte y un amplio halo ovalado son fáciles con instrumentos pequeños; el polvo y los brazos lanosos dan al disco una textura moteada con aperturas mayores.",
+        "observing_notes": "Con un aumento medio, separe el bulbo del disco y examine después ambos bordes del halo alternando visión directa y periférica.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "Los brazos discontinuos y lanosos de NGC 3521 le dan la clasificación de floculenta y el apodo Galaxia Burbuja. En vez de un par de grandes brazos, su disco está compuesto por muchos fragmentos estelares y polvorientos."
+      },
+      "ngc-NGC3621": {
+        "short_description": "NGC 3621 es una espiral casi sin bulbo en Hidra, con un disco de cerca de 10′ y formación estelar extendida. Visualmente aparece como un óvalo suave con poco realce central, por lo que necesita más transparencia de la que podría sugerir su magnitud 9,6.",
+        "observing_notes": "Obsérvela con poca potencia y cielo libre alrededor del disco; la visión periférica y una buena protección frente a luces parásitas ayudan más que el aumento.",
+        "best_seen": "Primavera, en noches sin Luna; favorecida por latitudes meridionales",
+        "curiosity_text": "NGC 3621 es casi todo disco y carece del bulbo central que suele asociarse con agujeros negros grandes. Aun así, su núcleo muestra actividad compatible con un agujero negro en acreción."
+      },
+      "ngc-NGC3628": {
+        "short_description": "NGC 3628, la Galaxia Hamburguesa, es el miembro visto de canto del Triplete de Leo. Su disco de unos 11′ está cruzado por una banda oscura, mientras que el bulbo aparece dividido en dos lóbulos con apertura suficiente.",
+        "observing_notes": "Utilice un campo amplio para compararla con M65 y M66 y pase después a un aumento medio sobre NGC 3628 para seguir la banda de polvo.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "Las interacciones del Triplete de Leo arrancaron de NGC 3628 una cola de marea de unos 300.000 años luz. Contiene cúmulos azules jóvenes y regiones donde aún están naciendo estrellas."
+      },
+      "ngc-NGC3923": {
+        "short_description": "NGC 3923 es una gran galaxia elíptica en Hidra, famosa por un sistema de capas concéntricas. En el ocular domina un halo ovalado regular con centro brillante; las capas exteriores tienen un brillo superficial extremadamente bajo y no deben confundirse con el perfil principal.",
+        "observing_notes": "Utilice un aumento medio para graduar núcleo y halo; considere las capas un desafío para gran apertura, cielo perfecto y comparación con imágenes profundas.",
+        "best_seen": "Primavera, en noches sin Luna; favorecida por latitudes meridionales",
+        "curiosity_text": "NGC 3923 muestra más de veinte capas estelares concéntricas, uno de los sistemas más ricos y simétricos conocidos. Probablemente sean ondas producidas cuando la galaxia absorbió una compañera menor."
+      },
+      "ngc-NGC4214": {
+        "short_description": "NGC 4214 es una galaxia enana irregular en Perros de Caza y un laboratorio cercano de formación estelar. No tiene un núcleo simétrico: parece una nube alargada y moteada, con varias condensaciones que responden bien a un aumento moderado.",
+        "observing_notes": "Encuéntrela con poca potencia y aumente después mientras las zonas brillantes conserven contraste; registre la forma irregular en lugar de buscar brazos espirales.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "NGC 4214 contiene nubes aún en colapso, cúmulos recién nacidos y cavidades excavadas por las estrellas más masivas. Esta variedad, unida a su relativa cercanía, permite reconstruir varias etapas del nacimiento estelar."
+      },
+      "ngc-NGC4216": {
+        "short_description": "NGC 4216 es una gran espiral próxima al núcleo del cúmulo de Virgo, vista casi de canto. Su disco delgado cruza un bulbo brillante y puede mostrar una tenue banda de polvo; numerosas galaxias menores enriquecen el campo.",
+        "observing_notes": "Encuadre primero todo el huso con potencia media-baja, amplíe después el bulbo y compare ambos lados del disco; un atlas ayuda a identificar las compañeras.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "Tenues corrientes, lazos y penachos producidos por la destrucción de galaxias enanas se entrelazan alrededor de NGC 4216. Una estructura parece proceder incluso de un satélite de otro satélite."
+      },
+      "ngc-NGC4395": {
+        "short_description": "NGC 4395 es una espiral enana casi frontal en Perros de Caza, con brillo superficial muy bajo. Su núcleo activo es físicamente notable pero visualmente débil; el objetivo principal es un resplandor extenso e irregular.",
+        "observing_notes": "Elija un lugar muy oscuro, utilice poco aumento y desplace ligeramente el campo; no espere que el núcleo activo parezca un punto brillante.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "NGC 4395 no tiene un bulbo clásico, pero alberga un núcleo Seyfert. Su agujero negro, estimado en unas diez mil masas solares, está entre los más pequeños conocidos en el centro de una galaxia."
+      },
+      "ngc-NGC4414": {
+        "short_description": "NGC 4414 es una espiral floculenta sin barra en Cabellera de Berenice. Su inclinación concentra la luz en un óvalo de centro firme; las bandas de polvo y segmentos de brazo producen un moteado sutil en telescopios grandes.",
+        "observing_notes": "Utilice un aumento medio para distinguir núcleo y disco y examine después los bordes con paciencia en busca de cambios de contraste, sin filtros.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "Hubble observó repetidamente las variables Cefeidas de NGC 4414 para medir con precisión su distancia. Ese peldaño de la escala cósmica ayudó a determinar la tasa de expansión y la edad del Universo."
+      },
+      "ngc-NGC4490": {
+        "short_description": "NGC 4490, la Galaxia Capullo, es una espiral peculiar en Perros de Caza que interactúa con NGC 4485. Es brillante, alargada y asimétrica; la pequeña compañera se encuentra cerca de un extremo y exige mayor atención.",
+        "observing_notes": "Con un aumento medio, siga el eje de NGC 4490 y busque NGC 4485 en el lado norte; las aperturas mayores muestran mejor los nudos y deformaciones.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "NGC 4490 y NGC 4485 tuvieron un encuentro gravitacional cercano y siguen unidas por un puente de gas. El suceso deformó la Galaxia Capullo y desencadenó oleadas de formación estelar en ambas."
+      },
+      "ngc-NGC4526": {
+        "short_description": "NGC 4526 es una galaxia lenticular luminosa y muy inclinada del cúmulo de Virgo. Su intenso bulbo está envuelto en un disco delgado y regular; una banda de polvo cruza la región central y se vuelve evidente con buena apertura.",
+        "observing_notes": "Utilice un aumento medio-alto sobre el centro manteniendo oscuro el fondo; compare los bordes del disco y busque la delgada línea de absorción que cruza el bulbo.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "En el centro de NGC 4526, un disco de gas gira hasta unos 250 kilómetros por segundo alrededor de un agujero negro de aproximadamente 450 millones de masas solares. La galaxia también ha albergado dos supernovas observadas."
+      },
+      "ngc-NGC4535": {
+        "short_description": "NGC 4535 es una gran espiral casi frontal en Virgo, apodada Galaxia Perdida por su aspecto fantasmal en telescopios pequeños. Su núcleo es modesto y el disco de unos 8′ se confunde rápidamente con un fondo luminoso.",
+        "observing_notes": "Utilice poco aumento, una carta precisa y visión periférica; tras detectarla, pruebe una potencia media solo para buscar la barra central.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "El apodo Galaxia Perdida nace del contraste entre fotografías repletas de brazos y su aspecto casi fantasmal en telescopios pequeños. Sin embargo, el disco alberga muchos viveros estelares estudiados por PHANGS."
+      },
+      "ngc-NGC4654": {
+        "short_description": "NGC 4654 es una espiral asimétrica del cúmulo de Virgo. Su núcleo está desplazado dentro de un disco ovalado y un lado parece más extendido: el desequilibrio procede de perturbaciones que actúan tanto sobre las estrellas como sobre el gas.",
+        "observing_notes": "Obsérvela con un aumento medio y compare sistemáticamente ambos lados del núcleo; la visión periférica ayuda a seguir la extensión más tenue.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "La forma desequilibrada de NGC 4654 no se explica mediante un único mecanismo. Los modelos reproducen sus estrellas y su larga cola de gas solo al combinar un paso cercano a NGC 4639 con la presión del medio del cúmulo de Virgo."
+      },
+      "ngc-NGC4696": {
+        "short_description": "NGC 4696 es la galaxia elíptica gigante situada en el centro del cúmulo de Centauro. En el ocular es un halo ovalado regular con núcleo fuerte, inmerso en un campo de galaxias más débiles; sus complejas bandas centrales de polvo siguen siendo difíciles.",
+        "observing_notes": "Utilice un aumento medio para separar el halo del fondo y suba después la potencia sobre el núcleo; una carta profunda evita confusiones entre los miembros del cúmulo.",
+        "best_seen": "Noches sin Luna cerca de la culminación, favorecida por latitudes australes",
+        "curiosity_text": "El agujero negro central de NGC 4696 atraviesa ciclos de actividad cada cinco a diez millones de años. Sus erupciones inflan cavidades y generan ondas de choque en el gas caliente del cúmulo de Centauro."
+      },
+      "ngc-NGC4725": {
+        "short_description": "NGC 4725 es una gran espiral barrada en Cabellera de Berenice, inusual por su único brazo principal y su anillo muy extendido. El núcleo y la barra central son relativamente brillantes, mientras que la estructura exterior de casi 10′ tiene poco contraste.",
+        "observing_notes": "Centre la región interior con un aumento medio, reduzca después la potencia y use visión periférica para buscar el anillo y la asimetría del brazo.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "NGC 4725 es una rareza morfológica: tiene un solo brazo espiral dominante en vez de los dos o más habituales. Ese brazo envuelve una barra central y forma un anillo rico en estrellas nuevas."
+      },
+      "ngc-NGC4753": {
+        "short_description": "NGC 4753 es una galaxia lenticular peculiar e inclinada en Virgo, atravesada por retorcidas bandas de polvo. Los telescopios pequeños muestran un óvalo brillante con núcleo firme; el dibujo irregular del polvo requiere aperturas mayores.",
+        "observing_notes": "Con potencia media, defina el bulbo y el eje mayor y aumente después gradualmente para buscar regiones oscuras asimétricas delante del centro.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "Las retorcidas bandas de polvo de NGC 4753 conservan la geometría de una fusión con una galaxia enana ocurrida hace unos 1.300 millones de años. La misma galaxia ha albergado dos supernovas de tipo Ia."
+      },
+      "ngc-NGC4762": {
+        "short_description": "NGC 4762 es una galaxia lenticular en Virgo vista casi exactamente de canto. Su disco delgado se extiende más de 8′ alrededor de un bulbo brillante, creando un perfil de hoja nítido sin brazos visibles.",
+        "observing_notes": "Utilice un campo medio para seguir ambos extremos del disco; más aumento resalta el abultamiento central y el brusco estrechamiento exterior.",
+        "best_seen": "Primavera, en noches sin Luna",
+        "curiosity_text": "Vista de canto, NGC 4762 parece una simple hoja; los estudios estructurales llevaron a reclasificarla de espiral barrada a lenticular. Es un buen ejemplo de cómo la orientación puede ocultar la forma real de una galaxia."
+      },
+      "ngc-NGC5068": {
+        "short_description": "NGC 5068 es una espiral barrada cercana y casi frontal en Virgo, rica en regiones de formación estelar. Su disco amplio y desordenado tiene bajo brillo superficial: visualmente aparecen primero la barra descentrada y algunas condensaciones.",
+        "observing_notes": "Obsérvela con poca potencia bajo un cielo meridional transparente; utilice visión periférica para unir las manchas en un solo perfil galáctico.",
+        "best_seen": "Primavera, en noches sin Luna; favorecida por latitudes meridionales",
+        "curiosity_text": "NGC 5068 contiene miles de regiones de formación estelar y al menos 110 estrellas Wolf-Rayet, astros masivos en una breve fase evolutiva. Aun así, su amplio disco tiene un brillo superficial lo bastante bajo como para desafiar al ojo."
+      },
+      "ngc-NGC5253": {
+        "short_description": "NGC 5253 es una galaxia enana compacta azul en Centauro, dominada por un intenso brote de formación estelar. En el ocular parece pequeña, alargada y concentrada hacia el centro, con un contorno menos regular que el de una elíptica clásica.",
+        "observing_notes": "Utilice un aumento medio para separar el núcleo casi estelar del halo; con una apertura mayor, busque la forma irregular en lugar de brazos definidos.",
+        "best_seen": "Noches sin Luna cerca de la culminación, favorecida por latitudes australes",
+        "curiosity_text": "NGC 5253 es a la vez una enana compacta azul y una galaxia de brote estelar. Su densa nebulosa central está siendo consumida por cúmulos de estrellas masivas que se forman a un ritmo excepcional para una galaxia tan pequeña."
+      },
+      "ngc-NGC5907": {
+        "short_description": "NGC 5907, la Galaxia Filo de Cuchillo, es una espiral en Dragón vista casi perfectamente de canto. Aparece como un huso extremadamente delgado de más de 11′; su núcleo modesto y la banda de polvo hacen que un borde sea más nítido que el otro.",
+        "observing_notes": "Utilice un aumento medio-bajo y un campo suficiente para abarcar toda la hoja; aumente después para comparar ambos bordes y buscar la banda de polvo mediante visión periférica.",
+        "best_seen": "Verano, en noches sin Luna",
+        "curiosity_text": "La banda de polvo de NGC 5907 es tan marcada que sus dos lados se confundieron con objetos distintos. Por ello, el mismo sistema entró en el New General Catalogue con dos números: NGC 5906 y NGC 5907."
+      },
+      "ngc-NGC6503": {
+        "short_description": "NGC 6503 es una espiral enana aislada en Dragón, vista inclinada en el borde del Vacío Local. Su estrecho disco de unos 6′ tiene un brillo bastante uniforme y una modesta condensación central, por lo que es accesible a telescopios medianos bajo cielos oscuros.",
+        "observing_notes": "Con un aumento medio, siga el perfil alargado y busque moteado en el disco; una potencia excesiva dispersa rápidamente su luz superficial.",
+        "best_seen": "Verano, en noches sin Luna",
+        "curiosity_text": "NGC 6503 se encuentra en el borde del Vacío Local, una región extremadamente pobre en galaxias de al menos 150 millones de años luz de anchura. Su disco tiene solo un tercio del tamaño del de la Vía Láctea."
+      },
+      "ngc-NGC7217": {
+        "short_description": "NGC 7217 es una espiral casi frontal en Pegaso, notable por varios anillos concéntricos pese a carecer de una barra evidente. Visualmente muestra un núcleo brillante en un halo casi circular; los anillos exigen gran apertura y contraste excelente.",
+        "observing_notes": "Utilice un aumento medio sobre el núcleo y redúzcalo después para el halo de unos 4,5′; busque cambios radiales sutiles de brillo en vez de líneas nítidas.",
+        "best_seen": "Otoño, en noches sin Luna",
+        "curiosity_text": "NGC 7217 posee un anillo nuclear, uno interior y otro exterior pese a no mostrar una barra fuerte. El anillo exterior contiene cerca de dos tercios del hidrógeno neutro de la galaxia y alberga intensa formación estelar."
+      },
+      "ngc-NGC7424": {
+        "short_description": "NGC 7424 es una espiral barrada frontal en Grulla, con brazos abiertos y numerosas regiones de formación estelar. Su disco difuso es mayor que la parte inmediatamente visible en el ocular: un centro pequeño y tenues condensaciones emergen del fondo.",
+        "observing_notes": "Obsérvela con poca potencia desde latitudes australes, dejando mucho cielo alrededor; solo después de detectarla pruebe un aumento medio sobre los nudos más brillantes.",
+        "best_seen": "Noches sin Luna de agosto a noviembre, desde el hemisferio sur",
+        "curiosity_text": "Tras la supernova 2001ig, Hubble logró aislar la estrella compañera superviviente. Es una de las pruebas más claras de que algunas supernovas pierden la mayor parte de su envoltura por interacción dentro de un sistema binario."
+      },
+      "ngc-NGC7793": {
+        "short_description": "NGC 7793 es una espiral floculenta cercana en Escultor, de más de 10′ de anchura. Sus brazos fragmentados no forman un patrón regular: visualmente aparece como un amplio resplandor granuloso con poco dominio central.",
+        "observing_notes": "Utilice prismáticos grandes o un telescopio con poco aumento bajo un cielo austral oscuro; busque variaciones superficiales en lugar de un único centro brillante.",
+        "best_seen": "Noches sin Luna de agosto a noviembre, favorecida por latitudes australes",
+        "curiosity_text": "Un sistema binario en NGC 7793 contiene un agujero negro estelar cuyos chorros están inflando una burbuja de gas caliente de unos mil años luz de anchura. Es una escala enorme frente al objeto compacto que la alimenta."
       }
     },
     "catalogue_objects": {

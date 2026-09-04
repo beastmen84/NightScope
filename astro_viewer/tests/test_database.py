@@ -335,7 +335,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
         ) as file:
             rows = list(csv.DictReader(file))
 
-        self.assertEqual(len(rows), 228)
+        self.assertEqual(len(rows), 278)
         self.assertEqual({row["object_id"] for row in rows}, description_ids)
         texts = [row["curiosity_text"].strip() for row in rows]
         self.assertEqual(len(set(texts)), len(texts))
@@ -361,7 +361,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
         with data_path.open("r", encoding="utf-8", newline="") as file:
             rows = list(csv.DictReader(file))
 
-        self.assertEqual(len(rows), 228)
+        self.assertEqual(len(rows), 278)
         self.assertEqual(len({row["object_id"] for row in rows}), len(rows))
         descriptions = [row["short_description"].strip() for row in rows]
         observing_notes = [row["observing_notes"].strip() for row in rows]
@@ -395,7 +395,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             curiosities = ObjectImageRepository(database_path).curiosities()
 
-            self.assertEqual(len(curiosities), 228)
+            self.assertEqual(len(curiosities), 278)
             self.assertIn("stella di neutroni", curiosities["messier-M1"]["curiosity_text"])
             self.assertEqual(curiosities["caldwell-C23"]["source_label"], "NASA Hubble")
             self.assertEqual(curiosities["sun"]["source_label"], "NASA Science")

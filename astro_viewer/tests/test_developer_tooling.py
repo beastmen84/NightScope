@@ -244,7 +244,7 @@ def test_code_documentation_gate_covers_the_repository_and_rejects_empty_headers
 ) -> None:
     assert documentation_errors(PROJECT_ROOT) == []
     assert documentation_counts(PROJECT_ROOT) == {
-        "Python": 246,
+        "Python": 247,
         "QML": 34,
         "operational": 17,
     }
@@ -904,6 +904,7 @@ def test_multilingual_website_has_complete_local_links_and_seo_metadata() -> Non
         assert "v1.45.21" in source
         assert "v1.43.0" in source
         assert "1.46.0" not in source
+        assert "1.46.1" not in source
 
         assert len(parser.json_ld_blocks) == 1
         structured_data = json.loads(parser.json_ld_blocks[0])

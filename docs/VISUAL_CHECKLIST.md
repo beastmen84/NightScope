@@ -7,7 +7,7 @@ sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
 verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 `archive/TESTING_HISTORY_THROUGH_1.45.6.md`. Il bundle pubblico corrente e'
 `1.45.21` su Windows, mentre Linux resta a `1.43.0`; le verifiche dei futuri
-artefatti `1.46.0` sono separate in `RELEASE_CHECKLIST.md` e devono essere
+artefatti `1.46.1` sono separate in `RELEASE_CHECKLIST.md` e devono essere
 ripetute per ciascuna dist effettivamente rigenerata.
 
 ## Verifica Sorgente Spagnolo 1.34.0
@@ -634,6 +634,15 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   scala di sistema mostrano titolo, quattro passaggi, stato localizzato e
   contatore coerente senza tagli o sovrapposizioni; i bordi arrotondati e gli
   angoli trasparenti restano corretti in tutte le varianti.
+- [x] **VIS-V52 (`VERIFICATA`)** - Il primo batch editoriale NGC e' stato
+  renderizzato su Windows in una matrice di 36 scene `1440 x 1000`: NGC 292,
+  NGC 925, NGC 2683, NGC 4214, NGC 4535 e il caso multi-designazione
+  NGC 5906/5907, in italiano, inglese e spagnolo, sia in modalita' normale sia
+  Red Night Vision. Descrizione, periodo, note,
+  curiosita' e fonte restano leggibili senza tagli o sovrapposizioni; la scena
+  rossa resta monocromatica. Il renderer riutilizzabile
+  `astro_viewer/tools/render_editorial_samples.py` usa un runtime isolato e
+  salva i file di revisione fuori dal repository.
 
 ## Verifica Delle Correzioni 1.33.1
 

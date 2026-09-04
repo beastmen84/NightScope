@@ -2,21 +2,22 @@
 
 This document is the acceptance contract for adding descriptions, observing
 guidance, and source-backed curiosities to the catalogue in Italian, English,
-and Spanish. Source `1.46.0` establishes the pipeline and acceptance gates but
-does not add any of the missing NGC-only editorial entries.
+and Spanish. Source `1.46.0` established the pipeline and acceptance gates;
+source `1.46.1` applies that contract to the first 50 NGC-only galaxies.
 
 ## Baseline And Scope
 
-NightScope currently has complete editorial content for 228 curated objects:
+NightScope's immutable pre-programme baseline contains 228 curated objects:
 
 - 9 Solar System targets;
 - 110 Messier targets;
 - 109 Caldwell targets.
 
 OpenNGC contributes 7,571 physical NGC targets. Two hundred five resolve to
-already curated physical objects, while 7,366 are NGC-only targets. Those
-NGC-only objects intentionally use a localized `Work in progress` fallback.
-They are the main scope of the future content stream.
+already curated physical objects, while 7,366 are NGC-only targets. Source
+`1.46.1` completes 50 of those targets, bringing reviewed editorial coverage to
+278 physical objects and leaving 7,316 NGC-only targets on the localized
+`Work in progress` fallback.
 
 Catalogue aliases do not create duplicate editorial work. Content belongs to
 the stable physical `object_id`; Messier, Caldwell, NGC, and historical aliases
@@ -122,6 +123,15 @@ version per accepted batch. This can legitimately result in many patch versions;
 public Windows or Linux bundles may group several source batches and remain a
 separate release decision.
 
+Accepted batch ledger:
+
+| Source | Scope | Completed NGC-only | Remaining NGC-only |
+| --- | --- | ---: | ---: |
+| `1.46.1` | 50 varied, well-documented galaxies | 50 | 7,316 |
+
+The next editorial source patch is `1.46.2`; it must define and review its own
+bounded manifest rather than extending the accepted `1.46.1` set.
+
 Work in bounded batches, each with its own source version and commit. A batch
 should be small enough for every source and all three languages to be reviewed;
 roughly 50 to 100 objects is a sensible initial ceiling, adjusted downward for
@@ -185,6 +195,21 @@ source check:
 .\.venv\Scripts\python.exe astro_viewer\tools\audit_curiosity_sources.py `
   --batch astro_viewer\data\editorial_batches\batch_1_46_N.json
 ```
+
+Render the manifest's representative Object Detail samples in all three
+languages and both visual modes into a temporary directory outside the
+repository:
+
+```powershell
+.\.venv\Scripts\python.exe astro_viewer\tools\render_editorial_samples.py `
+  --batch astro_viewer\data\editorial_batches\batch_1_46_N.json `
+  --output-dir "$env:TEMP\NightScope-editorial-review"
+```
+
+The renderer uses an isolated runtime automatically. Review every generated
+contact sheet for complete text, language selection, layout integrity, visible
+source attribution, and monochromatic Red Night Vision before changing the
+manifest's visual states to `accepted`.
 
 Similarity checks are screening tools, not proof of quality. Passing a token
 threshold does not make templated prose acceptable.

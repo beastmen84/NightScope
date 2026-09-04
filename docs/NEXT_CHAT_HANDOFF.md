@@ -4,16 +4,20 @@ Updated: 2026-09-04
 
 ## Current State
 
-- Source version: `1.46.0`.
+- Source version: `1.46.1`.
 - Current public Windows release: `v1.45.21`, from source commit
   `d06300b43db0b3df2acbcb7cde2761158704f7b5`; its GitHub release contains the
   portable Windows x64 ZIP and no Linux package.
 - Current public Linux release: `v1.43.0`, from source commit
   `26dfaf49df8f9b8e73e84f406396f406170400b2`; its GitHub release contains the
   Debian 12 x86-64 tarball and adjacent checksum.
-- Source `1.46.0` is not published: no `v1.46.0` tag, bundle, checksum, or
+- Source `1.46.1` is not published: no `v1.46.1` tag, bundle, checksum, or
   GitHub release has been created.
-- `dist` was deliberately not regenerated or modified for `1.46.0`.
+- `dist` was deliberately not regenerated or modified for `1.46.1`.
+- The first editorial batch is accepted: 50 NGC-only galaxies now have complete
+  canonical Italian content and reviewed English/Spanish overlays. Catalogue
+  coverage is 278 complete objects (228 baseline plus 50 NGC-only), with 7,316
+  NGC-only targets remaining.
 - The multilingual static website lives under `website/`, and
   `.github/workflows/pages.yml` uploads only that directory. GitHub Pages is
   enabled with the `workflow` source, HTTPS is enforced, and the public homepage
@@ -49,7 +53,8 @@ Updated: 2026-09-04
 | 1.45.20 | `4cf60a1` | Pins the Windows Python/dependency closure; its remote run exposed path-dependent bytecode in the legal archive. |
 | 1.45.21 | `d06300b` | Excludes code and bytecode from license notices so clean Windows environments generate an identical archive. |
 | 1.45.22 | `d99e03c` | Shows localized startup progress on every launch while preserving fixed English copy for a genuinely new runtime. |
-| 1.46.0 | current source | Establishes the audited multilingual editorial pipeline without adding NGC prose. |
+| 1.46.0 | `93fba5f` | Establishes the audited multilingual editorial pipeline without adding NGC prose. |
+| 1.46.1 | current source | Accepts the first 50-object, source-backed, three-language NGC editorial batch. |
 
 ## Resulting Architecture
 
@@ -97,10 +102,10 @@ QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.46.0` coverage/security source gate passed on
+The final local `1.46.1` coverage/security source gate passed on
 Windows/Python 3.14.5:
 
-- 1,223 tests and 10 subtests in 300.73 seconds, with 86% aggregate application
+- 1,224 tests and 10 subtests in 315.84 seconds, with 86% aggregate application
   coverage and no unexpected warning summary;
 - validated toolchain: pip 26.2.1, Ruff 0.16.5, coverage 7.16.0, PyInstaller
   6.22.2, and `pyinstaller-hooks-contrib` 2026.7;
@@ -108,17 +113,19 @@ Windows/Python 3.14.5:
   Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, and NumPy 2.5.2;
 - validated Earthdata runtime: earthaccess 0.18.0, s3fs/fsspec 2026.7.0,
   aiobotocore 3.9.0, and maximum compatible botocore 1.43.56;
-- complete documentation inventory at the coverage/security gate: 246 Python,
+- complete documentation inventory at the coverage/security gate: 247 Python,
   34 QML, and 17 operational files;
-- Ruff, compilation, license archive, MPC/OpenNGC snapshot checks, and the new
+- Ruff, compilation, license archive, MPC/OpenNGC snapshot checks, and the
   network-free editorial baseline/manifest/translation/provenance audit;
 - 0 import cycles and 0 protected-layer violations;
 - Bandit baseline unchanged: 0 high, 34 medium, 14 low reviewed findings;
 - `pip check`; the in-gate `pip-audit` found no known vulnerabilities;
 - backend, normal QML, and Red Night Vision smoke tests;
+- separate batch evidence: 99 distinct source URLs reached successfully and 36
+  Object Detail scenes reviewed across six objects, IT/EN/ES and normal/red;
 - the earlier PySide6 6.11.2 `qmllint`, isolated first-use/saved-Spanish launches,
   and native Windows splash renders from `1.45.22` remain the latest dedicated
-  visual/startup evidence; they were not repeated for this non-QML preparation.
+  startup evidence; no QML source changed in `1.46.1`.
 
 After the static website and its Pages workflow were added, all 46 developer-
 tooling tests passed in 7.36 seconds and Ruff remained clean. These focused
@@ -149,10 +156,11 @@ Skyfield event/calculation seams remain the next non-persistence priority.
 
 ## Active Product Work: Catalogue Editorial Content
 
-Source `1.46.0` prepares source-backed descriptions and curiosities for the
-NGC-only physical targets in Italian, English, and Spanish. It intentionally
-adds zero NGC entries: the existing 228 curated Solar System/Messier/Caldwell
-entries remain complete and 7,366 NGC-only physical targets remain queued.
+Source `1.46.1` applies the prepared editorial pipeline to 50 notable NGC-only
+galaxies chosen to exercise morphology, surface brightness, orientation and
+northern/southern accessibility. The existing 228 curated Solar
+System/Messier/Caldwell entries remain the immutable baseline; 278 physical
+objects are now complete and 7,316 NGC-only targets remain queued.
 
 The network-free audit freezes the baseline identity, verifies canonical fields,
 EN/ES overlay parity, provenance, duplicate text, accepted manifests and the
@@ -180,9 +188,18 @@ boundaries:
   recommendation scores;
 - do not regenerate `dist` until explicitly requested.
 
-The next source step is `1.46.1`: choose one coherent batch of at most 100
+The accepted `batch_1_46_1.json` manifest records exact designations, direct NED
+evidence and an object-specific institutional or primary source for every
+curiosity. Its 99 distinct URLs passed the live audit on 2026-09-04. Six
+representative objects, including the multi-designation NGC 5906/5907 case,
+were rendered in all three languages and both normal and Red Night Vision
+modes: 36 scenes showed the final text and attribution without clipping or
+overlap. `render_editorial_samples.py` makes that matrix repeatable with an
+isolated runtime and output outside the repository.
+
+The next source step is `1.46.2`: select a new coherent batch of at most 100
 objects, research and review every Italian entry, review both translations,
-accept its manifest, run the batch-specific static/live audits and the full
+accept its own manifest, run the batch-specific static/live audits and the full
 source gate, then commit that batch as one version. Public platform bundles can
 group several source batches; they are not implied by each patch version.
 

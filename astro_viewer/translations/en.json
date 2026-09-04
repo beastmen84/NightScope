@@ -1379,6 +1379,306 @@
         "observing_notes": "For C109 (NGC 3195), use its 0.6′ size to keep the entire nebula in view before narrowing the field.",
         "best_seen": "Spring",
         "curiosity_text": "NGC 3195 is one of the southernmost planetary nebulae accessible to observers. Its elongated structure and high-speed flows indicate that the ejection of the central star was not spherical."
+      },
+      "ngc-NGC292": {
+        "short_description": "NGC 292, the Small Magellanic Cloud, is a dwarf irregular galaxy in Tucana. It spans about five degrees of sky: to the naked eye it looks like a cloud detached from the Milky Way, while binoculars and small telescopes break its outline into star fields, clusters, and nebulosity.",
+        "observing_notes": "Begin with the naked eye under a dark southern sky, then use wide-field binoculars; with a telescope, explore individual regions rather than expecting the whole galaxy to fit in one field.",
+        "best_seen": "Dark nights from September to December, best from the Southern Hemisphere",
+        "curiosity_text": "The Small Magellanic Cloud is a nearby, luminous dwarf galaxy. In its Wing region, the scarcity of heavy elements recreates conditions typical of the young Universe, allowing astronomers to study star birth in an environment unlike the Milky Way."
+      },
+      "ngc-NGC613": {
+        "short_description": "NGC 613 is a barred spiral in Sculptor, compact yet rich in structure. At the eyepiece it first appears as an oval glow with a marked nucleus; the bar and the beginnings of the arms require aperture, transparency, and prolonged viewing.",
+        "observing_notes": "Use medium magnification to separate the nucleus from the roughly 5′ halo; alternate direct and averted vision, and do not use nebula filters.",
+        "best_seen": "Autumn, on moonless nights",
+        "curiosity_text": "The center of NGC 613 contains a supermassive black hole estimated to be about ten times more massive than the Milky Way's. Around it, a ring structure sustains intense star formation and bright radio emission."
+      },
+      "ngc-NGC660": {
+        "short_description": "NGC 660 in Pisces is a rare polar-ring galaxy seen at an angle. Visually, an irregular spindle with a faint center dominates; the inclined ring is a low-contrast detail reserved for large apertures and excellent skies.",
+        "observing_notes": "Find it at medium magnification and let averted vision reconstruct the elongated halo; increase power only while the sky background remains dark.",
+        "best_seen": "Autumn, on moonless nights",
+        "curiosity_text": "NGC 660's ring rotates in a plane tilted by about 45 degrees to the main disk. It is probably the remnant of a galactic encounter that occurred roughly one billion years ago."
+      },
+      "ngc-NGC772": {
+        "short_description": "NGC 772 is a large unbarred spiral in Aries, made asymmetric by one arm that is much more developed than the others. In medium instruments it appears as a diffuse oval with a concentrated nucleus; the distorted arm emerges only with a dark sky and large aperture.",
+        "observing_notes": "Start with a medium field to recognize the roughly 5′ halo, then try moderate magnification on the more extended side using averted vision.",
+        "best_seen": "Autumn, on moonless nights",
+        "curiosity_text": "The small companion NGC 770 exerts a tidal pull on NGC 772. The result is a highly elongated, asymmetric arm, so distinctive that the galaxy is classified as peculiar."
+      },
+      "ngc-NGC925": {
+        "short_description": "NGC 925 is a very open barred spiral in Triangulum, more than 10′ wide and modest in surface brightness. Its nucleus is not dominant: under a mediocre sky the galaxy can be far harder than its integrated magnitude suggests.",
+        "observing_notes": "Prefer low magnification, a generous exit pupil, and a field rich in guide stars; nudge the telescope slightly to make the faint asymmetric halo stand out.",
+        "best_seen": "Autumn and early winter, on moonless nights",
+        "curiosity_text": "In NGC 925 the bar does not quite coincide with the dynamical center, and the galaxy's two sides are very different. Its star formation behaves more like that of an irregular galaxy than an ordinary spiral."
+      },
+      "ngc-NGC1023": {
+        "short_description": "NGC 1023 is a bright lenticular galaxy in Perseus, seen as a regular spindle with an intense nucleus. Its disk extends for more than 7′ and fades without visible arms; a small companion clings to the eastern edge but is much harder.",
+        "observing_notes": "With a small telescope, center the nucleus and use medium magnification; in larger apertures, follow the tapered ends and look for faint NGC 1023A at the edge.",
+        "best_seen": "Autumn and winter, on moonless nights",
+        "curiosity_text": "Hubble identified two unusual open-cluster populations in NGC 1023: 81 old, long-lived systems and 27 young blue clusters, probably connected with the small companion NGC 1023A."
+      },
+      "ngc-NGC1055": {
+        "short_description": "NGC 1055 is an edge-on spiral in Cetus. Its nearly 7′ disk looks like a thick, slightly curved blade; the dust lane that makes one side irregular requires good aperture and a very dark background.",
+        "observing_notes": "First use medium magnification to define the spindle, then increase power gradually and compare the two sides of the disk for asymmetric absorption.",
+        "best_seen": "Autumn and winter, on moonless nights",
+        "curiosity_text": "NGC 1055's disk is warped and may be up to 15 percent larger than the Milky Way's. The curvature is probably linked to its interaction with nearby M77."
+      },
+      "ngc-NGC1232": {
+        "short_description": "NGC 1232 is a large, nearly face-on spiral in Eridanus, filled with arms and star-forming regions. Its light is spread across almost 7′, however, so visually a small center and a very faint rounded disk dominate.",
+        "observing_notes": "Observe it at the lowest useful power under a transparent sky; after fixing the nucleus, use averted vision to estimate how far the disk extends.",
+        "best_seen": "Winter, on moonless nights; favored by southerly latitudes",
+        "curiosity_text": "VLT images clearly separate NGC 1232's populations: older reddish stars in the center and young blue stars in the arms. A small companion with a curious theta shape appears alongside it."
+      },
+      "ngc-NGC1300": {
+        "short_description": "NGC 1300 is a barred spiral in Eridanus, famous for its straight bar and the two arms that spring from its ends. At the eyepiece, the nucleus and elongated halo are accessible before the S-shaped structure, which remains challenging.",
+        "observing_notes": "Try medium magnification on the center, then reduce it to include the whole roughly 6′ outline; a steady night helps separate the bar from the nucleus.",
+        "best_seen": "Winter, on moonless nights; favored by southerly latitudes",
+        "curiosity_text": "Inside NGC 1300's large bar lies a second spiral structure about 3,300 light-years wide. It is a rare spiral within a spiral, wrapped around the nucleus."
+      },
+      "ngc-NGC1313": {
+        "short_description": "NGC 1313 is an irregular barred spiral in Reticulum, about 11′ wide and marked by scattered star-forming regions. Its integrated magnitude is favorable, but the extended, disordered disk has low contrast and especially rewards clear southern skies.",
+        "observing_notes": "Use a wide field and low magnification; look first for the bar and brighter condensations, then reconstruct the irregular edges with averted vision.",
+        "best_seen": "Moonless nights near culmination, from the Southern Hemisphere",
+        "curiosity_text": "NGC 1313 forms stars rapidly despite being isolated, with no obvious companion to trigger the starburst. Its dynamical center is offset from the bar, and it also hosts two ultraluminous X-ray sources."
+      },
+      "ngc-NGC1316": {
+        "short_description": "NGC 1316, Fornax A, is a large peculiar lenticular galaxy in Fornax and the dominant member of a subgroup. A bright nucleus inside a broad oval halo is already visible in small instruments; the arcs and dust from its turbulent past are far more elusive.",
+        "observing_notes": "Initially keep a wide field to follow the halo beyond 10′ and include NGC 1317; then use more power to study the nucleus, without filters.",
+        "best_seen": "Winter, on moonless nights; favored by southerly latitudes",
+        "curiosity_text": "Arcs, rings, and faint stellar streams around NGC 1316 are scars of ancient mergers. Dust lanes inside it confirm that this large lenticular galaxy absorbed gas-rich systems."
+      },
+      "ngc-NGC1365": {
+        "short_description": "NGC 1365 is one of the great barred spirals in Fornax. Its bright bar crosses a disk roughly 12′ wide, while open arms draw a fainter structure: dark skies and a sufficiently wide field are essential.",
+        "observing_notes": "Locate the nucleus at medium magnification, then return to lower power to follow the bar and attempt the two arms with averted vision.",
+        "best_seen": "Winter, on moonless nights; favored by southerly latitudes",
+        "curiosity_text": "NGC 1365's bar is not merely decorative: it channels gas toward the central regions and feeds new star formation. The nucleus also contains an active supermassive black hole."
+      },
+      "ngc-NGC1398": {
+        "short_description": "NGC 1398 is a nearly face-on barred spiral in Fornax, with a pearly center surrounded by a bar, an inner ring, and slender arms. Visually it first shows a firm nucleus within an oval halo; the ring and arms require generous apertures.",
+        "observing_notes": "Alternate a medium field for the roughly 7′ halo with higher magnification on the center; seek brightness differences rather than sharp photographic outlines.",
+        "best_seen": "Winter, on moonless nights; favored by southerly latitudes",
+        "curiosity_text": "NGC 1398's arms do not begin directly at the nucleus but at the ends of a straight bar of stars. Pinkish patches farther out mark regions where new stars are being born."
+      },
+      "ngc-NGC1433": {
+        "short_description": "NGC 1433 is a barred, ringed spiral in Horologium. Its bright center is wrapped in nearly circular structures, but at the eyepiece the galaxy appears mainly as a concentrated oval, and ring segments are delicate details.",
+        "observing_notes": "Use medium magnification to separate the nucleus from the disk, then try lower power to catch the roughly 6′ extent with averted vision.",
+        "best_seen": "Moonless nights near culmination, from the Southern Hemisphere",
+        "curiosity_text": "ALMA revealed a molecular outflow about 150 light-years long in the center of NGC 1433. At the time of discovery it was the smallest flow of this kind observed outside the Milky Way."
+      },
+      "ngc-NGC1512": {
+        "short_description": "NGC 1512 is a nearly face-on barred spiral in Horologium, shaped by its interaction with small NGC 1510. The nucleus and bar form a compact patch; the enormous outer ring, spectacular in photographs, has very low visual contrast.",
+        "observing_notes": "Frame both galaxies at low power, then magnify the center of NGC 1512; treat the outer ring as a goal for large aperture and an impeccable sky.",
+        "best_seen": "Moonless nights near culmination, from the Southern Hemisphere",
+        "curiosity_text": "The encounter with dwarf NGC 1510 distorted NGC 1512's enormous outer structure and ignited new star formation. The two galaxies are separated by only about 68,000 light-years."
+      },
+      "ngc-NGC1532": {
+        "short_description": "NGC 1532 is a nearly edge-on spiral in Eridanus, distorted by its elliptical companion NGC 1531. Its disk stretches more than 11′ as a thin spindle with a central bulge and unequal ends.",
+        "observing_notes": "Start at low magnification to frame the pair and the whole disk; with a larger aperture, compare the two ends and look for the small companion beside the bulge.",
+        "best_seen": "Winter, on moonless nights; favored by southerly latitudes",
+        "curiosity_text": "Small elliptical NGC 1531 is gravitationally distorting the larger NGC 1532. A curved arm, plumes, and new massive stars make this slow galactic ballet visible."
+      },
+      "ngc-NGC1566": {
+        "short_description": "NGC 1566 is a nearly face-on spiral in Dorado, with an active nucleus and two main arms clearly traced in images. Visually the center is evident inside a broad soft disk; hints of spiral structure appear only in excellent conditions.",
+        "observing_notes": "Use low-to-medium power for the roughly 7′ disk and keep the nucleus outside direct vision while looking for variations in the arms.",
+        "best_seen": "Moonless nights near culmination, from the Southern Hemisphere",
+        "curiosity_text": "NGC 1566 is part of PHANGS, a program that follows the full star-formation cycle with different telescopes. In infrared light, Webb sees through dust and highlights the gas network feeding young clusters."
+      },
+      "ngc-NGC1672": {
+        "short_description": "NGC 1672 is a nearly face-on barred spiral in Dorado, with an active nucleus and intense star formation at the ends of the bar. At the eyepiece the center and short bar precede the faint rounded disk.",
+        "observing_notes": "At medium magnification, establish the bar's axis, then reduce power to follow the roughly 6′ halo; transparency matters more than a filter.",
+        "best_seen": "Moonless nights near culmination, from the Southern Hemisphere",
+        "curiosity_text": "NGC 1672 combines many energetic sources: a Seyfert nucleus, stellar nurseries at the ends of the bar, and compact X-ray sources. Its intense light therefore does not all come from the same process."
+      },
+      "ngc-NGC1808": {
+        "short_description": "NGC 1808 is a dusty barred spiral in Columba, home to a vigorous central starburst. Its narrow, roughly 5′ profile has a compact nucleus and uneven surface, making it easier to recognize than many face-on disks of the same magnitude.",
+        "observing_notes": "Use medium magnification on the nucleus and look for a mottled texture along the major axis; a transparent southern sky is decisive.",
+        "best_seen": "Winter, on moonless nights; favored by southerly latitudes",
+        "curiosity_text": "At the center of NGC 1808, a small stellar bar rotates as a dynamically separate system from the larger bar. Infrared observations also found a young population of stars in a nuclear disk."
+      },
+      "ngc-NGC2683": {
+        "short_description": "NGC 2683, the UFO Galaxy, is a spiral in Lynx seen almost edge-on. It is a bright spindle about 9′ long, with a marked central bulge and tapered edges; its dust lane becomes perceptible in larger apertures.",
+        "observing_notes": "A small telescope shows the profile well at medium magnification; with a larger aperture, increase power gradually and compare both sides of the nucleus for dust.",
+        "best_seen": "Late winter and spring, on moonless nights",
+        "curiosity_text": "The nickname UFO Galaxy comes from its nearly edge-on, flying-saucer-like disk. William Herschel discovered it in 1788; today Hubble shows how dust sculpts its profile."
+      },
+      "ngc-NGC2841": {
+        "short_description": "NGC 2841 is a flocculent spiral in Ursa Major, inclined enough to show a compact oval. It has a bright nucleus and an initially smooth disk; the patches of its many short arms require patience and aperture.",
+        "observing_notes": "Center the nucleus at medium power, then use averted vision along the major axis to extend the disk toward its roughly 7′ span.",
+        "best_seen": "Late winter and spring, on moonless nights",
+        "curiosity_text": "NGC 2841 is a flocculent spiral, built from many arm segments rather than two continuous grand arms. It also has an unusually low star-formation rate: young stars have dispersed much of the surrounding gas."
+      },
+      "ngc-NGC2903": {
+        "short_description": "NGC 2903 is a large barred spiral in Leo, among the brightest galaxies omitted from the Messier catalog. Small telescopes show an intense nucleus in an elongated halo; medium instruments reveal a bar and condensations in the disk.",
+        "observing_notes": "Start at low magnification to include nearly 12′ of halo, then increase power on the center and try to distinguish the brighter regions along the bar.",
+        "best_seen": "Late winter and spring, on moonless nights",
+        "curiosity_text": "Although brighter than many Messier objects, NGC 2903 escaped Charles Messier's catalog. Its bar channels material inward, feeding a lively central star-forming region."
+      },
+      "ngc-NGC2976": {
+        "short_description": "NGC 2976 is a peculiar dwarf galaxy in the M81 group in Ursa Major. Its outline is rectangular and diffuse, without a dominant nucleus; the uneven light is easily lost against a bright sky background.",
+        "observing_notes": "Use low magnification and a field that retains guide stars; averted vision helps define the softened edges and the disk's orientation.",
+        "best_seen": "Late winter and spring, on moonless nights",
+        "curiosity_text": "Interactions with the large galaxies of the M81 group stripped gas from NGC 2976. Star formation has already ceased in the outer regions, and central star formation may end within a few hundred million years."
+      },
+      "ngc-NGC2997": {
+        "short_description": "NGC 2997 is a face-on spiral in Antlia, dominated by two main arms wrapped around a small nucleus. Its broad disk exceeds 10′: the integrated magnitude is favorable, but structure appears only under a very dark southern sky.",
+        "observing_notes": "Use the lowest power that still darkens the background and observe patiently; locate the nucleus, then seek breaks in the arms with averted vision.",
+        "best_seen": "Moonless nights near culmination, favored by southern latitudes",
+        "curiosity_text": "NGC 2997 is an especially regular example of an Sc spiral. Although they branch, its two dominant arms can each be followed for a complete turn around the center."
+      },
+      "ngc-NGC3077": {
+        "short_description": "NGC 3077 is a small peculiar galaxy in the M81 group. Visually it resembles a bright, slightly irregular oval with central condensation; traces of its interaction with M81 and M82 extend far beyond what the eyepiece shows.",
+        "observing_notes": "Include it in the same observing tour as M81 and M82: a medium field defines its outline, while higher power tests the center's irregularity.",
+        "best_seen": "Late winter and spring, on moonless nights",
+        "curiosity_text": "NGC 3077 is joined to M81 and M82 by a diffuse bridge of gas torn out during gravitational encounters. Hubble found young star clusters in that orphaned material: collisions can ignite stars even outside galactic disks."
+      },
+      "ngc-NGC3184": {
+        "short_description": "NGC 3184 is an almost perfectly face-on spiral in Ursa Major. Its round disk over 7′ wide has a small nucleus and fragmented arms; low surface brightness makes it more elusive than its total magnitude.",
+        "observing_notes": "Stay at low magnification and use nearby stars to pin down the position; after seeing the center, let the disk emerge with minimal motion and averted vision.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "Deep images found more than a thousand small star-cluster-like knots beyond NGC 3184's conventional optical radius. Its star-forming disk therefore continues much farther than the bright outline suggests."
+      },
+      "ngc-NGC3344": {
+        "short_description": "NGC 3344 is a nearly face-on spiral in Leo Minor, with a subtle bar and ring systems. It shows a pointlike nucleus within a very faint circular halo; the annular structure is harder than simply detecting the galaxy.",
+        "observing_notes": "Use low power for the roughly 7′ disk, then medium power to check whether the center elongates; avoid all nebula filters.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "NGC 3344 has both an inner and an outer ring, plus a barely perceptible bar. Stars in the farther ring also show unexpected motions compared with the disk's orderly rotation."
+      },
+      "ngc-NGC3521": {
+        "short_description": "NGC 3521 is a bright flocculent spiral in Leo, inclined to our line of sight. A strong nucleus and broad oval halo are easy in small instruments; dust and woolly arms give the disk a mottled texture in larger apertures.",
+        "observing_notes": "At medium magnification, separate the bulge from the disk, then examine both edges of the halo while alternating direct and averted vision.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "NGC 3521's broken, woolly arms earn it both the flocculent classification and the nickname Bubble Galaxy. Instead of a pair of grand-design arms, its disk consists of many stellar and dusty fragments."
+      },
+      "ngc-NGC3621": {
+        "short_description": "NGC 3621 is an almost bulgeless spiral in Hydra, with a nearly 10′ disk and widespread star formation. Visually it appears as a soft oval with little central emphasis, so it needs more transparency than magnitude 9.6 might suggest.",
+        "observing_notes": "Observe it at low power with clear sky around the disk; averted vision and careful shielding from stray light help more than magnification.",
+        "best_seen": "Spring, on moonless nights; favored by southerly latitudes",
+        "curiosity_text": "NGC 3621 is almost entirely disk and lacks the central bulge usually associated with large black holes. Yet its nucleus shows activity consistent with an accreting black hole."
+      },
+      "ngc-NGC3628": {
+        "short_description": "NGC 3628, the Hamburger Galaxy, is the edge-on member of the Leo Triplet. Its roughly 11′ disk is crossed by a dark band, while the bulge appears split into two lobes with adequate aperture.",
+        "observing_notes": "Use a wide field to compare it with M65 and M66, then switch to medium magnification on NGC 3628 to follow the dust band.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "Interactions in the Leo Triplet pulled a tidal tail about 300,000 light-years long from NGC 3628. It contains young blue clusters and regions where stars are still being born."
+      },
+      "ngc-NGC3923": {
+        "short_description": "NGC 3923 is a large elliptical galaxy in Hydra, famous for a system of concentric shells. At the eyepiece a regular oval halo with a bright center dominates; the outer shells have extremely low surface brightness and should not be confused with the main profile.",
+        "observing_notes": "Use medium magnification to grade nucleus and halo; treat the shells as a challenge for large aperture, a perfect sky, and comparison with deep images.",
+        "best_seen": "Spring, on moonless nights; favored by southerly latitudes",
+        "curiosity_text": "NGC 3923 displays more than twenty concentric stellar shells, among the richest and most symmetrical systems known. They are probably waves produced when the galaxy absorbed a smaller companion."
+      },
+      "ngc-NGC4214": {
+        "short_description": "NGC 4214 is a dwarf irregular galaxy in Canes Venatici and a nearby laboratory of star formation. It has no symmetric nucleus: it looks like an elongated, mottled cloud, with several condensations that respond well to moderate magnification.",
+        "observing_notes": "Find it at low power, then increase magnification while the bright regions retain contrast; record the irregular shape instead of looking for spiral arms.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "NGC 4214 contains clouds still collapsing, newborn clusters, and cavities carved by the most massive stars. This variety, together with its relative proximity, lets astronomers reconstruct several stages of stellar birth."
+      },
+      "ngc-NGC4216": {
+        "short_description": "NGC 4216 is a large spiral near the core of the Virgo Cluster, seen almost edge-on. Its thin disk crosses a bright bulge and may show a faint dust lane; numerous smaller galaxies enrich the field.",
+        "observing_notes": "First frame the full spindle at low-to-medium power, then magnify the bulge and compare both sides of the disk; an atlas helps identify the companions.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "Faint streams, loops, and plumes produced by the destruction of dwarf galaxies intertwine around NGC 4216. One structure even seems to come from a satellite of another satellite."
+      },
+      "ngc-NGC4395": {
+        "short_description": "NGC 4395 is a nearly face-on dwarf spiral in Canes Venatici with very low surface brightness. Its active nucleus is physically remarkable but visually faint; the main target is an extended, irregular glow.",
+        "observing_notes": "Choose a very dark site, use low magnification, and nudge the field slightly; do not expect the active nucleus to look like a bright point.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "NGC 4395 has no classical bulge, yet it still hosts a Seyfert nucleus. Its black hole, estimated at around ten thousand solar masses, is among the smallest known at the center of a galaxy."
+      },
+      "ngc-NGC4414": {
+        "short_description": "NGC 4414 is an unbarred flocculent spiral in Coma Berenices. Its inclination concentrates the light into an oval with a firm center; dust lanes and arm segments produce subtle mottling in large telescopes.",
+        "observing_notes": "Use medium magnification to distinguish nucleus and disk, then examine the edges patiently for contrast changes without filters.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "Hubble repeatedly observed Cepheid variables in NGC 4414 to measure its distance precisely. That rung of the cosmic distance ladder helped determine the Universe's expansion rate and age."
+      },
+      "ngc-NGC4490": {
+        "short_description": "NGC 4490, the Cocoon Galaxy, is a peculiar spiral in Canes Venatici interacting with NGC 4485. It is bright, elongated, and asymmetric; the small companion lies near one end and needs closer attention.",
+        "observing_notes": "At medium magnification, follow NGC 4490's axis and seek NGC 4485 on the northern side; larger apertures show knots and distortions more clearly.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "NGC 4490 and NGC 4485 passed through a close gravitational encounter and remain joined by a bridge of gas. The event warped the Cocoon Galaxy and triggered waves of star formation in both."
+      },
+      "ngc-NGC4526": {
+        "short_description": "NGC 4526 is a bright, highly inclined lenticular galaxy in the Virgo Cluster. Its intense bulge is wrapped in a thin, regular disk; a dust lane crosses the central region and becomes evident with good aperture.",
+        "observing_notes": "Use medium-high magnification on the center while keeping the background dark; compare the disk edges and look for the thin absorption line across the bulge.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "At the center of NGC 4526, a gas disk spins at up to about 250 kilometers per second around a black hole of roughly 450 million solar masses. The galaxy has also hosted two observed supernovae."
+      },
+      "ngc-NGC4535": {
+        "short_description": "NGC 4535 is a large, nearly face-on spiral in Virgo, nicknamed the Lost Galaxy for its ghostly appearance in small telescopes. Its nucleus is modest, and the roughly 8′ disk quickly blends into a bright background.",
+        "observing_notes": "Use low magnification, an accurate chart, and averted vision; after detection, try medium power only to seek the central bar.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "The nickname Lost Galaxy comes from the contrast between photographs rich in spiral arms and its nearly ghostlike appearance in small telescopes. Yet its disk hosts many stellar nurseries studied by PHANGS."
+      },
+      "ngc-NGC4654": {
+        "short_description": "NGC 4654 is an asymmetric spiral in the Virgo Cluster. Its nucleus is offset within an oval disk, and one side appears more extended: the imbalance comes from disturbances acting on both stars and gas.",
+        "observing_notes": "Observe it at medium magnification and compare the two sides of the nucleus systematically; averted vision helps follow the fainter extension.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "NGC 4654's lopsided shape cannot be explained by a single mechanism. Models reproduce both its stars and long gas tail only by combining a close pass by NGC 4639 with pressure from the Virgo Cluster medium."
+      },
+      "ngc-NGC4696": {
+        "short_description": "NGC 4696 is the giant elliptical galaxy at the center of the Centaurus Cluster. At the eyepiece it is a regular oval halo with a strong nucleus, immersed in a field of fainter galaxies; its complex central dust lanes remain difficult.",
+        "observing_notes": "Use medium magnification to lift the halo from the background and then increase power on the nucleus; a deep chart prevents confusion among cluster members.",
+        "best_seen": "Moonless nights near culmination, favored by southern latitudes",
+        "curiosity_text": "NGC 4696's central black hole goes through cycles of activity every five to ten million years. Its outbursts inflate cavities and drive shock waves through the Centaurus Cluster's hot gas."
+      },
+      "ngc-NGC4725": {
+        "short_description": "NGC 4725 is a large barred spiral in Coma Berenices, unusual for its single main arm and very extended ring. The nucleus and central bar are relatively bright, while the outer structure, nearly 10′ across, has low contrast.",
+        "observing_notes": "Center the inner region at medium magnification, then reduce power and use averted vision to seek the ring and the arm's asymmetry.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "NGC 4725 is a morphological rarity: it has one dominant spiral arm rather than the usual two or more. That arm wraps around a central bar to form a ring rich in new stars."
+      },
+      "ngc-NGC4753": {
+        "short_description": "NGC 4753 is a peculiar, inclined lenticular galaxy in Virgo crossed by twisted dust lanes. Small telescopes show a bright oval with a firm nucleus; the irregular dust pattern requires larger apertures.",
+        "observing_notes": "At medium power, define the bulge and major axis, then increase magnification gradually to seek asymmetric dark regions in front of the center.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "NGC 4753's twisted dust lanes preserve the geometry of a merger with a dwarf galaxy about 1.3 billion years ago. The same galaxy has hosted two Type Ia supernovae."
+      },
+      "ngc-NGC4762": {
+        "short_description": "NGC 4762 is a lenticular galaxy in Virgo seen almost exactly edge-on. Its thin disk extends more than 8′ around a bright bulge, creating a sharp blade-like profile with no visible arms.",
+        "observing_notes": "Use a medium field to follow both ends of the disk; higher magnification highlights the central swelling and abrupt outer taper.",
+        "best_seen": "Spring, on moonless nights",
+        "curiosity_text": "Seen edge-on, NGC 4762 looks like a simple blade; structural studies led astronomers to reclassify it from a barred spiral to a lenticular galaxy. It shows how orientation can conceal a galaxy's true form."
+      },
+      "ngc-NGC5068": {
+        "short_description": "NGC 5068 is a nearby, nearly face-on barred spiral in Virgo, rich in star-forming regions. Its broad, untidy disk has low surface brightness: visually, the off-center bar and a few condensations appear first.",
+        "observing_notes": "Observe it at low power under a transparent southern sky; use averted vision to join the patches into one galactic outline.",
+        "best_seen": "Spring, on moonless nights; favored by southerly latitudes",
+        "curiosity_text": "NGC 5068 contains thousands of star-forming regions and at least 110 Wolf-Rayet stars, massive stars in a brief evolutionary phase. Yet its broad disk has low enough surface brightness to challenge the eye."
+      },
+      "ngc-NGC5253": {
+        "short_description": "NGC 5253 is a blue compact dwarf galaxy in Centaurus, dominated by an intense burst of star formation. At the eyepiece it appears small, elongated, and centrally concentrated, with an outline less regular than a classical elliptical.",
+        "observing_notes": "Use medium magnification to separate the starlike nucleus from the halo; with a larger aperture, seek the irregular shape rather than defined arms.",
+        "best_seen": "Moonless nights near culmination, favored by southern latitudes",
+        "curiosity_text": "NGC 5253 is both a blue compact dwarf and a starburst galaxy. Its dense central nebula is being consumed by clusters of massive stars forming at an exceptional rate for such a small galaxy."
+      },
+      "ngc-NGC5907": {
+        "short_description": "NGC 5907, the Knife Edge Galaxy, is a spiral in Draco seen almost perfectly edge-on. It appears as an extremely thin spindle more than 11′ long; its modest nucleus and dust lane make one edge sharper than the other.",
+        "observing_notes": "Use low-to-medium magnification and a field wide enough to contain the whole blade, then increase power to compare both edges and look for the dust lane with averted vision.",
+        "best_seen": "Summer, on moonless nights",
+        "curiosity_text": "NGC 5907's dust lane is so pronounced that the galaxy's two sides were mistaken for separate objects. The same system therefore entered the New General Catalogue under two numbers: NGC 5906 and NGC 5907."
+      },
+      "ngc-NGC6503": {
+        "short_description": "NGC 6503 is an isolated dwarf spiral in Draco, viewed at an angle on the edge of the Local Void. Its narrow, roughly 6′ disk has fairly even brightness and a modest central condensation, making it accessible to medium telescopes under dark skies.",
+        "observing_notes": "At medium magnification, follow the elongated outline and look for mottling in the disk; too much power quickly spreads out its surface light.",
+        "best_seen": "Summer, on moonless nights",
+        "curiosity_text": "NGC 6503 lives on the edge of the Local Void, an extremely galaxy-poor region at least 150 million light-years wide. Its disk is only about one third the size of the Milky Way's."
+      },
+      "ngc-NGC7217": {
+        "short_description": "NGC 7217 is a nearly face-on spiral in Pegasus, notable for several concentric rings despite lacking an obvious bar. Visually it shows a bright nucleus in an almost circular halo; the rings demand large aperture and excellent contrast.",
+        "observing_notes": "Use medium magnification on the nucleus, then lower it for the roughly 4.5′ halo; seek subtle radial changes in brightness rather than sharp lines.",
+        "best_seen": "Autumn, on moonless nights",
+        "curiosity_text": "NGC 7217 has a nuclear, an inner, and an outer ring despite showing no strong bar. The outer ring contains about two thirds of the galaxy's neutral hydrogen and hosts intense star formation."
+      },
+      "ngc-NGC7424": {
+        "short_description": "NGC 7424 is a face-on barred spiral in Grus, with open arms and many star-forming regions. Its diffuse disk is larger than the part immediately visible at the eyepiece: a small center and faint condensations emerge from the background.",
+        "observing_notes": "Observe it at low power from southern latitudes, leaving plenty of sky around it; only after detection should you try medium magnification on the brightest knots.",
+        "best_seen": "Moonless nights from August to November, from the Southern Hemisphere",
+        "curiosity_text": "After supernova 2001ig, Hubble managed to isolate the surviving companion star. This is some of the clearest evidence that certain supernovae lose most of their envelopes through interaction in a binary system."
+      },
+      "ngc-NGC7793": {
+        "short_description": "NGC 7793 is a nearby flocculent spiral in Sculptor, more than 10′ wide. Its fragmented arms form no regular pattern: visually it appears as a broad granular glow with little central dominance.",
+        "observing_notes": "Use large binoculars or a telescope at low magnification under a dark southern sky; seek surface variations rather than a single bright center.",
+        "best_seen": "Moonless nights from August to November, favored by southern latitudes",
+        "curiosity_text": "A binary system in NGC 7793 contains a stellar black hole whose jets are inflating a bubble of hot gas about one thousand light-years wide. That scale is enormous compared with the compact object powering it."
       }
     },
     "catalogue_objects": {
