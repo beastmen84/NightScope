@@ -96,6 +96,9 @@ Do not commit credentials or exact personal locations.
 
 ## 6. Windows Artifact
 
+The checked rows below record the `ae34df5` local build, not the subsequent
+source-only lunar-marker transparency polish (still version `1.46.10`).
+
 - [x] Build from a clean checkout with `packaging/build_windows.ps1`.
 - [x] Confirm the source commit and build environment are recorded (`ae34df5`,
   2026-09-05; see `docs/TESTING.md`).
@@ -103,6 +106,8 @@ Do not commit credentials or exact personal locations.
 - [x] Confirm the bundle-root legal files and Qt module audit pass.
 - [x] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
   timezone polygons, and credential backend.
+- [ ] Rebuild with the lunar-marker polish and repeat artifact validation
+  before publishing a bundle from the updated source.
 - [ ] Run the complete visual and provider matrices on the packaged build, not
   only from source. Test a copy and preserve a pristine release bundle.
 - [ ] Immediately before archiving, rerun `tools/audit_qt_bundle.py` on the

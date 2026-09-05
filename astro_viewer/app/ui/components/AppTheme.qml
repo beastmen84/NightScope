@@ -50,7 +50,6 @@ QtObject {
     readonly property color moonLightCenter: redNightVision ? "#d94a3d" : "#fff7db"
     readonly property color moonLightMiddle: redNightVision ? "#a3342c" : "#d7dce3"
     readonly property color moonLightEdge: redNightVision ? "#70231f" : "#9ba6b4"
-    readonly property color moonGlow: redNightVision ? "#a3342c" : "#cae0f4"
     readonly property color moonTerminator: redNightVision ? "#70231f" : "#75808d"
     readonly property color moonOutline: redNightVision ? "#4d1713" : "#46505f"
     readonly property color moonShadowCenter: redNightVision ? "#0b0101" : "#151b24"

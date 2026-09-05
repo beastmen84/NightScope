@@ -254,14 +254,8 @@ Item {
         var centerY = height / 2
         ctx.clearRect(0, 0, width, height)
 
-        var glow = ctx.createRadialGradient(centerX, centerY, radius * 0.35, centerX, centerY, radius * 1.45)
-        glow.addColorStop(0, theme.withAlpha(theme.moonGlow, 0.28))
-        glow.addColorStop(1, theme.withAlpha(theme.moonGlow, 0))
-        ctx.fillStyle = glow
-        ctx.beginPath()
-        ctx.arc(centerX, centerY, radius * 1.45, 0, Math.PI * 2)
-        ctx.fill()
-
+        // Keep the canvas outside the limb transparent. An oversized glow gets
+        // cut off by the 44 px phase markers and exposes their square bounds.
         var darkDisc = ctx.createRadialGradient(centerX - radius * 0.25, centerY - radius * 0.25, radius * 0.15, centerX, centerY, radius)
         darkDisc.addColorStop(0, theme.moonDarkCenter)
         darkDisc.addColorStop(0.62, theme.moonDarkMiddle)

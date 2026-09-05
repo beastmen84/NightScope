@@ -510,7 +510,8 @@ def test_ephemeris_failure_warning_survives_location_transitions():
 
 
 @pytest.mark.parametrize("angle", [0, 45, 90, 135, 180, 225, 270, 315])
-def test_actual_qml_moon_clipping_geometry_matches_spherical_phase(angle):
+@pytest.mark.parametrize("size", [44, 88, 206])
+def test_actual_qml_moon_clipping_geometry_matches_spherical_phase(angle, size):
     from PySide6.QtCore import QCoreApplication
     from PySide6.QtQml import QJSEngine
 
@@ -524,21 +525,34 @@ def test_actual_qml_moon_clipping_geometry_matches_spherical_phase(angle):
     ).group(0)
     result = script_engine.evaluate(
         """
-        var points = [], clips = [];
+        var points = [], clips = [], circles = [], clears = [];
         var theme = {withAlpha: function() { return 'black'; }};
         var ctx = {
-            clearRect: function(){}, createRadialGradient: function(){return {addColorStop: function(){}};},
-            beginPath: function(){points = [];}, arc: function(){}, fill: function(){},
+            clearRect: function(x,y,w,h){clears.push([x,y,w,h]);},
+            createRadialGradient: function(){return {addColorStop: function(){}};},
+            beginPath: function(){points = [];},
+            arc: function(x,y,r){circles.push([x,y,r]);}, fill: function(){},
             save: function(){}, restore: function(){}, fillRect: function(){}, stroke: function(){},
             closePath: function(){}, clip: function(){if (points.length) clips.push(points.slice());},
             moveTo: function(x,y){points.push([x,y]);}, lineTo: function(x,y){points.push([x,y]);}
         };
     """
         + function
-        + f"\ndrawMoonPhase(ctx, 206, 206, {angle}); clips;"
+        + f"\ndrawMoonPhase(ctx, {size}, {size}, {angle});"
+        + "({clips: clips, circles: circles, clears: clears});"
     )
     assert not result.isError(), result.toString()
-    clips = result.toVariant()
+    drawing = result.toVariant()
+    clips = drawing["clips"]
+    center = size / 2
+    radius = center - 3
+    assert drawing["clears"] == [[0, 0, size, size]]
+    # Keep the opaque dark disc, but no oversized halo clipped by the canvas.
+    assert drawing["circles"][0] == [center, center, radius]
+    assert all(
+        math.hypot(x - center, y - center) + r <= radius + 1e-10
+        for x, y, r in drawing["circles"]
+    )
     area = 0.0
     if clips:
         vertices = clips[-1]
@@ -552,8 +566,8 @@ def test_actual_qml_moon_clipping_geometry_matches_spherical_phase(angle):
             / 2
         )
         if angle in (90, 270):
-            assert all(abs(point[0] - 103) < 1e-10 for point in vertices[97:])
-    assert area / (math.pi * 100**2) == pytest.approx(
+            assert all(abs(point[0] - center) < 1e-10 for point in vertices[97:])
+    assert area / (math.pi * radius**2) == pytest.approx(
         (1 - math.cos(math.radians(angle))) / 2, abs=0.0002
     )
     assert app is QCoreApplication.instance()

@@ -234,6 +234,29 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
+### Lunar-Marker Polish (Source 1.46.10)
+
+The subsequent source-only transparency polish passed the complete coverage/
+security gate on 2026-09-05: 1,348 tests and 10 subtests in 182.32 seconds for
+pytest, 86% application coverage (17,799 / 20,633 lines), and all three isolated
+backend/normal-QML/red-QML smoke tests. Static, architecture, security,
+dependency, license and catalogue gates pass; the inventories are unchanged.
+All 34 QML files also pass `qmllint` with existing non-fatal diagnostics.
+
+The original eight spherical-phase assertions and tolerances remain, now
+checked at 44, 88 and 206 pixels, with additional clear-canvas/disc-boundary
+checks that failed against the old oversized halo. These 24 focused cases
+pass in 2.60 seconds. A separate real-Canvas pixel review at 44, 88 and 210
+pixels covers all eight phases in normal/red/normal: alpha is zero outside
+the antialiased outline and fully opaque inside the disc. Switching back
+restores the exact original frame. Local captures/helpers and gate logs are
+under `build/moon-polish-1.46.10/`. This is targeted artwork validation, not
+a full page/provider matrix. Version, astronomy, translations and editorial
+data are unchanged; the `ae34df5` portable bundle below has not been rebuilt
+and does not include this polish. No remote GitHub run was awaited.
+
+### Astronomy-Corrections Baseline
+
 The `1.46.10` coverage/security source gate passed on 2026-09-05 with 1,332
 tests and 10 subtests in 223.57 seconds (pytest phase), 86% application coverage
 (17,799 / 20,633 executable lines), and successful backend, normal-QML and

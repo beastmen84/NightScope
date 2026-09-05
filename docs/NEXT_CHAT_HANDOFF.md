@@ -5,6 +5,11 @@ Updated: 2026-09-05
 ## Current State
 
 - Source version: `1.46.10`.
+- A subsequent user-requested visual polish removes the clipped outer halo
+  from the eight Moon-cycle markers. The canvas exterior is transparent;
+  the dark disc, projected terminator, outline and phase calculations are
+  unchanged. The unused theme glow color was removed. This source-only change
+  keeps `1.46.10`; the local bundle from `ae34df5` does not yet include it.
 - The user authorized correcting the whole-project audit's findings. A1-A8/N1
   are implemented in this source step; read
   `docs/ASTRONOMICAL_CORRECTIONS_1_46_10.md` for contracts and verification.
@@ -24,8 +29,8 @@ Updated: 2026-09-05
 - The user subsequently requested a new local Windows `dist/NightScope` for
   manual testing. It was rebuilt as `1.46.10` from clean source `ae34df5` on
   2026-09-05. Bundle audit, source-asset hashes, and packaged backend/normal-QML/
-  Red Night Vision smoke tests pass. It is pristine at this handoff; future
-  launches can create runtime data. Linux was not rebuilt.
+  Red Night Vision smoke tests pass. It was pristine after build validation;
+  subsequent user launches can create runtime data. Linux was not rebuilt.
 - For this rebuild the user explicitly rejected retaining the previous dist
   or creating backups, and requested deleting earlier distribution backups.
   Automatic deletion was blocked by the tool policy; after the user confirmed
@@ -143,7 +148,18 @@ QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The corrected `1.46.10` complete coverage/security source gate passed on
+The subsequent lunar-marker polish, still source `1.46.10`, passed the full
+coverage/security gate: 1,348 tests and 10 subtests in 182.32 s for pytest,
+86% coverage (17,799 / 20,633 lines), all static/data/security checks and
+backend/normal-QML/red-QML smokes. All 34 QML files pass `qmllint` with existing
+non-fatal diagnostics. The phase regression now covers 24 angle/size cases
+without relaxing its geometry assertions. Real Canvas pixel checks and visual
+review confirm transparent exteriors and opaque discs at three sizes across
+normal/red/normal, with an identical restored normal frame. Evidence is in
+`build/moon-polish-1.46.10/`; `docs/TESTING.md` records the precise scope.
+The dist from `ae34df5` was not changed or rebuilt, and no GitHub run was awaited.
+
+The original corrected `1.46.10` complete coverage/security source gate passed on
 2026-09-05: 1,332 tests and 10 subtests in 223.57 s for pytest, 86% application
 coverage (17,799 / 20,633 lines). All static, architecture, reviewed-security,
 dependency, license and catalogue gates pass; backend and normal/red QML smoke

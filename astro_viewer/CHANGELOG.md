@@ -34,6 +34,13 @@
   precedente rimossi manualmente dall'utente; nessun nuovo backup, come richiesto.
   Copia temporanea di questo test rimossa; quella storica 1.46.9 resta segnalata.
   Nessun bump versione, pacchetto Linux, archivio/tag, push o pubblicazione.
+- Successiva rifinitura grafica del ciclo lunare: rimosso l'alone che rendeva
+  visibile il riquadro delle icone; esterno trasparente, disco in ombra e
+  geometria delle fasi invariati. Controllati gli otto simboli a piu' dimensioni
+  e il passaggio normale/rosso/normale. Questa modifica e' solo nella sorgente
+  1.46.10: la dist costruita da `ae34df5` non e' stata rigenerata.
+  Gate completo ripetuto: 1.348 test e 10 subtest, copertura 86%; audit, lint
+  QML e smoke backend/QML normale/rosso superati. Nessun run GitHub atteso.
 
 ### Audit preliminare della sorgente 1.46.9
 
