@@ -46,6 +46,7 @@ def _checks(*, include_coverage: bool, include_security: bool) -> list[Check]:
             "catalogue-editorial",
             ("astro_viewer/tools/audit_catalogue_editorial.py",),
         ),
+        Check("object-imagery", ("astro_viewer/tools/check_object_images.py",)),
     ]
     if include_security:
         checks.append(

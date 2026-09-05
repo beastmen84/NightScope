@@ -21,11 +21,12 @@ from astro_viewer.app.services.equipment_taxonomy import (
     canonical_telescope_optical_type,
 )
 from astro_viewer.app.services.localization import content_key, tr
+from astro_viewer.app.services.object_imagery import retired_builtin_image
 
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
-SCHEMA_VERSION = 25
+SCHEMA_VERSION = 26
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 _CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
     (
@@ -200,24 +201,6 @@ OBJECT_IMAGES = [
         "resources/images/solar_system/neptune.jpg",
         "NASA/JPL",
         "https://science.nasa.gov/photojournal/neptune-full-disk-view/",
-    ),
-    (
-        "messier-default-cluster",
-        "resources/images/m13.svg",
-        "NightScope generated local SVG",
-        "",
-    ),
-    (
-        "messier-default-nebula",
-        "resources/images/m57.svg",
-        "NightScope generated local SVG",
-        "",
-    ),
-    (
-        "messier-default-galaxy",
-        "resources/images/m31.svg",
-        "NightScope generated local SVG",
-        "",
     ),
 ]
 
@@ -2342,6 +2325,21 @@ def _reducer_catalog_rows(reducer_path: Path | None) -> list[tuple]:
 
 
 def _seed_object_images(connection: sqlite3.Connection, images_path: Path | None = None) -> None:
+    # Retire only the known bundled deep-sky records. User-supplied metadata
+    # is not a seed and must survive initialization, even for a Messier ID.
+    retired = [
+        (object_id, image_path, license_label)
+        for object_id, image_path, license_label in connection.execute(
+            "SELECT object_id, image_path, license FROM ObjectImages"
+        )
+        if retired_builtin_image(
+            {"object_id": object_id, "image_path": image_path, "license": license_label}
+        )
+    ]
+    connection.executemany(
+        "DELETE FROM ObjectImages WHERE object_id = ? AND image_path = ? AND license = ?",
+        retired,
+    )
     connection.executemany(
         """
         INSERT INTO ObjectImages (

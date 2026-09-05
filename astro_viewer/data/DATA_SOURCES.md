@@ -288,16 +288,18 @@ Marble information: `https://blackmarble.gsfc.nasa.gov/`
 
 ## Object Images, Descriptions And Curiosities
 
-`object_images_seed.csv` contains an explicit row for the 228 curated targets.
-The 219 Messier/Caldwell targets have dedicated local `512 x 512` JPEG cutouts
-from the 2MASS, Pan-STARRS1 or SkyMapper scientific surveys, generated through
-CDS `hips2fits`. The nine Solar System targets use normalized NASA/JPL
-Photojournal PIA images with the exact mission credit and source page. These are
-static representative observations, not live phase, orientation or appearance
-data. Source URLs, attribution and usage declarations are kept per row and shown
-in Object Detail. The full selection and redistribution rules are documented in
-`docs/IMAGE_ASSET_POLICY.md`. The three typed local SVG fallbacks remain
-defensive compatibility assets and are not used by current target rows.
+`object_images_seed.csv` contains only the nine Solar System photographs,
+normalized from NASA/JPL Photojournal PIA images with exact mission credits and
+source pages. These are static representative observations, not live phase,
+orientation or appearance data. From source `1.46.11`, all deep-sky catalogues
+share 16 AI-generated category illustrations resolved from canonical types by
+`app/services/object_imagery.py`, independent of editorial completion.
+Illustrations have no observational source URL or target-verification flag and
+are explicitly labelled in Object Detail. The 219 old Messier/Caldwell survey
+cutouts are retired; custom database records are preserved by a conservative
+ID/path/license migration. See `docs/IMAGE_ASSET_POLICY.md` for provenance and
+`docs/IMAGE_GENERATION_PROMPTS.md` for the artwork prompt record. The tiny legacy
+SVGs still used by engine/mock fixtures do not define the real catalogue UI.
 
 `object_descriptions_seed.csv` contains NightScope-style descriptions and
 separate observing notes for 323 reviewed targets: the 228-object baseline of

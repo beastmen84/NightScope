@@ -318,7 +318,8 @@ def test_red_mode_control_and_photo_suppression_contract() -> None:
     assert "appearanceManager.setRedNightVisionEnabled(false)" in main_qml
     assert "appearanceManager.setRedNightVisionEnabled(true)" in main_qml
     assert 'source: theme.redNightVision ? "" : root.imageSource()' in plan_row
-    assert detail.count("root.hasObject && !theme.redNightVision") == 2
+    for branch in ("!root.isCatalogueDetail", "root.isCatalogueDetail"):
+        assert f"source: root.hasObject && {branch} && !theme.redNightVision" in detail
     assert detail.count("visible: !theme.redNightVision") >= 4
     assert "MultiEffect" in icon
     assert "layer.enabled: theme.redNightVision" in icon

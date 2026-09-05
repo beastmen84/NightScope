@@ -1,16 +1,19 @@
 # NightScope Image Asset Policy
 
-Updated: 2026-07-12
+Updated: 2026-09-05 (source 1.46.11)
 
 ## Scope
 
-NightScope packages one local `512 x 512` RGB JPEG for every selectable target:
+NightScope packages a compact family of local `512 x 512` RGB JPEGs:
 
-- 219 deterministic scientific survey cutouts for Messier and Caldwell;
+- 16 shared category illustrations for every deep-sky catalogue;
 - 9 representative NASA/JPL observations for the Solar System catalogue.
 
-The assets are not AI-generated reconstructions, screenshots copied from
-editorial pages or substitutes for live ephemerides. Solar System images are
+The category illustrations are AI-generated artwork, explicitly labelled as
+such in Italian, English and Spanish. They are **not photographs of the selected
+object** or scientifically verified reconstructions. They do not depict its
+actual morphology, colour, angular scale, orientation or observing appearance.
+Solar System images are
 static mission products and can use enhanced colour, non-visible wavelengths or
 multi-frame processing. They do not represent the current phase, orientation,
 solar activity or atmospheric appearance of a target.
@@ -18,23 +21,32 @@ solar activity or atmospheric appearance of a target.
 All target images use `Image.PreserveAspectFit` in QML. The common square format
 fits Home cards and both Object Detail branches without layout-specific files.
 
-## Deep-Sky Sources And Rights
+## Shared Deep-Sky Illustrations
 
-Deep-sky cutouts are generated with the CDS `hips2fits` service from these
-public HiPS datasets:
+`app/services/object_imagery.py` owns the exact mapping from canonical catalogue
+types to these families:
 
-- `CDS/P/2MASS/color`: 200 targets. Survey credit: 2MASS,
-  UMass/IPAC-Caltech. The CDS HiPS metadata declares `ODbL-1.0`.
-- `CDS/P/PanSTARRS/DR1/color-i-r-g`: 15 northern planetary nebulae and
-  supernova remnants that are poorly represented in near-infrared. Survey
-  credit: Pan-STARRS1. The CDS HiPS metadata declares `ODbL-1.0`.
-- `CDS/P/Skymapper/DR4/color`: 4 southern planetary nebulae. Survey credit:
-  SkyMapper Southern Survey DR4. The CDS HiPS metadata declares `ODbL-1.0`.
+- Galaxy and galaxy system (pairs, triplets and groups).
+- Open cluster and globular cluster.
+- Generic, emission, reflection, dark and planetary nebula.
+- Nebula with cluster and supernova remnant.
+- Asterism, Milky Way star cloud, star and optical double.
+- Neutral unclassified object for unknown or unmapped types.
 
-The 2MASS public-data terms require acknowledgement and identify DSS as the
-restricted exception; NightScope does not use DSS imagery. Pan-STARRS and
-SkyMapper are public survey releases, while redistributed colour HiPS products
-and cutouts retain the CDS attribution and ODbL declaration in their metadata.
+The same type has the same default for Messier, Caldwell and NGC, independently
+of editorial coverage. The illustration set is generated through the built-in
+image-generation tool using one style anchor and explicit subject constraints;
+the prompt set is recorded in `docs/IMAGE_GENERATION_PROMPTS.md`. No survey
+cutout or NASA photograph was used as an input to generate this family.
+
+Artwork metadata has `kind=illustration`, an empty source URL and
+`verified=False`; its label cannot be mistaken for a linked observational
+source. These presentation decisions never alter the catalogue's type, target
+identity, editorial prose, observability or recommendation scores.
+
+The previous 219 CDS/2MASS, Pan-STARRS1 and SkyMapper cutouts are removed from the
+source package, along with their downloader. Their original metadata and files
+remain recoverable from Git history; they must not be silently reintroduced.
 
 ## Solar System Sources And Rights
 
@@ -66,38 +78,63 @@ claim. Current policies:
 
 ## Seed Contract
 
-Every `object_images_seed.csv` target row stores:
+`object_images_seed.csv` contains only the nine Solar System records. Each stores:
 
-- the exact scientific cutout request or official NASA Science source page;
-- the survey, mission and processing attribution shown as a clickable credit;
-- the applicable dataset license or NASA/JPL media-usage declaration;
+- the official NASA Science source page;
+- the mission and processing attribution shown as a clickable credit;
+- the NASA/JPL media-usage declaration;
 - `verified=1` only after local format and content validation.
 
-The three local fallback SVG rows are generic object-type illustrations, are
-not presented as target photographs and remain only for defensive compatibility.
+Category defaults are resolved in code, not copied into thousands of database
+rows. Schema version 26 removes known retired image records only when their
+object ID, exact distributed path and legacy license match together. Existing
+custom paths or licenses are preserved, as are records outside the exact 219
+retired target identities (matching a catalogue prefix is not enough).
+The three old fallback seed rows
+are also retired; tiny legacy SVGs still used by engine/mock fixtures are not
+the default image policy of the real catalogue UI.
 
-## Reproducible Sync
+Personal-image import and complete backup/restore are subsequent versioned
+steps; see `docs/OBJECT_IMAGERY_ROADMAP.md`. This first stage does not claim that
+the upload UI already exists.
+
+## Validation And Maintenance
 
 Install development requirements in the project venv, then run:
 
 ```powershell
-.\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --workers 8
-.\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --check
+.\.venv\Scripts\python.exe astro_viewer\tools\check_object_images.py
 .\.venv\Scripts\python.exe astro_viewer\tools\sync_solar_system_images.py
 .\.venv\Scripts\python.exe astro_viewer\tools\sync_solar_system_images.py --check
 ```
 
-Both tools validate dimensions, RGB/JPEG format and nonblank pixel variance,
-write each image atomically and update the CSV only after all requested assets
-succeed. Existing files are reused while their recorded source URL is unchanged.
+The read-only image check is part of the standard source gate. It validates
+the seed identities, every catalogue type, the exact category file inventory,
+dimensions, RGB/JPEG format, nonblank pixels and absence of retired cutouts.
+The SHA-256 manifest in `docs/IMAGE_ASSET_MANIFEST.json` ties the installed
+category assets to the reviewed outputs. Regression tests enforce a compact
+asset budget and reject corrupted, missing, extra, misclassified, incorrectly
+formatted or unexpectedly changed resources and inconsistent manifests.
+
+The 16 category JPEGs occupy 614,168 bytes; the unchanged nine Solar System
+JPEGs occupy 293,230 bytes. Replacing the old 15,235,688-byte deep-sky set saves
+14,621,520 bytes of source/bundled image data. This is an asset-size comparison,
+not a measurement of a newly built executable or compressed release archive.
 
 The Solar System tool downloads the original PIA JPEG and applies only declared,
 deterministic crops plus aspect-preserving resize on a black square canvas. The
 Venus crop selects the documented contrast-enhanced panel; the Sun crop excludes
-the instrument timestamp. Compact Caldwell planetary nebulae use precise J2000
-positions resolved through CDS Sesame/SIMBAD because display coordinates are
-intentionally rounded and can exceed a narrow image field.
+the instrument timestamp. This tool updates only Solar System records, and its
+`--check` mode performs no downloads or writes. No per-NGC image download is
+part of initialization or catalogue maintenance.
 
-Do not add or replace an asset unless its redistribution terms and required
-credit are recorded in the seed. A visually attractive image without clear
-rights is not an acceptable NightScope asset.
+Keep photographic source credits in the seed and generated-art provenance in
+the prompt record. Do not relabel generated artwork as scientific imagery.
+
+## Loading And Night Vision
+
+Startup reads image associations and metadata, not all pixel data. Home and
+Object Detail load their visible images asynchronously with bounded QML source
+sizes and aspect-preserving display. In Red Night Vision, both pictures and
+credits are hidden and image sources become empty, preserving the existing
+no-bright-picture/no-image-loading contract.

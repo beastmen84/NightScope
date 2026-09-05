@@ -1079,7 +1079,7 @@ def test_schema_25_adds_integrated_smart_capabilities() -> None:
                 """
             ).fetchall()
 
-        assert version == 25
+        assert version == 26
         assert [row["instrument_category"] for row in smart_rows] == [
             "SMART_INTEGRATED",
             "SMART_INTEGRATED",

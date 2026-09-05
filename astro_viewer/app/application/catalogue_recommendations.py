@@ -41,6 +41,7 @@ from astro_viewer.app.services.observation_conditions_service import (
 )
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
 from astro_viewer.app.services.observing_time import target_observing_interval
+from astro_viewer.app.services.object_imagery import resolve_object_image
 
 
 logger = logging.getLogger(__name__)
@@ -441,23 +442,12 @@ def apply_object_content_from_sources(
     object_descriptions: Mapping[str, dict],
     catalogue_identifier_index: Mapping[str, dict],
 ) -> CelestialObject:
-    image = object_image_map.get(item.id)
     description = object_descriptions.get(item.id)
     catalogue_item = catalogue_identifier_index.get(item.id.strip().casefold())
-    if (
-        not image
-        and catalogue_item
-        and str(catalogue_item.get("catalogue", "")) != SOLAR_SYSTEM_CATALOGUE
-    ):
-        object_type = item.object_type.lower()
-        if "galaxy" in object_type or "galassia" in object_type:
-            image = object_image_map.get("messier-default-galaxy")
-        elif any(
-            fragment in object_type for fragment in ("nebula", "nebul", "remnant")
-        ):
-            image = object_image_map.get("messier-default-nebula")
-        else:
-            image = object_image_map.get("messier-default-cluster")
+    image = resolve_object_image(
+        item.id, str((catalogue_item or {}).get("type") or item.object_type),
+        object_image_map,
+    )
     notes = item.notes
     if description:
         observing_notes = presentation_text(

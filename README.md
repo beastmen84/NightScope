@@ -17,7 +17,7 @@ active profile to answer a practical question: **what is worth observing
 tonight, from here, with this setup?**
 
 > [!NOTE]
-> NightScope is a released application. Source version 1.46.10 is prepared for
+> NightScope is a released application. Source version 1.46.11 is prepared for
 > the next release and is ahead of the current public Windows 1.45.21 and Linux
 > 1.43.0 portable bundles.
 > Release artifacts remain platform-specific portable builds rather than
@@ -66,11 +66,15 @@ digests. The `v1.45.21` release does not contain a Linux package.
   declared a certified full-aperture solar filter secured in front of the
   instrument. The static scorer accepts this capability only as an exact
   caller-supplied telescope set, and it never changes visual ranking.
+- Uses 16 matching, clearly labelled AI-generated category illustrations for
+  all deep-sky catalogues, while retaining the nine credited Solar System
+  photographs. Category artwork is not a picture of the selected target;
+  the previous 219 Messier/Caldwell cutouts are no longer shipped.
 - Includes an offline celestial catalogue with 7,585 distinct deep-sky
   targets, 7,839 NGC designations deduplicated across physical identities,
   and nine Solar System targets. The 219 curated Messier/Caldwell targets and
-  Solar System objects retain their complete descriptions, facts, and credited
-  scientific images; 95 NGC-only targets (75 galaxies and 20 planetary nebulae)
+  Solar System objects retain their complete descriptions and facts;
+  95 NGC-only targets (75 galaxies and 20 planetary nebulae)
   now also have reviewed Italian, English, and Spanish editorial content,
   while the remaining NGC-only entries
   are explicitly marked as work in progress. Six remediation passes cover
@@ -390,7 +394,7 @@ The wrapper creates a Debian 12/Python 3.12 build image, runs PyInstaller, and
 writes the portable application to `dist/NightScope`. It then creates the
 deterministic release archive and checksum:
 
-`dist/NightScope-v1.46.10-debian-12-x64.tar.gz` and its adjacent `.sha256`
+`dist/NightScope-v1.46.11-debian-12-x64.tar.gz` and its adjacent `.sha256`
 file. The inner build scripts copy the project notices, generate the installed
 Linux Python dependency license archive, inventory every copied Debian ELF
 file, bundle the matching copyright and common-license texts, and run the
@@ -451,7 +455,7 @@ astro_viewer/
     ui/              QML application and reusable controls
     viewmodels/      QML-facing read models and commands
   data/              Schemas, seeds, editorial batches and local reference data
-  resources/         Icons and credited catalogue images
+  resources/         Icons, Solar System photographs and category artwork
   tests/             Deterministic unit, integration and presentation tests
   translations/      Runtime language packs and compiled Qt catalogues
 docs/                 Architecture, model, testing and release documentation

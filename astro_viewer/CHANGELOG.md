@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+## NightScope 1.46.11 - 2026-09-05
+
+- Primo step della nuova gestione immagini: tutti i cataloghi deep-sky usano
+  16 illustrazioni coerenti per categoria, indipendenti dal completamento
+  dell'editoriale. Conservate senza modifiche le nove fotografie del Sistema
+  Solare; rimosse dal pacchetto sorgente le 219 fotografie Messier/Caldwell.
+- Asset generati con IA e dichiarati come illustrazioni in IT/EN/ES, non come
+  fotografie dell'oggetto selezionato. Mappatura da tipi canonici, categoria
+  neutra per tipi sconosciuti, stesso comportamento da Catalogo e Home.
+- JPEG RGB 512 x 512 ottimizzati senza ritaglio: 614.168 byte complessivi,
+  rispetto ai 15.235.688 byte dei vecchi ritagli; risparmio asset di 14.621.520
+  byte. Provenienza, prompt e hash registrati; nessuna rigenerazione nel resize.
+- Schema DB 26: ritirati soltanto i record standard riconosciuti da ID,
+  percorso e licenza; ID limitati ai 219 originali e ai tre vecchi fallback,
+  senza wildcard. Preservati percorsi/licenze personalizzati e ID soltanto
+  simili a quelli ritirati. Nessuna modifica
+  all'editoriale o alle formule astronomiche. Caricamento QML asincrono e
+  limitato al ramo di dettaglio attivo; sorgenti immagini vuote in visione rossa.
+- Sostituito il downloader deep-sky con un controllo locale permanente di
+  inventario, formato, categorie e hash; aggiunte regressioni su migrazione,
+  alias/lingue, integrita' e risorse mancanti o alterate.
+- Gate completo con sicurezza superato: 1.407 test e 10 subtest, copertura
+  86%, smoke backend/QML normale/rosso superati. Lint su 34 QML e 2.065 messaggi
+  compilati per lingua. Verificati 24 scenari di dettaglio IT/EN/ES e 48 stati
+  delle miniature Home; in rosso immagini non caricate. Migrazione dell'intero
+  seed storico in un DB temporaneo: personalizzazioni e altre 33 tabelle intatte.
+- Importazione delle fotografie personali e integrazione backup/ripristino
+  restano i successivi step 1.46.12 e 1.46.13. Nessun rebuild dist, push, tag,
+  pubblicazione o attesa dei run GitHub in questo passaggio.
+
 ## NightScope 1.46.10 - 2026-09-05
 
 - Corrette le anomalie A1-A8/N1 dell'audit 1.46.9: meteo incompleto/non finito,

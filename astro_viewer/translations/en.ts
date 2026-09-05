@@ -9532,13 +9532,13 @@ Check the application folder permissions and restart NightScope.</translation>
   <context>
     <name>HomePlanStepRow</name>
     <message>
-      <location filename="../app/ui/components/HomePlanStepRow.qml" line="109" />
-      <location filename="../app/ui/components/HomePlanStepRow.qml" line="132" />
+      <location filename="../app/ui/components/HomePlanStepRow.qml" line="111" />
+      <location filename="../app/ui/components/HomePlanStepRow.qml" line="134" />
       <source>Oggetto</source>
       <translation>Object</translation>
     </message>
     <message>
-      <location filename="../app/ui/components/HomePlanStepRow.qml" line="131" />
+      <location filename="../app/ui/components/HomePlanStepRow.qml" line="133" />
       <source>%1  -  %2</source>
       <translation>%1 - %2</translation>
     </message>
@@ -9977,412 +9977,418 @@ Check the application folder permissions and restart NightScope.</translation>
   <context>
     <name>ObjectDetailPage</name>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="31" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="32" />
       <source>Torna alla Home</source>
       <translation>Back to Home</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="446" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="449" />
       <source>Finestra osservativa</source>
       <translation>Observing window</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="154" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="516" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="155" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="519" />
       <source>Magnitudine</source>
       <translation>Magnitude</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="132" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="133" />
       <source>Catalogo %1</source>
       <translation>Catalog %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="144" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="145" />
       <source>Costellazione %1</source>
       <translation>Constellation %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="224" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="225" />
       <source>Pupilla %1</source>
       <translation>Exit pupil %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="233" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="234" />
       <source>Binocolo: %1</source>
       <translation>Binoculars: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="235" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="236" />
       <source>Ingrandimento: %1</source>
       <translation>Magnification: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="237" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="238" />
       <source>Pupilla d'uscita: %1</source>
       <translation>Exit pupil: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="238" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="239" />
       <source>Difficoltà: %1</source>
       <translation>Difficulty: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="241" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="242" />
       <source>Oculare: %1  -  Barlow: %2  -  Difficoltà: %3</source>
       <translation>Eyepiece: %1 - Barlow: %2 - Difficulty: %3</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="518" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="521" />
       <source>Altezza massima</source>
       <translation>Maximum altitude</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="519" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="522" />
       <source>Direzione</source>
       <translation>Direction</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="520" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="523" />
       <source>Momento migliore</source>
       <translation>Best time</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="161" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="521" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="162" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="524" />
       <source>Azimut</source>
       <translation>Azimuth</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="522" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="525" />
       <source>Altezza attuale</source>
       <translation>Current altitude</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="162" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="523" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="163" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="526" />
       <source>Sorge</source>
       <translation>Rises</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="36" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="104" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="112" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="116" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="125" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="132" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="454" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="520" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="37" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="105" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="113" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="117" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="126" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="133" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="457" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="523" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="524" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="525" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="526" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1069" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="527" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="528" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="529" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1080" />
       <source>n/d</source>
       <translation>n/a</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="98" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="132" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="150" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="99" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="133" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="151" />
       <source>Catalogo</source>
       <translation>Catalog</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="99" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="100" />
       <source>Distanza</source>
       <translation>Distance</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="151" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="152" />
       <source>ID catalogo</source>
       <translation>Catalog ID</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="152" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="153" />
       <source>Tipo</source>
       <translation>Type</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="153" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="154" />
       <source>Costellazione</source>
       <translation>Constellation</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="155" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="156" />
       <source>Dimensione</source>
       <translation>Size</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="157" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="158" />
       <source>Osservazione</source>
       <translation>Observation</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="160" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="161" />
       <source>Alt. attuale</source>
       <translation>Current alt.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="163" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="164" />
       <source>Transita</source>
       <translation>Transits</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="164" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="524" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="165" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="527" />
       <source>Tramonta</source>
       <translation>Sets</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="166" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="167" />
       <source>Visibile nel mese corrente</source>
       <translation>Visible in the current month</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="367" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="362" />
       <source>Scheda catalogo</source>
       <translation>Catalog entry</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="367" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="362" />
       <source>Dettaglio osservativo</source>
       <translation>Observing details</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="367" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="362" />
       <source>Nessun oggetto selezionato</source>
       <translation>No object selected</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="420" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="568" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="421" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="577" />
       <source>Fonte immagine</source>
       <translation>Image source</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="447" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="450" />
       <source>Durata utile non disponibile</source>
       <translation>Useful duration unavailable</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="473" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="476" />
       <source>Da valutare</source>
       <translation>To be assessed</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="525" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="528" />
       <source>Inizio utile</source>
       <translation>Useful window start</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="526" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="529" />
       <source>Fine utile</source>
       <translation>Useful window end</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="634" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="645" />
       <source>Dati di catalogo</source>
       <translation>Catalog data</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="665" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="676" />
       <source>Descrizione</source>
       <translation>Description</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="686" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="697" />
       <source>Storia, scienza e contesto</source>
       <translation>History, science and context</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="722" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="733" />
       <source>Configurazione consigliata</source>
       <translation>Recommended configuration</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="725" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="736" />
       <source>Suggerimento operativo</source>
       <translation>Practical recommendation</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="667" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="678" />
       <source>Periodo migliore: %1</source>
       <translation>Best time: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="117" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="118" />
       <source>%1°</source>
       <translation>%1°</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="156" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="157" />
       <source>Dimensione angolare massima</source>
       <translation>Maximum angular size</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="158" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="159" />
       <source>A.R.</source>
       <translation>R.A.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="159" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="160" />
       <source>Dec</source>
       <translation>Dec</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="165" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="166" />
       <source>Raggiunge ≥15°</source>
       <translation>Reaches ≥15°</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="516" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="420" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="576" />
+      <source>Illustrazione di categoria (generata con IA)</source>
+      <translation>Category illustration (AI-generated)</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="519" />
       <source>Magnitudine (Luna piena)</source>
       <translation>Magnitude (full Moon)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="685" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="696" />
       <source>Curiosità</source>
       <translation>Curiosity</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="701" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="712" />
       <source>Fonte: &lt;a href="%1"&gt;%2&lt;/a&gt;</source>
       <translation>Source: &lt;a href="%1"&gt;%2&lt;/a&gt;</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="703" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="714" />
       <source>Apri la fonte</source>
       <translation>Open the source</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="724" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="735" />
       <source>Setup scelto per %1</source>
       <translation>Setup chosen for %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="740" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="751" />
       <source>Perché questa configurazione: %1</source>
       <translation>Why this configuration: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="760" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="771" />
       <source>Filtro</source>
       <translation>Filter</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="769" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="780" />
       <source>Disponibile</source>
       <translation>Available</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="770" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="806" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="781" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="817" />
       <source>Non disponibile</source>
       <translation>Unavailable</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="797" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="808" />
       <source>Riduttore fotografico</source>
       <translation>Imaging focal reducer</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="806" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="817" />
       <source>Nel profilo</source>
       <translation>In profile</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="869" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="880" />
       <source>Piano fotografico</source>
       <translation>Imaging plan</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="870" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="881" />
       <source>Configurazione fotografica del profilo attivo</source>
       <translation>Active profile imaging setup</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1066" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1077" />
       <source>Ciclo lunare</source>
       <translation>Lunar cycle</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1067" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1078" />
       <source>%1  -  %2  -  %3</source>
       <translation>%1 - %2 - %3</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1068" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1079" />
       <source>Fase lunare</source>
       <translation>Lunar phase</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1079" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1090" />
       <source>Nuova</source>
       <translation>New</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1080" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1091" />
       <source>Crescente</source>
       <translation>Waxing crescent</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1081" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1092" />
       <source>Primo quarto</source>
       <translation>First quarter</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1082" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1093" />
       <source>Gibbosa</source>
       <translation>Waxing gibbous</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1083" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1094" />
       <source>Piena</source>
       <translation>Full</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1084" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1095" />
       <source>Calante</source>
       <translation>Waning gibbous</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1085" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1096" />
       <source>Ultimo quarto</source>
       <translation>Last quarter</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1086" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1097" />
       <source>Falce calante</source>
       <translation>Waning crescent</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1180" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1191" />
       <source>Seleziona un oggetto</source>
       <translation>Select an object</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1181" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1192" />
       <source>Il dettaglio si apre dalle pagine dell'app</source>
       <translation>Details open from the app pages</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1186" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1197" />
       <source>Scegli un oggetto dalla Home, dal calendario o dal catalogo.</source>
       <translation>Choose an object from Home, the calendar or the catalog.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1198" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1209" />
       <source>Valutazione osservativa</source>
       <translation>Observing assessment</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1199" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1210" />
       <source>Geometria e condizioni locali</source>
       <translation>Geometry and local conditions</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1242" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1253" />
       <source>Valutazione specifica non disponibile.</source>
       <translation>Target-specific assessment unavailable.</translation>
     </message>

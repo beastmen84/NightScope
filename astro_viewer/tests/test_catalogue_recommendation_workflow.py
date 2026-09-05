@@ -101,7 +101,7 @@ def test_content_adapter_applies_catalogue_metadata_and_fallback_image() -> None
 
     adapted = apply_object_content_from_sources(
         target,
-        {"messier-default-nebula": {"image_path": "images/nebula.webp"}},
+        {},
         {},
         {
             "m 42": {
@@ -113,7 +113,7 @@ def test_content_adapter_applies_catalogue_metadata_and_fallback_image() -> None
         },
     )
 
-    assert adapted.image == "images/nebula.webp"
+    assert adapted.image == "resources/images/categories/nebula.jpg"
     assert adapted.best_filter_class == "UHC"
     assert adapted.fallback_filter_class == "OIII"
     assert adapted.imaging_reducer_recommended is True

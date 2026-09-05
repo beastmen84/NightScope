@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "introduced_in": "1.46.11",
+  "generation": "Built-in image generation; see IMAGE_GENERATION_PROMPTS.md",
+  "normalization": {
+    "pillow_version": "12.3.0",
+    "resize": "LANCZOS 1254->512, no crop",
+    "jpeg": {
+      "quality": 92,
+      "optimize": true,
+      "progressive": true,
+      "subsampling": 0
+    }
+  },
+  "total_bytes": 614168,
+  "assets": [
+    {
+      "category": "galaxy",
+      "original_sha256": "47f610d133e5fcfcb621582966515ea3a974abf09955382b23f94f77a3d920a2",
+      "asset_sha256": "079bfffca3ffab7b6f99e5001997a6b6412c77fd35d2d2913e3e0cda015a66c0",
+      "bytes": 49189,
+      "grayscale_stddev": 50.651
+    },
+    {
+      "category": "galaxy_system",
+      "original_sha256": "b88045ef50db65cd09341382b9de857540bfc6482c6326c248477cf7b7029230",
+      "asset_sha256": "0835c07220a19da3fe5ad8ef9c65a5ca3ebd797312079993df9c39c71e8d7616",
+      "bytes": 28335,
+      "grayscale_stddev": 30.668
+    },
+    {
+      "category": "open_cluster",
+      "original_sha256": "cf970b062539af93b0414e4b5b3f20e1cd3d7c8e752de4937f75a22574bd4ade",
+      "asset_sha256": "bcb9bdf6ce30374cc248290895872257c331a77816fd0a533a4ab8f44dafc0af",
+      "bytes": 16020,
+      "grayscale_stddev": 8.554
+    },
+    {
+      "category": "globular_cluster",
+      "original_sha256": "2bbe323239661f537783f6bb1ff62b6994debb119d9586988504eb36e94b0057",
+      "asset_sha256": "45e6d4efefb4147600d73c0a3de97310f2d072d63a3d8fcb770c2c99b3530a3d",
+      "bytes": 86731,
+      "grayscale_stddev": 39.367
+    },
+    {
+      "category": "nebula",
+      "original_sha256": "a4dce173c0d2d92cfca4b4b8ce3556e6ec9e63bc4f4efad85e1d1fa9ef60ca5d",
+      "asset_sha256": "1a05d79f49781caa58e2ca3931da39ff434f247bc773b4a1f474d71a6bae18f8",
+      "bytes": 43856,
+      "grayscale_stddev": 47.77
+    },
+    {
+      "category": "emission_nebula",
+      "original_sha256": "b27da1a2d8088ed22ab86eaedb3e3887145cbdab0eedbf0b2916495d27d5ec3d",
+      "asset_sha256": "035b95a76fa2bb36cab748ff345124fc0a4d25b582823ddb8d6b66341d3a4733",
+      "bytes": 56966,
+      "grayscale_stddev": 42.206
+    },
+    {
+      "category": "reflection_nebula",
+      "original_sha256": "3e6e2afea2bfefaf35a37bbbce043dbdbd30b3ec56637f91070d99d9a3c8acd8",
+      "asset_sha256": "1a5ffa7950ae1967f27577a7780193d26d04d7f67e0d09b2124246e3aaec30ac",
+      "bytes": 34365,
+      "grayscale_stddev": 31.349
+    },
+    {
+      "category": "dark_nebula",
+      "original_sha256": "1bc3089ca547178d6311254be127b71f74f2a52af454667ae61ba17b8d61c4c2",
+      "asset_sha256": "ee8720ec2b4b57efbcd3611e7a930e0c4a5e57bb5906c857bee6b5ab7f62ddc6",
+      "bytes": 38795,
+      "grayscale_stddev": 12.261
+    },
+    {
+      "category": "planetary_nebula",
+      "original_sha256": "f1db9197b6b0825a5305acfbe783db20b8f0896c1d45bc9e7b449eda75a80100",
+      "asset_sha256": "e158da31a7edc08301d7a58739f0ae12ca94e01f071b1dcff6bf1c6e2081c7c8",
+      "bytes": 42799,
+      "grayscale_stddev": 51.198
+    },
+    {
+      "category": "nebula_cluster",
+      "original_sha256": "2c4f4e2c2296eb3eeda350f205fb922787d4803fa46212f43af72e3fac2c8b86",
+      "asset_sha256": "140e0f6a8d36e4e6e7b58fd0dc97442b1dcb2d84c20c14260eeb590fca2b1855",
+      "bytes": 50113,
+      "grayscale_stddev": 38.136
+    },
+    {
+      "category": "supernova_remnant",
+      "original_sha256": "ee2b5fa04cac47e332267cc555bd41a9b5c9f96c7412d034786c1b7e72a4656a",
+      "asset_sha256": "8d28572a104fb6e0b4a6e1d35c7333777cc4a27ded2627a559e5352a40896d92",
+      "bytes": 51646,
+      "grayscale_stddev": 23.568
+    },
+    {
+      "category": "asterism",
+      "original_sha256": "e27e1f99bf495b280813cc21a47404aead89bae610c3b5cd1d908f459d6b6112",
+      "asset_sha256": "1e745931c6b115aee08bdd196ea43db372da7d926e53a5cfe205152cbd1ae15b",
+      "bytes": 12221,
+      "grayscale_stddev": 6.478
+    },
+    {
+      "category": "star_cloud",
+      "original_sha256": "e0350cebafc58d9cfcb3d7b9a3cf2edff46203647ca5a30267f9dec8a5d1718a",
+      "asset_sha256": "37cb1bbe5ec4a784e1f27574fa308a32c73ea4d7fc4d0425fd5e920bdc812500",
+      "bytes": 64276,
+      "grayscale_stddev": 22.27
+    },
+    {
+      "category": "star",
+      "original_sha256": "b1726cb9dcaae40410019eaf9b76a73a96ee517b4b02ff3979cbe80fa5eca2b4",
+      "asset_sha256": "9129ac86fd46f4010e5df64b745a763ec4ef21aefd39e7744ebbf6c0cb672885",
+      "bytes": 12521,
+      "grayscale_stddev": 6.542
+    },
+    {
+      "category": "double_star",
+      "original_sha256": "abf11bda1bb6c06a2d973281ae308649643ee62753fc6918528875cd65213dce",
+      "asset_sha256": "2e065a30d9dde7e1eb46af689af191631d1f89c9c7c3d786e8bf63296db88139",
+      "bytes": 11205,
+      "grayscale_stddev": 8.719
+    },
+    {
+      "category": "unclassified",
+      "original_sha256": "67cd2a81f1b786bf250a9f03358282e7fc3f3a01eea52944bb3399929242317b",
+      "asset_sha256": "2b6db5dcd6875d5f919b4277dbfb17c1319a47436e1ea0d63ec3d355863e2e39",
+      "bytes": 15130,
+      "grayscale_stddev": 3.067
+    }
+  ]
+}

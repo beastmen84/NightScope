@@ -27,6 +27,7 @@ Item {
                                                    : ({})
     property bool hasObject: objectData && objectData.name !== undefined && objectData.name !== ""
     property bool isCatalogueDetail: root.hasObject && selectedIsCatalogueDetail
+    readonly property bool imageIsIllustration: objectData.imageKind === "illustration"
     property int detailMetricHeight: 88
     property string backLabel: qsTr("Torna alla Home")
     signal backToHome()
@@ -393,27 +394,33 @@ Item {
                         border.width: 1
 
                         Image {
+                            objectName: "observingObjectImage"
                             anchors.fill: parent
                             anchors.margins: 30
                             anchors.bottomMargin: observingImageCredit.visible ? 56 : 30
-                            source: root.hasObject && !theme.redNightVision
+                            source: root.hasObject && !root.isCatalogueDetail && !theme.redNightVision
                                     ? root.controller.assetBaseUrl + "/" + root.objectData.image : ""
                             fillMode: Image.PreserveAspectFit
+                            asynchronous: true
                             sourceSize.width: 520
                             sourceSize.height: 520
                         }
 
                         Text {
                             id: observingImageCredit
+                            objectName: "observingImageCredit"
                             visible: !theme.redNightVision
-                                     && (root.objectData.imageSourceUrl || "").length > 0
+                                     && (root.imageIsIllustration
+                                         || (root.objectData.imageSourceUrl || "").length > 0)
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
                             anchors.margins: 14
-                            text: root.objectData.imageAttribution || qsTr("Fonte immagine")
-                            color: theme.cyan
-                            font.pixelSize: 10
+                            text: root.imageIsIllustration
+                                  ? qsTr("Illustrazione di categoria (generata con IA)")
+                                  : root.objectData.imageAttribution || qsTr("Fonte immagine")
+                            color: root.imageIsIllustration ? theme.textMuted : theme.cyan
+                            font.pixelSize: root.imageIsIllustration ? 11 : 10
                             wrapMode: Text.WordWrap
                             maximumLineCount: 2
                             elide: Text.ElideRight
@@ -421,6 +428,8 @@ Item {
 
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !root.imageIsIllustration
+                                         && (root.objectData.imageSourceUrl || "").length > 0
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: Qt.openUrlExternally(root.objectData.imageSourceUrl)
@@ -541,27 +550,33 @@ Item {
                     border.width: 1
 
                     Image {
+                        objectName: "catalogueObjectImage"
                         anchors.fill: parent
                         anchors.margins: 30
                         anchors.bottomMargin: catalogueImageCredit.visible ? 56 : 30
-                        source: root.hasObject && !theme.redNightVision
+                        source: root.hasObject && root.isCatalogueDetail && !theme.redNightVision
                                 ? root.controller.assetBaseUrl + "/" + root.objectData.image : ""
                         fillMode: Image.PreserveAspectFit
+                        asynchronous: true
                         sourceSize.width: 520
                         sourceSize.height: 520
                     }
 
                     Text {
                         id: catalogueImageCredit
+                        objectName: "catalogueImageCredit"
                         visible: !theme.redNightVision
-                                 && (root.objectData.imageSourceUrl || "").length > 0
+                                 && (root.imageIsIllustration
+                                     || (root.objectData.imageSourceUrl || "").length > 0)
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
                         anchors.margins: 14
-                        text: root.objectData.imageAttribution || qsTr("Fonte immagine")
-                        color: theme.cyan
-                        font.pixelSize: 10
+                        text: root.imageIsIllustration
+                              ? qsTr("Illustrazione di categoria (generata con IA)")
+                              : root.objectData.imageAttribution || qsTr("Fonte immagine")
+                        color: root.imageIsIllustration ? theme.textMuted : theme.cyan
+                        font.pixelSize: root.imageIsIllustration ? 11 : 10
                         wrapMode: Text.WordWrap
                         maximumLineCount: 2
                         elide: Text.ElideRight
@@ -569,6 +584,8 @@ Item {
 
                         MouseArea {
                             anchors.fill: parent
+                            enabled: !root.imageIsIllustration
+                                     && (root.objectData.imageSourceUrl || "").length > 0
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: Qt.openUrlExternally(root.objectData.imageSourceUrl)

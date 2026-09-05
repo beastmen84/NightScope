@@ -7,8 +7,32 @@ sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
 verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 `archive/TESTING_HISTORY_THROUGH_1.45.6.md`. Il bundle pubblico corrente e'
 `1.45.21` su Windows, mentre Linux resta a `1.43.0`; le verifiche dei futuri
-artefatti `1.46.10` sono separate in `RELEASE_CHECKLIST.md` e devono essere
+artefatti `1.46.11` sono separate in `RELEASE_CHECKLIST.md` e devono essere
 ripetute per ciascuna dist effettivamente rigenerata.
+
+## Verifica Sorgente Immagini Di Categoria 1.46.11
+
+- [x] Esaminate le 16 illustrazioni dopo il ridimensionamento, in panoramica
+  a 240 pixel e come miniature a 92 pixel: soggetti distinguibili, stile
+  coerente, nessun ritaglio aggiunto. I JPEG finali sono RGB, 512 x 512.
+- [x] Renderizzati 24 scenari con shell e dettaglio QML reali: otto per lingua
+  IT/EN/ES, a `1040x700` o `1240x820`. Coperti M31, C33, NGC 1 e Luna dal
+  Catalogo, M31 dal percorso osservativo, visione rossa e ritorno normale.
+- [x] Asserzioni su immagine caricata, percorso, ramo inattivo senza sorgente,
+  etichetta IA esatta per lingua e credito NASA conservato per la Luna;
+  nessun warning QML nei 24 scenari. In rosso immagini nascoste e sorgenti
+  vuote in entrambi i rami di dettaglio.
+- [x] Ispezione dei render rappresentativi IT/ES: immagini contenute nella
+  card e dicitura di categoria leggibile, distinta dal credito fotografico.
+  Catture e helper locali: `build/object-imagery-1.46.11/`.
+- [x] Audit pixel dei sei render rossi: nessun pixel con verde o blu superiore
+  al rosso; massimi dei canali `R=217`, `G=74`, `B=61` in tutti gli scenari.
+- [x] Miniature del componente Home reale: 48 stati, tutte le 16 categorie
+  in normale/rosso/normale; caricamento riuscito, sorgente vuota e immagine
+  nascosta in rosso, ripristino corretto e nessun warning QML.
+- [ ] Ripetere i controlli sulla futura dist, insieme alla matrice completa
+  su renderer desktop. Questi render offscreen mirati non certificano tutte
+  le pagine, gli effetti grafici GPU o i provider e non approvano un artefatto.
 
 ## Verifica Sorgente Spagnolo 1.34.0
 

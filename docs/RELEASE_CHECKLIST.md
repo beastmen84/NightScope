@@ -3,9 +3,9 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.46.10`. Current public Windows release: `v1.45.21`. Current
+Current target: `v1.46.11`. Current public Windows release: `v1.45.21`. Current
 public Linux release: `v1.43.0`. Unless a row says otherwise, every gate below
-applies independently to each newly generated 1.46.10 artifact. Completed
+applies independently to each newly generated 1.46.11 artifact. Completed
 Windows 1.45.21 and Linux 1.43.0 evidence remains in the changelog, testing
 record and handoff; it does not approve a new bundle for either platform.
 
@@ -15,11 +15,11 @@ record and handoff; it does not approve a new bundle for either platform.
 - [x] Create a consolidated third-party notice from runtime dependencies,
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
-  survey image, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.46.10` source tag referenced by the
+  generated-art provenance, and NASA/JPL attribution is present where required.
+- [ ] Create and verify the public `v1.46.11` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [x] Confirm source version, changelog, source-availability notices, and
-  About/build metadata agree on `1.46.10`.
+  About/build metadata agree on `1.46.11`.
 - [x] Freeze the release scope; defer unrelated refactors.
 
 ## 2. Automated Validation
@@ -27,13 +27,16 @@ record and handoff; it does not approve a new bundle for either platform.
 - [ ] Install runtime and developer requirements in a clean virtual environment.
 - [x] Keep the Windows release constraints, Python patch, and committed
   third-party license inventory exactly aligned.
-- [x] Run `python tools/run_checks.py --security` against the source candidate.
-- [x] Run all translation compilation and catalogue tests.
+- [x] Run `python tools/run_checks.py --security` against the source candidate
+  (1,407 tests / 10 subtests, 86% coverage; details in `docs/TESTING.md`).
+- [x] Run all translation compilation and catalogue tests (2,065 finished Qt
+  messages per IT/EN/ES pack, zero unfinished; catalogue audit passed).
 - [x] Run both normal and Red Night Vision QML smoke tests from source.
 - [x] Run `qmllint` over all packaged QML source files (34; exit 0, non-fatal
   diagnostics retained; packaged smoke checks are recorded below).
-- [ ] Run deep-sky and Solar System asset checks.
-- [ ] Record exact Python, dependency, test, warning, and translation counts.
+- [x] Run category artwork and Solar System asset checks (25 local JPEGs).
+- [x] Record exact Python, dependency, test, warning, and translation counts
+  in `docs/TESTING.md`; non-fatal QML diagnostics remain tracked debt.
 - [ ] Produce an artifact-derived SBOM for the final release environment.
 
 ## 3. Visual Matrix
@@ -96,17 +99,18 @@ Do not commit credentials or exact personal locations.
 
 ## 6. Windows Artifact
 
-The checked rows below record the `ae34df5` local build, not the subsequent
-source-only lunar-marker transparency polish (still version `1.46.10`).
+The existing local dist is source `ae34df5`, version `1.46.10`; its successful
+audit/smoke evidence is retained in `docs/TESTING.md`. It includes neither the
+subsequent lunar-marker transparency polish nor the `1.46.11` image redesign.
+No new Windows artifact has been built for this target; these gates are open.
 
-- [x] Build from a clean checkout with `packaging/build_windows.ps1`.
-- [x] Confirm the source commit and build environment are recorded (`ae34df5`,
-  2026-09-05; see `docs/TESTING.md`).
-- [x] Run backend and QML smoke tests against the packaged executable.
-- [x] Confirm the bundle-root legal files and Qt module audit pass.
-- [x] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
+- [ ] Build from a clean checkout with `packaging/build_windows.ps1`.
+- [ ] Confirm the source commit and build environment are recorded.
+- [ ] Run backend and QML smoke tests against the packaged executable.
+- [ ] Confirm the bundle-root legal files and Qt module audit pass.
+- [ ] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
   timezone polygons, and credential backend.
-- [ ] Rebuild with the lunar-marker polish and repeat artifact validation
+- [ ] Rebuild with the current image redesign and repeat artifact validation
   before publishing a bundle from the updated source.
 - [ ] Run the complete visual and provider matrices on the packaged build, not
   only from source. Test a copy and preserve a pristine release bundle.
@@ -135,10 +139,10 @@ source-only lunar-marker transparency polish (still version `1.46.10`).
 - [ ] Confirm GIO modules remain isolated so newer-host GVFS plugins are not
   loaded against the bundled Debian 12 GLib.
 - [ ] Create the deterministic
-  `NightScope-v1.46.10-debian-12-x64.tar.gz` and adjacent SHA-256 file.
+  `NightScope-v1.46.11-debian-12-x64.tar.gz` and adjacent SHA-256 file.
 - [ ] Verify checksum, extraction, audit and smoke tests from the final archive.
 - [ ] Publish the tarball and checksum together with the matching Windows ZIP
-  in the public `v1.46.10` GitHub release when both platforms are approved.
+  in the public `v1.46.11` GitHub release when both platforms are approved.
   Update discovery checks actual compatible assets; publication can remain
   platform-specific and must not imply validation of the other platform.
 

@@ -4,12 +4,51 @@ Updated: 2026-09-05
 
 ## Current State
 
-- Source version: `1.46.10`.
-- A subsequent user-requested visual polish removes the clipped outer halo
+- Source version: `1.46.11` (category-image defaults, first committed step).
+- **Image redesign, step 1:** all deep-sky catalogues now use a consistent
+  16-category illustration family, independent of editorial completion.
+  Only the nine Solar System photographs are retained, byte-for-byte.
+  Shared pure resolver, canonical types, neutral unknown-type fallback,
+  explicit IT/EN/ES artwork labels and asynchronous visible-detail loading
+  are implemented. Red Night Vision keeps image sources empty.
+- The 16 built-in-tool illustrations were normalized with explicitly approved
+  Python resizing/compression to RGB JPEG, 512 x 512, without cropping.
+  Final assets are in `astro_viewer/resources/images/categories/` and total
+  614,168 bytes. All 219 tracked deep-sky photos (15,235,688 bytes) and their
+  obsolete downloader are removed, recoverable through Git history. The
+  asset saving is 14,621,520 bytes; no compressed artifact was measured.
+  Prompts and original/final SHA-256 identities are in
+  `docs/IMAGE_GENERATION_PROMPTS.md` and `docs/IMAGE_ASSET_MANIFEST.json`.
+  Original PNG copies remain in ignored `build/object-imagery-1.46.11/originals/`
+  and are not shipped.
+- Schema 26 retires only the exact old identities with matching shipped paths
+  and licenses; it preserves custom paths/licenses and catalogue-prefix lookalikes.
+  The distributed image seed has only nine Solar records. A permanent offline
+  image gate verifies all 25 JPEGs, the category mapping, manifest hashes,
+  nonblank/normalized content and absence of retired photos.
+- Targeted checks pass: 59 image regressions, all 34 QML files linted (existing
+  non-fatal diagnostics), 2,065 compiled finished messages per IT/EN/ES pack,
+  24 real-QML detail scenes, 48 Home thumbnail states and six red pixel-channel
+  audits. The full security/coverage gate passes: 1,407 tests and 10 subtests,
+  86% coverage (17,838 / 20,672 lines), all three source smoke checks. A disposable
+  schema-25 database with all 231 historical image rows upgrades to 26 while
+  preserving a custom image, custom editorial text and all 33 other tables;
+  SQLite integrity/foreign-key checks pass. See `docs/TESTING.md` for the final
+  full source gate; logs and disposable QA helpers are under
+  `build/object-imagery-1.46.11/`.
+- **Next:** `1.46.12` implements personal-image import/preview/replace/reset,
+  app-managed copies and canonical IDs; `1.46.13` adds complete backup/restore
+  and end-to-end verification. Neither later feature is available in `1.46.11`.
+  Read `docs/OBJECT_IMAGERY_ROADMAP.md` before continuing; each step needs its
+  own version, complete source checks, documentation and local commit.
+  No editorial, astronomical formula, dist, push, tag or release changes are
+  part of this step, and no remote GitHub run is awaited.
+- Before the image redesign, the user-requested visual polish in `1892652`
+  removed the clipped outer halo
   from the eight Moon-cycle markers. The canvas exterior is transparent;
   the dark disc, projected terminator, outline and phase calculations are
-  unchanged. The unused theme glow color was removed. This source-only change
-  keeps `1.46.10`; the local bundle from `ae34df5` does not yet include it.
+  unchanged. The unused theme glow color was removed. That source-only change
+  kept `1.46.10`; the local bundle from `ae34df5` does not yet include it.
 - The user authorized correcting the whole-project audit's findings. A1-A8/N1
   are implemented in this source step; read
   `docs/ASTRONOMICAL_CORRECTIONS_1_46_10.md` for contracts and verification.
@@ -24,7 +63,7 @@ Updated: 2026-09-05
 - Current public Linux release: `v1.43.0`, from source commit
   `26dfaf49df8f9b8e73e84f406396f406170400b2`; its GitHub release contains the
   Debian 12 x86-64 tarball and adjacent checksum.
-- Source `1.46.10` is not published: no `v1.46.10` tag, release archive/checksum,
+- Source `1.46.11` is not published: no `v1.46.11` tag, release archive/checksum,
   or GitHub release has been created.
 - The user subsequently requested a new local Windows `dist/NightScope` for
   manual testing. It was rebuilt as `1.46.10` from clean source `ae34df5` on

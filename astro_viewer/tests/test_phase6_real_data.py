@@ -3142,20 +3142,21 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertTrue(selected["curiosityVerified"])
             self.assertGreater(len(selected["catalogueIntroText"]), 40)
             self.assertEqual(selected["bestSeen"], "Inverno")
-            self.assertEqual(selected["image"], "resources/images/catalogue/caldwell-C23.jpg")
-            self.assertIn("2MASS", selected["imageAttribution"])
-            self.assertIn("hips2fits", selected["imageSourceUrl"])
-            self.assertIn("ODbL-1.0", selected["imageLicense"])
-            self.assertTrue(selected["imageVerified"])
+            self.assertEqual(selected["image"], "resources/images/categories/galaxy.jpg")
+            self.assertEqual(selected["imageKind"], "illustration")
+            self.assertEqual(selected["imageAttribution"], "NightScope")
+            self.assertFalse(selected["imageSourceUrl"])
+            self.assertIn("AI-generated", selected["imageLicense"])
+            self.assertFalse(selected["imageVerified"])
             self.assertEqual(selected["observingStatus"], "Catalogo Caldwell")
 
             controller.selectCatalogueObject("C33")
             self.assertEqual(controller.selectedObject["type"], "Supernova remnant")
             self.assertEqual(
                 controller.selectedObject["image"],
-                "resources/images/catalogue/caldwell-C33.jpg",
+                "resources/images/categories/supernova_remnant.jpg",
             )
-            self.assertIn("Pan-STARRS1", controller.selectedObject["imageAttribution"])
+            self.assertEqual(controller.selectedObject["imageCategory"], "supernova_remnant")
 
     def test_weather_not_called_without_valid_location(self) -> None:
         with _controller() as controller:

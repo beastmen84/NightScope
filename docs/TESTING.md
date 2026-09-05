@@ -20,7 +20,7 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.46.10` Windows/Python 3.14.5 environment retains pip 26.2.1,
+The `1.46.11` Windows/Python 3.14.5 environment retains pip 26.2.1,
 Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
 `pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
 Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, NumPy 2.5.2,
@@ -61,11 +61,12 @@ The runner performs these checks in order:
 9. Offline OpenNGC snapshot and derived-seed validation.
 10. Network-free catalogue editorial baseline, translation, provenance, and
     accepted-batch validation.
-11. Optional `pip-audit`.
-12. One complete pytest pass, with or without runtime-code coverage.
-13. Backend smoke test in a disposable runtime.
-14. Normal-mode QML smoke test in a disposable runtime.
-15. Red Night Vision QML smoke test in a disposable runtime.
+11. Network-free Solar System/category image inventory and format validation.
+12. Optional `pip-audit`.
+13. One complete pytest pass, with or without runtime-code coverage.
+14. Backend smoke test in a disposable runtime.
+15. Normal-mode QML smoke test in a disposable runtime.
+16. Red Night Vision QML smoke test in a disposable runtime.
 
 The source gate does not build, update, or approve `dist`.
 
@@ -202,7 +203,7 @@ Validate and compile every language pack:
 Validate repository images:
 
 ```powershell
-.\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --check
+.\.venv\Scripts\python.exe astro_viewer\tools\check_object_images.py
 .\.venv\Scripts\python.exe astro_viewer\tools\sync_solar_system_images.py --check
 ```
 
@@ -233,6 +234,59 @@ Run `pyside6-qmllint` over every QML file below `astro_viewer/app/ui`. Existing
 are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
+
+### Category Imagery (Source 1.46.11)
+
+The final exact-identity migration candidate passed the full coverage/security
+gate on 2026-09-05: 1,407 tests and 10 subtests in 225.44 seconds for pytest,
+86% application coverage (17,838 / 20,672 executable lines), and successful
+isolated backend, normal-QML and Red Night Vision smoke tests. The new pure
+image resolver has 100% line coverage. Static/documentation/import/license/
+catalogue checks pass; the inventory is 253 Python, 34 QML and 17 operational
+files. Bandit remains 48 reviewed findings (0 high, 34 medium, 14 low), and
+the installed-environment dependency audit found no known vulnerabilities.
+This is a local validation timing, not a new test-performance comparison.
+
+The initial full run found one old schema assertion still expecting 25;
+only that expectation was updated to 26, retaining the smart-equipment
+capability assertions. A subsequent review added an exact historical-ID
+allowlist: its new prefix-lookalike regression failed before the correction
+and passed after it. All 59 dedicated image tests then passed in 12.55 seconds,
+followed by the final complete gate above. No test selection, warning policy,
+numerical tolerance, astronomy formula or editorial content was relaxed.
+
+All 34 QML files pass lint with existing non-fatal diagnostics. IT/EN/ES each
+contain 2,065 compiled finished Qt messages and zero unfinished messages.
+The image gate checks all 25 local JPEGs (907,398 bytes), including the exact
+16-category inventory and its SHA-256 manifest. The nine Solar photographs
+and the complete IT/EN/ES editorial sources match the previous commit.
+
+Targeted live-QML checks cover 24 detail scenes across three languages,
+catalogue/observing branches, 1040x700/1240x820, normal/red/restored modes,
+M31, C33, NGC 1 and the Moon. They assert image readiness and identity, exact
+translated illustration labels, retained NASA credit, and empty sources in
+hidden/red branches; no QML warnings were emitted. Representative captures
+were visually inspected. All six red captures have no pixel with green or
+blue exceeding red (channel maxima 217/74/61). The real Home row separately
+passes 48 thumbnail states: every category in normal/red/normal mode, including
+no source/loading in red and successful restoration, with no QML warnings.
+This is targeted offscreen validation, not a full desktop/GPU/provider matrix.
+
+A disposable schema-25 database containing all 231 historical image rows,
+with a custom-image override and custom editorial prose, upgrades to schema 26:
+221 retired records are removed, nine Solar records and the custom image
+remain, all 33 other tables are row-equivalent, and SQLite integrity/foreign-key
+checks pass. Regression coverage additionally verifies repeat initialization
+and preservation of IDs that only resemble old catalogue identities. This is
+source migration testing, not an upgrade of the user's real runtime database.
+
+Logs, captures and local-only QA helpers are in
+`build/object-imagery-1.46.11/`; the final full log is
+`full-source-gate-exact-identities.log`. A final developer-tooling/translation
+pass after the documentation updates passed 75 tests in 10.54 seconds.
+Generated originals remain outside
+application resources. No dist rebuild, remote CI wait, tag, push or public
+release is implied; personal-image import and backup/restore are later steps.
 
 ### Lunar-Marker Polish (Source 1.46.10)
 

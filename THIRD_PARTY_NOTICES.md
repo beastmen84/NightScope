@@ -6,8 +6,8 @@ Public License 2.0. The complete project license is in `LICENSE`.
 Public NightScope source repository:
 `https://github.com/beastmen84/NightScope`
 
-NightScope 1.46.10 portable bundles correspond to source tag `v1.46.10`:
-`https://github.com/beastmen84/NightScope/tree/v1.46.10`. The bundles must not
+NightScope 1.46.11 portable bundles correspond to source tag `v1.46.11`:
+`https://github.com/beastmen84/NightScope/tree/v1.46.11`. The bundles must not
 be published until that tag is publicly reachable. The adjacent
 `SOURCE_CODE.md` gives direct source-archive links and source-availability
 instructions.
@@ -158,11 +158,12 @@ the Open Data Commons Open Database License 1.0 (`ODbL-1.0`). Its complete
 
 ### Astronomical Data And Images
 
-NightScope includes the JPL DE421 ephemeris used by Skyfield. Catalogue image
-sources and per-object credits are stored with the application data and shown
-in the user interface. The deep-sky cutouts retain their CDS/2MASS,
-Pan-STARRS1, or SkyMapper attribution and ODbL declaration. Solar System images
-retain their NASA/JPL mission credits and source links.
+NightScope includes the JPL DE421 ephemeris used by Skyfield. The nine Solar
+System photographs retain their NASA/JPL mission credits and source links in
+the application data and user interface. Deep-sky defaults are now 16 shared
+AI-generated category illustrations, explicitly labelled as artwork rather
+than photographs of the selected target. The former CDS/2MASS, Pan-STARRS1 and
+SkyMapper cutouts are no longer distributed in the application.
 
 The complete image provenance, redistribution policy, and current NASA/JPL
 usage links are documented in `docs/IMAGE_ASSET_POLICY.md`.

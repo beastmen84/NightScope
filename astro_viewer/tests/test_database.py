@@ -30,6 +30,9 @@ from astro_viewer.app.database.equipment_catalog_repository import EquipmentCata
 from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.database.observation_repository import ObservationRepository
 from astro_viewer.app.database.object_image_repository import ObjectImageRepository
+from astro_viewer.app.services.object_imagery import (
+    CATEGORY_IMAGE_KEYS, SOLAR_SYSTEM_IMAGE_IDS, resolve_object_image,
+)
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
 from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
 
@@ -192,48 +195,33 @@ class DatabaseBootstrapTests(unittest.TestCase):
             )
         )
         self.assertTrue(object_ids.issubset(descriptions))
-        self.assertTrue(object_ids.issubset(images))
-        catalogue_image_paths = {images[object_id]["image_path"] for object_id in object_ids}
-        self.assertEqual(
-            len(catalogue_image_paths),
-            CURATED_DEEP_SKY_OBJECT_COUNT,
-        )
-        self.assertEqual(
-            len({images[object_id]["source_url"] for object_id in object_ids}),
-            CURATED_DEEP_SKY_OBJECT_COUNT,
-        )
-        for object_id in object_ids:
-            image = images[object_id]
+        self.assertEqual(set(images), SOLAR_SYSTEM_IMAGE_IDS)
+        illustrations = {}
+        for row in object_rows:
+            image = resolve_object_image(row["object_id"], row["tipo"], images)
+            self.assertEqual(image["kind"], "illustration", row["object_id"])
+            self.assertFalse(image["source_url"], row["object_id"])
+            self.assertFalse(image["verified"], row["object_id"])
+            illustrations[image["category"]] = image
+        self.assertEqual(set(illustrations), set(CATEGORY_IMAGE_KEYS))
+        for category, image in illustrations.items():
             image_path = data_dir.parent / image["image_path"]
-            self.assertTrue(image_path.exists(), object_id)
-            self.assertEqual(image_path.suffix.lower(), ".jpg", object_id)
-            self.assertTrue(image["source_url"].startswith("https://alasky.cds.unistra.fr/"))
-            self.assertIn("hips2fits", image["source_url"])
-            self.assertIn("CDS", image["attribution"])
-            self.assertIn("ODbL-1.0", image["license"])
-            self.assertEqual(image["verified"], "1")
+            self.assertTrue(image_path.exists(), category)
+            self.assertEqual(image_path.suffix.lower(), ".jpg", category)
             with Image.open(image_path) as opened_image:
-                self.assertEqual(opened_image.format, "JPEG", object_id)
-                self.assertEqual(opened_image.mode, "RGB", object_id)
-                self.assertEqual(opened_image.size, (512, 512), object_id)
+                self.assertEqual(opened_image.format, "JPEG", category)
+                self.assertEqual(opened_image.mode, "RGB", category)
+                self.assertEqual(opened_image.size, (512, 512), category)
 
         caldwell_ids = {f"caldwell-C{index}" for index in range(1, 110)}
         self.assertEqual(len(caldwell_ids & descriptions.keys()), CALDWELL_OBJECT_COUNT)
-        self.assertEqual(len(caldwell_ids & images.keys()), CALDWELL_OBJECT_COUNT)
+        self.assertFalse(caldwell_ids & images.keys())
         for object_id in caldwell_ids:
             description = descriptions[object_id]
             self.assertTrue(description["short_description"].strip(), object_id)
             self.assertTrue(description["observing_notes"].strip(), object_id)
             self.assertTrue(description["best_seen"].strip(), object_id)
             self.assertTrue(description["difficulty_small_scope"].strip(), object_id)
-
-        attributions = Counter(images[object_id]["attribution"] for object_id in object_ids)
-        self.assertEqual(attributions["2MASS (UMass/IPAC-Caltech); HiPS a colori e ritaglio: CDS"], 200)
-        self.assertEqual(attributions["Pan-STARRS1; HiPS a colori e ritaglio: CDS"], 15)
-        self.assertEqual(
-            attributions["SkyMapper Southern Survey DR4; HiPS a colori e ritaglio: CDS"],
-            4,
-        )
 
     def test_solar_system_image_seed_uses_source_backed_assets(self) -> None:
         data_dir = Path(__file__).resolve().parents[1] / "data"
@@ -280,17 +268,15 @@ class DatabaseBootstrapTests(unittest.TestCase):
             with closing(sqlite3.connect(database_path)) as connection:
                 connection.execute(
                     """
-                    UPDATE ObjectImages
-                    SET image_path = 'resources/images/m31.svg',
-                        license = 'NightScope local generated placeholder'
-                    WHERE object_id = 'messier-M31'
+                    INSERT INTO ObjectImages (object_id, image_path, attribution, license)
+                    VALUES ('messier-M31', 'resources/images/m31.svg', 'NightScope',
+                            'NightScope local generated placeholder')
                     """
                 )
                 connection.execute(
                     """
-                    UPDATE ObjectImages
-                    SET image_path = 'user/custom-c23.jpg', license = 'User supplied'
-                    WHERE object_id = 'caldwell-C23'
+                    INSERT INTO ObjectImages (object_id, image_path, attribution, license)
+                    VALUES ('caldwell-C23', 'user/custom-c23.jpg', 'Personal', 'User supplied')
                     """
                 )
                 connection.execute(
@@ -313,10 +299,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
             initialize_database(database_path, schema_path)
             repository = ObjectImageRepository(database_path)
 
-            self.assertEqual(
-                repository.get("messier-M31")["image_path"],
-                "resources/images/catalogue/messier-M31.jpg",
-            )
+            self.assertIsNone(repository.get("messier-M31"))
             self.assertEqual(repository.get("caldwell-C23")["image_path"], "user/custom-c23.jpg")
             self.assertEqual(
                 repository.get("jupiter")["image_path"],
@@ -1399,7 +1382,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 )
                 connection.execute(
                     "DELETE FROM ObjectImages WHERE object_id = ?",
-                    ("caldwell-C109",),
+                    ("moon",),
                 )
                 connection.commit()
 
@@ -1434,7 +1417,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 ).fetchone()
                 restored_image = connection.execute(
                     "SELECT image_path FROM ObjectImages WHERE object_id = ?",
-                    ("caldwell-C109",),
+                    ("moon",),
                 ).fetchone()
             self.assertEqual(preserved, ("contenuto locale", 0))
             self.assertNotEqual(refreshed_description, "contenuto seed obsoleto")
@@ -1442,6 +1425,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertEqual(preserved_curiosity, ("curiosità locale", 0))
             self.assertIsNotNone(restored_description)
             self.assertIsNotNone(restored_image)
+            self.assertEqual(restored_image[0], "resources/images/solar_system/moon.jpg")
 
     def test_schema_10_content_rows_are_adopted_as_builtin_and_refreshed(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

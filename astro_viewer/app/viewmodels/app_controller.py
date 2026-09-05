@@ -79,6 +79,7 @@ from astro_viewer.app.models.sky import (
     SkyQuality,
 )
 from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlockingStatus, WeatherHour, WeatherSummary
+from astro_viewer.app.services.object_imagery import resolve_object_image
 from astro_viewer.app.services.earthdata_credentials import (
     EARTHDATA_LAADS_AUTHORIZATION_URL,
 )
@@ -6535,7 +6536,16 @@ class AppController(QObject):
         data = item.to_qml()
         description = self._object_descriptions.get(item.id) or {}
         curiosity = getattr(self, "_object_curiosities", {}).get(item.id) or {}
-        image_metadata = getattr(self, "_object_image_map", {}).get(item.id) or {}
+        catalogue_item = getattr(self, "_catalogue_identifier_index", {}).get(
+            item.id.strip().casefold(), {}
+        )
+        image_metadata = resolve_object_image(
+            item.id, str(catalogue_item.get("type") or item.object_type),
+            getattr(self, "_object_image_map", {}),
+        )
+        data["image"] = image_metadata["image_path"]
+        data["imageKind"] = image_metadata["kind"]
+        data["imageCategory"] = image_metadata["category"]
         if self._is_catalogue_detail_object(item):
             metadata = self._catalogue_detail_metadata(item)
             data["catalogueObject"] = True

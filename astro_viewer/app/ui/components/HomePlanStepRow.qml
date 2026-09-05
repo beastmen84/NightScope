@@ -85,10 +85,12 @@ Rectangle {
             border.width: 1
 
             Image {
+                objectName: "homePlanThumbnail"
                 anchors.fill: parent
                 anchors.margins: 7
                 source: theme.redNightVision ? "" : root.imageSource()
                 fillMode: Image.PreserveAspectFit
+                asynchronous: true
                 sourceSize.width: 92
                 sourceSize.height: 92
             }
