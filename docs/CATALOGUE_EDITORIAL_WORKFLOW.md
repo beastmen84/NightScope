@@ -4,7 +4,7 @@ This document is the acceptance contract for adding descriptions, observing
 guidance, and source-backed curiosities to the catalogue in Italian, English,
 and Spanish. Source `1.46.0` established the pipeline and acceptance gates;
 sources `1.46.1` and `1.46.2` apply that contract to 75 NGC-only galaxies,
-while sources `1.46.3` through `1.46.7` apply the same standard to field-scoped
+while sources `1.46.3` through `1.46.8` apply the same standard to field-scoped
 baseline remediation.
 
 ## Baseline And Scope
@@ -44,12 +44,21 @@ field scale, surface brightness, mixed reflection/emission components,
 filter-versus-unfiltered comparisons, compact shells, and realistic visual
 limits without reopening their already distinct descriptions.
 
-Source `1.46.7` closes the measured historical baseline debt. It replaces the
-final five repeated or near-identical galaxy observing-note families across 51
-objects and rewrites the four descriptions still belonging to two duplicated
-families. The resulting notes distinguish field scale, surface brightness,
-companions, bars, dust, asymmetry, useful filter exceptions, and realistic
-visual limits for each galaxy rather than varying one shared template.
+Source `1.46.7` clears the historical debt measured at whole-paragraph level.
+It replaces the final five repeated or near-identical galaxy observing-note
+families across 51 objects and rewrites the four descriptions still belonging
+to two duplicated families. The resulting notes distinguish field scale,
+surface brightness, companions, bars, dust, asymmetry, useful filter exceptions,
+and realistic visual limits for each galaxy rather than varying one shared template.
+
+Source `1.46.8` corrects the sentence-level blind spot found in the subsequent
+review: 92 descriptions lose shared narrative sentences or measurement-only
+tails, and five curiosities receive scientific, terminology, or provenance
+corrections. The 94-object manifest also reconciles NGC 246's faint appearance,
+NGC 4945's edge-on orientation, and M84's differing source classifications.
+NGC 559's former two-billion-year curiosity is replaced by a cited photometric
+study estimating 224 million years and finding mass segregation. No observing
+notes, best-seen fields, difficulty ratings, or catalogue identities change.
 
 Catalogue aliases do not create duplicate editorial work. Content belongs to
 the stable physical `object_id`; Messier, Caldwell, NGC, and historical aliases
@@ -69,16 +78,23 @@ debt: 11 connected description families affect 24 objects and 23 observing-note
 families affect 177 objects after catalogue IDs, parenthetical aliases, and
 measurements are normalized. Historical curiosity texts remain distinct.
 
-After the accepted `1.46.7` remediation, the deterministic screen reports zero
-repeated or near-identical description families and zero observing-note
-families in the historical baseline. This closes the measured template debt;
-it is not a claim that every singleton sentence can never be improved.
+The `1.46.7` zero-family result was limited to whole paragraphs. The subsequent
+sentence-level screen found 133 normalized repeated-sentence families across
+IT/EN/ES, affecting 85 distinct objects. Source `1.46.8` clears those findings
+and the remaining measurement-only description tails without substituting
+synonyms into another common template.
 
-The deterministic audit will report any newly detected family as a warning,
-not as acceptance of repeated prose and not as a failure of unrelated later
-NGC batches. Any future remediation must still use bounded, reviewed versions
-with the same three-language and source requirements; bulk synonym replacement
-is not an acceptable fix.
+The audit now rejects shared narrative sentences of at least 12 normalized
+word tokens in descriptions, observing notes, and curiosities across all
+completed objects and all three languages, even without `--batch`. IDs,
+parenthetical aliases, and measurements do not make a sentence distinct.
+Short recurring advice and repetition within a single object are excluded.
+An accepted, justified language/field/object-pair waiver remains possible;
+this batch needs none. The family count includes waived families if any.
+Whole-paragraph historical near-similarity remains a non-failing diagnostic,
+while the candidate batch's declared fields receive the stricter paragraph
+acceptance check. Zero findings are screening evidence, not a guarantee that
+every scientific claim or individual sentence is beyond further improvement.
 
 ## Required Fields
 
@@ -191,8 +207,9 @@ Accepted batch ledger:
 | `1.46.5` | Baseline remediation | Remaining formulaic globular-cluster notes; six descriptions | 75 | 106 | 7,291 |
 | `1.46.6` | Baseline remediation | Remaining formulaic nebula and planetary-nebula notes | 75 | 126 | 7,291 |
 | `1.46.7` | Baseline remediation | Final galaxy-note families; four descriptions | 75 | 177 | 7,291 |
+| `1.46.8` | Baseline remediation | 92 residual descriptions; five curiosities; sentence-level audit | 75 | 197 | 7,291 |
 
-The next editorial source patch is `1.46.8`; it may resume bounded NGC-only
+The next editorial source patch is `1.46.9`; it may resume bounded NGC-only
 enrichment, with its own reviewed manifest rather than extending an accepted
 set.
 
@@ -245,6 +262,8 @@ Extend tests as coverage grows. At minimum, every accepted batch must prove:
 - curiosity texts are unique and not near-duplicate templates;
 - descriptions and observing notes are neither identical nor near-identical
   parameterized templates across objects;
+- long narrative sentences are not shared between otherwise distinct
+  descriptions, observing notes, or curiosities in any of the three languages;
 - object names, aliases, types, and constellations agree with catalogue data;
 - Solar safety wording remains exact wherever the Sun is involved;
 - editorial content never changes recommendation eligibility, NSOM scores,
@@ -296,9 +315,10 @@ curiosity cards:
 ```
 
 Similarity checks are screening tools, not proof of quality. Passing a token
-threshold does not make templated prose acceptable. The audit also reports
-legacy baseline template families as non-failing debt so they remain visible
-until deliberately rewritten.
+threshold does not make templated prose acceptable. Whole-paragraph legacy
+families remain visible as warnings; repeated narrative sentences are a
+repository-wide acceptance failure unless explicitly waived in an accepted
+manifest.
 
 ## Review Artifacts
 

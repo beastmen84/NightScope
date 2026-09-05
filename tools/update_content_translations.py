@@ -91,10 +91,10 @@ _ENGLISH_CONTENT_OVERRIDES = {
         "magnification, and under a dark sky."
     ),
     ("objects", "messier-M84", "short_description"): (
-        "M84 is a Virgo galaxy with a classification intermediate between "
-        "elliptical and lenticular. It belongs to Markarian's Chain and is more "
-        "significant in the context of the group than for detail visible in the "
-        "individual galaxy."
+        "M84 is variously classified as an elliptical or lenticular galaxy in "
+        "the Virgo Cluster. Old starlight dominates its body, but the center "
+        "harbors a supermassive black hole; Hubble images also reveal warped "
+        "dust lanes."
     ),
     ("objects", "messier-M84", "curiosity_text"): (
         "M84 lies in Markarian's Chain and hosts an active nucleus. A relativistic "
@@ -1557,9 +1557,10 @@ _SPANISH_EDITORIAL_OVERRIDES = {
         "con poco aumento y bajo un cielo oscuro."
     ),
     ("objects", "messier-M84", "short_description"): (
-        "M84 es una galaxia elíptica de Virgo y forma parte de la Cadena de "
-        "Markarian. En el ocular destaca por su núcleo concentrado y por el "
-        "contexto de galaxias cercanas más que por sus detalles internos."
+        "M84 se clasifica en distintas fuentes como galaxia elíptica o lenticular "
+        "del Cúmulo de Virgo. La luz de estrellas viejas domina su cuerpo, pero "
+        "el centro alberga un agujero negro supermasivo; las imágenes del Hubble "
+        "también revelan bandas de polvo deformadas."
     ),
     ("objects", "messier-M84", "curiosity_text"): (
         "M84 se encuentra en la Cadena de Markarian y alberga un núcleo activo. "

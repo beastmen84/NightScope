@@ -393,10 +393,10 @@ def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
     assert "senza filtri a banda stretta" in italian_descriptions["messier-M78"][
         "observing_notes"
     ]
-    assert "intermedia tra ellittica e lenticolare" in italian_descriptions[
+    assert "ellittica o lenticolare" in italian_descriptions[
         "messier-M84"
     ]["short_description"]
-    assert "galassia irregolare" in italian_descriptions["caldwell-C51"][
+    assert "galassia nana irregolare" in italian_descriptions["caldwell-C51"][
         "short_description"
     ]
     assert "dettagli di spirale" not in italian_descriptions["caldwell-C51"][
@@ -461,7 +461,7 @@ def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
     assert "without narrowband filters" in descriptions["messier-M78"][
         "observing_notes"
     ]
-    assert "intermediate between elliptical and lenticular" in descriptions[
+    assert "elliptical or lenticular" in descriptions[
         "messier-M84"
     ]["short_description"]
     assert "Markarian's Chain" in descriptions["messier-M84"]["curiosity_text"]
@@ -542,7 +542,12 @@ def test_curated_spanish_content_uses_reviewed_astronomy_terms() -> None:
     objects = spanish["content"]["objects"]
     catalogue = spanish["content"]["catalogue_objects"]
     assert "pupila de salida" in objects["messier-M16"]["observing_notes"]
-    assert "0,3′/21′" in objects["caldwell-C59"]["short_description"]
+    assert "Fantasma de Júpiter" in objects["caldwell-C59"]["short_description"]
+    assert all(
+        re.search(r"\d\.\d+[′″]", item[field]) is None
+        for item in objects.values()
+        for field in ("short_description", "observing_notes", "curiosity_text")
+    )
     assert catalogue["messier-M13"]["name"] == "Gran cúmulo de Hércules"
     assert catalogue["messier-M11"]["name"] == "Cúmulo del Pato Salvaje"
     assert catalogue["caldwell-C13"]["name"] == "NGC 457 - Cúmulo del Búho"
@@ -581,7 +586,7 @@ def test_curated_spanish_content_uses_reviewed_astronomy_terms() -> None:
     assert "nudos cometarios" in objects["caldwell-C63"]["curiosity_text"]
     assert "sin filtros de banda estrecha" in objects["messier-M78"]["observing_notes"]
     assert "galaxia elíptica" in objects["messier-M84"]["short_description"]
-    assert "clasificación se debate" in objects["messier-M86"]["short_description"]
+    assert "entre elíptica y lenticular" in objects["messier-M86"]["short_description"]
     assert "detalles en espiral" not in objects["caldwell-C51"]["short_description"]
     assert "galaxia lenticular" in objects["caldwell-C53"]["short_description"]
 

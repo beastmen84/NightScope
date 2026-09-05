@@ -306,8 +306,11 @@ Caldwell entries, plus the first 75 accepted NGC-only galaxies. Sources
 `1.46.3` through `1.46.7` replace formulaic observing-note families across 68
 baseline galaxies, 48 baseline open clusters, 41 baseline globular clusters,
 and 20 baseline nebulae or planetary nebulae; twenty-four descriptions are also
-rewritten. The deterministic screen now reports no repeated or near-identical
-historical description or observing-note families. This remediation changes
+rewritten. Source `1.46.8` additionally corrects 92 residual descriptions and
+five curiosities across 94 baseline objects, bringing cumulative remediation
+to 197 distinct objects. The deterministic screen now reports no repeated or
+near-identical historical paragraph families and no long shared narrative
+sentences in IT/EN/ES. This remediation changes
 prose, not the 303-object coverage count. The Sun entry requires a certified
 full-aperture front-mounted solar filter and explicitly excludes eyepiece solar
 filters. Caldwell observing copy was initially derived conservatively from the
@@ -342,7 +345,15 @@ globular-cluster remediation records 41 direct NASA Hubble catalogue pages,
 all checked successfully on 2026-09-04. The `1.46.6` nebula remediation records
 20 distinct object-specific pages, all checked successfully on 2026-09-04. The
 `1.46.7` final galaxy remediation records 50 distinct NASA Hubble pages for 51
-objects, all checked successfully on 2026-09-04. The seed
+objects, all checked successfully on 2026-09-04. The `1.46.8` manifest adds
+claim-scoped NASA, ESA/Hubble, ESO, scholarly, and secondary evidence for the
+residual descriptions and five curiosity corrections. NGC 559 now cites the
+Joshi et al. photometric study rather than an older secondary age estimate;
+NGC 246 cites ESO for its central triple system, NGC 4449 cites NASA APOD for
+its tidal stellar stream, and NGC 2775 cites the dedicated Hubble article for
+flocculent arms. Omega Centauri retains its explicitly tentative dwarf-galaxy
+origin. All 101 distinct manifest URLs passed the live check on 2026-09-05.
+The seed
 deliberately remains
 separate from observing notes and
 does not participate in NSOM, Equipment or ranking calculations.
@@ -379,8 +390,10 @@ deliberately smaller 25-object manifest plus a visible legacy-template warning.
 Source `1.46.3` extends the manifest contract with field-scoped baseline
 remediation; sources `1.46.4` through `1.46.7` record the next four accepted
 correction batches, bring the cumulative remediated baseline to 177 objects,
-and clear every repeated or near-identical historical family found by the
-deterministic screen:
+and clear the historical families then found at paragraph level. Source
+`1.46.8` adds the sixth correction batch and a repository-wide sentence screen,
+closing the partial-template blind spot and bringing the cumulative count to
+197 baseline objects. It does not certify undeclared fields as newly reviewed:
 
 ```powershell
 .\.venv\Scripts\python.exe astro_viewer\tools\audit_catalogue_editorial.py

@@ -54,6 +54,7 @@ VERSION_PATTERN = re.compile(r"1\.46\.(?P<patch>\d+)")
 TOKEN_PATTERN = re.compile(r"[^\W\d_]+", re.UNICODE)
 CATALOGUE_ID_PATTERN = re.compile(r"\b(?:ngc|ic|m|c)\s*\d+[a-z]?\b", re.IGNORECASE)
 PARENTHETICAL_DETAIL_PATTERN = re.compile(r"\([^)]*\)")
+SENTENCE_BOUNDARY_PATTERN = re.compile(r"(?<=[.!?])\s+")
 NEAR_DUPLICATE_THRESHOLD = 0.88
 SOLAR_SYSTEM_IDS = frozenset(
     {
@@ -89,6 +90,8 @@ class EditorialAuditReport:
     baseline_description_template_objects: int
     baseline_observing_template_families: int
     baseline_observing_template_objects: int
+    repeated_sentence_families: int
+    repeated_sentence_objects: int
     errors: tuple[str, ...]
     warnings: tuple[str, ...]
 
@@ -557,6 +560,61 @@ def _template_groups(
     return tuple(groups)
 
 
+def _repeated_sentence_groups(
+    values: dict[str, str],
+    *,
+    minimum_tokens: int = 12,
+) -> tuple[tuple[str, ...], ...]:
+    """Find shared long sentences even when surrounding paragraphs differ.
+
+    IDs, parenthetical aliases, and measurements do not distinguish prose.
+    Short practical instructions are deliberately excluded; repeated sentences
+    within one object also do not create a cross-object editorial finding.
+    """
+
+    by_sentence: dict[str, set[str]] = defaultdict(set)
+    for object_id, value in values.items():
+        for sentence in SENTENCE_BOUNDARY_PATTERN.split(value):
+            fingerprint = _template_fingerprint(sentence)
+            if len(fingerprint.split()) >= minimum_tokens:
+                by_sentence[fingerprint].add(object_id)
+    return tuple(
+        sorted(
+            tuple(sorted(object_ids))
+            for object_ids in by_sentence.values()
+            if len(object_ids) > 1
+        )
+    )
+
+
+def _repeated_sentence_errors(
+    language: str,
+    field: str,
+    values: dict[str, str],
+    *,
+    selected_ids: set[str] | None = None,
+    waivers: frozenset[tuple[str, str, str, str]] = frozenset(),
+) -> list[str]:
+    """Reject shared narrative sentences globally or within one declared scope."""
+
+    errors: list[str] = []
+    reported: set[tuple[str, str]] = set()
+    for group in _repeated_sentence_groups(values):
+        for index, first_id in enumerate(group):
+            for second_id in group[index + 1 :]:
+                if selected_ids is not None and not {first_id, second_id} & selected_ids:
+                    continue
+                pair = (first_id, second_id)
+                if pair in reported or (language, field, *pair) in waivers:
+                    continue
+                reported.add(pair)
+                errors.append(
+                    f"{language} {field}: repeated narrative sentence "
+                    f"{first_id} / {second_id}; rewrite or document a similarity waiver"
+                )
+    return errors
+
+
 def _near_duplicate_errors(
     screened_fields: frozenset[tuple[str, str]],
     completed_ids: set[str],
@@ -586,6 +644,19 @@ def _near_duplicate_errors(
                 for object_id, fields in content.items()
                 if object_id in completed_ids
             }
+            failures.extend(
+                _repeated_sentence_errors(
+                    language,
+                    field,
+                    {
+                        object_id: str(fields.get(field) or "")
+                        for object_id, fields in content.items()
+                        if object_id in completed_ids
+                    },
+                    selected_ids=selected_ids,
+                    waivers=waivers,
+                )
+            )
             compared: set[tuple[str, str]] = set()
             for object_id in sorted(selected_ids & prepared.keys()):
                 text, tokens = prepared[object_id]
@@ -870,6 +941,28 @@ def audit_catalogue_editorial(
         for manifest in accepted_remediation_manifests
         for object_id in manifest.object_ids
     }
+    sentence_waivers = frozenset(
+        waiver for manifest in accepted_manifests for waiver in manifest.waivers
+    )
+    repeated_sentence_families = 0
+    repeated_sentence_ids: set[str] = set()
+    for language, content in {"it": italian_content, **translations}.items():
+        for field in NARRATIVE_FIELDS:
+            values = {
+                object_id: str(fields.get(field) or "")
+                for object_id, fields in content.items()
+                if object_id in completed_ids
+            }
+            sentence_groups = _repeated_sentence_groups(values)
+            repeated_sentence_families += len(sentence_groups)
+            repeated_sentence_ids.update(
+                object_id for group in sentence_groups for object_id in group
+            )
+            errors.extend(
+                _repeated_sentence_errors(
+                    language, field, values, waivers=sentence_waivers
+                )
+            )
     managed_ids = completed_ids - baseline_ids
     for object_id in sorted(managed_ids - accepted_enrichment_ids):
         errors.append(f"{object_id}: completed content lacks an accepted batch manifest")
@@ -906,6 +999,8 @@ def audit_catalogue_editorial(
         baseline_description_template_objects=baseline_description_template_objects,
         baseline_observing_template_families=len(baseline_observing_templates),
         baseline_observing_template_objects=baseline_observing_template_objects,
+        repeated_sentence_families=repeated_sentence_families,
+        repeated_sentence_objects=len(repeated_sentence_ids),
         errors=tuple(dict.fromkeys(errors)),
         warnings=tuple(dict.fromkeys(warnings)),
     )
@@ -937,7 +1032,9 @@ def main(argv: list[str] | None = None) -> int:
             f"{report.accepted_batches} accepted batches "
             f"({report.accepted_enrichment_batches} enrichment, "
             f"{report.accepted_remediation_batches} remediation); "
-            f"{report.remediated_baseline_objects} baseline objects remediated."
+            f"{report.remediated_baseline_objects} baseline objects remediated; "
+            f"{report.repeated_sentence_families} repeated narrative sentence families "
+            f"across {report.repeated_sentence_objects} objects."
         )
         for warning in report.warnings:
             print(f"WARNING: {warning}")

@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.46.7
+This document describes the architecture implemented by the NightScope 1.46.8
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -301,7 +301,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.46.7`:
+Current runtime status for `1.46.8`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -380,11 +380,13 @@ Current runtime status for `1.46.7`:
 - `ObjectDescription` and `ObjectCuriosity` retain complete reviewed
   presentation for 303 targets: the 228-object Solar System/Messier/Caldwell
   baseline plus 75 NGC-only galaxies accepted through source `1.46.2`.
-  Sources `1.46.3` through `1.46.7` additionally record field-scoped
-  remediation of 177 baseline galaxy, open-cluster, globular-cluster, and
+  Sources `1.46.3` through `1.46.8` additionally record field-scoped
+  remediation of 197 baseline galaxy, open-cluster, globular-cluster, and
   nebula entries without changing catalogue coverage. The deterministic
   historical-prose screen reports no remaining repeated or near-identical
-  description or observing-note families.
+  description or observing-note families. A separate sentence screen in
+  IT/EN/ES now also rejects long shared narrative sentences inside otherwise
+  distinct paragraphs; its current count is zero.
   `ObjectImages` remains complete for the 228 baseline targets; each has a
   dedicated local `512 x 512` JPEG, with survey cutouts for deep sky and
   normalized NASA/JPL PIA observations for Solar System bodies. NGC-only

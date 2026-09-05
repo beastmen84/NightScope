@@ -4,10 +4,15 @@ from __future__ import annotations
 
 import csv
 import json
+import shutil
 from collections import Counter
 from pathlib import Path
 
+import pytest
+
 from astro_viewer.tools.audit_catalogue_editorial import (
+    _repeated_sentence_errors,
+    _repeated_sentence_groups,
     _template_groups,
     audit_catalogue_editorial,
 )
@@ -140,15 +145,17 @@ def test_editorial_baseline_and_ngc_backlog_are_audited() -> None:
     assert report.completed_objects == 303
     assert report.completed_ngc_objects == 75
     assert report.remaining_ngc_objects == 7_291
-    assert report.accepted_batches == 7
+    assert report.accepted_batches == 8
     assert report.accepted_enrichment_batches == 2
-    assert report.accepted_remediation_batches == 5
-    assert report.remediated_baseline_objects == 177
+    assert report.accepted_remediation_batches == 6
+    assert report.remediated_baseline_objects == 197
     assert report.draft_batches == 0
     assert report.baseline_description_template_families == 0
     assert report.baseline_description_template_objects == 0
     assert report.baseline_observing_template_families == 0
     assert report.baseline_observing_template_objects == 0
+    assert report.repeated_sentence_families == 0
+    assert report.repeated_sentence_objects == 0
     assert report.warnings == ()
 
 
@@ -158,20 +165,22 @@ def test_editorial_visual_samples_are_read_from_the_latest_accepted_manifest() -
         / "astro_viewer"
         / "data"
         / "editorial_batches"
-        / "batch_1_46_7.json"
+        / "batch_1_46_8.json"
     )
 
     assert _sample_ids(manifest) == [
-        "caldwell-C12",
-        "caldwell-C18",
+        "caldwell-C4",
+        "caldwell-C46",
+        "caldwell-C56",
+        "caldwell-C83",
+        "caldwell-C80",
+        "caldwell-C8",
+        "caldwell-C89",
+        "caldwell-C99",
+        "messier-M26",
+        "messier-M84",
+        "caldwell-C21",
         "caldwell-C48",
-        "caldwell-C60",
-        "caldwell-C57",
-        "messier-M33",
-        "caldwell-C38",
-        "messier-M64",
-        "messier-M94",
-        "messier-M109",
     ]
 
 
@@ -192,6 +201,103 @@ def test_editorial_template_screen_ignores_ids_aliases_and_measurements() -> Non
     }
 
     assert _template_groups(values) == (("first", "second"),)
+
+
+def test_sentence_screen_detects_templates_inside_distinct_paragraphs() -> None:
+    repeated = (
+        "La struttura è diffusa e va letta attraverso variazioni graduali di luminosità; "
+        "cielo scuro e campo ampio contano più di forti ingrandimenti."
+    )
+    values = {
+        "iris": "Una nube a riflessione circonda una stella azzurra. " + repeated,
+        "variable": repeated + " Il ventaglio cambia per ombre proiettate dalla polvere.",
+    }
+
+    assert _template_groups(values) == ()
+    assert _repeated_sentence_groups(values) == (("iris", "variable"),)
+
+
+def test_sentence_screen_normalizes_measurements_and_aliases() -> None:
+    values = {
+        "first": (
+            "For NGC 123 (C1), compare its 2.5 arcminute extent with its integrated "
+            "magnitude of 9.2 before selecting an initial field. A compact core."
+        ),
+        "second": (
+            "For NGC 456 (C2), compare its 7.3 arcminute extent with its integrated "
+            "magnitude of 8.1 before selecting an initial field. Broad outer arms."
+        ),
+    }
+
+    assert _repeated_sentence_groups(values) == (("first", "second"),)
+
+
+def test_sentence_screen_ignores_short_advice_and_one_object_repetition() -> None:
+    long_sentence = "A broad outer shell surrounds a much brighter inner ring of glowing gas."
+    values = {
+        "first": long_sentence + " " + long_sentence + " Use a dark sky.",
+        "second": "Use a dark sky. A compact stellar group.",
+    }
+
+    assert _repeated_sentence_groups(values) == ()
+
+
+def test_sentence_waivers_preserve_language_field_pair_and_batch_scope() -> None:
+    sentence = "A broad outer shell surrounds a much brighter inner ring of glowing gas."
+    values = {"first": sentence, "second": sentence, "unrelated": "A different target."}
+    waiver = frozenset({("en", "short_description", "first", "second")})
+
+    assert _repeated_sentence_errors("en", "short_description", values)
+    assert not _repeated_sentence_errors(
+        "en", "short_description", values, waivers=waiver
+    )
+    assert _repeated_sentence_errors("es", "short_description", values, waivers=waiver)
+    assert _repeated_sentence_errors("en", "observing_notes", values, waivers=waiver)
+    assert not _repeated_sentence_errors(
+        "en", "short_description", values, selected_ids={"unrelated"}
+    )
+    assert _repeated_sentence_errors(
+        "en", "short_description", values, selected_ids={"first"}
+    )
+
+
+@pytest.mark.parametrize("language", ("en", "es"))
+@pytest.mark.parametrize("field", ("short_description", "observing_notes", "curiosity_text"))
+def test_repository_audit_rejects_partial_translation_duplicates_without_batch(
+    tmp_path: Path,
+    language: str,
+    field: str,
+) -> None:
+    for relative in ("astro_viewer/data", "astro_viewer/translations"):
+        (tmp_path / relative).mkdir(parents=True)
+    for name in (
+        "catalogue_objects_seed.csv", "catalogue_designations_seed.csv",
+        "object_descriptions_seed.csv", "object_curiosities_seed.csv",
+    ):
+        relative = Path("astro_viewer/data") / name
+        shutil.copyfile(PROJECT_ROOT / relative, tmp_path / relative)
+    shutil.copytree(
+        PROJECT_ROOT / "astro_viewer/data/editorial_batches",
+        tmp_path / "astro_viewer/data/editorial_batches",
+    )
+    for pack_language in ("en", "es"):
+        relative = Path("astro_viewer/translations") / f"{pack_language}.json"
+        shutil.copyfile(PROJECT_ROOT / relative, tmp_path / relative)
+    pack_path = tmp_path / f"astro_viewer/translations/{language}.json"
+    payload = json.loads(pack_path.read_text(encoding="utf-8"))
+    shared = " A broad outer shell surrounds a much brighter inner ring of glowing gas."
+    for object_id in ("messier-M1", "messier-M2"):
+        payload["content"]["objects"][object_id][field] += shared
+    pack_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    report = audit_catalogue_editorial(root=tmp_path)
+
+    assert any(
+        f"{language} {field}: repeated narrative sentence messier-M1 / messier-M2"
+        in error for error in report.errors
+    )
+    assert report.repeated_sentence_families >= 1
+    assert report.repeated_sentence_objects >= 2
 
 
 def test_accepted_editorial_batch_requires_all_reviews_and_completed_content(
@@ -313,10 +419,10 @@ def test_baseline_remediation_manifest_is_field_scoped(tmp_path: Path) -> None:
     report = audit_catalogue_editorial(batch_path=manifest)
 
     assert report.errors == ()
-    assert report.accepted_batches == 8
+    assert report.accepted_batches == 9
     assert report.accepted_enrichment_batches == 2
-    assert report.accepted_remediation_batches == 6
-    assert report.remediated_baseline_objects == 178
+    assert report.accepted_remediation_batches == 7
+    assert report.remediated_baseline_objects == 198
 
 
 def test_baseline_remediation_rejects_ngc_only_ids_and_undeclared_claims(

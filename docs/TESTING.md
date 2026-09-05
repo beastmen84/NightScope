@@ -20,7 +20,7 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.46.7` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
+The `1.46.8` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
 Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
 `pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
 Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, NumPy 2.5.2,
@@ -172,11 +172,14 @@ Validate fixed MPC and OpenNGC inputs without network access:
 
 The editorial audit reports the immutable 228-object pre-programme identity,
 the 75 accepted NGC-only additions, complete IT/EN/ES coverage, two accepted
-enrichment manifests, five baseline-remediation manifests covering 177 objects,
-and the remaining 7,291-object NGC-only backlog. The historical screen now
-reports zero repeated or near-identical description and observing-note
-families; this closes the measured template debt without treating identity
-stability as editorial approval. Pass `--batch` to screen one candidate batch
+enrichment manifests, six baseline-remediation manifests covering 197 objects,
+and the remaining 7,291-object NGC-only backlog. The historical paragraph
+screen and the new repository-wide IT/EN/ES sentence screen both report zero
+findings. The latter catches long shared sentences hidden inside otherwise
+distinct descriptions, notes, and curiosities; short recurring advice is
+excluded. Regression tests cover normalization, within-object repetition,
+scoped waivers, and all three narrative fields in both translation overlays
+without `--batch`. Pass `--batch` to screen one candidate batch
 for near-duplicate prose; run
 `audit_curiosity_sources.py --batch ...` separately because live URL state is
 review evidence rather than a deterministic source gate.
@@ -187,17 +190,17 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
-The `1.46.7` coverage/security source gate passed on Windows/Python 3.14.5 with
-1,227 tests and 10 subtests in 269.93 seconds, 86% aggregate application
+The `1.46.8` coverage/security source gate passed on 2026-09-05 on
+Windows/Python 3.14.5 with 1,237 tests and 10 subtests in 423.37 seconds,
+86% aggregate application
 coverage, complete documentation coverage for 247 Python, 34 QML, and 17
 operational files, an acyclic production graph, zero protected-layer
 violations, a reviewed Bandit baseline (0 high, 34 medium, 14 low), clean
 dependency/license/MPC/OpenNGC/editorial checks, and successful backend, normal
 QML, and Red Night Vision QML smoke tests. The editorial check passed without
-warnings and reports zero residual repeated or near-identical historical prose
-families. The in-gate installed-environment `pip-audit` found no known
-vulnerabilities. The most
-recent separate PySide6
+warnings and reports zero historical paragraph families and zero shared
+narrative sentence families across IT/EN/ES. The in-gate installed-environment
+`pip-audit` found no known vulnerabilities. The most recent separate PySide6
 6.11.2 `qmllint` pass over all 34 QML files remains the `1.45.22` pass; its
 existing non-fatal diagnostics remain tracked technical debt.
 
@@ -237,6 +240,17 @@ Detail scenes: ten representative galaxies in IT/EN/ES, normal and Red Night
 Vision mode, at both the top position that exposes observing notes and the lower
 description/curiosity position. All final text remained complete and free of
 clipping or overlap, and Red Night Vision remained monochromatic.
+
+The separate `1.46.8` correction evidence includes a successful live audit of
+101 distinct manifest URLs and 72 reviewed Object Detail scenes: twelve
+representative objects in IT/EN/ES, normal and Red Night Vision mode, at the
+lower description/curiosity position. All revised text remained complete and
+free of clipping or overlap, and Red Night Vision remained monochromatic.
+The field-level diff check confirmed exactly 92 descriptions and five
+curiosities across 94 stable baseline identities, with the same 97 edited
+fields in each overlay and no changes to unrelated translation sections.
+The focused catalogue, translation, and developer-tooling run passed all 91
+tests in 19.95 seconds.
 
 No remote CI result, distribution build, source tag, checksum, or release is
 implied by that local source measurement.

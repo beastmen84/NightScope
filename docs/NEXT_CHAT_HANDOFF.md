@@ -1,32 +1,32 @@
 # NightScope - Next Chat Handoff
 
-Updated: 2026-09-04
+Updated: 2026-09-05
 
 ## Current State
 
-- Source version: `1.46.7`.
+- Source version: `1.46.8`.
 - Current public Windows release: `v1.45.21`, from source commit
   `d06300b43db0b3df2acbcb7cde2761158704f7b5`; its GitHub release contains the
   portable Windows x64 ZIP and no Linux package.
 - Current public Linux release: `v1.43.0`, from source commit
   `26dfaf49df8f9b8e73e84f406396f406170400b2`; its GitHub release contains the
   Debian 12 x86-64 tarball and adjacent checksum.
-- Source `1.46.7` is not published: no `v1.46.7` tag, bundle, checksum, or
+- Source `1.46.8` is not published: no `v1.46.8` tag, bundle, checksum, or
   GitHub release has been created.
-- `dist` was deliberately not regenerated or modified for `1.46.7`.
-- Seven editorial batches are accepted: two enrich 75 NGC-only galaxies with
-  complete canonical Italian content and reviewed English/Spanish overlays;
-  the other five remediate declared fields for 68 baseline galaxies, 48
-  baseline open clusters, 41 baseline globular clusters, and 20 baseline
-  nebulae or planetary nebulae. Catalogue coverage remains 303 complete objects
-  (228 baseline plus 75 NGC-only), with
-  7,291 NGC-only targets remaining.
+- `dist` was deliberately not regenerated or modified for `1.46.8`.
+- Eight editorial batches are accepted: two enrich 75 NGC-only galaxies;
+  six remediate declared fields across 197 distinct baseline objects. The
+  latest pass revises 92 descriptions and five curiosities across 94 objects,
+  with canonical IT and reviewed EN/ES overlays. Catalogue coverage remains
+  303 complete objects (228 baseline plus 75 NGC-only), with 7,291 NGC-only
+  targets remaining.
 - A retrospective quality screen confirms the 50 entries added in `1.46.1`
-  remain specific and useful. Five remediation batches now clear every
-  repeated or near-identical description and observing-note family measured in
-  the older baseline: 177 objects were corrected under field-scoped manifests.
-  This closes the measured template debt without claiming that no individual
-  singleton sentence can ever be improved.
+  remain specific and useful. The `1.46.7` zero-debt result only measured whole
+  paragraphs. A subsequent sentence-level check found 133 normalized shared
+  sentence families across IT/EN/ES, affecting 85 objects. Source `1.46.8`
+  corrects these and the remaining measurement-only description tails; both
+  screens now report zero. This is not a blanket factual certification of
+  untouched fields or a claim that no individual sentence can be improved.
 - The multilingual static website lives under `website/`, and
   `.github/workflows/pages.yml` uploads only that directory. GitHub Pages is
   enabled with the `workflow` source, HTTPS is enforced, and the public homepage
@@ -69,7 +69,8 @@ Updated: 2026-09-04
 | 1.46.4 | `f145b4a` | Replaces formulaic guidance for 48 baseline open clusters and rewrites ten duplicated descriptions. |
 | 1.46.5 | `8a2de9a` | Replaces formulaic guidance for 41 baseline globular clusters and rewrites six duplicated descriptions. |
 | 1.46.6 | `2d2d1b5` | Replaces formulaic guidance for 20 baseline nebulae and planetary nebulae. |
-| 1.46.7 | current source | Replaces the final formulaic galaxy guidance and four duplicated descriptions. |
+| 1.46.7 | `d9f11d5` | Replaces the final formulaic galaxy guidance and four duplicated descriptions. |
+| 1.46.8 | current source | Corrects residual description templates, five curiosities, and the sentence-level audit blind spot. |
 
 ## Resulting Architecture
 
@@ -117,12 +118,13 @@ QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.46.7` coverage/security source gate passed on
+The final local `1.46.8` coverage/security source gate passed on 2026-09-05 on
 Windows/Python 3.14.5:
 
-- 1,227 tests and 10 subtests in 269.93 seconds, with 86% aggregate application
+- 1,237 tests and 10 subtests in 423.37 seconds, with 86% aggregate application
   coverage; the editorial audit passed without warnings and reports zero
-  residual repeated or near-identical historical prose families;
+  historical paragraph families and zero shared narrative sentence families
+  across IT/EN/ES;
 - validated toolchain: pip 26.2.1, Ruff 0.16.5, coverage 7.16.0, PyInstaller
   6.22.2, and `pyinstaller-hooks-contrib` 2026.7;
 - validated UI/astronomy runtime: PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
@@ -156,9 +158,13 @@ Windows/Python 3.14.5:
   successfully for 51 objects and 120 final Object Detail scenes reviewed
   across ten objects, IT/EN/ES, normal/red, and both observing-note and
   lower-card positions;
+- separate `1.46.8` correction evidence: 101 distinct manifest URLs reached
+  successfully and 72 final Object Detail scenes reviewed across twelve
+  objects, IT/EN/ES, normal/red, at the lower description/curiosity position;
+  all revised text remained complete and Red Night Vision monochromatic;
 - the earlier PySide6 6.11.2 `qmllint`, isolated first-use/saved-Spanish launches,
   and native Windows splash renders from `1.45.22` remain the latest dedicated
-  startup evidence; no QML source changed from `1.46.1` through `1.46.7`.
+  startup evidence; no QML source changed from `1.46.1` through `1.46.8`.
 
 After the static website and its Pages workflow were added, all 46 developer-
 tooling tests passed in 7.36 seconds and Ruff remained clean. These focused
@@ -189,22 +195,24 @@ Skyfield event/calculation seams remain the next non-persistence priority.
 
 ## Active Product Work: Catalogue Editorial Content
 
-Sources through `1.46.7` apply the prepared editorial pipeline to 75 notable
+Sources through `1.46.8` apply the prepared editorial pipeline to 75 notable
 NGC-only galaxies chosen for morphology, surface brightness, observing value,
-and direct scientific evidence, then use five field-scoped remediations to
-replace generic prose for 68 baseline galaxies, 48 open clusters, 41 globular
-clusters, and 20 nebulae or planetary nebulae. The 228 Solar System/Messier/
+and direct scientific evidence, then use six field-scoped remediations to
+correct 197 distinct baseline objects. The 228 Solar System/Messier/
 Caldwell entries remain the immutable identity baseline; 303
 physical objects are complete and 7,291 NGC-only targets remain queued.
 
 The network-free audit freezes the baseline identity, verifies canonical fields,
 EN/ES overlay parity, provenance, duplicate text, accepted manifests and the
-remaining count. Its historical screen now reports zero repeated or
-near-identical description and observing-note families; identity stability
-still does not certify every individual sentence. A
+remaining count. Its historical paragraph screen and its new IT/EN/ES
+sentence-level screen both report zero; identity stability still does not
+certify every individual sentence. Long shared narrative sentences are now
+repository-wide errors even without `--batch`; short advice is excluded and
+explicit accepted language/field/object-pair waivers are supported. A
 `baseline_remediation` manifest declares the exact changed fields, limits source
-claims and duplicate screening to that scope, and may revisit a baseline ID in
-a later justified correction; NGC enrichment remains complete-object work. New
+claims and candidate paragraph screening to that scope, and may revisit a
+baseline ID in a later justified correction; the sentence screen remains
+global. NGC enrichment remains complete-object work. New
 manifests live under `astro_viewer/data/editorial_batches`; live source checks
 and near-duplicate screening can be bounded to the batch currently under review.
 Automatic object translation is opt-in through `--draft-editorial` and never
@@ -273,10 +281,27 @@ The accepted `batch_1_46_7.json` manifest records rewritten observing notes for
 C60. Fifty distinct NASA Hubble URLs passed the live audit. Ten representative
 objects produced 120 final scenes across both detail-page positions, all three
 languages, and both visual modes; all text remained complete and Red Night
-Vision stayed monochromatic. The measured historical template debt is now
-zero.
+Vision stayed monochromatic. Its zero-template result applied to whole
+paragraphs, not to shared sentences inside otherwise different descriptions.
 
-The next editorial source step is `1.46.8`: resume NGC-only enrichment with a
+The `batch_1_46_8.json` manifest revisits 94 historical objects: 92 descriptions
+and the curiosities of C8, C21, C48, C56, and C80. It removes residual templates,
+corrects NGC 246's faint shell and NGC 4945's edge-on appearance, and preserves
+M84's elliptical/lenticular classification differences with NASA and ESA
+evidence. NGC 559's two-billion-year claim is replaced by a cited photometric
+study estimating 224 million years. The other curiosity corrections cover
+stellar-stream terminology, flocculent arms, the central triple system of
+NGC 246, and Omega Centauri's tentative stripped-dwarf origin. Observing
+notes, best-seen fields, difficulty ratings, catalogue metadata, identities,
+and recommendation behaviour remain unchanged.
+All 101 distinct manifest URLs passed the live audit. Twelve representative
+objects produced 72 reviewed final description/curiosity scenes in IT/EN/ES
+and normal/red modes, without clipping, overlap, or loss of red monochromy.
+The field-level diff check confirms the same 97 edited fields per language
+and no changes to unrelated translation sections. The focused catalogue,
+translation, and developer-tooling suite passed 91 tests in 19.95 seconds.
+
+The next editorial source step is `1.46.9`: resume NGC-only enrichment with a
 new bounded manifest and the same source, three-language, static/live, visual,
 and full-gate requirements. Public platform bundles can group several source
 batches; they are not implied by each patch.

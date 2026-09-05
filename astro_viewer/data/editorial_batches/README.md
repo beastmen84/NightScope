@@ -54,3 +54,9 @@ its evidence URLs:
 
 The URL audit is review-time evidence because remote availability can change;
 the network-free audit belongs to every normal source gate.
+Since source `1.46.8`, that repository-wide audit also rejects shared narrative
+sentences of at least 12 normalized word tokens in IT/EN/ES descriptions,
+observing notes, and curiosities, including without `--batch`. It ignores
+short recurring advice and repeats within one object, and honours accepted
+language/field/object-pair waivers. A zero count is a useful screen, not a
+substitute for scientific or language review.

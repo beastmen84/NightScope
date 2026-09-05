@@ -163,7 +163,7 @@
         "curiosity_text": "Los Pilares de la Creación son torres de gas y polvo dentro de M16, de varios años luz de largo. Las imágenes del Hubble de 1995 las hicieron icónicas, pero las columnas son también incubadoras sometidas a la erosión de las estrellas recién nacidas."
       },
       "messier-M17": {
-        "short_description": "M17 (Nebulosa Omega, Cisne, Herradura, Langosta o Marca de Verificación) es una nebulosa de emisión con un cúmulo de estrellas en Sagitario. La Nebulosa Omega, o Cisne, se encuentra entre las nebulosas de verano más reconocibles: una barra brillante que toma forma con un filtro y un cielo oscuro.",
+        "short_description": "M17, la Nebulosa Omega o del Cisne en Sagitario, es una gran región de formación estelar con un cúmulo central muy joven. Muchas de sus estrellas siguen ocultas por el polvo; su radiación esculpe y erosiona las nubes. El perfil luminoso parecido a un cisne es solo parte del complejo.",
         "observing_notes": "Incluso sin filtro, M17 muestra la barra brillante del Cisne; UHC ensancha el cuerpo y define el cuello contra la franja oscura. Alterna aumentos bajos y medios: los primeros siguen la nebulosidad exterior y los segundos revelan irregularidades en la zona luminosa.",
         "best_seen": "Verano",
         "curiosity_text": "La parte brillante de M17 es solo una pequeña porción de una nube molecular mucho más grande. El joven cúmulo escondido en su interior ilumina y excava el gas, creando la forma del Cisne visible desde la Tierra."
@@ -181,7 +181,7 @@
         "curiosity_text": "M19 es el globular más plano del catálogo de Messier. Parte del efecto puede deberse al polvo interestelar, pero las fuertes mareas del cercano centro galáctico también contribuyen a su forma inusual."
       },
       "messier-M20": {
-        "short_description": "M20 (Nebulosa Trífida) es una nebulosa de emisión con un cúmulo de estrellas en Sagitario. La Trífida combina nebulosa de emisión, reflexión y bandas oscuras: visualmente es difícil, pero cuando las condiciones son buenas muestra un carácter único.",
+        "short_description": "M20, la Nebulosa Trífida en Sagitario, debe su nombre a las bandas de polvo que dividen la nebulosidad brillante en tres sectores aparentes. Las estrellas masivas nacidas en el centro irradian el gas circundante y ya han despejado parte de él: el paisaje combina nacimiento estelar y erosión de la nube.",
         "observing_notes": "Observa M20 con pocos aumentos junto a su cúmulo. UHC define la región de emisión y las tres franjas oscuras centrales, pero atenúa el lóbulo azul de reflexión; comparar las vistas con y sin filtro forma parte de la observación.",
         "best_seen": "Verano",
         "curiosity_text": "M20 reúne en el mismo campo una nebulosa de emisión roja, una región de reflexión azul y franjas de polvo oscuro. Las tres bandas que diseccionan su centro inspiraron a John Herschel a llamarla Trífida."
@@ -217,7 +217,7 @@
         "curiosity_text": "M25 alberga U Sagittarii, una variable cefeida cuyo ritmo pulsante revela su verdadero brillo. Estrellas como esta han permitido construir la escala de las distancias cósmicas."
       },
       "messier-M26": {
-        "short_description": "M26 es un cúmulo abierto en Escudo. Es compacto y parcialmente afectado por el polvo interestelar, por lo que parece más delicado que otros cúmulos de Escudo. El placer de la observación radica en separar el grupo del fondo estelar y reconocer cómo las estrellas más brillantes definen su estructura.",
+        "short_description": "M26, NGC 6694, es un cúmulo abierto en Escudo, al sur-suroeste del más llamativo M11. Incluso sus estrellas principales son bastante débiles y el conjunto ocupa aproximadamente la mitad del diámetro de la Luna llena. Con unos 85 millones de años, requiere distinguirse con cuidado del rico campo estelar galáctico.",
         "observing_notes": "Un aumento medio separa el núcleo compacto del rico campo de Escudo. Con cielo oscuro y visión periférica, busque junto al centro la zona pobre en estrellas producida por polvo absorbente; un filtro nebular no mejora el cúmulo.",
         "best_seen": "Verano",
         "curiosity_text": "El centro de M26 parece extrañamente pobre en estrellas. No está necesariamente vacío: una nube de polvo interestelar entre nosotros y el cúmulo podría ocultar su región central."
@@ -337,13 +337,13 @@
         "curiosity_text": "En Japón las Pléyades son Subaru, nombre también adoptado por el fabricante de automóviles y representado en su logo. La nebulosidad azul no es el remanente natal del cúmulo: es polvo por el que pasan las estrellas."
       },
       "messier-M46": {
-        "short_description": "M46 es un cúmulo abierto en Popa. Se trata de un cúmulo rico con una sorpresa en perspectiva: la nebulosa planetaria NGC 2438 aparece en el campo como un pequeño anillo fantasma. En el ocular, el patrón general del grupo es lo más importante: la densidad, las cadenas, los vacíos y las diferencias de brillo emergen mejor si se mantiene un poco de cielo alrededor.",
+        "short_description": "M46 es un cúmulo abierto de Popa, también conocido como NGC 2437. La nebulosa planetaria NGC 2438 se proyecta entre sus estrellas, pero está en primer plano y no pertenece al cúmulo. El campo reúne así dos objetos físicamente distintos cuya proximidad aparente no implica un origen común.",
         "observing_notes": "Examine primero sin filtro la finísima población estelar; con un aumento medio, busque NGC 2438 en el borde norte. Un filtro UHC u O III puede destacar la nebulosa planetaria, pero atenúa las estrellas: alterne ambas vistas en vez de tratarlas como un solo objetivo.",
         "best_seen": "Invierno",
         "curiosity_text": "La nebulosa planetaria NGC 2438 parece inmersa en M46, pero es solo una alineación en perspectiva: está mucho más cerca de nosotros. Es un ejemplo particularmente convincente de profundidad oculta en un campo bidimensional."
       },
       "messier-M47": {
-        "short_description": "M47 es un cúmulo abierto en Popa. Es más abierto y brillante que M46, menos denso pero inmediato. Juntos forman una pareja perfecta para comparar dos grupos muy diferentes. El placer de la observación radica en separar el grupo del fondo estelar y reconocer cómo las estrellas más brillantes definen su estructura.",
+        "short_description": "M47, NGC 2422, es un cúmulo abierto relativamente cercano en Popa. Sus componentes más luminosas son sobre todo estrellas calientes de tipo B, intercaladas con gigantes rojas que aportan un claro contraste cromático. Las estrellas visibles con instrumentos pequeños son solo la parte brillante de una población mucho más numerosa.",
         "observing_notes": "Los prismáticos muestran un grupo abierto y brillante; un telescopio pequeño separa limpiamente la doble próxima al centro. Mantenga M46 en el mismo campo cuando sea posible para comparar las pocas estrellas luminosas de M47 con la fina población de su vecino.",
         "best_seen": "Invierno",
         "curiosity_text": "M47 se consideró perdido durante más de un siglo debido a un error de signo en las coordenadas publicadas por Messier. El grupo fue reconocido nuevamente solo cuando se reconstruyó su ruta de observación."
@@ -565,7 +565,7 @@
         "curiosity_text": "M83 es una fábrica de supernovas: se han observado al menos seis en el último siglo. Las numerosas zonas rosadas a lo largo de los brazos revelan una formación estelar particularmente intensa."
       },
       "messier-M84": {
-        "short_description": "M84 es una galaxia elíptica de Virgo y forma parte de la Cadena de Markarian. En el ocular destaca por su núcleo concentrado y por el contexto de galaxias cercanas más que por sus detalles internos.",
+        "short_description": "M84 se clasifica en distintas fuentes como galaxia elíptica o lenticular del Cúmulo de Virgo. La luz de estrellas viejas domina su cuerpo, pero el centro alberga un agujero negro supermasivo; las imágenes del Hubble también revelan bandas de polvo deformadas.",
         "observing_notes": "M84 y M86 forman la puerta occidental de la Cadena de Markarian. Mantenlas en el mismo campo medio-amplio antes de recorrer las demás galaxias. M84 es la condensación más redonda y compacta; el chorro de su núcleo activo no es un detalle visual realista.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M84 se encuentra en la Cadena de Markarian y alberga un núcleo activo. Un chorro relativista emerge de la región del agujero negro central, aunque resulta mucho menos llamativo que el del cercano M87."
@@ -577,7 +577,7 @@
         "curiosity_text": "La suave apariencia de M85 esconde una historia de fusiones: capas estelares, polvo y una población central relativamente joven indican que la galaxia incorporó una compañera en tiempos astronómicamente recientes."
       },
       "messier-M86": {
-        "short_description": "M86 es una galaxia de Virgo cuya clasificación se debate entre el tipo elíptico y el lenticular. Forma parte de la Cadena de Markarian; observarla junto a M84 y las galaxias cercanas transmite la sensación de recorrer un cúmulo entero.",
+        "short_description": "M86 es una de las galaxias más brillantes del Cúmulo de Virgo, a menudo visible en el mismo campo que M84. Su clasificación se sitúa entre elíptica y lenticular. Aunque el cúmulo en conjunto se aleja de nosotros, M86 se acerca en nuestra línea de visión por su propio movimiento dentro del cúmulo.",
         "observing_notes": "Observa M86 en el mismo campo que M84 al inicio de la Cadena de Markarian. M86 es más alargada y menos concentrada que su compañera; un campo aún más ancho incorpora los Ojos, NGC 4435/4438, que marcan la dirección de la secuencia de galaxias.",
         "best_seen": "Primavera y verano",
         "curiosity_text": "M86 se acerca a nosotros a cientos de kilómetros por segundo, a pesar de pertenecer al Cúmulo de Virgo. Al atravesar el gas caliente del cúmulo, deja tras de sí una cola de materia de cientos de miles de años luz de longitud."
@@ -727,73 +727,73 @@
         "curiosity_text": "A pesar de estar clasificada como una elíptica enana, M110 contiene polvo y estrellas relativamente jóvenes cerca del centro. Son indicios de formación estelar reciente, algo inusual para una galaxia de apariencia tan regular."
       },
       "caldwell-C1": {
-        "short_description": "C1, NGC 188, es uno de los cúmulos abiertos más antiguos conocidos y se encuentra cerca del polo norte celeste, en Cefeo. Es rico, pero discreto, formado por estrellas relativamente débiles que componen un cúmulo extenso y de aspecto granulado. Su posición circumpolar permite observarlo durante gran parte del año desde latitudes septentrionales. NGC 188 abarca unos 14′ y tiene una magnitud integrada de 8,1; ambos datos deben valorarse junto con el contraste del fondo.",
+        "short_description": "C1 (NGC 188) es un cúmulo abierto de Cefeo con más de seis mil millones de años, una edad inusual para esta clase de objetos. Cerca del polo norte celeste, forma un grupo discreto de estrellas débiles, observable durante buena parte del año desde latitudes boreales.",
         "observing_notes": "Utilice un campo medio bajo cielos oscuros; suba el aumento con moderación para separar del fondo sus numerosas estrellas débiles.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 188 tiene unos cinco mil millones de años, una edad excepcional para un cúmulo abierto, cuyos miembros suelen dispersarse mucho antes. La posición cercana al polo norte celeste también lo hace observable casi todo el año desde latitudes septentrionales."
       },
       "caldwell-C2": {
-        "short_description": "C2 (NGC 40), nebulosa planetaria en la constelación de Cefeo. Sus pequeñas dimensiones y su contraste relativamente alto la hacen adecuada para un aumento moderado; la estabilidad atmosférica sigue siendo decisiva para los detalles finos. Su escala aparente es 0,6′; la magnitud integrada de 11,6 no describe por sí sola lo que será evidente en el ocular.",
+        "short_description": "C2 (NGC 40) es una nebulosa planetaria de Cefeo: una pequeña envoltura de gas expulsada por una estrella en las últimas etapas de su evolución. La estrella central destaca sobre el gas y puede ocultar su tenue resplandor, dificultando reconocer la nebulosa.",
         "observing_notes": "C2 es pequeña y su brillante estrella central puede borrar la envoltura. Con aumentos medios alterna visión directa y lateral; UHC puede separar mejor la nebulosidad y después retíralo para revisar la estrella.",
         "best_seen": "Otoño",
         "curiosity_text": "La estrella central de NGC 40 es una Wolf-Rayet muy caliente que expulsa material a gran velocidad. El viento reciente choca con capas más lentas expulsadas anteriormente y da forma a la envoltura irregular de la nebulosa."
       },
       "caldwell-C3": {
-        "short_description": "C3 (NGC 4236), galaxia espiral en la constelación de Dragón. Empiece por examinar el núcleo, la orientación y la forma del halo; los detalles en espiral, cuando son accesibles, llegan solo después de una larga adaptación a la oscuridad. En el campo, C3 se extiende por 21′ x 7′: la magnitud 9,7 debe interpretarse como brillo general.",
+        "short_description": "C3 (NGC 4236) es una espiral barrada de Dragón con un disco amplio y de muy poco contraste. Su luz se reparte en un resplandor alargado; incluso la región central permanece difusa, sin el núcleo nítido que facilita reconocer muchas otras galaxias.",
         "observing_notes": "La magnitud integrada engaña: C3 reparte su luz sobre 21′ y resulta mucho más esquiva de lo esperado. Usa los mínimos aumentos, un cielo sin calima y visión lateral para seguir una franja ancha y muy tenue; el núcleo poco marcado no es un buen punto de partida.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4236 es una gran espiral vista casi de canto, pero su luz se distribuye en un área tan grande que la hace difícil de detectar. Las zonas más obvias del disco son regiones donde las estrellas continúan formándose."
       },
       "caldwell-C4": {
-        "short_description": "C4 (NGC 7023), nebulosa en la constelación de Cefeo. La estructura es difusa y debe leerse a través de variaciones graduales de brillo; un cielo oscuro y un campo amplio importan más que un gran aumento. Con unas dimensiones de 18′ x 18′ y una magnitud integrada de 6,8, requiere un campo acorde con su escala antes de buscar detalles.",
+        "short_description": "C4 (NGC 7023), la Nebulosa Iris, es una nube de reflexión en Cefeo. El polvo dispersa la luz de la estrella central y dibuja pétalos azules en las imágenes, mientras las regiones más densas absorben luz y delimitan la nebulosidad brillante.",
         "observing_notes": "C4 es una nebulosa de reflexión: no uses filtros de banda estrecha. Centra la brillante HD 200775 en un campo medio-amplio y, bajo un cielo oscuro, busca el halo azulado y los bordes irregulares donde el polvo atenúa la luz.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "La Nebulosa Iris brilla porque el polvo refleja la luz de la estrella HD 200775. Alrededor del centro azul aparecen tonos rojizos producidos por pequeños granos y moléculas aromáticas iluminadas por la radiación ultravioleta."
       },
       "caldwell-C5": {
-        "short_description": "C5 (IC 342), galaxia espiral barrada en la constelación de Jirafa. En el ocular domina la zona central; bajo un buen cielo la distribución asimétrica de la luz puede sugerir la barra y el inicio de los brazos. La magnitud integrada de 9,2 describe todo el objeto; la extensión de 18′ x 17′ ayuda a estimar su contraste real.",
+        "short_description": "C5 (IC 342), la Galaxia Oculta, es una gran espiral vista casi de frente en Jirafa. El gas, el polvo y las estrellas de nuestra Vía Láctea velan su disco; este obstáculo en primer plano contribuye a su dificultad de observación, además de las propiedades de la propia galaxia.",
         "observing_notes": "La Galaxia Oculta es extensa, pero el polvo de la Vía Láctea atenúa su luz: espera una noche excepcionalmente limpia y sin Luna, lejos de la iluminación artificial. Usa el menor aumento práctico para localizar el núcleo y después paciencia y visión periférica para extender el disco tenue; incluso una ligera calima puede borrarlo.",
         "best_seen": "Invierno",
         "curiosity_text": "IC 342 recibe el sobrenombre de Galaxia Oculta porque se encuentra detrás del plano polvoriento de la Vía Láctea. Sin este velo aparecería entre las espirales más brillantes del cielo, casi tan grande como la Luna llena."
       },
       "caldwell-C6": {
-        "short_description": "C6, NGC 6543, la Nebulosa Ojo de Gato, es una nebulosa planetaria pequeña y muy brillante en Dragón. En instrumentos modestos aparece como un disco de color azul verdoso intenso; con aperturas más grandes y seeing estable, la región central puede mostrar estructura y una estrella central. El enorme halo exterior, sin embargo, sigue siendo principalmente un objetivo fotográfico y resulta muy difícil de visualizar. Para C6, la comparación entre la extensión de 0,3′/5,8′ y la magnitud integrada de 8,8 guía la elección del campo inicial.",
+        "short_description": "C6 (NGC 6543), la Nebulosa Ojo de Gato, es una planetaria de Dragón con una región interior pequeña y brillante. Las imágenes profundas revelan envolturas concéntricas, chorros y nudos gaseosos alrededor del núcleo, una estructura mucho más compleja que el sencillo disco visible con telescopios pequeños.",
         "observing_notes": "Utilice aumentos medios o altos con un seeing estable; pruebe un filtro OIII para el disco, pero observe también sin filtro para evaluar el color y buscar la estrella central.",
         "best_seen": "Verano",
         "curiosity_text": "El Ojo de Gato tiene anillos, chorros y nudos concéntricos que una sola eyección esférica no explica. La geometría sugiere episodios repetidos y quizás la acción de una compañera sobre la estrella central moribunda."
       },
       "caldwell-C7": {
-        "short_description": "C7 (NGC 2403), galaxia espiral en la constelación de Jirafa. Es un objetivo de contraste: un campo con el fondo bien oscuro permite pasar del núcleo más evidente al halo apenas perceptible. En el ocular debe buscarse una extensión de 18′ x 10′; el brillo total corresponde a una magnitud integrada de 8,9.",
+        "short_description": "C7 (NGC 2403) es una espiral de Jirafa con numerosas regiones H II, grandes nubes de hidrógeno ionizado donde nacen estrellas. Su disco alargado y la distribución desigual de las zonas brillantes le dan un aspecto más variado que un simple óvalo con núcleo central.",
         "observing_notes": "C7 necesita pocos aumentos para contener su disco de 18′. Busca un resplandor alargado y granulado, con poco dominio central y estrellas de campo superpuestas. Con mayor apertura NGC 2404 se separa como un nudo brillante, mientras los brazos completos siguen difusos.",
         "best_seen": "Invierno",
         "curiosity_text": "En 2004, NGC 2403 albergó SN 2004dj, una de las supernovas de tipo II más cercanas observadas en la era moderna. La explosión se produjo dentro de un cúmulo estelar compacto, lo que permitió estudiar su población progenitora."
       },
       "caldwell-C8": {
-        "short_description": "C8 (NGC 559), cúmulo abierto en la constelación de Casiopea. No debe observarse como una simple suma de estrellas: su identidad surge de la forma general y del contraste con el campo de la Vía Láctea. NGC 559 combina una extensión aparente de 4′ con una magnitud integrada de 9,5, por lo que la apertura y la calidad del cielo influyen de forma distinta.",
+        "short_description": "C8 (NGC 559) es un pequeño cúmulo abierto de Casiopea, en la zona del cielo cercana a Gamma Cassiopeiae. Muchas estrellas del grupo central son débiles, por lo que su concentración destaca menos que la de los cúmulos más brillantes de la constelación.",
         "observing_notes": "Busque primero un pequeño brillo granulado en el poblado campo de Casiopea; después use un aumento medio y al menos 100 mm de apertura para separar los miembros más débiles. Un cielo oscuro ayuda más que un filtro, que también atenuaría las estrellas.",
         "best_seen": "Otoño",
-        "curiosity_text": "NGC 559 es más antiguo que los famosos cúmulos jóvenes de Casiopea: ha perdido sus estrellas más masivas y conserva una población evolucionada de unos dos mil millones de años. Es un raro superviviente entre los cúmulos abiertos del disco galáctico."
+        "curiosity_text": "Un estudio fotométrico de NGC 559 estima una edad de unos 224 millones de años y detecta segregación de masas: las estrellas más masivas se concentran hacia el centro. La distribución actual de estrellas lleva así la huella de las interacciones gravitatorias internas."
       },
       "caldwell-C9": {
-        "short_description": "C9 (Sh2-155), nebulosa en la constelación de Cefeo. Es un objeto de contraste más que de detalle: la transparencia y la adaptación a la oscuridad determinan en gran medida su visibilidad. La preparación del campo para C9 parte de una extensión de 50′ x 10′ y una magnitud integrada de 7,7.",
+        "short_description": "C9 (Sh2-155), la Nebulosa de la Cueva, es una región de emisión del complejo de gas y polvo Cefeo B. Un arco brillante de hidrógeno ionizado bordea la cavidad oscura que le da nombre; la nebulosidad difusa tiene poco contraste incluso bajo un cielo oscuro.",
         "observing_notes": "C9 es una nebulosa alargada de contraste extremadamente bajo. Usa un ocular de gran campo y busca sobre todo el borde luminoso contra la nube oscura. UHC puede ayudar al frente de emisión, pero el cielo oscuro y la adaptación importan más que los aumentos.",
         "best_seen": "Otoño",
         "curiosity_text": "La Nebulosa de la Cueva se encuentra en el borde de la nube molecular Cefeo B. La radiación de estrellas masivas comprime el gas adyacente, creando frentes brillantes y nuevas generaciones estelares a lo largo de la cavidad."
       },
       "caldwell-C10": {
-        "short_description": "C10 (NGC 663), cúmulo abierto en la constelación de Casiopea. No debe observarse como una simple suma de estrellas: su identidad surge de la forma general y del contraste con el campo de la Vía Láctea. El perfil observable de C10 puede ser menor que los 16′ catalogados si el fondo del cielo reduce el contraste; la magnitud total es 7,1.",
+        "short_description": "C10 (NGC 663) es un joven cúmulo abierto de Casiopea, rico en estrellas calientes y masivas. Sus miembros más brillantes son accesibles con prismáticos, pero el telescopio revela una población mucho mayor, repartida por un área de aproximadamente la mitad del diámetro de la Luna llena.",
         "observing_notes": "Empiece con un aumento medio-bajo para distinguir la concentración del rico fondo de Casiopea; después use un aumento medio para resolver el centro en muchas estrellas finas. Mantenga en el campo los miembros brillantes que enmarcan el grupo.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 663 contiene una cantidad inusualmente grande de estrellas Be, estrellas calientes que giran rápidamente y están rodeadas por discos gaseosos. Sus líneas de emisión nos permiten estudiar cómo la rotación modifica la evolución estelar."
       },
       "caldwell-C11": {
-        "short_description": "C11 (NGC 7635), nebulosa en la constelación de Casiopea. La estructura es difusa y debe leerse a través de variaciones graduales de brillo; un cielo oscuro y un campo amplio importan más que un gran aumento. La medida de 15′ x 8′ define la escala de C11, mientras que la magnitud integrada 7,0 resume toda su luz.",
+        "short_description": "C11 (NGC 7635), la Nebulosa de la Burbuja, comprende una cavidad inflada por el viento de una estrella masiva y el gas luminoso circundante, en Casiopea. La estrella queda descentrada porque el material encuentra distinta resistencia a cada lado durante la expansión.",
         "observing_notes": "Proteja la adaptación a la oscuridad y deje que los bordes y las zonas oscuras emerjan lentamente.",
         "best_seen": "Otoño",
         "curiosity_text": "La burbuja es inflada por el viento de la estrella masiva BD+60 2522. La estrella no aparece en el centro geométrico porque el viento encuentra gas de diferentes densidades y la estrella misma se mueve con respecto a la nube."
       },
       "caldwell-C12": {
-        "short_description": "C12 (NGC 6946), galaxia espiral en la constelación de Cefeo. El perfil y la distribución del brillo son más fiables que los detalles finos; las observaciones repetidas ayudan a reconocer su estructura. Para planificar su observación, considere la magnitud integrada 9,7 y la extensión aparente 11′ x 9′ juntas.",
+        "short_description": "C12 (NGC 6946), la Galaxia de los Fuegos Artificiales, es una espiral en el límite entre Cefeo y Cisne. Sus brazos con formación estelar han albergado numerosas supernovas; el polvo de la Vía Láctea en primer plano atenúa el disco y desdibuja su estructura en el ocular.",
         "observing_notes": "C12 está casi de frente y es muy extensa, pero el polvo de la Vía Láctea reduce su contraste. Empieza con pocos aumentos sobre el pequeño núcleo y usa visión lateral para buscar un disco irregular y zonas más brillantes; los brazos exigen un cielo realmente transparente.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "NGC 6946 merece el nombre de Fuegos artificiales: desde 1917 se han descubierto allí al menos diez supernovas. La galaxia es rica en formación estelar, pero la Vía Láctea atenúa su luz con el polvo en primer plano."
@@ -805,19 +805,19 @@
         "curiosity_text": "Las dos estrellas brillantes que forman los ojos del Cúmulo del Búho también le dan la apariencia de un personaje con los brazos abiertos. La brillante Phi Cassiopeiae se proyecta en el mismo campo, pero su pertenencia física sigue siendo debatida."
       },
       "caldwell-C14": {
-        "short_description": "C14, el Doble Cúmulo de Perseo, comprende NGC 869 y NGC 884, dos cúmulos abiertos jóvenes y próximos entre sí en el cielo. Ya se ven a simple vista como una mancha alargada; con prismáticos se despliegan en dos concentraciones estelares separadas por un rico puente. El campo completo es más espectacular que cada cúmulo por separado. Su escala aparente es de 30′ + 30′; una magnitud integrada de 4,3 no basta para describir su visibilidad en el ocular.",
+        "short_description": "C14, el Doble Cúmulo de Perseo, reúne NGC 869 y NGC 884, dos grupos próximos en el cielo con cientos de estrellas jóvenes y calientes. A simple vista se funden en una mancha alargada; con prismáticos se distinguen las dos concentraciones.",
         "observing_notes": "Utilice prismáticos o un telescopio de campo muy amplio para mantener ambos cúmulos en el mismo campo visual.",
         "best_seen": "Invierno",
         "curiosity_text": "Hiparco ya conocía el cúmulo doble hace más de dos mil años. NGC 869 y NGC 884 son dos poblaciones jóvenes cercanas en el espacio; las supergigantes rojas esparcidas entre muchas estrellas azules acentúan el contraste cromático."
       },
       "caldwell-C15": {
-        "short_description": "C15 (NGC 6826), nebulosa planetaria en la constelación de Cisne. La forma se lee mejor alternando la visión directa y la periférica, buscando un disco, anillo o estructura interna no uniforme. En el campo, C15 se extiende por 0,5′/2,3′: la magnitud 9,8 debe interpretarse como brillo total.",
+        "short_description": "C15 (NGC 6826), la Planetaria Parpadeante de Cisne, rodea una estrella central muy evidente con una pequeña envoltura gaseosa. El parpadeo es un efecto de percepción: la nebulosa parece desaparecer al mirar directamente la estrella y el gas reaparece al desviar la mirada.",
         "observing_notes": "Aprovecha el efecto que da nombre a C15: fija la estrella central y la envoltura se atenúa; usa visión lateral y reaparece. OIII realza el disco y aumentos medios-altos muestran su forma sin borrar el efecto de parpadeo.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6826 parece parpadear cuando se alterna entre la visión directa y la periférica. Mirando al centro, domina la estrella; al mover ligeramente la mirada, la retina periférica resalta la capa débil y cambia repentinamente de apariencia."
       },
       "caldwell-C16": {
-        "short_description": "C16 (NGC 7243), cúmulo abierto en la constelación de Lagarto. Su apariencia cambia considerablemente con el aumento: un campo amplio muestra el contorno del grupo, mientras que un aumento mayor revela pares y pequeñas cadenas. Con dimensiones de 21′ y magnitud integrada de 6,4, requiere un campo acorde con su escala antes de buscar detalles.",
+        "short_description": "C16 (NGC 7243) es un cúmulo abierto de Lagarto con una población moderadamente dispersa y una edad estimada de unos 250 millones de años. Cerca de Alfa Lacertae, presenta estrellas de distinto brillo repartidas en un grupo amplio y poco apretado.",
         "observing_notes": "Use poco aumento para delimitar este cúmulo disperso en Lagarto y busque los pequeños grupos que componen su contorno irregular. Un aumento medio separa pares y cadenas cortas, pero un campo estrecho borra la identidad del conjunto.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 7243 es un cúmulo joven y muy disperso, con estrellas distribuidas en pequeños grupos en lugar de alrededor de un núcleo claro. Esta estructura irregular muestra un sistema que ya está en camino de disolverse en el disco galáctico."
@@ -829,19 +829,19 @@
         "curiosity_text": "NGC 147 es un satélite enano de Andrómeda casi sin gas ni formación estelar reciente. El contraste con la cercana NGC 185, que conserva polvo y estrellas jóvenes, muestra dos evoluciones diferentes en el mismo entorno."
       },
       "caldwell-C18": {
-        "short_description": "C18 (NGC 185), galaxia elíptica enana en la constelación de Casiopea. No ofrece estructuras claras como una espiral; su carácter surge de la forma del halo y de la concentración del núcleo. Para C18, la comparación entre la extensión de 12′ x 9′ y la magnitud integrada de 9,2 guía la elección del campo inicial.",
+        "short_description": "C18 (NGC 185) es una enana elíptica de Casiopea, satélite de Andrómeda y miembro del Grupo Local. Frente a la cercana C17, muestra un centro más redondo y concentrado; las imágenes profundas también revelan polvo, que contrasta con el aspecto liso esperado en una pequeña elíptica.",
         "observing_notes": "Si el campo lo permite, observa C18 junto a la cercana C17: C18 es la más fácil y posee un centro más redondo y compacto. Con aumentos medios sigue su halo ovalado, sin esperar que las nubes de polvo visibles en las imágenes aparezcan en el ocular.",
         "best_seen": "Otoño",
         "curiosity_text": "Aunque es una galaxia enana elíptica, NGC 185 contiene nubes de polvo, estrellas jóvenes y restos de supernova. Es una prueba de que una morfología aparentemente tranquila no implica necesariamente una historia evolutiva sencilla."
       },
       "caldwell-C19": {
-        "short_description": "C19 (IC 5146), nebulosa en la constelación de Cisne. La estructura es difusa y debe leerse a través de variaciones graduales de brillo; un cielo oscuro y un campo amplio importan más que un gran aumento. En el ocular debe buscarse una extensión de 12′ x 12′; el brillo total corresponde a una magnitud integrada de 10,0.",
+        "short_description": "C19 (IC 5146), la Nebulosa del Capullo, reúne gas de emisión, polvo de reflexión y un joven cúmulo en Cisne. La región luminosa se encuentra en el extremo de Barnard 168, una franja oscura que se prolonga hacia el oeste y oculta estrellas de fondo.",
         "observing_notes": "C19 necesita un cielo realmente oscuro: encuadra el Capullo junto al inicio de la franja oscura Barnard 168. Un filtro H-beta puede reforzar la emisión, pero compara siempre la vista sin filtro para no perder la reflexión ni el cúmulo.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "La Nebulosa del Capullo se encuentra en el extremo de la larga nebulosa oscura Barnard 168. El contraste entre el capullo brillante y la franja oscura muestra dos formas opuestas en las que el mismo polvo puede reflejar o bloquear la luz."
       },
       "caldwell-C20": {
-        "short_description": "C20, NGC 7000, la Nebulosa de América del Norte, es una gran región emisora en Cisne. Su forma característica requiere un campo muy amplio y un cielo oscuro; la característica más accesible suele ser el borde brillante cerca de la nebulosa oscura que perfila el Golfo de México. Es mucho más fácil fotográficamente que visualmente, pero un filtro UHC puede transformar su visibilidad. NGC 7000: Nebulosa de América del Norte combina una extensión aparente de 120′ x 100′ con una magnitud integrada de 6,0, por lo que la apertura y la calidad del cielo influyen de forma distinta.",
+        "short_description": "C20 (NGC 7000), la Nebulosa Norteamérica, es una extensa región de hidrógeno luminoso en Cisne. Las nubes oscuras recortan su perfil continental; el rojo del gas domina las imágenes, mientras en el ocular aparece como un tenue resplandor sobre la Vía Láctea.",
         "observing_notes": "Utilice el aumento más bajo, un filtro UHC y un cielo muy oscuro; explore principalmente la región del Golfo de México.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "El perfil de América del Norte no es un borde físico del gas: lo dibuja la nube oscura LDN 935, que oculta la luz de la nebulosa detrás de ella y crea el Golfo de México."
@@ -850,40 +850,40 @@
         "short_description": "C21 (NGC 4449) es una galaxia enana irregular en Perros de Caza, con formación estelar intensa hasta sus regiones exteriores. Su cuerpo de cúmulos jóvenes, gas y polvo no sigue brazos ordenados; la estructura caótica conserva los efectos de interacciones recientes.",
         "observing_notes": "C21 tiene un cuerpo corto y casi rectangular, con más contraste que muchas enanas irregulares. Con aumentos medios busca una superficie moteada, no un núcleo regular; con gran apertura los nudos más luminosos se separan como regiones de formación estelar.",
         "best_seen": "Primavera",
-        "curiosity_text": "NGC 4449 está formando estrellas en casi todo su cuerpo, no solo en regiones ordenadas como una espiral. Las corrientes estelares y el gas perturbado indican interacciones recientes o una fusión con una galaxia compañera menor."
+        "curiosity_text": "Una tenue corriente estelar alrededor de NGC 4449 es el resto de una galaxia aún más pequeña, deformada por fuerzas de marea. Demuestra que las galaxias enanas también crecen absorbiendo compañeras: no son solo presas de sistemas mayores."
       },
       "caldwell-C22": {
-        "short_description": "C22 (NGC 7662), nebulosa planetaria en la constelación de Andrómeda. A bajo aumento puede parecer una estrella borrosa; una vez centrada, suele admitir más aumento que muchas otras nebulosas. El perfil observable de C22 puede ser menor que el catalogado 0,3′/2,2′ si el fondo del cielo reduce el contraste; la magnitud total es 9,2.",
+        "short_description": "C22 (NGC 7662), la Nebulosa Bola de Nieve Azul, es una planetaria compacta de Andrómeda. Su pequeño disco azul encierra el remanente de la estrella que expulsó el gas; puede confundirse con estrellas a pocos aumentos, pero al aumentarlos se reconoce la envoltura nebulosa.",
         "observing_notes": "Con pocos aumentos C22 se confunde fácilmente con una estrella azul; una prueba rápida con OIII la destaca frente al campo. Una vez centrada, sube mucho los aumentos para buscar el disco elíptico y las diferencias entre las envolturas internas.",
         "best_seen": "Otoño",
         "curiosity_text": "El color azul de la bola de nieve proviene de líneas de oxígeno ionizado en el gas caliente. La nebulosa tiene múltiples capas en expansión, producidas por sucesivas etapas de pérdida de masa de la estrella central."
       },
       "caldwell-C23": {
-        "short_description": "C23 (NGC 891), galaxia espiral en la constelación de Andrómeda. Empiece por examinar el núcleo, la orientación y la forma del halo; los detalles en espiral, cuando son accesibles, llegan solo después de una larga adaptación a la oscuridad. La medida de 14′ x 2′ define la escala de C23, mientras que la magnitud integrada 9,9 resume toda su luz.",
+        "short_description": "C23 (NGC 891) es una galaxia espiral vista de canto en Andrómeda. Una banda de polvo divide el fino disco luminoso y cruza el bulbo central; las imágenes profundas también muestran filamentos de gas y polvo que se elevan sobre el plano galáctico.",
         "observing_notes": "Encuadra primero todo el huso delgado de 14′ con un aumento bajo-medio. Bajo un cielo oscuro, pasa a aumento medio y deja que la mirada recorra el eje: la fina banda central de polvo es el detalle que debes buscar, no los brazos espirales.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 891 se utiliza a menudo como análogo de una galaxia semejante a la Vía Láctea vista de canto. Sus filamentos de polvo se elevan muy por encima del disco, impulsados por vientos y supernovas desde las regiones de formación estelar."
       },
       "caldwell-C24": {
-        "short_description": "C24 (NGC 1275), galaxia Seyfert en la constelación de Perseo. Es un objetivo de contraste: un campo con el fondo bien oscuro permite pasar del núcleo más evidente al halo apenas perceptible. Para planificar su observación, considere la magnitud integrada 11,6 y la extensión aparente 2,6′ x 1′ juntas.",
+        "short_description": "C24 (NGC 1275), también llamada Perseus A, es una galaxia activa del cúmulo de Perseo. Las imágenes profundas muestran filamentos gaseosos alrededor de su cuerpo elíptico, mientras el núcleo produce intensa emisión de radio y rayos X; su tenue aspecto visual oculta un entorno muy energético.",
         "observing_notes": "C24 es la condensación dominante en el centro del cúmulo de Perseo. Usa aumentos medios para separar el núcleo casi estelar del pequeño halo ovalado y compáralo con las galaxias mucho más débiles del campo; los espectaculares filamentos fotográficos no son un objetivo visual realista.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 1275 domina el centro del Cúmulo de Perseo y está asociado con la fuente de radio Perseo A. El agujero negro central expulsa enormes burbujas de gas caliente, mientras que un segundo sistema galáctico se superpone a lo largo de la línea de visión."
       },
       "caldwell-C25": {
-        "short_description": "C25 (NGC 2419), cúmulo globular en la constelación de Lince. Es un objeto que premia los aumentos progresivos: primero se reconoce el halo, luego se busca la resolución de las estrellas periféricas. NGC 2419 - Vagabundo Intergaláctico cubre aproximadamente 4,1′ en el cielo y tiene una magnitud integrada de 10,4, dos datos que deben valorarse junto con el contraste del fondo.",
+        "short_description": "C25 (NGC 2419), el Vagabundo Intergaláctico, es un cúmulo globular remoto de Lince, a unos 300.000 años luz. La distancia convierte su gran población estelar en una pequeña nube difícil de resolver.",
         "observing_notes": "C25 es pequeño y débil pese a su núcleo compacto. Localízalo con pocos aumentos bajo un cielo muy oscuro, sube la potencia gradualmente y usa visión lateral para separar el halo del fondo.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 2419 recibe el sobrenombre de Vagabundo Intergaláctico porque orbita a una distancia enorme, más allá del borde brillante de la Vía Láctea. Es tan masivo y complejo que podría ser el núcleo residual de una galaxia enana capturada."
       },
       "caldwell-C26": {
-        "short_description": "C26 (NGC 4244), galaxia espiral en la constelación de Lebreles. Empiece por examinar el núcleo, la orientación y la forma del halo; los detalles en espiral, cuando son accesibles, llegan solo después de una larga adaptación a la oscuridad. Su escala aparente es de 16′ x 2,5′; una magnitud integrada de 10,6 no describe por sí sola lo que será evidente en el ocular.",
+        "short_description": "C26 (NGC 4244), la Aguja de Plata, es una espiral vista de canto en Lebreles. Su bulbo central es poco pronunciado y el disco domina el perfil, formando una lámina luminosa muy fina; la perspectiva oculta los brazos espirales.",
         "observing_notes": "C26 es una lámina de 16′ de largo y solo 2,5′ de ancho. Elige un campo con espacio en ambos extremos y usa aumentos bajos-medios. El disco fino surge mejor al barrer lentamente con el telescopio; la ausencia de un bulbo marcado forma parte de su aspecto, no es un error de centrado.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4244 es una espiral muy delgada vista de canto, casi sin un bulbo central. Su estructura simple ayuda a estudiar cómo se distribuyen verticalmente las estrellas y el gas en los discos galácticos."
       },
       "caldwell-C27": {
-        "short_description": "C27, NGC 6888, la Nebulosa Creciente, es una burbuja de gas en Cisne formada por el viento de una estrella Wolf-Rayet. Visualmente, aparece como arcos incompletos y filamentos débiles inmersos en un rico campo estelar. Un filtro OIII y un cielo oscuro son casi imprescindibles para seguir su forma. En el campo, C27 se extiende por 20′ x 10′: la magnitud 7,5 debe interpretarse como brillo general.",
+        "short_description": "C27 (NGC 6888), la Nebulosa Creciente, es una envoltura filamentosa de Cisne alrededor de la estrella Wolf-Rayet WR 136. Su viento actual choca con material expulsado en una fase anterior y forma nudos y arcos brillantes que le dan aspecto de media luna incompleta.",
         "observing_notes": "Utilice poco aumento y un filtro OIII; localice primero el arco más brillante y después recorra lentamente el resto del anillo.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "La Nebulosa Creciente es material expulsado de la estrella Wolf-Rayet WR 136 que choca con un viento más lento emitido cuando la estrella era una supergigante roja. El impacto produce la envoltura filamentosa visible hoy."
@@ -895,79 +895,79 @@
         "curiosity_text": "NGC 752 tiene aproximadamente 1.400 millones de años y ya ha perdido muchos de sus miembros originales. Las estrellas restantes están dispersas en un amplio campo: una imagen de una fase avanzada de la lenta disolución de un cúmulo abierto."
       },
       "caldwell-C29": {
-        "short_description": "C29 (NGC 5005), galaxia espiral en la constelación de Lebreles. En el ocular la luz es suave y progresiva: la calidad del cielo oscuro importa más que el aumento para separar el halo del fondo. La magnitud integrada de 9,8 describe todo el objeto; la extensión de 5,4′ x 2′ ayuda a estimar su contraste real.",
+        "short_description": "C29 (NGC 5005) es una galaxia espiral de Lebreles cuyo núcleo compacto destaca sobre el disco circundante. La cercana espiral NGC 5033 puede compartir un campo amplio, lo que permite comparar directamente sus perfiles luminosos.",
         "observing_notes": "El núcleo compacto de C29 se detecta incluso con un telescopio pequeño; un aumento medio destaca mejor el halo ovalado. Con un ocular de gran campo, incluye NGC 5033 en la misma vista y compara las distintas concentraciones centrales de ambas galaxias.",
         "best_seen": "Primavera",
         "curiosity_text": "El núcleo de NGC 5005 está clasificado como LINER, una forma débil de actividad galáctica. Cinturones de polvo envuelven la zona central, donde el gas y la formación estelar conviven con la influencia del agujero negro."
       },
       "caldwell-C30": {
-        "short_description": "C30 (NGC 7331), galaxia espiral en la constelación de Pegaso. Busque primero la condensación central y la extensión general, luego utilice la visión periférica para seguir las regiones exteriores más débiles. Para C30, la comparación entre la extensión de 11′ x 4′ y la magnitud integrada de 9,5 guía la elección del campo inicial.",
+        "short_description": "C30 (NGC 7331) es una gran espiral de Pegaso con el disco inclinado respecto a nuestra línea de visión. Las imágenes distinguen el centro amarillento de estrellas viejas de los brazos con polvo y cúmulos azules jóvenes; en el telescopio la región central domina el resplandor alargado.",
         "observing_notes": "Con aumentos medios C30 muestra primero un núcleo luminoso y un disco muy alargado. Un cielo oscuro y más apertura pueden insinuar bandas de polvo y el inicio de los brazos; el Quinteto de Stephan, medio grado al sudoeste, es otro objetivo mucho más difícil.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 7331 a menudo ha sido llamada la gemela de la Vía Láctea, pero no tiene una barra central obvia. Detrás de ella aparecen las galaxias más lejanas del Grupo Deer Lick, una perspectiva que crea un falso grupo compacto."
       },
       "caldwell-C31": {
-        "short_description": "C31 (IC 405), nebulosa en la constelación de Auriga. Es un objeto de contraste más que de detalle: la transparencia y la adaptación a la oscuridad determinan en gran medida su visibilidad. En el ocular debe buscarse una extensión de 30′ x 19′; el brillo total corresponde a una magnitud integrada de 6,0.",
+        "short_description": "IC 405, la Nebulosa de la Estrella Llameante en Auriga, combina gas ionizado y polvo que refleja la luz de AE Aurigae. En las fotografías, las regiones rojas de emisión se entrelazan con velos azulados de reflexión: son componentes distintos del mismo entorno, no dos nebulosas independientes.",
         "observing_notes": "El brillo integrado de C31 está dominado por la estrella AE Aurigae, no por la tenue nebulosa. Usa un campo ancho, protégete de luces parásitas y prueba H-beta en las zonas de emisión; revisa la componente de reflexión sin filtro.",
         "best_seen": "Invierno",
         "curiosity_text": "AE Aurigae, la estrella que ilumina la Nebulosa de la Estrella Llameante, es una fugitiva expulsada de la región de Orión hace millones de años. Su paso actual por una nube que no la originó es casual."
       },
       "caldwell-C32": {
-        "short_description": "C32 (NGC 4631), galaxia espiral en la constelación de Lebreles. Empiece por examinar el núcleo, la orientación y la forma del halo; los detalles en espiral, cuando son accesibles, llegan solo después de una larga adaptación a la oscuridad. NGC 4631 - Galaxia de la Ballena combina una extensión aparente de 15′ x 3′ con una magnitud integrada de 9,3, por lo que la apertura y la calidad del cielo influyen de forma distinta.",
+        "short_description": "C32 (NGC 4631), la Galaxia de la Ballena, es una espiral vista de canto en Lebreles. Su perfil alargado y asimétrico, rico en polvo y regiones de formación estelar, recuerda a una ballena; la perspectiva oculta los brazos pero destaca las irregularidades del disco.",
         "observing_notes": "La Ballena se aprecia bien con aumentos bajos-medios. Sigue su perfil curvo desde el vientre más luminoso hasta la cola afinada. Alterna visión directa y lateral para buscar manchas y bandas oscuras en el disco, no un núcleo puntual; la transparencia importa más que los aumentos altos.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4631 está rodeada por un halo de gas caliente visible en rayos X. Las supernovas y los vientos de las regiones de formación estelar expulsan la materia del disco, creando una especie de fuente galáctica."
       },
       "caldwell-C33": {
-        "short_description": "C33, NGC 6992, es la parte oriental de la Nebulosa del Velo, un vasto remanente de supernova en Cisne. Con un filtro OIII puede aparecer como una cinta fibrosa, llena de curvas, bifurcaciones y variaciones de grosor. El campo requerido es grande y la calidad del cielo determina cuánta estructura permanece visible. La preparación del campo parte de su extensión de 60′ x 8′ y del contraste de los filamentos respecto al fondo del cielo.",
+        "short_description": "C33 comprende NGC 6992 y NGC 6995, la parte oriental de la Nebulosa del Velo en Cisne. Es una cinta de gas dejada por una supernova; los filamentos más nítidos son frentes de choque vistos de canto, mientras los vistos de frente parecen más difusos.",
         "observing_notes": "Utilice un filtro OIII, bajo aumento y un campo amplio; siga lentamente los filamentos a lo largo de toda su extensión.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "El Velo del Este es parte del Bucle del Cisne, la onda de choque de una estrella que explotó hace miles de años. Los finos filamentos marcan el punto donde el frente de supernova se encuentra con nubes interestelares más densas."
       },
       "caldwell-C34": {
-        "short_description": "C34, NGC 6960, es la parte occidental de la Nebulosa del Velo y cruza visualmente la estrella 52 Cygni. La estrella facilita la localización, pero puede perjudicar la adaptación a la oscuridad; con un filtro OIII, la nebulosa aparece como un arco fino e irregular que rebasa el campo. Es uno de los remanentes de supernova visualmente más espectaculares. El perfil observable puede ser menor que los 70′ x 6′ catalogados si el fondo del cielo reduce el contraste de los filamentos.",
+        "short_description": "C34 (NGC 6960) es la rama occidental de la Nebulosa del Velo en Cisne, proyectada cerca de la brillante 52 Cygni. Sus largos filamentos curvos pertenecen a un remanente de supernova y brillan donde la onda de choque encuentra el gas interestelar circundante.",
         "observing_notes": "Centre 52 Cygni, inserte un filtro OIII y use el aumento más bajo para seguir los filamentos a ambos lados de la estrella.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "El Velo Occidental atraviesa visualmente la estrella 52 Cygni, pero la estrella solo está en primer plano y no pertenece al remanente de supernova. El contraste hace que este rasgo también se conozca como la Escoba de la Bruja."
       },
       "caldwell-C35": {
-        "short_description": "C35 (NGC 4889), galaxia elíptica en la constelación de Cabellera de Berenice. No ofrece estructuras claras como una espiral; su carácter surge de la forma del halo y de la concentración del núcleo. La medida de 3′ x 2′ define la escala de C35, mientras que la magnitud integrada 11,4 resume toda su luz.",
+        "short_description": "C35 (NGC 4889) es una galaxia elíptica gigante del cúmulo de Coma, a unos 300 millones de años luz. Su halo regular está rodeado por otras galaxias del cúmulo.",
         "observing_notes": "Se necesita cielo oscuro y, de ser posible, gran apertura: C35 es un pequeño resplandor elíptico en el corazón del rico Cúmulo de Coma. Con aumento medio identifica primero su núcleo más concentrado; después reduce el aumento para reconocer las galaxias más tenues del mismo campo.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4889 alberga uno de los agujeros negros más masivos medidos en el Universo cercano, con una masa de muchos miles de millones de soles. La galaxia gigante ocupa el corazón del Cúmulo de Coma."
       },
       "caldwell-C36": {
-        "short_description": "C36 (NGC 4559), galaxia espiral en la constelación de Cabellera de Berenice. En el ocular la luz es suave y progresiva: la calidad del cielo oscuro importa más que el aumento para separar el halo del fondo. Para planificar su observación, considere la magnitud integrada 9,8 y la extensión aparente 10′ x 4′ juntas.",
+        "short_description": "C36 (NGC 4559) es una galaxia espiral de Cabellera de Berenice con un disco extenso y regiones que albergan estrellas masivas. Su proximidad aparente al cúmulo estelar Melotte 111 ayuda a localizarla, pero la galaxia está mucho más allá de las estrellas de nuestra Vía Láctea.",
         "observing_notes": "C36 carece de un núcleo dominante. Con aumentos bajos o medios busca una franja tenue e irregular salpicada de estrellas de campo. Mueve ligeramente el telescopio y alterna visión directa y lateral para confirmar las manchas del disco y no confundirlas con variaciones del fondo celeste.",
         "best_seen": "Primavera",
         "curiosity_text": "En el disco de NGC 4559 hay una fuente de rayos X ultraluminosa, demasiado intensa para una binaria estelar normal. Puede albergar un agujero negro que acreta materia de una compañera situada en una región de estrellas jóvenes."
       },
       "caldwell-C37": {
-        "short_description": "C37 (NGC 6885), cúmulo abierto en la constelación de Vulpecula. En el ocular, el patrón general del grupo es lo más importante: la densidad, las cadenas, los vacíos y las diferencias de brillo emergen mejor si se mantiene un poco de cielo alrededor. NGC 6885 cubre aproximadamente 7′ en el cielo y tiene una magnitud integrada de 5,7, dos datos que deben valorarse junto con el contraste del fondo.",
+        "short_description": "C37 (NGC 6885) es un cúmulo abierto de Vulpecula proyectado alrededor de la estrella 20 Vulpeculae. Esta domina el campo a simple vista, mientras el grupo de estrellas más débiles que la rodea se reconoce con un instrumento.",
         "observing_notes": "Use 20 Vulpeculae como referencia luminosa y examine con un aumento medio-bajo el grupo disperso que la rodea. Las designaciones NGC 6882 y NGC 6885 se han aplicado de forma desigual: compare posición y campo, no solo la etiqueta del mapa.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "NGC 6885 y la cercana NGC 6882 han generado una larga confusión de límites y nombres. La región contiene grupos de estrellas superpuestas y muestra lo difícil que es definir un cúmulo abierto disperso en el plano de la Vía Láctea."
       },
       "caldwell-C38": {
-        "short_description": "C38 (NGC 4565), galaxia espiral en la constelación de Cabellera de Berenice. Busque primero la condensación central y la extensión general, luego utilice la visión periférica para seguir las regiones exteriores más débiles. Su escala aparente es de 16′ x 3′; la magnitud integrada de 9,6 no describe por sí sola lo que será evidente en el ocular.",
+        "short_description": "C38 (NGC 4565), la Galaxia de la Aguja, es una espiral vista casi exactamente de canto en Cabellera de Berenice. Su disco finísimo cruza un bulbo central destacado, cortado por polvo oscuro; esta combinación la distingue de la también esbelta C26, cuyo centro es mucho menos pronunciado.",
         "observing_notes": "Con aumentos medios C38 ya muestra una larga lámina con bulbo central. Sube después los aumentos mientras el fondo siga oscuro: la fina banda de polvo puede cortar el bulbo y continuar por el disco, mientras la visión lateral prolonga ambos extremos más allá de la zona brillante.",
         "best_seen": "Primavera",
         "curiosity_text": "La Galaxia de la Aguja es uno de los ejemplos más claros de una espiral vista perfectamente de canto. Una fina franja de polvo divide el disco, mientras que un brillante bulbo central revela su estructura tridimensional."
       },
       "caldwell-C39": {
-        "short_description": "C39 (NGC 2392), nebulosa planetaria en la constelación de Géminis. A bajo aumento puede parecer una estrella borrosa; una vez centrada, suele admitir más aumento que muchas otras nebulosas. En el campo, C39 se extiende por 0,2′/0,7′: la magnitud 9,9 debe interpretarse como brillo general.",
+        "short_description": "C39 (NGC 2392) es una nebulosa planetaria de Géminis con una burbuja interior brillante y una envoltura exterior más amplia. Las imágenes del Hubble revelan nudos con forma de cometa en la periferia, con las colas dirigidas hacia fuera respecto a la estrella central.",
         "observing_notes": "C39 es diminuto y de alto brillo superficial. Identifícalo pasando un filtro OIII ante el ocular: la nebulosa sigue brillante mientras las estrellas se atenúan. Sin filtro, aumentos altos pueden separar el disco interior luminoso de la envoltura externa.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 2392 presenta dos envolturas: una capa interior brillante y una región exterior filamentosa. Los rápidos vientos de la estrella central golpean el material expulsado con anterioridad y generan esta doble arquitectura."
       },
       "caldwell-C40": {
-        "short_description": "C40 (NGC 3626), galaxia espiral en la constelación de Leo. Es un objetivo de contraste: un campo con el fondo bien oscuro permite pasar del núcleo más evidente al halo apenas perceptible. Con dimensiones de 3′ x 2′ y magnitud integrada de 10,9, requiere un campo acorde con su escala antes de buscar detalles.",
+        "short_description": "C40 (NGC 3626) es una galaxia de disco en Leo, dominada por una densa concentración central de estrellas. Su aspecto en el ocular es compacto: el núcleo se reconoce con más facilidad que el halo circundante.",
         "observing_notes": "C40 es pequeña y admite aumentos medios-altos. Busca un centro brillante envuelto por un halo ovalado de pocos minutos de arco. El campo del grupo Leo II contiene otras galaxias; confirma su posición respecto a las estrellas antes de atribuir extensiones tenues a C40.",
         "best_seen": "Primavera",
         "curiosity_text": "En NGC 3626 el gas gira en sentido contrario a la mayoría de las estrellas. La explicación más probable es que adquirió material de una galaxia compañera, un encuentro que permanece registrado en la dinámica del disco."
       },
       "caldwell-C41": {
-        "short_description": "C41, las Híades, es el cúmulo abierto más cercano al sistema solar y forma la característica V que dibuja la cabeza de Tauro. Aldebarán se proyecta sobre el grupo, pero no pertenece físicamente a él. El cúmulo es demasiado grande para la mayoría de los telescopios y se aprecia mejor a simple vista o con prismáticos de campo amplio. Su magnitud integrada es 1,0 y su extensión, 330′.",
+        "short_description": "Las Híades dibujan la gran V del rostro de Tauro y son el cúmulo abierto más cercano al sistema solar. Aldebarán parece formar parte de ellas, pero es una estrella en primer plano. Su extensión de varios grados favorece los prismáticos frente a un campo telescópico estrecho.",
         "observing_notes": "Obsérvelo a simple vista o con prismáticos; evite grandes aumentos y utilice Aldebarán como estrella de referencia.",
         "best_seen": "Invierno",
         "curiosity_text": "Las Híades son el cúmulo abierto más cercano a la Tierra, a unos 150 años luz de distancia. Aldebarán parece ser el miembro más brillante, pero está situado mucho más cerca y solo está alineado en primer plano."
@@ -979,25 +979,25 @@
         "curiosity_text": "NGC 7006 orbita en las regiones remotas del halo galáctico, a más de 100.000 años luz de nosotros. Su distancia lo convirtió en un tema histórico en el debate sobre el tamaño real de la Vía Láctea."
       },
       "caldwell-C43": {
-        "short_description": "C43 (NGC 7814), galaxia espiral en la constelación de Pegaso. Busque primero la condensación central y la extensión general, luego utilice la visión periférica para seguir las regiones exteriores más débiles. En el ocular debe buscarse una extensión de 6′ x 2′; el brillo total corresponde a una magnitud integrada de 10,5.",
+        "short_description": "C43 (NGC 7814), el Pequeño Sombrero, es una espiral de Pegaso vista de canto. Un amplio bulbo luminoso rodea su disco fino y polvoriento y recuerda a M104; su menor extensión aparente no significa que sea una galaxia físicamente diminuta.",
         "observing_notes": "C43 es un pequeño Sombrero visto de canto. Con aumentos medios-altos busca un gran bulbo redondo cruzado por un disco muy fino. Con apertura generosa y cielo estable, la banda de polvo puede aparecer como una línea que divide el bulbo; los extremos requieren visión lateral.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 7814 se parece a un Sombrero en miniatura, pero su disco se ve todavía más de canto. Una banda extremadamente delgada de polvo atraviesa un gran bulbo estelar casi esférico."
       },
       "caldwell-C44": {
-        "short_description": "C44 (NGC 7479), galaxia espiral barrada en la constelación de Pegaso. En el ocular domina la zona central; bajo un buen cielo la distribución asimétrica de la luz puede sugerir la barra y el inicio de los brazos. NGC 7479 combina una extensión aparente de 4′ x 3′ con una magnitud integrada de 11,0, por lo que la apertura y la calidad del cielo influyen de forma distinta.",
+        "short_description": "C44 (NGC 7479), la Galaxia de la Hélice, es una espiral barrada de Pegaso. Los brazos curvos se unen a una barra central muy marcada y dibujan una S en las imágenes; numerosas estrellas jóvenes revelan intensa formación estelar en el disco.",
         "observing_notes": "En C44 el rasgo visual más accesible es la barra. Usa aumentos medios para buscar una condensación alargada que cruza el núcleo. Bajo un cielo muy oscuro, la visión lateral puede añadir dos extensiones curvas y sugerir la S invertida; el chorro de radio no es visible.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 7479 tiene forma de S invertida y un chorro de radio que se extiende en dirección opuesta a la rotación aparente de los brazos. Ambos podrían resultar de una fusión con una galaxia más pequeña."
       },
       "caldwell-C45": {
-        "short_description": "C45 (NGC 5248), galaxia espiral en la constelación de Boyero. En el ocular la luz es suave y progresiva: la calidad del cielo oscuro importa más que el aumento para separar el halo del fondo. La preparación del campo para C45 parte de una extensión de 6′ x 4′ y una magnitud integrada de 10,2.",
+        "short_description": "C45 (NGC 5248) es una espiral de Boyero con brazos ricos en estrellas jóvenes y gas luminoso. Alrededor del núcleo alberga estructuras anulares con formación estelar especialmente activa; se estudian en imágenes de alta resolución, mucho más allá del tenue óvalo visible en el ocular.",
         "observing_notes": "C45 aparece casi de frente. Con aumentos medios identifica su pequeño centro brillante y deja que el halo redondo surja con visión lateral. Con mayor apertura busca dos realces curvos opuestos; los anillos circunnucleares de las imágenes son demasiado pequeños para la observación visual normal.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 5248 contiene dos anillos de formación de estrellas alrededor del núcleo. La barra y los brazos canalizan el gas hacia el centro, donde nacen nuevas estrellas en estructuras concéntricas a diferentes escalas."
       },
       "caldwell-C46": {
-        "short_description": "C46 (NGC 2261), nebulosa en la constelación de Unicornio. La estructura es difusa y debe leerse a través de variaciones graduales de brillo; un cielo oscuro y un campo amplio importan más que un gran aumento. El perfil observable de C46 puede ser más pequeño que el catalogado de 2′ x 1′ si el fondo del cielo reduce el contraste; la magnitud total es 10,0.",
+        "short_description": "C46 (NGC 2261), la Nebulosa Variable de Hubble, es un pequeño abanico de reflexión en Unicornio, iluminado por R Monocerotis. Se cree que el polvo cercano a la estrella proyecta sombras sobre el resto de la nube y modifica su aspecto incluso en pocas semanas.",
         "observing_notes": "C46 es una pequeña nebulosa de reflexión, por lo que los filtros nebulares no ayudan. Usa aumentos medios para separar el abanico cometario de R Monocerotis y anota su forma y lado más brillante; una comparación semanas después puede revelar cambios.",
         "best_seen": "Invierno",
         "curiosity_text": "La Nebulosa Variable de Hubble puede cambiar de apariencia en tan solo unas pocas semanas, demasiado rápido para que el gas se mueva a esa escala. Son sombras móviles, proyectadas por el polvo cerca de la joven estrella R Monocerotis."
@@ -1012,10 +1012,10 @@
         "short_description": "C48 (NGC 2775) es una galaxia espiral casi frontal en la constelación de Cangrejo. Un gran bulbo amarillento de estrellas viejas está rodeado por segmentos de brazos estrechos y plumosos, marcados por polvo y cúmulos azules jóvenes; el contraste entre el centro regular y el disco floculento es su rasgo distintivo.",
         "observing_notes": "Centra el bulbo redondo y luminoso de C48 con aumentos medios y después usa visión lateral para seguir el disco más tenue. Incluso con gran apertura sus brazos floculentos son extremadamente difíciles; una textura granulosa es más realista que una espiral nítida.",
         "best_seen": "Primavera",
-        "curiosity_text": "NGC 2775 tiene brazos floculantes: segmentos plumosos y discontinuos en lugar de dos espirales regulares. El gran bulbo amarillento está dominado por estrellas viejas, mientras que la formación estelar se concentra en los fragmentos exteriores."
+        "curiosity_text": "Los brazos de NGC 2775 se describen como floculentos: las estrellas jóvenes y el polvo forman segmentos de aspecto plumoso, no dos brazos continuos y bien definidos. El contraste con el gran bulbo central, casi sin formación estelar actual, muestra entornos distintos dentro de una misma galaxia."
       },
       "caldwell-C49": {
-        "short_description": "C49, NGC 2237, es la gran nebulosa de emisión asociada a la Nebulosa Roseta en Unicornio. Rodea un cúmulo abierto central y visualmente aparece como un anillo muy grande y tenue, dividido en segmentos más brillantes. Un campo amplio, un cielo oscuro y un filtro UHC u OIII son fundamentales. La Nebulosa Roseta abarca unos 80′ x 60′; al no disponer de una magnitud integrada fiable, la extensión y el contraste del fondo guían la elección del campo.",
+        "short_description": "La Roseta es una extensa región de hidrógeno ionizado en Unicornio que rodea al cúmulo NGC 2244, catalogado por separado como C50. Las estrellas masivas centrales iluminan el gas y excavan una cavidad con sus vientos; las nubes más densas de los bordes siguen formando estrellas.",
         "observing_notes": "Centre el cúmulo NGC 2244, utilice un aumento bajo y un filtro UHC u OIII, luego busque segmentos del anillo alrededor del cúmulo.",
         "best_seen": "Invierno",
         "curiosity_text": "La cavidad central de la Nebulosa Roseta ha sido tallada por la radiación y los vientos de las estrellas jóvenes de NGC 2244. El borde comprimido de la nube contiene glóbulos y pilares donde puede continuar la formación estelar."
@@ -1027,13 +1027,13 @@
         "curiosity_text": "NGC 2244 es el cúmulo joven nacido en el interior de la Nebulosa Roseta. Sus estrellas de tipo O tienen unos pocos millones de años, ionizan la nebulosa y están dispersando el material del que se formaron."
       },
       "caldwell-C51": {
-        "short_description": "C51 (IC 1613) es una galaxia irregular de la constelación de Ballena. Es extensa y posee un brillo superficial muy bajo: busque primero el tenue resplandor general y recorra después las regiones exteriores con visión periférica. En el campo abarca 12′ x 11′ y tiene una magnitud integrada de 9,0.",
+        "short_description": "C51 (IC 1613) es una galaxia enana irregular del Grupo Local en Ballena. Pese a su relativa cercanía, su cuerpo estelar difuso tiene un contraste muy bajo y aparece como una débil variación del fondo del cielo, sin un núcleo dominante.",
         "observing_notes": "El perfil de C51 (IC 1613), de magnitud integrada 9,0, cubre aproximadamente 12′ x 11′: proteja la adaptación a la oscuridad y compruebe los bordes con visión periférica.",
         "best_seen": "Otoño",
         "curiosity_text": "IC 1613 es una galaxia enana del Grupo Local con muy poco polvo interno. Por lo tanto, sus cefeidas se observan sin grandes correcciones de extinción, lo que las hace valiosas para calibrar distancias cósmicas."
       },
       "caldwell-C52": {
-        "short_description": "C52 (NGC 4697), galaxia elíptica en la constelación de Virgo. No ofrece estructuras claras como una espiral; su carácter surge de la forma del halo y de la concentración del núcleo. Con dimensiones de 6′ x 3′ y magnitud integrada de 9,3, requiere un campo acorde con su escala antes de buscar detalles.",
+        "short_description": "C52 (NGC 4697) es una galaxia elíptica de Virgo con una silueta claramente alargada. Su centro se detecta con más facilidad que el halo exterior, mientras las imágenes profundas revelan una población de cúmulos globulares circundantes que conserva su historia estelar.",
         "observing_notes": "C52 no es redonda como muchas elípticas. Con aumentos medios busca un halo fusiforme, aproximadamente dos veces más largo que ancho, con un centro que aumenta gradualmente de brillo. La visión lateral alarga sus extremos, no revela bandas ni brazos inexistentes.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4697 parece ser una elíptica silenciosa, pero las observaciones de rayos X revelan numerosas binarias compactas esparcidas por su envejecida población. Estas fuentes rastrean estrellas de neutrones y agujeros negros que acumulan materia."
@@ -1045,22 +1045,22 @@
         "curiosity_text": "NGC 3115 fue uno de los primeros ejemplos reconocidos de galaxia lenticular, intermedia entre espiral y elíptica. Su agujero negro central es enorme, pero casi inactivo, porque queda poco gas cercano que pueda acrecer."
       },
       "caldwell-C54": {
-        "short_description": "C54 (NGC 2506) es un cúmulo abierto en Unicornio. Examínelo primero como un todo, buscando su concentración central y los patrones geométricos formados por sus miembros más brillantes. Su diámetro de 7′ y su magnitud integrada de 7,6 ayudan a determinar el campo de visión inicial.",
+        "short_description": "NGC 2506 es un cúmulo abierto de Unicornio de unos dos mil millones de años, con un contorno ligeramente alargado. Sus estrellas son relativamente pobres en elementos pesados; con el tiempo, la dinámica interna ha concentrado las más masivas hacia el centro.",
         "observing_notes": "Bajo un cielo oscuro aparece primero como una pequeña nube granulada; use un aumento medio y visión periférica para revelar la rica trama de estrellas débiles. No se deje engañar por su tamaño modesto: el bajo aumento no separa bien el grupo.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 2506 es un cúmulo abierto antiguo y pobre en metales ubicado lejos del plano galáctico. Su composición lo hace útil para comparar la evolución química de las regiones interior y exterior de la Vía Láctea."
       },
       "caldwell-C55": {
-        "short_description": "C55 (NGC 7009) es una nebulosa planetaria de Acuario. Es compacta y posee un alto brillo superficial: la comparación con estrellas cercanas y la respuesta a un filtro OIII ayudan a identificarla. En el ocular debe buscarse una extensión de 2,5′/1′; el brillo total corresponde a una magnitud integrada de 8,3.",
+        "short_description": "C55 (NGC 7009), la Nebulosa de Saturno, es una planetaria de Acuario con una envoltura ovalada brillante. Dos finas extensiones laterales, las ansas, unen el cuerpo central con nudos de gas exteriores y le dan cierto parecido con el planeta de los anillos.",
         "observing_notes": "C55 es lo bastante brillante para admitir aumentos altos. Usa OIII a potencia media para aislar el disco verde azulado, retíralo y sube los aumentos en noches estables; busca el óvalo interior y las finas ansas laterales.",
         "best_seen": "Verano y otoño",
         "curiosity_text": "Las dos extensiones laterales de la Nebulosa de Saturno se llaman ansae, asas. Son chorros y nudos de alta velocidad que, vistos con poco aumento, le recordaron a Lord Rosse los anillos del planeta."
       },
       "caldwell-C56": {
-        "short_description": "C56 (NGC 246) es una nebulosa planetaria de Ballena. Es compacta y posee un alto brillo superficial: la comparación con estrellas cercanas y la respuesta a un filtro OIII ayudan a identificarla. Su extensión aparente es de 3,8′ y su magnitud integrada, 8,0.",
+        "short_description": "NGC 246 es una nebulosa planetaria en Ballena: una envoltura gaseosa alrededor de una enana blanca, con varias estrellas superpuestas en la línea de visión. Al telescopio presenta un resplandor tenue y casi circular, distinto del pequeño disco de alto brillo superficial de otras planetarias.",
         "observing_notes": "C56 es grande para una nebulosa planetaria y su anillo es discontinuo. Usa OIII con aumentos medios para seguir las zonas brillantes y las cavidades oscuras; repite sin filtro para recuperar la estrella central y las estrellas proyectadas sobre el disco.",
         "best_seen": "Otoño",
-        "curiosity_text": "La estrella central de la Nebulosa Calavera pertenece a un sistema triple jerárquico. Las otras componentes, invisibles con instrumentos pequeños, pueden haber influido en las cavidades y en la geometría no esférica del gas expulsado."
+        "curiosity_text": "En el centro de NGC 246 hay un sistema triple: una enana blanca y una enana roja forman una pareja alrededor de la cual orbita una tercera estrella más distante. La compañera roja, muy débil, fue identificada con el Very Large Telescope en 2014."
       },
       "caldwell-C57": {
         "short_description": "C57 (NGC 6822), la Galaxia de Barnard, es una enana irregular del Grupo Local en la constelación de Sagitario. Su tenue cuerpo estelar sin espiral alberga grandes viveros como Hubble V y Hubble X; su cercanía permite estudiar estrellas y poblaciones individuales.",
@@ -1075,7 +1075,7 @@
         "curiosity_text": "NGC 2360 fue descubierta en 1783 por Caroline Herschel, años antes de su inclusión en el catálogo de su hermano William. Por este motivo también se le conoce como Cúmulo de Caroline."
       },
       "caldwell-C59": {
-        "short_description": "C59 (NGC 3242) es una nebulosa planetaria de Hidra. Su forma se aprecia mejor alternando la visión directa y la periférica, en busca de un disco, un anillo o una estructura interna irregular. Su escala aparente es de 0,3′/21′ y su magnitud integrada, 8,6.",
+        "short_description": "NGC 3242, el Fantasma de Júpiter en Hidra, debe su apodo al parecido de su disco nebuloso con el del planeta. En realidad es gas expulsado por una estrella convertida en enana blanca; las imágenes detalladas muestran una estructura semejante a un ojo dentro de una envoltura mayor.",
         "observing_notes": "Distingue las dos escalas de C59: su disco interior brillante, de unos 20″, admite aumentos altos y responde a OIII, mientras el enorme halo exterior catalogado es un objetivo fotográfico extremadamente tenue. En visual busca el anillo interno y la estrella central.",
         "best_seen": "Primavera",
         "curiosity_text": "El Fantasma de Júpiter tiene dimensiones aparentes cercanas a las del planeta, pero es una capa de gas muy distante. Las capas concéntricas y los pequeños chorros hablan de distintos episodios de pérdida de masa de la estrella central."
@@ -1087,19 +1087,19 @@
         "curiosity_text": "NGC 4038 es una de las dos Galaxias de las Antenas. Las largas colas que dan nombre a la pareja son estrellas y gas despojados por mareas gravitacionales durante una colisión que comenzó hace cientos de millones de años."
       },
       "caldwell-C61": {
-        "short_description": "C61 (NGC 4039), galaxia espiral en la constelación de Cuervo. Es un objetivo de contraste: un campo con el fondo bien oscuro permite pasar del núcleo más evidente al halo apenas perceptible. NGC 4039 - Galaxias de las Antenas cubre aproximadamente 3,2′ x 2,2′ en el cielo y tiene una magnitud integrada de 13,0, dos datos que deben valorarse junto con el contraste del fondo.",
+        "short_description": "NGC 4039 es una de las dos Galaxias de las Antenas en Cuervo, en colisión con NGC 4038. Los núcleos siguen siendo distinguibles, mientras que el polvo y los cúmulos jóvenes marcan la zona de solapamiento de los discos. Las largas colas externas contienen estrellas arrastradas por la interacción gravitatoria.",
         "observing_notes": "No busques C61 como una mancha aislada de magnitud 13: es la condensación meridional unida visualmente a C60. Con aumentos medios intenta distinguir los dos núcleos y la zona de solapamiento; toda la pareja sigue siendo una coma tenue y las Antenas extendidas son fotográficas.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4039 forma con NGC 4038 las Galaxias de las Antenas. En la zona de solapamiento, la compresión del gas ha encendido miles de cúmulos estelares jóvenes, algunos destinados a convertirse en futuros cúmulos globulares."
       },
       "caldwell-C62": {
-        "short_description": "C62 (NGC 247), galaxia espiral en la constelación de Ballena. Es un objetivo de contraste: un campo con el fondo bien oscuro permite pasar del núcleo más evidente al halo apenas perceptible. Su escala aparente es de 20′ x 7′; una magnitud integrada de 8,9 no describe por sí sola lo que será evidente en el ocular.",
+        "short_description": "NGC 247 es una espiral enana de Ballena perteneciente al Grupo de Escultor. Una región inusualmente pobre en estrellas brillantes interrumpe su disco y le da el apodo de Ojo de la Aguja. Ese vacío aparente contiene estrellas viejas y débiles: no es un agujero sin materia.",
         "observing_notes": "C62 es una galaxia austral grande y tenue. Obsérvala en el meridiano con pocos aumentos y un campo de al menos medio grado. Busca una franja asimétrica con poca concentración central; el gran vacío del disco puede aparecer solo como brillo desigual, no como una cavidad nítida.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 247 contiene un gran vacío aparente en el disco, con muchas menos estrellas viejas que las áreas circundantes. Podría ser la huella de una interacción o procesos antiguos que interrumpieron localmente la formación estelar."
       },
       "caldwell-C63": {
-        "short_description": "C63, NGC 7293, la Nebulosa de la Hélice, es una de las nebulosas planetarias más cercanas y de mayor diámetro aparente. A pesar de su tamaño, el brillo superficial es bajo: aparece como un vasto anillo pálido con un centro más oscuro, muy sensible a la calidad del cielo. Un filtro OIII puede hacerla destacar de forma sorprendente. En el campo, C63 se extiende por 13′: una magnitud de 6,5 debe interpretarse como brillo general.",
+        "short_description": "La Nebulosa de la Hélice, NGC 7293 en Acuario, es una de las planetarias más cercanas a la Tierra. Su gran anillo aparente rodea a la estrella moribunda, pero la estructura real incluye componentes inclinados entre sí. Las imágenes de alta resolución muestran nudos gaseosos cuyas colas se alejan de la estrella.",
         "observing_notes": "Utilice un aumento bajo, filtro OIII y cielo oscuro; busque el anillo grande con la visión periférica sin esperar bordes afilados.",
         "best_seen": "Otoño",
         "curiosity_text": "La Nebulosa de la Hélice contiene miles de nudos cometarios, cada uno del tamaño del sistema solar. Sus densas cabezas resisten la radiación de la estrella central, mientras que las largas colas apuntan hacia el exterior."
@@ -1123,55 +1123,55 @@
         "curiosity_text": "NGC 5694 es un cúmulo globular remoto e inusualmente compacto situado en el halo exterior de la Vía Láctea. Sus propiedades químicas y dinámicas sugieren que pudo originarse en una galaxia enana absorbida posteriormente."
       },
       "caldwell-C67": {
-        "short_description": "C67 (NGC 1097), galaxia espiral barrada en la constelación de Horno. Lo mejor es empezar desde el núcleo y la orientación del halo; la barra y cualquier indicio de espiral requieren cielos oscuros y observación paciente. En el ocular debe buscarse una extensión de 9′ x 6′; el brillo total corresponde a una magnitud integrada de 9,2.",
+        "short_description": "NGC 1097 es una gran espiral barrada en Horno, con brazos extensos y un núcleo activo. Un anillo de intensa formación estelar rodea el centro, alimentado por gas que fluye hacia el interior. El núcleo brillante y los brazos más débiles requieren enfoques de observación distintos.",
         "observing_notes": "Desde latitudes septentrionales observa C67 en el meridiano. Con aumentos medios busca su núcleo muy brillante, la barra ovalada y el halo casi circular. Con más apertura puede surgir la pequeña compañera NGC 1097A junto a un brazo, mientras el anillo y los chorros centrales son fotográficos.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 1097 tiene un anillo circunnuclear donde el gas forma estrellas a un ritmo intenso. En el centro hay un agujero negro supermasivo, mientras que débiles chorros ópticos se extienden mucho más allá del disco."
       },
       "caldwell-C68": {
-        "short_description": "C68 (NGC 6729), nebulosa en la constelación de la Corona Austral. Alterne la visión directa y la periférica para seguir bordes, áreas oscuras y condensaciones, manteniendo suficientes estrellas de referencia en el campo. NGC 6729 - Nebulosa R Coronae Australis combina una extensión aparente de 1,0′ con una magnitud integrada de 9,7, por lo que la apertura y la calidad del cielo influyen de forma distinta.",
+        "short_description": "NGC 6729 es un pequeño abanico de polvo iluminado por la joven estrella variable R Coronae Australis. Está en la nube molecular de Corona Austral, cerca de las nebulosas NGC 6726 y NGC 6727. Su contorno se extiende hacia T Coronae Australis y constituye solo una parte del complejo circundante.",
         "observing_notes": "Mantenga un campo amplio y busque cambios graduales en el brillo entre las estrellas.",
         "best_seen": "Verano",
         "curiosity_text": "La nebulosidad alrededor de R Coronae Australis cambia porque la estrella es variable y las nubes cercanas proyectan sombras en movimiento. El complejo es una de las regiones de formación estelar más cercanas al sistema solar."
       },
       "caldwell-C69": {
-        "short_description": "C69 (NGC 6302), nebulosa planetaria en la constelación de Escorpio. A bajo aumento puede parecer una estrella borrosa; una vez centrada, suele admitir más aumento que muchas otras nebulosas. La preparación del campo para C69 parte de una extensión de 0,8′ y una magnitud integrada de 12,8.",
+        "short_description": "NGC 6302 es una nebulosa planetaria bipolar en Escorpio, conocida como la Nebulosa de la Mariposa. Dos lóbulos de gas se abren a ambos lados de un denso cinturón de material alrededor de la estrella central. Su espectacular forma en las imágenes procede de distintas fases de expulsión, no de una simple envoltura esférica.",
         "observing_notes": "La declinación austral de C69 exige una noche transparente y observar en el meridiano. OIII ayuda a separar sus dos lóbulos del campo de Escorpio; con aumentos medios-altos busca la cintura oscura que divide la estructura bipolar.",
         "best_seen": "Verano",
         "curiosity_text": "La estrella central de la Nebulosa de la Mariposa supera los 200.000 K y se encuentra entre las más calientes conocidas. Un denso toro de polvo oculta el centro y obliga al gas a expandirse hacia dos lóbulos opuestos."
       },
       "caldwell-C70": {
-        "short_description": "C70 (NGC 300), galaxia espiral en la constelación del Escultor. En el ocular la luz es suave y progresiva: la calidad del cielo oscuro importa más que el aumento para separar el halo del fondo. El perfil observable de C70 puede ser más pequeño que el catalogado de 20′ x 13′ si el fondo del cielo reduce el contraste; la magnitud total es 8,1.",
+        "short_description": "NGC 300 es una espiral cercana en Escultor, con brazos ricos en estrellas azules jóvenes y un centro más concentrado. Su disco ocupa en el cielo casi tanto como la Luna llena. Hubble puede resolver sus estrellas, lo que permite estudiar poblaciones estelares más allá de la Vía Láctea.",
         "observing_notes": "C70 ocupa unos dos tercios del diámetro lunar y no conviene ampliarla demasiado. Obsérvala cerca de la culminación con un campo ancho y visión lateral para reconocer un disco débilmente granulado sin núcleo fuerte; con gran apertura las concentraciones estelares surgen como manchas, no como brazos continuos.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 300 es una espiral relativamente aislada del Grupo Escultor. Las cefeidas y otras estrellas variables dentro de ella han proporcionado una de las mediciones de distancia más precisas para una galaxia cercana."
       },
       "caldwell-C71": {
-        "short_description": "C71 (NGC 2477), cúmulo abierto en la constelación de Popa. En el ocular, el patrón general del grupo es lo más importante: la densidad, las cadenas, los vacíos y las diferencias de brillo emergen mejor si se mantiene un poco de cielo alrededor. La medida de 27′ define la escala de C71, mientras que la magnitud integrada 5,8 resume toda su luz.",
+        "short_description": "NGC 2477 en Popa es un cúmulo abierto tan rico y redondeado que recuerda a un globular. Sus numerosas estrellas próximas entre sí contrastan con el más disperso NGC 2451, situado en la misma zona del cielo: compararlos muestra cuánto pueden diferir los cúmulos abiertos.",
         "observing_notes": "A bajo aumento puede recordar a un globular por densidad y forma; suba después a un aumento medio-alto para resolver estrellas hacia el centro. Desde latitudes boreales espere a la culminación, porque la extinción a baja altura desdibuja enseguida la textura fina.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 2477 es tan rico y concentrado que parece un cúmulo globular, pese a ser un cúmulo abierto del disco galáctico. Reúne cientos de estrellas en diferentes etapas de evolución posteriores a la secuencia principal."
       },
       "caldwell-C72": {
-        "short_description": "C72 (NGC 55), galaxia espiral barrada en la constelación del Escultor. En el ocular domina la zona central; bajo un buen cielo la distribución asimétrica de la luz puede sugerir la barra y el inicio de los brazos. Para planificar su observación, considere la magnitud integrada 8,2 y la extensión aparente 32′ x 6′ juntas.",
+        "short_description": "NGC 55 es una galaxia de tipo magallánico en Escultor, vista casi de canto. Su estructura recuerda a la Gran Nube de Magallanes, aunque es más pequeña, y presenta un perfil largo e irregular en lugar de una espiral ordenada. Las nubes de polvo atenúan su luz de forma desigual.",
         "observing_notes": "Observa C72 en el meridiano con el campo más ancho posible: sus 32′ forman una franja delgada que puede desbordar el ocular. No busques un núcleo simétrico; su firma visual es una luz irregular, más intensa en algunos nudos y afinada hacia los extremos.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 55 es una galaxia barrada vista casi de canto con regiones de formación estelar dispersas y un perfil irregular. Su proximidad permite resolver estrellas individuales a pesar de la apariencia nebulosa general."
       },
       "caldwell-C73": {
-        "short_description": "C73 (NGC 1851), cúmulo globular en la constelación de Paloma. La concentración hacia el centro es su rasgo dominante: la transición de un núcleo compacto a una periferia más dispersa es el detalle a seguir. NGC 1851 cubre aproximadamente 11′ en el cielo y tiene una magnitud integrada de 7,3, dos datos que deben valorarse junto con el contraste del fondo.",
+        "short_description": "NGC 1851 es un cúmulo globular de Paloma con un centro muy compacto y un halo estelar mucho más difuso. Las observaciones revelan poblaciones de edades distintas: su aspecto de esfera luminosa oculta una historia de formación más compleja que la de un grupo nacido de una sola vez.",
         "observing_notes": "C73 es brillante pero muy concentrado. Con pocos aumentos sepáralo del rico campo próximo a la Pequeña Nube de Magallanes y luego aumenta la potencia para comparar el núcleo casi estelar con el halo de 11′.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 1851 muestra dos ramas subgigantes distintas en el diagrama de color-magnitud. Esta doble población podría resultar de diferentes episodios de formación o incluso de la fusión de dos cúmulos antiguos."
       },
       "caldwell-C74": {
-        "short_description": "C74, NGC 3132, la Nebulosa del Anillo Sur, es una nebulosa planetaria brillante en Vela. Muestra un disco ovalado con una región central más oscura y una estrella brillante proyectada cerca del centro; la estrella que realmente origina la nebulosa es una compañera más débil. Es una de las mejores nebulosas planetarias del cielo austral. Su escala aparente es de 0,8′; una magnitud integrada de 8,2 no describe por sí sola lo que resultará visible en el ocular.",
+        "short_description": "NGC 3132, la Nebulosa del Anillo del Sur en Vela, presenta una envoltura gaseosa ovalada recorrida por filamentos de polvo. La estrella más brillante cerca del centro no expulsó ese gas: la responsable es una compañera mucho más débil, convertida en enana blanca.",
         "observing_notes": "Utilice aumentos medios o altos y compare la vista con y sin filtro OIII para apreciar la forma ovalada y la cavidad central.",
         "best_seen": "Primavera",
         "curiosity_text": "Las imágenes del telescopio espacial James Webb han revelado capas y arcos moleculares previamente ocultos en la Nebulosa del Anillo Sur. La estrella moribunda tiene una compañera cercana que contribuye a la estructura asimétrica del material expulsado."
       },
       "caldwell-C75": {
-        "short_description": "C75 (NGC 6124), cúmulo abierto en la constelación de Escorpio. El placer de la observación radica en separar el grupo del fondo estelar y reconocer cómo las estrellas más brillantes definen su estructura. En el campo, C75 se extiende a lo largo de 29′: la magnitud 5,8 debe interpretarse como brillo general.",
+        "short_description": "NGC 6124 es un cúmulo abierto extenso de Escorpio, con más de un centenar de estrellas visibles. Su tamaño aparente es comparable al diámetro de la Luna llena: su carácter se aprecia en la distribución del conjunto, no en un único centro dominante.",
         "observing_notes": "Use prismáticos o poco aumento para seguir la figura amplia e irregular; las zonas menos pobladas forman parte de su aspecto afectado por el polvo y no deben perseguirse subiendo el aumento al azar. Un campo amplio y cielo transparente aclaran el borde.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6124 es un cúmulo joven afectado por una extinción interestelar desigual. El polvo enrojece a algunos miembros más que a otros y puede hacer que una población nacida en el mismo período parezca desigual."
@@ -1189,22 +1189,22 @@
         "curiosity_text": "Centauro A es el resultado de una fusión: una banda de polvo atraviesa una gran galaxia elíptica, mientras que el agujero negro central lanza un chorro relativista observable desde ondas de radio hasta rayos X."
       },
       "caldwell-C78": {
-        "short_description": "C78 (NGC 6541), cúmulo globular en la constelación de la Corona Austral. La concentración hacia el centro es su rasgo dominante: la transición de un núcleo compacto a una periferia más dispersa es el detalle a seguir. Para C78, la comparación entre la extensión de 13′ y la magnitud integrada de 6,6 guía la elección del campo inicial.",
+        "short_description": "NGC 6541 es un cúmulo globular de Corona Austral, a unos 22.000 años luz. Los prismáticos ya muestran una concentración luminosa, mientras que un telescopio permite buscar estrellas individuales. Hubble ha estudiado su población en luz visible y ultravioleta para comparar estrellas de distinta composición química.",
         "observing_notes": "C78 muestra un núcleo intenso dentro de un halo amplio. Encuádralo primero con pocos aumentos y pasa después a una potencia media; con buen seeing empiezan a resolverse las estrellas exteriores mientras el centro permanece compacto.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6541 es uno de los globulares más concentrados del cielo austral. La fuerte densidad central favorece los encuentros estelares y convierte el núcleo en un laboratorio natural para la dinámica de los sistemas antiguos."
       },
       "caldwell-C79": {
-        "short_description": "C79 (NGC 3201), cúmulo globular en la constelación de Vela. Es un objeto que premia los aumentos progresivos: primero se reconoce el halo, luego se busca la resolución de las estrellas periféricas. En el ocular debe buscarse una extensión de 18′; el brillo total corresponde a una magnitud integrada de 6,7.",
+        "short_description": "NGC 3201 es un cúmulo globular relativamente cercano en Vela, a unos 16.000 años luz. Su órbita alrededor del centro galáctico es retrógrada respecto a la rotación del disco de la Vía Láctea. Ese movimiento inusual aporta pistas sobre su historia, pero no demuestra por sí solo un origen extragaláctico.",
         "observing_notes": "C79 es amplio y poco concentrado, por lo que agradece un campo bastante ancho. Bajo un cielo oscuro, aumentos medios convierten su neblina irregular en numerosas estrellas sin perder las prolongaciones exteriores.",
         "best_seen": "Primavera",
         "curiosity_text": "En NGC 3201, se identificó un candidato a agujero negro inactivo observando el movimiento orbital de su compañera visible. El cúmulo también sigue una órbita retrógrada, lo que indica un posible origen externo."
       },
       "caldwell-C80": {
-        "short_description": "C80, NGC 5139, Omega Centauri, es el cúmulo globular más grande y brillante de la Vía Láctea. A simple vista puede parecer una estrella borrosa; en el telescopio se convierte en una enorme masa estelar, más extensa y menos concentrada que muchos otros cúmulos globulares. Desde latitudes septentrionales bajas debe observarse cerca de la culminación. Su extensión aparente es de 36′ y su magnitud integrada, 3,6.",
+        "short_description": "Omega Centauri, NGC 5139, es el cúmulo globular más masivo de la Vía Láctea: unos diez millones de estrellas forman un extenso sistema, visible incluso a simple vista desde los cielos australes.",
         "observing_notes": "Utilice un campo lo bastante amplio para abarcarlo por completo y aumentos medios para resolver su vasta periferia estelar.",
         "best_seen": "Primavera",
-        "curiosity_text": "Omega Centauri contiene millones de estrellas con diferentes composiciones y edades, anómalas para un cúmulo globular normal. Probablemente, sea el núcleo remanente de una galaxia enana despojada de la Vía Láctea."
+        "curiosity_text": "Las distintas poblaciones estelares y los indicios de un agujero negro central sugieren que Omega Centauri podría ser el núcleo superviviente de una galaxia enana despojada de sus estrellas externas."
       },
       "caldwell-C81": {
         "short_description": "C81 (NGC 6352) es un cúmulo globular compacto y relativamente rico en metales en Altar. Su disco de unos 7′ presenta un centro suave y brillante, rodeado por una periferia que los instrumentos medianos pueden empezar a desgranar.",
@@ -1219,13 +1219,13 @@
         "curiosity_text": "Las estrellas masivas de NGC 6193 iluminan el borde brillante de la cercana NGC 6188. Entre ellas se encuentra HD 150136, uno de los sistemas estelares múltiples más masivos conocidos en la Vía Láctea."
       },
       "caldwell-C83": {
-        "short_description": "C83 (NGC 4945), galaxia espiral barrada en la constelación de Centauro. La estructura central es más obvia que las regiones exteriores: busque primero el núcleo, luego el alargamiento de la barra y finalmente el halo más tenue. La medida de 20′ x 4′ define la escala de C83, mientras que la magnitud integrada 9,5 resume toda su luz.",
+        "short_description": "NGC 4945 es una espiral barrada en Centauro, pero desde la Tierra la vemos casi de canto. Su disco aparece como una fina franja luminosa, atravesada por polvo y solo moderadamente más brillante en el centro. La clasificación como barrada no implica que la barra sea reconocible en el ocular.",
         "observing_notes": "Desde un cielo oscuro, un telescopio pequeño muestra C83 como una lámina de luz larga y fina, algo más brillante en el centro. Usa un campo amplio para abarcar sus 20′ y observa al culminar: desde latitudes septentrionales, su escasa altura hace que la transparencia sea más valiosa que un aumento adicional.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4945 esconde un núcleo activo y un intenso estallido estelar detrás del polvo. Un máser de agua nos permite rastrear el gas que orbita muy cerca del agujero negro central y medir su masa."
       },
       "caldwell-C84": {
-        "short_description": "C84 (NGC 5286), cúmulo globular en la constelación de Centauro. A bajo aumento aparece como un halo concentrado; con una apertura más grande y un seeing estable, el borde puede volverse granulado y empezar a resolverse en estrellas. Para planificar su observación, considere la magnitud integrada 7,6 y la extensión aparente 9′ juntas.",
+        "short_description": "NGC 5286 es un antiguo cúmulo globular de Centauro, a unos 35.000 años luz. La cercana y mucho más brillante M Centauri crea un contraste llamativo en el campo y puede dificultar la visión del cúmulo con su luz dispersa; la proximidad aparente no implica una asociación física.",
         "observing_notes": "La brillante M Centauri facilita localizar C84, pero puede perjudicar la adaptación a la oscuridad. Déjala justo fuera del campo y usa aumentos medios para buscar granulación en el halo que rodea el núcleo concentrado.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 5286 contiene poblaciones con diferentes abundancias de hierro, comportamiento poco común para un globular. Podría ser el núcleo superviviente de una galaxia enana asimilada por la Vía Láctea."
@@ -1237,43 +1237,43 @@
         "curiosity_text": "IC 2391 es un cúmulo cercano de unos 50 millones de años. El límite de agotamiento del litio en sus estrellas menos masivas proporciona un reloj independiente y preciso para estimar su edad."
       },
       "caldwell-C86": {
-        "short_description": "C86 (NGC 6397), cúmulo globular en la constelación de Altar. A bajo aumento aparece como un halo concentrado; con una apertura más grande y un seeing estable, el borde puede volverse granulado y empezar a resolverse en estrellas. Su escala aparente es 26′; una magnitud integrada de 5,6 no describe por sí sola lo que será evidente en el ocular.",
+        "short_description": "NGC 6397 en Altar es uno de los cúmulos globulares más cercanos, a unos 7.800 años luz. Esa proximidad facilita resolver sus estrellas al telescopio y permitió a Hubble medir su paralaje. Su población muy antigua y pobre en elementos pesados conserva huellas de la joven Vía Láctea.",
         "observing_notes": "C86 es amplio y cercano: usa pocos aumentos para abarcar su extensión y después una potencia media para resolver numerosas estrellas. Su núcleo muy apiñado sigue siendo la mejor prueba del seeing y la apertura.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6397 es uno de los globulares más cercanos y antiguos, con una edad cercana a la del Universo. Su núcleo ha sufrido un colapso gravitacional, concentrando fuertemente las estrellas hacia el centro."
       },
       "caldwell-C87": {
-        "short_description": "C87 (NGC 1261), cúmulo globular en la constelación de Reloj. Al principio parece una pequeña nube redonda, pero una observación prolongada revela diferencias entre el núcleo brillante y el borde punteado. En el campo, C87 se extiende por 7′: la magnitud 8,4 debe interpretarse como brillo general.",
+        "short_description": "NGC 1261 es un cúmulo globular de Reloj situado a unos 50.000 años luz, con una marcada concentración central. Entre sus estrellas se han identificado variables RR Lyrae y candidatas a rezagadas azules, inusualmente calientes para una población tan antigua.",
         "observing_notes": "C87 aparece como un globo regular con un centro bien condensado. Tras localizarlo, prueba aumentos medios sin estrechar demasiado el campo; la visión lateral revela la periferia y algunas estrellas del borde.",
         "best_seen": "Invierno",
         "curiosity_text": "En NGC 1261 las poblaciones estelares no están distribuidas de la misma manera: las estrellas de segunda generación están más concentradas. La diferencia conserva información sobre la formación inicial y la posterior mezcla dinámica."
       },
       "caldwell-C88": {
-        "short_description": "C88 (NGC 5823), cúmulo abierto en la constelación de Compás. El placer de la observación radica en separar el grupo del fondo estelar y reconocer cómo las estrellas más brillantes definen su estructura. Con dimensiones de 10′ y magnitud integrada de 7,9, requiere un campo acorde con su escala antes de buscar detalles.",
+        "short_description": "NGC 5823 es un cúmulo abierto en Compás, próximo al límite con Lobo y extendido en parte más allá de esa frontera convencional. Está a unos 4.700 años luz y fue identificado por James Dunlop en 1826.",
         "observing_notes": "Búsquelo como una concentración compacta en el poblado cielo austral y use después un aumento medio para separar el núcleo y las prolongaciones irregulares. Si la transparencia es mediocre seguirá granulado: espere a la culminación en vez de recurrir a un filtro.",
         "best_seen": "Verano",
         "curiosity_text": "El cúmulo NGC 5823 fue catalogado por el astrónomo escocés James Dunlop durante sus observaciones en Australia en 1826. Tiene unos 800 millones de años, tiempo suficiente para que sus estrellas originales más masivas ya hayan desaparecido."
       },
       "caldwell-C89": {
-        "short_description": "C89 (NGC 6087), cúmulo abierto en la constelación de Escuadra. El placer de la observación radica en separar el grupo del fondo estelar y reconocer cómo las estrellas más brillantes definen su estructura. La magnitud integrada de 5,4 describe todo el objeto; la extensión de 12′ ayuda a estimar el contraste real.",
+        "short_description": "NGC 6087 es un cúmulo abierto en la constelación de Escuadra dominado por la cefeida S Normae. La estrella cambia de brillo en un periodo de unos diez días, mientras sus compañeras delimitan un grupo reconocible con prismáticos. El mismo campo ofrece así un cúmulo que explorar y una variable que seguir con el tiempo.",
         "observing_notes": "Los prismáticos muestran un pequeño grupo alrededor de la cefeida S Normae; un telescopio a aumento medio separa los miembros más débiles. Vuelva en noches distintas para comparar S Normae con estrellas cercanas, manteniendo iguales el instrumento y el aumento.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6087 contiene S Normae, una variable cefeida clásica. El hecho de pertenecer a un cúmulo nos permite comparar su pulsación, distancia y edad con las de otras estrellas nacidas juntas."
       },
       "caldwell-C90": {
-        "short_description": "C90 (NGC 2867), nebulosa planetaria en la constelación de Quilla. Sus pequeñas dimensiones y su contraste relativamente alto la hacen adecuada para un aumento moderado; la estabilidad atmosférica sigue siendo decisiva para los detalles finos. Para C90, la comparación entre la extensión de 0,2′ y la magnitud integrada de 9,7 guía la elección del campo inicial.",
+        "short_description": "NGC 2867 es una pequeña nebulosa planetaria de Quilla, tan compacta que parece estelar a bajo aumento. Su envoltura casi esférica es gas expulsado por la estrella central e iluminado por radiación ultravioleta. Identificarla exige distinguir su diminuto disco nebuloso de las estrellas del campo.",
         "observing_notes": "Para C90 (NGC 2867), con una extensión de 0,2′ y magnitud integrada 9,7, compare la vista sin filtrar con la filtrada y observe qué estructura cambia realmente.",
         "best_seen": "Primavera",
         "curiosity_text": "La estrella central de NGC 2867 es una Wolf-Rayet rica en carbono y oxígeno. Su espectro revela material producido en las capas internas durante fases avanzadas de la evolución estelar, antes de ser expulsado para formar la nebulosa."
       },
       "caldwell-C91": {
-        "short_description": "C91 (NGC 3532), cúmulo abierto en la constelación de Quilla. El placer de la observación radica en separar el grupo del fondo estelar y reconocer cómo las estrellas más brillantes definen su estructura. En el ocular debe buscarse una extensión de 55′; el brillo total corresponde a una magnitud integrada de 3,0.",
+        "short_description": "NGC 3532 es un rico cúmulo abierto de Quilla, apodado Pozo de los Deseos por sus estrellas semejantes a monedas dispersas. Tiene unos 300 millones de años: junto a las componentes blancoazuladas destacan gigantes anaranjadas ya evolucionadas. El contraste cromático es uno de sus rasgos más atractivos.",
         "observing_notes": "El Pozo de los Deseos ocupa casi un grado: prefiera prismáticos o un telescopio de campo amplio. Con un aumento moderado, busque miembros amarillos y naranjas entre la multitud blanco-azulada; vuelva luego a la vista amplia para apreciar su extraordinaria riqueza.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 3532 fue el primer objetivo fotografiado por el Telescopio Espacial Hubble, en mayo de 1990. Aquellas primeras imágenes aparecieron borrosas y ayudaron a revelar el defecto del espejo, corregido después durante una misión de mantenimiento."
       },
       "caldwell-C92": {
-        "short_description": "C92, NGC 3372, la Nebulosa de Carina, es una gigantesca región de formación estelar del cielo austral. Alrededor de Eta Carinae se entrelazan zonas luminosas, cúmulos y profundas bandas oscuras; a simple vista y con prismáticos ya impresiona bajo un buen cielo. Su extensión requiere pocos aumentos. NGC 3372 combina una extensión aparente de 120′ x 120′ con una magnitud integrada de 6,2, por lo que la apertura y la calidad del cielo influyen de forma distinta.",
+        "short_description": "La Nebulosa de Carina, NGC 3372, es un extenso complejo de formación estelar modelado por estrellas muy masivas. Cavidades, pilares y nubes oscuras rodean el gas luminoso; Eta Carinae está en su interior, pero la pequeña envoltura del Homúnculo no es toda la nebulosa.",
         "observing_notes": "Utilice prismáticos o un telescopio de campo amplio; explore Eta Carinae, las bandas oscuras y los cúmulos inmersos por separado.",
         "best_seen": "Primavera",
         "curiosity_text": "Eta Carinae, dentro de la Nebulosa de Carina, sobrevivió a la Gran Erupción del siglo XIX. El episodio expulsó la Nebulosa del Homúnculo y convirtió brevemente a la estrella en una de las más brillantes del cielo."
@@ -1285,25 +1285,25 @@
         "curiosity_text": "NGC 6752 presenta suficientes huecos entre sus estrellas para que en imágenes profundas aparezcan galaxias mucho más lejanas detrás del cúmulo. El campo superpone así objetos separados por distancias cósmicas enormes."
       },
       "caldwell-C94": {
-        "short_description": "C94 (NGC 4755), cúmulo abierto en la constelación de la Cruz del Sur. Es un objetivo que debe leerse en su conjunto, buscando la concentración central y las figuras geométricas que sugieren los componentes más brillantes. El perfil observable de C94 puede ser menor que los 10′ catalogados si el fondo del cielo reduce el contraste; la magnitud total es 4,2.",
+        "short_description": "NGC 4755, el Joyero en la Cruz del Sur, es un cúmulo abierto célebre por el contraste entre supergigantes azules y una supergigante roja. A simple vista puede parecer una sola estrella; el telescopio revela tanto los colores como las grandes diferencias de brillo entre sus componentes.",
         "observing_notes": "A simple vista parece una estrella; los prismáticos y telescopios pequeños lo transforman en el Joyero. Use un aumento medio para destacar la supergigante rojo-anaranjada entre estrellas azules, evitando aumentos excesivos que dispersen el pequeño grupo.",
         "best_seen": "Primavera",
         "curiosity_text": "El Cúmulo del Joyero debe su nombre al contraste entre estrellas azules y una supergigante roja central. John Herschel lo comparó con una preciosa joya de colores observada a través del telescopio."
       },
       "caldwell-C95": {
-        "short_description": "C95 (NGC 6025), cúmulo abierto en la constelación del Triángulo Austral. Su apariencia cambia considerablemente con el aumento: un campo amplio muestra el contorno del grupo, mientras que un aumento mayor revela pares y pequeñas cadenas. La medida de 12′ define la escala de C95, mientras que la magnitud integrada 5,1 resume toda su luz.",
+        "short_description": "NGC 6025 es un cúmulo abierto joven de Triángulo Austral, cerca del límite con Escuadra. Presenta poca concentración central y mezcla estrellas de brillos muy distintos. Destaca MQ Trianguli Australis, una estrella azul más brillante que las demás componentes del cúmulo.",
         "observing_notes": "A bajo aumento identifique la pequeña cuña luminosa y pase después a un aumento medio para separar las filas débiles que completan la figura. No use filtros: la transparencia y una buena altura sobre el horizonte son lo que define el borde.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6025 es un cúmulo joven y relativamente compacto en el cielo del sur. Las estrellas más brillantes trazan una forma de cuña, mientras que los miembros menos llamativos extienden el grupo mucho más allá del contorno visual."
       },
       "caldwell-C96": {
-        "short_description": "C96 (NGC 2516), cúmulo abierto en la constelación de Quilla. En el ocular, el patrón general del grupo es lo más importante: la densidad, las cadenas, los vacíos y las diferencias de brillo emergen mejor si se mantiene un poco de cielo alrededor. Para planificar su observación, considere la magnitud integrada 3,8 y la extensión aparente 30′ juntas.",
+        "short_description": "NGC 2516 es el Pesebre del Sur, un cúmulo abierto brillante en Quilla. El resplandor visible a simple vista ya se separa en estrellas con prismáticos. Algunas parejas aparentes ofrecen más detalles al telescopio pequeño, pero una doble óptica no debe interpretarse automáticamente como un sistema binario.",
         "observing_notes": "La Colmena Austral luce mejor con prismáticos o muy poco aumento. Siga las filas de estrellas brillantes y busque miembros anaranjados que interrumpen el tono blanco-azulado dominante; demasiado aumento hace perder la estructura de medio grado.",
         "best_seen": "Invierno",
         "curiosity_text": "NGC 2516 se llama Colmena del Sur debido a su similitud con M44. Su rica y cercana población incluye estrellas químicamente peculiares, útiles para estudiar la difusión y los campos magnéticos en estrellas jóvenes."
       },
       "caldwell-C97": {
-        "short_description": "C97 (NGC 3766), cúmulo abierto en la constelación de Centauro. Es un objetivo que debe leerse en su conjunto, buscando la concentración central y las figuras geométricas que sugieren los componentes más brillantes. NGC 3766 cubre aproximadamente 12′ en el cielo y tiene una magnitud integrada de 5,3, dos datos que deben valorarse junto con el contraste del fondo.",
+        "short_description": "NGC 3766 es un cúmulo abierto joven de Centauro, con una edad estimada de unos 20 millones de años. Su aparente estabilidad oculta pequeños cambios: un seguimiento de varios años identificó decenas de estrellas con oscilaciones regulares de brillo demasiado débiles para apreciarlas a simple vista.",
         "observing_notes": "El brillante Cúmulo de la Perla admite bien un aumento medio: siga las cadenas cortas que cruzan el núcleo y busque miembros de tonos más cálidos. A bajo aumento permanece muy compacto; una mayor apertura añade estrellas sin borrar su forma.",
         "best_seen": "Primavera",
         "curiosity_text": "Las observaciones de NGC 3766 revelaron una clase de variables que no encajaban en los modelos tradicionales. Muchas giran rápidamente: la inclinación y la rotación parecen cruciales para explicar las débiles pulsaciones."
@@ -1315,7 +1315,7 @@
         "curiosity_text": "NGC 4609 se proyecta sobre la Nebulosa Saco de Carbón, mucho más cercana. El polvo oscuro absorbe y enrojece la luz del cúmulo situado detrás, convirtiendo esta alineación en una herramienta para medir la extinción."
       },
       "caldwell-C99": {
-        "short_description": "C99, la Nebulosa Saco de Carbón, es una gran nebulosa oscura visible a simple vista contra la Vía Láctea sur, cerca de la Cruz del Sur. No brilla: aparece como una cavidad oscura donde el fondo estelar parece detenerse. Su forma se aprecia mejor sin telescopio o con unos prismáticos de muy bajo aumento. Se extiende aproximadamente 400′ x 300′ y debe evaluarse por contraste con el fondo estelar, no por una magnitud integrada.",
+        "short_description": "El Saco de Carbón es una extensa nube oscura junto a la Cruz del Sur. En luz visible no brilla por emisión: el polvo intercepta la luz de estrellas más lejanas y crea un vacío aparente en la Vía Láctea. Su silueta se aprecia sobre todo por contraste con el fondo estelar circundante.",
         "observing_notes": "Obsérvela bajo un cielo muy oscuro a simple vista o con prismáticos, comparando el aparente vacío con la Vía Láctea circundante.",
         "best_seen": "Primavera",
         "curiosity_text": "El Saco de Carbón no emite luz: es una nube cercana que oscurece la Vía Láctea. En las tradiciones aborígenes australianas forma la cabeza del emú en el cielo, una constelación dibujada por espacios oscuros en lugar de estrellas."
@@ -1327,37 +1327,37 @@
         "curiosity_text": "IC 2944 contiene los glóbulos de Thackeray, densas islas de polvo oscuro recortadas contra el brillante hidrógeno. La radiación de las estrellas cercanas las está erosionando y puede impedir que algunas colapsen y formen nuevas estrellas."
       },
       "caldwell-C101": {
-        "short_description": "C101 (NGC 6744), galaxia espiral barrada en la constelación de Pavo. Lo mejor es empezar desde el núcleo y la orientación del halo; la barra y cualquier indicio de espiral requieren cielos oscuros y observación paciente. La magnitud integrada de 9,0 describe el objeto completo; la extensión de 16′ x 10′ ayuda a estimar su contraste real.",
+        "short_description": "NGC 6744 es una gran espiral en Pavo, comparada a menudo con la Vía Láctea por su núcleo alargado y sus brazos ricos en polvo y formación estelar. En las imágenes, el centro amarillento, dominado por estrellas más viejas, contrasta con las regiones jóvenes de los brazos externos.",
         "observing_notes": "Con un telescopio pequeño, C101 aparece como un halo amplio y tenue alrededor de un núcleo más brillante. Empieza con el menor aumento que encuadre cómodamente sus 16′ × 10′; un cielo transparente y la visión periférica prolongada ayudan más que otro aumento para seguir el disco.",
         "best_seen": "Verano",
         "curiosity_text": "NGC 6744 es uno de los análogos más convincentes de la Vía Láctea: una gran espiral barrada con los brazos abiertos y una pequeña compañera. Su disco, sin embargo, se extiende por casi el doble del diámetro de nuestra galaxia."
       },
       "caldwell-C102": {
-        "short_description": "C102 (IC 2602), cúmulo abierto en la constelación de Quilla. Su apariencia cambia considerablemente con el aumento: un campo amplio muestra el contorno del grupo, mientras que un aumento mayor revela pares y pequeñas cadenas. Para C102, la comparación entre la extensión de 50′ y la magnitud integrada de 1,9 guía la elección del campo inicial.",
+        "short_description": "IC 2602, las Pléyades del Sur, es un cúmulo abierto cercano y muy extenso en Quilla, dominado por Theta Carinae. El grupo supera el diámetro aparente de la Luna llena: la estrella brillante facilita identificarlo, pero hace falta un campo amplio para reconocer a las compañeras distribuidas alrededor.",
         "observing_notes": "Las Pléyades del Sur son evidentes a simple vista alrededor de Theta Carinae; use prismáticos o un campo de al menos 1,5° para abarcar toda su disposición. Un telescopio a aumento medio solo sirve para pares y colores, no para la visión general.",
         "best_seen": "Primavera",
         "curiosity_text": "IC 2602 se llama Pléyades del Sur, pero está más cerca y es más joven que las Pléyades del Norte. La brillante Theta Carinae domina una población visible incluso a simple vista en un campo muy amplio."
       },
       "caldwell-C103": {
-        "short_description": "C103 (NGC 2070) es una nebulosa de la constelación de Dorado. Alterne la visión directa y la periférica para seguir bordes, zonas oscuras y condensaciones, manteniendo suficientes estrellas de referencia en el campo. En el ocular debe buscarse una extensión de 40′ x 25′; el brillo total corresponde a una magnitud integrada de 1,0.",
+        "short_description": "La Tarántula, o 30 Doradus, es una gigantesca región de formación estelar en la Gran Nube de Magallanes, no en la Vía Láctea. Estrellas extremadamente masivas iluminan y excavan el gas circundante, creando filamentos y cavidades. NGC 2070 identifica la concentración estelar central asociada a este complejo nebuloso.",
         "observing_notes": "La Tarántula se extiende mucho más allá del núcleo NGC 2070. Usa la menor potencia y un campo ancho para seguir arcos y cavidades en la Gran Nube de Magallanes. Un filtro UHC aumenta el contraste del gas, pero atenúa el rico campo estelar.",
         "best_seen": "Invierno",
         "curiosity_text": "La Nebulosa de la Tarántula es la región de formación estelar más grande del Grupo Local. Si estuviera a la distancia de la Nebulosa de Orión, proyectaría sombras; en sus proximidades también explotó la supernova SN 1987A."
       },
       "caldwell-C104": {
-        "short_description": "C104 (NGC 362), cúmulo globular en la constelación de Tucán. Al principio parece una pequeña nube redonda, pero una observación prolongada revela diferencias entre el núcleo brillante y el borde punteado. NGC 362 combina una extensión aparente de 13′ con una magnitud integrada de 6,6, por lo que la apertura y la calidad del cielo influyen de forma distinta.",
+        "short_description": "NGC 362 es un cúmulo globular de Tucán, proyectado cerca de la Pequeña Nube de Magallanes, pero perteneciente a la Vía Láctea. Es relativamente joven para su clase: sus estrellas son dos o tres mil millones de años más jóvenes que las de muchos otros globulares galácticos.",
         "observing_notes": "C104 es un globular brillante situado delante del campo de la Pequeña Nube de Magallanes, no un miembro suyo. Los aumentos medios realzan su núcleo compacto; compáralo en el mismo cielo con el más extenso 47 Tucanae.",
         "best_seen": "Otoño",
         "curiosity_text": "NGC 362 aparece cerca de la Pequeña Nube de Magallanes, pero pertenece a la Vía Láctea y está mucho más cerca. Es relativamente rico en metales y unos miles de millones de años más joven que muchos globulares clásicos."
       },
       "caldwell-C105": {
-        "short_description": "C105 (NGC 4833), cúmulo globular en la constelación de Mosca. Al principio parece una pequeña nube redonda, pero una observación prolongada revela diferencias entre el núcleo brillante y el borde punteado. La preparación del campo para C105 parte de una extensión de 14′ y una magnitud integrada de 7,3.",
+        "short_description": "NGC 4833 es un cúmulo globular de Mosca, a unos 22.000 años luz, poblado por estrellas antiguas de la Vía Láctea. Lacaille lo identificó durante su estancia en Sudáfrica en 1751. No es de los globulares más espectaculares con instrumentos pequeños; examinar su población estelar requiere mayor apertura.",
         "observing_notes": "El polvo interestelar atenúa y enrojece C105, de modo que la transparencia y la culminación importan más que muchos aumentos. Usa un campo medio para captar su halo irregular y aumenta solo mientras el borde siga claro.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4833 se observa a través de una región polvorienta que atenúa su luz. La órbita lo lleva repetidamente al disco galáctico, donde las mareas pueden haberle quitado una parte sustancial de su masa original."
       },
       "caldwell-C106": {
-        "short_description": "C106, NGC 104, 47 Tucanae, es uno de los cúmulos globulares más brillantes y espectaculares del cielo. Muestra un núcleo muy denso rodeado por un gran halo de estrellas resolubles, con una apariencia más concentrada y regular que Omega Centauri. Su proximidad aparente a la Pequeña Nube de Magallanes crea un campo extraordinario. El perfil observable puede ser menor que los 31′ catalogados si el fondo de cielo reduce el contraste; la magnitud total es 4,0.",
+        "short_description": "47 Tucanae, NGC 104, es un cúmulo globular muy brillante con al menos medio millón de estrellas, fuertemente concentradas hacia el centro. Aparece cerca de la Pequeña Nube de Magallanes, pero pertenece a la Vía Láctea y está mucho más próximo. Su núcleo compacto y su amplio halo ofrecen dos escalas que explorar.",
         "observing_notes": "Utilice un campo medio para incluir el halo, luego suba el aumento para resolver la periferia y estudiar el núcleo.",
         "best_seen": "Otoño",
         "curiosity_text": "En 47 Tucanae las estrellas más masivas migran hacia el centro, mientras que las más ligeras se desplazan hacia el exterior. La distribución de las rezagadas azules funciona como un reloj dinámico que permite medir la evolución interna del cúmulo."
@@ -1369,13 +1369,13 @@
         "curiosity_text": "NGC 6101 muestra sorprendentemente poca segregación en masa, a pesar de su edad. Una población de agujeros negros estelares retenida en el cúmulo puede haber ralentizado su evolución dinámica interna."
       },
       "caldwell-C108": {
-        "short_description": "C108 (NGC 4372), cúmulo globular en la constelación de Mosca. Es un objeto que premia los aumentos progresivos: primero se reconoce el halo, luego se busca la resolución de las estrellas periféricas. Para planificar su observación, considere la magnitud integrada 7,8 y la extensión aparente 19′ juntas.",
+        "short_description": "NGC 4372 es un cúmulo globular de Mosca que aparece como un resplandor amplio y débil cerca de la nebulosa oscura Dark Doodad. Una estrella relativamente brillante próxima puede atraer la mirada antes que el cúmulo. El campo reúne estrellas, luz difusa y una nube que oculta la Vía Láctea del fondo.",
         "observing_notes": "C108 es amplio, pero está oscurecido por el polvo del Saco de Carbón. Obsérvalo a máxima altura con un campo ancho; la visión lateral recupera el halo débil, mientras demasiados aumentos diluyen rápidamente su contraste.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 4372 se encuentra detrás del polvo del Saco de Carbón y aparece muy rojo. Se trata de un cúmulo globular muy bajo en metales, una reliquia de las primeras etapas de formación de la Vía Láctea."
       },
       "caldwell-C109": {
-        "short_description": "C109 (NGC 3195), nebulosa planetaria en la constelación de Camaleón. La forma se lee mejor alternando la visión directa y la periférica, buscando un disco, anillo o estructura interna no uniforme. NGC 3195 cubre aproximadamente 0,6′; en ausencia de una magnitud integrada catalogada, el tamaño y el contraste determinan el campo inicial.",
+        "short_description": "NGC 3195 es una nebulosa planetaria en Camaleón, muy al sur en el cielo. Su pequeña envoltura de gas expulsado por la estrella central puede parecer una estrella ensanchada con un telescopio mediano. Está a unos 5.500 años luz y fue descubierta por John Herschel en 1835.",
         "observing_notes": "Para C109 (NGC 3195), utilice su tamaño de 0,6′ para mantener a la vista toda la nebulosa antes de reducir el campo.",
         "best_seen": "Primavera",
         "curiosity_text": "NGC 3195 es una de las nebulosas planetarias más australes accesibles a los observadores. Su estructura alargada y sus flujos de alta velocidad indican que la eyección de la estrella central no fue esférica."

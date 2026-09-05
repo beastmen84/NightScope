@@ -2,6 +2,43 @@
 
 ## Unreleased
 
+## NightScope 1.46.8 - 2026-09-05
+
+- Corretti i residui dell'editoriale storico: 92 descrizioni e cinque
+  curiosita' su 94 oggetti Messier/Caldwell, con revisione IT/EN/ES. Rimosse
+  frasi riutilizzate dentro paragrafi diversi e finali costruiti soltanto su
+  misure di catalogo, preservando i campi non dichiarati nel manifest.
+- Chiariti l'aspetto tenue di NGC 246 e il profilo di taglio di NGC 4945;
+  conservata la distinzione ellittica/lenticolare di M84 presente nelle fonti.
+  Corrette la terminologia delle correnti stellari di NGC 4449 e dei bracci
+  flocculenti di NGC 2775, la provenienza del sistema triplo di NGC 246 e
+  l'ipotesi di origine di Omega Centauri. NGC 559 ora cita uno studio
+  fotometrico che stima 224 milioni di anni, non i circa due miliardi del
+  testo precedente.
+- L'audit trova anche frasi narrative condivise di almeno 12 parole
+  normalizzate, in descrizioni, note e curiosita' IT/EN/ES. Il controllo e'
+  globale anche senza `--batch`, esclude brevi consigli e ripetizioni interne
+  allo stesso oggetto e rispetta le deroghe motivate accettate. Prima della
+  correzione: 133 famiglie su 85 oggetti; dopo: zero, senza deroghe. Il risultato
+  zero della `1.46.7` riguardava invece il confronto di paragrafi interi.
+- Verificati con audit live tutti i 101 URL distinti del manifest. Dodici
+  campioni hanno prodotto 72 scene Object Detail IT/EN/ES, normale e Red Night
+  Vision, sulle schede descrizione/curiosita': testi integri, senza
+  sovrapposizioni, e monocromia rossa conservata. Il confronto dei campi
+  conferma 97 testi modificati per lingua e nessun cambiamento alle altre
+  sezioni delle traduzioni; 91 test mirati superati in 19,95 secondi.
+- Otto batch accettati, di cui sei correttivi su 197 oggetti storici distinti.
+  Nessuna nuova voce NGC: restano 303 oggetti completi, 75 NGC-only arricchiti
+  e 7.291 da completare. Il prossimo batch NGC e' riservato alla `1.46.9`.
+- Gate sorgente completo con sicurezza superato: 1.237 test e 10 subtest in
+  423,37 secondi, copertura aggregata 86%, documentazione completa per 247 file
+  Python, 34 QML e 17 operativi, grafo import aciclico, baseline Bandit
+  invariata, nessuna vulnerabilita' nota e smoke test backend/QML
+  normale/Red Night Vision riusciti. L'audit editoriale passa senza avvisi.
+- La versione sorgente passa a `1.46.8`; `dist`, tag e artefatti di release
+  non sono stati prodotti. Le release pubbliche restano Windows `v1.45.21`
+  e Linux `v1.43.0`.
+
 ## NightScope 1.46.7 - 2026-09-04
 
 - Conclusa la rimessa a punto del debito editoriale storico misurato: riscritte

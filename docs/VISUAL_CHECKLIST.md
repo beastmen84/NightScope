@@ -1,13 +1,13 @@
 # NightScope - Visual Review Checklist
 
-Aggiornato: 2026-09-04
+Aggiornato: 2026-09-05
 
 Questo documento conserva i controlli visuali di release iniziati con la
 sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
 verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 `archive/TESTING_HISTORY_THROUGH_1.45.6.md`. Il bundle pubblico corrente e'
 `1.45.21` su Windows, mentre Linux resta a `1.43.0`; le verifiche dei futuri
-artefatti `1.46.7` sono separate in `RELEASE_CHECKLIST.md` e devono essere
+artefatti `1.46.8` sono separate in `RELEASE_CHECKLIST.md` e devono essere
 ripetute per ciascuna dist effettivamente rigenerata.
 
 ## Verifica Sorgente Spagnolo 1.34.0
@@ -649,6 +649,12 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   Vision e sia intestazione con note osservative sia schede inferiori. Titoli,
   testi e attribuzioni restano completi, senza tagli o sovrapposizioni, e tutte
   le scene notturne sono monocromatiche.
+- [x] **VIS-V54 (`VERIFICATA`)** - Le correzioni editoriali `1.46.8` sono state
+  renderizzate il 2026-09-05 in 72 scene Object Detail: dodici oggetti campione,
+  italiano/inglese/spagnolo e modalita' normale/Red Night Vision, sulle schede
+  descrizione e curiosita'. Testi e fonti restano completi senza tagli o
+  sovrapposizioni; le scene rosse sono monocromatiche. Le acquisizioni usano
+  un runtime isolato e restano fuori dal repository; non approvano un bundle.
 
 ## Verifica Delle Correzioni 1.33.1
 
