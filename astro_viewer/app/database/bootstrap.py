@@ -26,7 +26,7 @@ from astro_viewer.app.services.object_imagery import retired_builtin_image
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
-SCHEMA_VERSION = 26
+SCHEMA_VERSION = 27
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 _CATALOGUE_BUILTIN_TEXT_CORRECTIONS = (
     (
@@ -92,6 +92,7 @@ _LEGACY_EQUIPMENT_SEED_SOURCES = {
     ),
 }
 REQUIRED_TABLES = {
+    "PersonalObjectImages",
     "City",
     "CityAlias",
     "MpcObservatory",

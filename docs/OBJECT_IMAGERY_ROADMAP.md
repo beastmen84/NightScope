@@ -82,3 +82,17 @@ and all three source smoke checks; see `docs/TESTING.md`. Step 1 is complete
 as source version `1.46.11`, with its own local commit.
 Personal-image import and backup/restore are not implemented in this step.
 The current Windows dist remains the unchanged 1.46.10 bundle from `ae34df5`.
+
+## Step 2 Status
+
+Source 1.46.12 completes local import/preview/replace/reset in both detail
+branches, including Solar System targets. Schema 27 owns canonical associations;
+immutable normalized JPEGs/thumbnails stay beside the runtime DB, with no source
+path dependency or automatic image deletion. Details, privacy limits, red mode
+and failure semantics are in [Personal images](PERSONAL_IMAGES.md).
+
+The complete security/coverage source gate passes (1,429 tests, 10 subtests,
+86% coverage), plus 2,088 compiled strings per language, 35-file QML lint,
+36 real-QML scenes repeated through the file picker, and six red pixel audits.
+This step has its own local commit. Step 3 still owns backup/restore hardening
+and final integration checks; no dist has been rebuilt.

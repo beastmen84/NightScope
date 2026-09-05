@@ -9,9 +9,11 @@ from PyInstaller.utils.hooks.qt import add_qt6_dependencies, pyside6_library_inf
 # needs only these LGPL-compatible modules and their control-style subtrees.
 _QML_ROOT_MODULES = {"QtCore", "QtQml", "QtQuick"}
 _QML_SUBTREES = {
+    PurePosixPath("Qt/labs/folderlistmodel"),
     PurePosixPath("QtQml/Models"),
     PurePosixPath("QtQml/WorkerScript"),
     PurePosixPath("QtQuick/Controls"),
+    PurePosixPath("QtQuick/Dialogs"),
     PurePosixPath("QtQuick/Effects"),
     PurePosixPath("QtQuick/Layouts"),
     PurePosixPath("QtQuick/NativeStyle"),

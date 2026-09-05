@@ -17,7 +17,7 @@ active profile to answer a practical question: **what is worth observing
 tonight, from here, with this setup?**
 
 > [!NOTE]
-> NightScope is a released application. Source version 1.46.11 is prepared for
+> NightScope is a released application. Source version 1.46.12 is prepared for
 > the next release and is ahead of the current public Windows 1.45.21 and Linux
 > 1.43.0 portable bundles.
 > Release artifacts remain platform-specific portable builds rather than
@@ -70,6 +70,10 @@ digests. The `v1.45.21` release does not contain a Linux package.
   all deep-sky catalogues, while retaining the nine credited Solar System
   photographs. Category artwork is not a picture of the selected target;
   the previous 219 Messier/Caldwell cutouts are no longer shipped.
+- Lets you click an object's picture, or use its image-management button, to
+  preview and save a local personal JPEG/PNG, replace it, or restore the default.
+  Catalogue aliases share the same picture. Originals are untouched; optimized
+  copies and thumbnails stay in `user_images` beside the runtime database.
 - Includes an offline celestial catalogue with 7,585 distinct deep-sky
   targets, 7,839 NGC designations deduplicated across physical identities,
   and nine Solar System targets. The 219 curated Messier/Caldwell targets and
@@ -394,7 +398,7 @@ The wrapper creates a Debian 12/Python 3.12 build image, runs PyInstaller, and
 writes the portable application to `dist/NightScope`. It then creates the
 deterministic release archive and checksum:
 
-`dist/NightScope-v1.46.11-debian-12-x64.tar.gz` and its adjacent `.sha256`
+`dist/NightScope-v1.46.12-debian-12-x64.tar.gz` and its adjacent `.sha256`
 file. The inner build scripts copy the project notices, generate the installed
 Linux Python dependency license archive, inventory every copied Debian ELF
 file, bundle the matching copyright and common-license texts, and run the

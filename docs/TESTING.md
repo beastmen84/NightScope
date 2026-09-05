@@ -5,6 +5,38 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Personal Images - Source 1.46.12
+
+On 2026-09-05 the complete `tools/run_checks.py --security` gate passed:
+1,429 tests and 10 subtests in 215.14 s, 86% application/entry-point coverage
+(18,119 / 20,981 lines). Pip check/audit, Ruff, documentation (257 Python,
+35 QML, 17 operational files), import boundaries, unchanged Bandit baseline
+(48 findings: 0 high, 34 medium, 14 low), licenses, all catalogue/editorial
+and image gates passed. Backend and normal/red QML source smoke tests passed.
+
+The 22 new image tests cover real decoding, bounded inputs, orientation and
+metadata removal, immutable storage, failures, preview cancellation, aliases,
+schema-26 upgrade and persistence without originals. Existing NSOM read-model
+tests also protect use without a live Qt property wrapper. Two pre-existing
+equipment/catalogue integration fixtures now hold the planner clock at 20:00:
+their 21:00-23:00 target must not expire depending on the time the suite runs.
+All their original assertions remain; production astronomy is unchanged.
+
+IT/EN/ES compile to 2,088 finished messages each, zero unfinished. All 35 QML
+files lint with exit 0 and tracked non-fatal diagnostics. The real application
+shell exercises 36 detail-editor scenes at 1040x700 across the three languages,
+M31 and Moon, save/cancel/corrupt/reset and red mode. A second complete pass
+opens the offscreen Qt Quick FileDialog fallback and accepts files through its
+actual QML signal. Six expected corrupt-fixture decoder warnings verify fallback;
+there are no unexpected QML warnings. Six red captures have zero off-red pixels,
+channel maxima 217/74/61. See [Visual checks](VISUAL_CHECKLIST.md).
+
+Logs/helpers: `build/personal-imagery-1.46.12/`, especially
+`source-gate-final.log`, `qml-editor-review.log`, `filedialog-review.log` and
+`red-pixel-audit.log`. No dist, push, tag, publication or remote CI wait.
+Native desktop and packaged-plugin tests remain artifact gates; backup/restore
+hardening is the next source step, 1.46.13.
+
 ## Environment
 
 Create a virtual environment and install runtime and developer dependencies:
@@ -20,7 +52,7 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.46.11` Windows/Python 3.14.5 environment retains pip 26.2.1,
+The `1.46.12` Windows/Python 3.14.5 environment retains pip 26.2.1,
 Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
 `pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
 Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, NumPy 2.5.2,

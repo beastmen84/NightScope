@@ -4,7 +4,24 @@ Updated: 2026-09-05
 
 ## Current State
 
-- Source version: `1.46.11` (category-image defaults, first committed step).
+- Source version: `1.46.12` (personal-image step complete; local commit).
+- The user requested completion of BOTH remaining image steps before any dist
+  work. Do not stop after 1.46.12: validate and commit it, then implement,
+  validate and commit 1.46.13 backup/restore. No rebuild has been started.
+- Current 1.46.12 implementation: separate PersonalObjectImages table (schema
+  27), canonical-ID association, immutable JPEG/thumbnail files in user_images,
+  bounded JPEG/PNG normalization through QImageReader, asynchronous cancellable
+  preview manager, translated detail image editor, immediate Home/detail update,
+  fallback for missing/undecodable personal images, guarded red mode and Qt
+  FileDialog packaging dependencies. The original files are never changed.
+  Complete security gate: 1,429 tests plus 10 subtests, 86% coverage
+  (18,119 / 20,981 lines), all three source smoke tests. All 35 QML files lint;
+  IT/EN/ES have 2,088 compiled finished messages each. Real QML: 36 editor
+  scenes, repeated through the file-picker fallback, and six red pixel audits.
+  Only the six deliberately corrupted-image decoder warnings occur per pass.
+  Two existing Planner tests now freeze their clock before the target's useful
+  interval, preserving assertions; no production astronomy change. Evidence:
+  `build/personal-imagery-1.46.12/`, `docs/PERSONAL_IMAGES.md`, TESTING/visual docs.
 - **Image redesign, step 1:** all deep-sky catalogues now use a consistent
   16-category illustration family, independent of editorial completion.
   Only the nine Solar System photographs are retained, byte-for-byte.
@@ -36,9 +53,8 @@ Updated: 2026-09-05
   SQLite integrity/foreign-key checks pass. See `docs/TESTING.md` for the final
   full source gate; logs and disposable QA helpers are under
   `build/object-imagery-1.46.11/`.
-- **Next:** `1.46.12` implements personal-image import/preview/replace/reset,
-  app-managed copies and canonical IDs; `1.46.13` adds complete backup/restore
-  and end-to-end verification. Neither later feature is available in `1.46.11`.
+- **Next:** `1.46.13` hardens existing backup/restore and completes integration
+  verification. 1.46.12 import/preview/replace/reset is implemented and validated.
   Read `docs/OBJECT_IMAGERY_ROADMAP.md` before continuing; each step needs its
   own version, complete source checks, documentation and local commit.
   No editorial, astronomical formula, dist, push, tag or release changes are

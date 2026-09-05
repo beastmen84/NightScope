@@ -31,6 +31,8 @@ from astro_viewer.app.database.equipment_profile_repository import (
 )
 from astro_viewer.app.database.location_repository import LocationRepository
 from astro_viewer.app.database.object_image_repository import ObjectImageRepository
+from astro_viewer.app.database.personal_image_repository import PersonalImageRepository
+from astro_viewer.app.services.personal_images import PersonalImageService
 from astro_viewer.app.database.observation_repository import ObservationRepository
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
@@ -131,6 +133,7 @@ class AppControllerDependencies:
     equipment_profile_repository: EquipmentProfileRepository
     sky_quality_repository: SkyQualityRepository
     object_image_repository: ObjectImageRepository
+    personal_image_service: PersonalImageService
     weather_cache_repository: WeatherCacheRepository
     observation_repository: ObservationRepository
     location_preferences: LocationPreferenceStore
@@ -307,6 +310,7 @@ def build_app_controller_dependencies(
         equipment_profile_repository=equipment_profile_repository,
         sky_quality_repository=sky_quality_repository,
         object_image_repository=object_image_repository,
+        personal_image_service=PersonalImageService(PersonalImageRepository(database_path)),
         weather_cache_repository=weather_cache_repository,
         observation_repository=observation_repository,
         location_preferences=location_preferences,

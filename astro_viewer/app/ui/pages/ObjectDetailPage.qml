@@ -27,10 +27,29 @@ Item {
                                                    : ({})
     property bool hasObject: objectData && objectData.name !== undefined && objectData.name !== ""
     property bool isCatalogueDetail: root.hasObject && selectedIsCatalogueDetail
-    readonly property bool imageIsIllustration: objectData.imageKind === "illustration"
+    readonly property string displayedImageKind: (personalImageUnavailable ? objectData.defaultImageKind : objectData.imageKind) || ""
+    readonly property bool imageIsIllustration: displayedImageKind === "illustration"
+    readonly property string displayedImageAttribution: (personalImageUnavailable ? objectData.defaultImageAttribution : objectData.imageAttribution) || ""
+    readonly property string displayedImageSourceUrl: (personalImageUnavailable ? objectData.defaultImageSourceUrl : objectData.imageSourceUrl) || ""
+    readonly property bool personalImageUnavailable: objectData.personalImageMissing === true
+            || (objectData.hasPersonalImage === true
+                && (isCatalogueDetail ? cataloguePhoto.failed : observingPhoto.failed))
     property int detailMetricHeight: 88
     property string backLabel: qsTr("Torna alla Home")
     signal backToHome()
+    onVisibleChanged: { if (!visible) imageEditor.close() }
+    onSelectedObjectDataChanged: {
+        if (imageEditor.visible && (selectedObjectData.id || "") !== imageEditor.imageState.objectId)
+            imageEditor.close()
+    }
+
+    ObjectImageEditor {
+        id: imageEditor
+        parent: root
+        manager: root.controller ? root.controller.objectImageManager : null
+        objectData: root.selectedObjectData
+        imageUnavailable: root.personalImageUnavailable
+    }
 
     function safeValue(value) {
         if (value === undefined || value === null || value === "")
@@ -364,6 +383,12 @@ Item {
                     font.pixelSize: 13
                     elide: Text.ElideRight
                 }
+                DarkButton {
+                    objectName: "manageObjectImage"
+                    visible: root.hasObject
+                    text: qsTr("Gestisci immagine")
+                    onClicked: imageEditor.openForObject()
+                }
             }
 
             GridLayout {
@@ -394,31 +419,43 @@ Item {
                         border.width: 1
 
                         Image {
+                            id: observingPhoto
                             objectName: "observingObjectImage"
+                            property bool failed: false
+                            property string requestedImage: root.hasObject && root.controller
+                                ? (root.objectData.imageUrl || root.controller.assetBaseUrl + "/" + root.objectData.image) : ""
+                            onRequestedImageChanged: failed = false
+                            onStatusChanged: { if (status === Image.Error && !failed) failed = true }
                             anchors.fill: parent
                             anchors.margins: 30
                             anchors.bottomMargin: observingImageCredit.visible ? 56 : 30
                             source: root.hasObject && !root.isCatalogueDetail && !theme.redNightVision
-                                    ? root.controller.assetBaseUrl + "/" + root.objectData.image : ""
+                                    ? (failed ? (root.objectData.defaultImageUrl || "") : requestedImage) : ""
                             fillMode: Image.PreserveAspectFit
                             asynchronous: true
                             sourceSize.width: 520
                             sourceSize.height: 520
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: imageEditor.openForObject()
+                            }
                         }
 
                         Text {
                             id: observingImageCredit
                             objectName: "observingImageCredit"
                             visible: !theme.redNightVision
-                                     && (root.imageIsIllustration
-                                         || (root.objectData.imageSourceUrl || "").length > 0)
+                                     && (root.imageIsIllustration || root.displayedImageKind === "personal"
+                                         || (root.displayedImageSourceUrl || "").length > 0)
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
                             anchors.margins: 14
                             text: root.imageIsIllustration
                                   ? qsTr("Illustrazione di categoria (generata con IA)")
-                                  : root.objectData.imageAttribution || qsTr("Fonte immagine")
+                                  : root.displayedImageKind === "personal" ? qsTr("Immagine personale")
+                                  : root.displayedImageAttribution || qsTr("Fonte immagine")
                             color: root.imageIsIllustration ? theme.textMuted : theme.cyan
                             font.pixelSize: root.imageIsIllustration ? 11 : 10
                             wrapMode: Text.WordWrap
@@ -429,13 +466,13 @@ Item {
                             MouseArea {
                                 anchors.fill: parent
                                 enabled: !root.imageIsIllustration
-                                         && (root.objectData.imageSourceUrl || "").length > 0
+                                         && (root.displayedImageSourceUrl || "").length > 0
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: Qt.openUrlExternally(root.objectData.imageSourceUrl)
+                                onClicked: Qt.openUrlExternally(root.displayedImageSourceUrl)
                                 ToolTip.visible: containsMouse
                                 ToolTip.delay: 500
-                                ToolTip.text: (root.objectData.imageAttribution || "") + "\n"
+                                ToolTip.text: (root.displayedImageAttribution || "") + "\n"
                                               + (root.objectData.imageLicense || "")
                             }
                         }
@@ -550,31 +587,43 @@ Item {
                     border.width: 1
 
                     Image {
+                        id: cataloguePhoto
                         objectName: "catalogueObjectImage"
+                        property bool failed: false
+                        property string requestedImage: root.hasObject && root.controller
+                            ? (root.objectData.imageUrl || root.controller.assetBaseUrl + "/" + root.objectData.image) : ""
+                        onRequestedImageChanged: failed = false
+                        onStatusChanged: { if (status === Image.Error && !failed) failed = true }
                         anchors.fill: parent
                         anchors.margins: 30
                         anchors.bottomMargin: catalogueImageCredit.visible ? 56 : 30
                         source: root.hasObject && root.isCatalogueDetail && !theme.redNightVision
-                                ? root.controller.assetBaseUrl + "/" + root.objectData.image : ""
+                                ? (failed ? (root.objectData.defaultImageUrl || "") : requestedImage) : ""
                         fillMode: Image.PreserveAspectFit
                         asynchronous: true
                         sourceSize.width: 520
                         sourceSize.height: 520
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: imageEditor.openForObject()
+                        }
                     }
 
                     Text {
                         id: catalogueImageCredit
                         objectName: "catalogueImageCredit"
                         visible: !theme.redNightVision
-                                 && (root.imageIsIllustration
-                                     || (root.objectData.imageSourceUrl || "").length > 0)
+                                 && (root.imageIsIllustration || root.displayedImageKind === "personal"
+                                     || (root.displayedImageSourceUrl || "").length > 0)
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
                         anchors.margins: 14
                         text: root.imageIsIllustration
                               ? qsTr("Illustrazione di categoria (generata con IA)")
-                              : root.objectData.imageAttribution || qsTr("Fonte immagine")
+                              : root.displayedImageKind === "personal" ? qsTr("Immagine personale")
+                              : root.displayedImageAttribution || qsTr("Fonte immagine")
                         color: root.imageIsIllustration ? theme.textMuted : theme.cyan
                         font.pixelSize: root.imageIsIllustration ? 11 : 10
                         wrapMode: Text.WordWrap
@@ -585,13 +634,13 @@ Item {
                         MouseArea {
                             anchors.fill: parent
                             enabled: !root.imageIsIllustration
-                                     && (root.objectData.imageSourceUrl || "").length > 0
+                                     && (root.displayedImageSourceUrl || "").length > 0
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: Qt.openUrlExternally(root.objectData.imageSourceUrl)
+                            onClicked: Qt.openUrlExternally(root.displayedImageSourceUrl)
                             ToolTip.visible: containsMouse
                             ToolTip.delay: 500
-                            ToolTip.text: (root.objectData.imageAttribution || "") + "\n"
+                            ToolTip.text: (root.displayedImageAttribution || "") + "\n"
                                           + (root.objectData.imageLicense || "")
                         }
                     }

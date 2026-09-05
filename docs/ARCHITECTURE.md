@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.46.11
+This document describes the architecture implemented by the NightScope 1.46.12
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -80,6 +80,15 @@ therefore have one application composition boundary instead of being assembled
 inside the Qt ViewModel.
 
 ## Runtime Data Ownership
+
+Personal photographs have their own repository, `PersonalImageService` and
+Qt-facing `ObjectImageManager`; they are not catalogue seeds or astronomy inputs.
+The composition root injects storage beside the runtime database. A single
+background decoder prepares sanitized JPEGs, the GUI accepts only the current
+preview generation, and persistence installs immutable files before committing
+the canonical-object association. Controller notifications refresh image DTOs
+without scheduling astronomical recalculation. See
+[Personal images](PERSONAL_IMAGES.md) for boundaries and failure contracts.
 
 `astro_viewer.app.runtime_paths` resolves an immutable `RuntimePaths` value
 before constructing the translation manager, database, controller or logger.
@@ -308,7 +317,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.46.11`:
+Current runtime status for `1.46.12`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.

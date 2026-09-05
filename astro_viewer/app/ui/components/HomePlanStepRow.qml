@@ -25,7 +25,8 @@ Rectangle {
 
     function imageSource() {
         var image = root.value("image", "")
-        return image.length > 0 ? root.assetBaseUrl + "/" + image : ""
+        return image.indexOf("file:") === 0 ? image
+             : image.length > 0 ? root.assetBaseUrl + "/" + image : ""
     }
 
     function timeDirectionLabel() {

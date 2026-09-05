@@ -377,6 +377,14 @@ CREATE TABLE IF NOT EXISTS ObjectImages (
     verified INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS PersonalObjectImages (
+    object_id TEXT PRIMARY KEY CHECK (length(object_id) > 0),
+    image_hash TEXT NOT NULL CHECK (
+        length(image_hash) = 64 AND image_hash NOT GLOB '*[^0-9a-f]*'
+    ),
+    updated_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS ObjectDescription (
     object_id TEXT PRIMARY KEY,
     short_description TEXT NOT NULL,

@@ -171,7 +171,7 @@ def _plan_items(
                 "sequence": sequence,
                 "objectId": item.object_id,
                 "name": item.name,
-                "image": item.image,
+                "image": _text(target, "thumbnail") or _text(target, "image") or item.image,
                 "typeLabel": _localized_type(_text(target, "type")),
                 "timeLabel": item.time_label,
                 "directionCode": direction_code(item.direction),
@@ -268,7 +268,7 @@ def _alternative_item(item: Mapping[str, object]) -> dict[str, object]:
     return {
         "objectId": _text(item, "id"),
         "name": _text(item, "name"),
-        "image": _text(item, "image"),
+        "image": _text(item, "thumbnail") or _text(item, "image"),
         "category": category,
         "categoryLabel": tr("Pianeta") if category == "planet" else tr("Cielo profondo"),
         "typeLabel": _localized_type(_text(item, "type")),

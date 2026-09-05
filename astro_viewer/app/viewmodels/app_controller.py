@@ -173,6 +173,7 @@ from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAG
 from astro_viewer.app.viewmodels.catalogue_object_list_model import (
     CatalogueObjectListModel,
 )
+from astro_viewer.app.viewmodels.object_image_manager import ObjectImageManager
 
 
 logger = logging.getLogger(__name__)
@@ -295,6 +296,7 @@ class AppController(QObject):
         )
         self._sky_quality_repository = controller_dependencies.sky_quality_repository
         self._object_image_repository = controller_dependencies.object_image_repository
+        self._personal_image_service = controller_dependencies.personal_image_service
         self._weather_cache_repository = controller_dependencies.weather_cache_repository
         self._observation_repository = controller_dependencies.observation_repository
         self._location_preferences = controller_dependencies.location_preferences
@@ -509,6 +511,10 @@ class AppController(QObject):
         self._catalogue_identifier_index = self._build_catalogue_identifier_index(
             self._catalogue_objects
         )
+        self._object_image_manager = ObjectImageManager(
+            self._personal_image_service, self._canonical_image_id, self,
+        )
+        self._object_image_manager.imageChanged.connect(self._personal_image_changed)
         self._catalogue_search_query = ""
         self._catalogue_filters = {
             "catalogue": CATALOGUE_ALL_FILTER,
@@ -6532,6 +6538,20 @@ class AppController(QObject):
             return float(match.group(1))
         return None
 
+    @Property(QObject, constant=True)
+    def objectImageManager(self) -> QObject:
+        return self._object_image_manager
+
+    def _canonical_image_id(self, identifier: str) -> str:
+        row = self._catalogue_identifier_index.get(identifier.strip().casefold())
+        return str(row["object_id"]) if row else ""
+
+    @Slot(str)
+    def _personal_image_changed(self, object_id: str) -> None:
+        # Images are presentation-only: do not rerun astronomy or ranking.
+        self.dataChanged.emit()
+        self.selectedObjectChanged.emit()
+
     def _object_to_qml(self, item: CelestialObject) -> dict:
         data = item.to_qml()
         description = self._object_descriptions.get(item.id) or {}
@@ -6543,7 +6563,21 @@ class AppController(QObject):
             item.id, str(catalogue_item.get("type") or item.object_type),
             getattr(self, "_object_image_map", {}),
         )
+        default_image = image_metadata["image_path"]
+        data["defaultImageKind"] = image_metadata["kind"]
+        data["defaultImageAttribution"] = self._localized_image_attribution(image_metadata.get("attribution", ""))
+        data["defaultImageSourceUrl"] = image_metadata.get("source_url", "")
+        personal_service = getattr(self, "_personal_image_service", None)
+        personal_metadata = personal_service.metadata(item.id) if personal_service else None
+        data["hasPersonalImage"] = bool(personal_service and item.id in personal_service.records)
+        data["personalImageMissing"] = data["hasPersonalImage"] and personal_metadata is None
+        image_metadata = personal_metadata or image_metadata
         data["image"] = image_metadata["image_path"]
+        data["thumbnail"] = image_metadata.get("thumbnail_path") or data["image"]
+        base_dir = getattr(self, "_base_dir", None) or Path(__file__).resolve().parents[2]
+        base_url = QUrl.fromLocalFile(str(base_dir)).toString()
+        data["imageUrl"] = data["image"] if data["image"].startswith("file:") else base_url + "/" + data["image"]
+        data["defaultImageUrl"] = default_image if default_image.startswith("file:") else base_url + "/" + default_image
         data["imageKind"] = image_metadata["kind"]
         data["imageCategory"] = image_metadata["category"]
         if self._is_catalogue_detail_object(item):

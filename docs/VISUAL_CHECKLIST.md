@@ -7,8 +7,29 @@ sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
 verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 `archive/TESTING_HISTORY_THROUGH_1.45.6.md`. Il bundle pubblico corrente e'
 `1.45.21` su Windows, mentre Linux resta a `1.43.0`; le verifiche dei futuri
-artefatti `1.46.11` sono separate in `RELEASE_CHECKLIST.md` e devono essere
+artefatti `1.46.12` sono separate in `RELEASE_CHECKLIST.md` e devono essere
 ripetute per ciascuna dist effettivamente rigenerata.
+
+## Verifica Sorgente Immagini Personali 1.46.12
+
+- [x] 36 scenari con shell QML reale a 1040x700: IT/EN/ES, M31 e Luna,
+  anteprima, conferma, annullamento, file danneggiato, ripristino rosso e
+  ritorno al predefinito. Alias M31/NGC 224 aggiornato senza riavvio.
+- [x] Fotografie caricate, proporzioni mantenute, anteprima senza salvataggio
+  prematuro, annullamento invariato, dialoghi leggibili e contenuti nella
+  finestra minima. Ispezione dei render IT/ES; nessun warning inatteso.
+  I sei warning di decodifica sono provocati dai fixture corrotti e verificano
+  il caricamento dell'immagine predefinita successivo all'errore.
+- [x] In rosso sorgenti vuote, selettore disabilitato e ripristino accessibile;
+  audit dei sei render: zero pixel con verde/blu superiore al rosso,
+  massimi R=217, G=74, B=61. Nessun originale modificato.
+- [x] Lint dei 35 QML con Qt 6.11.2: exit 0, diagnostiche non fatali esistenti.
+  Evidenze locali: `build/personal-imagery-1.46.12/`.
+- [x] Ripetuti i 36 scenari passando dal segnale del selettore Qt Quick:
+  fallback non nativo aperto offscreen, selezione JPEG/PNG e anteprima corretti
+  in IT/EN/ES; nessun errore di import dei moduli Dialogs/folderlistmodel.
+- [ ] Ripetere selettore nativo, importazione e flussi sulla futura dist e
+  renderer desktop. Le verifiche offscreen sorgente non approvano il bundle.
 
 ## Verifica Sorgente Immagini Di Categoria 1.46.11
 

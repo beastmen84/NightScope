@@ -23,3 +23,4 @@ astro_viewer/data/user_preferences.json
 astro_viewer/data/location_cache.json
 astro_viewer/data/nasa_aod_cache.json
 nasa_login.txt
+user_images/

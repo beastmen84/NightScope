@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## NightScope 1.46.12 - 2026-09-05
+
+- Secondo step immagini: importazione locale con anteprima, conferma,
+  sostituzione e ripristino dal dettaglio Catalogo/Home, anche per il Sistema
+  Solare. Associazione per oggetto canonico condivisa fra alias.
+- Schema 27 e tabella personale separata dai seed; file JPEG gestiti dall'app
+  e miniature in user_images, nomi basati su hash, nessun percorso originale
+  nel DB. Originale invariato, proporzioni e orientamento conservati, metadati
+  personali rimossi; decodifica in background con limiti di formato/peso/pixel.
+- Gestione IT/EN/ES; annullamento/cambio oggetto scartano i risultati tardivi.
+  In rosso non si aprono selettori o anteprime; il ripristino resta disponibile.
+  Foto mancanti o non decodificabili tornano al predefinito. Nessuna modifica
+  all'editoriale, alle formule astronomiche o ai criteri di raccomandazione.
+- Gate completo con sicurezza superato: 1.429 test e 10 sottotest, copertura
+  86%, smoke backend/QML normale/rosso. 2.088 messaggi compilati per IT/EN/ES,
+  lint di 35 QML, 36 scenari grafici ripetuti anche dal selettore Qt e sei audit
+  pixel rossi. Due fixture Planner ora fissano l'orario senza cambiare asserzioni;
+  i precedenti fallimenti dopo le 23 non dipendevano dalle immagini.
+- Backup/ripristino integrale nella successiva 1.46.13; nessuna dist,
+  pubblicazione, push o attesa dei run GitHub.
+
 ## NightScope 1.46.11 - 2026-09-05
 
 - Primo step della nuova gestione immagini: tutti i cataloghi deep-sky usano

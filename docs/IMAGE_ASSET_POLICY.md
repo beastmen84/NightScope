@@ -1,6 +1,6 @@
 # NightScope Image Asset Policy
 
-Updated: 2026-09-05 (source 1.46.11)
+Updated: 2026-09-05 (source 1.46.12)
 
 ## Scope
 
@@ -94,9 +94,12 @@ The three old fallback seed rows
 are also retired; tiny legacy SVGs still used by engine/mock fixtures are not
 the default image policy of the real catalogue UI.
 
-Personal-image import and complete backup/restore are subsequent versioned
-steps; see `docs/OBJECT_IMAGERY_ROADMAP.md`. This first stage does not claim that
-the upload UI already exists.
+Source 1.46.12 adds local personal-image import, preview, replacement and reset
+for deep-sky and Solar System objects. Schema 27 keeps these associations in
+`PersonalObjectImages`, outside the distributed seed. Runtime photographs are
+never attributed to NASA or labelled as generated artwork. See
+`docs/PERSONAL_IMAGES.md` for storage, validation and lifecycle contracts;
+complete backup/restore verification follows in 1.46.13.
 
 ## Validation And Maintenance
 

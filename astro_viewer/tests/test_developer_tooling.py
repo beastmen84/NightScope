@@ -250,8 +250,8 @@ def test_code_documentation_gate_covers_the_repository_and_rejects_empty_headers
 ) -> None:
     assert documentation_errors(PROJECT_ROOT) == []
     assert documentation_counts(PROJECT_ROOT) == {
-        "Python": 253,
-        "QML": 34,
+        "Python": 257,
+        "QML": 35,
         "operational": 17,
     }
 

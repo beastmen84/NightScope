@@ -336,9 +336,14 @@ def test_only_suppressible_photographs_use_plain_qml_images() -> None:
     assert plain_images == [
         "components/HomePlanStepRow.qml",
         "components/NightVisionIcon.qml",
+        "components/ObjectImageEditor.qml",
         "pages/ObjectDetailPage.qml",
         "pages/ObjectDetailPage.qml",
     ]
+    editor = (UI_DIR / "components/ObjectImageEditor.qml").read_text(encoding="utf-8")
+    assert 'source: root.visible && !theme.redNightVision ? (root.imageState.previewUrl || "") : ""' in editor
+    assert "enabled: !root.imageState.busy && !theme.redNightVision" in editor
+    assert "if (redNightVision) picker.close()" in editor
 
 
 def test_pages_do_not_use_native_checkbox_or_text_field_rendering() -> None:

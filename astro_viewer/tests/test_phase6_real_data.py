@@ -306,7 +306,11 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertNotEqual(updated.best_eyepiece, f"{eyepiece_unassigned['brand']} {eyepiece_unassigned['model']}")
             self.assertEqual(len(controller.eyepieces), 1)
 
-    def test_empty_profile_equipment_assignment_refreshes_home_without_restart(self) -> None:
+    @patch("astro_viewer.app.services.night_planner_service.datetime", wraps=datetime)
+    def test_empty_profile_equipment_assignment_refreshes_home_without_restart(self, planner_clock) -> None:
+        # The fixture target is useful at 21-23; test the equipment refresh,
+        # not whether the real wall clock has already passed that interval.
+        planner_clock.now.side_effect = lambda tz=None: _test_night_window().start.replace(hour=20).astimezone(tz)
         with _controller() as controller:
             telescope = controller.telescopeCatalogModels[0]
             eyepiece = controller.eyepieceCatalog[0]
@@ -1861,9 +1865,12 @@ class Phase6RealDataTests(unittest.TestCase):
                 )
             )
 
+    @patch("astro_viewer.app.services.night_planner_service.datetime", wraps=datetime)
     def test_catalogue_toggle_keeps_target_in_catalogue_but_removes_all_suggestions(
         self,
+        planner_clock,
     ) -> None:
+        planner_clock.now.side_effect = lambda tz=None: _test_night_window().start.replace(hour=20).astimezone(tz)
         with _controller() as controller:
             target = replace(
                 _object(
