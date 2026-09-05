@@ -1,6 +1,6 @@
 # NightScope Image Asset Policy
 
-Updated: 2026-09-05 (source 1.46.12)
+Updated: 2026-09-06 (source 1.46.13)
 
 ## Scope
 
@@ -99,7 +99,8 @@ for deep-sky and Solar System objects. Schema 27 keeps these associations in
 `PersonalObjectImages`, outside the distributed seed. Runtime photographs are
 never attributed to NASA or labelled as generated artwork. See
 `docs/PERSONAL_IMAGES.md` for storage, validation and lifecycle contracts;
-complete backup/restore verification follows in 1.46.13.
+source 1.46.13 hardens backup/restore and documents copying the database and
+managed images together. No personal photographs are distributed with the app.
 
 ## Validation And Maintenance
 

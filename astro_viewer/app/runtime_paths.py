@@ -39,6 +39,10 @@ class RuntimePaths:
         return self.data_dir / "nightscope.db.backup"
 
     @property
+    def personal_images_dir(self) -> Path:
+        return self.data_dir / "user_images"
+
+    @property
     def preferences_path(self) -> Path:
         return self.config_dir / "user_preferences.json"
 

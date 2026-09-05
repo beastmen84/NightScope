@@ -5,7 +5,6 @@ from __future__ import annotations
 import csv
 import json
 import logging
-import shutil
 import sqlite3
 from collections import Counter
 from collections.abc import Mapping
@@ -14,6 +13,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
+from astro_viewer.app.database.runtime_backup import snapshot_database
 from astro_viewer.app.models.filtering import FILTER_CLASS_CODES
 from astro_viewer.app.services.equipment_taxonomy import (
     canonical_mount_type,
@@ -1051,8 +1051,8 @@ def _mpc_import_needed(
 def _backup_database(database_path: Path) -> None:
     backup_path = database_path.with_suffix(database_path.suffix + ".backup")
     try:
-        shutil.copy2(database_path, backup_path)
-    except OSError:
+        snapshot_database(database_path, backup_path)
+    except (OSError, sqlite3.Error):
         logger.warning("Database backup could not be created.", exc_info=True)
         return
     logger.info("Database backup refreshed.")

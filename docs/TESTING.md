@@ -5,6 +5,45 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Personal Image Lifecycle - Source 1.46.13
+
+On 2026-09-06 the complete security/coverage source gate passed: 1,452 tests
+and 10 subtests in 225.57 s, 86% coverage (18,211 / 21,085 production lines).
+Pip check/audit, Ruff, documentation (259 Python, 35 QML, 17 operational files),
+import boundaries, unchanged Bandit baseline (48: 0 high, 34 medium, 14 low),
+licenses and all catalogue/editorial/image checks passed. Backend and normal/red
+QML smoke tests passed in isolated fresh runtimes. Dependencies are unchanged.
+
+Twenty new lifecycle cases cover committed DELETE/WAL snapshots, uncommitted
+transaction exclusion, failure/timeout preservation of the previous backup,
+path redirection, immutable-file conflicts, old-backup restoration after image
+replacement/reset, current-path reconstruction, personal profile/editorial
+preservation, legacy migration including WAL, Home metadata and nested-bundle
+privacy/plugin rules. Three additional controlled-worker cases prove that a
+second preview cannot start concurrently and cancelled/red/changed-target
+results cannot publish. The existing tests and assertions remain active.
+
+Focused runs passed: 131 storage/database/tooling/path tests and 99 image/
+lifecycle/tooling/Home tests. The serial 131-test process emitted one shutdown
+GC ResourceWarning (145 uncollectable objects); it did not recur in the 99-test
+run or full four-worker gate. No warning filter was added or relaxed.
+
+All 35 QML files lint with exit 0 and existing non-fatal diagnostics. IT/EN/ES
+compile to 2,088 finished messages each, zero unfinished. Actual Home QML passes
+21 personal/missing/corrupt/replaced/reset/normal/red states across the three
+languages; the six decoder/file warnings are deliberately induced fixtures.
+All 48 default-category normal/red/restored states also pass without warnings.
+Three Home red renders have zero off-red pixels and maxima 217/74/61, with a
+black test-window clear colour so standalone rounded corners cannot inherit
+Qt's default white background. Source screenshots and assertions are recorded
+in [the visual checklist](VISUAL_CHECKLIST.md).
+
+Evidence: `build/personal-imagery-1.46.13/`, including `source-gate.log`,
+`storage-tooling.log`, `image-recheck.log`, `home-review.log`,
+`category-home-recheck.log` and `red-home-pixels.log`. Source steps 1.46.11-13
+are complete; Windows/Linux build and native-picker tests remain separate.
+No dist, public release, push, tag or remote CI wait is part of these checks.
+
 ## Personal Images - Source 1.46.12
 
 On 2026-09-05 the complete `tools/run_checks.py --security` gate passed:
@@ -52,7 +91,7 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.46.12` Windows/Python 3.14.5 environment retains pip 26.2.1,
+The `1.46.13` Windows/Python 3.14.5 environment retains pip 26.2.1,
 Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
 `pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
 Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, NumPy 2.5.2,

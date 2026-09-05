@@ -96,3 +96,24 @@ The complete security/coverage source gate passes (1,429 tests, 10 subtests,
 36 real-QML scenes repeated through the file picker, and six red pixel audits.
 This step has its own local commit. Step 3 still owns backup/restore hardening
 and final integration checks; no dist has been rebuilt.
+
+## Step 3 Status - Complete
+
+Source 1.46.13 completes the series. SQLite's backup API replaces raw file-copy
+snapshots, captures committed WAL data and preserves the previous backup on
+failure. Managed photos move before their legacy DB, without overwriting
+conflicting files or merging into an existing unrelated runtime. Recovery of
+photos after replacement/reset is tested using a relocated older backup.
+Home recovers missing/corrupt thumbnails; packaging audits require the picker
+plugins and reject personal-image directories at any depth.
+
+This integrates with the existing automatic DB backup and documented manual
+restore, not a new backup GUI. A complete copy includes SQLite, `user_images`
+and preferences; OS-vault secrets remain separate. See
+[backup and restore](PERSONAL_IMAGES.md#backup-and-restore).
+
+The complete security/coverage source gate passes with 1,452 tests, 10 subtests,
+86% coverage and all three source smoke tests. Three-language compilation,
+35-file QML lint, 21 personal Home states, 48 category states and three red
+pixel audits pass. The final step has its own local commit. No image-redesign
+source step remains; no distribution has been rebuilt or publicly released.

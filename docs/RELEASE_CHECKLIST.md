@@ -3,9 +3,9 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.46.12`. Current public Windows release: `v1.45.21`. Current
+Current target: `v1.46.13`. Current public Windows release: `v1.45.21`. Current
 public Linux release: `v1.43.0`. Unless a row says otherwise, every gate below
-applies independently to each newly generated 1.46.12 artifact. Completed
+applies independently to each newly generated 1.46.13 artifact. Completed
 Windows 1.45.21 and Linux 1.43.0 evidence remains in the changelog, testing
 record and handoff; it does not approve a new bundle for either platform.
 
@@ -16,10 +16,10 @@ record and handoff; it does not approve a new bundle for either platform.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   generated-art provenance, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.46.12` source tag referenced by the
+- [ ] Create and verify the public `v1.46.13` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [x] Confirm source version, changelog, source-availability notices, and
-  About/build metadata agree on `1.46.12`.
+  About/build metadata agree on `1.46.13`.
 - [x] Freeze the release scope; defer unrelated refactors.
 
 ## 2. Automated Validation
@@ -84,6 +84,9 @@ Do not commit credentials or exact personal locations.
 
 ## 5. Data And Upgrade Safety
 
+- [x] Source image-lifecycle fixtures: schema upgrade, WAL-consistent snapshot,
+  old-backup restore after photo replacement/reset, personal profile/prose
+  preservation, relocated file URLs and failed writes; see `docs/TESTING.md`.
 - [ ] Start from a new empty runtime directory.
 - [ ] Upgrade a copy of a representative current development database.
 - [ ] Verify profiles, user-edited built-ins, custom equipment, provider state,
@@ -105,6 +108,8 @@ No new Windows artifact has been built for this target; these gates are open.
 - [ ] Confirm the source commit and build environment are recorded.
 - [ ] Run backend and QML smoke tests against the packaged executable.
 - [ ] Confirm the bundle-root legal files and Qt module audit pass.
+- [ ] Exercise native and fallback photo selection and confirm Qt Quick Dialogs
+  plus folder-list plugins are present; no user_images directory at any depth.
 - [ ] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
   timezone polygons, and credential backend.
 - [ ] Rebuild with the current image redesign and repeat artifact validation
@@ -136,7 +141,7 @@ No new Windows artifact has been built for this target; these gates are open.
 - [ ] Confirm GIO modules remain isolated so newer-host GVFS plugins are not
   loaded against the bundled Debian 12 GLib.
 - [ ] Create the deterministic
-  `NightScope-v1.46.12-debian-12-x64.tar.gz` and adjacent SHA-256 file.
+  `NightScope-v1.46.13-debian-12-x64.tar.gz` and adjacent SHA-256 file.
 - [ ] Verify checksum, extraction, audit and smoke tests from the final archive.
 - [ ] Publish the tarball and checksum together with the matching Windows ZIP
   in the public `v1.46.11` GitHub release when both platforms are approved.

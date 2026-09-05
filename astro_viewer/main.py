@@ -145,8 +145,16 @@ def _copy_legacy_runtime_files() -> None:
         if legacy_database_path == database_path or not legacy_database_path.exists():
             continue
         if not database_path.exists():
+            from astro_viewer.app.database.runtime_backup import copy_personal_image_store, migrate_database
+
             database_path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(legacy_database_path, database_path)
+            # Images must be installed before the database that references them;
+            # never merge a legacy image store into an existing active database.
+            copy_personal_image_store(
+                legacy_database_path.parent / "user_images",
+                RUNTIME_PATHS.personal_images_dir,
+            )
+            migrate_database(legacy_database_path, database_path)
             logging.getLogger(__name__).info(
                 "Runtime database copied from legacy location: %s",
                 legacy_database_path,

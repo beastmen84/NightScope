@@ -1,7 +1,8 @@
 # Personal Object Images
 
-Implemented in source 1.46.12. Backup/restore hardening is the 1.46.13 step in
-[the approved roadmap](OBJECT_IMAGERY_ROADMAP.md); no new bundle is implied.
+Import is implemented in source 1.46.12; source 1.46.13 completes lifecycle
+hardening in [the approved roadmap](OBJECT_IMAGERY_ROADMAP.md). No new bundle
+is implied, and there is no separate backup/export GUI.
 
 ## User Contract
 
@@ -59,6 +60,54 @@ missing/undecodable full images fall back to the default, with its correct
 category label or scientific credit. The association remains available for
 replacement/reset instead of silently losing the user's choice.
 
+## Backup And Restore
+
+The automatic `nightscope.db.backup` contains SQLite, not embedded photographs.
+It is a single rotating recovery snapshot, refreshed at initialization; it is
+not versioned history and not a substitute for a separate complete backup.
+Source 1.46.13 uses SQLite's backup API, including committed WAL transactions,
+then validates and flushes the temporary snapshot before atomically replacing the
+previous backup. A failed or timed-out copy leaves the previous backup intact
+and logs a warning. The copy loop has a ten-second deadline.
+
+Reset/replacement retains old hash-named pictures, so associations from an older
+DB backup can still resolve them. Copying only `nightscope.db.backup` to another
+machine will not copy those images. Do not manually remove `user_images` while
+keeping a database that references it. History retention also means reset does
+not immediately reclaim disk space; this is deliberate, not secure erasure.
+
+For a complete manual backup:
+
+1. Close all NightScope instances. Copy the runtime `nightscope.db` and the
+   entire adjacent `user_images` directory together to a separate location.
+   Also keep `nightscope.db.backup` if recovery of its earlier state is useful.
+2. Copy `user_preferences.json` to retain language, appearance and settings.
+   Windows portable builds keep these beside the executable. Linux uses the
+   XDG data directory for SQLite/images and the XDG configuration directory for
+   preferences; see [Runtime data ownership](ARCHITECTURE.md#runtime-data-ownership).
+   `NIGHTSCOPE_RUNTIME_DIR`, when explicitly set, takes precedence over both.
+3. SQLite sidecars normally disappear after a clean close. If `nightscope.db-wal`
+   or `nightscope.db-shm` remain, keep them with that exact database copy. Never
+   pair a restored database with sidecars from another database/session.
+
+Restore with NightScope closed into a **clean runtime directory**, using the
+same filenames/layout. For rollback, copy the chosen `.db.backup` as
+`nightscope.db` together with the retained image directory. Put preferences in
+the configuration directory. Keep the source backup intact until the restored
+app has been verified. On startup the schema is checked and file URLs are
+rebuilt for the new location; test a personal image, its catalogue alias and a
+Solar System target. Provider secrets are stored in the OS credential vault and
+are not exported by this file copy; reconfigure them on another computer.
+
+Legacy runtime relocation copies managed images before installing its SQLite
+snapshot. It verifies full-image filename hashes, rejects redirected paths and
+conflicting destination bytes, bounds reads and installs each file atomically.
+An interrupted copy can leave unreferenced files for safe retry, not an installed
+DB pointing at partial files. It does not merge images from an unrelated legacy
+store into an already existing active DB. Corrupt legacy DB bytes are retained
+for the established quarantine/recovery flow; locking and disk errors are not
+silently converted into raw DB copies.
+
 ## Updates, Packaging And Verification
 
 Seed synchronization does not touch the personal table. The schema-26 upgrade
@@ -69,12 +118,18 @@ only SQLite cannot recover external photographs on another machine.
 The PyInstaller Qt allowlist includes `QtQuick.Dialogs` and its fallback
 `Qt.labs.folderlistmodel` dependency; this reuses the existing LGPL-compatible
 Qt runtime and does not add Pillow to application dependencies. `user_images`
-is ignored by Git and forbidden in release-bundle audits.
+is ignored by Git and forbidden at any depth in release-bundle audits. Audits
+also require the Qt Quick Dialogs and folder-list plugins and supporting libraries
+on both target platforms. This is a source packaging contract, not proof that a
+new Windows/Linux artifact has passed it.
 
 Regression tests in `test_personal_images.py` exercise bounded decoding,
 orientation/privacy, storage failures, interrupted previews, aliases, red mode,
 seed/bootstrap preservation and portable paths. Real-QML interaction checks
-and the complete source gate are recorded in [Testing](TESTING.md). Native
+and the complete source gate are recorded in [Testing](TESTING.md).
+`test_personal_image_lifecycle.py` adds WAL snapshots, failure/timeout retention,
+old-backup restore after replacement/reset, relocation, Home fallback metadata,
+and packaging privacy/plugin tests. Native
 desktop selection and packaged-plugin loading must also be checked when the
 next distribution is actually built.
 

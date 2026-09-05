@@ -9532,13 +9532,13 @@ Check the application folder permissions and restart NightScope.</translation>
   <context>
     <name>HomePlanStepRow</name>
     <message>
-      <location filename="../app/ui/components/HomePlanStepRow.qml" line="112" />
-      <location filename="../app/ui/components/HomePlanStepRow.qml" line="135" />
+      <location filename="../app/ui/components/HomePlanStepRow.qml" line="115" />
+      <location filename="../app/ui/components/HomePlanStepRow.qml" line="138" />
       <source>Oggetto</source>
       <translation>Object</translation>
     </message>
     <message>
-      <location filename="../app/ui/components/HomePlanStepRow.qml" line="134" />
+      <location filename="../app/ui/components/HomePlanStepRow.qml" line="137" />
       <source>%1  -  %2</source>
       <translation>%1 - %2</translation>
     </message>

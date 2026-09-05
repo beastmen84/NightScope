@@ -834,6 +834,7 @@
         </ul>
         <p>Tutti gli oggetti di cielo profondo usano illustrazioni condivise per categoria, nello stesso stile per Messier, Caldwell e NGC. La dicitura <strong>Illustrazione di categoria (generata con IA)</strong> le distingue dalle fotografie: non mostrano l'aspetto reale dell'oggetto selezionato. Restano le nove fotografie del Sistema Solare. I crediti delle fotografie e delle curiosità aprono le rispettive fonti originali.</p>
         <p><strong>Foto personale.</strong> Faccia clic sull'immagine o sul pulsante di gestione nel dettaglio, scelga un JPEG/PNG e confermi l'anteprima. Può sostituirla o ripristinare il predefinito; chiudere senza confermare non cambia nulla. Gli alias dello stesso oggetto condividono la foto, anche fra cataloghi. La copia resta locale in <code>user_images</code>, accanto al database; l'originale non viene modificato. Limiti: 20 MB, 32 megapixel e 12.000 pixel per lato; copia fino a 1.600 pixel, proporzioni e orientamento conservati, metadati personali rimossi. FITS, TIFF e immagini animate non sono supportati. In visione rossa la scelta e l'anteprima sono disattivate, ma il ripristino resta disponibile. Una foto mancante o danneggiata torna al predefinito senza cancellare l'associazione.</p>
+        <p><strong>Backup e ripristino.</strong> Chiuda NightScope e copi insieme <code>nightscope.db</code>, la cartella <code>user_images</code> e <code>user_preferences.json</code>. In Windows sono accanto all'eseguibile; in Linux database e foto sono nella cartella dati XDG e le preferenze in quella di configurazione XDG (salvo <code>NIGHTSCOPE_RUNTIME_DIR</code>). Il backup automatico <code>nightscope.db.backup</code> contiene soltanto il DB: servono anche le foto. Sostituzione e ripristino del predefinito mantengono le vecchie copie gestite, utili per recuperare un backup precedente, quindi non liberano subito spazio. Ripristini a programma chiuso in una cartella dati pulita, senza mescolare file WAL/SHM di sessioni diverse; per un rollback rinomini la copia del backup scelta in <code>nightscope.db</code>. Conservi il backup originale finché ha verificato foto e dati ripristinati. Le credenziali dei provider restano nel portachiavi del sistema e non fanno parte della copia.</p>
       </section>
 
       <section id="it-calendar">
@@ -913,7 +914,7 @@
 
       <section id="it-privacy">
         <h2>12. Privacy, rete e archiviazione</h2>
-        <p>NightScope non richiede un account proprio. Nella versione portatile i dati applicativi vengono salvati accanto all'eseguibile.</p>
+        <p>NightScope non richiede un account proprio. La versione portatile Windows salva i dati accanto all'eseguibile; Linux usa cartelle XDG separate per dati, configurazione e cache. Un valore esplicito di <code>NIGHTSCOPE_RUNTIME_DIR</code> sostituisce questi percorsi.</p>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Dato o servizio</th><th>Dove va</th><th>Perché</th></tr></thead>
@@ -1093,6 +1094,7 @@
         </ul>
         <p>All deep-sky objects use shared category illustrations, with the same style for Messier, Caldwell and NGC. The label <strong>Category illustration (AI-generated)</strong> distinguishes them from photographs: they do not show the actual appearance of the selected object. The nine Solar System photographs are retained. Photograph and curiosity credits link to their original sources.</p>
         <p><strong>Personal photograph.</strong> Click the picture or the image-management button in Object Detail, choose a JPEG/PNG and confirm the preview. You can replace it or restore the default; closing without confirmation changes nothing. Aliases of the same object share the photograph across catalogues. The copy stays local in <code>user_images</code> beside the database; the original is untouched. Limits: 20 MB, 32 megapixels and 12,000 pixels per edge; copy up to 1,600 pixels, aspect ratio and orientation preserved, personal metadata removed. FITS, TIFF and animated images are unsupported. Red Night Vision disables selection and preview, but reset remains available. A missing or damaged photograph falls back to the default without deleting the association.</p>
+        <p><strong>Backup and restore.</strong> Close NightScope and copy <code>nightscope.db</code>, the <code>user_images</code> directory and <code>user_preferences.json</code> together. On Windows they are beside the executable; Linux keeps the DB/photos in its XDG data directory and preferences in its XDG configuration directory (unless <code>NIGHTSCOPE_RUNTIME_DIR</code> overrides them). The automatic <code>nightscope.db.backup</code> contains only SQLite: the photographs are also needed. Replacement and reset retain older managed copies for recovery of earlier backups, so they do not immediately reclaim space. Restore with the app closed into a clean runtime directory, never mixing WAL/SHM files from different sessions; for rollback, name the chosen backup copy <code>nightscope.db</code>. Keep the original backup until you have checked the restored photos and data. Provider secrets remain in the OS credential vault and are not part of this copy.</p>
       </section>
 
       <section id="en-calendar">
@@ -1172,7 +1174,7 @@
 
       <section id="en-privacy">
         <h2>12. Privacy, network, and storage</h2>
-        <p>NightScope has no application account. In the portable build, application data is stored beside the executable.</p>
+        <p>NightScope has no application account. The Windows portable build stores data beside the executable; Linux uses separate XDG data, configuration and cache directories. An explicit <code>NIGHTSCOPE_RUNTIME_DIR</code> overrides these paths.</p>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Data or service</th><th>Destination</th><th>Purpose</th></tr></thead>
@@ -1352,6 +1354,7 @@
         </ul>
         <p>Todos los objetos de cielo profundo usan ilustraciones compartidas por categoría, con el mismo estilo para Messier, Caldwell y NGC. La etiqueta <strong>Ilustración de categoría (generada con IA)</strong> las distingue de las fotografías: no muestran el aspecto real del objeto seleccionado. Se conservan las nueve fotografías del sistema solar. Los créditos de las fotografías y curiosidades enlazan con sus fuentes originales.</p>
         <p><strong>Fotografía personal.</strong> Haga clic en la imagen o en el botón de gestión del detalle, elija un JPEG/PNG y confirme la vista previa. Puede sustituirla o restablecer la imagen predeterminada; cerrar sin confirmar no cambia nada. Los alias del mismo objeto comparten la fotografía entre catálogos. La copia permanece local en <code>user_images</code>, junto a la base de datos; el original no se modifica. Límites: 20 MB, 32 megapíxeles y 12.000 píxeles por lado; copia de hasta 1.600 píxeles, proporciones y orientación conservadas, metadatos personales eliminados. No se admiten FITS, TIFF ni imágenes animadas. La visión roja desactiva la selección y la vista previa, pero permite restablecer la imagen predeterminada. Una foto ausente o dañada vuelve a la predeterminada sin eliminar la asociación.</p>
+        <p><strong>Copia de seguridad y restauración.</strong> Cierre NightScope y copie juntos <code>nightscope.db</code>, la carpeta <code>user_images</code> y <code>user_preferences.json</code>. En Windows están junto al ejecutable; Linux guarda la base de datos y las fotos en el directorio de datos XDG y las preferencias en el de configuración XDG (salvo que <code>NIGHTSCOPE_RUNTIME_DIR</code> los sustituya). La copia automática <code>nightscope.db.backup</code> contiene solo SQLite: también necesita las fotografías. La sustitución y el restablecimiento conservan las copias gestionadas antiguas para recuperar versiones anteriores, por lo que no liberan espacio inmediatamente. Restaure con la aplicación cerrada en un directorio de datos limpio, sin mezclar archivos WAL/SHM de distintas sesiones; para recuperar una versión anterior, nombre la copia elegida <code>nightscope.db</code>. Conserve el respaldo original hasta comprobar las fotos y los datos restaurados. Las credenciales de los proveedores permanecen en el almacén del sistema y no forman parte de esta copia.</p>
       </section>
 
       <section id="es-calendar">
@@ -1431,7 +1434,7 @@
 
       <section id="es-privacy">
         <h2>12. Privacidad, red y almacenamiento</h2>
-        <p>NightScope no tiene cuentas de aplicación. En la versión portátil, los datos de la aplicación se guardan junto al ejecutable.</p>
+        <p>NightScope no tiene cuentas de aplicación. La versión portátil de Windows guarda los datos junto al ejecutable; Linux utiliza directorios XDG separados para datos, configuración y caché. Un valor explícito de <code>NIGHTSCOPE_RUNTIME_DIR</code> sustituye estas rutas.</p>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Dato o servicio</th><th>Destino</th><th>Finalidad</th></tr></thead>
@@ -1484,9 +1487,9 @@
 
   <footer>
     <div class="footer-inner">
-      <span data-copy-it>NightScope - Manuale utente multilingue - revisione 1.34.1</span>
+      <span data-copy-it>NightScope - Manuale utente multilingue - revisione 1.46.13</span>
       <span data-copy-en hidden>NightScope - Multilingual user manual - revision 1.34.1</span>
-      <span data-copy-es hidden>NightScope - Manual de usuario multilingüe - revisión 1.34.1</span>
+      <span data-copy-es hidden>NightScope - Manual de usuario multilingüe - revisión 1.46.13</span>
     </div>
   </footer>
 

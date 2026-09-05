@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.46.12
+This document describes the architecture implemented by the NightScope 1.46.13
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -89,6 +89,13 @@ preview generation, and persistence installs immutable files before committing
 the canonical-object association. Controller notifications refresh image DTOs
 without scheduling astronomical recalculation. See
 [Personal images](PERSONAL_IMAGES.md) for boundaries and failure contracts.
+
+`database/runtime_backup.py` owns Qt-free, WAL-consistent SQLite snapshots and
+bounded immutable-image relocation. Bootstrap refreshes the rotating DB backup
+only after validation, via atomic replacement. Legacy path migration copies
+photos before installing their DB and leaves the source untouched. Image files
+are retained after reset/replacement for older-backup recovery; a full portable
+backup must include SQLite, `user_images`, and preferences, not just the DB.
 
 `astro_viewer.app.runtime_paths` resolves an immutable `RuntimePaths` value
 before constructing the translation manager, database, controller or logger.
@@ -317,7 +324,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.46.12`:
+Current runtime status for `1.46.13`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.

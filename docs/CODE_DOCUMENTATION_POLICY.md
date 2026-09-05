@@ -64,7 +64,7 @@ completed a file-by-file pass and introduced
 `tools/check_code_documentation.py`, which is part of the standard source gate.
 Its current audited inventory is:
 
-- 257 Python modules: 128 production modules, 96 test/support modules, and 33
+- 259 Python modules: 129 production modules, 97 test/support modules, and 33
   maintenance or packaging modules;
 - 35 QML pages and components;
 - 17 automation, packaging, CI, configuration, dependency, schema, and manual

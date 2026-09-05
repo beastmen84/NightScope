@@ -1,16 +1,16 @@
 # Source Code Availability
 
-This file is prepared for the NightScope 1.46.12 portable release bundles.
+This file is prepared for the NightScope 1.46.13 portable release bundles.
 
 ## NightScope
 
 NightScope is distributed under the Mozilla Public License 2.0. The complete
-corresponding source for these bundles is identified by the `v1.46.12` tag:
+corresponding source for these bundles is identified by the `v1.46.13` tag:
 
 - Repository: `https://github.com/beastmen84/NightScope`
-- Release source: `https://github.com/beastmen84/NightScope/tree/v1.46.12`
+- Release source: `https://github.com/beastmen84/NightScope/tree/v1.46.13`
 - Source archive:
-  `https://github.com/beastmen84/NightScope/archive/refs/tags/v1.46.12.tar.gz`
+  `https://github.com/beastmen84/NightScope/archive/refs/tags/v1.46.13.tar.gz`
 
 The source tag includes the PyInstaller specifications and scripts used to
 produce the portable bundles. The project license is reproduced in `LICENSE`.
@@ -19,7 +19,7 @@ publicly reachable.
 
 ## Qt And Qt For Python
 
-NightScope 1.46.12 uses unmodified PySide6/shiboken6 6.11.2 and Qt 6.11.2 under
+NightScope 1.46.13 uses unmodified PySide6/shiboken6 6.11.2 and Qt 6.11.2 under
 the LGPL-3.0-only option. Complete corresponding upstream source is available
 without charge from:
 

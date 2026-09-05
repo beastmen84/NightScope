@@ -12,6 +12,11 @@ from urllib.parse import quote
 
 
 REQUIRED_DLLS = {
+    "qmlfolderlistmodelplugin.dll",
+    "qtquickdialogsplugin.dll",
+    "qt6quickdialogs2.dll",
+    "qt6quickdialogs2quickimpl.dll",
+    "qt6quickdialogs2utils.dll",
     "effectsplugin.dll",
     "qt6core.dll",
     "qt6gui.dll",
@@ -22,6 +27,11 @@ REQUIRED_DLLS = {
     "qt6widgets.dll",
 }
 REQUIRED_LINUX_LIBRARIES = {
+    "libqmlfolderlistmodelplugin.so",
+    "libqtquickdialogsplugin.so",
+    "libqt6quickdialogs2.so.6",
+    "libqt6quickdialogs2quickimpl.so.6",
+    "libqt6quickdialogs2utils.so.6",
     "libeffectsplugin.so",
     "libqt6core.so.6",
     "libqt6gui.so.6",
@@ -348,12 +358,16 @@ def audit_bundle(
     if missing_data:
         errors.append("missing required data files: " + ", ".join(missing_data))
 
-    runtime_entries = sorted(
+    runtime_entries = sorted({
         path.name
         for path in bundle_dir.iterdir()
         if path.name.lower() in FORBIDDEN_RUNTIME_ENTRIES
         or path.name.lower().startswith(("nightscope.db.", "nightscope.db-"))
-    )
+    } | {
+        path.relative_to(bundle_dir).as_posix()
+        for path in bundle_dir.rglob("*")
+        if path.name.lower() == "user_images"
+    })
     if runtime_entries:
         errors.append(
             "runtime state present in release bundle: "

@@ -10,6 +10,8 @@ Rectangle {
     property var itemData: ({})
     property string assetBaseUrl: ""
     property color accentColor: theme.green
+    property bool imageFailed: false
+    onItemDataChanged: imageFailed = false
 
     signal openRequested(string objectId)
 
@@ -24,7 +26,7 @@ Rectangle {
     }
 
     function imageSource() {
-        var image = root.value("image", "")
+        var image = root.value(root.imageFailed ? "defaultImage" : "image", "")
         return image.indexOf("file:") === 0 ? image
              : image.length > 0 ? root.assetBaseUrl + "/" + image : ""
     }
@@ -90,6 +92,7 @@ Rectangle {
                 anchors.fill: parent
                 anchors.margins: 7
                 source: theme.redNightVision ? "" : root.imageSource()
+                onStatusChanged: { if (status === Image.Error && !root.imageFailed) root.imageFailed = true }
                 fillMode: Image.PreserveAspectFit
                 asynchronous: true
                 sourceSize.width: 92

@@ -9,6 +9,7 @@ from pathlib import Path
 import sqlite3
 import shutil
 import time
+from threading import Event
 from unittest.mock import patch
 
 from PIL import Image
@@ -254,6 +255,36 @@ def test_nonlocal_url_and_storage_errors_are_reported(service, image_file):
     with patch.object(service.repository, "save", side_effect=sqlite3.OperationalError("fixture")):
         assert not manager.save()
     assert manager.state["errorCode"] == "storage"
+
+
+@pytest.mark.parametrize("action", ["cancel", "red", "target"])
+def test_blocked_preview_is_single_worker_and_cannot_publish_after_invalidation(service, image_file, action):
+    application = QCoreApplication.instance() or QCoreApplication([])
+    manager = ObjectImageManager(service, lambda key: key)
+    manager.setTarget("moon")
+    started, release = Event(), Event()
+
+    def decode(source):
+        started.set()
+        assert release.wait(5)
+        return prepare_image(source)
+
+    with patch("astro_viewer.app.viewmodels.object_image_manager.prepare_image", side_effect=decode) as worker:
+        manager.choose(QUrl.fromLocalFile(str(image_file)))
+        assert started.wait(5)
+        manager.choose(QUrl.fromLocalFile(str(image_file)))
+        worker.assert_called_once()
+        if action == "red":
+            manager.setNightVision(True)
+        elif action == "target":
+            manager.setTarget("messier-M31")
+        else:
+            manager.cancel()
+        release.set()
+        _wait(manager)
+    assert not manager.state["ready"] and not manager.state["previewUrl"]
+    assert not manager.save() and not service.records
+    assert application is not None
 
 
 def test_controller_personal_image_updates_alias_and_default_without_scoring(image_file):

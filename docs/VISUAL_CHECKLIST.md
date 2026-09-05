@@ -1,14 +1,31 @@
 # NightScope - Visual Review Checklist
 
-Aggiornato: 2026-09-05
+Aggiornato: 2026-09-06
 
 Questo documento conserva i controlli visuali di release iniziati con la
 sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
 verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 `archive/TESTING_HISTORY_THROUGH_1.45.6.md`. Il bundle pubblico corrente e'
 `1.45.21` su Windows, mentre Linux resta a `1.43.0`; le verifiche dei futuri
-artefatti `1.46.12` sono separate in `RELEASE_CHECKLIST.md` e devono essere
+artefatti `1.46.13` sono separate in `RELEASE_CHECKLIST.md` e devono essere
 ripetute per ciascuna dist effettivamente rigenerata.
+
+## Verifica Sorgente Ciclo Immagini 1.46.13
+
+- [x] 21 stati del componente Home reale in IT/EN/ES: miniatura personale,
+  rosso, ritorno normale, file assente, file corrotto, sostituzione e default.
+  Caricamento riuscito e proporzioni corrette anche con spazi/accenti nel
+  percorso; errore seguito dal caricamento del default, senza cicli di retry.
+- [x] Solo sei warning previsti, generati dai fixture assenti/danneggiati.
+  Sorgente vuota e miniatura nascosta in rosso; nessun warning inatteso.
+  Ispezionate catture normale/corrotta/rossa; audit dei tre render Home rossi
+  senza pixel con verde/blu maggiore del rosso, massimi R=217, G=74, B=61.
+- [x] Ripetuti i 48 stati delle 16 categorie Home, normale/rosso/normale:
+  tutti superati senza warning QML. Lint dei 35 QML: exit 0, diagnostiche
+  non fatali note. IT/EN/ES: 2.088 messaggi compilati completi per lingua.
+  Evidenze: `build/personal-imagery-1.46.13/`.
+- [ ] Verifiche di selettore nativo, flussi e plugin sulla futura dist:
+  nessun nuovo artefatto costruito o approvato da questi controlli sorgente.
 
 ## Verifica Sorgente Immagini Personali 1.46.12
 

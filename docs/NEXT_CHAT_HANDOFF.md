@@ -1,13 +1,28 @@
 # NightScope - Next Chat Handoff
 
-Updated: 2026-09-05
+Updated: 2026-09-06
 
 ## Current State
 
-- Source version: `1.46.12` (personal-image step complete; local commit).
-- The user requested completion of BOTH remaining image steps before any dist
-  work. Do not stop after 1.46.12: validate and commit it, then implement,
-  validate and commit 1.46.13 backup/restore. No rebuild has been started.
+- Source version: `1.46.13`; all three image-redesign source steps are complete.
+- Step 1 is `ce83550` (1.46.11); step 2 is `8357308` (1.46.12). Step 3 has its
+  separate local 1.46.13 commit: consistent atomic SQLite snapshots including
+  WAL, managed-image relocation before its legacy DB, Home corrupt-thumbnail
+  fallback, stricter private-image/file-picker packaging checks and lifecycle
+  regressions. There is no new backup GUI: the existing DB snapshot and manual
+  full-runtime copy/restore are documented in `docs/PERSONAL_IMAGES.md` and the
+  IT/EN/ES manual. Keep DB and user_images together; old managed files remain
+  after reset/replacement so earlier backups can recover them.
+- Final full security gate: 1,452 tests plus 10 subtests in 225.57 s, 86%
+  coverage (18,211 / 21,085 lines), backend/normal/red source smoke tests.
+  259 Python, 35 QML, 17 operational files; 2,088 compiled finished messages
+  per language; 35 QML linted with known non-fatal diagnostics. Real Home QML:
+  21 personal-image states, 48 category states and three red pixel audits.
+  See TESTING/VISUAL_CHECKLIST and `build/personal-imagery-1.46.13/` for evidence
+  and the isolated serial shutdown-GC warning, not reproduced in the full gate.
+- The user requested finishing the remaining source steps before rebuilding
+  dist. Both are now completed; no rebuild or dist backup has been started.
+  Next is the separately requested Windows artifact and its packaged checks.
 - Current 1.46.12 implementation: separate PersonalObjectImages table (schema
   27), canonical-ID association, immutable JPEG/thumbnail files in user_images,
   bounded JPEG/PNG normalization through QImageReader, asynchronous cancellable
@@ -53,10 +68,11 @@ Updated: 2026-09-05
   SQLite integrity/foreign-key checks pass. See `docs/TESTING.md` for the final
   full source gate; logs and disposable QA helpers are under
   `build/object-imagery-1.46.11/`.
-- **Next:** `1.46.13` hardens existing backup/restore and completes integration
-  verification. 1.46.12 import/preview/replace/reset is implemented and validated.
-  Read `docs/OBJECT_IMAGERY_ROADMAP.md` before continuing; each step needs its
-  own version, complete source checks, documentation and local commit.
+- **Next:** source image work is concluded; the dist remains 1.46.10 and does
+  not include the Moon polish or any new image-management step. Rebuild only
+  when proceeding with the user's artifact request, then validate new picker
+  plugins, native dialogs and normal/red image workflows in the actual bundle.
+  `docs/OBJECT_IMAGERY_ROADMAP.md` records all three completed source steps.
   No editorial, astronomical formula, dist, push, tag or release changes are
   part of this step, and no remote GitHub run is awaited.
 - Before the image redesign, the user-requested visual polish in `1892652`
@@ -79,7 +95,7 @@ Updated: 2026-09-05
 - Current public Linux release: `v1.43.0`, from source commit
   `26dfaf49df8f9b8e73e84f406396f406170400b2`; its GitHub release contains the
   Debian 12 x86-64 tarball and adjacent checksum.
-- Source `1.46.11` is not published: no `v1.46.11` tag, release archive/checksum,
+- Source `1.46.13` is not published: no `v1.46.13` tag, release archive/checksum,
   or GitHub release has been created.
 - The user subsequently requested a new local Windows `dist/NightScope` for
   manual testing. It was rebuilt as `1.46.10` from clean source `ae34df5` on

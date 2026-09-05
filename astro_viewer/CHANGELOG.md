@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## NightScope 1.46.13 - 2026-09-06
+
+- Ultimo step immagini: backup automatico SQLite coerente anche in WAL,
+  sostituzione atomica solo dopo verifica, conservazione del backup precedente
+  in caso di errore e limite temporale alla copia.
+- Migrazione dei dati da cartelle precedenti comprensiva delle foto personali,
+  copiate prima del DB senza alterare originali o file in conflitto. Ripristino
+  di foto sostituite/rimosse da un vecchio backup verificato in un runtime nuovo.
+- Miniature Home danneggiate tornano al predefinito; audit del pacchetto esteso
+  ai plugin del selettore file e alle cartelle di immagini personali annidate.
+- Documentazione di backup/ripristino nelle tre lingue; nessuna nuova GUI di
+  backup, esportazione di credenziali o modifica a editoriale/formule/scoring.
+  Gate completo con sicurezza superato: 1.452 test e 10 sottotest, copertura
+  86%, smoke backend e QML normale/rosso. 35 QML lintati, 2.088 messaggi
+  compilati per IT/EN/ES, 21 stati Home personali e 48 stati delle categorie
+  verificati; tre audit pixel rossi superati. Nessuna dist, push, tag o
+  pubblicazione: la serie sorgente delle immagini è conclusa.
+
 ## NightScope 1.46.12 - 2026-09-05
 
 - Secondo step immagini: importazione locale con anteprima, conferma,
