@@ -13,6 +13,7 @@ from astro_viewer.app.database.equipment_catalog_repository import (
     OPTICAL_SYSTEM_LABELS,
     EquipmentCatalogRepository,
 )
+from astro_viewer.tests.database_fixture import prepare_database
 
 
 SCHEMA_PATH = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
@@ -21,7 +22,7 @@ SCHEMA_PATH = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
 def _database() -> tuple[TemporaryDirectory, Path, EquipmentCatalogRepository]:
     temporary_directory = TemporaryDirectory()
     database_path = Path(temporary_directory.name) / "nightscope.db"
-    initialize_database(database_path, SCHEMA_PATH)
+    prepare_database(database_path, SCHEMA_PATH)
     return temporary_directory, database_path, EquipmentCatalogRepository(database_path)
 
 

@@ -58,6 +58,8 @@ def _checks(*, include_coverage: bool, include_security: bool) -> list[Check]:
         "-n",
         "4",
         "astro_viewer/tests",
+        "--durations=20",
+        "--durations-min=1.0",
     ]
     if include_coverage:
         pytest_args.extend(

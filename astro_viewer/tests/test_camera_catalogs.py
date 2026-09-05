@@ -33,6 +33,7 @@ from astro_viewer.app.services.equipment_taxonomy import (
     telescope_optical_type_code,
 )
 from astro_viewer.app.viewmodels.app_controller import AppController
+from astro_viewer.tests.database_fixture import prepare_database
 
 
 APP_DIR = Path(__file__).resolve().parents[1]
@@ -42,7 +43,7 @@ SCHEMA_PATH = APP_DIR / "data" / "schema.sql"
 def _database() -> tuple[TemporaryDirectory, Path, EquipmentCatalogRepository]:
     temporary_directory = TemporaryDirectory()
     database_path = Path(temporary_directory.name) / "nightscope.db"
-    initialize_database(database_path, SCHEMA_PATH)
+    prepare_database(database_path, SCHEMA_PATH)
     return (
         temporary_directory,
         database_path,

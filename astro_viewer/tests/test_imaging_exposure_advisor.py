@@ -9,7 +9,6 @@ from pathlib import Path
 
 import pytest
 
-from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.catalogue_repository import (
     CatalogueRepository,
 )
@@ -38,6 +37,7 @@ from astro_viewer.app.services.imaging_train_builder import (
     ImagingTrainBuilder,
 )
 from astro_viewer.app.viewmodels.app_controller import AppController
+from astro_viewer.tests.database_fixture import prepare_database
 
 
 APP_DIR = Path(__file__).resolve().parents[1]
@@ -635,7 +635,7 @@ def test_all_catalogue_targets_produce_bounded_deterministic_advice(
     tmp_path: Path,
 ) -> None:
     database_path = tmp_path / "nightscope.db"
-    initialize_database(database_path, SCHEMA_PATH)
+    prepare_database(database_path, SCHEMA_PATH)
     configuration = ImagingTrainBuilder().build(
         [_telescope()],
         [_camera()],

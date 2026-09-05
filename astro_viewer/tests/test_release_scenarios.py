@@ -19,12 +19,12 @@ from astro_viewer.app.application.location_commands import (
     LocationProviderFailure,
 )
 from astro_viewer.app.astronomy.engine import ObserverLocation
-from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.models.weather import WeatherHour
 from astro_viewer.app.services.location_service import LocationDetectionResult
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
 from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE
 from astro_viewer.app.viewmodels.app_controller import WEATHER_RETRY_DELAY_MS, AppController
+from astro_viewer.tests.database_fixture import prepare_database
 
 
 class ReleaseScenarioTests(unittest.TestCase):
@@ -765,7 +765,7 @@ class _ControllerContext:
         self._temp_dir = tempfile.TemporaryDirectory()
         base_dir = Path(__file__).resolve().parents[1]
         database_path = Path(self._temp_dir.name) / "nightscope.db"
-        initialize_database(database_path, base_dir / "data" / "schema.sql")
+        prepare_database(database_path, base_dir / "data" / "schema.sql")
         self._seed_preferences(database_path)
         self._patcher = patch(
             "astro_viewer.app.services.weather_service.requests.get",

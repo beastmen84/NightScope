@@ -231,6 +231,11 @@ def test_standard_check_plan_runs_one_test_suite_and_optional_security() -> None
     assert "--cov=astro_viewer.app" in coverage_check.args
     assert "--cov=astro_viewer.main" in coverage_check.args
     assert "--cov=astro_viewer" not in coverage_check.args
+    for check in (pytest_check, coverage_check):
+        assert "astro_viewer/tests" in check.args
+        assert "--durations=20" in check.args
+        assert "--durations-min=1.0" in check.args
+        assert not {"-k", "-m", "--lf", "--last-failed"}.intersection(check.args[2:])
     assert all(
         check.isolated_runtime
         for check in release
@@ -244,7 +249,7 @@ def test_code_documentation_gate_covers_the_repository_and_rejects_empty_headers
 ) -> None:
     assert documentation_errors(PROJECT_ROOT) == []
     assert documentation_counts(PROJECT_ROOT) == {
-        "Python": 247,
+        "Python": 250,
         "QML": 34,
         "operational": 17,
     }

@@ -13,9 +13,9 @@ from unittest.mock import Mock, patch
 import requests
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
-from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
 from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE, OpenMeteoWeatherService
+from astro_viewer.tests.database_fixture import prepare_database
 
 
 class WeatherHardeningTests(unittest.TestCase):
@@ -124,7 +124,7 @@ class WeatherHardeningTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
             schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
-            initialize_database(database_path, schema_path)
+            prepare_database(database_path, schema_path)
             repository = WeatherCacheRepository(database_path)
             service = OpenMeteoWeatherService(repository)
             cache_key = service._cache_key(self.location)
@@ -165,7 +165,7 @@ class WeatherHardeningTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
             schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
-            initialize_database(database_path, schema_path)
+            prepare_database(database_path, schema_path)
             repository = WeatherCacheRepository(database_path)
             service = OpenMeteoWeatherService(repository)
             repository.set(

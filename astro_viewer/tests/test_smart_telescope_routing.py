@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pytest
 
-from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.equipment_catalog_repository import (
     EquipmentCatalogRepository,
 )
@@ -46,6 +45,7 @@ from astro_viewer.app.services.observation_configuration_builder import (
     ObservationConfigurationBuilder,
 )
 from astro_viewer.app.viewmodels.app_controller import AppController
+from astro_viewer.tests.database_fixture import prepare_database
 
 
 APP_DIR = Path(__file__).resolve().parents[1]
@@ -221,7 +221,7 @@ def test_seeded_seestar_models_expose_verified_integrated_trains(
     tmp_path: Path,
 ) -> None:
     database_path = tmp_path / "nightscope.db"
-    initialize_database(database_path, SCHEMA_PATH)
+    prepare_database(database_path, SCHEMA_PATH)
     repository = EquipmentCatalogRepository(database_path)
 
     models = {

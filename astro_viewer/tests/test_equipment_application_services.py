@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 
-from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.equipment_catalog_repository import (
     EquipmentCatalogRepository,
 )
@@ -35,6 +34,7 @@ from astro_viewer.app.services.profile_equipment_service import (
     active_profile_state,
     imaging_inventory,
 )
+from astro_viewer.tests.database_fixture import prepare_database
 
 
 APP_DIR = Path(__file__).resolve().parents[1]
@@ -45,7 +45,7 @@ def test_equipment_catalog_service_loads_one_consistent_snapshot(
     tmp_path: Path,
 ) -> None:
     database_path = tmp_path / "nightscope.db"
-    initialize_database(database_path, SCHEMA_PATH)
+    prepare_database(database_path, SCHEMA_PATH)
     repository = EquipmentCatalogRepository(database_path)
 
     snapshot = EquipmentCatalogService(

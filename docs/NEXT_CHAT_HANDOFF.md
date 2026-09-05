@@ -14,6 +14,10 @@ Updated: 2026-09-05
 - Source `1.46.8` is not published: no `v1.46.8` tag, bundle, checksum, or
   GitHub release has been created.
 - `dist` was deliberately not regenerated or modified for `1.46.8`.
+- Test-setup tuning stays on `1.46.8`: opted-in setup copies a private database
+  from a fresh, per-worker session template. Real bootstrap/migration/recovery
+  and astronomy/controller checks remain in place; no runtime code or
+  editorial data changed. The next NGC batch remains `1.46.9`.
 - Eight editorial batches are accepted: two enrich 75 NGC-only galaxies;
   six remediate declared fields across 197 distinct baseline objects. The
   latest pass revises 92 descriptions and five curiosities across 94 objects,
@@ -121,7 +125,7 @@ QML pages remain concentrated maintenance areas.
 The final local `1.46.8` coverage/security source gate passed on 2026-09-05 on
 Windows/Python 3.14.5:
 
-- 1,237 tests and 10 subtests in 423.37 seconds, with 86% aggregate application
+- 1,247 tests and 10 subtests in 216.43 seconds, with 86% aggregate application
   coverage; the editorial audit passed without warnings and reports zero
   historical paragraph families and zero shared narrative sentence families
   across IT/EN/ES;
@@ -131,7 +135,7 @@ Windows/Python 3.14.5:
   Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, and NumPy 2.5.2;
 - validated Earthdata runtime: earthaccess 0.18.0, s3fs/fsspec 2026.7.0,
   aiobotocore 3.9.0, and maximum compatible botocore 1.43.56;
-- complete documentation inventory at the coverage/security gate: 247 Python,
+- complete documentation inventory at the coverage/security gate: 250 Python,
   34 QML, and 17 operational files;
 - Ruff, compilation, license archive, MPC/OpenNGC snapshot checks, and the
   network-free editorial baseline/manifest/translation/provenance audit;
@@ -176,7 +180,28 @@ raced repository enablement, then passed unchanged after GitHub registered the
 site; the published homepage was independently checked over HTTPS.
 
 The GitHub workflow definition and its commands were checked locally. Do not
-claim a remote CI pass until GitHub has run it.
+claim a remote CI pass until GitHub has run it. The user explicitly does not
+want local work to wait for GitHub runs; they will report a remote failure.
+
+### Test-Setup Tuning Evidence
+
+The controlled local comparison against unchanged `0aecdb1` measured 310.62 s
+before and 216.43 s after, both with four workers, the default scheduler and
+coverage: 94.19 s / 30.3% less pytest time. The earlier editorial gate's
+423.37 s is not the controlled baseline. All 1,237 original JUnit identities
+were retained and passed, with ten new fixture regressions and ten unchanged
+subtests. Coverage retained every formerly covered line and gained 13 bootstrap
+lines: 17,539 / 20,396 executable lines; excluded lines are unchanged.
+
+`astro_viewer/tests/database_fixture.py` is test-only and explicit: each test
+owns its copy, GeoNames is really imported from that test's files, and no
+template survives the session. Bootstrap/migration/recovery calls under test
+still use real initialization. All 15 functional test modules are AST-identical
+apart from setup calls/imports; controller, Skyfield, NSOM, tolerances and full
+case loops are unchanged. `--fresh-test-databases` disables pooled setup for
+diagnostics and passed five focused scenarios. The standard runner now reports
+slow test phases without narrowing selection or disabling coverage. See
+`docs/TESTING.md` for the fixture contract and measured scope.
 
 ## Next Architectural Step
 

@@ -15,7 +15,6 @@ from PySide6.QtCore import QCoreApplication, QDateTime, QObject, QTimer, Signal
 from PySide6.QtPositioning import QGeoCoordinate, QGeoPositionInfo, QGeoPositionInfoSource
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
-from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.city_repository import CityRepository
 from astro_viewer.app.platform_capabilities import (
     NIGHTSCOPE_DESKTOP_ID,
@@ -37,6 +36,7 @@ from astro_viewer.app.services.location_service import (
     _windows_geolocation_script,
 )
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
+from astro_viewer.tests.database_fixture import prepare_database
 from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
 
 
@@ -883,7 +883,7 @@ class _temp_city_repository:
         write_small_geonames_fixture(temp_path)
         database_path = temp_path / "nightscope.db"
         base_dir = Path(__file__).resolve().parents[1]
-        initialize_database(database_path, base_dir / "data" / "schema.sql")
+        prepare_database(database_path, base_dir / "data" / "schema.sql")
         self.repository = CityRepository(database_path)
         return self.repository
 

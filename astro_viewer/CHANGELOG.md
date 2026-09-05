@@ -30,7 +30,8 @@
 - Otto batch accettati, di cui sei correttivi su 197 oggetti storici distinti.
   Nessuna nuova voce NGC: restano 303 oggetti completi, 75 NGC-only arricchiti
   e 7.291 da completare. Il prossimo batch NGC e' riservato alla `1.46.9`.
-- Gate sorgente completo con sicurezza superato: 1.237 test e 10 subtest in
+- Gate sorgente editoriale, prima della messa a punto dei test, superato con
+  sicurezza: 1.237 test e 10 subtest in
   423,37 secondi, copertura aggregata 86%, documentazione completa per 247 file
   Python, 34 QML e 17 operativi, grafo import aciclico, baseline Bandit
   invariata, nessuna vulnerabilita' nota e smoke test backend/QML
@@ -38,6 +39,22 @@
 - La versione sorgente passa a `1.46.8`; `dist`, tag e artefatti di release
   non sono stati prodotti. Le release pubbliche restano Windows `v1.45.21`
   e Linux `v1.43.0`.
+- Ottimizzata la preparazione dei database nei test: base reale ricostruita
+  per sessione e worker, copie private per ogni test e import GeoNames dai
+  relativi file temporanei. Invariati bootstrap/migrazioni/recupero sotto
+  test, calcoli astronomici, assert, tolleranze e matrici di casi. Nessuna
+  modifica al codice applicativo o ai contenuti; nessun nuovo bump versione.
+- Il confronto locale con quattro worker e coverage misura 310,62 secondi
+  prima e 216,43 dopo: 94,19 secondi in meno, circa il 30,3%. Conservati tutti
+  i 1.237 test originali, aggiunti dieci controlli di equivalenza, isolamento,
+  provenienza e ciclo di vita delle fixture: 1.247 test e 10 subtest superati.
+  Nessuna riga coperta persa; copertura effettiva da 17.526 a 17.539 righe su
+  20.396, sempre 86% arrotondato. Gate completo con sicurezza e tre smoke test
+  superato; inventario aggiornato a 250 Python, 34 QML e 17 file operativi.
+- Aggiunti il riepilogo dei test piu' lenti nel runner e l'opzione diagnostica
+  `--fresh-test-databases`, che ripristina la creazione completa per ogni
+  preparazione e supera cinque scenari mirati. Nessun test saltato o escluso
+  e nessuna nuova release pubblica.
 
 ## NightScope 1.46.7 - 2026-09-04
 

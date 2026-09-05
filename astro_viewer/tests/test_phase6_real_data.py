@@ -20,7 +20,6 @@ import requests
 
 from astro_viewer.app.astronomy.engine import ObserverLocation, ObservingNightWindow
 from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
-from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.city_repository import CityRepository
 from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
 from astro_viewer.app.database.geonames_importer import import_geonames_cities
@@ -43,6 +42,7 @@ from astro_viewer.app.viewmodels.app_controller import (
     CATALOGUE_RECOMMENDATION_REFRESH_DEBOUNCE_MS,
     AppController,
 )
+from astro_viewer.tests.database_fixture import prepare_database
 from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
 
 
@@ -3628,7 +3628,7 @@ class _temp_database:
         write_small_geonames_fixture(temp_path)
         self.path = temp_path / "nightscope.db"
         base_dir = Path(__file__).resolve().parents[1]
-        initialize_database(self.path, base_dir / "data" / "schema.sql")
+        prepare_database(self.path, base_dir / "data" / "schema.sql")
         return self.path
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:

@@ -15,6 +15,7 @@ from astro_viewer.app.database.equipment_catalog_repository import (
 from astro_viewer.app.database.equipment_profile_repository import (
     EquipmentProfileRepository,
 )
+from astro_viewer.tests.database_fixture import prepare_database
 
 APP_DIR = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = APP_DIR / "data" / "schema.sql"
@@ -22,7 +23,7 @@ SCHEMA_PATH = APP_DIR / "data" / "schema.sql"
 
 def _initialized_database(tmp_path: Path) -> Path:
     database_path = tmp_path / "nightscope.db"
-    initialize_database(database_path, SCHEMA_PATH)
+    prepare_database(database_path, SCHEMA_PATH)
     return database_path
 
 

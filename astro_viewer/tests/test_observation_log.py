@@ -8,18 +8,18 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.observation_repository import ObservationRepository
 from astro_viewer.app.services.observation_log_service import (
     ObservationLogService,
     ObservationLogValidationError,
 )
+from astro_viewer.tests.database_fixture import prepare_database
 
 
 def test_repository_supports_complete_crud_without_result_limit(tmp_path: Path) -> None:
     database_path = tmp_path / "nightscope.db"
     schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
-    initialize_database(database_path, schema_path)
+    prepare_database(database_path, schema_path)
     repository = ObservationRepository(database_path)
 
     inserted_ids = [

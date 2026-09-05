@@ -9,7 +9,6 @@ from pathlib import Path
 
 import pytest
 
-from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.database.equipment_catalog_repository import (
     EquipmentCatalogRepository,
@@ -34,6 +33,7 @@ from astro_viewer.app.services.imaging_target_traits import (
 )
 from astro_viewer.app.services.imaging_train_builder import ImagingTrainBuilder
 from astro_viewer.app.viewmodels.app_controller import AppController
+from astro_viewer.tests.database_fixture import prepare_database
 
 
 APP_DIR = Path(__file__).resolve().parents[1]
@@ -331,7 +331,7 @@ def test_persisted_profile_solar_ids_match_the_scorer_contract(
     tmp_path: Path,
 ) -> None:
     database_path = tmp_path / "nightscope.db"
-    initialize_database(database_path, SCHEMA_PATH)
+    prepare_database(database_path, SCHEMA_PATH)
     repository = EquipmentCatalogRepository(database_path)
     profile_id = int(
         next(
@@ -891,7 +891,7 @@ def test_real_camera_catalogue_produces_finite_still_and_video_rankings(
     tmp_path: Path,
 ) -> None:
     database_path = tmp_path / "nightscope.db"
-    initialize_database(database_path, SCHEMA_PATH)
+    prepare_database(database_path, SCHEMA_PATH)
     repository = EquipmentCatalogRepository(database_path)
     cameras = ImagingCameraAdapter.from_catalogues(
         repository.astronomy_cameras(),

@@ -8,7 +8,6 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
-from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.services.light_pollution_service import (
@@ -16,6 +15,7 @@ from astro_viewer.app.services.light_pollution_service import (
     ViirsCacheState,
 )
 from astro_viewer.app.services.localization import tr
+from astro_viewer.tests.database_fixture import prepare_database
 
 
 NOW = datetime(2026, 7, 10, 12, 0, tzinfo=UTC)
@@ -28,7 +28,7 @@ class ViirsCachePolicyTests(unittest.TestCase):
         root = Path(self._temp_dir.name)
         self._database_path = root / "nightscope.db"
         schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
-        initialize_database(self._database_path, schema_path)
+        prepare_database(self._database_path, schema_path)
         self._repository = SkyQualityRepository(self._database_path)
 
     def tearDown(self) -> None:

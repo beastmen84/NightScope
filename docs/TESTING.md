@@ -146,6 +146,50 @@ Use a serial run only to investigate ordering, process, or worker behavior:
 .\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests
 ```
 
+## Seeded Database Setup And Timing
+
+`astro_viewer/tests/database_fixture.py` removes repeated catalogue seeding
+from opted-in test setup. The session fixture in `tests/conftest.py` owns a
+lazy template per pytest worker, built by the real `initialize_database` from
+the current repository schema and seeds. Each test receives a separate file
+in its own temporary directory, copied only after initialization has committed
+and closed its connections. No database, connection, or mutable test state is
+shared, and templates are removed when the session ends. There is no persistent
+cache that could hide changes to editorial CSVs between runs.
+
+Call `prepare_database(path, schema)` only when a fully seeded database is
+setup, not the operation under test. It refuses existing destinations; pooled
+setup also rejects alternate schemas. Keep direct `initialize_database` calls
+for bootstrap, migration, recovery, changed-schema/seed, and startup-preflight
+scenarios. These tests still execute real initialization.
+Plain unittest runs fall back to real initialization without needing pytest.
+GeoNames files are still imported by the real importer into each test's copy
+from that test's directory; paths, file signatures, cities and aliases are not
+borrowed from another test.
+
+Dedicated regression tests compare the complete schema and every table against
+a cold bootstrap, with and without GeoNames, plus SQLite integrity/foreign-key
+checks and startup preflight. Only import-log surrogate IDs, import timestamps,
+and the physical database size measured at import time are normalized: imports
+occur in a different order, while source identity and provenance are retained.
+Additional checks cover independent mutations, one template build per factory,
+fresh session lifetime/cleanup, failed builds, destination protection, and the
+standalone fallback. Real controller, Skyfield, NSOM and whole-catalogue/camera
+checks remain unchanged; no assertions, numerical tolerances or case loops were
+removed to obtain the speedup.
+
+To investigate fixture equivalence, disable reuse explicitly:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests --fresh-test-databases
+```
+
+The standard runner keeps four workers and its existing scheduler, full test
+selection, warnings policy and coverage scope. It now prints the 20 slowest
+test phases taking at least one second. For more timing detail in a focused
+run, add `--durations=35 --durations-min=0.1`. Timing reports do not skip tests
+or impose flaky wall-clock assertions.
+
 ## Specialized Data And UI Checks
 
 Validate and compile every language pack:
@@ -190,11 +234,11 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
-The `1.46.8` coverage/security source gate passed on 2026-09-05 on
-Windows/Python 3.14.5 with 1,237 tests and 10 subtests in 423.37 seconds,
-86% aggregate application
-coverage, complete documentation coverage for 247 Python, 34 QML, and 17
-operational files, an acyclic production graph, zero protected-layer
+The `1.46.8` coverage/security source gate, after test-setup tuning, passed on
+2026-09-05 on Windows/Python 3.14.5 with 1,247 tests and 10 subtests in
+216.43 seconds, 86% aggregate application coverage, complete documentation
+coverage for 250 Python, 34 QML, and 17 operational files, an acyclic production
+graph, zero protected-layer
 violations, a reviewed Bandit baseline (0 high, 34 medium, 14 low), clean
 dependency/license/MPC/OpenNGC/editorial checks, and successful backend, normal
 QML, and Red Night Vision QML smoke tests. The editorial check passed without
@@ -203,6 +247,34 @@ narrative sentence families across IT/EN/ES. The in-gate installed-environment
 `pip-audit` found no known vulnerabilities. The most recent separate PySide6
 6.11.2 `qmllint` pass over all 34 QML files remains the `1.45.22` pass; its
 existing non-fatal diagnostics remain tracked technical debt.
+
+The same-session before/after comparison used the same SDK, four workers,
+default scheduler, full test selection and application/entry-point coverage.
+The unchanged source baseline was `0aecdb1`; reported durations below are the
+pytest phase, not the entire source gate:
+
+| Measurement | Tests / subtests | Pytest elapsed | Covered / executable lines |
+| --- | --- | --- | --- |
+| Before setup tuning | 1,237 / 10 | 310.62 s | 17,526 / 20,396 |
+| After setup tuning | 1,247 / 10 | 216.43 s | 17,539 / 20,396 |
+
+This run saved 94.19 seconds (30.3%). JUnit comparison retained every original
+test identity with no skipped, failed or errored tests; the ten additions
+protect fixture behavior. JSON coverage comparison lost no previously covered
+line and gained 13 bootstrap/preflight lines, with unchanged executable and
+excluded-line sets. AST comparison of all 15 changed functional test modules,
+normalizing only setup-call names and imports, found no other changes. The
+developer-tooling module additionally checks duration reporting/full selection
+and the expanded documentation inventory.
+
+The diagnostic `--fresh-test-databases` path separately passed five focused
+city, catalogue-migration, profile-persistence and VIIRS scenarios in 9.13 s.
+The city-alias scenario also passed as a direct unittest invocation without
+pytest. A final focused pass over developer tooling and the three import-order
+cleanup modules passed 70 tests in 7.31 s after documentation updates.
+The earlier editorial gate's 423.37 s remains historical evidence, not the
+controlled pre-tuning timing. These measurements are local Windows results,
+not guaranteed timings on other machines or evidence of a remote CI run.
 
 The separate `1.46.2` batch evidence includes a successful live audit of 50
 distinct manifest URLs and 36 reviewed Object Detail renders: six objects in
