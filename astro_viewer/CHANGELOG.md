@@ -25,8 +25,14 @@
   secondi, copertura 86%, audit e smoke backend/QML normale/rosso tutti verdi.
   Allineati i conteggi attesi a 323, mantenendo inalterati i controlli di
   unicita', fonti, lunghezza, incipit e similarita'.
-- Versione sorgente, non pubblicazione: nessun tag, bundle o rigenerazione di
-  `dist`. Ultime release pubbliche: Windows `1.45.21`, Linux `1.43.0`.
+- Rigenerata successivamente, su richiesta, la dist Windows locale dal commit
+  `42b0cb2` per le verifiche manuali, senza bump versione. Conservata la dist
+  precedente completa con hash verificati dei dati runtime. Audit del bundle
+  e smoke impacchettati backend/QML normale/rosso superati; controllata anche
+  una copia del vecchio DB, con 323 descrizioni e curiosita' aggiornate e stato
+  utente preservato, salvo il normale refresh della posizione automatica.
+- Nessun tag, archivio di release, bundle Linux o pubblicazione. Ultime release
+  pubbliche invariate: Windows `1.45.21`, Linux `1.43.0`.
 
 ## NightScope 1.46.8 - 2026-09-05
 

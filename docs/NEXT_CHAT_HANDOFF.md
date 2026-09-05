@@ -11,9 +11,16 @@ Updated: 2026-09-05
 - Current public Linux release: `v1.43.0`, from source commit
   `26dfaf49df8f9b8e73e84f406396f406170400b2`; its GitHub release contains the
   Debian 12 x86-64 tarball and adjacent checksum.
-- Source `1.46.9` is not published: no `v1.46.9` tag, bundle, checksum, or
-  GitHub release has been created.
-- `dist` was deliberately not regenerated or modified for `1.46.9`.
+- Source `1.46.9` is not published: no `v1.46.9` tag, release archive/checksum,
+  or GitHub release has been created.
+- At the user's request, the local Windows `dist/NightScope` was rebuilt from
+  clean source commit `42b0cb2` on 2026-09-05 for manual testing. Its bundle
+  audit and packaged backend/normal-QML/Red Night Vision smoke tests passed;
+  the final directory remains pristine. Linux was not rebuilt.
+- The previous complete Windows distribution, including its database and
+  preferences, is preserved in
+  `dist/_backups/NightScope-1.45.21-before-1.46.9-20260905-142734`.
+  All five runtime-file backup hashes were verified before replacement.
 - Test-setup tuning was completed on `1.46.8` (`fa955d0`): setup copies a
   private database from a fresh, per-worker session template. Real bootstrap/migration/recovery
   and astronomy/controller checks remain in place; no runtime code or
@@ -75,7 +82,7 @@ Updated: 2026-09-05
 | 1.46.6 | `2d2d1b5` | Replaces formulaic guidance for 20 baseline nebulae and planetary nebulae. |
 | 1.46.7 | `d9f11d5` | Replaces the final formulaic galaxy guidance and four duplicated descriptions. |
 | 1.46.8 | `fa955d0` (final tuning) | Corrects residual prose and the sentence audit; then speeds up isolated test DB setup without dropping checks. |
-| 1.46.9 | current source | Adds 20 source-backed planetary nebulae in IT/EN/ES, with explicit visual and scientific limits. |
+| 1.46.9 | `42b0cb2` | Adds 20 source-backed planetary nebulae in IT/EN/ES, with explicit visual and scientific limits. |
 
 ## Resulting Architecture
 
@@ -208,6 +215,34 @@ case loops are unchanged. `--fresh-test-databases` disables pooled setup for
 diagnostics and passed five focused scenarios. The standard runner now reports
 slow test phases without narrowing selection or disabling coverage. See
 `docs/TESTING.md` for the fixture contract and measured scope.
+
+### Local Windows Bundle For User Testing
+
+The requested rebuild used the official `packaging/build_windows.ps1` and the
+configured Python 3.14.5 virtual environment. The result contains 5,277 files
+and 440,456,369 bytes, with embedded version `1.46.9`; all 310 declared source
+assets and five legal files match the source by SHA-256. Qt Positioning,
+the Windows credential backend, timezone data and DE421 are present.
+Executable SHA-256:
+`90A702F9635CE5DE3A21571DBD223D6EE8FCAE4662CF7C6023668F5894E7F3F0`.
+
+Packaged backend, normal-QML and Red Night Vision tests passed from an isolated
+copy with separate runtime directories. An additional backend run upgraded a
+copy of the previous `1.45.21` database. Both fresh and upgraded databases pass
+SQLite integrity/foreign-key checks and contain all 323 descriptions and 323
+curiosities matching the current seeds field by field. The previous database's
+one profile and empty equipment/observation/preference tables are preserved;
+language and startup settings are unchanged. The saved system-location cache
+refreshes as expected because automatic detection was already enabled; the
+original backup is untouched. This is not a populated-equipment upgrade matrix.
+
+Build logs, local verification helpers and the temporary-directory cleanup
+note are under `build/windows-dist-1.46.9-20260905/`. The execution policy
+blocked removal of the disposable test copy; its exact path is recorded in
+`VALIDATION.md` there. No new source gate was necessary for this
+unchanged-code rebuild; the preceding same-commit gate remains the source
+evidence. This validates a local Windows test bundle, not the complete manual,
+provider, signing, archive or public-release checklist.
 
 ## Next Architectural Step
 

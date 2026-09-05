@@ -347,6 +347,45 @@ tests in 19.95 seconds.
 No remote CI result, distribution build, source tag, checksum, or release is
 implied by that local source measurement.
 
+## Local Windows Distribution - 1.46.9
+
+On 2026-09-05 the user separately requested a local Windows rebuild for manual
+testing. `packaging/build_windows.ps1` completed from clean source commit
+`42b0cb2` with the configured Python 3.14.5/PyInstaller 6.22.2 environment.
+The existing complete `1.45.21` distribution was copied to
+`dist/_backups/NightScope-1.45.21-before-1.46.9-20260905-142734`; file count/size
+matched and all five runtime-file SHA-256 hashes were verified before rebuild.
+
+The pristine `dist/NightScope` contains 5,277 files and 440,456,369 bytes, with
+embedded version `1.46.9`. The Qt/legal/runtime-state audit passed. All 310
+declared source assets and five legal files match by SHA-256, including QML,
+IT/EN/ES translations, the manual, editorial/catalogue seeds, images and DE421.
+Timezone polygon data, Qt Positioning and the embedded Windows credential
+backend are present. Executable SHA-256:
+`90A702F9635CE5DE3A21571DBD223D6EE8FCAE4662CF7C6023668F5894E7F3F0`.
+
+Backend, normal-QML and Red Night Vision smoke tests exited 0 from a disposable
+copy with isolated runtime directories. A fourth packaged backend test upgraded
+a copy of the previous database; all four runs had empty stderr and no runtime
+ERROR/CRITICAL/traceback entries. Read-only SQLite checks confirmed integrity,
+foreign keys, and exact seed parity for all 323 descriptions and 323 curiosities
+in both fresh and upgraded databases. The previous one-profile state and empty
+equipment/observation/preference tables were preserved, as were language and
+startup settings. A first overly strict comparison also treated the refreshed
+saved-location cache as immutable; inspection confirmed that already-enabled
+automatic Windows location detection correctly refreshed coordinates, accuracy
+and timestamp. The final check permits only these expected cache fields and
+still compares the remaining settings and location metadata exactly. No
+production code or existing tests were changed. This sample does not certify
+upgrade behavior for populated custom equipment or observing logs.
+
+Evidence and local-only verification helpers are in
+`build/windows-dist-1.46.9-20260905/`. The complete source gate above was not
+repeated for this unchanged-code artifact build. Manual visual/provider checks,
+archive/checksum publication, signing/security scanning and the full release
+checklist remain separate. No Linux artifact, version bump, tag or public
+release was created.
+
 ## Change Policy
 
 For a narrow service change, run Ruff, the architecture/security tools, and the
