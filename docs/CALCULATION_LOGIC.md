@@ -3,7 +3,7 @@
 This document describes the calculations currently implemented in NightScope.
 
 For the cross-module scientific review, independent numerical comparisons and
-open correctness findings on source 1.46.9, see
+the original correctness findings on source 1.46.9 and their 1.46.10 resolution, see
 [Astronomical and code audit](ASTRONOMICAL_CODE_AUDIT_1_46_9.md). A described
 formula is not necessarily a calibrated physical model: NSOM scores, seeing,
 equipment suitability and exposure advice include empirical policies.
@@ -22,10 +22,10 @@ It uses:
 - Astropy/Skyfield coordinate helpers for catalog object altitude/azimuth.
 
 If the ephemeris is unavailable or corrupt, the application falls back to
-`MockAstronomyEngine` after recovery fails so the UI remains usable. Its values
-are deterministic demonstration data, not cached real predictions. The
-composition root sets an error message; the audit tracks the need for a durable
-data-quality state across location/status refreshes (A7).
+`UnavailableAstronomyEngine` after recovery fails so the UI remains usable
+without fabricated positions/events. A persistent global warning survives
+location/status refreshes, and astronomical recommendations are disabled.
+`MockAstronomyEngine` is only an explicitly injected test/demo implementation.
 
 ### Observer Inputs
 
@@ -44,11 +44,33 @@ catalogue is not propagated to this DTO. Terrain/horizon masks are not modeled.
 Ordinary `apparent().altaz()` calculations are unrefracted; rise/set helpers use
 their own conventional atmospheric/limb thresholds. These are different contracts.
 
-Nightly planning spans sunset to sunrise and therefore includes twilight.
-Monthly non-Sun visibility currently requires astronomical darkness even for
-planets and the Moon; this inconsistency is tracked as A4. Local HH:MM labels
-also lose date/offset/fold, so they must not be treated as unambiguous timestamps
-on daylight-saving transition nights (A2).
+The nightly container spans sunset to sunrise. Both nightly and monthly target
+eligibility require Sun below -18 degrees for deep-sky and Uranus/Neptune;
+Moon, Mercury, Venus, Mars, Jupiter and Saturn accept sunset twilight. The Sun
+uses a separate daytime catalogue path and is never a night-plan candidate.
+This conservative classification is not a physical detectability guarantee.
+Monthly sampling remains coarser than nightly sampling and cannot certify brief
+grazing windows. See [USNO twilight definitions](https://aa.usno.navy.mil/faq/RST_defs).
+
+Useful target windows carry offset-bearing ISO start/end/best instants and an
+explicit `night_eligible` flag. Sampling, interpolation, durations and planner
+ordering use UTC elapsed time; HH:MM is presentation only. A final sample can
+locate a positive pre-dawn crossing, but cannot create a zero-duration window.
+Current above-horizon status remains separate from night-plan eligibility.
+The planner rejects zero final NSOM opportunities without changing score weights.
+
+Open-Meteo requests use Unix timestamps and normalize to local offset-bearing
+ISO strings. Rows missing finite/range-valid cloud, rain, wind, humidity or
+temperature values are ineligible, not assumed clear/calm. Missing extra seeing
+inputs remain unknown; cached valid rows or the unavailable state handle bad
+responses. Ambiguous/nonexistent local clocks in legacy caches are rejected.
+See [Open-Meteo API](https://open-meteo.com/en/docs) and
+[Python aware-datetime arithmetic](https://docs.python.org/3/library/datetime.html).
+
+The Moon illustration projects a spherical terminator; its area follows
+`(1 - cos(phase_angle)) / 2`, with fixed waxing-right/waning-left orientation.
+It does not depict local horizon/eyepiece rotation or libration. The fixed -12.7
+magnitude is labeled as a full-Moon reference, not a current-phase magnitude.
 
 For coordinate-based locations, NightScope resolves the IANA timezone directly
 from offline geographic polygons. A nearby city name is presentation metadata;

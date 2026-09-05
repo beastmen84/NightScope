@@ -179,13 +179,13 @@ def test_target_reaching_threshold_only_at_sunrise_is_not_useful(
     samples = [
         (first, 15.0),
         (first + timedelta(minutes=30), 18.0),
-        (datetime(2026, 7, 11, 6, 12, tzinfo=zone), 25.0),
+        (datetime(2026, 7, 11, 6, 12, tzinfo=zone), 20.0),
     ]
 
     maximum, best_time, window = astronomy_engine._sample_summary(samples, threshold=20.0)
 
-    assert maximum == 18.0
-    assert best_time == first + timedelta(minutes=30)
+    assert maximum == 20.0
+    assert best_time is None
     assert window == "Non sopra la soglia osservativa"
 
 

@@ -59,7 +59,7 @@ class BasicForecastSeeingProvider:
         hours: list[WeatherHour],
         sky_quality: SkyQuality | None,
     ) -> SeeingTransparency:
-        observing_hours = list(hours)
+        observing_hours = [hour for hour in hours if hour.seeing_inputs_complete]
         if not observing_hours:
             return SeeingTransparency(
                 "Average",
@@ -82,7 +82,7 @@ class BasicForecastSeeingProvider:
         visibility_values = [
             visibility
             for hour in observing_hours
-            if (visibility := self._optional_weather_value(hour, "visibility_m")) is not None and visibility > 0
+            if (visibility := self._optional_weather_value(hour, "visibility_m")) is not None and visibility >= 0
         ]
         visibility_count = len(visibility_values)
         avg_visibility = sum(visibility_values)

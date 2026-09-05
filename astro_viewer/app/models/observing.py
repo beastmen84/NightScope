@@ -52,6 +52,12 @@ class CelestialObject:
     intrinsic_score: int | None = None
     condition_flags: tuple[str, ...] = field(default_factory=tuple, compare=False, repr=False)
     detail_source: str = field(default="", compare=False, repr=False)
+    # Offset-bearing ISO instants are authoritative; HH:MM fields are display only.
+    # None preserves legacy test/adaptor admission; real calculations set a bool.
+    night_eligible: bool | None = None
+    best_observing_at: str = ""
+    observing_start_at: str = ""
+    observing_end_at: str = ""
 
     def to_qml(self) -> dict:
         data = asdict(self)

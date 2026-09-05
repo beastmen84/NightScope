@@ -10,7 +10,7 @@ from unittest.mock import patch
 from astro_viewer.app.application.dependencies import (
     build_app_controller_dependencies,
 )
-from astro_viewer.app.astronomy.engine import MockAstronomyEngine
+from astro_viewer.app.astronomy.engine import UnavailableAstronomyEngine
 from astro_viewer.app.astronomy.skyfield_engine import EphemerisUnavailableError
 
 
@@ -34,7 +34,7 @@ def test_dependency_factory_owns_ephemeris_fallback(tmp_path: Path) -> None:
             nasa_aod_cache_path=tmp_path / "nasa_aod_cache.json",
         )
 
-    assert isinstance(dependencies.astronomy_engine, MockAstronomyEngine)
+    assert isinstance(dependencies.astronomy_engine, UnavailableAstronomyEngine)
     assert dependencies.startup_service_status
 
     workflow = dependencies.catalogue_recommendation_workflow

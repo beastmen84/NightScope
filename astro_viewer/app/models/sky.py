@@ -181,6 +181,7 @@ class NightPlanItem:
     setup: str
     direction: str
     image: str
+    observing_at: str = ""
 
     def to_qml(self) -> dict:
         data = asdict(self)

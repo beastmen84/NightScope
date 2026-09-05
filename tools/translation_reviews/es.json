@@ -1,6 +1,8 @@
 {
   "schema_version": 1,
   "translations": {
+    "Effemeridi non disponibili: calcoli astronomici e piano osservativo disattivati.": "Efemérides no disponibles: los cálculos astronómicos y el plan de observación están desactivados.",
+    "Magnitudine (Luna piena)": "Magnitud (luna llena)",
     "Avvio di NightScope": "Iniciando NightScope",
     "Caricamento del database e dell'interfaccia.": "Cargando la base de datos y la interfaz.",
     "Database locale": "Base de datos local",
@@ -554,7 +556,6 @@
     "Più oggetti osservabili ora nella stessa zona": "Más objetos observables ahora en la misma zona",
     "L'API meteo ha restituito dati inattesi.": "La API meteorológica devolvió datos inesperados.",
     "L'API meteo ha restituito una previsione vuota.": "La API meteorológica devolvió una previsión vacía.",
-    "Effemeridi astronomiche non disponibili. Uso i dati cielo di fallback.": "Efemérides astronómicas no disponibles. Se usan los datos del cielo de reserva.",
     "Configura una località per ottenere meteo e cielo locale.": "Configure una ubicación para obtener datos meteorológicos y del cielo locales.",
     "Salva le credenziali Earthdata prima del test.": "Guarde las credenciales de Earthdata antes de la prueba.",
     "Salva la API key OpenAQ prima del test.": "Guarde la clave API de OpenAQ antes de la prueba.",

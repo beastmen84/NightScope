@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from astro_viewer.app.astronomy.engine import ObservingNightWindow
+from astro_viewer.app.astronomy.engine import ObservingNightWindow, advance_time, as_utc
 from astro_viewer.app.models.weather import WeatherHour
 
 
@@ -22,7 +22,7 @@ def weather_hours_for_night(
         if (timestamp := weather_hour_datetime(hour, timezone)) is not None
         and night_window.contains(timestamp)
     ]
-    parsed_hours.sort(key=lambda item: item[0])
+    parsed_hours.sort(key=lambda item: as_utc(item[0]))
     return [hour for _, hour in parsed_hours]
 
 
@@ -37,7 +37,7 @@ def weather_hours_for_next_24(
         zone = ZoneInfo("UTC")
     local_now = now.replace(tzinfo=zone) if now.tzinfo is None else now.astimezone(zone)
     start = local_now.replace(minute=0, second=0, microsecond=0)
-    end = start + timedelta(hours=24)
+    end = advance_time(start, timedelta(hours=24))
     parsed_hours = [
         (timestamp, hour)
         for hour in hours
@@ -45,8 +45,8 @@ def weather_hours_for_next_24(
     ]
     if not parsed_hours:
         return list(hours[:24])
-    parsed_hours.sort(key=lambda item: item[0])
-    return [hour for timestamp, hour in parsed_hours if start <= timestamp < end]
+    parsed_hours.sort(key=lambda item: as_utc(item[0]))
+    return [hour for timestamp, hour in parsed_hours if as_utc(start) <= as_utc(timestamp) < as_utc(end)]
 
 
 def consecutive_weather_groups(

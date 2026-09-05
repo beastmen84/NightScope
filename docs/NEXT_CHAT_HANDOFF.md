@@ -4,32 +4,28 @@ Updated: 2026-09-05
 
 ## Current State
 
-- Source version: `1.46.9`.
-- Editorial work is paused at the user's request for a whole-project
-  astronomical/logic audit of baseline `b567a2b`. Read
-  `docs/ASTRONOMICAL_CODE_AUDIT_1_46_9.md` before the next functional/editorial
-  step: it records independent numerical checks and open findings A1-A8/N1.
-  This pass adds documentation only; no behavioural corrections, version bump,
-  new distribution or publication are implied. In particular, prioritize
-  incomplete-weather semantics and useful-night eligibility/DST before deciding
-  when to resume catalogue batches. Corrections need separate authorization.
-  Audit evidence: full pre-edit security source gate passed (1,251 tests and
-  10 subtests); 288 independent coordinate comparisons (maximum difference
-  2.6084 arcsec), 240 optical identities and 153 post-edit focused tests passed.
-  The 15 modified Python modules have identical executable ASTs to the baseline;
-  only docstrings/comments/docs changed. Diagnostic scripts are local/ignored.
+- Source version: `1.46.10`.
+- The user authorized correcting the whole-project audit's findings. A1-A8/N1
+  are implemented in this source step; read
+  `docs/ASTRONOMICAL_CORRECTIONS_1_46_10.md` for contracts and verification.
+  The original evidence remains in `docs/ASTRONOMICAL_CODE_AUDIT_1_46_9.md`
+  (baseline `b567a2b`, documentation commit `e1705c4`). Editorial content and
+  heuristic scoring weights remain untouched. Astronomy now uses positive
+  absolute useful intervals, UTC elapsed time, conservative target-aware
+  twilight, explicit unavailable ephemerides and valid-only provider rows.
 - Current public Windows release: `v1.45.21`, from source commit
   `d06300b43db0b3df2acbcb7cde2761158704f7b5`; its GitHub release contains the
   portable Windows x64 ZIP and no Linux package.
 - Current public Linux release: `v1.43.0`, from source commit
   `26dfaf49df8f9b8e73e84f406396f406170400b2`; its GitHub release contains the
   Debian 12 x86-64 tarball and adjacent checksum.
-- Source `1.46.9` is not published: no `v1.46.9` tag, release archive/checksum,
+- Source `1.46.10` is not published: no `v1.46.10` tag, release archive/checksum,
   or GitHub release has been created.
 - At the user's request, the local Windows `dist/NightScope` was rebuilt from
   clean source commit `42b0cb2` on 2026-09-05 for manual testing. Its bundle
   audit and packaged backend/normal-QML/Red Night Vision smoke tests passed;
-  the final directory remains pristine. Linux was not rebuilt.
+  it was pristine at build handoff but may now contain the user's test data.
+  This correction pass does not rebuild or alter it. Linux was not rebuilt.
 - The previous complete Windows distribution, including its database and
   preferences, is preserved in
   `dist/_backups/NightScope-1.45.21-before-1.46.9-20260905-142734`.
@@ -142,6 +138,23 @@ provider, equipment repository/bootstrap, the Skyfield engine, and the largest
 QML pages remain concentrated maintenance areas.
 
 ## Validation
+
+The corrected `1.46.10` complete coverage/security source gate passed on
+2026-09-05: 1,332 tests and 10 subtests in 223.57 s for pytest, 86% application
+coverage (17,799 / 20,633 lines). All static, architecture, reviewed-security,
+dependency, license and catalogue gates pass; backend and normal/red QML smoke
+tests pass with disposable runtimes. Inventory is 251 Python / 34 QML /
+17 operational files; the existing Bandit baseline remains 0 high / 34 medium /
+14 low and `pip-audit` reports no known dependency vulnerabilities. The
+correction report records the regression boundaries, independent numerical
+probes, UI verification and remaining approximation limits. No bundled runtime
+was changed, and no remote GitHub run was awaited.
+All 34 QML files pass `qmllint` with non-fatal diagnostics retained. All three
+Qt packs contain 2,064 compiled finished messages. Targeted normal/red lunar
+renders and six IT/EN/ES degraded-ephemeris Home/Calendar scenes were reviewed;
+this is not a new complete release visual/provider matrix.
+
+### Historical 1.46.9 And Earlier Validation
 
 The final local `1.46.9` coverage/security source gate passed on 2026-09-05 on
 Windows/Python 3.14.5:
@@ -393,7 +406,8 @@ runtime/scoring code changed. The focused catalogue/translation suite passed
 49 tests in 14.15 seconds, including new identity and three-language
 qualifier regressions; the existing Spanish terminology gate remains intact.
 
-The next editorial source step is `1.46.10`: continue NGC-only enrichment with
+After the user's review of the correctness changes, the next editorial source
+step can be `1.46.11`: continue NGC-only enrichment with
 a new bounded manifest and the same source, three-language, static/live,
 visual and full-gate requirements. Do not wait for GitHub Actions; the user
 will report failures. Public platform bundles can group several source
@@ -413,6 +427,8 @@ source tag, and only then publish it. Follow `docs/RELEASE_CHECKLIST.md`.
 
 - `docs/ARCHITECTURE.md`: detailed current runtime architecture.
 - `docs/ARCHITECTURE_REVIEW_1_45.md`: evidence-backed structural assessment.
+- `docs/ASTRONOMICAL_CORRECTIONS_1_46_10.md`: corrected scientific contracts,
+  regression evidence and remaining model limits.
 - `docs/TESTING.md`: current local and CI gate contract.
 - `docs/CATALOGUE_EDITORIAL_WORKFLOW.md`: active multilingual content workflow.
 - `astro_viewer/data/editorial_batches/`: baseline, batch schema and acceptance

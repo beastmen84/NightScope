@@ -13,7 +13,8 @@ from astro_viewer.app.application.catalogue_recommendations import (
 from astro_viewer.app.application.location_commands import LocationCommandWorkflow
 from astro_viewer.app.astronomy.engine import (
     AstronomyEngine,
-    MockAstronomyEngine,
+    ASTRONOMY_UNAVAILABLE_MESSAGE,
+    UnavailableAstronomyEngine,
     TransientCalendarEventSource,
 )
 from astro_viewer.app.astronomy.skyfield_engine import (
@@ -72,7 +73,6 @@ from astro_viewer.app.services.imaging_runtime_assembler import (
     ImagingRuntimeAssembler,
 )
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
-from astro_viewer.app.services.localization import tr
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
 from astro_viewer.app.services.location_providers import (
     build_location_provider_adapters,
@@ -248,13 +248,11 @@ def build_app_controller_dependencies(
         )
     except EphemerisUnavailableError:
         logger.error(
-            "Skyfield engine unavailable; using fallback astronomy data.",
+            "Skyfield engine unavailable; astronomical predictions disabled.",
             exc_info=True,
         )
-        astronomy_engine = MockAstronomyEngine()
-        startup_service_status = tr(
-            "Effemeridi astronomiche non disponibili. Uso i dati cielo di fallback."
-        )
+        astronomy_engine = UnavailableAstronomyEngine()
+        startup_service_status = ASTRONOMY_UNAVAILABLE_MESSAGE
 
     equipment_service = EquipmentService()
     equipment_catalog_service = EquipmentCatalogService(

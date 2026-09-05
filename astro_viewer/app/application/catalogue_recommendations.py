@@ -40,6 +40,7 @@ from astro_viewer.app.services.observation_conditions_service import (
     ObservationConditionsService,
 )
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
+from astro_viewer.app.services.observing_time import target_observing_interval
 
 
 logger = logging.getLogger(__name__)
@@ -173,7 +174,7 @@ class CatalogueRecommendationWorkflow:
                 context.observing_night_window,
             )
         )
-        if not planning_objects:
+        if not planning_objects and context.observing_night_window is None:
             planning_objects = list(
                 unique_targets_by_id(
                     (
@@ -389,8 +390,11 @@ def home_visible_objects_for_window(
         unique_targets_by_id(
             item
             for item in objects
-            if has_useful_time(item.best_time)
-            or has_useful_time(item.observing_window)
+            if item.night_eligible is not False and (
+                target_observing_interval(item, night_window) is not None
+                if item.night_eligible is True
+                else has_useful_time(item.best_time) or has_useful_time(item.observing_window)
+            )
         )
     )
 

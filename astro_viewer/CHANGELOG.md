@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+## NightScope 1.46.10 - 2026-09-05
+
+- Corrette le anomalie A1-A8/N1 dell'audit 1.46.9: meteo incompleto/non finito,
+  soglia delle nebulose planetarie, finestre positive prima dell'alba,
+  ammissione al piano e opportunita' NSOM nulle, cronologia e durate al cambio d'ora.
+- Introdotti timestamp completi per finestre e piano; campionamento e confronti
+  in UTC, presentazione locale con offset per distinguere le ore autunnali ripetute.
+- Allineato il criterio di crepuscolo tra notte e filtro mensile: buio
+  astronomico per deep-sky, Urano e Nettuno; tramonto per Luna e pianeti luminosi.
+  Il Sole conserva il percorso diurno e non entra nel piano notturno.
+- Il fallimento del recupero effemeridi disattiva le previsioni astronomiche:
+  niente dati dimostrativi, con avviso persistente su tutte le pagine.
+- Disegno lunare con terminatore sferico proiettato e meta' disco ai quarti;
+  magnitudine -12,7 esplicitamente indicata come riferimento di Luna piena.
+- Ricerca aggiornamenti per artefatto Windows/Linux x64 realmente disponibile;
+  corretti inoltre le coordinate OpenAQ uguali a zero e il veto cometario della
+  Luna sotto l'orizzonte. Nessuna ricalibrazione dei pesi NSOM o dell'imaging.
+- Aggiunte regressioni dedicate e aggiornati contratti/documentazione. I due
+  nuovi messaggi UI sono revisionati e compilati in IT/EN/ES; nessuna modifica
+  ai 323 oggetti editoriali, ai manifest, alle traduzioni dei contenuti o al DB.
+- Gate completo con sicurezza superato: 1.332 test e 10 subtest, copertura 86%,
+  smoke backend/QML normale/rosso superati. Ripetuti il confronto di 288
+  posizioni Skyfield/Astropy e le 240 identita' ottiche su 48 configurazioni.
+- La distribuzione locale resta 1.46.9; nessuna nuova dist, tag, push o release
+  pubblica e nessuna attesa dei run GitHub. Verifica finale riportata nel
+  rapporto `docs/ASTRONOMICAL_CORRECTIONS_1_46_10.md`.
+
+### Audit preliminare della sorgente 1.46.9
+
 - Audit astronomico e logico esteso alla struttura del programma, senza bump
   versione o modifiche al comportamento: rapporto in
   `docs/ASTRONOMICAL_CODE_AUDIT_1_46_9.md`, confronto Skyfield/Astropy su 288
@@ -10,7 +39,7 @@
   nelle finestre/DST, nell'ammissione dei pianeti al piano e nei dati meteo
   incompleti; registrati anche incoerenze sul crepuscolo, provenienza dei dati
   di fallback, illustrazione lunare e disponibilita' aggiornamenti per piattaforma.
-  Le correzioni funzionali restano da autorizzare e verificare separatamente.
+  Le correzioni funzionali, successivamente autorizzate, sono nella 1.46.10 sopra.
 - Aggiunti contratti e limiti scientifici nei moduli di astronomia, ottica,
   seeing, provider, NSOM e imaging. Corretto il riferimento documentale a
   un'elevazione osservatore non utilizzata; editoriale, traduzioni, formule,

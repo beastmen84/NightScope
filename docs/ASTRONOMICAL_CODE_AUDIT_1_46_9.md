@@ -2,6 +2,12 @@
 
 Audit date: 2026-09-05. Source baseline: `b567a2b`.
 
+Historical audit, preserved as originally observed. The user subsequently
+authorized functional corrections; their implementation and validation are
+recorded in [1.46.10 corrections](ASTRONOMICAL_CORRECTIONS_1_46_10.md).
+Statements below about open defects describe the 1.46.9 baseline, not the
+corrected source. Scientific approximation/calibration limits still apply.
+
 This audit pauses catalogue editorial work. Its scope is application logic,
 astronomical calculations, numerical units, observation/imaging heuristics,
 provider boundaries, persistence, orchestration and presentation. Documentation

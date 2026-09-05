@@ -1903,6 +1903,12 @@ class Phase6RealDataTests(unittest.TestCase):
                 "",
             )
             controller._observing_night_window = _test_night_window()
+            # This test isolates catalogue exclusion, not unavailable seeing.
+            # Zero-opportunity rows are now correctly rejected by the planner.
+            controller._seeing_transparency = SeeingTransparency(
+                "Good", "Good", 80, 80, "test conditions",
+                confidence="medium", atmospheric_transparency_score=80,
+            )
             controller._refresh_equipment_recommendations_for_current_objects()
             controller._deep_sky = controller._apply_deep_sky_pollution_context(
                 controller._deep_sky
@@ -2657,9 +2663,10 @@ class Phase6RealDataTests(unittest.TestCase):
                 self.assertFalse(visibility["messier-M1"])
                 self.assertTrue(solar_visibility["sun"])
                 self.assertTrue(solar_visibility["moon"])
-                self.assertFalse(solar_visibility["mercury"])
+                # Bright planets can be eligible during sunset twilight.
+                self.assertTrue(solar_visibility["mercury"])
                 self.assertTrue(solar_visibility["venus"])
-                self.assertFalse(solar_visibility["mars"])
+                self.assertTrue(solar_visibility["mars"])
                 self.assertTrue(solar_visibility["jupiter"])
                 self.assertTrue(solar_visibility["saturn"])
                 self.assertFalse(solar_visibility["uranus"])

@@ -20,7 +20,7 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.46.9` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
+The `1.46.10` Windows/Python 3.14.5 environment retains pip 26.2.1,
 Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
 `pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
 Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, NumPy 2.5.2,
@@ -215,9 +215,9 @@ Validate fixed MPC and OpenNGC inputs without network access:
 ```
 
 The editorial audit reports the immutable 228-object pre-programme identity,
-the 75 accepted NGC-only additions, complete IT/EN/ES coverage, two accepted
+the 95 accepted NGC-only additions, complete IT/EN/ES coverage, three accepted
 enrichment manifests, six baseline-remediation manifests covering 197 objects,
-and the remaining 7,291-object NGC-only backlog. The historical paragraph
+and the remaining 7,271-object NGC-only backlog. The historical paragraph
 screen and the new repository-wide IT/EN/ES sentence screen both report zero
 findings. The latter catches long shared sentences hidden inside otherwise
 distinct descriptions, notes, and curiosities; short recurring advice is
@@ -234,6 +234,28 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
+The `1.46.10` coverage/security source gate passed on 2026-09-05 with 1,332
+tests and 10 subtests in 223.57 seconds (pytest phase), 86% application coverage
+(17,799 / 20,633 executable lines), and successful backend, normal-QML and
+Red Night Vision smoke tests in disposable runtimes. Ruff, documentation
+(251 Python / 34 QML / 17 operational), import boundaries, reviewed Bandit
+baseline (0 high / 34 medium / 14 low), dependency, license and all catalogue
+gates pass. No known installed dependency vulnerability was found.
+This is local Windows/Python 3.14.5 evidence, not a new timing optimization,
+remote CI pass or portable-bundle approval. Detailed evidence is recorded in
+[`ASTRONOMICAL_CORRECTIONS_1_46_10.md`](ASTRONOMICAL_CORRECTIONS_1_46_10.md).
+New regressions exercise absolute observing intervals, both DST changes,
+provider missing-value semantics, target-aware twilight, ephemeris failure,
+platform-specific updates and the actual QML lunar clipping geometry. The
+editorial seeds, NSOM weights and test-setup reuse policy remain unchanged.
+All 34 QML files also passed `qmllint` (exit 0, existing non-fatal diagnostics
+retained); IT/EN/ES contain 2,064 compiled, finished Qt messages each. The
+targeted visual review covers the eight lunar phases in normal/red and six
+real-shell degraded-ephemeris scenes across the three languages, Home/Calendar,
+normal/red at minimum size. It is not a complete release visual matrix.
+
+### Historical 1.46.9 And Earlier Evidence
+
 The `1.46.9` coverage/security source gate passed on 2026-09-05 on
 Windows/Python 3.14.5 with 1,251 tests and 10 subtests in 310.46 seconds,
 86% aggregate application coverage (17,540 / 20,396 executable lines), complete
@@ -244,9 +266,9 @@ dependency/license/MPC/OpenNGC/editorial checks, and successful backend, normal
 QML, and Red Night Vision QML smoke tests. The editorial check passed without
 warnings and reports zero historical paragraph families and zero shared
 narrative sentence families across IT/EN/ES. The in-gate installed-environment
-`pip-audit` found no known vulnerabilities. The most recent separate PySide6
-6.11.2 `qmllint` pass over all 34 QML files remains the `1.45.22` pass; its
-existing non-fatal diagnostics remain tracked technical debt.
+`pip-audit` found no known vulnerabilities. At that baseline the most recent
+separate PySide6 6.11.2 `qmllint` pass was `1.45.22`; the newer `1.46.10` check
+is recorded above. Non-fatal diagnostics remain tracked technical debt.
 
 The earlier `1.46.8` same-session before/after comparison used the same SDK,
 four workers, default scheduler, full test selection and application/entry-point coverage.
@@ -291,7 +313,7 @@ only those counters were updated to 323. The separate prefix-diversity check
 also prompted a new opening for NGC 2440's Italian curiosity. All three
 database checks then passed in 3.79 seconds with their original uniqueness,
 minimum-length, prefix and similarity thresholds; the complete gate was rerun
-successfully afterwards. The 310.46-second latest run is not a replacement for
+successfully afterwards. That 310.46-second run is not a replacement for
 the controlled 1.46.8 optimization comparison or a new performance claim.
 A final developer-tooling pass after the documentation/version updates
 passed 46 tests in 15.49 seconds; the final batch similarity audit also passed.

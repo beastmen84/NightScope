@@ -35,6 +35,22 @@ ApplicationWindow {
     property var observingOverview: appController.homeObservingOverview || ({})
     property var sidebarSession: observingOverview.session || ({})
 
+    // A global header keeps unavailable ephemerides visible on every page.
+    header: Rectangle {
+        visible: !appController.astronomyAvailable
+        height: visible ? ephemerisWarning.implicitHeight + 20 : 0
+        color: theme.surfaceRaised
+        Text {
+            id: ephemerisWarning
+            anchors.fill: parent
+            anchors.margins: 10
+            text: appController.astronomyStatus
+            color: theme.amber
+            wrapMode: Text.WordWrap
+            font.pixelSize: 14
+        }
+    }
+
     function sidebarSessionAccent(state) {
         if (state === "pending")
             return theme.cyan

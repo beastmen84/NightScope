@@ -1,6 +1,8 @@
 {
   "schema_version": 1,
   "translations": {
+    "Effemeridi non disponibili: calcoli astronomici e piano osservativo disattivati.": "Ephemerides unavailable: astronomical calculations and the observing plan are disabled.",
+    "Magnitudine (Luna piena)": "Magnitude (full Moon)",
     "Avvio di NightScope": "Starting NightScope",
     "Caricamento del database e dell'interfaccia.": "Loading the database and interface.",
     "Database locale": "Local database",

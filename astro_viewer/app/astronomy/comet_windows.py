@@ -71,7 +71,7 @@ class _NightWindow:
 
     @property
     def duration(self) -> timedelta:
-        return self.end - self.start
+        return _as_utc(self.end) - _as_utc(self.start)
 
 
 class CometWindowEventSource:
@@ -380,6 +380,7 @@ class CometWindowEventSource:
             "moon_apparent": moon_apparent,
             "sun_altitudes": np.asarray(sun_altitudes.degrees, dtype=float),
             "moon_illumination": np.asarray(moon_illumination, dtype=float),
+            "moon_altitudes": np.asarray(moon_apparent.altaz()[0].degrees, dtype=float),
             "end": end,
         }
 
@@ -447,6 +448,7 @@ class CometWindowEventSource:
             & (solar_elongations >= self.MIN_SOLAR_ELONGATION_DEG)
             & (
                 (moon_separations >= self.MIN_MOON_SEPARATION_DEG)
+                | (np.asarray(context.get("moon_altitudes", np.inf)) <= 0)
                 | (
                     moon_illumination
                     <= self.MAX_MOON_ILLUMINATION_FOR_CLOSE_PASS

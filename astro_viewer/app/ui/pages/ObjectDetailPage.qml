@@ -245,9 +245,9 @@ Item {
     }
 
     function drawMoonPhase(ctx, width, height, phaseAngle) {
-        // Stylized phase illustration, not a quantitative illuminated-area or
-        // local eyepiece-orientation model. The translated shadow circle is an
-        // approximation; numeric illumination comes from the astronomy engine.
+        // Project a spherical terminator: lit area = (1 - cos(angle)) / 2.
+        // Fixed schematic orientation: waxing right, waning left. No local
+        // horizon/eyepiece rotation or libration; textures remain decorative.
         var angle = ((phaseAngle % 360) + 360) % 360
         var radius = Math.min(width, height) / 2 - 3
         var centerX = width / 2
@@ -276,7 +276,27 @@ Item {
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
         ctx.clip()
 
-        if (angle > 2 && angle < 358) {
+        if (angle > 0) {
+            var side = angle <= 180 ? 1 : -1
+            var terminator = Math.cos(angle * Math.PI / 180)
+            var steps = 96
+            ctx.beginPath()
+            for (var edge = 0; edge <= steps; edge++) {
+                var limbAngle = -Math.PI / 2 + edge * Math.PI / steps
+                var limbX = centerX + side * radius * Math.cos(limbAngle)
+                var limbY = centerY + radius * Math.sin(limbAngle)
+                if (edge === 0)
+                    ctx.moveTo(limbX, limbY)
+                else
+                    ctx.lineTo(limbX, limbY)
+            }
+            for (var inner = steps; inner >= 0; inner--) {
+                var innerAngle = -Math.PI / 2 + inner * Math.PI / steps
+                ctx.lineTo(centerX + side * terminator * radius * Math.cos(innerAngle),
+                           centerY + radius * Math.sin(innerAngle))
+            }
+            ctx.closePath()
+            ctx.clip()
             var lightDisc = ctx.createRadialGradient(centerX - radius * 0.35, centerY - radius * 0.45, radius * 0.1, centerX, centerY, radius)
             lightDisc.addColorStop(0, theme.moonLightCenter)
             lightDisc.addColorStop(0.48, theme.moonLightMiddle)
@@ -300,19 +320,6 @@ Item {
             }
             ctx.globalAlpha = 1
 
-            var shadow = ctx.createRadialGradient(centerX + radius * 0.2, centerY - radius * 0.2, radius * 0.08, centerX, centerY, radius)
-            shadow.addColorStop(0, theme.moonShadowCenter)
-            shadow.addColorStop(0.72, theme.moonShadowMiddle)
-            shadow.addColorStop(1, theme.moonShadowEdge)
-            var shadowOffset
-            if (angle <= 180)
-                shadowOffset = -2 * radius * (angle / 180)
-            else
-                shadowOffset = 2 * radius * (1 - ((angle - 180) / 180))
-            ctx.fillStyle = shadow
-            ctx.beginPath()
-            ctx.arc(centerX + shadowOffset, centerY, radius, 0, Math.PI * 2)
-            ctx.fill()
         }
 
         ctx.restore()
@@ -506,7 +513,7 @@ Item {
                         columnSpacing: 12
                         rowSpacing: 12
 
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Magnitudine"); value: objectData.magnitude }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: objectData.id === "moon" ? qsTr("Magnitudine (Luna piena)") : qsTr("Magnitudine"); value: objectData.magnitude }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: root.originMetricLabel(); value: root.originMetricValue() }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Altezza massima"); value: objectData.max_altitude }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Direzione"); value: objectData.direction }

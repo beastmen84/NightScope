@@ -6,7 +6,7 @@ import re
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from astro_viewer.app.astronomy.engine import ObservingNightWindow
+from astro_viewer.app.astronomy.engine import ObservingNightWindow, as_utc
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.services.localization import tr
 
@@ -20,8 +20,8 @@ def same_observing_night(
     if left.start is None or left.end is None or right.start is None or right.end is None:
         return left.start == right.start and left.end == right.end
     return (
-        abs((left.start - right.start).total_seconds()) < 60
-        and abs((left.end - right.end).total_seconds()) < 60
+        abs((as_utc(left.start) - as_utc(right.start)).total_seconds()) < 60
+        and abs((as_utc(left.end) - as_utc(right.end)).total_seconds()) < 60
     )
 
 
@@ -29,9 +29,11 @@ def home_time_label(
     item: CelestialObject,
     night_window: ObservingNightWindow | None,
 ) -> str:
-    useful_best = first_observing_datetime(item.best_time, night_window)
+    useful_best = absolute_observing_datetime(item.best_observing_at, night_window)
+    if useful_best is None:
+        useful_best = first_observing_datetime(item.best_time, night_window)
     if useful_best:
-        return format_home_datetime(useful_best)
+        return format_observing_clock(useful_best, night_window)
     useful_window = first_observing_datetime(item.observing_window, night_window)
     if useful_window:
         return format_home_datetime(useful_window)
@@ -42,6 +44,9 @@ def home_window_label(
     item: CelestialObject,
     night_window: ObservingNightWindow | None,
 ) -> str:
+    interval = target_observing_interval(item, night_window)
+    if interval:
+        return f"{format_observing_clock(interval[0], night_window)} - {format_observing_clock(interval[1], night_window)}"
     useful_times = [
         candidate
         for hour, minute in all_times(item.observing_window)
@@ -145,10 +150,54 @@ def home_time_period_code(
     if night_window is not None and night_window.state == "bounded":
         if night_window.start is not None and value.date() == night_window.start.date():
             return "evening"
-        if night_window.end is not None and night_window.end - value <= timedelta(hours=3):
+        if night_window.end is not None and as_utc(night_window.end) - as_utc(value) <= timedelta(hours=3):
             return "before_dawn"
     return "night"
 
 
 def format_clock(hour: int, minute: int) -> str:
     return f"{hour:02d}:{minute:02d}"
+
+
+def format_observing_clock(value: datetime, night: ObservingNightWindow | None) -> str:
+    """Disambiguate repeated local minutes while keeping ordinary labels compact."""
+    label = value.strftime("%H:%M")
+    if night is None or not night.has_observing_window:
+        return label
+    first = night.datetime_for_clock(value.hour, value.minute, fold=0, include_end=True)
+    second = night.datetime_for_clock(value.hour, value.minute, fold=1, include_end=True)
+    if first is not None and second is not None and as_utc(first) != as_utc(second):
+        offset = value.strftime("%z")
+        label += f" (UTC{offset[:3]}:{offset[3:]})"
+    return label
+
+
+def absolute_observing_datetime(
+    value: str, night_window: ObservingNightWindow | None = None,
+) -> datetime | None:
+    """Read a timestamp, never reinterpret an offset-bearing instant as a clock."""
+    try:
+        parsed = datetime.fromisoformat(value)
+    except (TypeError, ValueError):
+        return None
+    if parsed.tzinfo is None or (night_window is not None and not night_window.contains(parsed)):
+        return None
+    return parsed.astimezone(night_window.start.tzinfo) if night_window and night_window.start else parsed
+
+
+def target_observing_interval(
+    item: CelestialObject, night_window: ObservingNightWindow | None = None,
+) -> tuple[datetime, datetime] | None:
+    """Intersect a target's positive absolute interval with the requested night."""
+    if item.night_eligible is False:
+        return None
+    start = absolute_observing_datetime(item.observing_start_at)
+    end = absolute_observing_datetime(item.observing_end_at)
+    if start is None or end is None:
+        return None
+    if night_window is not None:
+        if not night_window.has_observing_window:
+            return None
+        start = max(start, night_window.start, key=as_utc).astimezone(night_window.start.tzinfo)
+        end = min(end, night_window.end, key=as_utc).astimezone(night_window.start.tzinfo)
+    return (start, end) if as_utc(start) < as_utc(end) else None

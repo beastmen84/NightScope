@@ -70,5 +70,6 @@ def test_skyfield_moon_geometry_batch_preserves_planet_and_messier_results(tmp_p
     }
     assert summaries["jupiter"].moon_target_separation_deg == 73.5
     assert summaries["jupiter"].moon_visible_during_target_window is False
-    assert summaries["messier-M13"].moon_target_separation_deg == 116.56
+    # DSO geometry now uses the dark useful interval, excluding twilight samples.
+    assert summaries["messier-M13"].moon_target_separation_deg == 116.92
     assert summaries["messier-M13"].moon_visible_during_target_window is True

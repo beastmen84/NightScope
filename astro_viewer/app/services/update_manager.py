@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 import logging
+import platform
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from threading import Lock, Thread
@@ -17,9 +19,7 @@ from PySide6.QtCore import QObject, Property, Signal, Slot
 
 logger = logging.getLogger(__name__)
 
-LATEST_RELEASE_API_URL = (
-    "https://api.github.com/repos/beastmen84/NightScope/releases/latest"
-)
+RELEASES_API_URL = "https://api.github.com/repos/beastmen84/NightScope/releases"
 OFFICIAL_RELEASE_PATH_PREFIX = "/beastmen84/NightScope/releases/"
 REQUEST_TIMEOUT_SECONDS = 4.0
 _VERSION_PATTERN = re.compile(r"^v?(\d+)\.(\d+)\.(\d+)$")
@@ -42,36 +42,78 @@ def find_newer_release(
     current_version: str,
     *,
     http_get: Callable[..., requests.Response] = requests.get,
+    platform_name: str | None = None,
+    machine: str | None = None,
 ) -> ReleaseInfo | None:
+    """Find a newer public release with an uploaded compatible portable artifact.
+
+    Inspect at most 300 releases (three bounded requests), not the repository's
+    source-only/latest tag. Current bundles target Windows/Linux x86-64; no
+    architecture or unrecognized-platform guess authorizes an update offer.
+    Only an official release page is returned; no package is downloaded here.
+    """
     current = parse_version(current_version)
     if current is None:
         raise ValueError(f"Invalid current NightScope version: {current_version!r}")
 
-    response = http_get(
-        LATEST_RELEASE_API_URL,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "User-Agent": f"NightScope/{current_version.strip()}",
-            "X-GitHub-Api-Version": "2022-11-28",
-        },
-        timeout=REQUEST_TIMEOUT_SECONDS,
+    system = platform_name if platform_name is not None else sys.platform
+    architecture = (machine if machine is not None else platform.machine()).lower()
+    suffixes = ("windows-x64.zip",) if system == "win32" else (
+        ("debian-12-x64.tar.gz", "linux-x64.tar.gz") if system.startswith("linux") else ()
     )
-    response.raise_for_status()
-    payload = response.json()
-    if not isinstance(payload, dict):
-        raise ValueError("Invalid GitHub release response.")
-    if payload.get("draft") or payload.get("prerelease"):
+    if not suffixes or architecture not in {"amd64", "x86_64"}:
         return None
+    best: tuple[tuple[int, int, int], str] | None = None
+    for page in range(1, 4):
+        response = http_get(
+            RELEASES_API_URL,
+            params={"per_page": 100, "page": page},
+            headers={
+                "Accept": "application/vnd.github+json",
+                "User-Agent": f"NightScope/{current_version.strip()}",
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+            timeout=REQUEST_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        if not isinstance(payload, list):
+            raise ValueError("Invalid GitHub release response.")
+        for release in payload:
+            if not isinstance(release, dict) or release.get("draft") or release.get("prerelease"):
+                continue
+            tag = str(release.get("tag_name") or "").strip()
+            version = parse_version(tag)
+            url = str(release.get("html_url") or "").strip()
+            if version is None or version <= current or not _is_official_release_url(url):
+                continue
+            if best is not None and version <= best[0]:
+                continue
+            assets = release.get("assets")
+            if not isinstance(assets, list):
+                continue
+            if any(_compatible_asset(asset, tag, suffixes) for asset in assets):
+                best = version, url
+        if len(payload) < 100:
+            break
+    return ReleaseInfo(".".join(map(str, best[0])), best[1]) if best else None
 
-    tag_name = str(payload.get("tag_name") or "").strip()
-    release_url = str(payload.get("html_url") or "").strip()
-    latest = parse_version(tag_name)
-    if latest is None or latest <= current or not _is_official_release_url(release_url):
-        return None
 
-    return ReleaseInfo(
-        version=".".join(str(part) for part in latest),
-        url=release_url,
+def _compatible_asset(asset: object, tag: str, suffixes: tuple[str, ...]) -> bool:
+    if not isinstance(asset, dict) or asset.get("state") != "uploaded":
+        return False
+    size = asset.get("size")
+    if not isinstance(size, int) or isinstance(size, bool) or size <= 0:
+        return False
+    name = str(asset.get("name") or "")
+    version = tag.removeprefix("v")
+    expected_names = {
+        f"NightScope-{prefix}{version}-{suffix}"
+        for prefix in ("", "v") for suffix in suffixes
+    }
+    url = str(asset.get("browser_download_url") or "")
+    return name in expected_names and _is_official_release_url(url) and urlparse(url).path == (
+        f"{OFFICIAL_RELEASE_PATH_PREFIX}download/{tag}/{name}"
     )
 
 
@@ -80,6 +122,9 @@ def _is_official_release_url(value: str) -> bool:
     return (
         parsed.scheme == "https"
         and parsed.hostname == "github.com"
+        and not parsed.username
+        and not parsed.password
+        and parsed.netloc == "github.com"
         and parsed.path.startswith(OFFICIAL_RELEASE_PATH_PREFIX)
         and not parsed.params
         and not parsed.query

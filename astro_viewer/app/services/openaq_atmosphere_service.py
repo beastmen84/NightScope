@@ -684,9 +684,15 @@ class OpenAQLocalAtmosphereService:
         if not isinstance(coordinates, dict):
             return None
 
-        latitude = OpenAQLocalAtmosphereService._float_value(coordinates.get("latitude") or coordinates.get("lat"))
-        longitude = OpenAQLocalAtmosphereService._float_value(coordinates.get("longitude") or coordinates.get("lon"))
+        latitude = OpenAQLocalAtmosphereService._float_value(coordinates.get("latitude"))
+        longitude = OpenAQLocalAtmosphereService._float_value(coordinates.get("longitude"))
+        if latitude is None:
+            latitude = OpenAQLocalAtmosphereService._float_value(coordinates.get("lat"))
+        if longitude is None:
+            longitude = OpenAQLocalAtmosphereService._float_value(coordinates.get("lon"))
         if latitude is None or longitude is None:
+            return None
+        if not (-90 <= latitude <= 90 and -180 <= longitude <= 180):
             return None
         return OpenAQLocalAtmosphereService._haversine_km(
             location.latitude,

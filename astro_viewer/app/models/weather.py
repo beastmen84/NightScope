@@ -16,12 +16,14 @@ class WeatherHour:
     wind_kmh: int
     humidity: int
     temperature_c: float
-    visibility_m: int = 0
-    cloud_cover_low: int = 0
-    cloud_cover_mid: int = 0
-    cloud_cover_high: int = 0
-    wind_gusts_kmh: int = 0
+    visibility_m: int | None = 0
+    cloud_cover_low: int | None = 0
+    cloud_cover_mid: int | None = 0
+    cloud_cover_high: int | None = 0
+    wind_gusts_kmh: int | None = 0
     dew_point_c: float | None = None
+    # Provider rows can support weather but lack the extra seeing inputs.
+    seeing_inputs_complete: bool = True
 
     def to_qml(self) -> dict:
         data = asdict(self)

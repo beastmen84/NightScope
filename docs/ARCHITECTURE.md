@@ -1,6 +1,6 @@
 # NightScope Architecture
 
-This document describes the architecture implemented by the NightScope 1.46.9
+This document describes the architecture implemented by the NightScope 1.46.10
 source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
@@ -8,8 +8,9 @@ assessment, residual risks, and 1.44.0 comparison are in
 The subsequent source-1.46.9 scientific/logic audit is in
 [Astronomical and code audit](ASTRONOMICAL_CODE_AUDIT_1_46_9.md). It distinguishes
 validated coordinate/optical calculations, empirical recommendation models and
-open cross-layer correctness issues; the structural architecture review alone
-is not evidence of scientific correctness.
+cross-layer correctness issues, with their
+[1.46.10 resolution record](ASTRONOMICAL_CORRECTIONS_1_46_10.md). The structural
+architecture review alone is not evidence of scientific correctness.
 
 ## Project Structure
 
@@ -26,8 +27,8 @@ NightScope is organized around a small desktop application package:
   observing quality, planning, equipment recommendations, light pollution,
   NASA/OpenAQ data providers, seeing/transparency, update notification and
   logging.
-- `astro_viewer/app/astronomy`: astronomy engine protocol, mock fallback,
-  Skyfield-based engine and coordinate parsing helpers.
+- `astro_viewer/app/astronomy`: astronomy engine protocol, explicit unavailable
+  state, test/demo engine, Skyfield-based engine and coordinate parsing helpers.
 - `astro_viewer/app/database`: SQLite bootstrap, migrations, repositories and
   import helpers.
 - `astro_viewer/app/models`: dataclasses used as service and controller DTOs.
@@ -307,7 +308,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.46.9`:
+Current runtime status for `1.46.10`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -606,7 +607,8 @@ enforced invariant is narrower and accurate: models, database, astronomy and
 services may not import `viewmodels` or `application`.
 
 The astronomy layer depends on Skyfield/Astropy when available and provides a
-mock fallback through `MockAstronomyEngine`. Weather, VIIRS and NASA AOD network
+fail-closed fallback through `UnavailableAstronomyEngine`; `MockAstronomyEngine`
+is only explicitly injected test/demo data. Weather, VIIRS and NASA AOD network
 clients are isolated behind service classes.
 
 The production import graph is acyclic. `tools/check_import_cycles.py` checks

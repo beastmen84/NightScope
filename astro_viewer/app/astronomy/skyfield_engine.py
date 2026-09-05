@@ -35,6 +35,8 @@ from astro_viewer.app.astronomy.engine import (
     ObservingNightWindow,
     PreparedTransientCalendarEvents,
     TransientCalendarEventSource,
+    advance_time,
+    as_utc,
 )
 from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.models.observing import (
@@ -56,6 +58,11 @@ from astro_viewer.app.services.catalogue_presentation import catalogue_display_n
 logger = logging.getLogger(__name__)
 
 DEEP_SKY_USEFUL_ALTITUDE_DEG = 15.0
+DEEP_SKY_SUN_ALTITUDE_DEG = -18.0
+SOLAR_SYSTEM_SUN_ALTITUDE_DEG = -0.8333
+# Bright naked-eye bodies can be planned in twilight. The two faint outer
+# planets retain the conservative dark-sky policy, despite their 8-degree floor.
+TWILIGHT_BODY_IDS = frozenset({"moon", "mercury", "venus", "mars", "jupiter", "saturn"})
 CATALOGUE_MONTH_SAMPLE_MINUTES = 60
 CALENDAR_EVENT_HORIZON_DAYS = 365
 PLANETARY_CONJUNCTION_MAX_SEPARATION_DEG = 6.0
@@ -321,15 +328,16 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         reference: datetime,
     ) -> bool:
         calculated_at, window = cached
-        if reference < calculated_at:
+        if as_utc(reference) < as_utc(calculated_at):
             return False
         if window.has_observing_window:
-            return reference < window.end
-        return reference - calculated_at < timedelta(minutes=30)
+            return as_utc(reference) < as_utc(window.end)
+        return as_utc(reference) - as_utc(calculated_at) < timedelta(minutes=30)
 
     def recommended_deep_sky(self, location: ObserverLocation) -> list[CelestialObject]:
         now = self._now(location)
         night_window = self.observing_night_window(location, reference=now)
+        night_window = self._deep_sky_night_window(location, night_window)
         candidates = []
         rows = self._recommendation_catalogue_rows()
         coordinate_cache = getattr(
@@ -470,13 +478,10 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 np.asarray(altitude.degrees, dtype=float)
             )
 
-        usable_altitudes = (
-            altitude_matrix[:-1]
-            if len(sample_times) > 1
-            else altitude_matrix
-        )
+        # Include the closing sample in the cheap prefilter: an interpolated
+        # crossing before it can leave a positive useful interval (audit A3).
         visible_indices = np.flatnonzero(
-            np.max(usable_altitudes, axis=0)
+            np.max(altitude_matrix, axis=0)
             >= DEEP_SKY_USEFUL_ALTITUDE_DEG
         )
         objects = []
@@ -490,10 +495,12 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     ),
                 )
             )
-            max_altitude, best_dt, observing_window = self._sample_summary(
+            max_altitude, best_dt, useful_start, useful_end = self._sample_window(
                 samples,
                 threshold=DEEP_SKY_USEFUL_ALTITUDE_DEG,
             )
+            if useful_start is None:
+                continue
             objects.append(
                 self._catalogue_object_from_geometry(
                     rows[object_index],
@@ -505,7 +512,9 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     ),
                     max_altitude=max_altitude,
                     best_dt=best_dt,
-                    observing_window=observing_window,
+                    observing_window=self._sampled_window_label(useful_start, useful_end),
+                    useful_start=useful_start,
+                    useful_end=useful_end,
                     now=now,
                     night_window=night_window,
                 )
@@ -524,6 +533,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         current_time = self._to_skyfield_time(now)
         night_window = self.observing_night_window(location, reference=now)
         is_observing_night = night_window.contains(now)
+        dark_window = self._deep_sky_night_window(location, night_window)
         body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
         updated = []
         for item in objects:
@@ -536,7 +546,9 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 updated.append(item)
                 continue
             altitude_degrees, azimuth_degrees = position
-            observable_now = is_observing_night and altitude_degrees >= self._geometry_altitude_threshold(item)
+            threshold = self._geometry_altitude_threshold(item)
+            suitable_light = is_observing_night if item.id in TWILIGHT_BODY_IDS else dark_window.contains(now)
+            observable_now = suitable_light and altitude_degrees >= threshold and item.id != "sun"
             updated.append(
                 replace(
                     item,
@@ -616,26 +628,13 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         return self._star_for_current_position(target)
 
     @staticmethod
+    def _is_solar_system_target(target: CelestialObject) -> bool:
+        # Stable IDs, never a substring also matching "Planetary Nebula".
+        return target.id in {config.object_id for config in SkyfieldAstronomyEngine.BODY_CONFIGS}
+
+    @staticmethod
     def _geometry_altitude_threshold(target: CelestialObject) -> float:
-        lower_type = target.object_type.lower()
-        if (
-            target.id
-            in {
-                "sun",
-                "moon",
-                "mercury",
-                "venus",
-                "mars",
-                "jupiter",
-                "saturn",
-                "uranus",
-                "neptune",
-            }
-            or "pianeta" in lower_type
-            or "planet" in lower_type
-        ):
-            return 8.0
-        return DEEP_SKY_USEFUL_ALTITUDE_DEG
+        return 8.0 if SkyfieldAstronomyEngine._is_solar_system_target(target) else DEEP_SKY_USEFUL_ALTITUDE_DEG
 
     def catalogue_month_visibility(
         self,
@@ -647,11 +646,11 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     ) -> dict[str, bool]:
         """Return sampled monthly eligibility, not a continuous visibility proof.
 
-        The current policy requires astronomical darkness (Sun below -18 deg)
-        for every non-Sun target, including the Moon and planets; the Sun uses
-        a separate daytime grid. This differs from nightly planning and misses
-        bright twilight targets (audit A4). Sampling can also miss brief grazing
-        threshold crossings. Coordinates and altitude_threshold use degrees,
+        Deep-sky and Uranus/Neptune require astronomical darkness; the Moon and
+        naked-eye planets accept sunset twilight, matching nightly planning.
+        The Sun uses a daytime grid. These are conservative eligibility policies,
+        not detectability guarantees. Sampling can miss brief grazing threshold
+        crossings. Coordinates and altitude_threshold use degrees,
         except catalogue right ascension, which is parsed as hours.
         """
 
@@ -659,6 +658,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         zone = self._zone(location)
         samples = self._month_dark_samples(location, year, month, zone, step_minutes=CATALOGUE_MONTH_SAMPLE_MINUTES)
         daylight_samples = self._month_day_samples(year, month, zone, step_minutes=CATALOGUE_MONTH_SAMPLE_MINUTES)
+        twilight_samples = None
         visibility: dict[str, bool] = {}
         body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
         fixed_targets: list[tuple[str, float, float]] = []
@@ -674,7 +674,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 if not config:
                     continue
                 body = self._ephemeris[config.body_key]
-                body_samples = daylight_samples if solar_system_body_id == "sun" else samples
+                if solar_system_body_id in TWILIGHT_BODY_IDS and twilight_samples is None:
+                    twilight_samples = self._month_dark_samples(
+                        location, year, month, zone, step_minutes=CATALOGUE_MONTH_SAMPLE_MINUTES,
+                        sun_altitude_limit=SOLAR_SYSTEM_SUN_ALTITUDE_DEG,
+                    )
+                body_samples = (
+                    daylight_samples if solar_system_body_id == "sun"
+                    else twilight_samples if solar_system_body_id in TWILIGHT_BODY_IDS else samples
+                )
                 visibility[object_key] = self._reaches_altitude_threshold(
                     observer,
                     body,
@@ -822,6 +830,10 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         if not night_window.has_observing_window:
             return results
         samples = self._datetime_samples(night_window.start, night_window.end, step_minutes=30)
+        # Fixed-offset keys avoid ZoneInfo's fold-insensitive equality. Retain
+        # one bounded common grid: per-target added times would make the batch
+        # matrix quadratic in catalogue size. Narrow unsampled windows stay unknown.
+        samples = sorted({datetime.fromisoformat(value.isoformat()) for value in samples}, key=as_utc)
         if not samples:
             return results
         times = self._timescale.from_datetimes([sample.astimezone(UTC) for sample in samples])
@@ -1032,6 +1044,10 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         separations: dict[datetime, float],
     ) -> MoonGeometrySummary | None:
         target_samples = [(sample, target_altitudes[sample]) for sample in samples]
+        if target.observing_start_at and target.observing_end_at:
+            start = as_utc(datetime.fromisoformat(target.observing_start_at))
+            end = as_utc(datetime.fromisoformat(target.observing_end_at))
+            target_samples = [(sample, altitude) for sample, altitude in target_samples if start <= as_utc(sample) <= end]
 
         threshold = self._geometry_altitude_threshold(target)
         visible_target_samples = [
@@ -1705,6 +1721,8 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     ) -> CelestialObject:
         now = now or self._now(location)
         night_window = night_window or self.observing_night_window(location, reference=now)
+        if config.object_id in {"uranus", "neptune"}:
+            night_window = self._deep_sky_night_window(location, night_window)
         zone = self._zone(location)
         observer = self._observer(location)
         body = self._ephemeris[config.body_key]
@@ -1719,7 +1737,10 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             if night_window.has_observing_window
             else []
         )
-        max_altitude, best_dt, observing_window = self._sample_summary(sample, threshold=8.0)
+        max_altitude, best_dt, useful_start, useful_end = self._sample_window(sample, threshold=8.0)
+        if config.object_id == "sun":
+            best_dt = useful_start = useful_end = None
+        observing_window = self._window_label_or_unavailable(useful_start, useful_end)
         magnitude = self._magnitude(astrometric, config.object_id)
         visible = altitude.degrees > 0.0 or max_altitude > 8.0
         observable_now = self._is_observable_now(night_window, now, altitude.degrees, threshold=8.0)
@@ -1735,13 +1756,13 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             distance=self._format_distance(distance.au, config.object_id),
             max_altitude=self._degrees_label(max_altitude),
             direction=self._azimuth_direction(azimuth.degrees),
-            best_time=self._format_dt(best_dt) if best_dt else culmination,
+            best_time=self._format_dt(best_dt) if best_dt else tr("n/d"),
             observing_window=observing_window,
             notes=self._body_note(config.object_id, max_altitude),
             recommended_setup=self._default_setup(config.object_id),
             visibility_class=self._visibility_class(magnitude, config.object_id),
             azimuth=self._degrees_label(float(azimuth.degrees)),
-            time_above_horizon=self._window_duration(observing_window),
+            time_above_horizon=self._window_duration(observing_window, useful_start, useful_end),
             visible=visible,
             rise_time=rise_time,
             set_time=set_time,
@@ -1753,6 +1774,10 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             current_azimuth_degrees=float(azimuth.degrees),
             score=score,
             intrinsic_score=intrinsic_score,
+            night_eligible=useful_start is not None,
+            best_observing_at=best_dt.isoformat() if best_dt else "",
+            observing_start_at=useful_start.isoformat() if useful_start else "",
+            observing_end_at=useful_end.isoformat() if useful_end else "",
             score_label=self._score_label(score),
             score_explanation=tr(
                 "Altezza massima {altitude} e magnitudine {magnitude}.",
@@ -1775,6 +1800,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         star = Star(ra_hours=ra_hours, dec_degrees=dec_degrees)
         now = now or self._now(location)
         night_window = night_window or self.observing_night_window(location, reference=now)
+        night_window = self._deep_sky_night_window(location, night_window)
         observer = self._observer(location)
         current_time = self._to_skyfield_time(now)
         apparent = observer.at(current_time).observe(star).apparent()
@@ -1790,14 +1816,16 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             if night_window.has_observing_window
             else []
         )
-        max_altitude, best_dt, observing_window = self._sample_summary(sample, threshold=DEEP_SKY_USEFUL_ALTITUDE_DEG)
+        max_altitude, best_dt, useful_start, useful_end = self._sample_window(sample, threshold=DEEP_SKY_USEFUL_ALTITUDE_DEG)
         return self._catalogue_object_from_geometry(
             row,
             current_altitude=float(altitude.degrees),
             current_azimuth=float(azimuth.degrees),
             max_altitude=max_altitude,
             best_dt=best_dt,
-            observing_window=observing_window,
+            observing_window=self._window_label_or_unavailable(useful_start, useful_end),
+            useful_start=useful_start,
+            useful_end=useful_end,
             now=now,
             night_window=night_window,
         )
@@ -1813,9 +1841,11 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         observing_window: str,
         now: datetime,
         night_window: ObservingNightWindow,
+        useful_start: datetime | None = None,
+        useful_end: datetime | None = None,
     ) -> CelestialObject:
         magnitude = row["magnitude"]
-        visible = max_altitude >= DEEP_SKY_USEFUL_ALTITUDE_DEG
+        visible = useful_start is not None and useful_end is not None
         observable_now = self._is_observable_now(
             night_window,
             now,
@@ -1868,7 +1898,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             recommended_setup=setup,
             visibility_class=self._deep_sky_visibility_class(magnitude),
             azimuth=self._degrees_label(current_azimuth),
-            time_above_horizon=self._window_duration(observing_window),
+            time_above_horizon=self._window_duration(observing_window, useful_start, useful_end),
             visible=visible,
             rise_time=tr("calcolato da finestra"),
             set_time=tr("calcolato da finestra"),
@@ -1880,6 +1910,10 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             current_azimuth_degrees=current_azimuth,
             score=score,
             intrinsic_score=intrinsic_score,
+            night_eligible=visible,
+            best_observing_at=best_dt.isoformat() if best_dt else "",
+            observing_start_at=useful_start.isoformat() if useful_start else "",
+            observing_end_at=useful_end.isoformat() if useful_end else "",
             score_label=self._score_label(score),
             score_explanation=tr(
                 "Massima altezza {altitude}; magnitudine {magnitude}.",
@@ -1945,7 +1979,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             end,
             step_minutes=step_minutes,
         )
-        if samples and samples[-1] < end:
+        if samples and as_utc(samples[-1]) < as_utc(end):
             samples.append(end)
         return samples
 
@@ -1956,17 +1990,13 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         *,
         step_minutes: int,
     ) -> list[datetime]:
-        """Build the legacy wall-clock grid, including end only when aligned.
-
-        A positive step is required. Local timedelta arithmetic is not a
-        monotonic UTC grid across DST; this known defect is tracked by audit A2.
-        _window_datetime_samples separately appends an unaligned closing bound.
-        """
-
+        """Sample elapsed UTC time, localizing only each returned instant."""
+        if step_minutes <= 0:
+            raise ValueError("Sample step must be positive.")
         samples: list[datetime] = []
-        current = start
-        while current <= end:
-            samples.append(current)
+        current = as_utc(start)
+        while current <= as_utc(end):
+            samples.append(current.astimezone(start.tzinfo) if start.tzinfo else current)
             current += timedelta(minutes=step_minutes)
         return samples
 
@@ -1983,15 +2013,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     ) -> list[datetime]:
         if not samples:
             return []
-        ordered = sorted(samples, key=lambda item: item[0])
+        ordered = sorted(samples, key=lambda item: as_utc(item[0]))
         start_time = ordered[0][0]
         end_time = ordered[-1][0]
         best_time = max(ordered, key=lambda item: item[1])[0]
-        midpoint = start_time + (end_time - start_time) / 2
-        mid_time = min(ordered, key=lambda item: abs((item[0] - midpoint).total_seconds()))[0]
+        midpoint = as_utc(start_time) + (as_utc(end_time) - as_utc(start_time)) / 2
+        mid_time = min(ordered, key=lambda item: abs((as_utc(item[0]) - midpoint).total_seconds()))[0]
         result: list[datetime] = []
         for sample_time in (start_time, mid_time, best_time, end_time):
-            if sample_time not in result:
+            if as_utc(sample_time) not in [as_utc(value) for value in result]:
                 result.append(sample_time)
         return result
 
@@ -2002,14 +2032,14 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     ) -> bool | None:
         if not visible_target_samples:
             return None
-        first_target_time = min(sample_time for sample_time, _altitude in visible_target_samples)
-        last_target_time = max(sample_time for sample_time, _altitude in visible_target_samples)
+        first_target_time = min(as_utc(sample_time) for sample_time, _altitude in visible_target_samples)
+        last_target_time = max(as_utc(sample_time) for sample_time, _altitude in visible_target_samples)
         moon_above_before = any(
-            sample_time < first_target_time and altitude > 0.0
+            as_utc(sample_time) < first_target_time and altitude > 0.0
             for sample_time, altitude in moon_altitudes.items()
         )
         moon_above_during = any(
-            first_target_time <= sample_time <= last_target_time and altitude > 0.0
+            first_target_time <= as_utc(sample_time) <= last_target_time and altitude > 0.0
             for sample_time, altitude in moon_altitudes.items()
         )
         return moon_above_before and not moon_above_during
@@ -2021,21 +2051,56 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         month: int,
         zone: ZoneInfo,
         step_minutes: int,
+        sun_altitude_limit: float = DEEP_SKY_SUN_ALTITUDE_DEG,
     ) -> list[datetime]:
-        candidates: list[datetime] = []
-        for day in range(1, monthrange(year, month)[1] + 1):
-            current = datetime(year, month, day, 0, 0, tzinfo=zone)
-            end = current + timedelta(hours=24)
-            while current < end:
-                candidates.append(current)
-                current += timedelta(minutes=step_minutes)
-        if not candidates:
-            return []
+        start = datetime(year, month, 1, tzinfo=zone)
+        end = start + timedelta(days=monthrange(year, month)[1])
+        candidates = self._datetime_samples(start, end, step_minutes=step_minutes)
+        candidates = [value for value in candidates if as_utc(value) < as_utc(end)]
+        return [
+            sample for sample, altitude in self._altitudes_for_samples(
+                self._observer(location), self._ephemeris["sun"], candidates,
+            ) if altitude < sun_altitude_limit
+        ]
+
+    def _deep_sky_night_window(
+        self, location: ObserverLocation, night: ObservingNightWindow,
+    ) -> ObservingNightWindow:
+        """Intersect the night with astronomical darkness, cached per location/bounds.
+
+        Bright solar-system targets retain sunset/sunrise eligibility. Deep-sky
+        targets and Uranus/Neptune require Sun below -18 degrees (USNO twilight).
+        For a continuous polar-night container retain the longest dark interval.
+        This is a conservative policy, not a physical detection threshold.
+        """
+        if not night.has_observing_window:
+            return night
+        key = (location.latitude, location.longitude, night.start.isoformat(), night.end.isoformat())
+        cache = getattr(self, "_dark_night_window_cache", {})
+        if key in cache:
+            return cache[key]
         topos = wgs84.latlon(latitude_degrees=location.latitude, longitude_degrees=location.longitude)
-        twilight_at = almanac.dark_twilight_day(self._ephemeris, topos)
-        times = self._timescale.from_datetimes([sample.astimezone(UTC) for sample in candidates])
-        states = twilight_at(times)
-        return [sample for sample, state in zip(candidates, states) if int(state) == 0]
+        state_at = almanac.dark_twilight_day(self._ephemeris, topos)
+        start = self._to_skyfield_time(night.start)
+        end = self._to_skyfield_time(night.end)
+        times, states = almanac.find_discrete(start, end, state_at)
+        edges = [(night.start, int(state_at(start)))] + [
+            (instant.utc_datetime().astimezone(night.start.tzinfo), int(state))
+            for instant, state in zip(times, states)
+        ] + [(night.end, -1)]
+        intervals = [
+            (left, right) for (left, state), (right, _) in zip(edges, edges[1:])
+            if state == 0 and as_utc(left) < as_utc(right)
+        ]
+        result = ObservingNightWindow.no_night()
+        if intervals:
+            longest = max(intervals, key=lambda pair: as_utc(pair[1]) - as_utc(pair[0]))
+            result = ObservingNightWindow.bounded(*longest)
+        if len(cache) >= 32:
+            cache.clear()
+        cache[key] = result
+        self._dark_night_window_cache = cache
+        return result
 
     @staticmethod
     def _month_day_samples(
@@ -2071,23 +2136,26 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         return ""
 
     def _sample_summary(self, samples: list[tuple[datetime, float]], threshold: float) -> tuple[float, datetime | None, str]:
-        """Summarize one sampled altitude maximum and its connected useful window.
+        """Compatibility/display projection; production retains absolute bounds."""
+        altitude, best, start, end = self._sample_window(samples, threshold)
+        return altitude, best, self._window_label_or_unavailable(start, end)
 
-        Altitudes/threshold are degrees. This is not continuous optimization;
-        crossings are interpolated linearly and disjoint windows are not all
-        returned. The last sample is currently ineligible as a peak to avoid a
-        zero-duration dawn recommendation; that also loses some positive final
-        intervals (audit A3). HH:MM output discards date, offset and fold.
+    def _sample_window(
+        self, samples: list[tuple[datetime, float]], threshold: float,
+    ) -> tuple[float, datetime | None, datetime | None, datetime | None]:
+        """Return a sampled maximum and a positive connected altitude interval.
+
+        Closing samples locate interpolated crossings but never become a best
+        observing instant at the excluded end. Prefer an interior sample; when
+        only the last segment is useful, use its useful midpoint. Arithmetic
+        and comparisons are UTC, including the repeated autumn hour.
         """
-
         if not samples:
-            return 0.0, None, tr("n/d")
-
-        ordered = sorted(samples, key=lambda item: item[0])
-        usable_samples = ordered[:-1] if len(ordered) > 1 else ordered
-        best_dt, max_altitude = max(usable_samples, key=lambda item: item[1])
-        if max_altitude < threshold:
-            return max_altitude, best_dt, tr("Non sopra la soglia osservativa")
+            return 0.0, None, None, None
+        ordered = sorted(samples, key=lambda item: as_utc(item[0]))
+        best_dt, max_altitude = max(ordered, key=lambda item: item[1])
+        if max_altitude < threshold or len(ordered) < 2:
+            return max_altitude, None, None, None
 
         best_index = ordered.index((best_dt, max_altitude))
         first_index = best_index
@@ -2113,9 +2181,20 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 threshold,
             )
 
-        if end_dt <= start_dt:
-            return max_altitude, best_dt, tr("Non sopra la soglia osservativa")
-        return max_altitude, best_dt, self._sampled_window_label(start_dt, end_dt)
+        if as_utc(end_dt) <= as_utc(start_dt):
+            return max_altitude, None, None, None
+        interior = [
+            (instant, altitude) for instant, altitude in ordered
+            if as_utc(start_dt) <= as_utc(instant) < as_utc(end_dt) and altitude >= threshold
+        ]
+        if interior:
+            best_dt = max(interior, key=lambda item: item[1])[0]
+        else:
+            best_dt = advance_time(start_dt, (as_utc(end_dt) - as_utc(start_dt)) / 2)
+        return max_altitude, best_dt, start_dt, end_dt
+
+    def _window_label_or_unavailable(self, start: datetime | None, end: datetime | None) -> str:
+        return self._sampled_window_label(start, end) if start and end else tr("Non sopra la soglia osservativa")
 
     @staticmethod
     def _threshold_crossing(
@@ -2130,13 +2209,13 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             return second_dt
         fraction = (threshold - first_altitude) / altitude_delta
         bounded_fraction = max(0.0, min(1.0, fraction))
-        return first_dt + (second_dt - first_dt) * bounded_fraction
+        return advance_time(first_dt, (as_utc(second_dt) - as_utc(first_dt)) * bounded_fraction)
 
     def _sampled_window_label(self, start: datetime, end: datetime) -> str:
         start_label = self._format_dt(start)
         end_label = self._format_dt(end)
-        if start_label == end_label and end > start:
-            rounded_end = (end + timedelta(minutes=1)).replace(second=0, microsecond=0)
+        if start_label == end_label and timedelta(0) < as_utc(end) - as_utc(start) < timedelta(minutes=1):
+            rounded_end = advance_time(end, timedelta(minutes=1)).replace(second=0, microsecond=0)
             end_label = self._format_dt(rounded_end)
         return f"{start_label} - {end_label}"
 
@@ -2306,7 +2385,8 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         return directions[index]
 
     @staticmethod
-    def _window_duration(window: str) -> str:
+    def _window_duration(window: str, start: datetime | None = None, end: datetime | None = None) -> str:
+        """Format elapsed duration; clock-only parsing is a legacy fallback."""
         if " - " not in window or window.startswith("Non"):
             return tr("0 h")
         start_text, end_text = [part.strip() for part in window.split(" - ", 1)]
@@ -2320,6 +2400,8 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         if end_minutes < start_minutes:
             end_minutes += 24 * 60
         duration_minutes = max(0, end_minutes - start_minutes)
+        if start is not None and end is not None:
+            duration_minutes = max(0, round((as_utc(end) - as_utc(start)).total_seconds() / 60))
         hours = duration_minutes // 60
         minutes = duration_minutes % 60
         if minutes == 0:

@@ -36,6 +36,7 @@ from astro_viewer.app.application.snapshots import (
     TransientEventRefreshSnapshot,
 )
 from astro_viewer.app.astronomy.engine import (
+    ASTRONOMY_UNAVAILABLE_MESSAGE,
     MockAstronomyEngine,
     ObserverLocation,
     ObservingNightWindow,
@@ -679,7 +680,18 @@ class AppController(QObject):
 
     @Property(str, notify=statusChanged)
     def serviceStatus(self) -> str:
-        return render_text(self._service_status)
+        status = render_text(self._service_status)
+        warning = self.astronomyStatus
+        return f"{warning} {status}".strip() if warning and warning not in status else status
+
+    @Property(bool, notify=statusChanged)
+    def astronomyAvailable(self) -> bool:
+        return getattr(self._astronomy_engine, "data_quality", "calculated") != "unavailable"
+
+    @Property(str, notify=statusChanged)
+    def astronomyStatus(self) -> str:
+        """Durable provenance, independent of transient location/weather messages."""
+        return "" if self.astronomyAvailable else render_text(ASTRONOMY_UNAVAILABLE_MESSAGE)
 
     @Property(str, notify=weatherChanged)
     def weatherStatus(self) -> str:

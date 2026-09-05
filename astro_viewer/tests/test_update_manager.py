@@ -12,7 +12,7 @@ import requests
 from PySide6.QtCore import QCoreApplication, QEventLoop, QTimer
 
 from astro_viewer.app.services.update_manager import (
-    LATEST_RELEASE_API_URL,
+    RELEASES_API_URL,
     REQUEST_TIMEOUT_SECONDS,
     ReleaseInfo,
     UpdateManager,
@@ -24,7 +24,9 @@ from astro_viewer.app.services.update_manager import (
 def _response(payload: object, *, status_code: int = 200) -> requests.Response:
     response = requests.Response()
     response.status_code = status_code
-    response.url = LATEST_RELEASE_API_URL
+    response.url = RELEASES_API_URL
+    if isinstance(payload, dict) and "tag_name" in payload:
+        payload = [payload]
     response._content = json.dumps(payload).encode("utf-8")
     response.headers["Content-Type"] = "application/json"
     return response
@@ -43,6 +45,11 @@ def _release_payload(
         or f"https://github.com/beastmen84/NightScope/releases/tag/{tag_name}",
         "draft": draft,
         "prerelease": prerelease,
+        "assets": [
+            {"name": f"NightScope-{tag_name}-{suffix}", "state": "uploaded", "size": 1234,
+             "browser_download_url": f"https://github.com/beastmen84/NightScope/releases/download/{tag_name}/NightScope-{tag_name}-{suffix}"}
+            for suffix in ("windows-x64.zip", "debian-12-x64.tar.gz")
+        ],
     }
 
 
@@ -64,7 +71,7 @@ def test_parse_version_accepts_only_release_versions(
     assert parse_version(value) == expected
 
 
-def test_find_newer_release_uses_github_latest_endpoint() -> None:
+def test_find_newer_release_uses_platform_assets_in_release_list() -> None:
     http_get = Mock(return_value=_response(_release_payload("v1.10.0")))
 
     release = find_newer_release("1.9.0", http_get=http_get)
@@ -74,7 +81,8 @@ def test_find_newer_release_uses_github_latest_endpoint() -> None:
         url="https://github.com/beastmen84/NightScope/releases/tag/v1.10.0",
     )
     http_get.assert_called_once_with(
-        LATEST_RELEASE_API_URL,
+        RELEASES_API_URL,
+        params={"per_page": 100, "page": 1},
         headers={
             "Accept": "application/vnd.github+json",
             "User-Agent": "NightScope/1.9.0",
@@ -108,6 +116,39 @@ def test_find_newer_release_rejects_non_updates(payload: dict) -> None:
 def test_find_newer_release_rejects_invalid_current_version() -> None:
     with pytest.raises(ValueError, match="Invalid current NightScope version"):
         find_newer_release("development", http_get=Mock())
+
+
+def test_linux_skips_newer_windows_only_release():
+    windows = _release_payload("v1.45.21")
+    windows["assets"] = windows["assets"][:1]
+    both = _release_payload("v1.43.0")
+    request = Mock(return_value=_response([windows, both]))
+    assert find_newer_release("1.43.0", http_get=request, platform_name="linux", machine="x86_64") is None
+    assert find_newer_release("1.42.0", http_get=request, platform_name="linux", machine="x86_64").version == "1.43.0"
+    assert find_newer_release("1.43.0", http_get=request, platform_name="win32", machine="AMD64").version == "1.45.21"
+
+
+@pytest.mark.parametrize("asset_change", [
+    {"name": "NightScope-v1.45.21-windows-x64.zip.sha256"},
+    {"state": "new"}, {"size": 0},
+    {"browser_download_url": "https://example.com/download.zip"},
+    {"name": "NightScope-v1.45.21-windows-arm64.zip"},
+])
+def test_checksum_unfinished_wrong_architecture_or_external_asset_not_offered(asset_change):
+    release = _release_payload("v1.45.21")
+    release["assets"] = [{**release["assets"][0], **asset_change}]
+    assert find_newer_release(
+        "1.43.0", http_get=Mock(return_value=_response([release])), platform_name="win32", machine="AMD64",
+    ) is None
+
+
+def test_update_list_paginates_for_older_compatible_platform():
+    windows = _release_payload("v1.45.21")
+    windows["assets"] = windows["assets"][:1]
+    request = Mock(side_effect=[_response([windows] * 100), _response([_release_payload("v1.43.0")])])
+    release = find_newer_release("1.42.0", http_get=request, platform_name="linux", machine="x86_64")
+    assert release.version == "1.43.0" and request.call_count == 2
+    assert request.call_args.kwargs["params"]["page"] == 2
 
 
 def test_update_manager_notifies_for_a_non_ignored_release(tmp_path: Path) -> None:

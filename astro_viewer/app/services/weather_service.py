@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 from datetime import UTC, datetime, timedelta
 from threading import local
 from typing import Protocol
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import requests
 
@@ -97,8 +99,13 @@ class OpenMeteoWeatherService:
         self.retry_recommended = False
         cache_key = self._cache_key(location)
         cached = self._read_cache(cache_key) or self._read_cache(self._legacy_cache_key(location))
-        if not force_refresh and cached and datetime.now(UTC) - cached[0] < self.CACHE_TTL:
-            return self._parse_payload(cached[1])
+        cache_age = datetime.now(UTC) - cached[0] if cached else None
+        if cache_age is not None and cache_age < timedelta(0):
+            cached = None
+        if not force_refresh and cached and cache_age < self.CACHE_TTL:
+            cached_hours = self._parse_payload(cached[1])
+            if cached_hours:
+                return cached_hours
 
         params = {
             "latitude": location.latitude,
@@ -120,6 +127,7 @@ class OpenMeteoWeatherService:
             ),
             "forecast_hours": self.FORECAST_HOURS,
             "timezone": location.timezone,
+            "timeformat": "unixtime",
         }
         try:
             response = self._get_with_timeout_retry(params)
@@ -228,44 +236,76 @@ class OpenMeteoWeatherService:
             if fetched_at.tzinfo is None:
                 fetched_at = fetched_at.replace(tzinfo=UTC)
             return fetched_at.astimezone(UTC), json.loads(cached["payload"])
-        except (ValueError, json.JSONDecodeError):
+        except (TypeError, ValueError, KeyError):
             logger.warning("Weather cache is invalid and will be ignored.", exc_info=True)
             return None
 
     @classmethod
     def _parse_payload(cls, payload: dict) -> list[WeatherHour]:
-        """Project Open-Meteo's parallel hourly arrays into the legacy DTO.
+        """Keep only hours with finite, physically bounded core measurements.
 
-        The request relies on provider defaults: Celsius, km/h, metres and
-        percentages; timestamps are provider-local ISO clock strings. Missing
-        numeric fields currently become zero, not an explicit unknown value.
-        That compatibility behavior is not a scientific quality guarantee;
-        partial/null/non-finite payloads need the correction tracked as A5 in
-        docs/ASTRONOMICAL_CODE_AUDIT_1_46_9.md.
+        Zero is a measurement, never a missing-value sentinel. Optional seeing
+        inputs remain unknown and disable that estimate, not the weather row.
+        New requests use Unix seconds (UTC); local ISO caches remain readable
+        except ambiguous/nonexistent DST clocks, which cannot identify an instant.
+        Units are provider defaults: Celsius, km/h, metres and percentages.
         """
-
-        hourly = payload.get("hourly", {})
+        if not isinstance(payload, dict) or not isinstance(payload.get("hourly"), dict):
+            return []
+        hourly = payload["hourly"]
         hours: list[WeatherHour] = []
         timestamps = hourly.get("time", [])
+        if not isinstance(timestamps, list):
+            return []
+        seen: set[str] = set()
         for index, timestamp in enumerate(timestamps[: cls.FORECAST_HOURS]):
-            time_label = str(timestamp)[-5:]
+            parsed = _forecast_datetime(timestamp, payload.get("timezone"))
+            if parsed is None:
+                continue
+            instant = parsed.astimezone(UTC).isoformat() if parsed.tzinfo else parsed.isoformat()
+            if instant in seen:
+                continue
+            core = [
+                _measurement(hourly, key, index, lower, upper)
+                for key, lower, upper in (
+                    ("cloud_cover", 0, 100),
+                    ("precipitation_probability", 0, 100),
+                    ("wind_speed_10m", 0, 500),
+                    ("relative_humidity_2m", 0, 100),
+                    ("temperature_2m", -100, 70),
+                )
+            ]
+            if any(value is None for value in core):
+                continue
+            seen.add(instant)
+            optional = {
+                key: _measurement(hourly, key, index, lower, upper)
+                for key, lower, upper in (
+                    ("visibility", 0, 1_000_000),
+                    ("cloud_cover_low", 0, 100),
+                    ("cloud_cover_mid", 0, 100),
+                    ("cloud_cover_high", 0, 100),
+                    ("wind_gusts_10m", 0, 500),
+                    ("dew_point_2m", -100, 70),
+                )
+            }
+            cloud, rain, wind, humidity, temperature = core
             hours.append(
                 WeatherHour(
-                    timestamp=str(timestamp),
-                    time=time_label,
-                    cloud_cover=_safe_int(_hourly_value(hourly, "cloud_cover", index, 0)),
-                    precipitation_probability=_safe_int(_hourly_value(hourly, "precipitation_probability", index, 0)),
-                    wind_kmh=round(_safe_float(_hourly_value(hourly, "wind_speed_10m", index, 0))),
-                    humidity=_safe_int(_hourly_value(hourly, "relative_humidity_2m", index, 0)),
-                    temperature_c=round(_safe_float(_hourly_value(hourly, "temperature_2m", index, 0.0)), 1),
-                    visibility_m=_safe_int(_hourly_value(hourly, "visibility", index, 0)),
-                    cloud_cover_low=_safe_int(_hourly_value(hourly, "cloud_cover_low", index, 0)),
-                    cloud_cover_mid=_safe_int(_hourly_value(hourly, "cloud_cover_mid", index, 0)),
-                    cloud_cover_high=_safe_int(_hourly_value(hourly, "cloud_cover_high", index, 0)),
-                    wind_gusts_kmh=round(_safe_float(_hourly_value(hourly, "wind_gusts_10m", index, 0))),
-                    dew_point_c=round(_safe_float(_hourly_value(hourly, "dew_point_2m", index, 0.0)), 1)
-                    if _hourly_value(hourly, "dew_point_2m", index, None) is not None
-                    else None,
+                    timestamp=parsed.isoformat(timespec="minutes"),
+                    time=parsed.strftime("%H:%M"),
+                    cloud_cover=round(cloud),
+                    precipitation_probability=round(rain),
+                    wind_kmh=round(wind),
+                    humidity=round(humidity),
+                    temperature_c=round(temperature, 1),
+                    visibility_m=_rounded(optional["visibility"]),
+                    cloud_cover_low=_rounded(optional["cloud_cover_low"]),
+                    cloud_cover_mid=_rounded(optional["cloud_cover_mid"]),
+                    cloud_cover_high=_rounded(optional["cloud_cover_high"]),
+                    wind_gusts_kmh=_rounded(optional["wind_gusts_10m"]),
+                    dew_point_c=optional["dew_point_2m"],
+                    seeing_inputs_complete=all(value is not None for value in optional.values()),
                 )
             )
         return hours
@@ -279,25 +319,41 @@ class OpenMeteoWeatherService:
         return f"{location.latitude:.4f}:{location.longitude:.4f}:{location.timezone}:24h"
 
 
-def _safe_int(value) -> int:
+def _measurement(hourly: dict, key: str, index: int, lower: float, upper: float) -> float | None:
+    values = hourly.get(key)
+    if not isinstance(values, list) or index >= len(values) or isinstance(values[index], bool):
+        return None
     try:
-        return int(value or 0)
-    except (TypeError, ValueError):
-        return 0
+        value = float(values[index])
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return value if math.isfinite(value) and lower <= value <= upper else None
 
 
-def _safe_float(value) -> float:
+def _rounded(value: float | None) -> int | None:
+    return round(value) if value is not None else None
+
+
+def _forecast_datetime(value: object, timezone_name: str | None) -> datetime | None:
+    """Reject malformed clocks and legacy DST ambiguities; preserve UTC identity."""
     try:
-        return float(value or 0.0)
-    except (TypeError, ValueError):
-        return 0.0
-
-
-def _hourly_value(hourly: dict, key: str, index: int, default):
-    values = hourly.get(key) or []
-    if index >= len(values):
-        return default
-    return values[index]
+        zone = ZoneInfo(timezone_name) if timezone_name else UTC
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            return datetime.fromtimestamp(value, UTC).astimezone(zone)
+        parsed = datetime.fromisoformat(value)
+        if parsed.tzinfo is not None:
+            return parsed.astimezone(zone) if timezone_name else parsed
+        if not timezone_name:
+            return parsed  # Historical fixtures/caches without location metadata.
+        candidates = {
+            candidate.astimezone(UTC): candidate
+            for fold in (0, 1)
+            if (candidate := parsed.replace(tzinfo=zone, fold=fold)).astimezone(UTC)
+            .astimezone(zone).replace(tzinfo=None) == parsed
+        }
+        return next(iter(candidates.values())) if len(candidates) == 1 else None
+    except (TypeError, ValueError, OverflowError, OSError, ZoneInfoNotFoundError):
+        return None
 
 
 def _http_error_is_retryable(status_code: int | None) -> bool:

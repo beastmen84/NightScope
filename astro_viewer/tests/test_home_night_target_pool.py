@@ -103,6 +103,8 @@ def test_skyfield_recommended_deep_sky_does_not_cap_the_visible_catalogue_to_ten
     engine = SkyfieldAstronomyEngine.__new__(SkyfieldAstronomyEngine)
     engine._catalogue_repository = _CatalogueRows(rows)
     engine._object_score = lambda *_args: 80
+    # This isolated pool-size test supplies geometry rather than ephemerides.
+    engine._deep_sky_night_window = lambda _location, night: night
     zone = ZoneInfo("UTC")
     engine.observing_night_window = (
         lambda *_args, **_kwargs: ObservingNightWindow.bounded(

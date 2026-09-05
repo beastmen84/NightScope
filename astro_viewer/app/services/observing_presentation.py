@@ -5,14 +5,18 @@ from __future__ import annotations
 import re
 from datetime import datetime
 
-from astro_viewer.app.astronomy.engine import ObservingNightWindow
+from astro_viewer.app.astronomy.engine import ObservingNightWindow, as_utc
 from astro_viewer.app.astronomy.skyfield_engine import (
     DEEP_SKY_USEFUL_ALTITUDE_DEG,
 )
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.services.localization import format_number, tr
-from astro_viewer.app.services.observing_time import home_time_period_code
+from astro_viewer.app.services.observing_time import (
+    absolute_observing_datetime,
+    home_time_period_code,
+    target_observing_interval,
+)
 
 
 class ObservingPresentationService:
@@ -38,6 +42,10 @@ class ObservingPresentationService:
             )
 
         current_altitude = parse_degrees(item.current_altitude)
+        useful_datetime = (
+            absolute_observing_datetime(item.best_observing_at, night_window)
+            or useful_datetime
+        )
         is_observing_time = night_window.contains(now)
         observable_now = item.observable_now
         if observable_now is None:
@@ -99,6 +107,18 @@ class ObservingPresentationService:
                     window=window,
                 ),
             )
+        interval = target_observing_interval(item, night_window)
+        if (
+            interval
+            and as_utc(now) < as_utc(interval[0])
+            and current_altitude is not None
+            and current_altitude >= altitude_threshold
+        ):
+            return (
+                "later",
+                tr("Finestra utile"),
+                tr("Finestra osservativa: {window}.", window=window),
+            )
         if useful_datetime:
             if home_time_period_code(useful_datetime, night_window) == "before_dawn":
                 return (
@@ -110,7 +130,7 @@ class ObservingPresentationService:
                         window=window,
                     ),
                 )
-            if useful_datetime > now:
+            if as_utc(useful_datetime) > as_utc(now):
                 return (
                     "later",
                     tr("Meglio più tardi"),
