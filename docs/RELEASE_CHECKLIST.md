@@ -31,7 +31,7 @@ record and handoff; it does not approve a new bundle for either platform.
 - [x] Run all translation compilation and catalogue tests.
 - [x] Run both normal and Red Night Vision QML smoke tests from source.
 - [x] Run `qmllint` over all packaged QML source files (34; exit 0, non-fatal
-  diagnostics retained; the new bundle itself remains unbuilt).
+  diagnostics retained; packaged smoke checks are recorded below).
 - [ ] Run deep-sky and Solar System asset checks.
 - [ ] Record exact Python, dependency, test, warning, and translation counts.
 - [ ] Produce an artifact-derived SBOM for the final release environment.
@@ -96,11 +96,12 @@ Do not commit credentials or exact personal locations.
 
 ## 6. Windows Artifact
 
-- [ ] Build from a clean checkout with `packaging/build_windows.ps1`.
-- [ ] Confirm the source commit and build environment are recorded.
-- [ ] Run backend and QML smoke tests against the packaged executable.
-- [ ] Confirm the bundle-root legal files and Qt module audit pass.
-- [ ] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
+- [x] Build from a clean checkout with `packaging/build_windows.ps1`.
+- [x] Confirm the source commit and build environment are recorded (`ae34df5`,
+  2026-09-05; see `docs/TESTING.md`).
+- [x] Run backend and QML smoke tests against the packaged executable.
+- [x] Confirm the bundle-root legal files and Qt module audit pass.
+- [x] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
   timezone polygons, and credential backend.
 - [ ] Run the complete visual and provider matrices on the packaged build, not
   only from source. Test a copy and preserve a pristine release bundle.

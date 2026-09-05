@@ -369,7 +369,40 @@ tests in 19.95 seconds.
 No remote CI result, distribution build, source tag, checksum, or release is
 implied by that local source measurement.
 
-## Local Windows Distribution - 1.46.9
+## Local Windows Distribution - 1.46.10
+
+On 2026-09-05 the requested Windows rebuild completed from clean `ae34df5`
+with the official script and the unchanged Python 3.14.5/PyInstaller 6.22.2/
+hooks-contrib 2026.7 environment. The user explicitly requested no backup or
+preservation of the old dist and manually removed it plus the prior retained
+distribution backup after automatic deletion was blocked. No new backup was
+created. The new `dist/NightScope` contains 5,277 files / 440,458,423 bytes,
+embedded version `1.46.10`, and executable SHA-256:
+`06C796709DCBF98847857BF338DFEF7AE92D2D54BDC66129E07EBF826EA8AC7F`.
+
+All 310 declared source assets and five legal files match by SHA-256. The
+Qt/legal/runtime-state audit passes before and after packaged tests. Backend,
+normal-QML and Red Night Vision smoke tests pass from a disposable copy with
+isolated fresh runtimes: exit 0, empty stderr, no runtime errors. All three
+databases pass integrity/foreign-key checks and exact source-field parity for
+323 descriptions and 323 curiosities. This is fresh-install testing, not a
+new upgrade/preservation validation. The current disposable copy and runtimes
+were removed, leaving the final bundle pristine. PyInstaller's optional-module/
+DLL warnings remain non-blocking for these checked paths, not a guarantee for
+every external provider. Logs/helpers: `build/windows-dist-1.46.10-20260905/`.
+
+The earlier 1.46.9 temporary test copy was still present and was separately
+reported to the user for cleanup. Source code and dependencies are unchanged;
+the full source gate was not repeated. Linux, visual/provider matrices,
+archive/checksum publication, signing/scanning, tags and releases are outside
+this local rebuild.
+The post-build documentation update was followed by 46 passing developer-
+tooling tests in 8.69 s; no production code or existing test changed.
+
+## Historical Windows Distribution - 1.46.9
+
+This is dated evidence. Its dist and retained backup were removed at the
+user's request before the 1.46.10 rebuild above.
 
 On 2026-09-05 the user separately requested a local Windows rebuild for manual
 testing. `packaging/build_windows.ps1` completed from clean source commit

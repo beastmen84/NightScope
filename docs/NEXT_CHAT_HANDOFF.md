@@ -21,15 +21,19 @@ Updated: 2026-09-05
   Debian 12 x86-64 tarball and adjacent checksum.
 - Source `1.46.10` is not published: no `v1.46.10` tag, release archive/checksum,
   or GitHub release has been created.
-- At the user's request, the local Windows `dist/NightScope` was rebuilt from
-  clean source commit `42b0cb2` on 2026-09-05 for manual testing. Its bundle
-  audit and packaged backend/normal-QML/Red Night Vision smoke tests passed;
-  it was pristine at build handoff but may now contain the user's test data.
-  This correction pass does not rebuild or alter it. Linux was not rebuilt.
-- The previous complete Windows distribution, including its database and
-  preferences, is preserved in
-  `dist/_backups/NightScope-1.45.21-before-1.46.9-20260905-142734`.
-  All five runtime-file backup hashes were verified before replacement.
+- The user subsequently requested a new local Windows `dist/NightScope` for
+  manual testing. It was rebuilt as `1.46.10` from clean source `ae34df5` on
+  2026-09-05. Bundle audit, source-asset hashes, and packaged backend/normal-QML/
+  Red Night Vision smoke tests pass. It is pristine at this handoff; future
+  launches can create runtime data. Linux was not rebuilt.
+- For this rebuild the user explicitly rejected retaining the previous dist
+  or creating backups, and requested deleting earlier distribution backups.
+  Automatic deletion was blocked by the tool policy; after the user confirmed
+  manual deletion, the old dist and
+  `dist/_backups/NightScope-1.45.21-before-1.46.9-20260905-142734` were confirmed
+  absent before building. No new backup was made. Do not describe that old
+  backup as still available. The older 1.46.9 temporary test copy is a separate
+  cleanup item recorded below; this run's new temporary copy was removed.
 - Test-setup tuning was completed on `1.46.8` (`fa955d0`): setup copies a
   private database from a fresh, per-worker session template. Real bootstrap/migration/recovery
   and astronomy/controller checks remain in place; no runtime code or
@@ -242,7 +246,34 @@ diagnostics and passed five focused scenarios. The standard runner now reports
 slow test phases without narrowing selection or disabling coverage. See
 `docs/TESTING.md` for the fixture contract and measured scope.
 
-### Local Windows Bundle For User Testing
+### Local Windows Bundle For User Testing - 1.46.10
+
+The official `packaging/build_windows.ps1` completed from clean `ae34df5` with
+Python 3.14.5, PyInstaller 6.22.2 and hooks-contrib 2026.7. The pristine bundle
+contains 5,277 files / 440,458,423 bytes, embedded version `1.46.10`. All 310
+declared source assets and five legal files match by SHA-256. Qt/runtime/legal
+audit passes before and after the packaged tests. Executable SHA-256:
+`06C796709DCBF98847857BF338DFEF7AE92D2D54BDC66129E07EBF826EA8AC7F`.
+
+The packaged backend, normal QML and Red Night Vision QML checks all exit 0,
+with empty stderr and no runtime ERROR/CRITICAL/traceback entries. Their fresh
+databases pass SQLite integrity/foreign-key checks and every canonical seed
+field for all 323 descriptions and 323 curiosities. The new temporary test
+copy and all three runtimes were removed; no previous-user-data preservation
+or upgrade test was requested or performed. Logs and local helpers live under
+`build/windows-dist-1.46.10-20260905/`. The source gate was not repeated for
+unchanged application code. No version bump, Linux artifact, archive/tag,
+signing/security scan, push or public release was created by this rebuild.
+
+The earlier temporary test directory
+`C:\Users\beast\AppData\Local\Temp\nightscope-dist-1.46.9-b245a5f625434bb48914ac35de9c0ef9`
+was still present when rebuilding; the user was informed that it can be removed
+separately. Do not confuse it with the deleted previous-distribution backup.
+
+### Historical Windows Bundle - 1.46.9
+
+The evidence below describes the preceding build, not the current dist. The
+old dist and retained backup were subsequently removed at the user's request.
 
 The requested rebuild used the official `packaging/build_windows.ps1` and the
 configured Python 3.14.5 virtual environment. The result contains 5,277 files

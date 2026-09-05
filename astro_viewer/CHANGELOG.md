@@ -25,9 +25,15 @@
 - Gate completo con sicurezza superato: 1.332 test e 10 subtest, copertura 86%,
   smoke backend/QML normale/rosso superati. Ripetuti il confronto di 288
   posizioni Skyfield/Astropy e le 240 identita' ottiche su 48 configurazioni.
-- La distribuzione locale resta 1.46.9; nessuna nuova dist, tag, push o release
-  pubblica e nessuna attesa dei run GitHub. Verifica finale riportata nel
-  rapporto `docs/ASTRONOMICAL_CORRECTIONS_1_46_10.md`.
+- Il passaggio di correzione della sorgente non ha modificato la dist e non ha
+  atteso run GitHub. Verifica in `docs/ASTRONOMICAL_CORRECTIONS_1_46_10.md`.
+- Successivo rebuild Windows richiesto dall'utente: dist 1.46.10 da `ae34df5`,
+  audit Qt/legale/runtime e smoke backend/QML normale/rosso superati. Verificati
+  310 asset e cinque file legali per hash, integrita' dei tre DB temporanei e
+  parita' dei 323 record per ciascuna tabella editoriale. Vecchia dist e backup
+  precedente rimossi manualmente dall'utente; nessun nuovo backup, come richiesto.
+  Copia temporanea di questo test rimossa; quella storica 1.46.9 resta segnalata.
+  Nessun bump versione, pacchetto Linux, archivio/tag, push o pubblicazione.
 
 ### Audit preliminare della sorgente 1.46.9
 
