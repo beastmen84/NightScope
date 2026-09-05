@@ -1829,6 +1829,126 @@
         "observing_notes": "Con aumento medio estudie la región nuclear, que puede parecer asimétrica; pase después a menor potencia para buscar extensiones arqueadas alrededor del cuerpo principal.",
         "best_seen": "Finales de verano y otoño, en noches sin Luna",
         "curiosity_text": "En el núcleo de NGC 7727 se han medido dos agujeros negros supermasivos separados por solo 1.600 años luz, restos de las galaxias originales. Se espera que ambos se fusionen dentro de unos 250 millones de años."
+      },
+      "ngc-NGC1360": {
+        "short_description": "NGC 1360 es una gran nebulosa planetaria del Horno, con una envoltura ovalada y difusa en lugar de un anillo bien delimitado. Su gas poco denso indica una fase avanzada de expansión.",
+        "observing_notes": "Empieza con pocos aumentos: sus más de 6′ reparten la luz por un área inusualmente extensa para una planetaria. Busca el óvalo alrededor de la estrella central con visión lateral y prueba un filtro O III; un cielo brumoso puede borrarlo aunque la estrella destaque.",
+        "best_seen": "De octubre a enero, cerca de la culminación; favorecida desde latitudes australes.",
+        "curiosity_text": "La espectroscopia reveló un período orbital de unos 142 días para la estrella central de NGC 1360. El modelo del sistema apunta a otra enana blanca como probable compañera, no a una estrella que pueda separarse en el ocular."
+      },
+      "ngc-NGC1501": {
+        "short_description": "NGC 1501 es una nebulosa planetaria de la Jirafa, apodada la nebulosa de la Ostra. Su envoltura elipsoidal es irregular: una silueta aparentemente sencilla esconde cavidades y abultamientos revelados por las imágenes de Hubble.",
+        "observing_notes": "Con aumentos medios se distingue del campo estelar el disco de casi 1′. Una apertura mayor permite buscar diferencias de brillo en el borde y probar O III para la envoltura; retira el filtro si intentas detectar la débil estrella central.",
+        "best_seen": "De noviembre a febrero al anochecer; alta en los cielos boreales.",
+        "curiosity_text": "La estrella central de NGC 1501 es pulsante: su brillo varía en escalas de aproximadamente media hora. Este comportamiento se mide mediante fotometría y no debe confundirse con el centelleo atmosférico."
+      },
+      "ngc-NGC1514": {
+        "short_description": "NGC 1514 es una nebulosa planetaria de Tauro cuya estrella central domina una tenue nube a su alrededor. Los llamativos anillos mostrados por Webb corresponden, en cambio, a su aspecto en el infrarrojo medio.",
+        "observing_notes": "No te quedes en la estrella brillante: busca el velo de unos 2′ que la rodea con aumentos bajos o medios. Comparar la vista con y sin O III ayuda a distinguir nebulosidad y luz estelar; los dos grandes anillos infrarrojos no son objetivos visuales.",
+        "best_seen": "De noviembre a febrero, con un fondo de cielo oscuro y buena transparencia.",
+        "curiosity_text": "El punto luminoso central de NGC 1514 contiene dos estrellas en una órbita alargada de unos nueve años. Ni siquiera Webb las separa en dos puntos: la espectroscopia también permite estudiar la pareja."
+      },
+      "ngc-NGC1535": {
+        "short_description": "NGC 1535, el Ojo de Cleopatra, es una nebulosa planetaria de Erídano. Una región interior brillante está rodeada por una envoltura más tenue, formando dos niveles alrededor de la estrella central.",
+        "observing_notes": "El núcleo nebuloso compacto admite más aumentos que el halo exterior. Alterna entre dos potencias: una para la región luminosa y otra menor para recuperar la envoltura; compara la vista con O III y sin filtro para buscar la estrella central.",
+        "best_seen": "De noviembre a febrero; observa al cruzar el meridiano, especialmente desde el hemisferio norte.",
+        "curiosity_text": "Un estudio con Hubble buscó posibles compañeras de las estrellas centrales de numerosas planetarias. En NGC 1535, las observaciones sugieren una pareja ligada por la gravedad: es un indicio, no la confirmación definitiva de una estrella doble."
+      },
+      "ngc-NGC2346": {
+        "short_description": "NGC 2346 es una nebulosa planetaria bipolar del Unicornio. Dos lóbulos se abren a ambos lados de una estrecha región ecuatorial, formando en las imágenes una mariposa alrededor de un sistema estelar doble.",
+        "observing_notes": "La estrella central se detecta mucho más fácilmente que las alas. Tras identificarla, busca un débil alargamiento con visión lateral y O III; sube los aumentos solo si el contraste lo permite. Las amplias alas fotográficas exigen mucho más que localizar el centro.",
+        "best_seen": "De enero a abril, en noches despejadas y sin Luna.",
+        "curiosity_text": "La pareja central de NGC 2346 completa una órbita en unos 16 días. La interacción entre ambas estrellas ofrece una explicación para la expulsión del gas en dos lóbulos, en lugar de una envoltura casi esférica."
+      },
+      "ngc-NGC2371": {
+        "short_description": "NGC 2371 y NGC 2372 son dos designaciones de una única nebulosa planetaria de Géminis. Sus lóbulos brillantes, separados por una región más tenue, le dan un aspecto doble, pero no son dos nebulosas independientes.",
+        "observing_notes": "Busca primero las dos condensaciones con aumentos medios y un filtro O III. Con más apertura, intenta seguir el gas tenue que las conecta; las extensiones exteriores pueden seguir invisibles aunque los lóbulos sean reconocibles.",
+        "best_seen": "De enero a abril al anochecer, con la nebulosa alta cerca del meridiano.",
+        "curiosity_text": "Las imágenes de Hubble muestran chorros cuya dirección cambió a lo largo de unos pocos miles de años. NGC 2371 conserva así huellas de una expulsión de materia que no mantuvo siempre el mismo eje."
+      },
+      "ngc-NGC2438": {
+        "short_description": "NGC 2438 es la nebulosa planetaria anular que parece superpuesta al cúmulo abierto M46 en la Popa. La alineación es un efecto de perspectiva: la nebulosa está delante del cúmulo y no pertenece a él.",
+        "observing_notes": "Encuadra M46 con pocos aumentos y después súbelos para buscar el disco de aproximadamente 1′ entre las estrellas. O III atenúa el cúmulo respecto a la nebulosa; compara sin filtro e intenta ver el centro más oscuro, sin confundir una estrella superpuesta con parte del borde.",
+        "best_seen": "De enero a abril; elige su paso más alto y un horizonte sur despejado.",
+        "curiosity_text": "Un halo mucho más extenso rodea el anillo brillante de NGC 2438. El estudio de su emisión indica que incluso ese gas enrarecido permanece ionizado por la estrella central: no es simplemente una envoltura apagada."
+      },
+      "ngc-NGC2440": {
+        "short_description": "NGC 2440 es una planetaria compacta de la Popa, con una región brillante irregular y tenues lóbulos exteriores. Las imágenes revelan gas expulsado en distintas direcciones, no una única envoltura simétrica.",
+        "observing_notes": "Localízala como una pequeña condensación y aprovecha el mejor seeing para buscar su alargamiento y las irregularidades del centro. O III puede aislar el gas del campo estelar; el núcleo brillante no hace accesibles por sí solo los lóbulos tenues ni la estrella que los ilumina.",
+        "best_seen": "De enero a abril, cerca de la culminación y con aire estable hacia el sur.",
+        "curiosity_text": "La estrella central de NGC 2440 tiene una temperatura superficial estimada de unos 200.000 K. Es la estrella, no todo el gas de la nebulosa, la que alcanza esa temperatura extrema y aporta intensa radiación ultravioleta."
+      },
+      "ngc-NGC2899": {
+        "short_description": "NGC 2899 es una nebulosa planetaria bipolar de las Velas. Las imágenes profundas muestran dos amplios lóbulos casi simétricos como alas abiertas, mientras que en el ocular resulta mucho más tenue y menos definida.",
+        "observing_notes": "Es un objetivo austral: desde aproximadamente 34° N hacia el norte no sale sobre el horizonte. Desde un lugar favorable, busca primero un alargamiento difuso con cielo oscuro y O III; la apertura ayuda a distinguir los lóbulos, pero la mariposa fotográfica no predice la vista visual.",
+        "best_seen": "De febrero a mayo, desde latitudes australes y cerca del paso por el meridiano.",
+        "curiosity_text": "Para NGC 2899, la interpretación presentada por ESO atribuye a una compañera estelar un papel en desviar el gas de la estrella moribunda. Sus dos alas serían así la huella de una interacción, no de una expulsión uniforme."
+      },
+      "ngc-NGC5189": {
+        "short_description": "NGC 5189 es una nebulosa planetaria de la Mosca con un inusual entramado de filamentos y lóbulos. Su contorno retorcido puede recordar una pequeña galaxia, pero el material procede de la envoltura perdida de una estrella.",
+        "observing_notes": "Su declinación cercana a −66° la excluye de los lugares habituales de observación europeos. Bajo un cielo austral, usa un campo que abarque toda la nebulosidad de más de 2′ y compara los nudos brillantes con O III; demasiados aumentos hacen perder el dibujo conjunto.",
+        "best_seen": "De abril a julio en el hemisferio sur, cuando alcanza su mayor altura al anochecer.",
+        "curiosity_text": "En 2015, un estudio espectroscópico encontró una periodicidad de unos cuatro días en la estrella central de NGC 5189, interpretada como movimiento orbital. La compañera propuesta es probablemente una enana blanca, no una segunda estrella fácilmente visible."
+      },
+      "ngc-NGC6153": {
+        "short_description": "NGC 6153 es una pequeña nebulosa planetaria de Escorpio. Su envoltura elíptica contiene arcos y filamentos que Hubble separa, pero que en el ocular se funden en una condensación compacta.",
+        "observing_notes": "El disco mide menos de medio minuto de arco: hacen falta suficientes aumentos para distinguirlo de las estrellas cercanas. Desde Italia, su escasa altura es una limitación mayor; prioriza un lugar más meridional y transparente antes de subir la potencia, y prueba O III sobre el gas.",
+        "best_seen": "De mayo a agosto; favorecida desde el hemisferio sur, muy baja en latitudes medias boreales.",
+        "curiosity_text": "NGC 6153 tiene una composición química inusualmente enriquecida: las medidas resumidas por ESA/Hubble indican una abundancia de nitrógeno unas cinco veces la solar. Su espectro revela así una peculiaridad que el sencillo contorno elíptico no sugiere."
+      },
+      "ngc-NGC6210": {
+        "short_description": "NGC 6210 es una nebulosa planetaria compacta de Hércules, conocida como la Tortuga. El apodo procede de las tenues estructuras exteriores en las imágenes, mientras que en el ocular domina el pequeño cuerpo central brillante.",
+        "observing_notes": "Con pocos aumentos puede parecer una estrella ligeramente desenfocada. Sube la potencia hasta distinguir el disco y compara su forma con las estrellas cercanas; O III facilita identificarla, pero prueba también sin filtro para buscar color y asimetría en el centro.",
+        "best_seen": "De mayo a agosto, durante el seeing más estable y a buena altura.",
+        "curiosity_text": "Hubble reveló en NGC 6210 parejas de chorros opuestos que atraviesan orificios en las envolturas interiores. Sus bordes parecen canalizar el flujo: la silueta de la Tortuga registra expulsiones en varias direcciones."
+      },
+      "ngc-NGC6369": {
+        "short_description": "NGC 6369, el Pequeño Fantasma, es una nebulosa planetaria de Ofiuco. Un anillo relativamente compacto rodea la débil estrella central; filamentos exteriores más tenues conservan material expulsado anteriormente.",
+        "observing_notes": "Busca un pequeño disco en el rico campo de la Vía Láctea y prueba después O III y aumentos medios para distinguir el borde del centro menos luminoso. La estrella y los filamentos periféricos son objetivos separados y más exigentes que reconocer el anillo.",
+        "best_seen": "De junio a agosto, en el tránsito meridiano y con el cielo sur despejado.",
+        "curiosity_text": "La imagen de Hubble de NGC 6369 distingue regiones con diferentes estados de ionización. El anillo interior recibe radiación ultravioleta más intensa que el gas exterior: las distintas emisiones ayudan a entender cómo la estrella ilumina su envoltura."
+      },
+      "ngc-NGC6537": {
+        "short_description": "NGC 6537, la nebulosa de la Araña Roja, es una planetaria bipolar de Sagitario. Las amplias estructuras lobuladas de las imágenes se extienden alrededor de una región central muy pequeña y más concentrada.",
+        "observing_notes": "Prepara una carta detallada para localizarla: la región compacta catalogada mide apenas unos diez segundos de arco. Usa aumentos altos solo con buen seeing y compara el campo con O III; no esperes ni el color rojo ni las largas patas de las fotografías.",
+        "best_seen": "De junio a septiembre, cerca de la culminación y sin bruma ni luz lunar.",
+        "curiosity_text": "En NGC 6537, el viento de la estrella central produce ondas de choque supersónicas. Hubble muestra estructuras donde el gas se comprime y calienta: los lóbulos registran choques entre flujos, además de iluminación ultravioleta."
+      },
+      "ngc-NGC6572": {
+        "short_description": "NGC 6572 es una planetaria de Ofiuco muy compacta y luminosa para su pequeña área aparente. Con pocos aumentos parece una estrella; su gas aún concentrado explica por qué destaca más que planetarias mucho mayores.",
+        "observing_notes": "Identifica primero el punto correcto y después sube la potencia para distinguir su diminuto disco. Sin filtro puede parecer verde o azul, con impresiones distintas según el observador; usa O III para comparar su contraste con las estrellas, sin identificarla únicamente por el color.",
+        "best_seen": "De junio a septiembre; prioriza aire estable para resolver el diminuto disco.",
+        "curiosity_text": "NGC 6572 es una planetaria joven cuyo gas se expande a unos 15 km/s. Su envoltura aún no ha repartido la luz por una gran superficie, por lo que ayuda a distinguir entre brillo total y concentración aparente."
+      },
+      "ngc-NGC6741": {
+        "short_description": "NGC 6741, llamada Phantom Streak, es una diminuta nebulosa planetaria del Águila. Su aspecto casi estelar con pocos aumentos contrasta con la envoltura estructurada que muestran las imágenes de alta resolución.",
+        "observing_notes": "Una carta con estrellas débiles es esencial para no pasar de largo: mide menos de 10″. Una vez identificada, compara con y sin O III y sube los aumentos para buscar un disco ligeramente alargado; el seeing importa más que un campo muy amplio.",
+        "best_seen": "De julio a septiembre, en noches con imágenes estelares estables.",
+        "curiosity_text": "Aunque es relativamente brillante, NGC 6741 escapó a las primeras búsquedas por su diminuto tamaño. Edward Charles Pickering la encontró en 1882: un ejemplo de cómo el aspecto casi estelar puede ocultar una nebulosa."
+      },
+      "ngc-NGC6751": {
+        "short_description": "NGC 6751 es una nebulosa planetaria del Águila, apodada el Ojo Brillante. Las imágenes distinguen un anillo y estructuras radiales alrededor de su estrella central, mucho más complejas que el pequeño disco visible en el ocular.",
+        "observing_notes": "Trátala como un objetivo compacto de unos 20″: una carta precisa ayuda más que un largo barrido del campo. Con suficiente apertura, busca el borde y el centro más tenue a potencia media-alta; O III puede ayudar con el gas, no con los diminutos rayos de Hubble.",
+        "best_seen": "De julio a septiembre, con buen seeing y sin velos de nubes.",
+        "curiosity_text": "En las imágenes de NGC 6751, parte del gas más frío forma filamentos orientados hacia fuera. Su disposición muestra la acción de la radiación y el viento estelar sobre el material: no son haces de luz emitidos como los de un faro."
+      },
+      "ngc-NGC6818": {
+        "short_description": "NGC 6818, la Pequeña Gema, es una nebulosa planetaria de Sagitario. Una burbuja interior brillante está rodeada de gas más difuso: su contorno compacto en el ocular no representa toda la estructura.",
+        "observing_notes": "Localiza el disco brillante y aumenta gradualmente la potencia para buscar su forma ovalada. Alterna O III y la vista sin filtro: el primero mejora el contraste del gas y la segunda conserva la posible impresión cromática; busca el halo tenue por separado del centro.",
+        "best_seen": "De julio a octubre; aprovecha el paso por el meridiano desde lugares boreales.",
+        "curiosity_text": "En NGC 6818 se cree que el viento rápido de la estrella central choca con gas expulsado más lentamente. Este mecanismo podría explicar las zonas brillantes donde el flujo atraviesa las capas exteriores de la burbuja."
+      },
+      "ngc-NGC6891": {
+        "short_description": "NGC 6891 es una pequeña nebulosa planetaria del Delfín. Las imágenes separan envolturas elipsoidales con distintas orientaciones y un halo exterior; en visual domina la región compacta alrededor de la estrella central.",
+        "observing_notes": "El diámetro catalogado es de unos 15″, por lo que con pocos aumentos puede confundirse con una estrella. Compara el punto con sus vecinos mientras subes la potencia; prueba O III para la envoltura y vuelve a la vista sin filtro para buscar la estrella central.",
+        "best_seen": "De julio a octubre, con seeing estable para separar luz estelar y nebulosidad.",
+        "curiosity_text": "A partir del movimiento del gas se estiman unos 4.800 años para una envoltura de NGC 6891 y 28.000 para el halo exterior. La diferencia indica episodios separados de pérdida de masa, no una única expulsión simultánea."
+      },
+      "ngc-NGC7027": {
+        "short_description": "NGC 7027 es una planetaria muy compacta del Cisne, con gas brillante inmerso en una envoltura polvorienta. Las imágenes revelan una forma irregular y estratificada, no el clásico anillo circular.",
+        "observing_notes": "Su brillo concentrado facilita detectarla, pero con pocos aumentos puede pasar por una estrella. Aprovecha el aire estable para reconocer el pequeño disco y sus asimetrías; compara con y sin O III. Las envolturas polvorientas exteriores requieren imágenes profundas, no basta con ver el centro.",
+        "best_seen": "De agosto a noviembre al anochecer, bien situada desde lugares boreales.",
+        "curiosity_text": "En 2019, SOFIA detectó en NGC 7027 el ion hidruro de helio, HeH+, por primera vez en el espacio. Es la misma especie molecular prevista en el Universo primitivo, pero aquí se forma localmente: no ha sobrevivido desde el Big Bang."
       }
     },
     "catalogue_objects": {

@@ -7,7 +7,7 @@ sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
 verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 `archive/TESTING_HISTORY_THROUGH_1.45.6.md`. Il bundle pubblico corrente e'
 `1.45.21` su Windows, mentre Linux resta a `1.43.0`; le verifiche dei futuri
-artefatti `1.46.8` sono separate in `RELEASE_CHECKLIST.md` e devono essere
+artefatti `1.46.9` sono separate in `RELEASE_CHECKLIST.md` e devono essere
 ripetute per ciascuna dist effettivamente rigenerata.
 
 ## Verifica Sorgente Spagnolo 1.34.0
@@ -655,6 +655,15 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   descrizione e curiosita'. Testi e fonti restano completi senza tagli o
   sovrapposizioni; le scene rosse sono monocromatiche. Le acquisizioni usano
   un runtime isolato e restano fuori dal repository; non approvano un bundle.
+
+- [x] **VIS-V55 (`VERIFICATA`)** - Il batch di 20 planetarie NGC `1.46.9` e'
+  stato verificato il 2026-09-05 su 72 scene Object Detail: sei campioni,
+  IT/EN/ES, normale/Red Night Vision e sia intestazione con note sia schede
+  inferiori. Verificati alias NGC 2371/2372, limiti infrarossi/visuali, testi
+  lunghi e notazione HeH+; nessun taglio o sovrapposizione e monocromia rossa
+  mantenuta. Le acquisizioni finali includono la revisione terminologica
+  spagnola, usano Segoe UI a 1440x1000 in runtime isolati e restano esterne al
+  repository. Nessuna nuova immagine astronomica o approvazione di bundle.
 
 ## Verifica Delle Correzioni 1.33.1
 

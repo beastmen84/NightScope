@@ -1829,6 +1829,126 @@
         "observing_notes": "At medium magnification study the nuclear region, which may appear asymmetric; then switch to lower power to seek arcing extensions around the main body.",
         "best_seen": "Late summer and autumn, on moonless nights",
         "curiosity_text": "Two supermassive black holes have been measured in NGC 7727's nucleus only 1,600 light-years apart, remnants of the original galaxies. They are expected to merge in about 250 million years."
+      },
+      "ngc-NGC1360": {
+        "short_description": "NGC 1360 is a large planetary nebula in Fornax, with a diffuse oval envelope rather than a sharp ring. Its low-density gas marks an advanced stage of expansion.",
+        "observing_notes": "Begin at low power: spanning over 6′, it spreads its light across an unusually large area for a planetary nebula. Seek the oval around the central star with averted vision and try an O III filter; hazy skies can erase it even when the star is obvious.",
+        "best_seen": "October to January, near culmination; favoured from southern latitudes.",
+        "curiosity_text": "Spectroscopy revealed an orbital period of about 142 days for NGC 1360's central star. Modelling points to another white dwarf as the likely companion, not a separate star that can be resolved at the eyepiece."
+      },
+      "ngc-NGC1501": {
+        "short_description": "NGC 1501 is a planetary nebula in Camelopardalis, nicknamed the Oyster Nebula. Its ellipsoidal shell has an uneven surface: an apparently simple outline conceals cavities and bulges revealed by Hubble images.",
+        "observing_notes": "Medium power separates the nearly 1′ disc from the star field. With more aperture, look for brightness differences around the rim and try O III for the shell; remove the filter when attempting the faint central star.",
+        "best_seen": "November to February in the evening; high in northern skies.",
+        "curiosity_text": "The star at the centre of NGC 1501 pulsates: its brightness varies on timescales of roughly half an hour. This behaviour is measured through photometry and should not be confused with atmospheric twinkling."
+      },
+      "ngc-NGC1514": {
+        "short_description": "NGC 1514 is a planetary nebula in Taurus whose central star dominates a faint surrounding cloud. The striking rings shown by Webb belong instead to its mid-infrared appearance.",
+        "observing_notes": "Do not stop at the bright star: seek the roughly 2′ haze around it at low or medium power. Comparing the view with and without O III helps distinguish nebulosity from starlight; the two large infrared rings are not visual targets.",
+        "best_seen": "November to February, with a dark background and good transparency.",
+        "curiosity_text": "The bright central point of NGC 1514 contains two stars in an elongated orbit lasting about nine years. Even Webb images do not separate them into two points: spectroscopy also helps astronomers study the pair."
+      },
+      "ngc-NGC1535": {
+        "short_description": "NGC 1535, Cleopatra's Eye, is a planetary nebula in Eridanus. A bright inner region sits within a fainter envelope, forming a two-tier structure around the central star.",
+        "observing_notes": "The compact bright nebular core tolerates more magnification than the outer halo. Alternate between two powers: one for the luminous region and a lower one to recover the envelope; compare an O III-filtered view with an unfiltered view for the central star.",
+        "best_seen": "November to February; observe at meridian passage, particularly from the northern hemisphere.",
+        "curiosity_text": "A Hubble study searched for companions to the central stars of numerous planetary nebulae. For NGC 1535, the observations suggest a gravitationally bound pair: this is an indication, not definitive confirmation of a double star."
+      },
+      "ngc-NGC2346": {
+        "short_description": "NGC 2346 is a bipolar planetary nebula in Monoceros. Two lobes spread out from a narrow equatorial region, forming a butterfly in images around a double-star system.",
+        "observing_notes": "The central star is much easier to detect than the wings. After identifying it, seek a faint elongation with averted vision and O III; increase power only if contrast allows. The broad photographic wings demand far more than simply locating the centre.",
+        "best_seen": "January to April, on clear, moonless nights.",
+        "curiosity_text": "The central pair of NGC 2346 completes an orbit in about 16 days. Interaction between the two stars offers an explanation for gas being expelled into two lobes rather than a nearly spherical shell."
+      },
+      "ngc-NGC2371": {
+        "short_description": "NGC 2371 and NGC 2372 are two designations for a single planetary nebula in Gemini. Bright lobes separated by a dimmer region give it a double appearance, not the identity of two independent nebulae.",
+        "observing_notes": "First seek the two bright patches at medium power with an O III filter. With more aperture, try to trace the fainter gas connecting them; the outer extensions may remain invisible even when the lobes are recognisable.",
+        "best_seen": "January to April in the evening, with the nebula high near the meridian.",
+        "curiosity_text": "Hubble images show jets whose direction changed over a few thousand years. NGC 2371 thus preserves traces of material ejection that did not always follow the same axis."
+      },
+      "ngc-NGC2438": {
+        "short_description": "NGC 2438 is the ring-shaped planetary nebula projected against the open cluster M46 in Puppis. The alignment is a perspective effect: the nebula lies in front of the cluster and is not a member.",
+        "observing_notes": "Frame M46 at low power, then increase magnification to seek the roughly 1′ disc among its stars. O III dims the cluster relative to the nebula; compare without the filter and attempt the darker centre, taking care not to mistake a projected star for part of the rim.",
+        "best_seen": "January to April; choose its highest transit and an unobstructed southern horizon.",
+        "curiosity_text": "A much larger halo surrounds NGC 2438's bright ring. Studies of its emission indicate that even this thin gas remains ionised by the central star: it is not simply an extinguished shell."
+      },
+      "ngc-NGC2440": {
+        "short_description": "NGC 2440 is a compact planetary nebula in Puppis, with an irregular bright region and faint outer lobes. Images reveal gas ejected in different directions rather than a single symmetrical shell.",
+        "observing_notes": "Locate it as a small condensation, then use the steadiest seeing to look for elongation and an uneven centre. O III can isolate the gas from the star field; the bright core does not automatically make the faint lobes or illuminating star accessible.",
+        "best_seen": "January to April, near culmination and with steady air to the south.",
+        "curiosity_text": "The central star of NGC 2440 has an estimated surface temperature around 200,000 K. It is the star, not all the nebular gas, that reaches this extreme temperature and supplies intense ultraviolet radiation."
+      },
+      "ngc-NGC2899": {
+        "short_description": "NGC 2899 is a bipolar planetary nebula in Vela. Deep images show two broad, nearly symmetrical lobes like open wings, while the eyepiece target is much fainter and less sharply defined.",
+        "observing_notes": "This is a southern target: from roughly 34° N northwards it does not rise. From a suitable site, first seek a diffuse elongation under dark skies with O III; aperture helps distinguish the lobes, but the detailed photographic butterfly is not a visual forecast.",
+        "best_seen": "February to May, from southern latitudes and near meridian passage.",
+        "curiosity_text": "For NGC 2899, the interpretation presented by ESO gives a stellar companion a role in redirecting the dying star's gas. Its two wings would therefore record an interaction rather than uniform ejection."
+      },
+      "ngc-NGC5189": {
+        "short_description": "NGC 5189 is a planetary nebula in Musca with an unusual tangle of filaments and lobes. Its twisted outline may resemble a small galaxy, but the material comes from a star's lost envelope.",
+        "observing_notes": "Its declination near −66° rules it out from typical European sites. Under southern skies, use a field that contains the whole nebula, over 2′ across, and compare the brighter knots with O III; excessive magnification risks losing the overall pattern.",
+        "best_seen": "April to July in the southern hemisphere, when it reaches its greatest evening altitude.",
+        "curiosity_text": "In 2015, a spectroscopic study found a roughly four-day periodicity in NGC 5189's central star, interpreted as orbital motion. The proposed companion is probably a white dwarf, not a second star that is easily visible."
+      },
+      "ngc-NGC6153": {
+        "short_description": "NGC 6153 is a small planetary nebula in Scorpius. Its elliptical envelope contains loops and filaments resolved by Hubble, but at the eyepiece these merge into a compact condensation.",
+        "observing_notes": "The disc spans less than half an arcminute: enough magnification is needed to distinguish it from nearby stars. From Italy, however, its very low altitude is the stronger limitation; favour a clearer, more southerly site before pushing the power, and try O III on the gas.",
+        "best_seen": "May to August; favoured from the southern hemisphere, very low at mid-northern latitudes.",
+        "curiosity_text": "NGC 6153 has an unusually enriched chemical composition: measurements summarised by ESA/Hubble indicate a nitrogen abundance around five times solar. Its spectrum thus reveals a distinction that the simple elliptical outline does not suggest."
+      },
+      "ngc-NGC6210": {
+        "short_description": "NGC 6210 is a compact planetary nebula in Hercules, known as the Turtle Nebula. The nickname comes from faint outer structures in images, while the small bright central body dominates the eyepiece view.",
+        "observing_notes": "At low power it may resemble a slightly defocused star. Increase magnification until the disc becomes evident and compare its shape with nearby stars; O III helps identification, but also try without a filter when seeking colour and asymmetry in the centre.",
+        "best_seen": "May to August, during the steadiest seeing and at a good altitude.",
+        "curiosity_text": "Hubble revealed pairs of opposing jets in NGC 6210 passing through openings in the inner shells. The rims of these openings appear to channel the flow: the Turtle's outline records ejections in several directions."
+      },
+      "ngc-NGC6369": {
+        "short_description": "NGC 6369, the Little Ghost Nebula, is a planetary nebula in Ophiuchus. A relatively compact ring surrounds the faint central star; dimmer outer filaments preserve material expelled earlier.",
+        "observing_notes": "Seek a small disc in the rich Milky Way field, then try O III and medium power to distinguish its rim from the dimmer centre. The star and peripheral filaments are separate, more demanding targets than simply recognising the ring.",
+        "best_seen": "June to August, at meridian transit with a clear southern sky.",
+        "curiosity_text": "Hubble's image of NGC 6369 separates regions with different ionisation states. The inner ring receives stronger ultraviolet radiation than the outer gas: the differing emission helps reveal how the star illuminates its envelope."
+      },
+      "ngc-NGC6537": {
+        "short_description": "NGC 6537, the Red Spider Nebula, is a bipolar planetary nebula in Sagittarius. The broad lobed structures seen in images extend around a very small, more concentrated central region.",
+        "observing_notes": "Use a detailed chart to locate it: the compact catalogued region spans only about ten arcseconds. Apply high power only in steady seeing and compare the field with O III; expect neither the red colour nor the long photographic legs.",
+        "best_seen": "June to September, near culmination and away from haze and moonlight.",
+        "curiosity_text": "In NGC 6537, the central star's wind produces supersonic shocks. Hubble shows structures where gas is compressed and heated: the lobes record collisions between flows as well as ultraviolet illumination."
+      },
+      "ngc-NGC6572": {
+        "short_description": "NGC 6572 is a very compact planetary nebula in Ophiuchus, bright for its small apparent area. It resembles a star at low power; its still-concentrated gas explains why it stands out more than much larger planetary nebulae.",
+        "observing_notes": "Identify the correct point first, then raise the power to distinguish its tiny disc. Unfiltered, it may look green or blue, with impressions varying between observers; use O III to compare its contrast with the stars, rather than relying on colour alone for identification.",
+        "best_seen": "June to September; favour steady air to resolve the tiny disc.",
+        "curiosity_text": "NGC 6572 is a young planetary nebula whose gas expands at about 15 km/s. Its envelope has not yet spread its light over a large area, making it a useful example of the difference between total brightness and apparent concentration."
+      },
+      "ngc-NGC6741": {
+        "short_description": "NGC 6741, the Phantom Streak Nebula, is a tiny planetary nebula in Aquila. Its nearly stellar appearance at low power contrasts with the structured envelope seen in high-resolution images.",
+        "observing_notes": "A chart showing faint stars is essential to avoid sweeping past it: it spans less than 10″. Once identified, compare with and without O III, then increase power to seek a slightly elongated disc; seeing matters more than a very wide field.",
+        "best_seen": "July to September, on nights with steady stellar images.",
+        "curiosity_text": "Despite being relatively bright, NGC 6741 escaped early surveys because it is so small. Edward Charles Pickering found it in 1882: an example of how a nearly stellar appearance can conceal a nebula."
+      },
+      "ngc-NGC6751": {
+        "short_description": "NGC 6751 is a planetary nebula in Aquila, nicknamed the Glowing Eye. Images distinguish a ring and radial structures around its central star, much more complex than the small disc visible at the eyepiece.",
+        "observing_notes": "Treat it as a compact target about 20″ across: a precise chart helps more than a long sweep of the field. With adequate aperture, seek the rim and dimmer centre at medium-high power; O III may help the gas, not the tiny rays in Hubble images.",
+        "best_seen": "July to September, with good seeing and no thin cloud.",
+        "curiosity_text": "In images of NGC 6751, some of the cooler gas forms outward-pointing streamers. Their arrangement shows radiation and stellar wind acting on material: they are not beams of light emitted like those of a lighthouse."
+      },
+      "ngc-NGC6818": {
+        "short_description": "NGC 6818, the Little Gem Nebula, is a planetary nebula in Sagittarius. A bright inner bubble is surrounded by more diffuse gas: its compact eyepiece outline does not capture the whole structure.",
+        "observing_notes": "Locate the bright disc and gradually increase magnification to seek its oval shape. Alternate O III and an unfiltered view: the former helps gas contrast, the latter preserves any colour impression; search for the faint halo separately from the centre.",
+        "best_seen": "July to October; use meridian passage when observing from northern sites.",
+        "curiosity_text": "In NGC 6818, the central star's fast wind is thought to strike gas expelled more slowly. This mechanism may explain the bright areas where the flow breaks through the bubble's outer layers."
+      },
+      "ngc-NGC6891": {
+        "short_description": "NGC 6891 is a small planetary nebula in Delphinus. Images resolve differently oriented ellipsoidal shells and an outer halo; the compact region around the central star dominates the eyepiece view.",
+        "observing_notes": "The catalogued diameter is about 15″, so at low power it can be mistaken for a star. Compare the point with its neighbours while increasing magnification; try O III for the shell and return to an unfiltered view when seeking the central star.",
+        "best_seen": "July to October, with steady seeing to separate starlight from nebulosity.",
+        "curiosity_text": "Gas motions give estimated ages of about 4,800 years for one shell of NGC 6891 and 28,000 for its outer halo. The difference indicates separate episodes of mass loss rather than a single simultaneous ejection."
+      },
+      "ngc-NGC7027": {
+        "short_description": "NGC 7027 is a very compact planetary nebula in Cygnus, with bright gas embedded in a dusty envelope. Images reveal an irregular, layered form rather than a classic circular ring.",
+        "observing_notes": "Its concentrated brightness helps detection, but at low power it can pass for a star. Use steady air to recognise the small disc and its asymmetries; compare with and without O III. The outer dusty shells call for deep images, not merely a visible centre.",
+        "best_seen": "August to November in the evening, well placed from northern sites.",
+        "curiosity_text": "In 2019, SOFIA detected the helium hydride ion, HeH+, in NGC 7027 for the first time in space. It is the same molecular species predicted in the early Universe, but it forms locally here: it has not survived from the Big Bang."
       }
     },
     "catalogue_objects": {

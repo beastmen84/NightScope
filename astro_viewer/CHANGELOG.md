@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+## NightScope 1.46.9 - 2026-09-05
+
+- Ripreso l'arricchimento NGC con 20 nebulose planetarie: descrizione, note
+  osservative, periodo/condizioni e curiosita' specifici in italiano canonico
+  e overlay inglese/spagnolo revisionati. Batch volutamente contenuto per
+  distinguere strutture reali, limiti visuali e particolarita' scientifiche.
+- Chiariti NGC 2371/2372 come singolo oggetto, la sovrapposizione prospettica
+  di NGC 2438 a M46, gli anelli infrarossi di NGC 1514 e la formazione locale
+  dello ione HeH+ in NGC 7027. Conservate le cautele su compagne probabili,
+  interpretazioni dei venti stellari ed eta' ricavate dal moto del gas.
+- Verificati 26 URL distinti del manifest; 72 scene campione nelle tre lingue,
+  in modalita' normale e Red Night Vision, ai livelli note e descrizione/
+  curiosita'. Audit statico e similarita' senza avvisi o frasi lunghe condivise.
+- Copertura editoriale: 323 oggetti completi, di cui 95 NGC-only (75 galassie
+  e 20 planetarie); restano 7.271 NGC-only. Nove batch accettati: tre di
+  arricchimento e sei correttivi sui 197 oggetti storici gia' revisionati.
+- Aggiunte regressioni su identita'/alias e qualificazioni IT/EN/ES. Nessuna
+  modifica al precedente editoriale, alle misure del catalogo, alle immagini,
+  al runtime o ai punteggi NSOM/raccomandazioni; preservata la suite accelerata.
+- Gate completo con sicurezza superato: 1.251 test e 10 subtest in 310,46
+  secondi, copertura 86%, audit e smoke backend/QML normale/rosso tutti verdi.
+  Allineati i conteggi attesi a 323, mantenendo inalterati i controlli di
+  unicita', fonti, lunghezza, incipit e similarita'.
+- Versione sorgente, non pubblicazione: nessun tag, bundle o rigenerazione di
+  `dist`. Ultime release pubbliche: Windows `1.45.21`, Linux `1.43.0`.
+
 ## NightScope 1.46.8 - 2026-09-05
 
 - Corretti i residui dell'editoriale storico: 92 descrizioni e cinque

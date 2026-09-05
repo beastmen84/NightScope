@@ -20,7 +20,7 @@ always uses four pytest workers. Do not substitute `-n auto`: PySide and
 Skyfield make each worker comparatively expensive, especially on high-core
 Windows hosts.
 
-The `1.46.8` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
+The `1.46.9` Windows/Python 3.14.5 baseline was validated with pip 26.2.1,
 Ruff 0.16.5, coverage 7.16.0, PyInstaller 6.22.2,
 `pyinstaller-hooks-contrib` 2026.7, PySide6/Qt/shiboken6 6.11.2, Skyfield 1.55,
 Astropy 8.0.1, astropy-IERS-data `0.2026.8.31.0.57.9`, NumPy 2.5.2,
@@ -234,10 +234,10 @@ are non-fatal technical debt, but any non-zero tool exit remains a failure.
 
 ## Latest Measured Gate
 
-The `1.46.8` coverage/security source gate, after test-setup tuning, passed on
-2026-09-05 on Windows/Python 3.14.5 with 1,247 tests and 10 subtests in
-216.43 seconds, 86% aggregate application coverage, complete documentation
-coverage for 250 Python, 34 QML, and 17 operational files, an acyclic production
+The `1.46.9` coverage/security source gate passed on 2026-09-05 on
+Windows/Python 3.14.5 with 1,251 tests and 10 subtests in 310.46 seconds,
+86% aggregate application coverage (17,540 / 20,396 executable lines), complete
+documentation coverage for 250 Python, 34 QML, and 17 operational files, an acyclic production
 graph, zero protected-layer
 violations, a reviewed Bandit baseline (0 high, 34 medium, 14 low), clean
 dependency/license/MPC/OpenNGC/editorial checks, and successful backend, normal
@@ -248,8 +248,8 @@ narrative sentence families across IT/EN/ES. The in-gate installed-environment
 6.11.2 `qmllint` pass over all 34 QML files remains the `1.45.22` pass; its
 existing non-fatal diagnostics remain tracked technical debt.
 
-The same-session before/after comparison used the same SDK, four workers,
-default scheduler, full test selection and application/entry-point coverage.
+The earlier `1.46.8` same-session before/after comparison used the same SDK,
+four workers, default scheduler, full test selection and application/entry-point coverage.
 The unchanged source baseline was `0aecdb1`; reported durations below are the
 pytest phase, not the entire source gate:
 
@@ -275,6 +275,26 @@ cleanup modules passed 70 tests in 7.31 s after documentation updates.
 The earlier editorial gate's 423.37 s remains historical evidence, not the
 controlled pre-tuning timing. These measurements are local Windows results,
 not guaranteed timings on other machines or evidence of a remote CI run.
+
+The separate `1.46.9` batch evidence includes 26 successful live source URL
+checks, a clean static/similarity audit, and 72 final Object Detail scenes:
+six planetary nebulae in IT/EN/ES, normal/red, at upper observing-note and lower
+description/curiosity positions. Text, source links and red monochromy passed
+visual review. The focused catalogue/translation suite passed 49 tests in
+14.15 seconds; existing Spanish terminology checks were preserved and the new
+prose aligned to them. Field-level comparison against `fa955d0` retained all
+303 previous description/curiosity records and overlays unchanged, adding
+20 complete objects (80 narrative fields per language). All other translation
+sections, catalogue measurements/designations/flags and image seeds are unchanged.
+The initial full run exposed three database tests still expecting 303 records;
+only those counters were updated to 323. The separate prefix-diversity check
+also prompted a new opening for NGC 2440's Italian curiosity. All three
+database checks then passed in 3.79 seconds with their original uniqueness,
+minimum-length, prefix and similarity thresholds; the complete gate was rerun
+successfully afterwards. The 310.46-second latest run is not a replacement for
+the controlled 1.46.8 optimization comparison or a new performance claim.
+A final developer-tooling pass after the documentation/version updates
+passed 46 tests in 15.49 seconds; the final batch similarity audit also passed.
 
 The separate `1.46.2` batch evidence includes a successful live audit of 50
 distinct manifest URLs and 36 reviewed Object Detail renders: six objects in

@@ -5,7 +5,8 @@ guidance, and source-backed curiosities to the catalogue in Italian, English,
 and Spanish. Source `1.46.0` established the pipeline and acceptance gates;
 sources `1.46.1` and `1.46.2` apply that contract to 75 NGC-only galaxies,
 while sources `1.46.3` through `1.46.8` apply the same standard to field-scoped
-baseline remediation.
+baseline remediation. Source `1.46.9` resumes enrichment with 20 NGC-only
+planetary nebulae, retaining the same acceptance contract.
 
 ## Baseline And Scope
 
@@ -17,11 +18,12 @@ NightScope's immutable pre-programme identity baseline contains 228 objects:
 
 OpenNGC contributes 7,571 physical NGC targets. Two hundred five resolve to
 already curated physical objects, while 7,366 are NGC-only targets. Sources
-through `1.46.2` complete 75 of those targets, bringing editorial coverage to
-303 physical objects and leaving 7,291 NGC-only targets on the localized
+through `1.46.9` complete 95 of those targets (75 galaxies and 20 planetary
+nebulae), bringing editorial coverage to 323 physical objects and leaving
+7,271 NGC-only targets on the localized
 `Work in progress` fallback.
 
-Source `1.46.3` does not alter those coverage counts. It replaces one generic
+Source `1.46.3` did not alter the then-current coverage counts. It replaced one generic
 17-object galaxy observing-note family in the historical baseline and rewrites
 four descriptions from two duplicated families, with independent IT/EN/ES
 review and direct NASA evidence.
@@ -208,8 +210,21 @@ Accepted batch ledger:
 | `1.46.6` | Baseline remediation | Remaining formulaic nebula and planetary-nebula notes | 75 | 126 | 7,291 |
 | `1.46.7` | Baseline remediation | Final galaxy-note families; four descriptions | 75 | 177 | 7,291 |
 | `1.46.8` | Baseline remediation | 92 residual descriptions; five curiosities; sentence-level audit | 75 | 197 | 7,291 |
+| `1.46.9` | NGC enrichment | 20 planetary nebulae with distinct structure, observing limits and source-backed facts | 95 | 197 | 7,271 |
 
-The next editorial source patch is `1.46.9`; it may resume bounded NGC-only
+The `1.46.9` batch deliberately uses fewer than the 100-object ceiling. Its
+20 records distinguish faint envelopes from bright compact cores, infrared
+rings from eyepiece targets, and apparent alignments from physical association.
+NGC 2371/2372 remains one object. Proposed companions, wind interpretations and
+motion-derived ages retain their uncertainty in IT/EN/ES. Advice about power,
+O III, months and latitude is conservative editorial inference from measured
+properties, not a claim of field-tested visibility. All 26 distinct manifest
+URLs passed the live check on 2026-09-05; six samples passed 72 visual scenes
+across three languages, both themes and both upper/lower detail positions.
+No baseline prose, images, catalogue measurements or recommendation metadata
+is changed by this batch.
+
+The next editorial source patch is `1.46.10`; it may continue bounded NGC-only
 enrichment, with its own reviewed manifest rather than extending an accepted
 set.
 

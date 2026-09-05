@@ -142,11 +142,11 @@ def test_editorial_baseline_and_ngc_backlog_are_audited() -> None:
     assert report.catalogue_objects == 7_585
     assert report.ngc_only_objects == 7_366
     assert report.baseline_objects == 228
-    assert report.completed_objects == 303
-    assert report.completed_ngc_objects == 75
-    assert report.remaining_ngc_objects == 7_291
-    assert report.accepted_batches == 8
-    assert report.accepted_enrichment_batches == 2
+    assert report.completed_objects == 323
+    assert report.completed_ngc_objects == 95
+    assert report.remaining_ngc_objects == 7_271
+    assert report.accepted_batches == 9
+    assert report.accepted_enrichment_batches == 3
     assert report.accepted_remediation_batches == 6
     assert report.remediated_baseline_objects == 197
     assert report.draft_batches == 0
@@ -165,23 +165,42 @@ def test_editorial_visual_samples_are_read_from_the_latest_accepted_manifest() -
         / "astro_viewer"
         / "data"
         / "editorial_batches"
-        / "batch_1_46_8.json"
+        / "batch_1_46_9.json"
     )
 
     assert _sample_ids(manifest) == [
-        "caldwell-C4",
-        "caldwell-C46",
-        "caldwell-C56",
-        "caldwell-C83",
-        "caldwell-C80",
-        "caldwell-C8",
-        "caldwell-C89",
-        "caldwell-C99",
-        "messier-M26",
-        "messier-M84",
-        "caldwell-C21",
-        "caldwell-C48",
+        "ngc-NGC1360",
+        "ngc-NGC1514",
+        "ngc-NGC2371",
+        "ngc-NGC5189",
+        "ngc-NGC6572",
+        "ngc-NGC7027",
     ]
+
+
+def test_planetary_enrichment_keeps_physical_aliases_and_catalogue_defaults() -> None:
+    manifest = json.loads(
+        (PROJECT_ROOT / "astro_viewer/data/editorial_batches/batch_1_46_9.json")
+        .read_text(encoding="utf-8")
+    )
+    entries = {item["object_id"]: item for item in manifest["objects"]}
+    expected_numbers = (
+        1360, 1501, 1514, 1535, 2346, 2371, 2438, 2440, 2899, 5189,
+        6153, 6210, 6369, 6537, 6572, 6741, 6751, 6818, 6891, 7027,
+    )
+    assert len(manifest["objects"]) == len(entries) == 20
+    assert set(entries) == {f"ngc-NGC{number}" for number in expected_numbers}
+    assert entries["ngc-NGC2371"]["designations"] == ["NGC 2371", "NGC 2372"]
+    assert manifest["batch_kind"] == "ngc_enrichment"
+    assert manifest["status"] == "accepted"
+
+    with DEFAULT_OBJECTS.open(encoding="utf-8", newline="") as file:
+        catalogue = {row["object_id"]: row for row in csv.DictReader(file)}
+    for object_id in entries:
+        assert catalogue[object_id]["tipo"] == "Planetary nebula"
+        assert catalogue[object_id]["descrizione"] == "Work in progress"
+        assert catalogue[object_id]["recommendation_enabled_by_default"] == "0"
+    assert "ngc-NGC2372" not in catalogue
 
 
 def test_editorial_template_screen_ignores_ids_aliases_and_measurements() -> None:
@@ -419,8 +438,8 @@ def test_baseline_remediation_manifest_is_field_scoped(tmp_path: Path) -> None:
     report = audit_catalogue_editorial(batch_path=manifest)
 
     assert report.errors == ()
-    assert report.accepted_batches == 9
-    assert report.accepted_enrichment_batches == 2
+    assert report.accepted_batches == 10
+    assert report.accepted_enrichment_batches == 3
     assert report.accepted_remediation_batches == 7
     assert report.remediated_baseline_objects == 198
 

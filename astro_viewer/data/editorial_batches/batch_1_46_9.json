@@ -1,0 +1,814 @@
+{
+  "schema_version": 1,
+  "source_version": "1.46.9",
+  "batch_kind": "ngc_enrichment",
+  "status": "accepted",
+  "selection_basis": "Twenty previously uncurated NGC-only planetary nebulae with object-specific NASA/ESA/ESO or primary-literature evidence. A smaller coherent batch prioritises useful visual guidance and qualified scientific facts over the 100-object ceiling.",
+  "created_on": "2026-09-05",
+  "reviewed_on": "2026-09-05",
+  "review_notes": [
+    "Object identities, full designation sets, coordinates, apparent sizes and types were checked against the unchanged pinned OpenNGC-derived catalogue.",
+    "OpenNGC supports measurement-based observing advice and month/latitude guidance, not claims about discovery or stellar physics. Practical advice is conservative editorial inference, not a report of field observations or a guaranteed aperture threshold.",
+    "Difficulty labels describe first detection under suitable sky/latitude conditions, not access to photographed structure; the existing shared IT/EN/ES difficulty vocabulary is reused.",
+    "Source pages were read for specific claims. Visible-light, infrared and high-resolution features are distinguished; uncertain companions, wind explanations and motion-derived ages retain qualifiers in every language.",
+    "Italian is canonical. English and Spanish receive separate terminology/grammar review and side-by-side checks of numbers, qualifiers, aliases and observational limits. No catalogue measurements, recommendation flags, image seeds or scoring code are changed."
+  ],
+  "objects": [
+    {
+      "object_id": "ngc-NGC1360",
+      "designations": [
+        "NGC 1360"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "Miszalski et al. (2017), MNRAS",
+          "url": "https://arxiv.org/abs/1703.10891",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        },
+        {
+          "label": "Goldman et al. (2004), physical structure of NGC 1360",
+          "url": "https://arxiv.org/abs/astro-ph/0407568",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes"
+          ]
+        }
+      ],
+      "review_notes": "Diffuse evolved ellipsoid, not a sharply bounded ring. The 142-day orbit is spectroscopic; a white-dwarf companion is a model inference. Low-power advice follows the 6.42 arcmin catalogue extent.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC1501",
+      "designations": [
+        "NGC 1501"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA / Hubble",
+          "url": "https://science.nasa.gov/missions/hubble/hubble-view-of-bubbly-nebula/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Ellipsoidal uneven shell and roughly half-hour central-star pulsations from Hubble. Pulsation is not an eyepiece promise; 0.87 arcmin size supports moderate-power detection.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC1514",
+      "designations": [
+        "NGC 1514"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA / Webb",
+          "url": "https://science.nasa.gov/missions/webb/with-nasas-webb-dying-stars-energetic-display-comes-into-full-focus/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Separate visible nebular haze from the dusty mid-infrared rings. The two central stars are unresolved in Webb imagery; nine-year elongated orbit supported by the 2025 release.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC1535",
+      "designations": [
+        "NGC 1535"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA / Hubble",
+          "url": "https://science.nasa.gov/missions/hubble/hubble-spies-eye-in-the-sky/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Bright inner region and faint outer envelope; possible gravitationally bound companion remains a suggestion, not confirmation.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC2346",
+      "designations": [
+        "NGC 2346"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA / Hubble",
+          "url": "https://science.nasa.gov/asset/hubble/ngc-2346/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Butterfly morphology and 16-day binary from Hubble. Practical prose distinguishes faint lobes from the much easier central star.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC2371",
+      "designations": [
+        "NGC 2371",
+        "NGC 2372"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA / Hubble",
+          "url": "https://science.nasa.gov/missions/hubble/hubble-captures-dynamic-dying-star/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        },
+        {
+          "label": "NASA / Hubble, NGC 2371 structure",
+          "url": "https://science.nasa.gov/asset/hubble/planetary-nebula-ngc-2371/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "NGC 2371 and NGC 2372 are lobes of one physical planetary nebula; retain the complete existing alias set. Jet-direction changes are sourced; a companion explanation is deliberately omitted.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC2438",
+      "designations": [
+        "NGC 2438"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA / Hubble",
+          "url": "https://science.nasa.gov/missions/hubble/hubble-images-colorful-planetary-nebula-ringed-by-hazy-halo/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Foreground line-of-sight alignment with M46, not membership. Ionised extended halo is distinct from the small bright visual ring. Catalogue size 1.07 arcmin.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC2440",
+      "designations": [
+        "NGC 2440"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA / Hubble",
+          "url": "https://science.nasa.gov/asset/hubble/central-star-of-nebula-ngc-2440-one-of-hottest-known-stars/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        },
+        {
+          "label": "NASA / Hubble, NGC 2440 morphology",
+          "url": "https://science.nasa.gov/asset/hubble/ngc-2440/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes"
+          ]
+        }
+      ],
+      "review_notes": "Multiple ejection directions and dusty structures are imaged features. Approximately 200000 K is a rounded stellar-surface estimate, not gas temperature or an absolute hottest-star record.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC2899",
+      "designations": [
+        "NGC 2899"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "ESO",
+          "url": "https://www.eso.org/public/news/eso2012/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Deep-southern bipolar nebula; the companion shaping scenario is attributed to the ESO interpretation, not declared a directly resolved visual binary. At -56 deg, unavailable from Italy.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC5189",
+      "designations": [
+        "NGC 5189"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "Manick et al. (2015), MNRAS",
+          "url": "https://arxiv.org/abs/1501.03373",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        },
+        {
+          "label": "NASA / Hubble, NGC 5189",
+          "url": "https://science.nasa.gov/asset/hubble/zoom-into-planetary-nebula-ngc-5189/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes"
+          ]
+        }
+      ],
+      "review_notes": "Use filamentary/lobed morphology, not a spiral-galaxy identity. Historical 2015 spectroscopic result is explicitly dated, with the companion's white-dwarf nature kept probable. -66 deg requires southern site.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC6153",
+      "designations": [
+        "NGC 6153"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "ESA / Hubble",
+          "url": "https://esahubble.org/images/potw1525a/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Elliptical shell and rich filaments from Hubble. Nitrogen abundance roughly five times solar; possible natal enrichment is omitted rather than presented as certain. -40 deg altitude constraint is geometric.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC6210",
+      "designations": [
+        "NGC 6210"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA / Hubble",
+          "url": "https://science.nasa.gov/asset/hubble/a-turtle-shaped-nebula-ngc-6210-and-the-structure-around-its-star-inset/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Turtle analogy and opposing jet pairs from Hubble; bright inner region is the visual target. Binocular difficulty refers to detection of a point, not resolved shape.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC6369",
+      "designations": [
+        "NGC 6369"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA / Hubble",
+          "url": "https://science.nasa.gov/asset/hubble/an-old-star-gives-up-the-ghost/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Main ring, faint earlier wisps and ionisation stratification from Hubble. Optical filter colours are not assigned as a guaranteed eyepiece colour.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC6537",
+      "designations": [
+        "NGC 6537"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "ESA / Hubble",
+          "url": "https://esahubble.org/images/heic0109a/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Red Spider bipolar outflow; supersonic shocks heat/compress gas. Name and photographic lobes do not promise visual red colour. Size 0.17 arcmin refers to compact catalogue extent, not all faint wings.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC6572",
+      "designations": [
+        "NGC 6572"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "ESA / Hubble",
+          "url": "https://esahubble.org/images/potw1034a/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Young concentrated nebula, expansion about 15 km/s. Colour at eyepiece is variable, not guaranteed. Separate easy detection and resolved-disc difficulty; no colour inference from false-colour Hubble alone.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC6741",
+      "designations": [
+        "NGC 6741"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "ESA / Hubble",
+          "url": "https://esahubble.org/images/potw1022a/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Discovery by Edward Charles Pickering in 1882 despite relative brightness, attributed by Hubble to tiny size. Do not derive physical evolution from nickname alone.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC6751",
+      "designations": [
+        "NGC 6748",
+        "NGC 6751"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA / Hubble",
+          "url": "https://science.nasa.gov/asset/hubble/the-glowing-eye-of-planetary-nebula-ngc-6751/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Central ring and outward cooler streamers from Hubble 2000. Keep interpretation of wind/radiation shaping; omit stale future distance-measurement plans and avoid pretending current origin fully known.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC6818",
+      "designations": [
+        "NGC 6818"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "ESA / Hubble",
+          "url": "https://esahubble.org/images/potw1531a/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "Little Gem compact inner bubble and fainter outer gas. Stellar-wind explanation is a proposed mechanism, not a direct measurement or a new certain claim.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC6891",
+      "designations": [
+        "NGC 6891"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA / Hubble",
+          "url": "https://science.nasa.gov/missions/hubble/hubbles-view-of-planetary-nebula-reveals-complex-structure/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        }
+      ],
+      "review_notes": "At least two differently oriented ellipsoidal shells and an older halo; 4800 vs 28000 yr are motion-based estimates, not exact birth dates. Observation only targets compact bright part.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "ngc-NGC7027",
+      "designations": [
+        "NGC 7027"
+      ],
+      "sources": [
+        {
+          "label": "OpenNGC, pinned 36cb178 snapshot",
+          "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/36cb178a0f69dba8bfc03a99c10512831edf1c6b/database_files/NGC.csv",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "best_seen"
+          ]
+        },
+        {
+          "label": "SOFIA Science Center / NASA",
+          "url": "https://irsa.ipac.caltech.edu/data/SOFIA/docs/publications/science-results-archive/first-astrophysical-detection-very-special-molecule/index.html",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes",
+            "curiosity_text"
+          ]
+        },
+        {
+          "label": "NASA / Hubble, NGC 7027",
+          "url": "https://science.nasa.gov/asset/hubble/ngc-7027/",
+          "accessed_on": "2026-09-05",
+          "supports": [
+            "short_description",
+            "observing_notes"
+          ]
+        }
+      ],
+      "review_notes": "Compact dusty bright planetary. HeH+ detection reported in 2019 by GREAT/SOFIA; molecules formed locally, not Big Bang survivors. No asserted confirmed companion.",
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    }
+  ],
+  "visual_review": {
+    "samples": [
+      {
+        "object_id": "ngc-NGC1360",
+        "reason": "Large diffuse envelope; low-power guidance and qualified companion claim.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "ngc-NGC1514",
+        "reason": "Bright central system versus invisible mid-infrared rings.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "ngc-NGC2371",
+        "reason": "One physical object with NGC 2371 and NGC 2372 designations.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "ngc-NGC5189",
+        "reason": "Deep-southern visibility limit and dated spectroscopic interpretation.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "ngc-NGC6572",
+        "reason": "Compact bright disc; observer-dependent colour and detection versus detail.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "ngc-NGC7027",
+        "reason": "Dusty compact target and HeH+ notation; local versus primordial chemistry.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      }
+    ],
+    "review_notes": "72 final Object Detail scenes inspected: six objects, IT/EN/ES, normal and Red Night Vision, at scroll-y 0 and 570; 1440x1000, Segoe UI. Notes, descriptions, best-seen guidance, curiosity and source links remain complete, with no clipping/overlap; red mode stays monochromatic. NGC-only images remain the existing type-specific fallback."
+  },
+  "similarity_waivers": [],
+  "deferred": [],
+  "source_audit": {
+    "checked_on": "2026-09-05",
+    "distinct_urls": 26,
+    "result": "passed"
+  }
+}

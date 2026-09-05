@@ -4,25 +4,25 @@ Updated: 2026-09-05
 
 ## Current State
 
-- Source version: `1.46.8`.
+- Source version: `1.46.9`.
 - Current public Windows release: `v1.45.21`, from source commit
   `d06300b43db0b3df2acbcb7cde2761158704f7b5`; its GitHub release contains the
   portable Windows x64 ZIP and no Linux package.
 - Current public Linux release: `v1.43.0`, from source commit
   `26dfaf49df8f9b8e73e84f406396f406170400b2`; its GitHub release contains the
   Debian 12 x86-64 tarball and adjacent checksum.
-- Source `1.46.8` is not published: no `v1.46.8` tag, bundle, checksum, or
+- Source `1.46.9` is not published: no `v1.46.9` tag, bundle, checksum, or
   GitHub release has been created.
-- `dist` was deliberately not regenerated or modified for `1.46.8`.
-- Test-setup tuning stays on `1.46.8`: opted-in setup copies a private database
-  from a fresh, per-worker session template. Real bootstrap/migration/recovery
+- `dist` was deliberately not regenerated or modified for `1.46.9`.
+- Test-setup tuning was completed on `1.46.8` (`fa955d0`): setup copies a
+  private database from a fresh, per-worker session template. Real bootstrap/migration/recovery
   and astronomy/controller checks remain in place; no runtime code or
-  editorial data changed. The next NGC batch remains `1.46.9`.
-- Eight editorial batches are accepted: two enrich 75 NGC-only galaxies;
-  six remediate declared fields across 197 distinct baseline objects. The
-  latest pass revises 92 descriptions and five curiosities across 94 objects,
-  with canonical IT and reviewed EN/ES overlays. Catalogue coverage remains
-  303 complete objects (228 baseline plus 75 NGC-only), with 7,291 NGC-only
+  editorial data changed in that tuning commit; those checks remain in place.
+- Nine editorial batches are accepted: three enrich 95 NGC-only targets
+  (75 galaxies and 20 planetary nebulae); six remediate declared fields across
+  197 distinct baseline objects. The new `1.46.9` batch leaves previous prose
+  untouched and adds complete IT/EN/ES records for 20 planetaries. Coverage is
+  323 complete objects (228 baseline plus 95 NGC-only), with 7,271 NGC-only
   targets remaining.
 - A retrospective quality screen confirms the 50 entries added in `1.46.1`
   remain specific and useful. The `1.46.7` zero-debt result only measured whole
@@ -74,7 +74,8 @@ Updated: 2026-09-05
 | 1.46.5 | `8a2de9a` | Replaces formulaic guidance for 41 baseline globular clusters and rewrites six duplicated descriptions. |
 | 1.46.6 | `2d2d1b5` | Replaces formulaic guidance for 20 baseline nebulae and planetary nebulae. |
 | 1.46.7 | `d9f11d5` | Replaces the final formulaic galaxy guidance and four duplicated descriptions. |
-| 1.46.8 | current source | Corrects residual description templates, five curiosities, and the sentence-level audit blind spot. |
+| 1.46.8 | `fa955d0` (final tuning) | Corrects residual prose and the sentence audit; then speeds up isolated test DB setup without dropping checks. |
+| 1.46.9 | current source | Adds 20 source-backed planetary nebulae in IT/EN/ES, with explicit visual and scientific limits. |
 
 ## Resulting Architecture
 
@@ -122,10 +123,10 @@ QML pages remain concentrated maintenance areas.
 
 ## Validation
 
-The final local `1.46.8` coverage/security source gate passed on 2026-09-05 on
+The final local `1.46.9` coverage/security source gate passed on 2026-09-05 on
 Windows/Python 3.14.5:
 
-- 1,247 tests and 10 subtests in 216.43 seconds, with 86% aggregate application
+- 1,251 tests and 10 subtests in 310.46 seconds, with 86% aggregate application
   coverage; the editorial audit passed without warnings and reports zero
   historical paragraph families and zero shared narrative sentence families
   across IT/EN/ES;
@@ -168,7 +169,12 @@ Windows/Python 3.14.5:
   all revised text remained complete and Red Night Vision monochromatic;
 - the earlier PySide6 6.11.2 `qmllint`, isolated first-use/saved-Spanish launches,
   and native Windows splash renders from `1.45.22` remain the latest dedicated
-  startup evidence; no QML source changed from `1.46.1` through `1.46.8`.
+  startup evidence; no QML source changed from `1.46.1` through `1.46.9`;
+- separate `1.46.9` enrichment evidence: 26 distinct manifest URLs and 72
+  final upper/lower Object Detail scenes passed review. Four added test cases
+  protect the new batch identity and IT/EN/ES scientific distinctions; three
+  database counters were updated from 303 to 323 without weakening their
+  content or runtime assertions. Current covered lines: 17,540 / 20,396.
 
 After the static website and its Pages workflow were added, all 46 developer-
 tooling tests passed in 7.36 seconds and Ruff remained clean. These focused
@@ -220,12 +226,12 @@ Skyfield event/calculation seams remain the next non-persistence priority.
 
 ## Active Product Work: Catalogue Editorial Content
 
-Sources through `1.46.8` apply the prepared editorial pipeline to 75 notable
-NGC-only galaxies chosen for morphology, surface brightness, observing value,
-and direct scientific evidence, then use six field-scoped remediations to
-correct 197 distinct baseline objects. The 228 Solar System/Messier/
-Caldwell entries remain the immutable identity baseline; 303
-physical objects are complete and 7,291 NGC-only targets remain queued.
+Sources through `1.46.9` apply the prepared editorial pipeline to 75 notable
+NGC-only galaxies and 20 planetary nebulae chosen for morphology, observing
+value and direct evidence; six field-scoped remediations corrected 197
+distinct baseline objects. The 228 Solar System/Messier/Caldwell entries
+remain the immutable identity baseline; 323 physical objects are complete
+and 7,271 NGC-only targets remain queued.
 
 The network-free audit freezes the baseline identity, verifies canonical fields,
 EN/ES overlay parity, provenance, duplicate text, accepted manifests and the
@@ -326,9 +332,23 @@ The field-level diff check confirms the same 97 edited fields per language
 and no changes to unrelated translation sections. The focused catalogue,
 translation, and developer-tooling suite passed 91 tests in 19.95 seconds.
 
-The next editorial source step is `1.46.9`: resume NGC-only enrichment with a
-new bounded manifest and the same source, three-language, static/live, visual,
-and full-gate requirements. Public platform bundles can group several source
+The accepted `batch_1_46_9.json` adds 20 NGC-only planetary nebulae. Its
+26 distinct URLs passed the live check on 2026-09-05. Six samples cover 72
+Object Detail scenes: IT/EN/ES, normal/red, notes at the top and lower
+description/curiosity cards. Key review distinctions include one physical
+NGC 2371/2372, foreground NGC 2438 rather than M46 membership, infrared rings
+in NGC 1514 rather than eyepiece features, and locally formed HeH+ in NGC 7027
+rather than molecules surviving from the Big Bang. Companion hypotheses and
+motion-derived ages retain qualifiers. Advice is conservative inference, not
+a field-observation claim. No older prose, images, catalogue metadata or
+runtime/scoring code changed. The focused catalogue/translation suite passed
+49 tests in 14.15 seconds, including new identity and three-language
+qualifier regressions; the existing Spanish terminology gate remains intact.
+
+The next editorial source step is `1.46.10`: continue NGC-only enrichment with
+a new bounded manifest and the same source, three-language, static/live,
+visual and full-gate requirements. Do not wait for GitHub Actions; the user
+will report failures. Public platform bundles can group several source
 batches; they are not implied by each patch.
 
 ## Release Boundary

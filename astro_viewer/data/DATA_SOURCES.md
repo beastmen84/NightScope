@@ -300,9 +300,10 @@ in Object Detail. The full selection and redistribution rules are documented in
 defensive compatibility assets and are not used by current target rows.
 
 `object_descriptions_seed.csv` contains NightScope-style descriptions and
-separate observing notes for 303 reviewed targets: the 228-object baseline of
+separate observing notes for 323 reviewed targets: the 228-object baseline of
 Sun, Moon, the seven displayed planets, all 110 Messier entries and all 109
-Caldwell entries, plus the first 75 accepted NGC-only galaxies. Sources
+Caldwell entries, plus 75 accepted NGC-only galaxies and the 20 planetary
+nebulae accepted in `1.46.9`. Sources
 `1.46.3` through `1.46.7` replace formulaic observing-note families across 68
 baseline galaxies, 48 baseline open clusters, 41 baseline globular clusters,
 and 20 baseline nebulae or planetary nebulae; twenty-four descriptions are also
@@ -311,8 +312,8 @@ five curiosities across 94 baseline objects, bringing cumulative remediation
 to 197 distinct objects. The deterministic screen now reports no repeated or
 near-identical historical paragraph families and no long shared narrative
 sentences in IT/EN/ES. This remediation changes
-prose, not the 303-object coverage count. The Sun entry requires a certified
-full-aperture front-mounted solar filter and explicitly excludes eyepiece solar
+prose, not the then-current 303-object coverage count. The Sun entry requires
+a certified full-aperture front-mounted solar filter and explicitly excludes eyepiece solar
 filters. Caldwell observing copy was initially derived conservatively from the
 verified catalogue type, coordinates, magnitude and apparent size. Remediated
 entries add direct object-specific mission evidence while keeping measured
@@ -325,7 +326,7 @@ such as Uranus (`https://science.nasa.gov/uranus/`) and the NASA Sun facts page
 (`https://science.nasa.gov/sun/facts/`).
 
 `object_curiosities_seed.csv` is a separate, source-backed presentation layer
-for the same 303 editorially complete targets. Every row contains an
+for the same 323 editorially complete targets. Every row contains an
 object-specific historical or scientific fact, a visible source label and an
 HTTPS source URL.
 The primary
@@ -359,7 +360,7 @@ separate from observing notes and
 does not participate in NSOM, Equipment or ranking calculations.
 
 NGC-only targets never receive fabricated entries in these three
-editorial/image seeds. The 7,291 targets still awaiting review use a
+editorial/image seeds. The 7,271 targets still awaiting review use a
 type-specific compatibility image and the localized `Work in progress`
 placeholder. Once an object has a complete editorial record, presentation
 derives the catalogue description and notes from the canonical
@@ -393,7 +394,14 @@ correction batches, bring the cumulative remediated baseline to 177 objects,
 and clear the historical families then found at paragraph level. Source
 `1.46.8` adds the sixth correction batch and a repository-wide sentence screen,
 closing the partial-template blind spot and bringing the cumulative count to
-197 baseline objects. It does not certify undeclared fields as newly reviewed:
+197 baseline objects. It does not certify undeclared fields as newly reviewed.
+Source `1.46.9` resumes enrichment with 20 planetary nebulae; the accepted
+manifest records object-specific NASA/Hubble, NASA/Webb, ESA/Hubble, ESO,
+SOFIA and primary-literature claims, plus pinned OpenNGC measurement support.
+Practical advice and month/latitude guidance are explicitly editorial
+inferences; no photographic detail or infrared ring is promised at the
+eyepiece. All 26 distinct manifest URLs passed on 2026-09-05, and 72 final
+IT/EN/ES upper/lower Object Detail scenes passed normal/red visual review:
 
 ```powershell
 .\.venv\Scripts\python.exe astro_viewer\tools\audit_catalogue_editorial.py

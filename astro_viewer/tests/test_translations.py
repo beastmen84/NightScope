@@ -261,6 +261,43 @@ def test_structured_content_covers_every_translatable_seed_field() -> None:
     assert source_language("equipment_reducers", "any", "notes") == "it"
 
 
+@pytest.mark.parametrize(
+    ("language", "foreground", "infrared_limit", "companion", "local_chemistry"),
+    [
+        ("it", "non ne fa parte", "non sono un obiettivo visuale", "probabile", "si forma localmente"),
+        ("en", "not a member", "not visual targets", "likely", "forms locally"),
+        ("es", "no pertenece", "no son objetivos visuales", "probable", "se forma localmente"),
+    ],
+)
+def test_planetary_editorial_preserves_aliases_and_scientific_qualifiers(
+    language: str,
+    foreground: str,
+    infrared_limit: str,
+    companion: str,
+    local_chemistry: str,
+) -> None:
+    """Protect reviewed distinctions, not just non-empty translated cells."""
+
+    if language == "it":
+        objects = source_content()["objects"]
+    else:
+        pack = json.loads(
+            (TRANSLATIONS_DIR / f"{language}.json").read_text(encoding="utf-8")
+        )
+        objects = pack["content"]["objects"]
+
+    assert "NGC 2372" in objects["ngc-NGC2371"]["short_description"]
+    assert "ngc-NGC2372" not in objects
+    assert foreground in objects["ngc-NGC2438"]["short_description"]
+    assert infrared_limit in objects["ngc-NGC1514"]["observing_notes"]
+    assert "142" in objects["ngc-NGC1360"]["curiosity_text"]
+    assert companion in objects["ngc-NGC1360"]["curiosity_text"]
+    chemistry = objects["ngc-NGC7027"]["curiosity_text"]
+    assert "HeH+" in chemistry
+    assert "2019" in chemistry
+    assert local_chemistry in chemistry
+
+
 def test_editorial_machine_translation_requires_explicit_draft_opt_in() -> None:
     assert not should_generate_translation(
         "objects",
@@ -470,7 +507,7 @@ def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
         "short_description"
     ]
     for objects in (italian_descriptions, descriptions):
-        assert len(objects) == 303
+        assert len(objects) == 323
         for field in ("short_description", "observing_notes", "curiosity_text"):
             values = [item[field] for item in objects.values()]
             assert len(values) == len(set(values))
