@@ -127,6 +127,17 @@ class EquipmentConfigurationService:
         barlow: Barlow | None = None,
         barlow_multiplier: float | None = None,
     ) -> TelescopeConfigurationValues:
+        """Return nominal visual optics for positive, finite input dimensions.
+
+        Focal lengths/aperture are mm, AFOV/TFOV degrees, magnification a ratio,
+        and exit pupil mm. TFOV = AFOV / magnification is an approximation:
+        field stops, distortion, vignetting and the observer's pupil are absent.
+        Resolution is the empirical Dawes limit in arcseconds (116 / D_mm),
+        not seeing-limited resolution. The aperture-only limiting magnitude
+        (2 + 5 log10 D_mm) is a heuristic, not a target-detection guarantee.
+        Repository/input validation and builders own input eligibility.
+        """
+
         multiplier = (
             barlow_multiplier
             if barlow_multiplier is not None

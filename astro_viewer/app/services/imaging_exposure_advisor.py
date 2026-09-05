@@ -1,4 +1,12 @@
-"""Produce conservative still-exposure ranges from candidate and sky facts."""
+"""Produce heuristic starting ranges for still exposures, not an SNR solution.
+
+Sky brightness uses mag/arcsec^2, Moon illumination a 0-1 fraction, focal ratio
+a dimensionless number, and exposure times seconds. Focal-ratio-squared scaling
+is an extended-source approximation at fixed pixel pitch and comparable throughput;
+the remaining bounded factors/caps are policy choices. Read noise, QE, gain,
+filter transmission, actual guiding error and geometric field rotation are not
+solved. Assumptions, missing inputs and limitations must accompany the advice.
+"""
 
 from __future__ import annotations
 

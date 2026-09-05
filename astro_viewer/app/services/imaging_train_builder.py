@@ -26,7 +26,14 @@ _EquipmentT = TypeVar("_EquipmentT")
 
 
 class ImagingTrainBuilder:
-    """Enumerates valid target-agnostic photographic optical trains."""
+    """Enumerate valid target-agnostic photographic optical trains.
+
+    Nominal focal length and sensor dimensions are mm; pixel pitch is micrometres
+    and is converted to mm before deriving arcseconds/pixel. The focal modifier
+    is dimensionless. These are geometric estimates, without distortion,
+    vignetting, measured image-circle coverage or wavelength-dependent PSFs.
+    Explicit reducer compatibility does not certify the assembled backfocus.
+    """
 
     def build(
         self,
@@ -177,6 +184,12 @@ class ImagingTrainBuilder:
         sensor_dimension_mm: float,
         effective_focal_length_mm: float,
     ) -> float:
+        """Return the full rectilinear field angle, not its half-angle.
+
+        Both inputs use the same length unit; build() admits positive finite
+        dimensions before calling this pinhole-geometry helper.
+        """
+
         return math.degrees(
             2.0
             * math.atan(

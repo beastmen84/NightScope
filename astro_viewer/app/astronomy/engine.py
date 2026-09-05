@@ -22,6 +22,13 @@ from astro_viewer.app.models.observing import (
 
 @dataclass(frozen=True)
 class ObserverLocation:
+    """Observer identity and WGS84 geodetic coordinates in decimal degrees.
+
+    North/east are positive; ``timezone`` is an IANA name, not a UTC offset.
+    City/country are labels only. This DTO has no elevation: current astronomy
+    observers use zero metres above the WGS84 ellipsoid, without terrain data.
+    """
+
     city: str
     country: str
     latitude: float
@@ -65,7 +72,14 @@ class PreparedTransientCalendarEvents:
 
 @dataclass(frozen=True)
 class ObservingNightWindow:
-    """Location-aware planning bounds for the current or next observing night."""
+    """Location-aware planning bounds for the current or next observing night.
+
+    Real-engine bounds are aware local datetimes; containment is start-inclusive
+    and end-exclusive. ``no_night`` (polar daylight) differs from ``unavailable``
+    (no trustworthy calculation). A bounded night starts at sunset, not at the
+    end of astronomical twilight. This value object does not validate or
+    normalize its inputs; callers own that contract.
+    """
 
     state: str
     start: datetime | None = None
@@ -101,6 +115,13 @@ class ObservingNightWindow:
         return self.start <= value < self.end
 
     def datetime_for_clock(self, hour: int, minute: int) -> datetime | None:
+        """Locate the first matching wall-clock minute overlapping this night.
+
+        This is a compatibility bridge for display-only HH:MM fields, not an
+        unambiguous timestamp parser. A repeated DST hour currently selects
+        fold=0; see finding A2 in docs/ASTRONOMICAL_CODE_AUDIT_1_46_9.md.
+        """
+
         if not self.has_observing_window or not (0 <= hour <= 23 and 0 <= minute <= 59):
             return None
         current_date = self.start.date()
@@ -162,7 +183,12 @@ class AstronomyEngine(Protocol):
 
 
 class MockAstronomyEngine:
-    """First iteration engine. The public methods mirror the future Skyfield/Astropy boundary."""
+    """Return deterministic demonstration data, independent of location or date.
+
+    The composition root also uses this engine after ephemeris recovery fails.
+    These values are not cached real observations or degraded ephemerides;
+    consumers must not present them as reliable local observing predictions.
+    """
 
     def observing_night_window(self, location: ObserverLocation) -> ObservingNightWindow:
         return ObservingNightWindow.unavailable()

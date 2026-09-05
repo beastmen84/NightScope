@@ -189,6 +189,14 @@ def _numbers_from_angular_text(value: str) -> list[float]:
 
 
 def _surface_brightness_proxy(magnitude: float | None, apparent_size_arcmin: float | None) -> float | None:
+    """Return a magnitude-like ranking proxy using squared diameter in arcminutes.
+
+    The area is floored at one square arcminute; minor axis, circular/elliptical
+    area factors and brightness profile are omitted. This is NOT mag/arcsec^2
+    and must not be compared directly with SQM sky brightness or used as a
+    calibrated extended-source flux. Missing size or magnitude stays unknown.
+    """
+
     if magnitude is None or not apparent_size_arcmin or apparent_size_arcmin <= 0:
         return None
     return magnitude + 2.5 * _log10(max(apparent_size_arcmin * apparent_size_arcmin, 1.0))

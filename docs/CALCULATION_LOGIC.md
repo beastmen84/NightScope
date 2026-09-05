@@ -2,6 +2,12 @@
 
 This document describes the calculations currently implemented in NightScope.
 
+For the cross-module scientific review, independent numerical comparisons and
+open correctness findings on source 1.46.9, see
+[Astronomical and code audit](ASTRONOMICAL_CODE_AUDIT_1_46_9.md). A described
+formula is not necessarily a calibrated physical model: NSOM scores, seeing,
+equipment suitability and exposure advice include empirical policies.
+
 ## Astronomical Calculations
 
 ### Source
@@ -16,19 +22,33 @@ It uses:
 - Astropy/Skyfield coordinate helpers for catalog object altitude/azimuth.
 
 If the ephemeris is unavailable or corrupt, the application falls back to
-`MockAstronomyEngine` so the UI remains usable.
+`MockAstronomyEngine` after recovery fails so the UI remains usable. Its values
+are deterministic demonstration data, not cached real predictions. The
+composition root sets an error message; the audit tracks the need for a durable
+data-quality state across location/status refreshes (A7).
 
 ### Observer Inputs
 
 Inputs:
 
-- latitude,
-- longitude,
-- elevation in meters,
-- timezone,
+- WGS84 geodetic latitude in degrees (north positive),
+- longitude in degrees (east positive),
+- IANA timezone,
 - current date/time.
 
 All object visibility is observer-dependent.
+
+`ObserverLocation` currently has no elevation field. The Skyfield observer is
+placed at zero metres above the WGS84 ellipsoid; an elevation stored in the MPC
+catalogue is not propagated to this DTO. Terrain/horizon masks are not modeled.
+Ordinary `apparent().altaz()` calculations are unrefracted; rise/set helpers use
+their own conventional atmospheric/limb thresholds. These are different contracts.
+
+Nightly planning spans sunset to sunrise and therefore includes twilight.
+Monthly non-Sun visibility currently requires astronomical darkness even for
+planets and the Moon; this inconsistency is tracked as A4. Local HH:MM labels
+also lose date/offset/fold, so they must not be treated as unambiguous timestamps
+on daylight-saving transition nights (A2).
 
 For coordinate-based locations, NightScope resolves the IANA timezone directly
 from offline geographic polygons. A nearby city name is presentation metadata;

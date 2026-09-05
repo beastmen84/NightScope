@@ -1,4 +1,10 @@
-"""Project optical configurations into NSOM Observer capability values."""
+"""Project optical configurations into dimensionless NSOM capability indices.
+
+The bounded features are ranking coordinates, not physical efficiencies:
+``light_grasp`` is not collecting area and ``resolution`` is not arcseconds.
+Linear aperture normalization must not be interpreted as a photon-flux law.
+Atmosphere, sky brightness and confidence have separate ownership in NSOM.
+"""
 
 from __future__ import annotations
 

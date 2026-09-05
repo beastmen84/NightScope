@@ -245,6 +245,9 @@ Item {
     }
 
     function drawMoonPhase(ctx, width, height, phaseAngle) {
+        // Stylized phase illustration, not a quantitative illuminated-area or
+        // local eyepiece-orientation model. The translated shadow circle is an
+        // approximation; numeric illumination comes from the astronomy engine.
         var angle = ((phaseAngle % 360) + 360) % 360
         var radius = Math.min(width, height) / 2 - 3
         var centerX = width / 2

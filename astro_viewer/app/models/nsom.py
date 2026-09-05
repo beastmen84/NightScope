@@ -1,4 +1,11 @@
-"""Implement the typed ownership boundaries and value objects of NSOM 1.0."""
+"""Implement the typed ownership boundaries and value objects of NSOM 1.0.
+
+Scores are bounded ranking indices (0-100) and factors are dimensionless (0-1),
+not calibrated detection probabilities or measured atmospheric transmission.
+Confidence describes input support separately; it must not silently become a
+second multiplier of target quality. See the calculation guide for the runtime
+composition and the astronomical audit for scientific calibration limits.
+"""
 
 from __future__ import annotations
 

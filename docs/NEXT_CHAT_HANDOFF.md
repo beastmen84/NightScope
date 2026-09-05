@@ -5,6 +5,19 @@ Updated: 2026-09-05
 ## Current State
 
 - Source version: `1.46.9`.
+- Editorial work is paused at the user's request for a whole-project
+  astronomical/logic audit of baseline `b567a2b`. Read
+  `docs/ASTRONOMICAL_CODE_AUDIT_1_46_9.md` before the next functional/editorial
+  step: it records independent numerical checks and open findings A1-A8/N1.
+  This pass adds documentation only; no behavioural corrections, version bump,
+  new distribution or publication are implied. In particular, prioritize
+  incomplete-weather semantics and useful-night eligibility/DST before deciding
+  when to resume catalogue batches. Corrections need separate authorization.
+  Audit evidence: full pre-edit security source gate passed (1,251 tests and
+  10 subtests); 288 independent coordinate comparisons (maximum difference
+  2.6084 arcsec), 240 optical identities and 153 post-edit focused tests passed.
+  The 15 modified Python modules have identical executable ASTs to the baseline;
+  only docstrings/comments/docs changed. Diagnostic scripts are local/ignored.
 - Current public Windows release: `v1.45.21`, from source commit
   `d06300b43db0b3df2acbcb7cde2761158704f7b5`; its GitHub release contains the
   portable Windows x64 ZIP and no Linux package.

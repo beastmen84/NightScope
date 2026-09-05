@@ -5,6 +5,12 @@ source tree. It is descriptive, not a redesign proposal. The evidence-backed
 assessment, residual risks, and 1.44.0 comparison are in
 `docs/ARCHITECTURE_REVIEW_1_45.md`.
 
+The subsequent source-1.46.9 scientific/logic audit is in
+[Astronomical and code audit](ASTRONOMICAL_CODE_AUDIT_1_46_9.md). It distinguishes
+validated coordinate/optical calculations, empirical recommendation models and
+open cross-layer correctness issues; the structural architecture review alone
+is not evidence of scientific correctness.
+
 ## Project Structure
 
 NightScope is organized around a small desktop application package:

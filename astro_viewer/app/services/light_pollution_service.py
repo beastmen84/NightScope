@@ -455,6 +455,16 @@ class NasaViirsBlackMarbleProvider:
         )
 
     def _parse_subset(self, payload: bytes, product_month: str) -> SkyQuality | None:
+        """Read the configured VNP46A3 collection-002 snow-free composite.
+
+        The median radiance is upward satellite-observed nW/(cm^2 sr), not
+        ground-based zenith sky brightness. Bortle, SQM-like brightness and NELM
+        below are empirical projections; confidence describes pixel quality and
+        observation count, not a calibration of those derived estimates.
+        Do not substitute collection-001 packed integers without decoding their
+        scale/fill metadata: the product formats are not interchangeable.
+        """
+
         with h5py.File(io.BytesIO(payload), "r") as data:
             group = data["HDFEOS/GRIDS/VIIRS_Grid_DNB_2d/Data_Fields"]
             radiance = np.asarray(group[self.FIELD_RADIANCE][()], dtype=float)

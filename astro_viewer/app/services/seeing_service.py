@@ -43,6 +43,15 @@ class SeeingProvider(Protocol):
 
 
 class BasicForecastSeeingProvider:
+    """Map near-surface forecast indicators to empirical 0-100 indices.
+
+    Wind/gusts are km/h, cloud/humidity values percentages and visibility metres.
+    There is no vertical turbulence profile or Fried-parameter model: the seeing
+    index is not a measurement/prediction in arcseconds. Keep the atmosphere-only
+    transparency separate from its legacy light-pollution-adjusted display value
+    so the canonical NSOM sky-background factor is not counted twice.
+    """
+
     name = "BasicForecastSeeingProvider"
 
     def estimate(

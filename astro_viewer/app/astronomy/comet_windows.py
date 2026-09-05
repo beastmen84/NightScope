@@ -701,6 +701,13 @@ def _finite_float(value: object) -> float:
 
 
 def _comet_vector(record: _CometRecord, timescale: object, sun: object) -> object:
+    """Adapt SBDB J2000 osculating elements to Skyfield's two-body comet orbit.
+
+    SBDB perihelion JD is TDB; mpc.comet_orbit expects a TT calendar day, hence
+    the explicit conversion. Distances are AU and angular elements degrees.
+    No N-body perturbations or comet non-gravitational acceleration are modeled.
+    """
+
     perihelion = timescale.tdb_jd(record.perihelion_jd)
     year, month, day, hour, minute, second = perihelion.tt_calendar()
     fractional_day = float(day) + (
@@ -732,6 +739,15 @@ def _predicted_magnitude(
     solar_distance_au: np.ndarray,
     observer_distance_au: np.ndarray,
 ) -> np.ndarray:
+    """Evaluate the JPL total-comet law M1 + 5 log10(delta) + K1 log10(r).
+
+    Both distances are in AU. SBDB K1 already is the logarithmic coefficient:
+    do not multiply it by 2.5 again. This is predicted integrated brightness,
+    not coma surface brightness, a limiting magnitude, or an outburst forecast.
+    Non-positive/non-finite distances yield non-finite results rejected by the
+    visibility caller.
+    """
+
     with np.errstate(divide="ignore", invalid="ignore"):
         return (
             record.absolute_magnitude

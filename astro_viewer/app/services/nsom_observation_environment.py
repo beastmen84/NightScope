@@ -21,7 +21,15 @@ from astro_viewer.app.services.observation_conditions_service import (
 
 
 class NsomObservationEnvironmentService:
-    """Build the canonical Sky layer from primitive runtime condition inputs."""
+    """Build the canonical Sky layer from primitive runtime condition inputs.
+
+    Factors are empirical ranking attenuation, not Beer-Lambert transmission or
+    a lunar sky-brightness model. The horizon ramp reads target.max_altitude;
+    live Compass can project current altitude into that field. It is not an
+    airmass calculation; solar altitude/twilight is not an input here.
+    Missing optional providers remain neutral, with confidence handled elsewhere.
+    Use unconditioned target inputs so display penalties are not applied twice.
+    """
 
     def environment(
         self,

@@ -1,4 +1,11 @@
-"""Produce conservative planetary-video duration, FPS, and frame guidance."""
+"""Produce heuristic planetary-video duration, FPS, and frame guidance.
+
+Clip durations and mount caps are policy ranges in seconds, not a calculation
+of resolved rotational smear or time-dependent field rotation. FPS is declared
+camera capability or user-supplied achievable rate, not an exposure prediction;
+frame counts do not imply usable/stackable frames. Seeing/altitude add context
+and warnings without certifying a particular achievable image resolution.
+"""
 
 from __future__ import annotations
 

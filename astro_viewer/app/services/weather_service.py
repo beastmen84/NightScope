@@ -234,6 +234,16 @@ class OpenMeteoWeatherService:
 
     @classmethod
     def _parse_payload(cls, payload: dict) -> list[WeatherHour]:
+        """Project Open-Meteo's parallel hourly arrays into the legacy DTO.
+
+        The request relies on provider defaults: Celsius, km/h, metres and
+        percentages; timestamps are provider-local ISO clock strings. Missing
+        numeric fields currently become zero, not an explicit unknown value.
+        That compatibility behavior is not a scientific quality guarantee;
+        partial/null/non-finite payloads need the correction tracked as A5 in
+        docs/ASTRONOMICAL_CODE_AUDIT_1_46_9.md.
+        """
+
         hourly = payload.get("hourly", {})
         hours: list[WeatherHour] = []
         timestamps = hourly.get("time", [])

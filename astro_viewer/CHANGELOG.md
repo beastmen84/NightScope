@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+- Audit astronomico e logico esteso alla struttura del programma, senza bump
+  versione o modifiche al comportamento: rapporto in
+  `docs/ASTRONOMICAL_CODE_AUDIT_1_46_9.md`, confronto Skyfield/Astropy su 288
+  posizioni e 240 verifiche dimensionali su 48 configurazioni ottiche.
+- Documentati difetti riproducibili nelle soglie delle nebulose planetarie,
+  nelle finestre/DST, nell'ammissione dei pianeti al piano e nei dati meteo
+  incompleti; registrati anche incoerenze sul crepuscolo, provenienza dei dati
+  di fallback, illustrazione lunare e disponibilita' aggiornamenti per piattaforma.
+  Le correzioni funzionali restano da autorizzare e verificare separatamente.
+- Aggiunti contratti e limiti scientifici nei moduli di astronomia, ottica,
+  seeing, provider, NSOM e imaging. Corretto il riferimento documentale a
+  un'elevazione osservatore non utilizzata; editoriale, traduzioni, formule,
+  soglie, schema, dist e release pubbliche invariati.
+- Verifica audit: gate completo iniziale con sicurezza superato (1.251 test e
+  10 subtest); dopo le sole modifiche documentali, 153 test mirati superati e
+  confronto degli AST eseguibili identico in tutti i 15 moduli Python modificati.
+  Ruff, documentazione, confini architetturali e baseline Bandit invariati.
+
 ## NightScope 1.46.9 - 2026-09-05
 
 - Ripreso l'arricchimento NGC con 20 nebulose planetarie: descrizione, note

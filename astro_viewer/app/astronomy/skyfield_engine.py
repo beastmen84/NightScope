@@ -1,4 +1,16 @@
-"""Calculate location-aware sky positions, night windows, and calendar events."""
+"""Calculate location-aware sky positions, night windows, and calendar events.
+
+Solar-system vectors use JPL DE421 and a WGS84 observer at zero elevation.
+Plain apparent().altaz() includes astronomical apparent-position corrections,
+but no atmospheric refraction; horizon-event helpers use their own conventional
+rise/set thresholds. Altitude/azimuth are degrees (north=0, east=90), catalogue
+RA is hours and Dec degrees on J2000/ICRS-oriented axes. Fixed catalogue targets
+have no supplied proper motion, parallax or radial velocity.
+
+Useful-window thresholds and ranking scores are observation policies, not a
+physical detectability/SNR model. The 1.46.9 astronomical audit documents known
+boundary defects separately from these intentional approximations.
+"""
 
 from __future__ import annotations
 
@@ -218,6 +230,14 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         location: ObserverLocation,
         reference: datetime | None = None,
     ) -> ObservingNightWindow:
+        """Bound the current/next sunset-to-sunrise planning interval.
+
+        Skyfield's conventional solar-centre threshold is about -0.833 degrees;
+        this interval includes twilight and is not an astronomical-darkness
+        guarantee. Polar daylight, continuous night and failed calculation have
+        distinct states. Event instants are returned in the observer's IANA zone.
+        """
+
         zone = self._zone(location)
         now = reference.astimezone(zone) if reference else self._now(location)
         cache_key = (round(location.latitude, 6), round(location.longitude, 6), location.timezone)
@@ -625,6 +645,16 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         month: int,
         altitude_threshold: float = DEEP_SKY_USEFUL_ALTITUDE_DEG,
     ) -> dict[str, bool]:
+        """Return sampled monthly eligibility, not a continuous visibility proof.
+
+        The current policy requires astronomical darkness (Sun below -18 deg)
+        for every non-Sun target, including the Moon and planets; the Sun uses
+        a separate daytime grid. This differs from nightly planning and misses
+        bright twilight targets (audit A4). Sampling can also miss brief grazing
+        threshold crossings. Coordinates and altitude_threshold use degrees,
+        except catalogue right ascension, which is parsed as hours.
+        """
+
         observer = self._observer(location)
         zone = self._zone(location)
         samples = self._month_dark_samples(location, year, month, zone, step_minutes=CATALOGUE_MONTH_SAMPLE_MINUTES)
@@ -1862,6 +1892,8 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         )
 
     def _observer(self, location: ObserverLocation):
+        """Return Earth plus a zero-height WGS84 observer; no terrain horizon."""
+
         topos = wgs84.latlon(latitude_degrees=location.latitude, longitude_degrees=location.longitude)
         return self._ephemeris["earth"] + topos
 
@@ -1924,6 +1956,13 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         *,
         step_minutes: int,
     ) -> list[datetime]:
+        """Build the legacy wall-clock grid, including end only when aligned.
+
+        A positive step is required. Local timedelta arithmetic is not a
+        monotonic UTC grid across DST; this known defect is tracked by audit A2.
+        _window_datetime_samples separately appends an unaligned closing bound.
+        """
+
         samples: list[datetime] = []
         current = start
         while current <= end:
@@ -2032,6 +2071,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         return ""
 
     def _sample_summary(self, samples: list[tuple[datetime, float]], threshold: float) -> tuple[float, datetime | None, str]:
+        """Summarize one sampled altitude maximum and its connected useful window.
+
+        Altitudes/threshold are degrees. This is not continuous optimization;
+        crossings are interpolated linearly and disjoint windows are not all
+        returned. The last sample is currently ineligible as a peak to avoid a
+        zero-duration dawn recommendation; that also loses some positive final
+        intervals (audit A3). HH:MM output discards date, offset and fold.
+        """
+
         if not samples:
             return 0.0, None, tr("n/d")
 
@@ -2150,6 +2198,12 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         return self._format_dt(times[0].utc_datetime().astimezone(zone))
 
     def _magnitude(self, astrometric, object_id: str) -> float | None:
+        """Return modeled planetary magnitudes, but fixed Sun/Moon references.
+
+        The Moon's -12.7 is a full-Moon reference, not its current-phase apparent
+        magnitude. An unavailable planetary magnitude remains unknown.
+        """
+
         if object_id in {"sun", "moon"}:
             return -26.7 if object_id == "sun" else -12.7
         try:
@@ -2179,6 +2233,13 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
 
     @staticmethod
     def _intrinsic_score_components(magnitude: float | None, object_type: str) -> tuple[float, int]:
+        """Return empirical magnitude/type points, not photometric observability.
+
+        The magnitude contribution saturates at both ends: every magnitude
+        >= 10.5 contributes zero. Surface brightness, concentration and physical
+        angular structure are not modeled by this seed-ranking component.
+        """
+
         if magnitude is None:
             magnitude_score = 18.0
         else:

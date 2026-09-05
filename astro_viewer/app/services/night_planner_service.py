@@ -20,7 +20,14 @@ from astro_viewer.app.services.localization import join_text, tr
 
 
 class NightPlannerService:
-    """Builds a compact, optimized observing sequence."""
+    """Rank up to four distinct targets and order their preferred clock times.
+
+    Selection is greedy by NSOM opportunity followed by chronological display,
+    not a global scheduler: exposures, slew time and non-overlapping reservations
+    are not solved. Geometry/clock inputs must describe the same observing night;
+    legacy admission and HH:MM reconstruction have the limitations tracked as
+    A2/A6 in docs/ASTRONOMICAL_CODE_AUDIT_1_46_9.md.
+    """
 
     def __init__(
         self,
