@@ -19,6 +19,10 @@
   storici restano intatti. Vedi TESTING per il gate finale delle correzioni.
 - Gate completo finale superato: 1.515 test e dieci subtest, copertura 86%,
   audit di sicurezza e smoke backend/QML normale/rosso in runtime isolati.
+- Successivamente rigenerata la dist locale Windows da `971292d`, senza backup
+  né bump versione: audit del pacchetto, corrispondenza con il sorgente e smoke
+  backend/QML normale/rosso superati. Vedi TESTING per identità e limiti;
+  nessuna nuova pubblicazione o build Linux.
 
 ## NightScope 1.46.17 - 2026-09-06
 

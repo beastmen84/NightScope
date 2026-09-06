@@ -29,10 +29,15 @@ Updated: 2026-09-06
   Final production reproducers show zero editorial
   overwrites in both EN/ES refresh modes and window-ended status for both
   Rome morning-twilight targets.
-- Public Windows remains 1.46.13, Linux 1.43.0, and local dist remains 1.46.13.
-  These are source-only local commits: no push, tag, dist rebuild, publication
-  or GitHub Actions wait. The next unused source patch is 1.46.19; resuming
-  new NGC enrichment or rebuilding the dist requires the user's next request.
+- Local Windows `dist/NightScope` is now 1.46.18, rebuilt on 2026-09-06 from
+  clean `971292d` at the user's request. Official build/audit, source parity
+  and all three packaged smokes pass; details are in the bundle section below.
+  The user manually removed the old 1.46.13 dist after tool-policy rejection;
+  no backup was made. Test copies/runtimes were removed; development DB,
+  existing DB snapshot and preferences have unchanged before/after hashes.
+- Public Windows remains 1.46.13 and Linux 1.43.0. This local rebuild does not
+  publish an archive, push, create a tag or wait for GitHub Actions. The next
+  unused source patch is 1.46.19; new NGC work requires the user's next request.
 - Public release update: on 2026-09-06 the user published `v1.46.13` for
   Windows only. Release metadata, the public tag and the exact asset name
   were checked through GitHub. README, manual, current release records and
@@ -63,8 +68,8 @@ Updated: 2026-09-06
   21 personal-image states, 48 category states and three red pixel audits.
   See TESTING/VISUAL_CHECKLIST and `build/personal-imagery-1.46.13/` for evidence
   and the isolated serial shutdown-GC warning, not reproduced in the full gate.
-- The user subsequently requested the Windows rebuild. Local `dist/NightScope`
-  is now `1.46.13`, built from clean `be30cda` on 2026-09-06. The official
+- The preceding user-requested Windows rebuild produced `1.46.13` from clean
+  `be30cda` on 2026-09-06; it is superseded locally by 1.46.18. The official
   build and Qt/legal/runtime audit pass, with all 108 declared source assets
   and five legal files matching by SHA-256. Packaged backend/normal/red QML
   smokes pass in disposable runtimes. Packaged native/fallback image workflows
@@ -115,7 +120,7 @@ Updated: 2026-09-06
   SQLite integrity/foreign-key checks pass. See `docs/TESTING.md` for the final
   full source gate; logs and disposable QA helpers are under
   `build/object-imagery-1.46.11/`.
-- **Next:** source image work is concluded; the new local 1.46.13 dist includes
+- **Image release milestone:** source image work is concluded; the 1.46.13 dist includes
   the Moon polish and all three image-management steps. The user has now
   published a Windows ZIP for this version; publication is separate from the
   remaining complete release-matrix approval. Native dialogs and workflows
@@ -130,7 +135,7 @@ Updated: 2026-09-06
   the dark disc, projected terminator, outline and phase calculations are
   unchanged. The unused theme glow color was removed. That source-only change
   kept `1.46.10`; the previous `ae34df5` bundle did not include it, but the
-  current `be30cda` Windows rebuild does.
+  later `be30cda` Windows rebuild does, as does the current 1.46.18 bundle.
 - The user authorized correcting the whole-project audit's findings. A1-A8/N1
   are implemented in this source step; read
   `docs/ASTRONOMICAL_CORRECTIONS_1_46_10.md` for contracts and verification.
@@ -392,7 +397,36 @@ diagnostics and passed five focused scenarios. The standard runner now reports
 slow test phases without narrowing selection or disabling coverage. See
 `docs/TESTING.md` for the fixture contract and measured scope.
 
-### Local Windows Bundle For User Testing - 1.46.13
+### Local Windows Bundle For User Testing - 1.46.18
+
+The official Windows build completed from clean `971292d` on 2026-09-06 with
+Python 3.14.5, PyInstaller 6.22.2 and hooks-contrib 2026.7. Embedded version:
+`1.46.18`; 5,145 files / 429,357,041 bytes. Executable SHA-256:
+`4596DD5EC4F213DB85420E33889F21284D66CCFAE7CC00DD296212CBE1C782F8`.
+
+All 108 declared assets and five legal files match source hashes. All 127
+embedded application modules and the startup entrypoint match compiled source
+code. The native Positioning binding/library and credential/timezone backends
+are present. Official build and final pristine Qt/legal/runtime audits pass.
+
+Backend, normal-QML and red-QML packaged smokes exit 0 from an unchanged test
+copy with three fresh isolated runtimes: 40.27 / 41.83 / 41.84 s when launched
+concurrently, not a startup-performance benchmark. Stderr is empty; runtime
+logs have no ERROR/CRITICAL/traceback entries. Each DB passes integrity/FK,
+schema 27, nine Solar image rows, zero personal rows and exact field parity
+for all 323 description and 323 curiosity records. Test copy/runtimes removed;
+no previous user data or upgrade fixture was used. Development DB, existing
+snapshot and preferences remain hash-identical. No dist backup was created.
+
+The current source gate above remains applicable; no runtime/source code or
+version changed for this rebuild. Native photo workflow evidence remains the
+dated 1.46.13 record below; full visual/provider matrices are still open.
+Evidence: `build/windows-dist-1.46.18-20260906/`; TESTING records exact scope.
+The focused documentation/tooling recheck passes 49 tests in 14.51 s; the
+documentation inventory remains 259 Python / 35 QML / 17 operational files.
+No Linux artifact, ZIP, signing/scan, tag, push or publication was performed.
+
+### Historical Windows Bundle For User Testing - 1.46.13
 
 The official `packaging/build_windows.ps1` completed from clean `be30cda` on
 2026-09-06, using Python 3.14.5, PyInstaller 6.22.2 and hooks-contrib 2026.7.

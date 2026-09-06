@@ -5,6 +5,45 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Local Windows Bundle - 1.46.18
+
+The 2026-09-06 user-requested rebuild completed from clean `971292d` through
+`packaging/build_windows.ps1`, with Python 3.14.5, PyInstaller 6.22.2,
+hooks-contrib 2026.7 and PySide6/Qt 6.11.2. Embedded version: 1.46.18;
+5,145 files / 429,357,041 bytes. Executable SHA-256:
+`4596DD5EC4F213DB85420E33889F21284D66CCFAE7CC00DD296212CBE1C782F8`.
+
+All 108 declared source assets and five legal files match SHA-256. A read-only
+archive check also matches all 127 embedded application modules and the main
+startup entrypoint to the current compiled source, including review fixes.
+Qt Positioning's native binding/library, Windows credentials and timezone
+backends are present. Official and final Qt/legal/runtime bundle audits pass.
+
+Packaged backend, normal-QML and red-QML smokes pass from an unchanged disposable
+copy with separate fresh runtimes, in 40.27 / 41.83 / 41.84 s respectively.
+These concurrent-run timings are not comparable to the serial source timings.
+All return 0 with explicit success output, empty stderr and no runtime
+ERROR/CRITICAL/traceback entries. Each database passes integrity and foreign-key
+checks, schema 27, exactly nine Solar image rows, zero personal associations
+and exact source parity for every field in all 323 description and 323 curiosity
+records. The disposable copy and all three runtimes were removed.
+
+The user manually deleted the old dist after the deletion tool was blocked;
+its absence was verified before building. No backup was made. Development DB,
+its existing snapshot and preferences are unchanged by before/after hashes.
+The already passing 1.46.18 source gate below was not repeated for unchanged
+code. Native file-picker/restart evidence remains dated 1.46.13, not a new
+desktop visual, provider or user-data upgrade matrix. No Linux build, ZIP,
+signature/antivirus scan, tag, push, public release or remote-run wait occurred.
+
+Evidence: `build/windows-dist-1.46.18-20260906/`. Expected optional build warnings
+remain in `build.log`. The first read-only helper incorrectly looked for native
+`QtPositioning.pyd` in the Python archive; its corrected check verifies the
+actual binding and DLL. Final `source-parity-final.log` passes without changes
+to application code or packaged files; the initial diagnostic is retained.
+The documentation/tooling recheck passes all 49 tests in 14.51 s; the code
+documentation gate remains 259 Python / 35 QML / 17 operational files.
+
 ## Review Corrections - Final 1.46.18 Source Gate
 
 The fresh `tools/run_checks.py --security` run passes on Python 3.14.5:
@@ -103,7 +142,7 @@ relaxing those checks. Logs: `build/release-docs-1.46.13-20260906/`.
 The manual/notices inside the already published ZIP and local dist remain
 unchanged; this is a repository/website-source update, not an artifact replacement.
 
-## Local Windows Bundle - 1.46.13
+## Historical Local Windows Bundle - 1.46.13
 
 The 2026-09-06 official Windows rebuild uses clean source `be30cda`, Python
 3.14.5, PyInstaller 6.22.2, hooks-contrib 2026.7 and Qt/PySide6 6.11.2.

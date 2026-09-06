@@ -3,7 +3,7 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.46.18` (source corrections only; no candidate artifact or tag).
+Current target: `v1.46.18` (local Windows test bundle validated; no public tag).
 Current public Windows release: `v1.46.13`. Current public Linux release: `v1.43.0`.
 The user published `v1.46.13` on 2026-09-06 for Windows only. GitHub exposes one
 `NightScope-v1.46.13-windows-x64.zip` asset and tag `v1.46.13` at `b34ec4a`.
@@ -94,7 +94,8 @@ Do not commit credentials or exact personal locations.
 - [x] Source image-lifecycle fixtures: schema upgrade, WAL-consistent snapshot,
   old-backup restore after photo replacement/reset, personal profile/prose
   preservation, relocated file URLs and failed writes; see `docs/TESTING.md`.
-- [ ] Start from a new empty runtime directory.
+- [x] Windows 1.46.18 packaged backend/normal/red smokes start with separate
+  empty runtimes; this does not approve an existing-user upgrade.
 - [ ] Upgrade a copy of a representative current development database.
 - [ ] Verify profiles, user-edited built-ins, custom equipment, provider state,
   cached location, and observation log survive.
@@ -106,25 +107,26 @@ Do not commit credentials or exact personal locations.
 
 ## 6. Windows Artifact
 
-The local Windows dist was rebuilt on 2026-09-06 from clean `be30cda`, version
-`1.46.13`; it includes the lunar-marker polish and all three image steps.
+The local Windows dist was rebuilt on 2026-09-06 from clean `971292d`, version
+`1.46.18`; it includes the review's runtime/editorial corrections after the
+three image steps. Translation-maintenance tooling remains source-only.
 Artifact identity and scoped validation are in `docs/TESTING.md` and the handoff.
-The checks below approve only their stated scope; the user's subsequent
-publication does not close the remaining complete visual/provider matrix.
-The previous dist was replaced
-without backup at the user's explicit request; QA uses disposable new copies.
+The checks below approve only their stated scope, not publication or the
+remaining complete visual/provider matrix. The user removed the previous dist
+without backup; the disposable test copy and three fresh runtimes were removed.
 
 - [x] Build from a clean checkout with `packaging/build_windows.ps1`.
 - [x] Confirm the source commit and build environment are recorded.
 - [x] Run backend and QML smoke tests against the packaged executable.
 - [x] Confirm the bundle-root legal files and Qt module audit pass.
-- [x] Exercise native photo selection and fallback open/accept-signal flow;
-  confirm Qt Quick Dialogs and folder-list plugins are present, with no
-  user_images directory at any depth. Packaged save/alias/cancel/red/reset
-  and restart-without-original assertions pass; see the scoped QA record.
+- [x] Confirm Qt Quick Dialogs and folder-list plugins are present, with no
+  user_images directory at any depth.
+- [ ] Repeat native photo selection, fallback open/accept, save/alias/cancel/
+  red/reset and restart-without-original on 1.46.18. The passing 1.46.13
+  packaged workflow remains historical evidence, not a repeated current gate.
 - [x] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
   timezone polygons, and credential backend.
-- [x] Rebuild with the current image redesign and repeat artifact validation
+- [x] Rebuild with the current review corrections and repeat artifact validation
   before publishing a bundle from the updated source.
 - [ ] Run the complete visual and provider matrices on the packaged build, not
   only from source. Test a copy and preserve a pristine release bundle.

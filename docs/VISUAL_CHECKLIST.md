@@ -23,8 +23,19 @@ le verifiche in `RELEASE_CHECKLIST.md` restano specifiche di ogni artefatto.
   questa matrice riguarda le schede inferiori, non rivede i campi intatti.
 - [x] Campioni in directory temporanee esterne al repository; evidenze e limiti
   in `REVIEW_CORRECTIONS_1_46.md` e `build/review-corrections-1.46.14/`.
-- [ ] Matrice manuale completa di una nuova distribuzione: non eseguita né
-  richiesta per questi commit sorgente; dist Windows ancora 1.46.13.
+- [ ] Matrice manuale completa della distribuzione: non eseguita per questi
+  commit sorgente; dist Windows successivamente rigenerata come 1.46.18.
+
+## Controlli Mirati Pacchetto Windows 1.46.18
+
+- [x] Dist da `971292d`: smoke backend, QML normale e rosso su copia invariata,
+  con tre runtime vuoti isolati. Nessun errore nei log; dati di prova rimossi.
+- [x] Audit Qt/legale/runtime finale e confronto delle 108 risorse, cinque file
+  legali, 127 moduli applicativi e codice di avvio con il sorgente corrente.
+- [ ] Nuova matrice visuale desktop, splash e selettore nativo sul pacchetto:
+  non sostituita dagli smoke offscreen né dal confronto del codice. Le prove
+  sorgente sopra e quelle del bundle 1.46.13 sotto restano evidenze datate.
+  Dettagli in TESTING e `build/windows-dist-1.46.18-20260906/`.
 
 ## Verifica Mirata Bundle Windows 1.46.13
 
