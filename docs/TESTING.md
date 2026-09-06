@@ -5,6 +5,50 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Local Windows Bundle - 1.46.13
+
+The 2026-09-06 official Windows rebuild uses clean source `be30cda`, Python
+3.14.5, PyInstaller 6.22.2, hooks-contrib 2026.7 and Qt/PySide6 6.11.2.
+The bundle contains 5,145 files / 429,331,997 bytes. All 108 declared source
+assets and five legal files match SHA-256; the embedded version is 1.46.13.
+Executable SHA-256:
+`40F5AB2EBD9FB1C74FDFDC5DF76D3A5AB5C8D0B8E3285207708B1C44391A4EF4`.
+
+Qt/legal/runtime audit passes, including the newly required Dialogs and
+folder-list modules. Packaged backend, normal-QML and red-QML smokes exit 0
+from a disposable copy, with separate empty runtimes, empty stderr and no
+runtime ERROR/CRITICAL/traceback entries. Each DB passes integrity/foreign-key
+checks, schema 27, nine Solar image rows, zero personal associations and exact
+parity for all 323 descriptions and 323 curiosities. No user-data upgrade
+matrix is claimed. The smoke copy and all three runtimes were removed.
+
+The additional packaged Windows image test keeps Python, Qt and production
+detail/editor QML unchanged and uses a disposable test-only entry point.
+UI Automation selects a synthetic JPEG through the native Windows `#32770`
+dialog; the fallback opens and accepts through its QML signal. Preview,
+save, M31/NGC 224 alias sharing, cancellation, red image suppression/reset and
+Solar replacement pass. Restart loads the saved Moon photo after the synthetic
+original is removed. Both processes exit 0, and final forced-QML stderr has
+only QA progress/pass markers. The original bytes are unchanged until test
+cleanup; only two managed JPEG files are stored. The temporary copy/runtime
+is removed. No full manual desktop/three-language/provider matrix is claimed.
+
+Initial QA-only iterations corrected native-control readiness, enabled Qt
+stderr for the windowed executable, and removed screenshot attempts against
+the hidden test window. The real source/detail lifecycle is represented by
+a Loader in the final harness; initial empty-detail binding diagnostics do
+not recur. These were harness changes, not application or bundle fixes.
+Earlier attempt logs remain in the ignored evidence directory. Final logs:
+`packaged-picker.log`, `picker.stderr.log`, `restart.stderr.log`.
+The seven required embedded image/backup/credential/timezone modules are
+verified, and the final pristine bundle audit passes. The documentation and
+tooling recheck passes 46 tests in 9.57 s.
+
+The existing dist and its local runtime state were replaced without backup,
+per the user's explicit request. Evidence: `build/windows-dist-1.46.13-20260906/`.
+The unchanged source gate below was not rerun. No Linux artifact, public
+release, archive, tag, signing or antivirus scan is part of this rebuild.
+
 ## Personal Image Lifecycle - Source 1.46.13
 
 On 2026-09-06 the complete security/coverage source gate passed: 1,452 tests

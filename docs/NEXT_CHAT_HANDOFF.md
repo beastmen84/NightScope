@@ -20,9 +20,13 @@ Updated: 2026-09-06
   21 personal-image states, 48 category states and three red pixel audits.
   See TESTING/VISUAL_CHECKLIST and `build/personal-imagery-1.46.13/` for evidence
   and the isolated serial shutdown-GC warning, not reproduced in the full gate.
-- The user requested finishing the remaining source steps before rebuilding
-  dist. Both are now completed; no rebuild or dist backup has been started.
-  Next is the separately requested Windows artifact and its packaged checks.
+- The user subsequently requested the Windows rebuild. Local `dist/NightScope`
+  is now `1.46.13`, built from clean `be30cda` on 2026-09-06. The official
+  build and Qt/legal/runtime audit pass, with all 108 declared source assets
+  and five legal files matching by SHA-256. Packaged backend/normal/red QML
+  smokes pass in disposable runtimes. Packaged native/fallback image workflows
+  and restart without the original input also pass. No old dist data or backup
+  was retained, as explicitly requested. See the Windows validation below.
 - Current 1.46.12 implementation: separate PersonalObjectImages table (schema
   27), canonical-ID association, immutable JPEG/thumbnail files in user_images,
   bounded JPEG/PNG normalization through QImageReader, asynchronous cancellable
@@ -68,19 +72,22 @@ Updated: 2026-09-06
   SQLite integrity/foreign-key checks pass. See `docs/TESTING.md` for the final
   full source gate; logs and disposable QA helpers are under
   `build/object-imagery-1.46.11/`.
-- **Next:** source image work is concluded; the dist remains 1.46.10 and does
-  not include the Moon polish or any new image-management step. Rebuild only
-  when proceeding with the user's artifact request, then validate new picker
-  plugins, native dialogs and normal/red image workflows in the actual bundle.
+- **Next:** source image work is concluded; the new local 1.46.13 dist includes
+  the Moon polish and all three image-management steps. It is intended for
+  the user's manual testing, not a published release or complete release-matrix
+  approval. Native dialogs and image workflows have their separate evidence
+  in the current Windows validation section below.
   `docs/OBJECT_IMAGERY_ROADMAP.md` records all three completed source steps.
-  No editorial, astronomical formula, dist, push, tag or release changes are
-  part of this step, and no remote GitHub run is awaited.
+  No editorial or astronomical formula changed in the source image steps.
+  The subsequent artifact step changes only dist and validation records;
+  there is no push, tag, publication or remote GitHub-run wait.
 - Before the image redesign, the user-requested visual polish in `1892652`
   removed the clipped outer halo
   from the eight Moon-cycle markers. The canvas exterior is transparent;
   the dark disc, projected terminator, outline and phase calculations are
   unchanged. The unused theme glow color was removed. That source-only change
-  kept `1.46.10`; the local bundle from `ae34df5` does not yet include it.
+  kept `1.46.10`; the previous `ae34df5` bundle did not include it, but the
+  current `be30cda` Windows rebuild does.
 - The user authorized correcting the whole-project audit's findings. A1-A8/N1
   are implemented in this source step; read
   `docs/ASTRONOMICAL_CORRECTIONS_1_46_10.md` for contracts and verification.
@@ -101,7 +108,9 @@ Updated: 2026-09-06
   manual testing. It was rebuilt as `1.46.10` from clean source `ae34df5` on
   2026-09-05. Bundle audit, source-asset hashes, and packaged backend/normal-QML/
   Red Night Vision smoke tests pass. It was pristine after build validation;
-  subsequent user launches can create runtime data. Linux was not rebuilt.
+  subsequent user launches created runtime data. That previous dist and its
+  local DB/settings/caches/logs were removed by the 1.46.13 rebuild, without
+  preservation or a new backup. Linux was not rebuilt.
 - For this rebuild the user explicitly rejected retaining the previous dist
   or creating backups, and requested deleting earlier distribution backups.
   Automatic deletion was blocked by the tool policy; after the user confirmed
@@ -333,7 +342,48 @@ diagnostics and passed five focused scenarios. The standard runner now reports
 slow test phases without narrowing selection or disabling coverage. See
 `docs/TESTING.md` for the fixture contract and measured scope.
 
-### Local Windows Bundle For User Testing - 1.46.10
+### Local Windows Bundle For User Testing - 1.46.13
+
+The official `packaging/build_windows.ps1` completed from clean `be30cda` on
+2026-09-06, using Python 3.14.5, PyInstaller 6.22.2 and hooks-contrib 2026.7.
+The pristine bundle contains 5,145 files / 429,331,997 bytes, embedded version
+`1.46.13`. All 108 declared source assets and five legal files match SHA-256;
+Qt Quick Dialogs and folder-list plugins are present. Executable SHA-256:
+`40F5AB2EBD9FB1C74FDFDC5DF76D3A5AB5C8D0B8E3285207708B1C44391A4EF4`.
+
+The packaged backend, normal-QML and Red Night Vision smoke tests exit 0 with
+empty stderr and no runtime ERROR/CRITICAL/traceback entries. Each fresh DB
+passes integrity/foreign-key checks, schema 27, exactly nine Solar image rows,
+zero personal associations and field-by-field parity for all 323 descriptions
+and 323 curiosities. All three temporary runtimes and their test copy were
+removed. No user data was imported or used for an upgrade check.
+
+The packaged desktop image test uses the same executable, Python archive,
+Qt libraries and production detail/editor components, with a test-only QML
+entry point in a separate disposable copy. Windows UI Automation selects a
+synthetic JPEG through the actual native `#32770` dialog. The Qt fallback is
+opened and accepted through its QML signal. Assertions pass for preview,
+save, M31/NGC 224 alias sharing, cancellation, red source suppression and
+reset, and a personal Solar image. A second launch decodes the saved Moon
+image after the synthetic original is removed. Both processes exit 0, final
+QML output contains only expected QA markers, originals are unchanged before
+test cleanup, and the whole temporary runtime/copy is removed. This is not
+a complete manual visual/provider or three-language desktop matrix.
+
+The seven expected embedded image/backup/credential/timezone modules are
+verified in the executable. Final pristine bundle audit passes; the focused
+documentation/tooling recheck passes 46 tests in 9.57 s. Initial test-only
+automation adjustments and failed screenshot attempts are recorded in the
+ignored evidence directory; no application or packaged source was changed.
+
+The old 1.46.10 dist, including its runtime DB/DB backup, preferences, caches
+and logs, was replaced without preservation, as requested; no new distribution
+backup was made. Evidence and QA helpers are under
+`build/windows-dist-1.46.13-20260906/`. The unchanged application source gate
+was not repeated. No version bump, Linux build, archive/checksum publication,
+tag, signing/security scan, push or GitHub release is implied by this rebuild.
+
+### Historical Windows Bundle For User Testing - 1.46.10
 
 The official `packaging/build_windows.ps1` completed from clean `ae34df5` with
 Python 3.14.5, PyInstaller 6.22.2 and hooks-contrib 2026.7. The pristine bundle

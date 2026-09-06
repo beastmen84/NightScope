@@ -10,6 +10,23 @@ verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 artefatti `1.46.13` sono separate in `RELEASE_CHECKLIST.md` e devono essere
 ripetute per ciascuna dist effettivamente rigenerata.
 
+## Verifica Mirata Bundle Windows 1.46.13
+
+- [x] Dist da `be30cda`: smoke backend, QML normale e rosso sul pacchetto
+  originale; audit Qt/legale/runtime e parita' hash di risorse/manuale/lingue.
+- [x] Copia separata con ingresso QML di test e componenti reali invariati:
+  selezione JPEG dal dialogo nativo Windows tramite UI Automation; apertura
+  fallback Qt e accettazione dal suo segnale QML. Anteprima decodificata,
+  salvataggio, alias M31/NGC 224, annullamento, blocco immagini/selettore in
+  rosso, ripristino e sostituzione della foto lunare superati.
+- [x] Secondo avvio: foto lunare caricata anche senza originale sintetico.
+  Nessun warning QML finale: soltanto marcatori di avanzamento/pass. Copia,
+  input sintetico e runtime di test rimossi; nessun dato di prova nella dist.
+  Log e limiti del test in `build/windows-dist-1.46.13-20260906/` e TESTING.
+- [ ] Matrice visuale manuale completa, tutte le lingue/pagine/dimensioni e
+  provider: non sostituita da queste asserzioni mirate. Non sono nuove catture
+  visuali complete ne' un'approvazione di pubblicazione o dell'artefatto Linux.
+
 ## Verifica Sorgente Ciclo Immagini 1.46.13
 
 - [x] 21 stati del componente Home reale in IT/EN/ES: miniatura personale,
@@ -24,8 +41,8 @@ ripetute per ciascuna dist effettivamente rigenerata.
   tutti superati senza warning QML. Lint dei 35 QML: exit 0, diagnostiche
   non fatali note. IT/EN/ES: 2.088 messaggi compilati completi per lingua.
   Evidenze: `build/personal-imagery-1.46.13/`.
-- [ ] Verifiche di selettore nativo, flussi e plugin sulla futura dist:
-  nessun nuovo artefatto costruito o approvato da questi controlli sorgente.
+- [x] Verifiche mirate successive di selettore nativo, flussi e plugin sulla
+  dist Windows 1.46.13: vedi sezione bundle sopra; matrice completa ancora aperta.
 
 ## Verifica Sorgente Immagini Personali 1.46.12
 

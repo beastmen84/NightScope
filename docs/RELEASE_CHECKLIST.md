@@ -99,20 +99,24 @@ Do not commit credentials or exact personal locations.
 
 ## 6. Windows Artifact
 
-The existing local dist is source `ae34df5`, version `1.46.10`; its successful
-audit/smoke evidence is retained in `docs/TESTING.md`. It includes neither the
-subsequent lunar-marker transparency polish nor the `1.46.11` image redesign.
-No new Windows artifact has been built for this target; these gates are open.
+The local Windows dist was rebuilt on 2026-09-06 from clean `be30cda`, version
+`1.46.13`; it includes the lunar-marker polish and all three image steps.
+Artifact identity and scoped validation are in `docs/TESTING.md` and the handoff.
+The checks below approve only their stated scope, not a public release or the
+remaining complete visual/provider matrix. The previous dist was replaced
+without backup at the user's explicit request; QA uses disposable new copies.
 
-- [ ] Build from a clean checkout with `packaging/build_windows.ps1`.
-- [ ] Confirm the source commit and build environment are recorded.
-- [ ] Run backend and QML smoke tests against the packaged executable.
-- [ ] Confirm the bundle-root legal files and Qt module audit pass.
-- [ ] Exercise native and fallback photo selection and confirm Qt Quick Dialogs
-  plus folder-list plugins are present; no user_images directory at any depth.
-- [ ] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
+- [x] Build from a clean checkout with `packaging/build_windows.ps1`.
+- [x] Confirm the source commit and build environment are recorded.
+- [x] Run backend and QML smoke tests against the packaged executable.
+- [x] Confirm the bundle-root legal files and Qt module audit pass.
+- [x] Exercise native photo selection and fallback open/accept-signal flow;
+  confirm Qt Quick Dialogs and folder-list plugins are present, with no
+  user_images directory at any depth. Packaged save/alias/cancel/red/reset
+  and restart-without-original assertions pass; see the scoped QA record.
+- [x] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
   timezone polygons, and credential backend.
-- [ ] Rebuild with the current image redesign and repeat artifact validation
+- [x] Rebuild with the current image redesign and repeat artifact validation
   before publishing a bundle from the updated source.
 - [ ] Run the complete visual and provider matrices on the packaged build, not
   only from source. Test a copy and preserve a pristine release bundle.
@@ -144,7 +148,7 @@ No new Windows artifact has been built for this target; these gates are open.
   `NightScope-v1.46.13-debian-12-x64.tar.gz` and adjacent SHA-256 file.
 - [ ] Verify checksum, extraction, audit and smoke tests from the final archive.
 - [ ] Publish the tarball and checksum together with the matching Windows ZIP
-  in the public `v1.46.11` GitHub release when both platforms are approved.
+  in the public `v1.46.13` GitHub release when both platforms are approved.
   Update discovery checks actual compatible assets; publication can remain
   platform-specific and must not imply validation of the other platform.
 

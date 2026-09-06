@@ -19,6 +19,17 @@
   compilati per IT/EN/ES, 21 stati Home personali e 48 stati delle categorie
   verificati; tre audit pixel rossi superati. Nessuna dist, push, tag o
   pubblicazione: la serie sorgente delle immagini è conclusa.
+- Successivo rebuild Windows richiesto dall'utente: dist 1.46.13 da `be30cda`,
+  audit Qt/legale/runtime e smoke backend/QML normale/rosso superati. Verificati
+  108 asset e cinque file legali per hash, schema 27 e integrita' dei tre DB
+  temporanei, nove immagini solari e parita' dei 323 record editoriali per
+  tabella. Dist precedente e relativi dati rimossi senza backup, come richiesto;
+  nessun bump versione, pacchetto Linux, tag, push o pubblicazione.
+- Verificata nel bundle anche la selezione foto nativa Windows, il fallback Qt,
+  anteprima/salvataggio/alias/annullamento, blocco immagini e ripristino in
+  rosso. La foto lunare personale viene ricaricata dopo il riavvio senza
+  originale sintetico. Copie/runtime di test rimossi, audit finale superato;
+  46 test di documentazione/tooling superati. Nessuna modifica al codice app.
 
 ## NightScope 1.46.12 - 2026-09-05
 
