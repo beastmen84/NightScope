@@ -211,6 +211,7 @@ Accepted batch ledger:
 | `1.46.7` | Baseline remediation | Final galaxy-note families; four descriptions | 75 | 177 | 7,291 |
 | `1.46.8` | Baseline remediation | 92 residual descriptions; five curiosities; sentence-level audit | 75 | 197 | 7,291 |
 | `1.46.9` | NGC enrichment | 20 planetary nebulae with distinct structure, observing limits and source-backed facts | 95 | 197 | 7,271 |
+| `1.46.15` | Baseline remediation | Hemisphere-qualified periods for 75 existing galaxies; other fields unchanged | 95 | 203 | 7,271 |
 
 The `1.46.9` batch deliberately uses fewer than the 100-object ceiling. Its
 20 records distinguish faint envelopes from bright compact cores, infrared

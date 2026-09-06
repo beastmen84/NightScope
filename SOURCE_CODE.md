@@ -1,8 +1,8 @@
 # Source Code Availability
 
-This file accompanies the NightScope 1.46.14 development source. Its intended
-release tag is `v1.46.14`, not yet created or published. The planned source URL
-`https://github.com/beastmen84/NightScope/tree/v1.46.14` must be verified before
+This file accompanies the NightScope 1.46.15 development source. Its intended
+release tag is `v1.46.15`, not yet created or published. The planned source URL
+`https://github.com/beastmen84/NightScope/tree/v1.46.15` must be verified before
 distributing a corresponding binary. The current branch contains the source
 and build scripts; no new portable package is claimed here.
 

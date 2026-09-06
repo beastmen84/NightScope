@@ -3,7 +3,7 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.46.14` (source corrections only; no candidate artifact or tag).
+Current target: `v1.46.15` (source corrections only; no candidate artifact or tag).
 Current public Windows release: `v1.46.13`. Current public Linux release: `v1.43.0`.
 The user published `v1.46.13` on 2026-09-06 for Windows only. GitHub exposes one
 `NightScope-v1.46.13-windows-x64.zip` asset and tag `v1.46.13` at `b34ec4a`.
@@ -21,10 +21,10 @@ new platform artifact. Historical Windows/Linux evidence remains dated.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   generated-art provenance, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.46.14` source tag referenced by the
+- [ ] Create and verify the public `v1.46.15` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [x] Confirm source version, changelog, source-availability notices, and
-  About/build metadata agree on `1.46.14`.
+  About/build metadata agree on `1.46.15`.
 - [x] Freeze the release scope; defer unrelated refactors.
 
 ## 2. Automated Validation

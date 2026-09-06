@@ -249,19 +249,19 @@
       "messier-M31": {
         "short_description": "M31, the Andromeda Galaxy, is the closest large spiral to the Milky Way and the most distant object normally visible to the naked eye. Binoculars and small telescopes show above all the bright core and an elongated halo much larger than the field; under dark skies, dust bands and satellite galaxies M32 and M110 appear. Its true size is best appreciated at low magnifications.",
         "observing_notes": "Use binoculars or the widest field available; look for M32 and M110 and, in dark skies, follow the dust bands on the northwestern side.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "The first known description of M31 dates back to al-Sufi's Book of Fixed Stars, in 964, where it appears as a small cloud. It is the oldest written testimony of a galaxy outside the Milky Way."
       },
       "messier-M32": {
         "short_description": "M32 (Andromeda Satellite #1) is a dwarf elliptical galaxy in Andromeda. It is the small elliptical companion of Andromeda: in the M31 field it appears as a compact nucleus, almost a swollen star, but it is an autonomous galaxy.",
         "observing_notes": "M32 looks almost like a swollen star against M31's bright outskirts. Use medium-high power to separate its pinpoint nucleus from the small round halo, then compare it with the much broader M110; nebula filters do not help any of the three galaxies.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "M32 may be the surviving nucleus of a once-larger galaxy. Close encounters with Andromeda would have stripped away much of its outer stars, leaving an unusually compact system."
       },
       "messier-M33": {
         "short_description": "M33 (Triangulum/Pinwheel Galaxy) is a spiral galaxy in Triangulum. The Triangulum Galaxy is large and nearby, but its light is distributed over a huge area. With dark skies it becomes one of the most beautiful challenges at low magnification.",
         "observing_notes": "M33 needs a very wide field and a large exit pupil. Do not hunt for the nucleus first; seek a broad change in the sky background. After tracing the disk with averted vision, target NGC 604 as a separate knot; OIII may help that H II complex, not the galaxy as a whole.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "NGC 604, in an arm of M33, is one of the largest star-forming regions of the Local Group. It is about a hundred times larger than the Orion Nebula and contains hundreds of young massive stars."
       },
       "messier-M34": {
@@ -357,7 +357,7 @@
       "messier-M49": {
         "short_description": "M49 is an elliptical galaxy in Virgo. It is a large elliptical of the Virgo cluster: visually it is a soft light without details, but it represents a gigantic stellar city.",
         "observing_notes": "M49 is one of Virgo's more accessible galaxies. At medium power it shows a broad, nonstellar nucleus fading smoothly into a nearly round halo. Use averted vision to gauge its extent; the absence of lanes or arms is consistent with its elliptical nature.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M49 was the first galaxy of the Virgo Cluster discovered by Messier in 1771. It is an elliptical giant with a vast system of globular clusters and a central supermassive black hole."
       },
       "messier-M50": {
@@ -369,7 +369,7 @@
       "messier-M51": {
         "short_description": "M51, the Whirlpool Galaxy, is a spiral seen almost face-on interacting with its companion NGC 5195. In small instruments, two nuclei immersed in a common halo can be distinguished; under dark skies and with medium apertures the arms can appear as arcing variations in brightness and the bridge towards the companion becomes discernible. It is one of the best targets for attempting visual spiral structure.",
         "observing_notes": "Locate the two nuclei first, then use averted vision and medium magnifications to look for arches and a bright bridge.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "In 1845 Lord Rosse recognized M51 as the first spiral structure observed in a nebula. At the time it was not yet clear that those spirals were galaxies outside the Milky Way."
       },
       "messier-M52": {
@@ -411,25 +411,25 @@
       "messier-M58": {
         "short_description": "M58 is a barred spiral galaxy in Virgo. It is a barred Virgo spiral, visually sober but interesting because it brings galactic structure into an object that is not easy to read through the eyepiece.",
         "observing_notes": "In the Virgo field M58 is a small oval glow. Use medium-high power to separate nucleus from bulge and seek a transverse central elongation, the first hint of its bar. The arms remain much fainter; a chart prevents confusion with the many nearby galaxies.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M58 is one of only four barred spiral galaxies in the Messier catalog. Its active core hosts a supermassive black hole that accretes matter."
       },
       "messier-M59": {
         "short_description": "M59 is an elliptical galaxy in Virgo. It's an elliptical of the Virgo cluster: it offers no obvious detail, but becomes significant when you observe it as part of a network of nearby galaxies in the sky.",
         "observing_notes": "A small telescope shows a compact oval with a bright center; medium power separates it cleanly from field stars, but extra aperture reveals little internal detail. Widen the field toward M58 and M60: comparing the three galaxies is the most instructive part of the observation.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M59 appears elliptical and regular, but its center contains a black hole of enormous mass compared to the galaxy. Thousands of globular clusters also orbit around it."
       },
       "messier-M60": {
         "short_description": "M60 is an elliptical galaxy in Virgo, next to the spiral NGC 4647. In the telescope, the pair shows how varied the Virgo Cluster's galaxy population can be.",
         "observing_notes": "Frame M60 with spiral NGC 4647 against its edge. At medium power M60 is round, bright, and strongly concentrated, while its companion is smaller and more diffuse. Their contrasting profiles are the main visual detail; their possible interaction cannot be inferred at the eyepiece.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "Next to M60 is M60-UCD1, an ultracompact galaxy with extreme stellar density and a disproportionate central black hole. It could be the stripped core of a larger galaxy."
       },
       "messier-M61": {
         "short_description": "M61 (Swelling Spiral Galaxy) is a spiral galaxy in Virgo. It is a spiral seen almost frontally, also famous for its supernovae. With dark skies it can show a strong core and a more irregular halo.",
         "observing_notes": "M61 is nearly face-on. At medium power seek a definite nucleus inside a round but uneven halo. Under a dark sky with more aperture, three curved enhancements may suggest its spiral and bar; the historical supernovae leave no permanent visible structures.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M61 has been the site of numerous observed supernovae, more than most Messier galaxies. Its active core and star-forming regions indicate a still very dynamic system."
       },
       "messier-M62": {
@@ -441,25 +441,25 @@
       "messier-M63": {
         "short_description": "M63 (Sunflower Galaxy) is a spiral galaxy in Canes Venatici. The Sunflower Galaxy has fragmented arms and dust lanes in deep images. At the eyepiece it appears as an oval glow with a distinctive profile.",
         "observing_notes": "At medium power M63 shows an almost stellar nucleus inside an oriented oval halo. Keep the center out of direct vision to widen the disk; in large apertures a grainy texture may suggest its flocculent arms, but the remote stellar stream remains photographic.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "A thin stream of stars envelops M63 for tens of thousands of light-years. It is the remnant of a torn and absorbed dwarf galaxy, a merger still legible on the outskirts of the Sunflower."
       },
       "messier-M64": {
         "short_description": "M64 (Black Eye Galaxy) is a spiral galaxy in Coma Berenices. The Black Eye Galaxy is famous for the dark band near the nucleus. In medium instruments and dark skies, detecting that contrast can become a real observational achievement.",
         "observing_notes": "Center M64's bright nucleus at medium power, then increase power while the background remains dark. Look for a short dark notch pressed against one side of the nucleus, not a lane crossing the whole galaxy; averted vision also broadens the oval halo.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "In M64 the gas in the outer regions rotates in the opposite direction to the gas and the inner stars. This counter-rotation is probably the legacy of a small gas-rich galaxy incorporated in the past."
       },
       "messier-M65": {
         "short_description": "M65 (Leo Triplet) is a barred spiral galaxy in Leo. It is one of the three galaxies of the Leo Triplet. Thin and uncluttered, it is at its best when viewed alongside M66 and NGC 3628 in the same path.",
         "observing_notes": "Start at low power: M65, M66, and NGC 3628 can share one field, and the Triplet's geometry makes identification easier. Then use medium power on M65 to follow its slender outline and central brightening while keeping the sky background dark.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "M65 forms the Leo Triplet with M66 and NGC 3628. Although appearing less perturbed than its companions, its disk shows deformations compatible with mutual gravitational interactions."
       },
       "messier-M66": {
         "short_description": "M66 (Leo Triplet) is a barred spiral galaxy in Leo. It is the most obvious component of the Leo Triplet, with a strong core and a more disturbed shape. It is a galaxy that tells of past interactions.",
         "observing_notes": "Begin with a wide field that includes M65 and NGC 3628, then isolate M66 at medium power. Its bright nucleus sits off-center in an inclined, asymmetric halo; under a dark sky one end looks more hooked, while the tidal tails remain photographic.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "An arm of M66 is noticeably deformed, and the nucleus is displaced with respect to the symmetry of the disk. The nearby passage of NGC 3628 has reshaped the galaxy and triggered new star formation."
       },
       "messier-M67": {
@@ -507,7 +507,7 @@
       "messier-M74": {
         "short_description": "M74 (Phantom Galaxy) is a spiral galaxy in Pisces. The Phantom Galaxy is large, front-facing and has low surface brightness. It looks beautiful in pictures, but in visuals it only rewards really dark skies.",
         "observing_notes": "The Phantom Galaxy requires a moonless sky and low power. Hold the field rather than staring at the nucleus, and let averted vision gather the nearly circular disk. If only the center appears, do not immediately raise power; arm hints come only after the halo is stable.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "M74 is a grand design spiral that is almost perfectly frontal, but has a very low surface brightness. This combination makes it photogenic and, at the same time, one of the most difficult Messier objects to see."
       },
       "messier-M75": {
@@ -525,7 +525,7 @@
       "messier-M77": {
         "short_description": "M77 (Cetus A or Squid Galaxy) is a spiral galaxy in Cetus. It is an active Seyfert galaxy with an energetic core. At the eyepiece it looks like a compact spot, but physically it is a very powerful system.",
         "observing_notes": "M77's very bright nucleus makes it easier than its integrated magnitude suggests: a small telescope shows a nearly stellar center inside a round haze. Use medium-high power on the core, then return to a wider field and averted vision for the much fainter outer disk.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "The center of M77 is one of the closest active galactic nuclei. A supermassive black hole, hidden by a torus of dust, fuels emissions so intense that it makes the galaxy the prototype of type 2 Seyferts."
       },
       "messier-M78": {
@@ -549,67 +549,67 @@
       "messier-M81": {
         "short_description": "M81 is a large, bright and well-focused spiral galaxy in Ursa Major. At the eyepiece it shows a clear nucleus immersed in an oval halo; the arms are thin and difficult, but the contrast with nearby M82 makes the pair one of the most beautiful extragalactic fields in the sky. A wide field of view can include both galaxies.",
         "observing_notes": "Use low magnification to include M82, then increase magnification moderately on M81 to follow the gradient of the nucleus and the halo.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "The core of M81 contains a black hole of about 70 million solar masses. The interaction with M82 also traced long hydrogen bridges between the two galaxies and fueled new stellar activity."
       },
       "messier-M82": {
         "short_description": "M82, the Cigar Galaxy, is a starburst galaxy seen edge-on and perturbed by interaction with M81. The narrow disk is very bright and, with medium apertures, shows dark nodes and bands that break it into irregular sections. It is richer in visual detail than many galaxies and forms a memorable pair with M81.",
         "observing_notes": "View it first with M81, then use medium magnification and averted vision to look for dark lanes in the disk.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "The flyby of M81 turned M82 into a starburst galaxy. At its center, stars are born at a rate many times faster than the Milky Way's, as jets of hot gas escape from the disk."
       },
       "messier-M83": {
         "short_description": "M83 (Southern Pinwheel Galaxy) is a barred spiral galaxy in Hydra. The Southern Pinwheel is a large barred spiral, beautiful but low to many European observers. When it gets high enough, it is one of the most rewarding galaxies in the South.",
         "observing_notes": "Under a clear sky, M83's nucleus is detectable even in binoculars. With a telescope, begin with a wide field for the nearly face-on disk, then use medium power and averted vision on the condensations around the core; from southern Europe, observe near transit to limit atmospheric extinction.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M83 is a supernova factory: at least six have been observed in the last century. The numerous pink regions along the arms reveal particularly intense star formation."
       },
       "messier-M84": {
         "short_description": "M84 is variously classified as an elliptical or lenticular galaxy in the Virgo Cluster. Old starlight dominates its body, but the center harbors a supermassive black hole; Hubble images also reveal warped dust lanes.",
         "observing_notes": "M84 and M86 form the western gateway to Markarian's Chain. Keep them in the same medium-wide field before moving along the other galaxies. M84 is the rounder, more compact condensation; its active-nucleus jet is not a realistic visual detail.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M84 lies in Markarian's Chain and hosts an active nucleus. A relativistic jet emerges from the region of its central black hole, although it is far less conspicuous than the jet from nearby M87."
       },
       "messier-M85": {
         "short_description": "M85 is a lenticular galaxy in Coma Berenices. It is a softly glowing lenticular galaxy in the Coma Berenices region. It does not reveal obvious detail, but it fits well into a spring galaxy hunt.",
         "observing_notes": "Use a medium field to frame M85 with nearby NGC 4394. M85 is larger, smoother, and oval, while its companion is smaller and less concentrated. About 8 inches already shows M85 as an elongated patch; extra power mainly separates the two centers rather than revealing arms.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M85's smooth appearance hides a history of mergers: stellar shells, dust and a relatively young central population indicate that the galaxy incorporated a companion in astronomically recent times."
       },
       "messier-M86": {
         "short_description": "M86 is one of the brightest galaxies in the Virgo Cluster, often visible in the same field as M84. Its classification lies between elliptical and lenticular. Although the cluster as a whole is receding from us, M86 approaches along our line of sight because of its own motion within the cluster.",
         "observing_notes": "Observe M86 in the same field as M84 at the start of Markarian's Chain. M86 is more elongated and less concentrated than its companion; a still wider field brings in the Eyes, NGC 4435/4438, which give direction to the galaxy sequence.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M86 is approaching us at hundreds of kilometers per second, despite belonging to the Virgo Cluster. Passing through the hot gas of the cluster, it leaves behind a tail of matter hundreds of thousands of light years long."
       },
       "messier-M87": {
         "short_description": "M87 (Virgo A) is an elliptical galaxy in Virgo. It is a gigantic elliptical galaxy, famous for the black hole photographed by the Event Horizon Telescope. Visually it is sober, but conceptually enormous.",
         "observing_notes": "M87 accepts medium-high power because of its bright center. Seek a pinpoint nucleus inside a nearly circular halo fading without an edge. The famous jet demands large aperture and exceptional conditions; in an ordinary session the Virgo Cluster context is the real added value.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "In 2019, M87's black hole became the first whose shadow was imaged with the Event Horizon Telescope. It has a mass of billions of Suns and powers a jet visible for thousands of light years."
       },
       "messier-M88": {
         "short_description": "M88 is a spiral galaxy in Coma Berenices. It is a tilted spiral of the Virgo Cluster, with a clear core. It takes a dark sky to see more than a simple oval glow.",
         "observing_notes": "M88 is inclined and responds well to medium power. Identify the bright nucleus, then use averted vision to extend a narrow, tapered halo. Under a dark sky one end may curve slightly; spiral structure is more plausible here than in nearby ellipticals, but remains subtle.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M88 is hurtling towards the center of the Virgo Cluster along a highly elongated orbit. The pressure of the intergalactic gas begins to modify its hydrogen content and therefore the future of star formation."
       },
       "messier-M89": {
         "short_description": "M89 is an elliptical galaxy in Virgo. It is an almost round elliptical, not very spectacular but useful for understanding the variety of galaxies in Virgo. It is an object for systematic observation.",
         "observing_notes": "M89 remains a faint ball of light even through an 8-inch (20 cm) aperture: a realistic goal is to separate the nucleus and judge how round the halo appears. Use medium power, a detailed chart, and quick comparisons with field stars; dark skies matter more than extreme magnification.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M89 looks almost like a perfect sphere, but deep photographs show very faint shells and plumes. They are scars left by small galaxies incorporated into the past."
       },
       "messier-M90": {
         "short_description": "M90 (Carabin Galaxy) is a spiral galaxy in Virgo. It is a large Virgo spiral with a particular motion compared to us. At the eyepiece it is delicate, but its elongated profile makes it recognizable.",
         "observing_notes": "M90 is large but low in contrast. Use low-medium power to recognize its small nucleus inside a halo nearly 10 arcminutes long. In the crowded Virgo field confirm position and axis with a chart; too much power dims the halo before it reveals the arms.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M90 is a rare blue-shifted Messier galaxy, because it moves in our direction within the Virgo Cluster. The gas in its disk is torn apart by the pressure of the intergalactic medium."
       },
       "messier-M91": {
         "short_description": "M91 is a faint barred spiral galaxy in Coma Berenices and has historically been difficult to identify. Locating it confidently is already part of the satisfaction, especially under suburban skies.",
         "observing_notes": "M91 is one of the faintest Messier objects. Reach it from M88 with an accurate chart and use medium power. The first reliable signal is an elongated central condensation—the bar; only under a very dark sky does averted vision add the nearly circular halo of the arms.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M91 was long one of Messier's great lost objects. An error in the reference used to calculate the coordinates was reconstructed in the 20th century, identifying it with the barred spiral NGC 4548."
       },
       "messier-M92": {
@@ -627,19 +627,19 @@
       "messier-M94": {
         "short_description": "M94 (Crocodile Eye or Cat's Eye Galaxy) is a spiral galaxy in Canes Venatici. It has a very bright core surrounded by ring-like structures in deep images. At the eyepiece it is one of the easiest galaxies in Canes Venatici.",
         "observing_notes": "M94 offers two different scales. At medium-high power its nucleus and inner ring form a compact, very bright disk; returning to low power, averted vision may add a much wider outer halo. Do not mistake the bright center for the whole galaxy.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "In addition to the bright inner ring, M94 has a huge outer disk made up of faint spiral arms. This peripheral structure still hosts star formation, despite appearing almost like a separate ring."
       },
       "messier-M95": {
         "short_description": "M95 is a barred spiral galaxy in Leo. It is a barred spiral from the Leo group, subtle and not immediately obvious. It requires dark skies to stand out from its peers in the area.",
         "observing_notes": "On a clear, dark night, good binoculars already show M95 as a hazy smudge; through a telescope, the center and bar call for medium power and averted vision. A wider field helps identify it with M96 and M105, while the outer structure remains a large-aperture challenge.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "In 2012 the supernova SN 2012aw exploded in M95. Previous images identified the progenitor as a red supergiant, directly linking a star to its final explosion."
       },
       "messier-M96": {
         "short_description": "M96 is a spiral galaxy in Leo. It is a bright galaxy in the Leo group, more accessible than M95. Shows obvious core and soft halo with medium instruments.",
         "observing_notes": "Locate M96 in a wide field with M95 and M105, then move to medium power. Look for a definite but slightly off-center nucleus and an oval halo extending farther on one side; that asymmetry is more accessible than individual arms.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "The core of M96 is not centered with the arms and the disc appears asymmetrical. The gravitational perturbations of the Leo Group, perhaps amplified by the nearby M95, have deformed its structure."
       },
       "messier-M97": {
@@ -651,31 +651,31 @@
       "messier-M98": {
         "short_description": "M98 is a spiral galaxy in Coma Berenices. It is a spiral seen nearly edge-on, long and thin. Its light is faint and diffuse, so it requires transparent skies and averted vision.",
         "observing_notes": "Dark skies and averted vision help follow the thin disk past the nucleus.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M98 is blueshifted and approaching the Milky Way, unusual behavior for such a distant galaxy. Its near-edge disk is rich in dust and hydrogen, but shows signs of disruption in Virgo's environment."
       },
       "messier-M99": {
         "short_description": "M99 (St. Catherine's Wheel) is a nearly face-on, asymmetrical spiral galaxy in Coma Berenices. Images show spectacular arms; at the eyepiece, detecting the nucleus and halo is a realistic goal.",
         "observing_notes": "M99 is nearly face-on and its halo has little contrast. Use low-medium power and averted vision to lift a round disk around the small nucleus. With large aperture seek one more extended side and a dominant arm; expecting a symmetric spiral would be misleading.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "One of M99's arms is much more extended than the others. The asymmetry may have been produced by an encounter with a nearby galaxy and by the pressure exerted by the gas from the Virgo Cluster."
       },
       "messier-M100": {
         "short_description": "M100 (Mirror Galaxy) is a large grand-design spiral galaxy in Coma Berenices, elegant and famous in images. At the eyepiece it is faint, but it conveys the depth of the Virgo Cluster well.",
         "observing_notes": "M100 is nearly face-on. At low-medium power first seek the small nucleus within a broad round halo. More aperture may show a short bar and two opposing enhancements, but its grand-design arms demand a much darker background than the integrated magnitude suggests.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "The Cepheids observed by Hubble in M100 were a milestone in the project that measured the Hubble constant. This galaxy therefore contributed to calibrating the rate of expansion of the Universe."
       },
       "messier-M101": {
         "short_description": "M101 (Pinwheel Galaxy) is a spiral galaxy in Ursa Major. The Pinwheel Galaxy is huge and close, but with very low surface brightness. It does not forgive clear skies: when it appears, it is one of the finest visions of the Big Dipper.",
         "observing_notes": "The total magnitude is deceptive because M101's light is spread across almost half a degree. Under a dark sky, use low power, look slightly away from the nucleus, and seek the asymmetric halo first; more aperture and patient viewing can bring out condensations in the arms.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M101 is almost twice the size of the Milky Way and contains hundreds of billions of stars, but its disk is highly asymmetric. Encounters with companion galaxies have stretched one side of the arms."
       },
       "messier-M102": {
         "short_description": "M102 (Spindle Galaxy) is a lenticular galaxy in Draco. The Spindle Galaxy is thin and seen edge-on, with a dust lane that gives it an elegant appearance in images. Visually it is compact but distinct.",
         "observing_notes": "M102 tolerates medium-high power. Look for a thin, high-surface-brightness spindle with a distinct central bulge. With larger apertures under a transparent sky, the narrow dust lane may cut along the nucleus; first confirm the disk's orientation.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "The identity of M102 is still debated because Méchain described it without reliable coordinates. The most accepted candidate is NGC 5866, a lenticular galaxy seen almost edge-on and crossed by a thin band of dust."
       },
       "messier-M103": {
@@ -687,19 +687,19 @@
       "messier-M104": {
         "short_description": "M104, the Sombrero Galaxy, is a spiral seen almost edge-on with a large central bulge and a clear band of dust. Even when the band is not directly visible, the bright core and very elongated profile give it a characteristic appearance. The low declination from many boreal locations makes it important to observe it near culmination.",
         "observing_notes": "Use medium magnification and look for asymmetry produced by the dust band along the edge of the bulge.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "Sombrero has an unusually rich system, around two thousand globular clusters: almost ten times those of the Milky Way. The dust belt hides a stellar disk inside a huge halo."
       },
       "messier-M105": {
         "short_description": "M105 is an elliptical galaxy in Leo. It is the largest elliptical in the Messier catalogue, in the Leone group. Visually it is simple, but it tells of a rich and compact galactic environment.",
         "observing_notes": "Use a medium-wide field to compose M105 with NGC 3384 and NGC 3389. M105 is the roundest and most concentrated glow, NGC 3384 is more elongated, and NGC 3389 is the hardest; comparing them is more rewarding than seeking structure in the elliptical's smooth light.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "M105 was considered a completely dead galaxy, but deep observations found young stars and clouds of hydrogen. Even a large elliptical can therefore preserve small pockets of star formation."
       },
       "messier-M106": {
         "short_description": "M106 is an active spiral galaxy in Canes Venatici, known for energetic emissions and water masers. At the eyepiece it is bright and rewarding for a galaxy.",
         "observing_notes": "M106 has enough contrast to show a definite nucleus and long disk at low-medium power. Trace the axis with averted vision and look for one brighter side, then raise power on the center; its famous anomalous arms belong mainly to radio and narrowband images.",
-        "best_seen": "Spring and summer",
+      "best_seen": "Northern spring and summer (southern autumn and winter)",
         "curiosity_text": "M106 shows two anomalous arms that do not follow the stellar disk. They are produced by shock waves and jets tied to the central black hole, which heat the gas as they pass through the galaxy."
       },
       "messier-M107": {
@@ -711,19 +711,19 @@
       "messier-M108": {
         "short_description": "M108 (Surfboard Galaxy) is a barred spiral galaxy in Ursa Major. The Surfboard Galaxy is a long, thin edged spiral close to the Owl Nebula in the sky. It's a nice test of averted vision.",
         "observing_notes": "Below the Big Dipper, M108 is best at low-medium power as a narrow, mottled surfboard without a true bulge. With about 8 inches or more, try higher power to separate bright patches and dust lanes; nearby M97 is a useful star-hopping check, not a similar-looking object.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "M108 is seen almost edge-on and does not show a well-defined central bulge. Its irregular disk, rich in dust and star-forming regions, contains numerous compact X-ray sources."
       },
       "messier-M109": {
         "short_description": "M109 is a barred spiral galaxy in Ursa Major, close to Phecda. It is not showy, but it is relatively easy to locate, and its central bar makes its structure interesting to examine.",
         "observing_notes": "Use Phecda to locate M109 to the southeast, but move the bright star to the edge or outside the field before judging the galaxy. At low-medium power seek a faint streak; with more aperture its nucleus and elongated bar emerge inside a very diffuse halo.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "M109 is the brightest galaxy in a group that includes dozens of members. The central bar guides gas to the internal regions and helps draw a faint ring around the core."
       },
       "messier-M110": {
         "short_description": "M110 (Andromeda Satellite #2) is a dwarf elliptical galaxy in Andromeda. It is an elliptical companion of Andromeda, wider and more suffused than M32. In dark skies completes the view of M31 as a small system of galaxies, not as an isolated object.",
         "observing_notes": "Keep M31, M32, and M110 in the same wide field: M110 is the larger companion but also the more diffuse. Seek an elongated oval without a sharp nucleus on the side opposite M32; only then, with more aperture, try for dust irregularities near its center.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "Despite being classified as a dwarf elliptical, M110 contains dust and relatively young stars near the center. They are indications of recent star formation, unusual for such a regular-looking galaxy."
       },
       "caldwell-C1": {
@@ -741,7 +741,7 @@
       "caldwell-C3": {
         "short_description": "C3 (NGC 4236) is a barred spiral in Draco with a broad, very low-contrast disk. Its light is spread across an elongated glow; even the central region remains diffuse, lacking the sharply defined nucleus that makes many other galaxies easier to recognize.",
         "observing_notes": "Its integrated magnitude is deceptive: C3 spreads its light over 21 arcminutes and is far more elusive than it sounds. Use the lowest power, a haze-free sky, and averted vision to trace a broad, extremely faint strip; the weak nucleus is not a useful starting point.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "NGC 4236 is a large spiral seen almost edge-on, but its light is distributed over such a large area as to make it elusive. The most obvious patches of the disk are regions where stars continue to form."
       },
       "caldwell-C4": {
@@ -753,7 +753,7 @@
       "caldwell-C5": {
         "short_description": "C5 (IC 342), the Hidden Galaxy, is a large, nearly face-on spiral in Camelopardalis. Gas, dust, and stars in our own Milky Way veil its disk; this foreground obstacle contributes to its observing difficulty, rather than the galaxy's properties alone.",
         "observing_notes": "The Hidden Galaxy is broad but dimmed by Milky Way dust: wait for an exceptionally clear, moonless night away from artificial light. Use the lowest practical power to find the core, then patience and averted vision to extend the faint disk; even slight haze can erase it.",
-        "best_seen": "Winter",
+      "best_seen": "Northern winter (southern summer)",
         "curiosity_text": "IC 342 is nicknamed the Hidden Galaxy because it lies behind the dusty plane of the Milky Way. Without this veil it would appear among the brightest spirals in the sky, almost as large as the full Moon."
       },
       "caldwell-C6": {
@@ -765,7 +765,7 @@
       "caldwell-C7": {
         "short_description": "C7 (NGC 2403) is a spiral in Camelopardalis with numerous H II regions, large clouds of ionized hydrogen where stars are born. Its elongated disk and uneven distribution of bright regions give it a more varied appearance than a simple oval with a central nucleus.",
         "observing_notes": "C7 needs low power to contain its 18-arcminute disk. Seek an elongated, grainy glow with little central dominance and foreground stars superposed. In larger apertures NGC 2404 separates as a bright knot, while the full arms remain diffuse.",
-        "best_seen": "Winter",
+      "best_seen": "Northern winter (southern summer)",
         "curiosity_text": "In 2004 NGC 2403 hosted SN 2004dj, one of the closest type II supernovae observed in the modern era. The explosion occurred within a compact stellar group which allowed us to study its progenitor population."
       },
       "caldwell-C8": {
@@ -795,7 +795,7 @@
       "caldwell-C12": {
         "short_description": "C12 (NGC 6946), the Fireworks Galaxy, is a spiral on the border of Cepheus and Cygnus. Its star-forming arms have hosted numerous supernovae; foreground Milky Way dust dims the disk and makes its structure less distinct at the eyepiece.",
         "observing_notes": "C12 is nearly face-on and very extended, but Milky Way dust lowers its contrast. Start at low power on the small nucleus, then use averted vision to seek an uneven disk and brighter patches; its arms require a genuinely transparent sky.",
-        "best_seen": "Summer and autumn",
+      "best_seen": "Northern summer and autumn (southern winter and spring)",
         "curiosity_text": "NGC 6946 deserves the name Fireworks: at least ten supernovae have been discovered there since 1917. The galaxy is rich in star formation, but the Milky Way dims its light with dust in the foreground."
       },
       "caldwell-C13": {
@@ -825,13 +825,13 @@
       "caldwell-C17": {
         "short_description": "C17 (NGC 147) is a very diffuse dwarf elliptical satellite of Andromeda in Cassiopeia. Visually it forms a broad, slightly elongated glow with little central concentration and no sharp nucleus; that weak gradient makes it markedly harder than nearby C18 (NGC 185).",
         "observing_notes": "C17 is a contrast challenge: do not look for a stellar nucleus, but for a very diffuse, elongated brightening. A genuinely dark, transparent sky, low power, and averted vision are decisive; the more compact and luminous C18 provides a useful comparison.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "NGC 147 is a dwarf satellite of Andromeda with almost no gas and recent star formation. The contrast with nearby NGC 185, which preserves dust and young stars, shows two different evolutions in the same environment."
       },
       "caldwell-C18": {
         "short_description": "C18 (NGC 185) is a dwarf elliptical in Cassiopeia, a satellite of Andromeda and a Local Group member. Compared with nearby C17, it has a rounder, more concentrated center; deep images also reveal dust, contrasting with the smooth appearance expected of a small elliptical.",
         "observing_notes": "If the field allows, observe C18 together with nearby C17: C18 is the easier one, with a rounder and more compact center. At medium power trace its oval halo, without expecting the dust clouds seen in images to emerge at the eyepiece.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "Although it is an elliptical dwarf galaxy, NGC 185 contains clouds of dust, young stars and supernova remnants. It is proof that an apparently quiet morphology does not necessarily imply completely dull evolution."
       },
       "caldwell-C19": {
@@ -849,7 +849,7 @@
       "caldwell-C21": {
         "short_description": "C21 (NGC 4449) is an irregular dwarf galaxy in Canes Venatici, with intense star formation reaching its outer regions. Its body of young clusters, gas, and dust does not follow orderly arms; the chaotic structure preserves the effects of recent interactions.",
         "observing_notes": "C21 has a short, almost rectangular body with more contrast than many irregular dwarfs. At medium power seek a mottled surface rather than a regular nucleus; with large aperture the brightest knots separate as star-forming regions.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "A faint stellar stream around NGC 4449 is the remnant of an even smaller galaxy distorted by tidal forces. It shows that dwarf galaxies also grow by absorbing companions: they are not merely prey for larger systems."
       },
       "caldwell-C22": {
@@ -861,13 +861,13 @@
       "caldwell-C23": {
         "short_description": "C23 (NGC 891) is an edge-on spiral galaxy in Andromeda. A dust lane divides its thin luminous disk and crosses the central bulge; deep images also show gas and dust filaments rising above the galactic plane.",
         "observing_notes": "First frame the full, slender 14′ spindle at low-medium power. Under a dark sky, move to medium power and let your gaze travel along its axis: the thin central dust lane is the detail to seek, rather than spiral arms.",
-        "best_seen": "Winter",
+      "best_seen": "Northern winter (southern summer)",
         "curiosity_text": "NGC 891 is often used as an edge-on analogue of the Milky Way. Filaments of dust rise far above the disk, dragged by winds and supernovae from regions where new stars are born."
       },
       "caldwell-C24": {
         "short_description": "C24 (NGC 1275), also known as Perseus A, is an active galaxy in the Perseus Cluster. Deep images show gas filaments surrounding its elliptical body, while the nucleus produces strong radio and X-ray emission; its subdued visual appearance conceals a highly energetic environment.",
         "observing_notes": "C24 is the dominant condensation at the center of the Perseus Cluster. Use medium power to separate its nearly stellar nucleus from the small oval halo and compare it with the much fainter field galaxies; the spectacular photographic filaments are not a realistic visual target.",
-        "best_seen": "Winter",
+      "best_seen": "Northern winter (southern summer)",
         "curiosity_text": "NGC 1275 dominates the center of the Perseus Cluster and is associated with the Perseus A radio source. The central black hole blows huge bubbles in the hot gas, while a second galactic system overlaps along the line of sight."
       },
       "caldwell-C25": {
@@ -879,7 +879,7 @@
       "caldwell-C26": {
         "short_description": "C26 (NGC 4244), the Silver Needle, is an edge-on spiral in Canes Venatici. Its central bulge is small and the disk dominates the outline, forming a very thin blade of light; the viewing angle hides its spiral arms.",
         "observing_notes": "C26 is a blade 16 arcminutes long but only 2.5 arcminutes wide. Choose a field with room beyond both ends and use low-medium power. The thin disk emerges best while slowly sweeping the telescope; the lack of a strong bulge is part of its appearance, not a centering error.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "NGC 4244 is a very thin spiral seen edge-on, almost without a central bulge. Its simple structure helps study how stars and gas are distributed vertically in galactic disks."
       },
       "caldwell-C27": {
@@ -897,13 +897,13 @@
       "caldwell-C29": {
         "short_description": "C29 (NGC 5005) is a spiral galaxy in Canes Venatici with a compact nucleus that stands out against its surrounding disk. Nearby spiral NGC 5033 can share a wide field, allowing a direct comparison of their light profiles.",
         "observing_notes": "C29's compact nucleus is detectable even in a small telescope; medium power makes the oval halo stand out more clearly. With a wide-field eyepiece, include NGC 5033 in the same view and compare the galaxies' different central concentrations.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "The nucleus of NGC 5005 is classified as LINER, a weak form of galactic activity. Belts of dust envelop the central area, where gas and star formation coexist with the influence of the black hole."
       },
       "caldwell-C30": {
         "short_description": "C30 (NGC 7331) is a large spiral in Pegasus with a disk tilted to our line of sight. Images distinguish its yellowish center of old stars from dusty arms containing young blue clusters; through a telescope the central region dominates the elongated glow.",
         "observing_notes": "At medium power C30 first shows a bright nucleus and a strongly elongated disk. A dark sky and more aperture may suggest dust lanes and the beginnings of the arms; Stephan's Quintet, half a degree to the southwest, is a separate and much harder target.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "NGC 7331 has often been called the Milky Way's twin, but it has no obvious central bar. The more distant galaxies of the Deer Lick Group appear behind it, a perspective that creates a false compact group."
       },
       "caldwell-C31": {
@@ -915,7 +915,7 @@
       "caldwell-C32": {
         "short_description": "C32 (NGC 4631), the Whale Galaxy, is an edge-on spiral in Canes Venatici. Its elongated, asymmetric outline, rich in dust and star-forming regions, resembles a whale; the viewing angle hides the arms but emphasizes irregularities in the disk.",
         "observing_notes": "The Whale is best at low-medium power. Trace its curved profile from the brighter belly to the tapering tail. By alternating direct and averted vision, seek mottling and dark bands across the disk rather than a pinpoint nucleus; transparency matters more than high power.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "NGC 4631 is surrounded by a halo of hot gas visible in X-rays. Supernovae and winds from the star-forming regions push matter out of the disk, creating a sort of galactic fountain."
       },
       "caldwell-C33": {
@@ -933,13 +933,13 @@
       "caldwell-C35": {
         "short_description": "C35 (NGC 4889) is a giant elliptical galaxy in the Coma Cluster, about 300 million light-years away. Its smooth halo sits among other cluster galaxies.",
         "observing_notes": "Dark skies and preferably a large aperture are needed: C35 is a small elliptical glow in the heart of the rich Coma Cluster. At medium power, identify its more concentrated nucleus first; then lower the magnification to pick out the fainter galaxies sharing the field.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "NGC 4889 hosts one of the most massive black holes measured in the nearby Universe, with a mass of many billion Suns. The giant galaxy occupies the heart of the Coma Cluster."
       },
       "caldwell-C36": {
         "short_description": "C36 (NGC 4559) is a spiral galaxy in Coma Berenices with an extended disk and regions hosting massive stars. Its apparent proximity to the Melotte 111 star cluster helps locate it, but the galaxy lies far beyond the stars of our Milky Way.",
         "observing_notes": "C36 lacks a dominant nucleus. At low to medium power look for a faint, uneven blade dotted with foreground stars. Nudge the telescope and alternate direct and averted vision to confirm mottling in the disk rather than mistaking it for variations in the sky background.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "In the disk of NGC 4559 there is an ultraluminous X-ray source, too intense for a normal binary star. It may contain a massive black hole powered by a companion in a young stellar region."
       },
       "caldwell-C37": {
@@ -951,7 +951,7 @@
       "caldwell-C38": {
         "short_description": "C38 (NGC 4565), the Needle Galaxy, is an almost perfectly edge-on spiral in Coma Berenices. Its very thin disk crosses a prominent central bulge cut by dark dust; this combination distinguishes it from the similarly slender C26, whose center is much less pronounced.",
         "observing_notes": "At medium power C38 already shows a long blade with a central bulge. Then raise power while the background stays dark: the thin dust lane may cut the bulge and continue along the disk, while averted vision extends both ends beyond the bright region.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "The Needle Galaxy is one of the clearest examples of a spiral seen perfectly edge-on. A thin lane of dust divides the disk, while a bright central bulge reveals its three-dimensional structure."
       },
       "caldwell-C39": {
@@ -963,7 +963,7 @@
       "caldwell-C40": {
         "short_description": "C40 (NGC 3626) is a disk galaxy in Leo, dominated by a dense central concentration of stars. It looks compact at the eyepiece, with the nucleus easier to recognize than the surrounding halo.",
         "observing_notes": "C40 is small and suits medium-high power. Seek a bright center wrapped in an oval halo only a few arcminutes across. The Leo II group field contains other galaxies, so confirm its position against the stars before assigning faint extensions to C40.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "In NGC 3626 the gas rotates in the opposite direction to most stars. The most likely explanation is the acquisition of material from a companion, an encounter preserved in the dynamics of the disk."
       },
       "caldwell-C41": {
@@ -981,19 +981,19 @@
       "caldwell-C43": {
         "short_description": "C43 (NGC 7814), the Little Sombrero, is an edge-on spiral in Pegasus. A broad luminous bulge surrounds its thin, dusty disk, creating a resemblance to M104; its smaller apparent extent does not mean it is a physically tiny galaxy.",
         "observing_notes": "C43 is a small edge-on Sombrero. At medium-high power seek a large round bulge crossed by an extremely thin disk. With generous aperture under a steady sky, its dust lane may appear as a line dividing the bulge; the disk ends instead require averted vision.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "NGC 7814 resembles a miniature Sombrero, but its disk is seen even closer to the edge. An extremely thin band of dust passes through a large, nearly spherical stellar bulge."
       },
       "caldwell-C44": {
         "short_description": "C44 (NGC 7479), the Propeller Galaxy, is a barred spiral in Pegasus. Curved arms join a prominent central bar and form an S in images; numerous young stars reveal vigorous star formation in the disk.",
         "observing_notes": "In C44 the most accessible visual feature is the bar. Use medium power to seek a long condensation crossing the nucleus. Under a very dark sky, averted vision may add two faint curved extensions and suggest the reversed S; the radio jet is not visible.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "NGC 7479 has an inverted S shape and a radio jet that extends in the opposite direction to the apparent rotation of the arms. Both could result from a merger with a smaller galaxy."
       },
       "caldwell-C45": {
         "short_description": "C45 (NGC 5248) is a spiral in Boötes with arms rich in young stars and luminous gas. Ring structures around its nucleus host particularly active star formation; these are studied in high-resolution images, far beyond the faint oval seen at the eyepiece.",
         "observing_notes": "C45 appears nearly face-on. At medium power identify its small bright center and let the round halo emerge with averted vision. In larger apertures look for two opposing curved enhancements; the circumnuclear rings seen in images are too small for ordinary visual observing.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "NGC 5248 contains two star-forming rings around the core. The bar and arms funnel gas toward the center, where new stars are born in concentric structures on different scales."
       },
       "caldwell-C46": {
@@ -1011,7 +1011,7 @@
       "caldwell-C48": {
         "short_description": "C48 (NGC 2775) is a nearly face-on spiral galaxy in the constellation Cancer. A large yellowish bulge of old stars is encircled by narrow, feathery arm segments marked by dust and young blue clusters; the contrast between its orderly center and flocculent disk is its defining feature.",
         "observing_notes": "Center C48's round, bright bulge at medium power, then switch to averted vision to trace the fainter disk. Even with large aperture its flocculent arms remain extremely difficult; a grainy texture is a more realistic result than a clean spiral pattern.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "NGC 2775’s arms are described as flocculent: young stars and dust form feather-like segments rather than two continuous, clearly defined arms. Their contrast with the large central bulge, almost devoid of current star formation, highlights different environments within the same galaxy."
       },
       "caldwell-C49": {
@@ -1029,19 +1029,19 @@
       "caldwell-C51": {
         "short_description": "C51 (IC 1613) is a Local Group dwarf irregular galaxy in Cetus. Despite its relative proximity, its diffuse stellar body has extremely low contrast, appearing as a faint change in the sky background without a dominant nucleus.",
         "observing_notes": "C51 covers about 12′ × 11′: preserve dark adaptation, use a wide field, and examine the edges with averted vision.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "IC 1613 is a Local Group dwarf galaxy with very little internal dust. Its Cepheids are therefore observed without major extinction corrections, making it valuable for calibrating cosmic distances."
       },
       "caldwell-C52": {
         "short_description": "C52 (NGC 4697) is an elliptical galaxy in Virgo with a distinctly elongated outline. Its center is easier to detect than the outer halo, while deep images reveal a population of surrounding globular clusters that preserves its stellar history.",
         "observing_notes": "C52 is not round like many ellipticals. At medium power seek a tapered halo about twice as long as it is wide, with a gradually brighter center. Averted vision extends its ends; it will not reveal bands or arms that this galaxy does not have.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "NGC 4697 appears to be a quiet elliptical, but X-ray observations reveal numerous compact binaries scattered throughout its aging population. These sources track neutron stars and black holes that accrete matter."
       },
       "caldwell-C53": {
         "short_description": "C53 (NGC 3115), the Spindle Galaxy, is a lenticular galaxy in Sextans seen nearly edge-on. Its smooth, armless disk tapers sharply on either side of a bright nucleus; this high-surface-brightness outline clearly shows the class's intermediate character between spirals and ellipticals.",
         "observing_notes": "This is one of the more accessible Caldwell galaxies: even a small telescope shows a distinct spindle with a bright center. Begin at medium power to separate it from the stars, then increase magnification while contrast and seeing still let you follow the tapered ends.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "NGC 3115 was one of the first recognized examples of a lenticular galaxy, intermediate between spiral and elliptical. Its central black hole is huge but almost inactive, because there is little gas left nearby to swallow."
       },
       "caldwell-C54": {
@@ -1065,7 +1065,7 @@
       "caldwell-C57": {
         "short_description": "C57 (NGC 6822), Barnard's Galaxy, is an irregular dwarf in the Local Group and the constellation Sagittarius. Its faint, non-spiral stellar body hosts large nurseries such as Hubble V and Hubble X; its proximity lets astronomers study individual stars and populations.",
         "observing_notes": "Observe C57 on the meridian at the lowest useful power: the galaxy is a broad, very faint bar rather than a concentrated patch. Find it unfiltered; with large aperture you can then target Hubble V and Hubble X separately and try OIII only on those gas knots.",
-        "best_seen": "Summer",
+      "best_seen": "Northern summer (southern winter)",
         "curiosity_text": "Barnard's Galaxy was one of the first dwarfs outside the Milky Way studied in detail. The Cepheid variables observed within it helped Edwin Hubble extend the distance scale beyond our Galaxy."
       },
       "caldwell-C58": {
@@ -1083,19 +1083,19 @@
       "caldwell-C60": {
         "short_description": "C60 (NGC 4038) is the northern member of the Antennae Galaxies, a colliding pair of spirals in the constellation Corvus. Its disk overlaps NGC 4039 (C61) in a tangled region of dust and star formation, while tidal forces have drawn long tails out of the pair.",
         "observing_notes": "Observe C60 together with C61 rather than as an isolated galaxy. Under a dark sky at medium power, seek two overlapping condensations within a faint comma-shaped glow; the long tails that give the Antennae their name normally remain photographic.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "NGC 4038 is one of the two Antennae galaxies. The long tails that give the pair their name are stars and gas stripped away by gravitational tides during a collision that began hundreds of millions of years ago."
       },
       "caldwell-C61": {
         "short_description": "NGC 4039 is one of the two Antennae Galaxies in Corvus, colliding with NGC 4038. Their nuclei remain distinguishable, while dust and young clusters mark the region where their disks overlap. The long outer tails consist of stars drawn out by the gravitational interaction.",
         "observing_notes": "Do not seek C61 as an isolated 13th-magnitude patch: it is the southern condensation visually merged with C60. At medium power try to distinguish the two nuclei and their overlap region; the whole pair remains a faint comma and the extended antennae are photographic.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "NGC 4039 crosses NGC 4038 in the Antennae pair. In the overlap zone, gas compression has ignited thousands of young star clusters, some destined to evolve as future globulars."
       },
       "caldwell-C62": {
         "short_description": "NGC 247 is a dwarf spiral in Cetus belonging to the Sculptor Group. An unusual region lacking bright stars interrupts its disk, giving it the nickname Needle’s Eye. This apparent gap contains old, faint stars: it is not an empty hole devoid of matter.",
         "observing_notes": "C62 is a large, faint southern galaxy. Observe it on the meridian at low power in a field at least half a degree wide. Seek an asymmetric strip with little central concentration; the large disk void may appear only as uneven brightness, not as a clean cavity.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "NGC 247 contains a large apparent void in the disk, with many fewer old stars than the surrounding areas. It could be the imprint of an ancient interaction or processes that locally disrupted star formation."
       },
       "caldwell-C63": {
@@ -1113,7 +1113,7 @@
       "caldwell-C65": {
         "short_description": "C65 (NGC 253), the Sculptor Galaxy, is a large starburst spiral seen nearly edge-on. At the eyepiece it forms an asymmetric, mottled spindle threaded by dark dust around an elongated center; its roughly 25′ span makes it a genuine wide-field showpiece.",
         "observing_notes": "C65 is almost as long as the Moon's apparent diameter, so begin at low power with enough field to avoid clipping the spindle. Once centered, move to medium power and use averted vision for the disk's dark irregularities; from northern latitudes, observe it near transit.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "NGC 253 is one of the closest starburst galaxies. In the dusty core, stars are born at a rapid rate, and their feedback pushes a superwind of hot gas out of the disk."
       },
       "caldwell-C66": {
@@ -1125,7 +1125,7 @@
       "caldwell-C67": {
         "short_description": "NGC 1097 is a large barred spiral in Fornax with extended arms and an active nucleus. A ring of intense star formation surrounds its center, fed by gas flowing inward. The bright nucleus and fainter arms call for different observing priorities.",
         "observing_notes": "From northern latitudes observe C67 on the meridian. At medium power seek its very bright nucleus, oval bar, and nearly circular halo. With more aperture, small companion NGC 1097A may emerge beside an arm, while the central ring and jets remain photographic.",
-        "best_seen": "Winter",
+      "best_seen": "Northern winter (southern summer)",
         "curiosity_text": "NGC 1097 has a circumnuclear ring where gas forms stars at an intense rate. At the center is a supermassive black hole, while faint optical jets extend far beyond the disk."
       },
       "caldwell-C68": {
@@ -1143,7 +1143,7 @@
       "caldwell-C70": {
         "short_description": "NGC 300 is a nearby spiral in Sculptor, with arms rich in young blue stars and a more concentrated center. Its disk spans almost as much sky as the full Moon. Hubble can resolve its stars, making it useful for studying stellar populations beyond the Milky Way.",
         "observing_notes": "C70 spans about two-thirds of the Moon's diameter and should not be overmagnified. Observe it near culmination with a wide field and averted vision to recognize a faintly granular disk without a strong nucleus; in large apertures stellar concentrations emerge as patches, not continuous arms.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "NGC 300 is a relatively isolated spiral of the Sculptor Group. Cepheids and other variable stars within it have provided one of the most precise distance measurements for a nearby galaxy."
       },
       "caldwell-C71": {
@@ -1155,7 +1155,7 @@
       "caldwell-C72": {
         "short_description": "NGC 55 is a Magellanic-type galaxy in Sculptor, seen nearly edge-on. Structurally similar to the Large Magellanic Cloud but smaller, it presents a long, irregular profile rather than an orderly spiral. Dust clouds dim its light unevenly.",
         "observing_notes": "Observe C72 on the meridian with the widest practical field: its 32 arcminutes form a thin streak that can overfill an eyepiece. Do not seek a symmetric nucleus; its visual signature is uneven light, stronger in a few knots and tapering toward the ends.",
-        "best_seen": "Autumn",
+      "best_seen": "Northern autumn (southern spring)",
         "curiosity_text": "NGC 55 is a near-edge barred galaxy with scattered star-forming regions and an irregular profile. Its proximity allows individual stars to be resolved despite the overall nebulous appearance."
       },
       "caldwell-C73": {
@@ -1185,7 +1185,7 @@
       "caldwell-C77": {
         "short_description": "C77 (NGC 5128), better known as Centaurus A, is the peculiar remnant of a galactic merger. A broad elliptical glow is cut by a thick, dark dust band; the intersection of a regular halo and distorted disk creates one of the most recognizable galaxy profiles in a telescope.",
         "observing_notes": "It is visible even in binoculars, but a telescope reveals the defining feature: a dark dust band crossing the nearly circular glow. Frame it first at low power; at medium power, with good transparency and the object near transit, trace the split on both sides of the nucleus.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "Centaurus A is the result of a merger: a band of dust cuts through a large elliptical galaxy, while the central black hole launches a relativistic jet observable from radio waves to X-rays."
       },
       "caldwell-C78": {
@@ -1221,7 +1221,7 @@
       "caldwell-C83": {
         "short_description": "NGC 4945 is a barred spiral in Centaurus, but from Earth we see it nearly edge-on. Its disk therefore appears as a thin luminous streak, threaded with dust and only moderately brighter at the center. Its barred classification does not imply a recognizable bar at the eyepiece.",
         "observing_notes": "From a dark site, a small telescope shows C83 as a long, thin blade of light with a slight central brightening. Use a wide field to contain its 20′ length and observe near transit: at northern latitudes, its low altitude makes transparency more valuable than extra magnification.",
-        "best_seen": "Spring",
+      "best_seen": "Northern spring (southern autumn)",
         "curiosity_text": "NGC 4945 hides an active nucleus and an intense starburst behind the dust. A water maser allows us to track gas orbiting very close to the central black hole and measure its mass."
       },
       "caldwell-C84": {
@@ -1329,7 +1329,7 @@
       "caldwell-C101": {
         "short_description": "NGC 6744 is a large spiral in Pavo, often compared with the Milky Way for its elongated core and arms rich in dust and star formation. In images, its yellowish center, dominated by older stars, contrasts with the young regions of the outer arms.",
         "observing_notes": "In a small telescope, C101 appears as a broad, faint halo around a brighter core. Start with the lowest magnification that comfortably frames its 16′ × 10′ extent; transparent skies and prolonged averted vision are more useful than extra power for following the disk.",
-        "best_seen": "Summer",
+      "best_seen": "Northern summer (southern winter)",
         "curiosity_text": "NGC 6744 is one of the most convincing analogues of the Milky Way: large barred spiral with open arms and a small companion. Its disk, however, extends for almost double the diameter of our Galaxy."
       },
       "caldwell-C102": {

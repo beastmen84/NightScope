@@ -145,10 +145,10 @@ def test_editorial_baseline_and_ngc_backlog_are_audited() -> None:
     assert report.completed_objects == 323
     assert report.completed_ngc_objects == 95
     assert report.remaining_ngc_objects == 7_271
-    assert report.accepted_batches == 9
+    assert report.accepted_batches == 10
     assert report.accepted_enrichment_batches == 3
-    assert report.accepted_remediation_batches == 6
-    assert report.remediated_baseline_objects == 197
+    assert report.accepted_remediation_batches == 7
+    assert report.remediated_baseline_objects == 203
     assert report.draft_batches == 0
     assert report.baseline_description_template_families == 0
     assert report.baseline_description_template_objects == 0
@@ -438,10 +438,10 @@ def test_baseline_remediation_manifest_is_field_scoped(tmp_path: Path) -> None:
     report = audit_catalogue_editorial(batch_path=manifest)
 
     assert report.errors == ()
-    assert report.accepted_batches == 10
+    assert report.accepted_batches == 11
     assert report.accepted_enrichment_batches == 3
-    assert report.accepted_remediation_batches == 7
-    assert report.remediated_baseline_objects == 198
+    assert report.accepted_remediation_batches == 8
+    assert report.remediated_baseline_objects == 204
 
 
 def test_baseline_remediation_rejects_ngc_only_ids_and_undeclared_claims(

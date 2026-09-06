@@ -5,6 +5,14 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Editorial Corrections - Intermediate Source Checks
+
+Source 1.46.15: all 102 catalogue, translation and developer-tooling tests pass
+in 21.34 s. Its accepted 75-object manifest passes the repository audit and
+both live source URLs. All six contact sheets / 30 QML scenes were inspected
+in IT/EN/ES and normal/red modes. The final fresh complete source gate follows
+the last bounded correction, not each intermediate commit.
+
 ## Review Corrections - 1.46.14 Source
 
 The first correction step adds 26 cases: real EN/ES object-overlay preservation

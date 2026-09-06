@@ -890,6 +890,7 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
 def test_manual_public_releases_and_revision_are_consistent(
     language: str, revision_label: str,
 ) -> None:
+    source_version = (PROJECT_ROOT / "VERSION").read_text(encoding="utf-8").strip()
     source = (PROJECT_ROOT / "manuale.html").read_text(encoding="utf-8")
     hero = re.search(
         rf'<div class="hero-inner" data-article="{language}"[^>]*>(.*?)</div>',
@@ -902,10 +903,11 @@ def test_manual_public_releases_and_revision_are_consistent(
         assert f"releases/tag/v{version}" in hero.group(1)
     assert "1.45.21" not in hero.group(1)
     assert "Windows" in hero.group(1) and "Linux" in hero.group(1)
+    assert re.search(rf"\b{re.escape(source_version)}\b", hero.group(1))
     footer = re.search(r"<footer>(.*?)</footer>", source, re.DOTALL)
     assert footer is not None
     assert re.search(
-        rf'<span data-copy-{language}\b[^>]*>[^<]*{revision_label} 1\.46\.13</span>',
+        rf'<span data-copy-{language}\b[^>]*>[^<]*{revision_label} {re.escape(source_version)}</span>',
         footer.group(1),
     )
 

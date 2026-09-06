@@ -29,6 +29,18 @@ exact useful-window boundaries, persisted appearance, and real widget pixel
 checks in IT/EN/ES. Evidence is under `build/review-corrections-1.46.14/`.
 The final source gate result is recorded after completion in TESTING/handoff.
 
+## Source 1.46.15 — baseline galaxy periods
+
+R4, first bounded step: 75 existing galaxy `best_seen` fields now name both
+hemispheres in IT/EN/ES. Existing periods and observing conditions are retained;
+this is a reference-frame clarification, not a fresh optimal-period calculation.
+The source is the pinned 1.46.13 seed plus
+[NASA's explanation of opposite seasons](https://spaceplace.nasa.gov/seasons/en/).
+Both evidence URLs pass. M31, M83, C3, M82 and M91 pass all six language/theme
+contact sheets (30 real QML scenes), including the complete best-seen line.
+Coverage remains 323 complete / 95 NGC-only / 7,271 pending; the ledger has
+10 accepted batches and 203 distinct baseline IDs with field-scoped remediation.
+
 ## Remaining editorial steps
 
 R4 explicitly qualifies existing seasonal guidance without changing catalogue
