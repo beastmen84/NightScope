@@ -61,11 +61,46 @@ sheets / 30 QML scenes. No coordinate, magnitude, observing note, description,
 curiosity or difficulty changed. The ledger has 12 accepted batches and
 219 distinct remediated baseline IDs; NGC coverage remains unchanged.
 
-## Remaining editorial steps
+## Source 1.46.18 — existing NGC records and prevention
 
-R4 explicitly qualifies existing seasonal guidance without changing catalogue
-coordinates or silently inventing new visibility periods. R5 restores the
-probable, rather than certain, merger interpretation for NGC 1266 in all three
-languages, following the [record's NASA source](https://science.nasa.gov/missions/hubble/hubble-sights-galaxy-in-transition/).
-Each bounded field-scoped batch retains its own version, manifest, review and
-commit; accepted historical manifests are not rewritten.
+R4's final group contains 56 previously enriched NGC galaxies. R5 also revises
+NGC 1266's curiosity in IT/EN/ES: observed outflows are distinguished from the
+proposed minor merger and the black hole's possible suppression of new stars,
+following the [record's NASA source](https://science.nasa.gov/missions/hubble/hubble-sights-galaxy-in-transition/).
+All three distinct URLs pass. NGC 1266, 1961, 613, 6951 and 3621 pass six
+contact sheets / 30 QML scenes, including the curiosity and full period lines.
+
+The new `ngc_remediation` manifest kind retains the 100-object ceiling,
+declared-field/source boundaries, three-language review and visual acceptance.
+It requires an earlier accepted NGC enrichment and does not increase coverage.
+Historical manifests are unchanged. A repository-wide seasonal-clause check
+rejects unspecified hemispheres in each language, including when an unrelated
+later clause mentions northern latitude. These are screening protections, not
+a substitute for scientific or language review.
+
+The final ledger contains 13 accepted batches: three enrichment and ten
+remediation, covering 219 distinct baseline IDs plus the 56 revised NGC IDs.
+Coverage stays 323 complete objects, including 95 NGC-only, with 7,271 NGC-only
+objects still pending. No new NGC enrichment was undertaken during corrections.
+
+## Cross-version verification and release boundary
+
+A parsed field comparison against `b435b7b` confirms exactly 275 changed
+`best_seen` values and one changed curiosity in each language. Every other
+editorial field, technical catalogue row and object identity is unchanged;
+all comma/semicolon observing-condition suffixes are retained. The original
+production overlay-maintenance and morning-twilight probes were rerun after
+the corrections. Logs: `build/review-corrections-1.46.14/final-18-probes.log`.
+The fresh final `--security` run passes: 1,515 tests and ten subtests,
+86% coverage (18,219 / 21,120 lines), plus all three isolated source smokes.
+The first attempt exposed one stale exact-value C23 expectation, corrected
+without dropping assertions; TESTING retains that result separately from the
+subsequent completely passing run. All five review findings are closed in
+source within the stated scope. This does not certify every catalogue claim
+or every application configuration beyond the reviewed/tested cases.
+
+Source version and manual revision are 1.46.18. Public download links remain
+Windows 1.46.13 and Linux 1.43.0; local dist and public assets are not rebuilt
+or rewritten. No push, tag, GitHub Actions wait or publication is part of this
+work. The preliminary non-isolated development smoke is disclosed in TESTING;
+subsequent application smokes and all QML renders use disposable runtimes.

@@ -41,7 +41,24 @@ NARRATIVE_FIELDS = (
 )
 REVIEW_KEYS = ("facts", "it", "en", "es")
 REVIEW_STATES = frozenset({"pending", "accepted"})
-BATCH_KINDS = frozenset({"ngc_enrichment", "baseline_remediation"})
+REMEDIATION_KINDS = frozenset({"baseline_remediation", "ngc_remediation"})
+BATCH_KINDS = REMEDIATION_KINDS | {"ngc_enrichment"}
+SEASON_PATTERNS = {
+    "it": re.compile(r"\b(?:primavera|estate|autunno|inverno)\b", re.IGNORECASE),
+    "en": re.compile(r"\b(?:spring|summer|autumn|fall|winter)\b", re.IGNORECASE),
+    "es": re.compile(r"\b(?:primavera|verano|otoño|invierno)\b", re.IGNORECASE),
+}
+HEMISPHERE_PATTERNS = {
+    "it": re.compile(
+        r"\b(?:boreal[ei]|austral[ei]|emisfero\s+(?:nord|sud|settentrionale|meridionale))\b",
+        re.IGNORECASE,
+    ),
+    "en": re.compile(r"\b(?:northern|southern)\b", re.IGNORECASE),
+    "es": re.compile(
+        r"\b(?:boreal(?:es)?|austral(?:es)?|hemisferio\s+(?:norte|sur))\b",
+        re.IGNORECASE,
+    ),
+}
 PLACEHOLDERS = frozenset(
     {
         "work in progress",
@@ -203,6 +220,48 @@ def _is_placeholder(value: str | None) -> bool:
     return _normalized(value) in PLACEHOLDERS
 
 
+def _season_reference_errors(language: str, object_id: str, value: str) -> list[str]:
+    """Require a hemisphere in each seasonal clause, not an unrelated condition.
+
+    This is an editorial ambiguity screen, not a visibility calculation. Months,
+    opposition and season-free conditions need no hemisphere. A later clause
+    about northern circumpolarity must not qualify an earlier bare 'Winter'.
+    """
+    for clause in re.split(r"[,;.]", value):
+        if SEASON_PATTERNS[language].search(clause) and not HEMISPHERE_PATTERNS[
+            language
+        ].search(clause):
+            return [f"{object_id}: {language} best_seen season lacks an explicit hemisphere"]
+    return []
+
+
+def _ngc_remediation_history_errors(manifests: list[_ManifestRecord]) -> list[str]:
+    """Allow revisions only after accepted enrichment, regardless of path order.
+
+    A later revision does not replace or mutate the historical manifest and
+    cannot bootstrap a new NGC object into the completed-coverage count.
+    """
+    accepted_versions: dict[str, list[int]] = defaultdict(list)
+    for manifest in manifests:
+        match = VERSION_PATTERN.fullmatch(manifest.version)
+        if manifest.kind == "ngc_enrichment" and manifest.status == "accepted" and match:
+            for object_id in manifest.object_ids:
+                accepted_versions[object_id].append(int(match.group("patch")))
+    errors: list[str] = []
+    for manifest in manifests:
+        if manifest.kind != "ngc_remediation":
+            continue
+        match = VERSION_PATTERN.fullmatch(manifest.version)
+        revision = int(match.group("patch")) if match else -1
+        for object_id in manifest.object_ids:
+            if not any(version < revision for version in accepted_versions[object_id]):
+                errors.append(
+                    f"{manifest.path.name}: {object_id}: NGC remediation requires "
+                    "an earlier accepted enrichment manifest"
+                )
+    return errors
+
+
 def _baseline_digest(object_ids: set[str]) -> str:
     joined = "\n".join(sorted(object_ids)).encode("utf-8")
     return hashlib.sha256(joined).hexdigest()
@@ -261,7 +320,7 @@ def _validate_manifest(
     kind = str(payload.get("batch_kind") or "ngc_enrichment").strip()
     if kind not in BATCH_KINDS:
         errors.append(
-            f"{label}: batch_kind must be ngc_enrichment or baseline_remediation"
+            f"{label}: batch_kind must be ngc_enrichment, baseline_remediation or ngc_remediation"
         )
 
     status = str(payload.get("status") or "").strip()
@@ -301,7 +360,7 @@ def _validate_manifest(
 
         if object_id not in catalogue:
             errors.append(f"{item_label}: unknown physical object_id {object_id}")
-        if kind == "ngc_enrichment" and not object_id.startswith("ngc-"):
+        if kind in {"ngc_enrichment", "ngc_remediation"} and not object_id.startswith("ngc-"):
             errors.append(f"{item_label}: editorial batches are restricted to NGC-only IDs")
         if kind == "baseline_remediation" and object_id not in baseline_ids:
             errors.append(
@@ -309,7 +368,7 @@ def _validate_manifest(
             )
 
         raw_fields = item.get("fields")
-        if kind == "baseline_remediation":
+        if kind in REMEDIATION_KINDS:
             item_fields = (
                 {str(value).strip() for value in raw_fields if str(value).strip()}
                 if isinstance(raw_fields, list)
@@ -317,7 +376,7 @@ def _validate_manifest(
             )
             if not item_fields:
                 errors.append(
-                    f"{item_label}: baseline remediation requires at least one field"
+                    f"{item_label}: {kind.replace('_', ' ')} requires at least one field"
                 )
             unknown_fields = sorted(item_fields - set(TRANSLATED_FIELDS))
             if unknown_fields:
@@ -329,7 +388,7 @@ def _validate_manifest(
         else:
             if raw_fields is not None:
                 errors.append(
-                    f"{item_label}: fields is only valid for baseline remediation"
+                    f"{item_label}: fields is only valid for remediation"
                 )
             required_fields = set(TRANSLATED_FIELDS)
         screened_fields.update(
@@ -391,7 +450,7 @@ def _validate_manifest(
                 errors.append(
                     f"{source_label}: unsupported claims {', '.join(unknown_claims)}"
                 )
-            if kind == "baseline_remediation":
+            if kind in REMEDIATION_KINDS:
                 undeclared_claims = sorted(claims - required_fields)
                 if undeclared_claims:
                     errors.append(
@@ -817,6 +876,12 @@ def audit_catalogue_editorial(
         for object_id in completed_ids
     }
     for language, content in {"it": italian_content, **translations}.items():
+        for object_id in sorted(completed_ids):
+            fields = content.get(object_id)
+            if isinstance(fields, dict):
+                errors.extend(
+                    _season_reference_errors(language, object_id, str(fields.get("best_seen") or ""))
+                )
         for field in NARRATIVE_FIELDS:
             errors.extend(
                 _duplicate_text_errors(
@@ -920,6 +985,7 @@ def audit_catalogue_editorial(
                     )
                 seen_enrichment_ids.add(object_id)
 
+    errors.extend(_ngc_remediation_history_errors(manifests))
     accepted_manifests = [manifest for manifest in manifests if manifest.status == "accepted"]
     accepted_enrichment_manifests = [
         manifest
@@ -929,7 +995,7 @@ def audit_catalogue_editorial(
     accepted_remediation_manifests = [
         manifest
         for manifest in accepted_manifests
-        if manifest.kind == "baseline_remediation"
+        if manifest.kind in REMEDIATION_KINDS
     ]
     accepted_enrichment_ids = {
         object_id
@@ -940,6 +1006,7 @@ def audit_catalogue_editorial(
         object_id
         for manifest in accepted_remediation_manifests
         for object_id in manifest.object_ids
+        if object_id in baseline_ids
     }
     sentence_waivers = frozenset(
         waiver for manifest in accepted_manifests for waiver in manifest.waivers

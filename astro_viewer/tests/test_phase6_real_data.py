@@ -3148,7 +3148,7 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertTrue(selected["curiositySourceUrl"].startswith("https://"))
             self.assertTrue(selected["curiosityVerified"])
             self.assertGreater(len(selected["catalogueIntroText"]), 40)
-            self.assertEqual(selected["bestSeen"], "Inverno")
+            self.assertEqual(selected["bestSeen"], "Inverno boreale (estate australe)")
             self.assertEqual(selected["image"], "resources/images/categories/galaxy.jpg")
             self.assertEqual(selected["imageKind"], "illustration")
             self.assertEqual(selected["imageAttribution"], "NightScope")

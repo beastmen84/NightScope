@@ -5,6 +5,36 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Review Corrections - Final 1.46.18 Source Gate
+
+The fresh `tools/run_checks.py --security` run passes on Python 3.14.5:
+1,515 tests plus ten subtests in 306.90 s, 86% coverage (18,219 / 21,120 lines).
+Backend, normal QML and red QML isolated smokes pass in 14.0 / 14.1 / 14.6 s.
+Ruff, compileall, import/layer boundaries, documentation inventory, licenses,
+pip check, pinned MPC/NGC data, editorial and image audits all pass. pip-audit
+reports no known vulnerabilities; reviewed Bandit baseline remains 48 findings
+(zero high, 34 medium, 14 low). The inventory is 259 Python / 35 QML / 17
+operational files. This is source validation, not a new artifact approval.
+The elapsed time is a run measurement, not a test-performance benchmark.
+Complete log: `build/review-corrections-1.46.14/final-18-source-gate-clean.log`.
+After recording final results, all 49 developer-tooling/documentation tests
+pass again in 9.39 s (`final-18-docs-recheck.log` in the same evidence directory).
+
+All four bounded editorial manifests pass their source checks and
+24 contact sheets / 120 QML scenes.
+The read-only comparison against `b435b7b` confirms only 275 seasonal fields
+plus NGC 1266's curiosity change in each language; other editorial and technical
+fields are identical. Both refresh modes leave real EN/ES editorial overlays
+unchanged (zero changed cells). Both real Rome twilight targets now report
+window-ended despite being well above 15 degrees. Evidence:
+`build/review-corrections-1.46.14/final-18-probes.log`.
+
+The first final run had 1,514 passes and one stale catalogue-detail expectation:
+C23 was still asserted as `Inverno`. It now asserts the complete corrected
+`Inverno boreale (estate australe)` string, keeping the exact-value check and
+all identity, metadata and imagery assertions. No production code changed
+after that run; the fresh complete passing run above includes that correction.
+
 ## Editorial Corrections - Intermediate Source Checks
 
 Source 1.46.15: all 102 catalogue, translation and developer-tooling tests pass

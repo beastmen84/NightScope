@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## NightScope 1.46.18 - 2026-09-06
+
+- Chiarito l'emisfero dei periodi osservativi per 56 galassie NGC già arricchite,
+  con corrispondenza boreale/australe esplicita in italiano, inglese e spagnolo.
+  Conservati il periodo originario e tutte le condizioni specifiche; nessuna
+  modifica a descrizioni, note osservative, difficoltà, identità o raccomandazioni.
+- Manifest separato, fonti della correzione e campioni visuali nelle tre lingue
+  e nei due temi. Nessun nuovo oggetto, dist o pubblicazione; Windows pubblico
+  resta 1.46.13 e Linux 1.43.0.
+- Nella curiosità di NGC 1266, fusione minore e soppressione della formazione
+  stellare tornano a essere interpretazioni proposte, distinte dai deflussi
+  osservati, come nella fonte NASA; correzione coerente in IT/EN/ES.
+- L'audit ammette correzioni a campi dichiarati di NGC già accettati senza
+  contarli come nuovi oggetti e blocca stagioni prive di emisfero. I manifest
+  storici restano intatti. Vedi TESTING per il gate finale delle correzioni.
+- Gate completo finale superato: 1.515 test e dieci subtest, copertura 86%,
+  audit di sicurezza e smoke backend/QML normale/rosso in runtime isolati.
+
 ## NightScope 1.46.17 - 2026-09-06
 
 - Chiarito l'emisfero dei periodi osservativi per 87 globulari e nebulose storiche,

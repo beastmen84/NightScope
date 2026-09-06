@@ -214,6 +214,7 @@ Accepted batch ledger:
 | `1.46.15` | Baseline remediation | Hemisphere-qualified periods for 75 existing galaxies; other fields unchanged | 95 | 203 | 7,271 |
 | `1.46.16` | Baseline remediation | Hemisphere-qualified periods for 54 open clusters and three other stellar-field targets | 95 | 209 | 7,271 |
 | `1.46.17` | Baseline remediation | Hemisphere-qualified periods for 87 globular clusters and nebulous targets | 95 | 219 | 7,271 |
+| `1.46.18` | NGC remediation | 56 existing galaxy periods; qualified merger/feedback interpretation for NGC 1266 | 95 | 219 | 7,271 |
 
 The `1.46.9` batch deliberately uses fewer than the 100-object ceiling. Its
 20 records distinguish faint envelopes from bright compact cores, infrared
@@ -263,11 +264,27 @@ any justified similarity waivers.
 
 Use `batch_kind: ngc_enrichment` for new NGC-only content. Use
 `batch_kind: baseline_remediation` for corrections to the immutable baseline
-and add an exact `fields` list to every object. In remediation batches, source
+or `batch_kind: ngc_remediation` for corrections to previously enriched NGC-only
+objects, and add an exact `fields` list to every object. NGC remediation requires
+an earlier accepted enrichment manifest for each ID; chronology uses numeric
+patch versions, not filename order. Draft, same-version and future enrichment
+cannot satisfy that prerequisite. Corrections never increase completed-object
+counts and do not overwrite historical manifests. In remediation batches, source
 coverage and similarity screening apply only to those declared fields;
 untouched content is not represented as newly reviewed. An accepted enrichment
-ID may occur only once, whereas a later remediation may revisit a baseline ID
+ID may occur only once, whereas a later remediation may revisit an accepted ID
 when a distinct correction is justified.
+
+Sources 1.46.15–1.46.18 correct 275 existing seasonal `best_seen` values in
+IT/EN/ES, split into disjoint groups of 75, 57, 87 and 56. Both hemispheres are
+explicit, while the original periods and all object-specific conditions remain
+unchanged. This is not a new optimum-period calculation. Already explicit
+southern seasons, month ranges and condition-only fields stay untouched.
+NGC 1266 alone also receives a curiosity correction. The repository audit now
+rejects a seasonal clause without an explicit hemisphere in any language;
+a separate latitude/circumpolarity condition cannot qualify an earlier bare
+season. This screen detects ambiguity, not the scientific optimum or semantic
+translation accuracy. See `REVIEW_CORRECTIONS_1_46.md` for evidence and limits.
 
 ## Automated Acceptance Gates
 
@@ -363,7 +380,7 @@ overlay, observing guidance, distinct source-backed curiosity, provenance, and
 tests are all complete. A batch is complete only when every object in its
 manifest meets that definition and the full source gate passes.
 
-A baseline-remediation batch is complete when every declared field has source,
+A remediation batch is complete when every declared field has source,
 factual, three-language, similarity, and relevant visual acceptance. It does
 not reopen or silently re-accept undeclared fields.
 

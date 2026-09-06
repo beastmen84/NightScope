@@ -11,8 +11,11 @@ from pathlib import Path
 import pytest
 
 from astro_viewer.tools.audit_catalogue_editorial import (
+    _ManifestRecord,
+    _ngc_remediation_history_errors,
     _repeated_sentence_errors,
     _repeated_sentence_groups,
+    _season_reference_errors,
     _template_groups,
     audit_catalogue_editorial,
 )
@@ -145,9 +148,9 @@ def test_editorial_baseline_and_ngc_backlog_are_audited() -> None:
     assert report.completed_objects == 323
     assert report.completed_ngc_objects == 95
     assert report.remaining_ngc_objects == 7_271
-    assert report.accepted_batches == 12
+    assert report.accepted_batches == 13
     assert report.accepted_enrichment_batches == 3
-    assert report.accepted_remediation_batches == 9
+    assert report.accepted_remediation_batches == 10
     assert report.remediated_baseline_objects == 219
     assert report.draft_batches == 0
     assert report.baseline_description_template_families == 0
@@ -159,7 +162,7 @@ def test_editorial_baseline_and_ngc_backlog_are_audited() -> None:
     assert report.warnings == ()
 
 
-def test_editorial_visual_samples_are_read_from_the_latest_accepted_manifest() -> None:
+def test_editorial_visual_samples_are_read_from_the_planetary_nebula_manifest() -> None:
     manifest = (
         PROJECT_ROOT
         / "astro_viewer"
@@ -201,6 +204,201 @@ def test_planetary_enrichment_keeps_physical_aliases_and_catalogue_defaults() ->
         assert catalogue[object_id]["descrizione"] == "Work in progress"
         assert catalogue[object_id]["recommendation_enabled_by_default"] == "0"
     assert "ngc-NGC2372" not in catalogue
+
+
+@pytest.mark.parametrize(
+    ("language", "value", "valid"),
+    (
+        ("it", "Primavera", False),
+        ("en", "Winter; circumpolar from northern latitudes", False),
+        ("es", "Otoño, cerca de la culminación", False),
+        ("it", "Primavera boreale (autunno australe)", True),
+        ("en", "Northern autumn and winter (southern spring and summer)", True),
+        ("es", "Finales de invierno y primavera boreales (finales de verano y otoño australes)", True),
+        ("it", "Estate australe, culminazione alta", True),
+        ("en", "Southern summer, near culmination", True),
+        ("es", "Verano austral", True),
+        ("it", "Da maggio ad agosto; notti senza Luna", True),
+        ("en", "Moonless nights near culmination", True),
+        ("es", "De agosto a noviembre", True),
+        ("it", "Autunno nell'emisfero sud", True),
+        ("es", "Primavera en el hemisferio norte", True),
+        ("en", "Northern spring; summer", False),
+    ),
+)
+def test_seasonal_guidance_requires_a_local_hemisphere_reference(
+    language: str, value: str, valid: bool,
+) -> None:
+    errors = _season_reference_errors(language, "target", value)
+    assert (not errors) is valid
+    if not valid:
+        assert errors == [f"target: {language} best_seen season lacks an explicit hemisphere"]
+
+
+def test_review_correction_batches_are_bounded_disjoint_and_field_scoped() -> None:
+    seen: set[str] = set()
+    for patch, count in ((15, 75), (16, 57), (17, 87), (18, 56)):
+        manifest = PROJECT_ROOT / f"astro_viewer/data/editorial_batches/batch_1_46_{patch}.json"
+        payload = json.loads(manifest.read_text(encoding="utf-8"))
+        entries = payload["objects"]
+        ids = {entry["object_id"] for entry in entries}
+        assert len(entries) == len(ids) == count <= 100
+        assert not ids & seen
+        seen.update(ids)
+        assert payload["status"] == "accepted"
+        assert payload["batch_kind"] == ("ngc_remediation" if patch == 18 else "baseline_remediation")
+        for entry in entries:
+            expected = ["best_seen"]
+            if entry["object_id"] == "ngc-NGC1266":
+                expected.append("curiosity_text")
+            assert entry["fields"] == expected
+    assert len(seen) == 275
+
+
+def test_ngc1266_curiosity_keeps_both_interpretations_qualified_in_three_languages() -> None:
+    with (PROJECT_ROOT / "astro_viewer/data/object_curiosities_seed.csv").open(
+        encoding="utf-8-sig", newline="",
+    ) as file:
+        row = next(row for row in csv.DictReader(file) if row["object_id"] == "ngc-NGC1266")
+    texts = {"it": row["curiosity_text"]}
+    for language in ("en", "es"):
+        pack = json.loads(
+            (PROJECT_ROOT / f"astro_viewer/translations/{language}.json").read_text(encoding="utf-8")
+        )
+        texts[language] = pack["content"]["objects"]["ngc-NGC1266"]["curiosity_text"]
+    for language, qualifiers in {
+        "it": ("ipotizzano", "potrebbe"),
+        "en": ("propose", "may"),
+        "es": ("plantean", "podría"),
+    }.items():
+        assert all(word in texts[language] for word in qualifiers)
+        assert "500" in texts[language]
+    assert row["source_url"] == "https://science.nasa.gov/missions/hubble/hubble-sights-galaxy-in-transition/"
+    assert row["verified"] == "1"
+
+
+@pytest.mark.parametrize("language", ("it", "en", "es"))
+def test_repository_audit_rejects_unqualified_seasons_without_batch(
+    language: str, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from astro_viewer.tools import audit_catalogue_editorial as audit
+
+    if language == "it":
+        original_reader = audit._read_csv
+
+        def read_csv(path, required_fields, errors):
+            rows = original_reader(path, required_fields, errors)
+            if path.name == "object_descriptions_seed.csv":
+                for row in rows:
+                    if row["object_id"] == "caldwell-C80":
+                        row["best_seen"] = "Primavera"
+            return rows
+
+        monkeypatch.setattr(audit, "_read_csv", read_csv)
+    else:
+        original_reader = audit._pack_objects
+
+        def read_pack(path, pack_language, errors):
+            objects = original_reader(path, pack_language, errors)
+            if pack_language == language:
+                objects["caldwell-C80"]["best_seen"] = {
+                    "en": "Spring", "es": "Primavera",
+                }[language]
+            return objects
+
+        monkeypatch.setattr(audit, "_pack_objects", read_pack)
+
+    report = audit.audit_catalogue_editorial()
+    assert f"caldwell-C80: {language} best_seen season lacks an explicit hemisphere" in report.errors
+
+
+@pytest.mark.parametrize(
+    ("enrichment_status", "enrichment_patch", "revision_patch", "same_object", "valid"),
+    (
+        ("accepted", 2, 18, True, True),
+        ("accepted", 9, 18, True, True),
+        ("draft", 2, 18, True, False),
+        ("accepted", 18, 18, True, False),
+        ("accepted", 99, 18, True, False),
+        ("accepted", 2, 18, False, False),
+    ),
+)
+def test_ngc_revision_requires_earlier_accepted_enrichment(
+    enrichment_status: str, enrichment_patch: int, revision_patch: int,
+    same_object: bool, valid: bool,
+) -> None:
+    def record(kind, patch, status, object_id):
+        return _ManifestRecord(
+            Path(f"batch_1_46_{patch}.json"), f"1.46.{patch}", kind, status,
+            (object_id,), frozenset(), frozenset(),
+        )
+
+    revision = record("ngc_remediation", revision_patch, "accepted", "ngc-NGC1266")
+    enrichment = record(
+        "ngc_enrichment", enrichment_patch, enrichment_status,
+        "ngc-NGC1266" if same_object else "ngc-NGC1",
+    )
+    # File paths sort lexically (18 before 2); chronology must use patch numbers.
+    errors = _ngc_remediation_history_errors([revision, enrichment])
+    assert (not errors) is valid
+    if not valid:
+        assert "earlier accepted enrichment" in errors[0]
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_error"),
+    (
+        (None, None),
+        ("fields", "ngc remediation requires at least one field"),
+        ("source", "claims outside remediation fields"),
+        ("language", "review es must be accepted"),
+        ("visual", "normal must be accepted"),
+        ("baseline", "restricted to NGC-only IDs"),
+        ("new", "earlier accepted enrichment manifest"),
+        ("enrichment", "appears in more than one NGC enrichment manifest"),
+    ),
+)
+def test_ngc_remediation_preserves_field_acceptance_and_coverage(
+    tmp_path: Path, mutation: str | None, expected_error: str | None,
+) -> None:
+    payload = json.loads(
+        (PROJECT_ROOT / "astro_viewer/data/editorial_batches/batch_1_46_18.json")
+        .read_text(encoding="utf-8")
+    )
+    payload["source_version"] = "1.46.99"
+    entry = next(item for item in payload["objects"] if item["object_id"] == "ngc-NGC1266")
+    payload["objects"] = [entry]
+    sample = payload["visual_review"]["samples"][0]
+    payload["visual_review"]["samples"] = [sample]
+    if mutation == "fields":
+        entry.pop("fields")
+    elif mutation == "source":
+        entry["sources"][0]["supports"] = ["short_description"]
+    elif mutation == "language":
+        entry["reviews"]["es"] = "pending"
+    elif mutation == "visual":
+        sample["normal"] = "pending"
+    elif mutation in {"baseline", "new"}:
+        entry["object_id"] = sample["object_id"] = (
+            "caldwell-C80" if mutation == "baseline" else "ngc-NGC1"
+        )
+    elif mutation == "enrichment":
+        payload["batch_kind"] = "ngc_enrichment"
+        entry.pop("fields")
+    manifest = tmp_path / "batch_1_46_99.json"
+    manifest.write_text(json.dumps(payload), encoding="utf-8")
+    report = audit_catalogue_editorial(batch_path=manifest)
+    if expected_error:
+        assert any(expected_error in error for error in report.errors)
+    else:
+        assert report.errors == ()
+        assert report.accepted_batches == 14
+        assert report.accepted_remediation_batches == 11
+        assert report.accepted_enrichment_batches == 3
+        assert report.remediated_baseline_objects == 219
+        assert report.completed_objects == 323
+        assert report.completed_ngc_objects == 95
+        assert report.remaining_ngc_objects == 7_271
 
 
 def test_editorial_template_screen_ignores_ids_aliases_and_measurements() -> None:
@@ -438,9 +636,9 @@ def test_baseline_remediation_manifest_is_field_scoped(tmp_path: Path) -> None:
     report = audit_catalogue_editorial(batch_path=manifest)
 
     assert report.errors == ()
-    assert report.accepted_batches == 13
+    assert report.accepted_batches == 14
     assert report.accepted_enrichment_batches == 3
-    assert report.accepted_remediation_batches == 10
+    assert report.accepted_remediation_batches == 11
     # M1 already has an accepted seasonal correction; revisiting its field
     # adds a batch, never another physical object to the remediation count.
     assert report.remediated_baseline_objects == 219

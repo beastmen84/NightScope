@@ -4,34 +4,35 @@ Updated: 2026-09-06
 
 ## Current State
 
-- Source `1.46.17` adds a bounded, best-seen-only hemisphere clarification for
-  87 existing objects; no enrichment or coverage increase. Its manifest
-  records IT/EN/ES review and five visual samples. See the review-corrections
-  document for remaining steps and final gate status.
-
-- Source `1.46.16` adds a bounded, best-seen-only hemisphere clarification for
-  57 existing objects; no enrichment or coverage increase. Its manifest
-  records IT/EN/ES review and five visual samples. See the review-corrections
-  document for remaining steps and final gate status.
-
-- Source `1.46.15` adds a bounded, best-seen-only hemisphere clarification for
-  75 existing objects; no enrichment or coverage increase. Its manifest
-  records IT/EN/ES review and five visual samples. See the review-corrections
-  document for remaining steps and final gate status.
-
-- Source version: `1.46.17`; all three image-redesign source steps are complete.
-- The user authorized the 1.45.21–1.46.13 review corrections. This first source
-  step protects existing editorial overlays during maintenance, fixes ended
-  useful-window status at morning twilight and themes the pre-QML splash/error
-  widgets from the persisted red preference before painting. Editorial season
-  clarification and NGC 1266's scientific qualifier are the next bounded steps.
-  See `docs/REVIEW_CORRECTIONS_1_46.md`. Public versions and dist remain unchanged.
-- Intermediate 1.46.14 validation: all runtime cases in the 1,481-test / ten
-  subtest full fast run pass; two version-documentation assertions were fixed
-  and all 49 tooling tests then passed. All three isolated source smokes pass.
-  Native/offscreen startup progress and error widgets pass IT/EN/ES pixel
-  checks. Read TESTING for the preliminary non-isolated development smoke;
-  the final fresh security/coverage gate follows the editorial steps.
+- Source version: `1.46.18`; all three image-redesign source steps are complete.
+- All five review findings are implemented across source 1.46.14–1.46.18:
+  protected real editorial overlays, correct ended-window status at morning
+  twilight, persisted-red startup/error widgets, 275 hemisphere-qualified
+  periods in IT/EN/ES, and qualified scientific interpretations for NGC 1266.
+  Runtime commit `534e072`; bounded editorial commits `b41e2e6` (75 galaxies),
+  `18624be` (57 stellar fields), `3376c4b` (87 globulars/nebulae); the final
+  1.46.18 step revises 56 existing NGC galaxies and adds acceptance guards.
+  See `docs/REVIEW_CORRECTIONS_1_46.md` and TESTING for evidence and limits.
+- Editorial coverage remains 323 objects / 95 NGC-only complete / 7,271 pending.
+  The ledger has 13 accepted batches (three enrichment, ten remediation),
+  219 distinct remediated baseline IDs. All 24 contact sheets / 120 QML scenes
+  were inspected in IT/EN/ES and normal/red modes. Historical manifests and
+  undeclared fields remain unchanged; no new NGC batch was added.
+- Fresh final `--security` gate: 1,515 tests plus ten subtests in 306.90 s;
+  86% coverage (18,219 / 21,120 lines). Backend/normal/red isolated smokes pass
+  (14.0/14.1/14.6 s), with all source audits. Ruff clean, pip-audit reports no
+  known vulnerabilities, Bandit baseline unchanged (48; zero high).
+  Inventory 259 Python / 35 QML / 17 operational files. Log:
+  `build/review-corrections-1.46.14/final-18-source-gate-clean.log`.
+  Earlier focused results, the corrected stale C23 test expectation and the
+  preliminary non-isolated development smoke are disclosed in TESTING.
+  Final production reproducers show zero editorial
+  overwrites in both EN/ES refresh modes and window-ended status for both
+  Rome morning-twilight targets.
+- Public Windows remains 1.46.13, Linux 1.43.0, and local dist remains 1.46.13.
+  These are source-only local commits: no push, tag, dist rebuild, publication
+  or GitHub Actions wait. The next unused source patch is 1.46.19; resuming
+  new NGC enrichment or rebuilding the dist requires the user's next request.
 - Public release update: on 2026-09-06 the user published `v1.46.13` for
   Windows only. Release metadata, the public tag and the exact asset name
   were checked through GitHub. README, manual, current release records and

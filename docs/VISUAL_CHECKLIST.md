@@ -10,6 +10,22 @@ verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 del 2026-09-06 non chiude automaticamente i controlli mancanti della matrice:
 le verifiche in `RELEASE_CHECKLIST.md` restano specifiche di ogni artefatto.
 
+## Correzioni Review Sorgente 1.46.14–1.46.18
+
+- [x] Splash reale, cinque stati di avanzamento e dialogo di errore in IT/EN/ES:
+  test offscreen e Windows nativo, con preferenza rossa persistita. Nessun logo
+  colorato o bordo nativo luminoso; verificati i canali dei pixel. Primo avvio
+  inglese e modalità normale invariati.
+- [x] Quattro gruppi editoriali da 75/57/87/56 oggetti, cinque campioni ciascuno:
+  ispezionate tutte le 24 contact sheet / 120 scene QML, tre lingue e due temi.
+  Periodo completo, lingua, impaginazione e fonte visibili; controllata anche
+  la curiosità corretta di NGC 1266. Nessuna modifica alle note osservative:
+  questa matrice riguarda le schede inferiori, non rivede i campi intatti.
+- [x] Campioni in directory temporanee esterne al repository; evidenze e limiti
+  in `REVIEW_CORRECTIONS_1_46.md` e `build/review-corrections-1.46.14/`.
+- [ ] Matrice manuale completa di una nuova distribuzione: non eseguita né
+  richiesta per questi commit sorgente; dist Windows ancora 1.46.13.
+
 ## Verifica Mirata Bundle Windows 1.46.13
 
 - [x] Dist da `be30cda`: smoke backend, QML normale e rosso sul pacchetto
