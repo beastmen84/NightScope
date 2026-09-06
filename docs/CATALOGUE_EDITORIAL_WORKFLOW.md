@@ -224,9 +224,11 @@ across three languages, both themes and both upper/lower detail positions.
 No baseline prose, images, catalogue measurements or recommendation metadata
 is changed by this batch.
 
-The next editorial source patch is `1.46.10`; it may continue bounded NGC-only
-enrichment, with its own reviewed manifest rather than extending an accepted
-set.
+Sources `1.46.10` through `1.46.14` are already allocated to astronomical,
+image-management and review corrections. The next bounded editorial steps
+correct the remaining season-hemisphere ambiguity and NGC 1266's qualifier;
+they do not add NGC objects. Consult `docs/NEXT_CHAT_HANDOFF.md` and `VERSION`
+before allocating another patch; accepted manifests are not extended in place.
 
 Work in bounded batches, each with its own source version and commit. A batch
 must be small enough for every source and all three languages to be reviewed.

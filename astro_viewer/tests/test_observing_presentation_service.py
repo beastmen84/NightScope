@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
+
+import pytest
 
 from astro_viewer.app.astronomy.engine import ObservingNightWindow
 from astro_viewer.app.models.observing import CelestialObject
@@ -79,6 +81,65 @@ def test_observing_status_service_uses_prepared_runtime_context() -> None:
     assert title
     assert "42" in detail
     assert "22:00 - 01:00" in detail
+
+
+@pytest.mark.parametrize("best_hour", (0, 4))
+@pytest.mark.parametrize("altitude", ("52°", "39°", "10°", "-3°"))
+@pytest.mark.parametrize("observable_now", (False, None))
+def test_ended_dark_interval_never_claims_low_altitude_or_a_future_window(
+    best_hour: int, altitude: str, observable_now: bool | None,
+) -> None:
+    zone = ZoneInfo("Europe/Rome")
+    night = ObservingNightWindow.bounded(
+        datetime(2026, 9, 5, 19, 30, tzinfo=zone),
+        datetime(2026, 9, 6, 6, 40, tzinfo=zone),
+    )
+    item = _target(
+        observing_start_at="2026-09-05T21:14:00+02:00",
+        observing_end_at="2026-09-06T05:03:00+02:00",
+        best_observing_at=datetime(2026, 9, 6, best_hour, tzinfo=zone).isoformat(),
+        current_altitude=altitude,
+        observable_now=observable_now,
+        night_eligible=True,
+    )
+    code, title, detail = ObservingPresentationService().status_data(
+        item, catalogue_name=None,
+        now=datetime(2026, 9, 6, 4, 20, tzinfo=UTC),
+        night_window=night, monthly_visibility_blocked=False,
+        useful_datetime=None, window="21:14 - 05:03", altitude_threshold=15,
+    )
+    assert code == "unavailable"
+    assert title == "Finestra conclusa"
+    assert detail == "La finestra utile di questa notte era 21:14 - 05:03."
+
+
+@pytest.mark.parametrize(
+    ("minute", "altitude", "expected"),
+    ((59, "42°", "observable_now"), (60, "42°", "unavailable"),
+     (-180, "7°", "later"), (-180, "42°", "later")),
+)
+def test_status_respects_half_open_absolute_useful_interval(
+    minute: int, altitude: str, expected: str,
+) -> None:
+    zone = ZoneInfo("Europe/Rome")
+    start = datetime(2026, 9, 6, 4, 0, tzinfo=zone)
+    night = ObservingNightWindow.bounded(
+        start - timedelta(hours=8), start + timedelta(hours=3),
+    )
+    item = _target(
+        observing_start_at=start.isoformat(),
+        observing_end_at=(start + timedelta(hours=1)).isoformat(),
+        best_observing_at=(start + timedelta(minutes=30)).isoformat(),
+        observable_now=None, current_altitude=altitude, night_eligible=True,
+    )
+    code, _title, detail = ObservingPresentationService().status_data(
+        item, catalogue_name=None, now=start + timedelta(minutes=minute),
+        night_window=night, monthly_visibility_blocked=False,
+        useful_datetime=None, window="04:00 - 05:00", altitude_threshold=15,
+    )
+    assert code == expected
+    if altitude == "42°":
+        assert "sotto la soglia" not in detail
 
 
 def test_weather_digest_is_independent_from_controller_state() -> None:

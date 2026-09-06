@@ -5,6 +5,32 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Review Corrections - 1.46.14 Source
+
+The first correction step adds 26 cases: real EN/ES object-overlay preservation
+in both refresh modes, morning-twilight/half-open useful-window boundaries, and
+pre-QML red widgets. The complete `--fast` run exercised 1,481 tests and ten
+subtests in 215.33 s: its only two failures were source-version documentation
+still pointing to 1.46.13 after the bump. Those metadata references were fixed;
+all 49 developer-tooling tests then passed in 10.30 s. Runtime tests passed in
+the full run, and backend/normal/red QML smokes were repeated in isolated
+runtimes (13.6/16.9/14.0 s). A fresh complete security/coverage gate follows the
+last editorial correction step; this intermediate result is not that gate.
+
+Real splash progress/error widgets passed pixel checks in all three languages,
+both with the offscreen Qt backend and native Windows at the current display
+scale. The native test exposed subpixel color fringes that the offscreen test
+does not generate; the final QWidget red palette zeros G/B and passes both.
+First-use English copy and the normal-mode icon remain unchanged. No QML or
+translation source strings were added. The inventory remains 259 Python,
+35 QML and 17 operational files. Logs/renders: `build/review-corrections-1.46.14/`.
+
+One preliminary direct backend smoke used the existing development runtime at
+the repository root before the isolated repeats. It ran the normal bootstrap
+and its SQLite snapshot; it did not use or rebuild `dist`. No claim that this
+preliminary invocation was isolated is made. The recurring validation runner
+continues to isolate every smoke automatically.
+
 ## Public Release Metadata - 1.46.13 Windows
 
 On 2026-09-06 GitHub confirmed the user's published `v1.46.13` release:

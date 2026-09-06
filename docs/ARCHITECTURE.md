@@ -224,6 +224,12 @@ The splash is shown on every launch and reports four monotonic stages: database,
 local catalogues, application services, and interface. Database bootstrap emits
 the detailed progress events; `main.py` adds the service and interface stages.
 
+The appearance preference is loaded before creating that first widget. The
+pre-QML splash and initialization-error dialog use a bounded black/red QWidget
+palette when Red Night Vision is saved; the colored brand icon is not loaded.
+Their green/blue channels are zero to avoid native Windows subpixel color
+fringes. No QML engine or global application stylesheet is needed for this step.
+
 A runtime with no database, legacy database, or preferences file is classified
 as first use and preserves the fixed English onboarding copy. Existing users see
 the routine startup copy in the language already stored in

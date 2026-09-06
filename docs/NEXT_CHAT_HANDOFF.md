@@ -4,7 +4,19 @@ Updated: 2026-09-06
 
 ## Current State
 
-- Source version: `1.46.13`; all three image-redesign source steps are complete.
+- Source version: `1.46.14`; all three image-redesign source steps are complete.
+- The user authorized the 1.45.21–1.46.13 review corrections. This first source
+  step protects existing editorial overlays during maintenance, fixes ended
+  useful-window status at morning twilight and themes the pre-QML splash/error
+  widgets from the persisted red preference before painting. Editorial season
+  clarification and NGC 1266's scientific qualifier are the next bounded steps.
+  See `docs/REVIEW_CORRECTIONS_1_46.md`. Public versions and dist remain unchanged.
+- Intermediate 1.46.14 validation: all runtime cases in the 1,481-test / ten
+  subtest full fast run pass; two version-documentation assertions were fixed
+  and all 49 tooling tests then passed. All three isolated source smokes pass.
+  Native/offscreen startup progress and error widgets pass IT/EN/ES pixel
+  checks. Read TESTING for the preliminary non-isolated development smoke;
+  the final fresh security/coverage gate follows the editorial steps.
 - Public release update: on 2026-09-06 the user published `v1.46.13` for
   Windows only. Release metadata, the public tag and the exact asset name
   were checked through GitHub. README, manual, current release records and

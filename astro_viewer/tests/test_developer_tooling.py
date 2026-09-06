@@ -514,7 +514,9 @@ def test_startup_completion_preserves_existing_preferences(tmp_path: Path) -> No
 def test_run_app_always_creates_the_startup_splash() -> None:
     source = inspect.getsource(main_module.run_app)
 
-    assert "splash = _create_startup_splash(app, startup_context)" in source
+    assert "splash = _create_startup_splash(" in source
+    assert source.index("appearance_manager =") < source.index("splash =")
+    assert "red_night_vision=appearance_manager.redNightVisionEnabled" in source
     assert "_database_initialization_required" not in source
 
 
@@ -621,8 +623,9 @@ def test_first_run_splash_has_real_transparent_rounded_corners() -> None:
     assert "dialog.setAttribute(Qt.WA_TranslucentBackground, True)" in source
     assert 'surface.setObjectName("splashSurface")' in source
     assert "surface.setAttribute(Qt.WA_StyledBackground, True)" in source
-    assert "QWidget#splashSurface {" in source
-    assert "QDialog {\n            background-color: transparent;" in source
+    stylesheet = main_module._startup_stylesheet(red_night_vision=False)
+    assert "QWidget#splashSurface {" in stylesheet
+    assert "QDialog {\n            background-color: transparent;" in stylesheet
 
 
 def test_first_run_splash_waits_for_first_qml_frame() -> None:

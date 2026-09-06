@@ -2292,6 +2292,12 @@ def update_pack(
 
     content: dict[str, dict[str, dict[str, str]]] = OrderedDict()
     for section, items in sources.items():
+        if section == "objects" and not draft_editorial:
+            # Reviewed prose is opaque here: historical overrides and language
+            # cleanup rules belong only to explicitly requested working drafts.
+            if section in current_content:
+                content[section] = current_content[section]
+            continue
         translated_items: dict[str, dict[str, str]] = OrderedDict()
         for item_key, fields in items.items():
             existing = current_content.get(section, {}).get(item_key, {})
@@ -2300,12 +2306,7 @@ def update_pack(
                 if translation_code == source_language(section, item_key, field):
                     continue
                 previous = str(existing.get(field, "")).strip()
-                if section == "objects" and not draft_editorial:
-                    if not previous:
-                        continue
-                    value = previous
-                else:
-                    value = translated.get(source) if refresh or not previous else previous
+                value = translated.get(source) if refresh or not previous else previous
                 translated_fields[field] = curate_content_translation(
                     section,
                     item_key,

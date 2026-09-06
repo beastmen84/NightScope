@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## NightScope 1.46.14 - 2026-09-06
+
+- Corretti i tre difetti di codice della review 1.45.21–1.46.13: gli overlay
+  editoriali restano integri durante la manutenzione ordinaria delle traduzioni;
+  le finestre utili concluse non diventano falsi consigli futuri o di quota;
+  splash e dialogo di errore iniziale rispettano la preferenza rossa salvata.
+- Aggiunte regressioni sui pack reali EN/ES, sui limiti temporali assoluti e
+  sul disegno dei widget iniziali nelle tre lingue. In rosso la splash non
+  carica l'icona a colori; la palette evita anche aloni subpixel di Windows.
+- Nessuna modifica a formule, dati editoriali, scoring, DB o dist. Le correzioni
+  dei periodi stagionali e di NGC 1266 proseguono nei successivi step editoriali.
+  Windows pubblico resta 1.46.13 e Linux 1.43.0; nessun push o run GitHub atteso.
+- Suite estesa a 1.481 test e 10 sottotest: nel run completo le sole due
+  anomalie erano riferimenti documentali alla versione precedente, corretti
+  e verificati con tutti i 49 test di tooling. Smoke backend/QML normale/rosso
+  ripetuti in isolamento; widget iniziali controllati anche su Windows nativo.
+  Il gate fresco con sicurezza e copertura segue l'ultimo step editoriale.
+
 ## NightScope 1.46.13 - 2026-09-06
 
 - Release pubblicata dall'utente su GitHub, solo Windows x64:

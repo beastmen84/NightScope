@@ -1,15 +1,126 @@
-"""Protect Red Night Vision persistence and Qt property notifications."""
+"""Protect Red Night Vision persistence, Qt notifications, and pre-QML rendering."""
 
 from __future__ import annotations
 
 import json
+import os
 import re
+import subprocess
+import sys
 from pathlib import Path
+from unittest.mock import patch
 
+from astro_viewer import main as main_module
 from astro_viewer.app.services.appearance_manager import AppearanceManager
 
 
 UI_DIR = Path(__file__).resolve().parents[1] / "app" / "ui"
+
+
+def test_startup_red_stylesheet_covers_every_color() -> None:
+    normal = main_module._startup_stylesheet(red_night_vision=False)
+    red = main_module._startup_stylesheet(red_night_vision=True)
+    normal_colors = re.findall(r"#[0-9a-f]{6}", normal)
+    red_colors = re.findall(r"#[0-9a-f]{6}", red)
+    assert len(normal_colors) == len(red_colors) > 15
+    for color in red_colors:
+        r, g, b = (int(color[offset:offset + 2], 16) for offset in (1, 3, 5))
+        assert r > 2 * max(g, b)
+    assert "#6fd6e7" in normal
+    assert set(normal_colors).isdisjoint(red_colors)
+
+
+def _assert_startup_widgets(directory: str) -> None:
+    """Exercise real QWidget painting in a fresh process, independent of QCoreApplication tests."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QFont, QFontDatabase
+    from PySide6.QtWidgets import QApplication, QLabel
+
+    from astro_viewer.app.runtime_paths import RuntimePaths
+
+    app = QApplication([])
+    if sys.platform == "win32":
+        QFontDatabase.addApplicationFont("C:/Windows/Fonts/segoeui.ttf")
+        app.setFont(QFont("Segoe UI"))
+    paths = RuntimePaths.colocated(Path(directory))
+    paths.database_path.touch()
+
+    def check_red(widget, name: str) -> None:
+        app.processEvents()
+        frame = widget.grab().toImage()
+        assert frame.save(str(Path(directory) / f"{name}.png"))
+        visible = 0
+        for y in range(frame.height()):
+            for x in range(frame.width()):
+                color = frame.pixelColor(x, y)
+                if color.alpha() > 0 and max(color.red(), color.green(), color.blue()) > 10:
+                    visible += 1
+                    assert color.red() > 1.5 * max(color.green(), color.blue()), (
+                        name, x, y, color.name(),
+                    )
+        assert visible > 1000
+
+    with patch.object(main_module, "RUNTIME_PATHS", paths), patch.object(
+        main_module, "_legacy_runtime_paths", return_value=[],
+    ):
+        for language in ("it", "en", "es"):
+            paths.preferences_path.write_text(json.dumps({
+                "red_night_vision_enabled": True, "language": language,
+            }), encoding="utf-8")
+            translator = main_module._build_translation_manager()
+            translator.install()
+            appearance = main_module._build_appearance_manager()
+            assert appearance.redNightVisionEnabled is True
+            context = main_module._startup_context()
+            assert context.existing_database and not context.first_use
+            splash = main_module._create_startup_splash(
+                app, context, red_night_vision=appearance.redNightVisionEnabled,
+            )
+            try:
+                assert splash.dialog.findChild(QLabel, "startupIcon").isHidden()
+                check_red(splash.dialog, f"{language}-startup")
+                for index, message in enumerate((
+                    "Importazione cataloghi...", main_module._STARTUP_SERVICES_MESSAGE,
+                    main_module._STARTUP_INTERFACE_MESSAGE, main_module._STARTUP_READY_MESSAGE,
+                    "Impossibile inizializzare il database locale.",
+                )):
+                    main_module._update_startup_splash(app, splash, message)
+                    check_red(splash.dialog, f"{language}-progress-{index}")
+            finally:
+                splash.dialog.close()
+            error = main_module._create_startup_error_dialog(
+                "NightScope: startup error", red_night_vision=True,
+            )
+            try:
+                assert error.windowFlags() & Qt.FramelessWindowHint
+                error.show()
+                check_red(error, f"{language}-error")
+            finally:
+                error.close()
+            app.removeTranslator(translator._translator)
+
+        normal = main_module._create_startup_splash(
+            app, main_module._StartupContext(first_use=True, existing_database=False),
+        )
+        try:
+            assert normal.status.text() == "Creating the local database..."
+            icon = normal.dialog.findChild(QLabel, "startupIcon")
+            assert not icon.isHidden() and not icon.pixmap().isNull()
+        finally:
+            normal.dialog.close()
+
+
+def test_persisted_red_mode_covers_startup_progress_and_failure(tmp_path: Path) -> None:
+    result = subprocess.run(
+        [sys.executable, "-c", (
+            "import sys; from astro_viewer.tests.test_appearance_manager "
+            "import _assert_startup_widgets; _assert_startup_widgets(sys.argv[1])"
+        ), str(tmp_path)],
+        cwd=UI_DIR.parents[2],
+        env={**os.environ, "QT_QPA_PLATFORM": "offscreen"},
+        capture_output=True, text=True, encoding="utf-8", timeout=60, check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_appearance_defaults_to_normal_mode(tmp_path: Path) -> None:

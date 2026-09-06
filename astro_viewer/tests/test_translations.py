@@ -325,6 +325,31 @@ def test_editorial_machine_translation_requires_explicit_draft_opt_in() -> None:
     )
 
 
+@pytest.mark.parametrize("language", ("en", "es"))
+@pytest.mark.parametrize("refresh", (False, True))
+def test_translation_maintenance_preserves_real_object_overlays(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    language: str,
+    refresh: bool,
+) -> None:
+    """Real IDs exercise historical overrides that synthetic IDs cannot detect."""
+    pack_path = tmp_path / f"{language}.json"
+    shutil.copyfile(TRANSLATIONS_DIR / pack_path.name, pack_path)
+    original = json.loads(pack_path.read_text(encoding="utf-8"))["content"]["objects"]
+    monkeypatch.setattr(content_translation_tool, "TRANSLATIONS_DIR", tmp_path)
+    monkeypatch.setattr(
+        content_translation_tool,
+        "translate_values",
+        lambda values, *_args, **_kwargs: dict.fromkeys(values, "Technical draft"),
+    )
+
+    content_translation_tool.update_pack(language, refresh=refresh)
+
+    updated = json.loads(pack_path.read_text(encoding="utf-8"))["content"]["objects"]
+    assert updated == original
+
+
 def test_refresh_preserves_reviewed_editorial_and_does_not_fill_missing_drafts(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

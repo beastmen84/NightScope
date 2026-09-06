@@ -47,10 +47,16 @@ class ObservingPresentationService:
             or useful_datetime
         )
         is_observing_time = night_window.contains(now)
+        interval = target_observing_interval(item, night_window)
         observable_now = item.observable_now
         if observable_now is None:
             observable_now = bool(
                 is_observing_time
+                and item.night_eligible is not False
+                and (
+                    interval is None
+                    or as_utc(interval[0]) <= as_utc(now) < as_utc(interval[1])
+                )
                 and current_altitude is not None
                 and current_altitude >= altitude_threshold
             )
@@ -107,7 +113,14 @@ class ObservingPresentationService:
                     window=window,
                 ),
             )
-        interval = target_observing_interval(item, night_window)
+        # A target's useful interval can end before sunrise (astronomical
+        # twilight for deep sky). Altitude alone cannot explain that exclusion.
+        if interval and as_utc(now) >= as_utc(interval[1]):
+            return (
+                "unavailable",
+                tr("Finestra conclusa"),
+                tr("La finestra utile di questa notte era {window}.", window=window),
+            )
         if (
             interval
             and as_utc(now) < as_utc(interval[0])
@@ -119,7 +132,13 @@ class ObservingPresentationService:
                 tr("Finestra utile"),
                 tr("Finestra osservativa: {window}.", window=window),
             )
-        if useful_datetime:
+        if useful_datetime and as_utc(useful_datetime) > as_utc(now):
+            if current_altitude is not None and current_altitude >= altitude_threshold:
+                return (
+                    "later",
+                    tr("Finestra utile"),
+                    tr("Finestra osservativa: {window}.", window=window),
+                )
             if home_time_period_code(useful_datetime, night_window) == "before_dawn":
                 return (
                     "later",
@@ -130,17 +149,16 @@ class ObservingPresentationService:
                         window=window,
                     ),
                 )
-            if as_utc(useful_datetime) > as_utc(now):
-                return (
-                    "later",
-                    tr("Meglio più tardi"),
-                    tr(
-                        "Attualmente sotto la soglia utile. Finestra più "
-                        "tardi: {window}.",
-                        window=window,
-                    ),
-                )
-        if current_altitude is not None and current_altitude > 0:
+            return (
+                "later",
+                tr("Meglio più tardi"),
+                tr(
+                    "Attualmente sotto la soglia utile. Finestra più "
+                    "tardi: {window}.",
+                    window=window,
+                ),
+            )
+        if current_altitude is not None and 0 < current_altitude < altitude_threshold:
             return (
                 "limited",
                 tr("Troppo basso ora"),

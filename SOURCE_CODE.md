@@ -1,13 +1,19 @@
 # Source Code Availability
 
-This file describes the NightScope 1.46.13 portable Windows release.
+This file accompanies the NightScope 1.46.14 development source. Its intended
+release tag is `v1.46.14`, not yet created or published. The planned source URL
+`https://github.com/beastmen84/NightScope/tree/v1.46.14` must be verified before
+distributing a corresponding binary. The current branch contains the source
+and build scripts; no new portable package is claimed here.
+
+The public portable Windows release remains NightScope 1.46.13.
 The published Linux package remains version 1.43.0 and carries its own
 version-specific source and native-component notices.
 
 ## NightScope
 
 NightScope is distributed under the Mozilla Public License 2.0. The complete
-corresponding source for this release is identified by the `v1.46.13` tag:
+corresponding source for the public Windows release is identified by `v1.46.13`:
 
 - Repository: `https://github.com/beastmen84/NightScope`
 - Release source: `https://github.com/beastmen84/NightScope/tree/v1.46.13`

@@ -332,26 +332,9 @@ def _startup_copy(context: _StartupContext) -> _StartupCopy:
     )
 
 
-def _create_startup_splash(app, context: _StartupContext):
-    from PySide6.QtCore import Qt
-    from PySide6.QtGui import QIcon, QPixmap
-    from PySide6.QtWidgets import (
-        QDialog,
-        QHBoxLayout,
-        QLabel,
-        QProgressBar,
-        QVBoxLayout,
-        QWidget,
-    )
-
-    copy = _startup_copy(context)
-    dialog = QDialog()
-    dialog.setWindowTitle(APP_NAME)
-    dialog.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
-    dialog.setAttribute(Qt.WA_TranslucentBackground, True)
-    dialog.setModal(False)
-    dialog.setFixedWidth(520)
-    dialog.setStyleSheet(
+def _startup_stylesheet(*, red_night_vision: bool) -> str:
+    """Theme the pre-QML widgets, including every progress state, before painting."""
+    stylesheet = (
         """
         QDialog {
             background-color: transparent;
@@ -434,6 +417,53 @@ def _create_startup_splash(app, context: _StartupContext):
         }
         """
     )
+    if red_night_vision:
+        # Match AppTheme's tonal roles without loading QML. QWidget's native
+        # Windows glyph rasterizer may ignore NoSubpixelAntialias, so keep G/B
+        # at zero here: differently covered subpixels cannot introduce colors.
+        colors = {
+            "#14181f": "#0b0000", "#343c49": "#350000",
+            "#f4f7fb": "#d90000", "#cbd4df": "#a30000",
+            "#8f9baa": "#700000", "#1a2029": "#130000",
+            "#2c3440": "#350000", "#7f8a98": "#700000",
+            "#aeb9c6": "#a30000", "#222934": "#100000",
+            "#394351": "#350000", "#10171d": "#050000",
+            "#6fd6e7": "#d90000", "#8be0ed": "#d90000",
+            "#b9eaf1": "#a30000", "#253b43": "#220000",
+            "#40727b": "#520000", "#d7dee8": "#d90000",
+            "#252c36": "#130000",
+        }
+        for normal, red in colors.items():
+            stylesheet = stylesheet.replace(normal, red)
+    return stylesheet
+
+
+def _create_startup_splash(
+    app, context: _StartupContext, *, red_night_vision: bool = False,
+):
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QFont, QIcon, QPixmap
+    from PySide6.QtWidgets import (
+        QDialog,
+        QHBoxLayout,
+        QLabel,
+        QProgressBar,
+        QVBoxLayout,
+        QWidget,
+    )
+
+    copy = _startup_copy(context)
+    dialog = QDialog()
+    dialog.setWindowTitle(APP_NAME)
+    dialog.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+    dialog.setAttribute(Qt.WA_TranslucentBackground, True)
+    dialog.setModal(False)
+    dialog.setFixedWidth(520)
+    if red_night_vision:
+        font = dialog.font()
+        font.setStyleStrategy(QFont.NoSubpixelAntialias)
+        dialog.setFont(font)
+    dialog.setStyleSheet(_startup_stylesheet(red_night_vision=red_night_vision))
 
     window_layout = QVBoxLayout(dialog)
     window_layout.setContentsMargins(0, 0, 0, 0)
@@ -451,17 +481,22 @@ def _create_startup_splash(app, context: _StartupContext):
     icon_label = QLabel()
     icon_label.setFixedSize(72, 72)
     icon_label.setAlignment(Qt.AlignCenter)
-    app_icon = QIcon(str(BASE_DIR / "resources" / "icons" / "nightscope.ico"))
-    icon = app_icon.pixmap(64, 64) if not app_icon.isNull() else QPixmap()
-    if icon.isNull():
-        icon = QPixmap(str(BASE_DIR / "resources" / "icons" / "telescope.svg")).scaled(
-            64,
-            64,
-            Qt.KeepAspectRatio,
-            Qt.SmoothTransformation,
-        )
-    if not icon.isNull():
-        icon_label.setPixmap(icon)
+    icon_label.setObjectName("startupIcon")
+    if red_night_vision:
+        # As in the main UI, do not load or briefly display colored imagery.
+        icon_label.hide()
+    else:
+        app_icon = QIcon(str(BASE_DIR / "resources" / "icons" / "nightscope.ico"))
+        icon = app_icon.pixmap(64, 64) if not app_icon.isNull() else QPixmap()
+        if icon.isNull():
+            icon = QPixmap(str(BASE_DIR / "resources" / "icons" / "telescope.svg")).scaled(
+                64,
+                64,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation,
+            )
+        if not icon.isNull():
+            icon_label.setPixmap(icon)
     header.addWidget(icon_label)
 
     title_layout = QVBoxLayout()
@@ -528,6 +563,38 @@ def _create_startup_splash(app, context: _StartupContext):
         step_counter=step_counter,
         context=context,
     )
+
+
+def _create_startup_error_dialog(message: str, *, red_night_vision: bool):
+    """Keep initialization failures readable without flashing a native white dialog."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QFont
+    from PySide6.QtWidgets import QMessageBox
+
+    dialog = QMessageBox()
+    dialog.setWindowTitle(APP_NAME)
+    dialog.setText(message)
+    dialog.setStandardButtons(QMessageBox.Ok)
+    if red_night_vision:
+        # Native Windows subpixel glyph edges can otherwise introduce blue
+        # pixels even with an entirely red stylesheet.
+        font = dialog.font()
+        font.setStyleStrategy(QFont.NoSubpixelAntialias)
+        dialog.setFont(font)
+        dialog.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+        dialog.setIcon(QMessageBox.NoIcon)
+        dialog.setStyleSheet("""
+            QWidget { background-color: #0b0000; color: #d90000; }
+            QPushButton {
+                background-color: #130000; border: 1px solid #350000;
+                padding: 6px 18px;
+            }
+            QPushButton:hover, QPushButton:focus { border-color: #d90000; }
+            QPushButton:pressed { background-color: #220000; }
+        """)
+    else:
+        dialog.setIcon(QMessageBox.Critical)
+    return dialog
 
 
 def _startup_step_counter_text(
@@ -765,7 +832,7 @@ def run_app() -> int:
     try:
         from PySide6.QtCore import QTimer, QUrl
         from PySide6.QtQml import QQmlApplicationEngine
-        from PySide6.QtWidgets import QApplication, QMessageBox
+        from PySide6.QtWidgets import QApplication
     except ModuleNotFoundError as exc:
         missing = exc.name or "PySide6"
         print(
@@ -779,8 +846,11 @@ def run_app() -> int:
     translation_manager = _build_translation_manager()
     translation_manager.install()
     startup_context = _startup_context()
-    splash = _create_startup_splash(app, startup_context)
     appearance_manager = _build_appearance_manager()
+    splash = _create_startup_splash(
+        app, startup_context,
+        red_night_vision=appearance_manager.redNightVisionEnabled,
+    )
     update_manager = _build_update_manager()
 
     try:
@@ -798,16 +868,16 @@ def run_app() -> int:
         error_title = tr("Impossibile inizializzare il database locale.")
         _update_startup_splash(app, splash, error_title)
         splash.dialog.close()
-        QMessageBox.critical(
-            None,
-            APP_NAME,
+        error_dialog = _create_startup_error_dialog(
             render_text(
                 tr(
                     "Impossibile inizializzare il database locale.\n\n"
                     "Verifica i permessi della cartella dell'applicazione e riavvia NightScope."
                 )
             ),
+            red_night_vision=appearance_manager.redNightVisionEnabled,
         )
+        error_dialog.exec()
         return 1
     logging.getLogger(__name__).info(
         "Startup database and services ready after %.3f s.",
