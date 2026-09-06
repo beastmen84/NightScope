@@ -1,0 +1,1981 @@
+{
+  "schema_version": 1,
+  "source_version": "1.46.16",
+  "batch_kind": "baseline_remediation",
+  "status": "accepted",
+  "selection_basis": "Qualify existing seasons for 54 baseline open clusters and three other stellar-field targets.",
+  "created_on": "2026-09-06",
+  "reviewed_on": "2026-09-06",
+  "review_scope": "Hemisphere qualification only, not a new per-object optimal-period calculation. Preserve all existing conditions and unrelated fields.",
+  "objects": [
+    {
+      "object_id": "messier-M6",
+      "designations": [
+        "M6",
+        "NGC 6405"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M7",
+      "designations": [
+        "M7",
+        "NGC 6475"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M11",
+      "designations": [
+        "M11",
+        "NGC 6705"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M18",
+      "designations": [
+        "M18",
+        "NGC 6613"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M21",
+      "designations": [
+        "M21",
+        "NGC 6531"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M23",
+      "designations": [
+        "M23",
+        "NGC 6494"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M24",
+      "designations": [
+        "M24"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M25",
+      "designations": [
+        "M25"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M26",
+      "designations": [
+        "M26",
+        "NGC 6694"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M29",
+      "designations": [
+        "M29",
+        "NGC 6913"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M34",
+      "designations": [
+        "M34",
+        "NGC 1039"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M35",
+      "designations": [
+        "M35",
+        "NGC 2168"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M36",
+      "designations": [
+        "M36",
+        "NGC 1960"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M37",
+      "designations": [
+        "M37",
+        "NGC 2099"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M38",
+      "designations": [
+        "M38",
+        "NGC 1912"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M39",
+      "designations": [
+        "M39",
+        "NGC 7092"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M40",
+      "designations": [
+        "M40"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M41",
+      "designations": [
+        "M41",
+        "NGC 2287"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M44",
+      "designations": [
+        "M44",
+        "NGC 2632"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M45",
+      "designations": [
+        "M45"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M46",
+      "designations": [
+        "M46",
+        "NGC 2437"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M47",
+      "designations": [
+        "M47",
+        "NGC 2422",
+        "NGC 2478"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M48",
+      "designations": [
+        "M48",
+        "NGC 2548"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M50",
+      "designations": [
+        "M50",
+        "NGC 2323"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M52",
+      "designations": [
+        "M52",
+        "NGC 7654"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M67",
+      "designations": [
+        "M67",
+        "NGC 2682"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M73",
+      "designations": [
+        "M73",
+        "NGC 6994"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M93",
+      "designations": [
+        "M93",
+        "NGC 2447"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "messier-M103",
+      "designations": [
+        "M103",
+        "NGC 581"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C1",
+      "designations": [
+        "C1",
+        "NGC 188"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C8",
+      "designations": [
+        "C8",
+        "NGC 559"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C10",
+      "designations": [
+        "C10",
+        "NGC 663"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C13",
+      "designations": [
+        "C13",
+        "NGC 457"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C14",
+      "designations": [
+        "C14",
+        "NGC 869",
+        "NGC 884"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C16",
+      "designations": [
+        "C16",
+        "NGC 7243"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C28",
+      "designations": [
+        "C28",
+        "NGC 752"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C37",
+      "designations": [
+        "C37",
+        "NGC 6882",
+        "NGC 6885"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C41",
+      "designations": [
+        "C41"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C50",
+      "designations": [
+        "C50",
+        "NGC 2244"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C54",
+      "designations": [
+        "C54",
+        "NGC 2506"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C58",
+      "designations": [
+        "C58",
+        "NGC 2360"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C64",
+      "designations": [
+        "C64",
+        "NGC 2362"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C71",
+      "designations": [
+        "C71",
+        "NGC 2477"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C75",
+      "designations": [
+        "C75",
+        "NGC 6124"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C76",
+      "designations": [
+        "C76",
+        "NGC 6231"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C82",
+      "designations": [
+        "C82",
+        "NGC 6193"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C85",
+      "designations": [
+        "C85"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C88",
+      "designations": [
+        "C88",
+        "NGC 5823"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C89",
+      "designations": [
+        "C89",
+        "NGC 6087"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C91",
+      "designations": [
+        "C91",
+        "NGC 3532"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C94",
+      "designations": [
+        "C94",
+        "NGC 4755"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C95",
+      "designations": [
+        "C95",
+        "NGC 6025"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C96",
+      "designations": [
+        "C96",
+        "NGC 2516"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C97",
+      "designations": [
+        "C97",
+        "NGC 3766"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C98",
+      "designations": [
+        "C98",
+        "NGC 4609"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C100",
+      "designations": [
+        "C100"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    },
+    {
+      "object_id": "caldwell-C102",
+      "designations": [
+        "C102"
+      ],
+      "fields": [
+        "best_seen"
+      ],
+      "sources": [
+        {
+          "label": "NightScope 1.46.13 existing period (reference-frame clarification only)",
+          "url": "https://github.com/beastmen84/NightScope/blob/b435b7b/astro_viewer/data/object_descriptions_seed.csv",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        },
+        {
+          "label": "NASA Space Place - opposite seasons in the two hemispheres",
+          "url": "https://spaceplace.nasa.gov/seasons/en/",
+          "accessed_on": "2026-09-06",
+          "supports": [
+            "best_seen"
+          ]
+        }
+      ],
+      "reviews": {
+        "facts": "accepted",
+        "it": "accepted",
+        "en": "accepted",
+        "es": "accepted"
+      }
+    }
+  ],
+  "visual_review": {
+    "samples": [
+      {
+        "object_id": "messier-M45",
+        "reason": "Representative catalogue identity, hemisphere, field length or morphology; inspect the best-seen card in IT/EN/ES.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "messier-M73",
+        "reason": "Representative catalogue identity, hemisphere, field length or morphology; inspect the best-seen card in IT/EN/ES.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "messier-M40",
+        "reason": "Representative catalogue identity, hemisphere, field length or morphology; inspect the best-seen card in IT/EN/ES.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "caldwell-C14",
+        "reason": "Representative catalogue identity, hemisphere, field length or morphology; inspect the best-seen card in IT/EN/ES.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      },
+      {
+        "object_id": "caldwell-C94",
+        "reason": "Representative catalogue identity, hemisphere, field length or morphology; inspect the best-seen card in IT/EN/ES.",
+        "normal": "accepted",
+        "red_night_vision": "accepted"
+      }
+    ]
+  },
+  "similarity_waivers": [],
+  "deferred": []
+}

@@ -41,6 +41,15 @@ contact sheets (30 real QML scenes), including the complete best-seen line.
 Coverage remains 323 complete / 95 NGC-only / 7,271 pending; the ledger has
 10 accepted batches and 203 distinct baseline IDs with field-scoped remediation.
 
+## Source 1.46.16 — baseline open clusters and stellar fields
+
+R4, second bounded step: 57 existing `best_seen` records, same field-only and
+three-language scope. The 54 open clusters plus M24, M40 and M73 retain their
+individual identities and all other prose. Both evidence URLs pass. M45, M73,
+M40, C14 and C94 pass six contact sheets / 30 QML scenes with complete seasonal
+labels in both themes. Coverage is unchanged; 11 accepted batches now cover
+209 distinct remediated baseline IDs.
+
 ## Remaining editorial steps
 
 R4 explicitly qualifies existing seasonal guidance without changing catalogue

@@ -13,6 +13,10 @@ both live source URLs. All six contact sheets / 30 QML scenes were inspected
 in IT/EN/ES and normal/red modes. The final fresh complete source gate follows
 the last bounded correction, not each intermediate commit.
 
+Source 1.46.16: the same 102 targeted tests pass in 21.45 s; the 57-object
+manifest and both source URLs pass. All 30 QML scenes / six contact sheets
+were inspected. No additional runtime change was made in this step.
+
 ## Review Corrections - 1.46.14 Source
 
 The first correction step adds 26 cases: real EN/ES object-overlay preservation

@@ -99,13 +99,13 @@
       "messier-M6": {
         "short_description": "M6 (Cúmulo de la Mariposa) es un cúmulo abierto en Escorpio. El sobrenombre de Cúmulo de la Mariposa no es casual: las estrellas más brillantes dibujan una figura abierta y luminosa, muy agradable a bajo aumento.",
         "observing_notes": "Los prismáticos o un telescopio a bajo aumento enmarcan mejor las dos alas de la Mariposa; busque el tono naranja de BM Scorpii entre las estrellas más azuladas y observe cerca de la culminación, con el horizonte sur despejado.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "La silueta de M6 se asemeja a una mariposa, pero su contraste de color más notable es BM Scorpii: una gigante naranja que destaca entre las estrellas azules y más jóvenes del cúmulo."
       },
       "messier-M7": {
         "short_description": "M7 (Cúmulo de Ptolomeo) es un cúmulo abierto de Escorpio, conocido desde la Antigüedad. Llena el campo de estrellas; al culminar bajo sobre el horizonte, solo se muestra en todo su esplendor cuando el horizonte sur está despejado y el cielo es transparente.",
         "observing_notes": "Ya se distingue como una mancha estelar a simple vista; use prismáticos o un campo telescópico de al menos 2° para abarcar el cúmulo y el rico fondo de la Vía Láctea. Desde latitudes boreales, obsérvelo en la culminación con el horizonte sur totalmente libre.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M7 ya fue descrito por Ptolomeo en el siglo II como una nebulosidad cerca del aguijón de Escorpio. Es el objeto Messier más austral y uno de los pocos con una observación documentada desde la Antigüedad."
       },
       "messier-M8": {
@@ -129,7 +129,7 @@
       "messier-M11": {
         "short_description": "M11, el Cúmulo del Pato Salvaje, es uno de los cúmulos abiertos más ricos y compactos del catálogo de Messier. Con poco aumento casi puede parecer una nube granulada; al subir el aumento se transforma en una multitud de estrellas apiñadas alrededor de un componente más brillante. Su densidad lo hace parecer muy diferente de los cúmulos abiertos más dispersos.",
         "observing_notes": "Utilice primero un campo medio para capturar la forma compacta y luego suba el aumento para resolver la textura estelar.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "El nombre Cúmulo del Pato Salvaje proviene de una disposición en forma de V de las estrellas más brillantes, descrita en el siglo XIX. Detrás de esa forma, M11 es uno de los cúmulos abiertos más ricos y compactos que se conocen."
       },
       "messier-M12": {
@@ -171,7 +171,7 @@
       "messier-M18": {
         "short_description": "M18 (Cúmulo del Cisne Negro) es un cúmulo abierto de Sagitario. Es pequeño y discreto, y suele observarse al pasar de M17 a M24; su valor reside en el riquísimo contexto estelar de Sagitario.",
         "observing_notes": "Inclúyalo en un recorrido a bajo aumento entre M17 y la nube estelar M24; después use un aumento medio para distinguir el pequeño grupo del fondo de Sagitario. Su estructura es dispersa: no espere la riqueza de sus vecinos más famosos.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M18 es un cúmulo muy joven, nacido hace unos 30 millones de años. Sus pocas docenas de estrellas muestran la rapidez con la que un cúmulo abierto puede dispersarse bajo la acción de la galaxia y los encuentros gravitacionales."
       },
       "messier-M19": {
@@ -189,7 +189,7 @@
       "messier-M21": {
         "short_description": "M21 (Cúmulo de la Cruz de Webb) es un cúmulo abierto de Sagitario y el pequeño compañero estelar de la Nebulosa Trífida. Aunque es menos famoso, aporta variedad al campo y completa el recorrido por la región de M20.",
         "observing_notes": "Con muy poco aumento puede encuadrarlo junto a la Nebulosa Trífida; centre luego M21 sin filtro y suba moderadamente el aumento para seguir la Cruz de Webb. Un filtro nebular puede ayudar con M20, pero solo atenúa las estrellas del cúmulo.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "Las estrellas de M21 tienen solo unos 4,6 millones de años: a escala astronómica, el cúmulo está casi recién nacido. Aún no contiene gigantes rojas, porque ninguna de sus estrellas ha tenido tiempo de alcanzar esa etapa."
       },
       "messier-M22": {
@@ -201,25 +201,25 @@
       "messier-M23": {
         "short_description": "M23 es un cúmulo abierto grande y rico en Sagitario, inmerso en la Vía Láctea estival. Se aprecia mejor dejando un margen de cielo a su alrededor, sin forzar demasiado el aumento.",
         "observing_notes": "Use un campo de al menos 1° para separar el borde de M23 de la Vía Láctea y seguir sus cadenas sinuosas. Un aumento medio revela miembros más finos, pero evite filtros y aumentos que fragmenten la figura general.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M23 incluye alrededor de 150 estrellas repartidas en un área más grande que la Luna llena. El polvo delante del cúmulo atenúa y enrojece su luz, modificando los colores que nos llegan."
       },
       "messier-M24": {
         "short_description": "M24 (Pequeña Nube Estelar de Sagitario) es una nube estelar de la Vía Láctea situada en Sagitario. No es un único cúmulo, sino una ventana brillante hacia las regiones internas de la Galaxia. Es ideal para prismáticos y aumentos bajos.",
         "observing_notes": "Prefiera prismáticos o aumentos muy bajos: el valor es la amplitud de la nube de estrellas, no los detalles minuciosos.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M24 no es un verdadero cúmulo: es una ventana relativamente clara al polvo galáctico. A través de esta brecha observamos un tramo profundo del brazo de Sagitario, poblado por miles de estrellas superpuestas."
       },
       "messier-M25": {
         "short_description": "M25 es un cúmulo abierto de Sagitario. Es brillante y disperso, con suficientes estrellas para que su estructura resulte evidente de inmediato; en el campo también destaca una variable cefeida.",
         "observing_notes": "Empiece con poco aumento para seguir toda la figura amplia e irregular; identifique cerca del centro la cefeida U Sagittarii y compárela en visitas posteriores. Los aumentos altos aíslan estrellas, pero hacen perder el dibujo del cúmulo.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M25 alberga U Sagittarii, una variable cefeida cuyo ritmo pulsante revela su verdadero brillo. Estrellas como esta han permitido construir la escala de las distancias cósmicas."
       },
       "messier-M26": {
         "short_description": "M26, NGC 6694, es un cúmulo abierto en Escudo, al sur-suroeste del más llamativo M11. Incluso sus estrellas principales son bastante débiles y el conjunto ocupa aproximadamente la mitad del diámetro de la Luna llena. Con unos 85 millones de años, requiere distinguirse con cuidado del rico campo estelar galáctico.",
         "observing_notes": "Un aumento medio separa el núcleo compacto del rico campo de Escudo. Con cielo oscuro y visión periférica, busque junto al centro la zona pobre en estrellas producida por polvo absorbente; un filtro nebular no mejora el cúmulo.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "El centro de M26 parece extrañamente pobre en estrellas. No está necesariamente vacío: una nube de polvo interestelar entre nosotros y el cúmulo podría ocultar su región central."
       },
       "messier-M27": {
@@ -237,7 +237,7 @@
       "messier-M29": {
         "short_description": "M29 (Cúmulo de la Torre de Refrigeración) es un cúmulo abierto en Cisne. Es pequeño y queda parcialmente oculto por el polvo de la Vía Láctea; no destaca por el número de estrellas, pero se encuentra en una región estival muy agradable de explorar.",
         "observing_notes": "Parta de Gamma Cygni y use un aumento medio: los miembros más brillantes forman la característica Torre de Refrigeración. Mantenga bastante campo alrededor para reconocer el grupo sobre el fondo poblado, pero espere pocas estrellas por la extinción interestelar.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "El polvo de Cisne oscurece M29 de manera tan irregular que su distancia y edad siguen siendo inciertas desde hace mucho tiempo. Sin esa absorción, varias de sus estrellas parecerían muchas veces más brillantes."
       },
       "messier-M30": {
@@ -267,49 +267,49 @@
       "messier-M34": {
         "short_description": "M34 (Cúmulo Espiral) es un cúmulo abierto en Perseo. Es un cúmulo abierto grande y aireado, perfecto para pasar de los prismáticos al telescopio sin perder la sensación del campo estelar.",
         "observing_notes": "En el Cúmulo Espiral, los prismáticos muestran un grupo amplio; con el telescopio, use poco aumento para seguir las cadenas curvas y los numerosos pares que le dan un aspecto aireado. Solo después suba moderadamente para separar los pares más cerrados.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "M34 probablemente fue observado por Giovanni Battista Hodierna antes de 1654, más de un siglo antes de su inclusión en el catálogo de Messier. Es uno de varios casos en los que los primeros descubrimientos fueron redescubiertos de forma independiente."
       },
       "messier-M35": {
         "short_description": "M35 (Cúmulo de la Hebilla) es un cúmulo abierto en Géminis. Es uno de los cúmulos invernales más bonitos: grande, brillante y lleno de estrellas. Al lado, con aperturas más grandes, se puede vislumbrar el más remoto NGC 2158.",
         "observing_notes": "Encuadre primero la amplia extensión de M35 a bajo aumento; en el mismo campo busque NGC 2158, mucho más pequeño, débil y lejano. Un aumento medio hace muy evidente el contraste entre ambos, sobre todo bajo un cielo oscuro.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "En el mismo campo que M35 se encuentra NGC 2158, mucho más lejos y unas diez veces más antigua. La comparación muestra inmediatamente cómo la distancia y la evolución cambian la densidad y el color aparente de dos cúmulos abiertos."
       },
       "messier-M36": {
         "short_description": "M36 (Cúmulo del Molinete) es un cúmulo abierto de Auriga. Es el más compacto de los tres grandes cúmulos de la constelación, brillante y fácil de reconocer. Constituye un buen punto de partida para un recorrido invernal por M36, M37 y M38.",
         "observing_notes": "Con un aumento medio-bajo busque la cruz irregular o el molinete trazado por las estrellas principales. Una subida moderada separa varios pares; vuelva después a un campo amplio para comparar su estructura dispersa con M37 y M38.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "Entre los tres grandes cúmulos abiertos de Auriga, M36 es el más joven. Sus estrellas más brillantes tienen solo unos 25 millones de años y aún no han evolucionado hasta convertirse en numerosas gigantes rojas."
       },
       "messier-M37": {
         "short_description": "M37 (Cúmulo de Sal y Pimienta) es un cúmulo abierto en Auriga. Es el más rico y fino de los cúmulos de Auriga: muchas estrellas diminutas, un centro denso y una sensación más profunda que los vecinos M36 y M38.",
         "observing_notes": "Deje que la vista se adapte a la oscuridad y use un aumento medio para convertir el brillo granulado en una multitud de estrellas finas. Localice la estrella naranja próxima al centro y compárela con la población más pálida que la rodea.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "M37 es el más rico de los tres cúmulos de Messier en Auriga y contiene varias gigantes rojas. Su presencia indica una edad mayor que la de la cercana M36, dominada por estrellas azules jóvenes."
       },
       "messier-M38": {
         "short_description": "M38 (Cúmulo de la Estrella de Mar) es un cúmulo abierto de Auriga. Presenta una estructura grande e irregular, descrita a menudo como una estrella de mar. Está menos concentrado que M37, pero resulta muy agradable en campos amplios.",
         "observing_notes": "A bajo aumento siga los brazos irregulares que recuerdan una estrella de mar. Localice después el pequeño NGC 1907 en la misma zona y use un aumento medio para comparar su concentración con la trama mucho más amplia de M38.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "No muy lejos de M38 aparece NGC 1907, más pequeño y compacto. Las mediciones de sus movimientos indican que ambos cúmulos atraviesan la misma región, pero no se formaron como una pareja ligada gravitacionalmente."
       },
       "messier-M39": {
         "short_description": "M39 (Cúmulo de la Pirámide) es un cúmulo abierto de Cisne. Está muy disperso y resulta más apropiado para prismáticos que para un telescopio de campo estrecho. Su encanto reside en la sencillez: unas pocas estrellas brillantes en una región estival muy rica.",
         "observing_notes": "Es un objetivo para prismáticos o buscador: deje al menos 2° de campo para reconocer el gran triángulo de estrellas brillantes. Con un telescopio de campo estrecho, el grupo se confunde fácilmente con la Vía Láctea circundante.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "M39 está tan cerca y disperso que solo reúne una treintena de miembros confirmados en un campo muy extenso. Su forma triangular destaca mejor con poco aumento y un campo visual amplio."
       },
       "messier-M40": {
         "short_description": "M40 (Winnecke 4) es una doble óptica de la Osa Mayor. Es una curiosidad histórica del catálogo: un aparente par de estrellas, no un objeto de cielo profundo. Vale la pena observarlo para comprender la finalidad práctica del catálogo original de Messier.",
         "observing_notes": "Utilice un aumento bajo o medio y trátelo como una curiosidad histórica en lugar de un objetivo de cielo profundo.",
-        "best_seen": "Primavera y verano",
+      "best_seen": "Primavera y verano boreales (otoño e invierno australes)",
         "curiosity_text": "M40 no es ni una nebulosa ni un cúmulo, sino un par óptico de estrellas libres. Messier lo registró buscando una nebulosa reportada por Hevelius que, en esa posición, probablemente no existía."
       },
       "messier-M41": {
         "short_description": "M41 (Cúmulo de la Pequeña Colmena) es un cúmulo abierto en Can Mayor. Al sur de Sirio, M41 es un grupo brillante y sencillo, que ya agrada con instrumentos pequeños. Las estrellas brillantes lo convierten en uno de los mejores objetivos invernales rápidos.",
         "observing_notes": "Descienda unos 4° al sur de Sirio y use prismáticos o poco aumento: M41 se resuelve enseguida en arcos y filas de estrellas. Con telescopio, busque el miembro naranja rojizo cercano al centro sin estrechar tanto el campo que pierda el cúmulo completo.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "M41 podría ser el punto celeste descrito por Aristóteles alrededor del 325 a.C. De ser correcta la identificación, se trataría de uno de los cúmulos estelares con observaciones documentadas más antiguas."
       },
       "messier-M42": {
@@ -327,31 +327,31 @@
       "messier-M44": {
         "short_description": "M44, el Cúmulo del Pesebre, es un cúmulo abierto grande y cercano, visible a simple vista como una mancha luminosa bajo un cielo oscuro. Con prismáticos se convierte en un amplio campo de estrellas dispersas, con pares y pequeños grupos repartidos por un área mayor que la Luna llena. Un telescopio de focal larga puede mostrar solo una parte.",
         "observing_notes": "Prefiera prismáticos o telescopios de campo muy amplio; mantenga todo el cúmulo dentro del campo visual.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "Galileo apuntó su telescopio a M44 en 1609 y resolvió en unas cuarenta estrellas la nebulosidad visible a simple vista. Fue una demostración temprana de que muchos puntos en el cielo eran poblaciones estelares."
       },
       "messier-M45": {
         "short_description": "M45, las Pléyades, es un cúmulo abierto joven y cercano, dominado por estrellas azules muy brillantes. A simple vista muestra el conocido pequeño grupo; con prismáticos aparecen decenas de componentes y el conjunto adquiere una profundidad notable. La nebulosidad de reflexión se aprecia sobre todo en fotografía; visualmente requiere un cielo muy oscuro y transparente.",
         "observing_notes": "Obsérvelas con prismáticos o con muy bajo aumento; no utilice filtros nebulares y busque nebulosidades débiles solo bajo un cielo muy oscuro y transparente.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "En Japón las Pléyades son Subaru, nombre también adoptado por el fabricante de automóviles y representado en su logo. La nebulosidad azul no es el remanente natal del cúmulo: es polvo por el que pasan las estrellas."
       },
       "messier-M46": {
         "short_description": "M46 es un cúmulo abierto de Popa, también conocido como NGC 2437. La nebulosa planetaria NGC 2438 se proyecta entre sus estrellas, pero está en primer plano y no pertenece al cúmulo. El campo reúne así dos objetos físicamente distintos cuya proximidad aparente no implica un origen común.",
         "observing_notes": "Examine primero sin filtro la finísima población estelar; con un aumento medio, busque NGC 2438 en el borde norte. Un filtro UHC u O III puede destacar la nebulosa planetaria, pero atenúa las estrellas: alterne ambas vistas en vez de tratarlas como un solo objetivo.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "La nebulosa planetaria NGC 2438 parece inmersa en M46, pero es solo una alineación en perspectiva: está mucho más cerca de nosotros. Es un ejemplo particularmente convincente de profundidad oculta en un campo bidimensional."
       },
       "messier-M47": {
         "short_description": "M47, NGC 2422, es un cúmulo abierto relativamente cercano en Popa. Sus componentes más luminosas son sobre todo estrellas calientes de tipo B, intercaladas con gigantes rojas que aportan un claro contraste cromático. Las estrellas visibles con instrumentos pequeños son solo la parte brillante de una población mucho más numerosa.",
         "observing_notes": "Los prismáticos muestran un grupo abierto y brillante; un telescopio pequeño separa limpiamente la doble próxima al centro. Mantenga M46 en el mismo campo cuando sea posible para comparar las pocas estrellas luminosas de M47 con la fina población de su vecino.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "M47 se consideró perdido durante más de un siglo debido a un error de signo en las coordenadas publicadas por Messier. El grupo fue reconocido nuevamente solo cuando se reconstruyó su ruta de observación."
       },
       "messier-M48": {
         "short_description": "M48 es un cúmulo abierto en Hidra. Es grande, luminoso y a menudo pasa desapercibido. A bajos aumentos muestra una estructura abierta y dispersa, ideal para cielos de invierno o primavera.",
         "observing_notes": "Empiece con prismáticos o un ocular gran angular para reconocer el contorno triangular y las largas filas de estrellas. Use un aumento medio solo para explorar la zona central: un campo estrecho hace que M48 parezca un tramo cualquiera de la Vía Láctea.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "M48 también se convirtió en un objeto perdido: una declinación incorrecta lo movió unos cinco grados. La corrección moderna identificó el cúmulo como NGC 2548."
       },
       "messier-M49": {
@@ -363,7 +363,7 @@
       "messier-M50": {
         "short_description": "M50 (Cúmulo con Forma de Corazón) es un cúmulo abierto compacto en Unicornio, descrito a menudo por su silueta en forma de corazón. No es uno de los objetos Messier más famosos, pero ofrece una observación limpia y agradable.",
         "observing_notes": "Con un aumento medio-bajo, busque el contorno de corazón entre las estrellas de Unicornio; un aumento moderado destaca un miembro amarillo anaranjado que contrasta con el grupo. Conserve un borde de cielo para no perder la figura general.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "Una gigante roja muy evidente contrasta con las estrellas azul-blancas de M50. El conjunto recibió el sobrenombre de Cúmulo con Forma de Corazón por la figura que dibujan sus miembros más brillantes."
       },
       "messier-M51": {
@@ -375,7 +375,7 @@
       "messier-M52": {
         "short_description": "M52 (Cúmulo del Escorpión) es un cúmulo abierto en Casiopea. Es un rico cúmulo cerca de Casiopea, hermoso precisamente porque es denso y diminuto. Se requiere cierta atención para separarlo del campo estelar de la Vía Láctea.",
         "observing_notes": "Use un aumento medio para separar el abanico compacto del fondo de Casiopea y localice el miembro más brillante cerca de un extremo. La cercana Nebulosa de la Burbuja exige otra escala y puede beneficiarse de un filtro; observe M52 sin filtro.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "M52 está en la misma línea de visión que la Nebulosa Burbuja, pero los dos objetos no están necesariamente cerca en el espacio. La fuerte extinción de Casiopea hace que incluso la distancia exacta del cúmulo sea incierta."
       },
       "messier-M53": {
@@ -465,7 +465,7 @@
       "messier-M67": {
         "short_description": "M67 (Cobra Real o Cúmulo del Ojo Dorado) es un cúmulo abierto en Cáncer. Es uno de los cúmulos abiertos más antiguos y estudiados, muy diferente de los jóvenes cúmulos azules. A la vista parece rico, maduro y sorprendentemente equilibrado.",
         "observing_notes": "Con poco aumento localice su neblina redondeada; un aumento medio disuelve el brillo en muchas estrellas finas y bastante uniformes. Un cielo transparente importa más que cualquier filtro, mientras una mayor apertura revela mejor la rica región central.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "M67 tiene unos cuatro mil millones de años y una composición similar a la del Sol. Por ello es un laboratorio privilegiado para comparar la evolución del Sol con estrellas nacidas casi en el mismo periodo."
       },
       "messier-M68": {
@@ -501,7 +501,7 @@
       "messier-M73": {
         "short_description": "M73 es un asterismo de cuatro estrellas en Acuario, más curioso que espectacular. Su presencia en el catálogo recuerda el carácter práctico y observacional del trabajo de Messier.",
         "observing_notes": "Es un objeto de contexto: vale más por la historia del catálogo que por la espectacularidad visual.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "Las cuatro estrellas de M73 parecen un pequeño cúmulo, pero las distancias y los movimientos medidos muestran que no forman un sistema físico. Es un asterismo que nace de una alineación aleatoria a lo largo de la línea de visión."
       },
       "messier-M74": {
@@ -621,7 +621,7 @@
       "messier-M93": {
         "short_description": "M93 (Critter Cluster) es un cúmulo abierto y brillante en Popa, con forma triangular o de cuña. Es simple, pero muy agradable con pocos aumentos.",
         "observing_notes": "Con un aumento medio-bajo, las estrellas principales dibujan una cuña o abanico reconocible. Suba solo lo necesario para revelar miembros más débiles entre las filas brillantes y reduzca el aumento si el patrón triangular deja de caber cómodamente en el campo.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "Las estrellas más brillantes de M93 dibujan una figura triangular o similar a una mariposa. El cúmulo tiene varios cientos de millones de años, una edad suficiente para que algunas de sus estrellas más masivas hayan evolucionado hasta convertirse en gigantes rojas."
       },
       "messier-M94": {
@@ -681,7 +681,7 @@
       "messier-M103": {
         "short_description": "M103 es un cúmulo abierto en Casiopea. Es un pequeño cúmulo abierto en Casiopea, fácil de incluir en un escaneo otoñal de la Vía Láctea. No es grande, pero tiene una forma compacta y reconocible.",
         "observing_notes": "Un aumento medio separa el pequeño triángulo del rico fondo de Casiopea. Busque el contraste entre sus dos miembros anaranjados y las estrellas blanco-azuladas; a bajo aumento M103 puede parecer solo un nudo de la Vía Láctea.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "M103 contiene solo unas pocas docenas de miembros confirmados y es uno de los cúmulos abiertos más distantes del catálogo de Messier. Dos gigantes rojas añaden un marcado contraste con las estrellas azules dominantes."
       },
       "messier-M104": {
@@ -729,7 +729,7 @@
       "caldwell-C1": {
         "short_description": "C1 (NGC 188) es un cúmulo abierto de Cefeo con más de seis mil millones de años, una edad inusual para esta clase de objetos. Cerca del polo norte celeste, forma un grupo discreto de estrellas débiles, observable durante buena parte del año desde latitudes boreales.",
         "observing_notes": "Utilice un campo medio bajo cielos oscuros; suba el aumento con moderación para separar del fondo sus numerosas estrellas débiles.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "NGC 188 tiene unos cinco mil millones de años, una edad excepcional para un cúmulo abierto, cuyos miembros suelen dispersarse mucho antes. La posición cercana al polo norte celeste también lo hace observable casi todo el año desde latitudes septentrionales."
       },
       "caldwell-C2": {
@@ -771,7 +771,7 @@
       "caldwell-C8": {
         "short_description": "C8 (NGC 559) es un pequeño cúmulo abierto de Casiopea, en la zona del cielo cercana a Gamma Cassiopeiae. Muchas estrellas del grupo central son débiles, por lo que su concentración destaca menos que la de los cúmulos más brillantes de la constelación.",
         "observing_notes": "Busque primero un pequeño brillo granulado en el poblado campo de Casiopea; después use un aumento medio y al menos 100 mm de apertura para separar los miembros más débiles. Un cielo oscuro ayuda más que un filtro, que también atenuaría las estrellas.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "Un estudio fotométrico de NGC 559 estima una edad de unos 224 millones de años y detecta segregación de masas: las estrellas más masivas se concentran hacia el centro. La distribución actual de estrellas lleva así la huella de las interacciones gravitatorias internas."
       },
       "caldwell-C9": {
@@ -783,7 +783,7 @@
       "caldwell-C10": {
         "short_description": "C10 (NGC 663) es un joven cúmulo abierto de Casiopea, rico en estrellas calientes y masivas. Sus miembros más brillantes son accesibles con prismáticos, pero el telescopio revela una población mucho mayor, repartida por un área de aproximadamente la mitad del diámetro de la Luna llena.",
         "observing_notes": "Empiece con un aumento medio-bajo para distinguir la concentración del rico fondo de Casiopea; después use un aumento medio para resolver el centro en muchas estrellas finas. Mantenga en el campo los miembros brillantes que enmarcan el grupo.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "NGC 663 contiene una cantidad inusualmente grande de estrellas Be, estrellas calientes que giran rápidamente y están rodeadas por discos gaseosos. Sus líneas de emisión nos permiten estudiar cómo la rotación modifica la evolución estelar."
       },
       "caldwell-C11": {
@@ -801,13 +801,13 @@
       "caldwell-C13": {
         "short_description": "C13 (NGC 457) es un cúmulo abierto de Casiopea conocido como el Búho o ET. Dos estrellas brillantes forman sus ojos y filas más débiles dibujan el cuerpo y las alas: una figura reconocible cuya orientación cambia según la configuración del telescopio.",
         "observing_notes": "Identifique a bajo aumento los dos ojos brillantes y suba luego a un aumento medio para seguir las cadenas que forman cuerpo y alas. Antes de decidir qué lado del Búho está arriba, recuerde que la diagonal y el diseño óptico pueden invertir la imagen.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "Las dos estrellas brillantes que forman los ojos del Cúmulo del Búho también le dan la apariencia de un personaje con los brazos abiertos. La brillante Phi Cassiopeiae se proyecta en el mismo campo, pero su pertenencia física sigue siendo debatida."
       },
       "caldwell-C14": {
         "short_description": "C14, el Doble Cúmulo de Perseo, reúne NGC 869 y NGC 884, dos grupos próximos en el cielo con cientos de estrellas jóvenes y calientes. A simple vista se funden en una mancha alargada; con prismáticos se distinguen las dos concentraciones.",
         "observing_notes": "Utilice prismáticos o un telescopio de campo muy amplio para mantener ambos cúmulos en el mismo campo visual.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "Hiparco ya conocía el cúmulo doble hace más de dos mil años. NGC 869 y NGC 884 son dos poblaciones jóvenes cercanas en el espacio; las supergigantes rojas esparcidas entre muchas estrellas azules acentúan el contraste cromático."
       },
       "caldwell-C15": {
@@ -819,7 +819,7 @@
       "caldwell-C16": {
         "short_description": "C16 (NGC 7243) es un cúmulo abierto de Lagarto con una población moderadamente dispersa y una edad estimada de unos 250 millones de años. Cerca de Alfa Lacertae, presenta estrellas de distinto brillo repartidas en un grupo amplio y poco apretado.",
         "observing_notes": "Use poco aumento para delimitar este cúmulo disperso en Lagarto y busque los pequeños grupos que componen su contorno irregular. Un aumento medio separa pares y cadenas cortas, pero un campo estrecho borra la identidad del conjunto.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "NGC 7243 es un cúmulo joven y muy disperso, con estrellas distribuidas en pequeños grupos en lugar de alrededor de un núcleo claro. Esta estructura irregular muestra un sistema que ya está en camino de disolverse en el disco galáctico."
       },
       "caldwell-C17": {
@@ -891,7 +891,7 @@
       "caldwell-C28": {
         "short_description": "C28 (NGC 752) es un cúmulo abierto antiguo, cercano y muy extenso de Andrómeda. Sus estrellas se reparten en pares y arcos poco concentrados, con varios miembros amarillo-anaranjados que delatan una población estelar más evolucionada.",
         "observing_notes": "Es ideal para prismáticos o telescopios de campo amplio: deje al menos 1,5° para incluir las zonas exteriores y reconocer los arcos estelares. Con un aumento medio, examine los pares y los colores cálidos sin sacrificar la estructura general.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "NGC 752 tiene aproximadamente 1.400 millones de años y ya ha perdido muchos de sus miembros originales. Las estrellas restantes están dispersas en un amplio campo: una imagen de una fase avanzada de la lenta disolución de un cúmulo abierto."
       },
       "caldwell-C29": {
@@ -945,7 +945,7 @@
       "caldwell-C37": {
         "short_description": "C37 (NGC 6885) es un cúmulo abierto de Vulpecula proyectado alrededor de la estrella 20 Vulpeculae. Esta domina el campo a simple vista, mientras el grupo de estrellas más débiles que la rodea se reconoce con un instrumento.",
         "observing_notes": "Use 20 Vulpeculae como referencia luminosa y examine con un aumento medio-bajo el grupo disperso que la rodea. Las designaciones NGC 6882 y NGC 6885 se han aplicado de forma desigual: compare posición y campo, no solo la etiqueta del mapa.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "NGC 6885 y la cercana NGC 6882 han generado una larga confusión de límites y nombres. La región contiene grupos de estrellas superpuestas y muestra lo difícil que es definir un cúmulo abierto disperso en el plano de la Vía Láctea."
       },
       "caldwell-C38": {
@@ -969,7 +969,7 @@
       "caldwell-C41": {
         "short_description": "Las Híades dibujan la gran V del rostro de Tauro y son el cúmulo abierto más cercano al sistema solar. Aldebarán parece formar parte de ellas, pero es una estrella en primer plano. Su extensión de varios grados favorece los prismáticos frente a un campo telescópico estrecho.",
         "observing_notes": "Obsérvelo a simple vista o con prismáticos; evite grandes aumentos y utilice Aldebarán como estrella de referencia.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "Las Híades son el cúmulo abierto más cercano a la Tierra, a unos 150 años luz de distancia. Aldebarán parece ser el miembro más brillante, pero está situado mucho más cerca y solo está alineado en primer plano."
       },
       "caldwell-C42": {
@@ -1023,7 +1023,7 @@
       "caldwell-C50": {
         "short_description": "C50 (NGC 2244) es el joven cúmulo abierto que ocupa la cavidad central de la Nebulosa Roseta, en Unicornio. Sus estrellas calientes y brillantes resaltan dentro de la gran envoltura de gas, reuniendo en el mismo campo una población estelar y una nebulosa de emisión.",
         "observing_notes": "Observe primero el cúmulo sin filtro y a bajo aumento, conservando un campo mucho mayor que sus 24′. Inserte después un UHC u O III para buscar la envoltura de la Roseta: la nebulosa gana contraste mientras las estrellas se atenúan.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "NGC 2244 es el cúmulo joven nacido en el interior de la Nebulosa Roseta. Sus estrellas de tipo O tienen unos pocos millones de años, ionizan la nebulosa y están dispersando el material del que se formaron."
       },
       "caldwell-C51": {
@@ -1047,7 +1047,7 @@
       "caldwell-C54": {
         "short_description": "NGC 2506 es un cúmulo abierto de Unicornio de unos dos mil millones de años, con un contorno ligeramente alargado. Sus estrellas son relativamente pobres en elementos pesados; con el tiempo, la dinámica interna ha concentrado las más masivas hacia el centro.",
         "observing_notes": "Bajo un cielo oscuro aparece primero como una pequeña nube granulada; use un aumento medio y visión periférica para revelar la rica trama de estrellas débiles. No se deje engañar por su tamaño modesto: el bajo aumento no separa bien el grupo.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "NGC 2506 es un cúmulo abierto antiguo y pobre en metales ubicado lejos del plano galáctico. Su composición lo hace útil para comparar la evolución química de las regiones interior y exterior de la Vía Láctea."
       },
       "caldwell-C55": {
@@ -1071,7 +1071,7 @@
       "caldwell-C58": {
         "short_description": "C58 (NGC 2360), llamado Cúmulo de Caroline, es un cúmulo abierto evolucionado de Can Mayor. Presenta una población rica y notablemente uniforme, sin la única estrella dominante que caracteriza a muchos cúmulos más jóvenes.",
         "observing_notes": "A bajo aumento localice un brillo redondeado y finamente granulado; un aumento medio lo convierte en una extensión uniforme de estrellas débiles. Compare el centro y el borde en vez de buscar un miembro dominante: la riqueza es el rasgo visual de C58.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "NGC 2360 fue descubierta en 1783 por Caroline Herschel, años antes de su inclusión en el catálogo de su hermano William. Por este motivo también se le conoce como Cúmulo de Caroline."
       },
       "caldwell-C59": {
@@ -1107,7 +1107,7 @@
       "caldwell-C64": {
         "short_description": "C64 (NGC 2362) es un cúmulo abierto muy joven y compacto de Can Mayor. La brillante Tau Canis Majoris domina el centro, rodeada por una concentración de estrellas más débiles que puede dar al cúmulo un aspecto nebuloso a bajo aumento.",
         "observing_notes": "Centre Tau Canis Majoris y aumente gradualmente: las estrellas débiles se abren alrededor del faro central como un pequeño abanico. Un aumento medio o medio-alto reduce el deslumbramiento de la estrella sin dispersar el cúmulo compacto.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "Tau Canis Majoris domina NGC 2362, pero no es una sola estrella: es un sistema múltiple de estrellas masivas. El cúmulo tiene solo unos pocos millones de años y conserva una forma compacta alrededor de este faro central."
       },
       "caldwell-C65": {
@@ -1149,7 +1149,7 @@
       "caldwell-C71": {
         "short_description": "NGC 2477 en Popa es un cúmulo abierto tan rico y redondeado que recuerda a un globular. Sus numerosas estrellas próximas entre sí contrastan con el más disperso NGC 2451, situado en la misma zona del cielo: compararlos muestra cuánto pueden diferir los cúmulos abiertos.",
         "observing_notes": "A bajo aumento puede recordar a un globular por densidad y forma; suba después a un aumento medio-alto para resolver estrellas hacia el centro. Desde latitudes boreales espere a la culminación, porque la extinción a baja altura desdibuja enseguida la textura fina.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "NGC 2477 es tan rico y concentrado que parece un cúmulo globular, pese a ser un cúmulo abierto del disco galáctico. Reúne cientos de estrellas en diferentes etapas de evolución posteriores a la secuencia principal."
       },
       "caldwell-C72": {
@@ -1173,13 +1173,13 @@
       "caldwell-C75": {
         "short_description": "NGC 6124 es un cúmulo abierto extenso de Escorpio, con más de un centenar de estrellas visibles. Su tamaño aparente es comparable al diámetro de la Luna llena: su carácter se aprecia en la distribución del conjunto, no en un único centro dominante.",
         "observing_notes": "Use prismáticos o poco aumento para seguir la figura amplia e irregular; las zonas menos pobladas forman parte de su aspecto afectado por el polvo y no deben perseguirse subiendo el aumento al azar. Un campo amplio y cielo transparente aclaran el borde.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "NGC 6124 es un cúmulo joven afectado por una extinción interestelar desigual. El polvo enrojece a algunos miembros más que a otros y puede hacer que una población nacida en el mismo período parezca desigual."
       },
       "caldwell-C76": {
         "short_description": "C76 (NGC 6231) es un cúmulo abierto joven, brillante y compacto de Escorpio, situado en el corazón de la asociación Sco OB1. Su densa población de estrellas calientes le ha valido el apodo de Joyero Septentrional, por analogía con NGC 4755.",
         "observing_notes": "Ya es visible a simple vista bajo un buen cielo austral; a bajo aumento muestra una concentración blanco-azulada muy apretada. Use un aumento medio para separar pares y pequeños grupos, y observe cerca de la culminación si Escorpio queda bajo desde su ubicación.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "NGC 6231 es el núcleo de la gran asociación Escorpio OB1 y contiene numerosas estrellas masivas múltiples. Probablemente, fue registrado por Hodierna en el siglo XVII, mucho antes de los grandes catálogos del siglo XIX."
       },
       "caldwell-C77": {
@@ -1215,7 +1215,7 @@
       "caldwell-C82": {
         "short_description": "C82 (NGC 6193) es un joven cúmulo abierto de Altar dominado por el sistema estelar masivo HD 150136. Se encuentra junto a la nebulosa de emisión NGC 6188: estrellas azules concentradas y gas esculpido comparten la misma región de formación estelar.",
         "observing_notes": "Examine primero el cúmulo sin filtro y con un aumento medio-bajo, usando HD 150136 como referencia. Desplácese después a la cercana NGC 6188 y pruebe un UHC u O III: puede ayudar al gas, pero no a la población estelar de C82.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "Las estrellas masivas de NGC 6193 iluminan el borde brillante de la cercana NGC 6188. Entre ellas se encuentra HD 150136, uno de los sistemas estelares múltiples más masivos conocidos en la Vía Láctea."
       },
       "caldwell-C83": {
@@ -1233,7 +1233,7 @@
       "caldwell-C85": {
         "short_description": "C85 (IC 2391), el Cúmulo de Ómicron Velorum, es un cúmulo abierto joven y muy extenso de Vela. Sus estrellas luminosas y dispersas ocupan casi un grado alrededor de Ómicron Velorum, formando un grupo austral evidente incluso sin telescopio.",
         "observing_notes": "Localícelo a simple vista y pase a los prismáticos: el campo amplio muestra mejor Ómicron Velorum y toda la disposición estelar. Un telescopio solo resulta útil con muy poco aumento; un campo estrecho hace perder enseguida la forma del cúmulo.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "IC 2391 es un cúmulo cercano de unos 50 millones de años. El límite de agotamiento del litio en sus estrellas menos masivas proporciona un reloj independiente y preciso para estimar su edad."
       },
       "caldwell-C86": {
@@ -1251,13 +1251,13 @@
       "caldwell-C88": {
         "short_description": "NGC 5823 es un cúmulo abierto en Compás, próximo al límite con Lobo y extendido en parte más allá de esa frontera convencional. Está a unos 4.700 años luz y fue identificado por James Dunlop en 1826.",
         "observing_notes": "Búsquelo como una concentración compacta en el poblado cielo austral y use después un aumento medio para separar el núcleo y las prolongaciones irregulares. Si la transparencia es mediocre seguirá granulado: espere a la culminación en vez de recurrir a un filtro.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "El cúmulo NGC 5823 fue catalogado por el astrónomo escocés James Dunlop durante sus observaciones en Australia en 1826. Tiene unos 800 millones de años, tiempo suficiente para que sus estrellas originales más masivas ya hayan desaparecido."
       },
       "caldwell-C89": {
         "short_description": "NGC 6087 es un cúmulo abierto en la constelación de Escuadra dominado por la cefeida S Normae. La estrella cambia de brillo en un periodo de unos diez días, mientras sus compañeras delimitan un grupo reconocible con prismáticos. El mismo campo ofrece así un cúmulo que explorar y una variable que seguir con el tiempo.",
         "observing_notes": "Los prismáticos muestran un pequeño grupo alrededor de la cefeida S Normae; un telescopio a aumento medio separa los miembros más débiles. Vuelva en noches distintas para comparar S Normae con estrellas cercanas, manteniendo iguales el instrumento y el aumento.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "NGC 6087 contiene S Normae, una variable cefeida clásica. El hecho de pertenecer a un cúmulo nos permite comparar su pulsación, distancia y edad con las de otras estrellas nacidas juntas."
       },
       "caldwell-C90": {
@@ -1269,7 +1269,7 @@
       "caldwell-C91": {
         "short_description": "NGC 3532 es un rico cúmulo abierto de Quilla, apodado Pozo de los Deseos por sus estrellas semejantes a monedas dispersas. Tiene unos 300 millones de años: junto a las componentes blancoazuladas destacan gigantes anaranjadas ya evolucionadas. El contraste cromático es uno de sus rasgos más atractivos.",
         "observing_notes": "El Pozo de los Deseos ocupa casi un grado: prefiera prismáticos o un telescopio de campo amplio. Con un aumento moderado, busque miembros amarillos y naranjas entre la multitud blanco-azulada; vuelva luego a la vista amplia para apreciar su extraordinaria riqueza.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "NGC 3532 fue el primer objetivo fotografiado por el Telescopio Espacial Hubble, en mayo de 1990. Aquellas primeras imágenes aparecieron borrosas y ayudaron a revelar el defecto del espejo, corregido después durante una misión de mantenimiento."
       },
       "caldwell-C92": {
@@ -1287,31 +1287,31 @@
       "caldwell-C94": {
         "short_description": "NGC 4755, el Joyero en la Cruz del Sur, es un cúmulo abierto célebre por el contraste entre supergigantes azules y una supergigante roja. A simple vista puede parecer una sola estrella; el telescopio revela tanto los colores como las grandes diferencias de brillo entre sus componentes.",
         "observing_notes": "A simple vista parece una estrella; los prismáticos y telescopios pequeños lo transforman en el Joyero. Use un aumento medio para destacar la supergigante rojo-anaranjada entre estrellas azules, evitando aumentos excesivos que dispersen el pequeño grupo.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "El Cúmulo del Joyero debe su nombre al contraste entre estrellas azules y una supergigante roja central. John Herschel lo comparó con una preciosa joya de colores observada a través del telescopio."
       },
       "caldwell-C95": {
         "short_description": "NGC 6025 es un cúmulo abierto joven de Triángulo Austral, cerca del límite con Escuadra. Presenta poca concentración central y mezcla estrellas de brillos muy distintos. Destaca MQ Trianguli Australis, una estrella azul más brillante que las demás componentes del cúmulo.",
         "observing_notes": "A bajo aumento identifique la pequeña cuña luminosa y pase después a un aumento medio para separar las filas débiles que completan la figura. No use filtros: la transparencia y una buena altura sobre el horizonte son lo que define el borde.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "NGC 6025 es un cúmulo joven y relativamente compacto en el cielo del sur. Las estrellas más brillantes trazan una forma de cuña, mientras que los miembros menos llamativos extienden el grupo mucho más allá del contorno visual."
       },
       "caldwell-C96": {
         "short_description": "NGC 2516 es el Pesebre del Sur, un cúmulo abierto brillante en Quilla. El resplandor visible a simple vista ya se separa en estrellas con prismáticos. Algunas parejas aparentes ofrecen más detalles al telescopio pequeño, pero una doble óptica no debe interpretarse automáticamente como un sistema binario.",
         "observing_notes": "La Colmena Austral luce mejor con prismáticos o muy poco aumento. Siga las filas de estrellas brillantes y busque miembros anaranjados que interrumpen el tono blanco-azulado dominante; demasiado aumento hace perder la estructura de medio grado.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "NGC 2516 se llama Colmena del Sur debido a su similitud con M44. Su rica y cercana población incluye estrellas químicamente peculiares, útiles para estudiar la difusión y los campos magnéticos en estrellas jóvenes."
       },
       "caldwell-C97": {
         "short_description": "NGC 3766 es un cúmulo abierto joven de Centauro, con una edad estimada de unos 20 millones de años. Su aparente estabilidad oculta pequeños cambios: un seguimiento de varios años identificó decenas de estrellas con oscilaciones regulares de brillo demasiado débiles para apreciarlas a simple vista.",
         "observing_notes": "El brillante Cúmulo de la Perla admite bien un aumento medio: siga las cadenas cortas que cruzan el núcleo y busque miembros de tonos más cálidos. A bajo aumento permanece muy compacto; una mayor apertura añade estrellas sin borrar su forma.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "Las observaciones de NGC 3766 revelaron una clase de variables que no encajaban en los modelos tradicionales. Muchas giran rápidamente: la inclinación y la rotación parecen cruciales para explicar las débiles pulsaciones."
       },
       "caldwell-C98": {
         "short_description": "C98 (NGC 4609) es un pequeño cúmulo abierto de la Cruz del Sur proyectado sobre el borde de la Nebulosa Saco de Carbón. El grupo compacto resalta contra un campo inusualmente pobre en estrellas, por lo que el contraste con la nube oscura forma parte esencial de su identidad.",
         "observing_notes": "Use un aumento medio-bajo para mantener juntos el cúmulo y una parte del Saco de Carbón. Compare la concentración estelar de C98 con el fondo oscuro y disperso; ningún filtro mejora este contraste, que depende sobre todo de la transparencia y la adaptación a la oscuridad.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "NGC 4609 se proyecta sobre la Nebulosa Saco de Carbón, mucho más cercana. El polvo oscuro absorbe y enrojece la luz del cúmulo situado detrás, convirtiendo esta alineación en una herramienta para medir la extinción."
       },
       "caldwell-C99": {
@@ -1323,7 +1323,7 @@
       "caldwell-C100": {
         "short_description": "C100 comprende el joven Cúmulo de Lambda Centauri inmerso en la nebulosa de emisión IC 2944, en Centauro. Sus estrellas brillantes ocupan un campo mucho más fácil que el tenue gas circundante, donde pequeñas nubes oscuras señalan material de formación estelar.",
         "observing_notes": "Encuadre primero el cúmulo con prismáticos o un telescopio de campo amplio, sin filtro. Bajo un cielo austral oscuro, pruebe después un UHC para el tenue gas de IC 2944; las pequeñas nubes oscuras exigen más apertura y una transparencia excelente.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "IC 2944 contiene los glóbulos de Thackeray, densas islas de polvo oscuro recortadas contra el brillante hidrógeno. La radiación de las estrellas cercanas las está erosionando y puede impedir que algunas colapsen y formen nuevas estrellas."
       },
       "caldwell-C101": {
@@ -1335,7 +1335,7 @@
       "caldwell-C102": {
         "short_description": "IC 2602, las Pléyades del Sur, es un cúmulo abierto cercano y muy extenso en Quilla, dominado por Theta Carinae. El grupo supera el diámetro aparente de la Luna llena: la estrella brillante facilita identificarlo, pero hace falta un campo amplio para reconocer a las compañeras distribuidas alrededor.",
         "observing_notes": "Las Pléyades del Sur son evidentes a simple vista alrededor de Theta Carinae; use prismáticos o un campo de al menos 1,5° para abarcar toda su disposición. Un telescopio a aumento medio solo sirve para pares y colores, no para la visión general.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "IC 2602 se llama Pléyades del Sur, pero está más cerca y es más joven que las Pléyades del Norte. La brillante Theta Carinae domina una población visible incluso a simple vista en un campo muy amplio."
       },
       "caldwell-C103": {

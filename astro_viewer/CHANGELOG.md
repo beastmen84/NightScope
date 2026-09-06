@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## NightScope 1.46.16 - 2026-09-06
+
+- Chiarito l'emisfero dei periodi osservativi per 57 ammassi aperti e altri campi stellari,
+  con corrispondenza boreale/australe esplicita in italiano, inglese e spagnolo.
+  Conservati il periodo originario e tutte le condizioni specifiche; nessuna
+  modifica a descrizioni, note osservative, difficoltà, identità o raccomandazioni.
+- Manifest separato, fonti della correzione e campioni visuali nelle tre lingue
+  e nei due temi. Nessun nuovo oggetto, dist o pubblicazione; Windows pubblico
+  resta 1.46.13 e Linux 1.43.0. Il gate completo finale segue l'ultimo step.
+
 ## NightScope 1.46.15 - 2026-09-06
 
 - Chiarito l'emisfero dei periodi osservativi per 75 galassie storiche,
