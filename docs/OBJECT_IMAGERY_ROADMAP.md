@@ -2,6 +2,12 @@
 
 Approved: 2026-09-05. Baseline source: `1.46.10`, commit `1892652`.
 
+Current delivery: all steps are complete and included in the public Windows
+`v1.46.13` release published on 2026-09-06. Linux remains at `v1.43.0` and does
+not yet contain this redesign. The step-by-step source evidence below is
+historical; current packaged checks and release metadata are in TESTING and
+NEXT_CHAT_HANDOFF.
+
 ## Product Contract
 
 - Keep the nine NASA/JPL Solar System photographs as body-specific defaults.
@@ -81,7 +87,7 @@ security/coverage gate passes with 1,407 tests and 10 subtests, 86% coverage,
 and all three source smoke checks; see `docs/TESTING.md`. Step 1 is complete
 as source version `1.46.11`, with its own local commit.
 Personal-image import and backup/restore are not implemented in this step.
-The current Windows dist remains the unchanged 1.46.10 bundle from `ae34df5`.
+At the end of step 1, the Windows dist was still 1.46.10 from `ae34df5`.
 
 ## Step 2 Status
 
@@ -95,7 +101,7 @@ The complete security/coverage source gate passes (1,429 tests, 10 subtests,
 86% coverage), plus 2,088 compiled strings per language, 35-file QML lint,
 36 real-QML scenes repeated through the file picker, and six red pixel audits.
 This step has its own local commit. Step 3 still owns backup/restore hardening
-and final integration checks; no dist has been rebuilt.
+and final integration checks; no dist was rebuilt during step 2.
 
 ## Step 3 Status - Complete
 
@@ -116,4 +122,5 @@ The complete security/coverage source gate passes with 1,452 tests, 10 subtests,
 86% coverage and all three source smoke tests. Three-language compilation,
 35-file QML lint, 21 personal Home states, 48 category states and three red
 pixel audits pass. The final step has its own local commit. No image-redesign
-source step remains; no distribution has been rebuilt or publicly released.
+source step remains. A separate Windows rebuild and the user's public
+`v1.46.13` release followed; Linux delivery remains pending.

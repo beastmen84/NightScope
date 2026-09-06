@@ -5,6 +5,21 @@ Updated: 2026-09-06
 ## Current State
 
 - Source version: `1.46.13`; all three image-redesign source steps are complete.
+- Public release update: on 2026-09-06 the user published `v1.46.13` for
+  Windows only. Release metadata, the public tag and the exact asset name
+  were checked through GitHub. README, manual, current release records and
+  EN/IT/ES website sources now distinguish Windows 1.46.13 from Linux 1.43.0.
+  This documentation-only follow-up keeps VERSION and application code intact;
+  it does not rebuild or replace the published ZIP or local dist. Website
+  sources still use the existing GitHub Pages workflow; no hosting migration,
+  push or remote-run wait is performed here.
+- Documentation/site validation: 49 developer-tooling tests pass in 8.71 s,
+  with Ruff clean and the 259 Python / 35 QML / 17 operational-file inventory
+  unchanged. The three new cases cover per-language public links and manual
+  revision parity. No full runtime suite was repeated for this non-runtime
+  change. Logs: `build/release-docs-1.46.13-20260906/`. The source manual and
+  notices are updated; copies already inside the published ZIP/dist are not
+  rewritten. Push the documentation commit to update the GitHub Pages site.
 - Step 1 is `ce83550` (1.46.11); step 2 is `8357308` (1.46.12). Step 3 has its
   separate local 1.46.13 commit: consistent atomic SQLite snapshots including
   WAL, managed-image relocation before its legacy DB, Home corrupt-thumbnail
@@ -73,10 +88,10 @@ Updated: 2026-09-06
   full source gate; logs and disposable QA helpers are under
   `build/object-imagery-1.46.11/`.
 - **Next:** source image work is concluded; the new local 1.46.13 dist includes
-  the Moon polish and all three image-management steps. It is intended for
-  the user's manual testing, not a published release or complete release-matrix
-  approval. Native dialogs and image workflows have their separate evidence
-  in the current Windows validation section below.
+  the Moon polish and all three image-management steps. The user has now
+  published a Windows ZIP for this version; publication is separate from the
+  remaining complete release-matrix approval. Native dialogs and workflows
+  have evidence in the current Windows validation section below.
   `docs/OBJECT_IMAGERY_ROADMAP.md` records all three completed source steps.
   No editorial or astronomical formula changed in the source image steps.
   The subsequent artifact step changes only dist and validation records;
@@ -96,14 +111,21 @@ Updated: 2026-09-06
   heuristic scoring weights remain untouched. Astronomy now uses positive
   absolute useful intervals, UTC elapsed time, conservative target-aware
   twilight, explicit unavailable ephemerides and valid-only provider rows.
-- Current public Windows release: `v1.45.21`, from source commit
-  `d06300b43db0b3df2acbcb7cde2761158704f7b5`; its GitHub release contains the
-  portable Windows x64 ZIP and no Linux package.
+- Current public Windows release: `v1.46.13`, published 2026-09-06 at
+  13:27:16 UTC. The public tag points to
+  `b34ec4a85783fde74bd384565aa6e3f0638e00eb`; its changes after the validated
+  build source `be30cda` are documentation only. The release contains exactly
+  `NightScope-v1.46.13-windows-x64.zip` (222,215,508 bytes), no Linux package
+  or adjacent checksum file. GitHub reports ZIP SHA-256
+  `c8fed8d0ddc7c98a70008033da8732b9c3322847f0a012db417a7360238dacf2`.
+  This is server-reported metadata, not a newly downloaded/re-audited ZIP;
+  do not confuse it with the local executable hash in the validation below.
 - Current public Linux release: `v1.43.0`, from source commit
   `26dfaf49df8f9b8e73e84f406396f406170400b2`; its GitHub release contains the
   Debian 12 x86-64 tarball and adjacent checksum.
-- Source `1.46.13` is not published: no `v1.46.13` tag, release archive/checksum,
-  or GitHub release has been created.
+- Source tag/release `v1.46.13` is public. Source readiness, local bundle
+  validation and the user's subsequent publication remain distinct records;
+  unchecked release/visual/provider gates must not be retroactively approved.
 - The user subsequently requested a new local Windows `dist/NightScope` for
   manual testing. It was rebuilt as `1.46.10` from clean source `ae34df5` on
   2026-09-05. Bundle audit, source-asset hashes, and packaged backend/normal-QML/
@@ -583,7 +605,7 @@ batches; they are not implied by each patch.
 
 ## Release Boundary
 
-The stable public versions are `v1.45.21` for Windows and `v1.43.0` for Linux.
+The stable public versions are `v1.46.13` for Windows and `v1.43.0` for Linux.
 Source readiness is not publication, and validation or publication of one
 platform does not approve the other. Before a future artifact, update the target
 version, run the coverage/security gate, compile translations, complete QML and

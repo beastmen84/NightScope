@@ -4,6 +4,15 @@
 
 ## NightScope 1.46.13 - 2026-09-06
 
+- Release pubblicata dall'utente su GitHub, solo Windows x64:
+  `NightScope-v1.46.13-windows-x64.zip`, tag `v1.46.13` su `b34ec4a`.
+  Linux rimane alla `v1.43.0`. Successivamente allineati README, manuale,
+  documentazione corrente e sito EN/IT/ES, inclusi link e metadati; corretta
+  la revisione del footer inglese del manuale. Nessun bump versione, rebuild
+  o sostituzione del pacchetto pubblicato. Le verifiche e le note di mancata
+  pubblicazione qui sotto descrivono i passaggi precedenti alla release.
+  Verifica finale: 49 test documentazione/tooling superati, Ruff e inventario
+  documentale validi; nessuna modifica al codice runtime o alla grafica del sito.
 - Ultimo step immagini: backup automatico SQLite coerente anche in WAL,
   sostituzione atomica solo dopo verifica, conservazione del backup precedente
   in caso di errore e limite temporale alla copia.

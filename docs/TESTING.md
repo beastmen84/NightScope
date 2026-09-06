@@ -5,6 +5,32 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Public Release Metadata - 1.46.13 Windows
+
+On 2026-09-06 GitHub confirmed the user's published `v1.46.13` release:
+not draft, not prerelease, tag at `b34ec4a`, one Windows x64 ZIP, no Linux
+asset. Linux remains on the public `v1.43.0` package. The tag differs from
+the locally validated `be30cda` only in validation documentation. Asset size
+and GitHub-reported ZIP digest are in the handoff; the archive was not
+downloaded or re-audited for this documentation-only update. The following
+source/build results remain dated evidence, not a new public-artifact gate.
+
+Current README, manual and EN/IT/ES website release references are aligned,
+including download links, accessible button labels, JSON-LD and sitemap dates.
+The English manual footer now matches revision 1.46.13. Website assertions
+compare complete version tokens, so 1.46.13 is not misclassified as 1.46.1;
+they still reject every version outside the two public platform versions.
+Per-language manual regressions protect release links and footer parity.
+No runtime code, VERSION, dist, published asset or existing release is changed.
+The final focused run passes all 49 developer-tooling tests in 8.71 s; Ruff
+and the code-documentation gate also pass (259 Python / 35 QML / 17 operational
+files). Existing navigation, legal, runtime-isolation and publication-boundary
+assertions are retained. The initial run caught stale FAQ versions and the
+checklist's missing canonical labels; documentation was corrected without
+relaxing those checks. Logs: `build/release-docs-1.46.13-20260906/`.
+The manual/notices inside the already published ZIP and local dist remain
+unchanged; this is a repository/website-source update, not an artifact replacement.
+
 ## Local Windows Bundle - 1.46.13
 
 The 2026-09-06 official Windows rebuild uses clean source `be30cda`, Python

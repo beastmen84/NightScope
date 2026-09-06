@@ -17,21 +17,22 @@ active profile to answer a practical question: **what is worth observing
 tonight, from here, with this setup?**
 
 > [!NOTE]
-> NightScope is a released application. Source version 1.46.13 is prepared for
-> the next release and is ahead of the current public Windows 1.45.21 and Linux
-> 1.43.0 portable bundles.
+> NightScope is a released application. The current public portable builds are
+> Windows 1.46.13 and Linux 1.43.0. Source version 1.46.13 matches the Windows
+> release; features added after 1.43.0 are not yet in the published Linux package.
 > Release artifacts remain platform-specific portable builds rather than
 > universal installers.
 
 Current public downloads:
 
-- Windows: [NightScope 1.45.21](https://github.com/beastmen84/NightScope/releases/tag/v1.45.21),
+- Windows: [NightScope 1.46.13](https://github.com/beastmen84/NightScope/releases/tag/v1.46.13),
   published as a portable Windows x64 ZIP.
 - Linux: [NightScope 1.43.0](https://github.com/beastmen84/NightScope/releases/tag/v1.43.0),
   published as a Debian 12 x86-64 tarball with an adjacent SHA-256 file.
 
-The release notes identify the corresponding source commits and artifact
-digests. The `v1.45.21` release does not contain a Linux package.
+The `v1.46.13` release contains only the Windows package and points to source
+tag `v1.46.13`. Linux downloads remain on `v1.43.0`; consult each release for
+its own source, package and checksum information.
 
 ## What It Does
 
@@ -532,7 +533,7 @@ exact corresponding public source commit.
 ## Release And Development Status
 
 NightScope has stable public builds on separate platform versions: Windows
-`1.45.21` and Linux `1.43.0`. The `master` branch can be ahead of either
+`1.46.13` and Linux `1.43.0`. The `master` branch can be ahead of either
 published bundle while the next artifacts are validated. User-facing changes
 and fixes are recorded in
 [`astro_viewer/CHANGELOG.md`](astro_viewer/CHANGELOG.md); this README describes

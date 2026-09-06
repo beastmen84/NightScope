@@ -1,8 +1,9 @@
 # Personal Object Images
 
 Import is implemented in source 1.46.12; source 1.46.13 completes lifecycle
-hardening in [the approved roadmap](OBJECT_IMAGERY_ROADMAP.md). No new bundle
-is implied, and there is no separate backup/export GUI.
+hardening in [the approved roadmap](OBJECT_IMAGERY_ROADMAP.md). The complete
+feature is available in public Windows 1.46.13. The public Linux package
+remains 1.43.0 and does not yet include it. There is no separate backup/export GUI.
 
 ## User Contract
 

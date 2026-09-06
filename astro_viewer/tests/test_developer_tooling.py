@@ -863,6 +863,11 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     )
     assert (PROJECT_ROOT / "website" / "index.html").is_file()
     assert screenshot.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+    assert "- Windows: [NightScope 1.46.13]" in readme
+    assert "- Linux: [NightScope 1.43.0]" in readme
+    assert "releases/tag/v1.46.13" in readme
+    assert "releases/tag/v1.43.0" in readme
+    assert "1.45.21" not in readme
 
     local_targets = {
         target.split("#", 1)[0]
@@ -873,6 +878,33 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     assert not [
         target for target in sorted(local_targets) if not (PROJECT_ROOT / target).exists()
     ]
+
+
+@pytest.mark.parametrize(
+    ("language", "revision_label"),
+    [("it", "revisione"), ("en", "revision"), ("es", "revisión")],
+)
+def test_manual_public_releases_and_revision_are_consistent(
+    language: str, revision_label: str,
+) -> None:
+    source = (PROJECT_ROOT / "manuale.html").read_text(encoding="utf-8")
+    hero = re.search(
+        rf'<div class="hero-inner" data-article="{language}"[^>]*>(.*?)</div>',
+        source,
+        re.DOTALL,
+    )
+    assert hero is not None
+    for version in ("1.46.13", "1.43.0"):
+        assert f"NightScope {version}" in hero.group(1)
+        assert f"releases/tag/v{version}" in hero.group(1)
+    assert "1.45.21" not in hero.group(1)
+    assert "Windows" in hero.group(1) and "Linux" in hero.group(1)
+    footer = re.search(r"<footer>(.*?)</footer>", source, re.DOTALL)
+    assert footer is not None
+    assert re.search(
+        rf'<span data-copy-{language}\b[^>]*>[^<]*{revision_label} 1\.46\.13</span>',
+        footer.group(1),
+    )
 
 
 def test_multilingual_website_has_complete_local_links_and_seo_metadata() -> None:
@@ -907,15 +939,11 @@ def test_multilingual_website_has_complete_local_links_and_seo_metadata() -> Non
         assert {"main-content", "why", "features", "downloads", "faq"}.issubset(
             parser.ids
         )
-        assert "v1.45.21" in source
-        assert "v1.43.0" in source
-        assert "1.46.0" not in source
-        assert "1.46.1" not in source
-        assert "1.46.2" not in source
-        assert "1.46.3" not in source
-        assert "1.46.4" not in source
-        assert "1.46.5" not in source
-        assert "1.46.8" not in source
+        # Match complete tokens: 1.46.13 must not look like the unpublished 1.46.1.
+        mentioned_versions = set(re.findall(r"(?<!\d)(\d+\.\d+\.\d+)(?!\d)", source))
+        assert mentioned_versions == {"1.46.13", "1.43.0"}
+        assert "<span>Windows 1.46.13</span>" in source
+        assert "<span>Linux 1.43.0</span>" in source
 
         assert len(parser.json_ld_blocks) == 1
         structured_data = json.loads(parser.json_ld_blocks[0])
@@ -924,7 +952,7 @@ def test_multilingual_website_has_complete_local_links_and_seo_metadata() -> Non
         assert structured_data["url"] == canonical_url
         assert structured_data["offers"]["price"] == "0"
         assert structured_data["downloadUrl"] == [
-            "https://github.com/beastmen84/NightScope/releases/tag/v1.45.21",
+            "https://github.com/beastmen84/NightScope/releases/tag/v1.46.13",
             "https://github.com/beastmen84/NightScope/releases/tag/v1.43.0",
         ]
 

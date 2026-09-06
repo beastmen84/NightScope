@@ -6,9 +6,9 @@ Public License 2.0. The complete project license is in `LICENSE`.
 Public NightScope source repository:
 `https://github.com/beastmen84/NightScope`
 
-NightScope 1.46.13 portable bundles correspond to source tag `v1.46.13`:
-`https://github.com/beastmen84/NightScope/tree/v1.46.13`. The bundles must not
-be published until that tag is publicly reachable. The adjacent
+The public NightScope 1.46.13 Windows bundle corresponds to source tag `v1.46.13`:
+`https://github.com/beastmen84/NightScope/tree/v1.46.13`. The published Linux
+bundle remains 1.43.0 and retains its own release-specific notices. The adjacent
 `SOURCE_CODE.md` gives direct source-archive links and source-availability
 instructions.
 

@@ -1,11 +1,13 @@
 # Source Code Availability
 
-This file is prepared for the NightScope 1.46.13 portable release bundles.
+This file describes the NightScope 1.46.13 portable Windows release.
+The published Linux package remains version 1.43.0 and carries its own
+version-specific source and native-component notices.
 
 ## NightScope
 
 NightScope is distributed under the Mozilla Public License 2.0. The complete
-corresponding source for these bundles is identified by the `v1.46.13` tag:
+corresponding source for this release is identified by the `v1.46.13` tag:
 
 - Repository: `https://github.com/beastmen84/NightScope`
 - Release source: `https://github.com/beastmen84/NightScope/tree/v1.46.13`
@@ -14,8 +16,9 @@ corresponding source for these bundles is identified by the `v1.46.13` tag:
 
 The source tag includes the PyInstaller specifications and scripts used to
 produce the portable bundles. The project license is reproduced in `LICENSE`.
-The bundles must not be published until the tag and both source links above are
-publicly reachable.
+The public `v1.46.13` tag points to `b34ec4a85783fde74bd384565aa6e3f0638e00eb`.
+Its changes after the validated Windows build source `be30cda` are validation
+documentation only; application code and packaged resources are unchanged.
 
 ## Qt And Qt For Python
 
@@ -35,7 +38,7 @@ bundle. Replacement and relinking instructions are in
 
 ## Linux Native Components
 
-The Linux bundle includes `LINUX_NATIVE_COMPONENTS.tsv`. Each row identifies a
+Linux bundles include `LINUX_NATIVE_COMPONENTS.tsv`. Each row identifies a
 bundled ELF file, its SHA-256 digest, the exact Debian or Ubuntu binary and
 source package versions, its bundled copyright notice, and the exact Debian
 Sources or Launchpad source-package page. Components supplied by the

@@ -3,11 +3,16 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.46.13`. Current public Windows release: `v1.45.21`. Current
-public Linux release: `v1.43.0`. Unless a row says otherwise, every gate below
-applies independently to each newly generated 1.46.13 artifact. Completed
-Windows 1.45.21 and Linux 1.43.0 evidence remains in the changelog, testing
-record and handoff; it does not approve a new bundle for either platform.
+Current target: `v1.46.13` (published for Windows; Linux delivery remains open).
+Current public Windows release: `v1.46.13`. Current public Linux release: `v1.43.0`.
+The user published `v1.46.13` on 2026-09-06 for Windows only. GitHub exposes one
+`NightScope-v1.46.13-windows-x64.zip` asset and tag `v1.46.13` at `b34ec4a`.
+The preceding local Windows build was validated from `be30cda`; the tag adds
+only validation documentation. The uploaded ZIP was not downloaded or
+re-audited during this documentation update. Unchecked gates remain open:
+publication alone does not provide missing evidence or approve a Linux build.
+Unless explicitly scoped to Windows, gates still apply separately to each
+new platform artifact. Historical Windows/Linux evidence remains dated.
 
 ## 1. Product And Legal
 
@@ -16,7 +21,7 @@ record and handoff; it does not approve a new bundle for either platform.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   generated-art provenance, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.46.13` source tag referenced by the
+- [x] Create and verify the public `v1.46.13` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [x] Confirm source version, changelog, source-availability notices, and
   About/build metadata agree on `1.46.13`.
@@ -102,8 +107,9 @@ Do not commit credentials or exact personal locations.
 The local Windows dist was rebuilt on 2026-09-06 from clean `be30cda`, version
 `1.46.13`; it includes the lunar-marker polish and all three image steps.
 Artifact identity and scoped validation are in `docs/TESTING.md` and the handoff.
-The checks below approve only their stated scope, not a public release or the
-remaining complete visual/provider matrix. The previous dist was replaced
+The checks below approve only their stated scope; the user's subsequent
+publication does not close the remaining complete visual/provider matrix.
+The previous dist was replaced
 without backup at the user's explicit request; QA uses disposable new copies.
 
 - [x] Build from a clean checkout with `packaging/build_windows.ps1`.

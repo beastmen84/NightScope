@@ -6,9 +6,9 @@ Questo documento conserva i controlli visuali di release iniziati con la
 sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
 verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 `archive/TESTING_HISTORY_THROUGH_1.45.6.md`. Il bundle pubblico corrente e'
-`1.45.21` su Windows, mentre Linux resta a `1.43.0`; le verifiche dei futuri
-artefatti `1.46.13` sono separate in `RELEASE_CHECKLIST.md` e devono essere
-ripetute per ciascuna dist effettivamente rigenerata.
+`1.46.13` su Windows, mentre Linux resta a `1.43.0`. La pubblicazione Windows
+del 2026-09-06 non chiude automaticamente i controlli mancanti della matrice:
+le verifiche in `RELEASE_CHECKLIST.md` restano specifiche di ogni artefatto.
 
 ## Verifica Mirata Bundle Windows 1.46.13
 
