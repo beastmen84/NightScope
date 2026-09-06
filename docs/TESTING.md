@@ -17,6 +17,10 @@ Source 1.46.16: the same 102 targeted tests pass in 21.45 s; the 57-object
 manifest and both source URLs pass. All 30 QML scenes / six contact sheets
 were inspected. No additional runtime change was made in this step.
 
+Source 1.46.17: the same 102 targeted tests pass in 21.15 s; the 87-object
+manifest and all three source URLs pass. All six contact sheets / 30 QML
+scenes were inspected, including C80's northern-spring/southern-autumn pair.
+
 ## Review Corrections - 1.46.14 Source
 
 The first correction step adds 26 cases: real EN/ES object-overlay preservation

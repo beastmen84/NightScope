@@ -4,6 +4,11 @@ Updated: 2026-09-06
 
 ## Current State
 
+- Source `1.46.17` adds a bounded, best-seen-only hemisphere clarification for
+  87 existing objects; no enrichment or coverage increase. Its manifest
+  records IT/EN/ES review and five visual samples. See the review-corrections
+  document for remaining steps and final gate status.
+
 - Source `1.46.16` adds a bounded, best-seen-only hemisphere clarification for
   57 existing objects; no enrichment or coverage increase. Its manifest
   records IT/EN/ES review and five visual samples. See the review-corrections
@@ -14,7 +19,7 @@ Updated: 2026-09-06
   records IT/EN/ES review and five visual samples. See the review-corrections
   document for remaining steps and final gate status.
 
-- Source version: `1.46.16`; all three image-redesign source steps are complete.
+- Source version: `1.46.17`; all three image-redesign source steps are complete.
 - The user authorized the 1.45.21–1.46.13 review corrections. This first source
   step protects existing editorial overlays during maintenance, fixes ended
   useful-window status at morning twilight and themes the pre-QML splash/error

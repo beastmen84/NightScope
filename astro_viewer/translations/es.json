@@ -69,31 +69,31 @@
       "messier-M1": {
         "short_description": "M1, la Nebulosa del Cangrejo, es el remanente de la supernova observada en 1054 en la constelación de Tauro. En el ocular es una tenue mancha ovalada, que carece de la apariencia fibrosa que muestran las fotografías, pero que conecta directamente al observador con la muerte explosiva de una estrella. Los cielos oscuros y la paciencia marcan una mayor diferencia que el aumento.",
         "observing_notes": "Utilice aumentos bajos o medios, visión periférica y cielo oscuro; un filtro UHC puede ayudar moderadamente, mientras que OIII no siempre es la mejor opción.",
-        "best_seen": "Otoño e invierno",
+      "best_seen": "Otoño e invierno boreales (primavera y verano australes)",
         "curiosity_text": "En el corazón de la Nebulosa del Cangrejo permanece una estrella de neutrones del tamaño de una ciudad. Gira unas treinta veces por segundo y alimenta el brillo de la nebulosa con un viento de partículas relativistas."
       },
       "messier-M2": {
         "short_description": "M2 es un cúmulo globular en Acuario. Se trata de un cúmulo globular antiguo y compacto, alejado del plano de la Vía Láctea; primero aparece como una mancha densa y luego lentamente revela el borde granulado.",
         "observing_notes": "M2 ya destaca con pocos aumentos como un disco compacto. Pasa después a una potencia media-alta: el borde se descompone en estrellas mientras el núcleo brillante permanece casi sin resolver.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "M2 reúne alrededor de 150.000 estrellas en una esfera antigua, formada hace unos 13.000 millones de años. Sus regiones más densas ocupan un volumen que, a escala galáctica, resulta extremadamente compacto."
       },
       "messier-M3": {
         "short_description": "M3 es uno de los cúmulos globulares más grandes y ricos del cielo del norte y contiene una población excepcionalmente grande de estrellas variables. A bajo aumento muestra un núcleo brillante inmerso en un halo redondo; con aperturas medianas, el borde comienza a resolverse en una granulosidad densa. Es un gran ejemplo de cómo la resolución aumenta gradualmente desde el borde hacia el centro.",
         "observing_notes": "Céntrelo con un aumento bajo, luego suba el aumento hasta que las estrellas periféricas comiencen a separarse sin que el núcleo se oscurezca demasiado.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "En M3 se han catalogado más de 270 estrellas variables, una cifra excepcional para un cúmulo globular. Muchas son variables RR Lyrae; su luminosidad característica permite utilizarlas como candelas estándar para medir distancias dentro de la Vía Láctea."
       },
       "messier-M4": {
         "short_description": "M4 es uno de los cúmulos globulares más cercanos al sistema solar y está ubicado justo al oeste de Antares. Está menos concentrado que muchos otros globulares y, con suficiente apertura, muestra una característica barra de estrellas cruzando la región central. Su baja altitud sobre el horizonte desde muchos lugares del norte puede limitar el rendimiento de la observación.",
         "observing_notes": "Búsquelo cerca de Antares cuando culmina; utilice aumentos medios para reconocer la barra central y resolver la periferia.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M4 alberga el sistema PSR B1620-26, formado por un púlsar y una enana blanca orbitados por un planeta apodado Matusalén. Con una edad estimada de más de 12.000 millones de años, es uno de los planetas más antiguos conocidos."
       },
       "messier-M5": {
         "short_description": "M5 (Cúmulo de la Rosa) es un cúmulo globular en Serpiente. Es uno de los globulares más bellos para los telescopios de aficionados: brillante, grande y capaz de transformarse de una nube a un campo estelar granulado.",
         "observing_notes": "Deja espacio al gran halo de M5 con un campo medio y aumenta después hasta que las estrellas exteriores formen arcos y filamentos. Es lo bastante brillante para admitir aumentos altos con seeing estable.",
-        "best_seen": "Primavera y verano",
+      "best_seen": "Primavera y verano boreales (otoño e invierno australes)",
         "curiosity_text": "Las estrellas de M5 se formaron hace más de 12 mil millones de años, pero el cúmulo también contiene estrellas azules aparentemente más jóvenes. Son rezagados azules, rejuvenecidos por fusiones o transferencias de materia entre compañeros."
       },
       "messier-M6": {
@@ -111,19 +111,19 @@
       "messier-M8": {
         "short_description": "M8 (Nebulosa de la Laguna) es una nebulosa con un cúmulo de estrellas en Sagitario. La Laguna es una auténtica región de formación estelar: en un mismo campo conviven estrellas jóvenes, gas brillante y estructuras oscuras.",
         "observing_notes": "M8 supera el campo de muchos oculares: usa la menor potencia para incluir el cúmulo, la Laguna y la franja oscura. Con UHC ganan contraste el gas y la región del Reloj de Arena; sin filtro vuelven a destacar las estrellas de NGC 6530.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "Dentro de la Laguna, la región llamada Nebulosa del Reloj de Arena está esculpida principalmente por la joven estrella masiva Herschel 36. La radiación y los vientos estelares están erosionando las nubes de las que siguen naciendo nuevas estrellas."
       },
       "messier-M9": {
         "short_description": "M9 es un cúmulo globular en Ofiuco. Proyectado hacia el centro de la Vía Láctea, a menudo aparece contra ricos campos de estrellas en un área desafiante del cielo.",
         "observing_notes": "M9 culmina bajo para muchos observadores y el polvo hacia el centro galáctico apaga su halo. Elige una noche transparente, localízalo con poca potencia y usa aumentos medios solo tras fijar el borde débil.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M9 se encuentra inusualmente cerca del centro galáctico. La gravedad de la Vía Láctea ha deformado su estructura y lo ha hecho menos esférico que muchos otros cúmulos globulares de las regiones exteriores del halo."
       },
       "messier-M10": {
         "short_description": "M10 es un cúmulo globular en Ofiuco. Hace una pareja ideal con M12 en Ofiuco: es más compacto y funciona mejor cuando el aumento comienza a separar el borde exterior. La visión periférica muestra la extensión del halo, mientras que el aumento medio ayuda a apreciar la textura de las regiones exteriores.",
         "observing_notes": "Observa M10 y M12 en la misma sesión: M10 muestra un centro más marcado y un perfil más compacto. Los aumentos medios resuelven bien la periferia sin sacrificar el amplio halo.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M10 contiene numerosos rezagados azules, estrellas que parecen demasiado calientes y brillantes para la edad del cúmulo. Las colisiones e intercambios de materia en los sistemas binarios pueden haber reavivado su evolución."
       },
       "messier-M11": {
@@ -135,37 +135,37 @@
       "messier-M12": {
         "short_description": "M12 es un cúmulo globular de Ofiuco, menos concentrado y más abierto que M10. Los estudios modernos sugieren que perdió muchas estrellas de baja masa durante sus pasos por el disco de la Galaxia.",
         "observing_notes": "M12 es más abierto y menos concentrado que el cercano M10. Mantén un campo medio y usa visión lateral: las estrellas se separan pronto de la neblina, pero el centro no forma un núcleo claramente dominante.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M12 parece haber perdido gran parte de sus estrellas de baja masa. Durante los repetidos pasos a través del disco de la Vía Láctea, las mareas galácticas podrían haber arrancado del cúmulo hasta un millón de ellas."
       },
       "messier-M13": {
         "short_description": "M13, el Gran Cúmulo de Hércules, es el cúmulo globular más famoso del cielo boreal. Incluso con instrumentos pequeños aparece como una esfera luminosa bien definida; con aperturas medias y buen seeing, la periferia se resuelve en innumerables estrellas y pueden aparecer finas cadenas oscuras, incluida la llamada Hélice. Es uno de los mejores objetos para comprender cuánto importan la apertura, el enfoque y la paciencia.",
         "observing_notes": "Céntrelo con poco aumento y aumente progresivamente; busque primero la resolución en el borde y solo después estructuras más finas en el núcleo.",
-        "best_seen": "Primavera y verano",
+      "best_seen": "Primavera y verano boreales (otoño e invierno australes)",
         "curiosity_text": "En 1974, el radiotelescopio de Arecibo envió un mensaje codificado sobre la vida en la Tierra hacia M13. Cuando la señal llegue a la zona del cúmulo, dentro de unos 25.000 años, M13 ya habrá recorrido su órbita."
       },
       "messier-M14": {
         "short_description": "M14 es un cúmulo globular en Ofiuco. Resulta menos inmediato que los globulares más famosos, pero contiene una enorme población estelar; requiere oscuridad y paciencia para separarlo del fondo del cielo.",
         "observing_notes": "M14 es rico pero poco contrastado sobre el campo de Ofiuco. Encuéntralo con pocos aumentos y prueba después una potencia media y visión lateral; desgranar el borde exige apertura y un cielo realmente oscuro.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "En 1938 explotó una nova en M14, pero nadie informó de ello en directo. No se reconoció hasta 1964, al comparar placas fotográficas de archivo tomadas décadas antes."
       },
       "messier-M15": {
         "short_description": "M15 (Gran Cúmulo de Pegaso) es un cúmulo globular en Pegaso. Tiene uno de los núcleos más concentrados entre los cúmulos globulares de Messier, tan denso que parece casi un punto antes de que el borde se abra en estrellas.",
         "observing_notes": "El núcleo casi estelar de M15 admite aumentos altos, pero obsérvalo primero con poca potencia para no perder el halo extenso. Con buen seeing, busca el brusco aumento de brillo hacia el centro colapsado.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "M15 contiene Pease 1, la primera nebulosa planetaria identificada dentro de un cúmulo globular. Es un hallazgo muy raro porque esta fase estelar dura poco tiempo en comparación con la edad de miles de millones de años del sistema."
       },
       "messier-M16": {
         "short_description": "M16 (Nebulosa del Águila) es una nebulosa de emisión con un cúmulo de estrellas en Serpiente. La Nebulosa del Águila es famosa por los Pilares de la Creación fotografiados por el Hubble, pero en el ocular el cúmulo suele ser más evidente que la nebulosidad.",
         "observing_notes": "En M16 el cúmulo NGC 6611 destaca sin filtro, mientras la nebulosidad exige pocos aumentos, cielo oscuro y UHC. Compara las vistas con el mismo ocular y la misma pupila de salida; busca el perfil del Águila y las franjas oscuras. Los Pilares de la Creación no son un detalle realista para la mayoría de instrumentos visuales.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "Los Pilares de la Creación son torres de gas y polvo dentro de M16, de varios años luz de largo. Las imágenes del Hubble de 1995 las hicieron icónicas, pero las columnas son también incubadoras sometidas a la erosión de las estrellas recién nacidas."
       },
       "messier-M17": {
         "short_description": "M17, la Nebulosa Omega o del Cisne en Sagitario, es una gran región de formación estelar con un cúmulo central muy joven. Muchas de sus estrellas siguen ocultas por el polvo; su radiación esculpe y erosiona las nubes. El perfil luminoso parecido a un cisne es solo parte del complejo.",
         "observing_notes": "Incluso sin filtro, M17 muestra la barra brillante del Cisne; UHC ensancha el cuerpo y define el cuello contra la franja oscura. Alterna aumentos bajos y medios: los primeros siguen la nebulosidad exterior y los segundos revelan irregularidades en la zona luminosa.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "La parte brillante de M17 es solo una pequeña porción de una nube molecular mucho más grande. El joven cúmulo escondido en su interior ilumina y excava el gas, creando la forma del Cisne visible desde la Tierra."
       },
       "messier-M18": {
@@ -177,13 +177,13 @@
       "messier-M19": {
         "short_description": "M19 es un cúmulo globular en Ofiuco. Se trata de un cúmulo globular de forma ligeramente alargada, más interesante de lo que parece a primera vista cuando el seeing permite subir el aumento.",
         "observing_notes": "Con aumentos medios M19 no es perfectamente redondo: compara los dos ejes del halo mediante visión lateral. La baja altura y la extinción pueden ocultar el alargamiento, así que espera a la culminación.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M19 es el globular más plano del catálogo de Messier. Parte del efecto puede deberse al polvo interestelar, pero las fuertes mareas del cercano centro galáctico también contribuyen a su forma inusual."
       },
       "messier-M20": {
         "short_description": "M20, la Nebulosa Trífida en Sagitario, debe su nombre a las bandas de polvo que dividen la nebulosidad brillante en tres sectores aparentes. Las estrellas masivas nacidas en el centro irradian el gas circundante y ya han despejado parte de él: el paisaje combina nacimiento estelar y erosión de la nube.",
         "observing_notes": "Observa M20 con pocos aumentos junto a su cúmulo. UHC define la región de emisión y las tres franjas oscuras centrales, pero atenúa el lóbulo azul de reflexión; comparar las vistas con y sin filtro forma parte de la observación.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M20 reúne en el mismo campo una nebulosa de emisión roja, una región de reflexión azul y franjas de polvo oscuro. Las tres bandas que diseccionan su centro inspiraron a John Herschel a llamarla Trífida."
       },
       "messier-M21": {
@@ -195,7 +195,7 @@
       "messier-M22": {
         "short_description": "M22 es uno de los cúmulos globulares más brillantes y espectaculares visibles desde latitudes medias del norte. Es grande, relativamente poco concentrado y se resuelve con más facilidad que muchos cúmulos similares, especialmente cerca de la culminación. Con un telescopio mediano puede llenar el campo de estrellas y muestra un núcleo menos compacto que M13.",
         "observing_notes": "Obsérvelo durante la culminación con aumentos medios; su periferia extensa y rica merece un campo que no sea demasiado estrecho.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M22 fue reconocido por Abraham Ihle en 1665 y es el primer cúmulo globular descubierto. Mucho más tarde se comprobó que también contiene una rara nebulosa planetaria e indicios de múltiples generaciones estelares."
       },
       "messier-M23": {
@@ -225,13 +225,13 @@
       "messier-M27": {
         "short_description": "M27, la Nebulosa de la Mancuerna, es una de las nebulosas planetarias más grandes y brillantes del cielo. La parte central se asemeja a una mancuerna o un reloj de arena, mientras que bajo un cielo oscuro el halo exterior hace que la forma sea más ovalada. Responde bien a los filtros nebulares y tolera diferentes aumentos, lo que lo convierte en un objetivo muy informativo.",
         "observing_notes": "Comience con un aumento bajo para ver su extensión completa, luego pruebe con UHC y OIII y suba el aumento con moderación para estudiar el área central.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "Descubierta por Messier en 1764, M27 fue la primera nebulosa planetaria jamás identificada. El nombre no tiene nada que ver con los planetas: describe el aspecto redondeado que mostraban estas capas estelares en los primeros telescopios."
       },
       "messier-M28": {
         "short_description": "M28 es un cúmulo globular en Sagitario. Es un cúmulo globular compacto cerca del corazón de Sagitario; menos pintoresco que M22, pero interesante por su densidad y el campo estelar circundante.",
         "observing_notes": "Parte de la brillante Kaus Borealis para llegar a M28. El cúmulo es pequeño y concentrado; aumentos medios-altos oscurecen el rico fondo de Sagitario y hacen más visible la granulación alrededor del núcleo.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "En 1987, M28 se convirtió en el primer cúmulo globular en el que se descubrió un púlsar de milisegundos. La estrella de neutrones gira cientos de veces por segundo, acelerada en el pasado por la transferencia de materia de una compañera."
       },
       "messier-M29": {
@@ -243,7 +243,7 @@
       "messier-M30": {
         "short_description": "M30 (Cúmulo de la Medusa) es un cúmulo globular de Capricornio. Es compacto y queda bajo sobre el horizonte desde muchas latitudes, con un núcleo brillante y prolongaciones estelares que solo aparecen cuando el cielo acompaña.",
         "observing_notes": "M30 posee un centro muy concentrado del que parecen partir cortas cadenas estelares. Usa aumentos medios-altos y visión directa sobre el núcleo, alternándola con visión lateral para seguir las prolongaciones débiles.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "En M30 hay dos secuencias distintas de rezagadas azules. Una parece producida por colisiones estelares durante el colapso del núcleo; la otra, por transferencia de materia en sistemas binarios."
       },
       "messier-M31": {
@@ -315,13 +315,13 @@
       "messier-M42": {
         "short_description": "M42, la Gran Nebulosa de Orión, es la región de formación estelar más espectacular y fácilmente visible desde el hemisferio norte. Incluso desde la ciudad se aprecia un núcleo luminoso alrededor del Trapecio; bajo un cielo oscuro, alas, arcos y zonas oscuras se extienden mucho más allá de la parte central. Es un objeto capaz de ofrecer detalles tanto a bajos como a altos aumentos.",
         "observing_notes": "Comience sin filtro para observar el Trapecio, luego pruebe UHC u OIII con bajo aumento para seguir las alas más débiles.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "El Trapecio, un grupo de estrellas masivas muy jóvenes, brilla en el centro de M42. Su radiación ioniza el gas circundante y al mismo tiempo ilumina y erosiona la nube que los generó."
       },
       "messier-M43": {
         "short_description": "M43 (Nebulosa de De Mairan) es una nebulosa de emisión en Orión. Es la pequeña región nebular próxima a M42, separada por una banda oscura, y se aprecia mejor en comparación con la Gran Nebulosa de Orión.",
         "observing_notes": "Obsérvela junto con M42: la comparación entre las dos regiones hace que la estructura de la nebulosa sea más legible.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "M43 es físicamente parte de la gran nube de Orión, pero una banda de polvo la separa visualmente de M42. La estrella NU Orionis ilumina esta porción como un centro autónomo."
       },
       "messier-M44": {
@@ -381,31 +381,31 @@
       "messier-M53": {
         "short_description": "M53 es un cúmulo globular de la Cabellera de Berenice. Es remoto y compacto, cercano a la estrella Diadema. No resulta tan espectacular como M13, pero posee una elegancia serena y un núcleo muy definido.",
         "observing_notes": "La estrella Diadem facilita el salto hasta M53. Un campo amplio puede incluir también el débil NGC 5053; pasa después a aumentos medios para desgranar el borde compacto de M53.",
-        "best_seen": "Primavera y verano",
+      "best_seen": "Primavera y verano boreales (otoño e invierno australes)",
         "curiosity_text": "M53 es uno de los globulares más alejados del centro de la Vía Láctea y tiene muy pocos elementos pesados. Por tanto, su composición conserva una firma química de las primeras edades de la Galaxia."
       },
       "messier-M54": {
         "short_description": "M54 es un cúmulo globular en Sagitario. Es un cúmulo globular particular porque está asociado a la galaxia enana de Sagitario: al observarlo se está ante un objeto vinculado a una pequeña galaxia que colisiona con la nuestra.",
         "observing_notes": "M54 es pequeño y muy concentrado en el poblado campo de Sagitario. Tras reconocerlo con pocos aumentos, usa una potencia media-alta para separar el núcleo casi estelar de la tenue envoltura exterior.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "Probablemente, M54 no pertenezca al halo original de la Vía Láctea: reside en el núcleo de la Galaxia Enana Elíptica de Sagitario, que nuestra galaxia está incorporando. Por tanto, sería un cúmulo globular adquirido mediante una fusión."
       },
       "messier-M55": {
         "short_description": "M55 (Cúmulo del Espectro) es un cúmulo globular de Sagitario. Es grande y relativamente poco concentrado: menos denso que muchos otros, pero muy hermoso cuando el cielo austral está limpio y transparente.",
         "observing_notes": "M55 es amplio, suelto y de bajo brillo superficial; exige un cielo austral transparente más que grandes aumentos. Un campo ancho y una potencia media resuelven muchas estrellas conservando su forma general.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M55 tiene un núcleo poco concentrado, por lo que sus estrellas se resuelven más fácilmente que muchos cúmulos globulares. También contiene decenas de variables, útiles para reconstruir su distancia y evolución."
       },
       "messier-M56": {
         "short_description": "M56 es un cúmulo globular en Lira, entre Lira y Cisne en una región que ya es rica en objetivos. Es un cúmulo globular sutil que recompensa la observación paciente en lugar de una mirada rápida.",
         "observing_notes": "Para encontrar M56 recorre la línea entre Albireo y Sulafat; en ese campo rico puede parecer solo una mancha. Los aumentos medios y la visión lateral aíslan el núcleo y revelan algunas estrellas periféricas.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "La órbita retrógrada y la composición de M56 sugieren que pudo haber llegado desde una pequeña galaxia absorbida por la Vía Láctea. Su movimiento conserva la huella dinámica de aquella antigua fusión."
       },
       "messier-M57": {
         "short_description": "M57, la Nebulosa del Anillo, es una nebulosa planetaria compacta y de alto brillo superficial en Lira. Incluso con telescopios pequeños aparece como un anillo diminuto o un disco perforado; al subir el aumento, el centro más oscuro se define y el borde muestra un brillo desigual. La estrella central es mucho más difícil y requiere gran apertura y condiciones excelentes.",
         "observing_notes": "Céntrela con poco aumento y suba el aumento cuando el seeing sea estable; un filtro OIII acentúa el anillo, pero la estrella central sigue siendo difícil.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "La Nebulosa del Anillo no es un simple anillo plano. Las reconstrucciones tridimensionales describen una estructura semejante a un barril o una rosquilla, observada casi a lo largo de su eje."
       },
       "messier-M58": {
@@ -435,7 +435,7 @@
       "messier-M62": {
         "short_description": "M62 (Cúmulo Globular Parpadeante) es un cúmulo globular concentrado y asimétrico en Ofiuco, cerca de la región central de la Galaxia. Su forma irregular lo hace más interesante de lo esperado.",
         "observing_notes": "M62 culmina bajo pero posee un núcleo intenso. Obsérvalo a máxima altura y usa aumentos medios; la visión lateral muestra el halo asimétrico, mientras demasiada potencia acentúa la turbulencia próxima al horizonte.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "La forma de M62 es visiblemente asimétrica. La proximidad al centro galáctico somete al cúmulo a intensas fuerzas de marea, que comprimen y deforman la distribución de sus estrellas."
       },
       "messier-M63": {
@@ -471,31 +471,31 @@
       "messier-M68": {
         "short_description": "M68 es un cúmulo globular en Hidra, a menudo bajo y poco evidente. Cuando el horizonte sur es bueno, muestra un núcleo compacto en un campo bastante aislado.",
         "observing_notes": "Para M68 la calidad del horizonte sur es decisiva. Localízalo con pocos aumentos entre Hidra y Cuervo y pasa después a una potencia media; la periferia puede desgranarse mientras el núcleo permanece relativamente suave.",
-        "best_seen": "Primavera y verano",
+      "best_seen": "Primavera y verano boreales (otoño e invierno australes)",
         "curiosity_text": "M68 sigue una órbita muy excéntrica y retrógrada respecto a la rotación galáctica. Este comportamiento, junto con la baja metalicidad, sugiere un origen en un sistema capturado posteriormente."
       },
       "messier-M69": {
         "short_description": "M69 es un cúmulo globular en Sagitario. Se trata de un pequeño cúmulo globular concentrado en Sagitario, menos espectacular que M22 pero interesante por su población estelar rica en elementos pesados.",
         "observing_notes": "M69 está cerca de Kaus Australis y destaca como un pequeño disco concentrado sobre Sagitario. Los aumentos medios-altos realzan el núcleo, pero la extinción dificulta seguir el halo exterior.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M69 se encuentra entre los cúmulos globulares más ricos en elementos pesados del catálogo de Messier. Su posición en el bulbo galáctico indica un entorno de formación diferente al de los cúmulos pobres en metales del halo."
       },
       "messier-M70": {
         "short_description": "M70 es un cúmulo globular de Sagitario. Es compacto y difícil, cercano a la zona donde se descubrió el cometa Hale-Bopp. Es un objeto para cielos transparentes, no para una noche urbana.",
         "observing_notes": "Busca M70 a lo largo de la línea entre M69 y Ascella; es más pequeño y débil que M69. Los aumentos medios-altos ayudan a separar su centro compacto del fondo estelar si la transparencia es buena.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "Alan Hale y Thomas Bopp descubrieron de forma independiente el cometa Hale-Bopp en 1995 mientras observaban la región cercana a M70. El globular se convirtió así en la referencia casual de uno de los cometas más famosos del siglo XX."
       },
       "messier-M71": {
         "short_description": "M71 (Cúmulo del Pez Ángel) es un cúmulo globular en Flecha. Es un objeto ambiguo y fascinante, a medio camino entre un globular poco concentrado y un cúmulo muy denso. En el campo estelar de Flecha aparece como una condensación granulada.",
         "observing_notes": "M71 está poco concentrado e inmerso en el rico campo de Flecha, por lo que puede parecer un cúmulo abierto. Usa un campo medio: muchas estrellas se resuelven enseguida, pero busca también el resplandor no resuelto entre ellas.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "Durante mucho tiempo, M71 fue clasificado a veces como un cúmulo abierto, a veces como globular, porque está poco concentrado y es relativamente rico en metales. Las mediciones modernas lo sitúan entre los globulares más jóvenes e inusuales."
       },
       "messier-M72": {
         "short_description": "M72 es un cúmulo globular en Acuario. Es uno de los globulares más débiles del catálogo de Messier. No impresiona inmediatamente, pero es gratificante precisamente porque requiere método y visión periférica.",
         "observing_notes": "M72 es uno de los globulares Messier más débiles; identifícalo con precisión en Acuario antes de pasar a más aumentos. Visión lateral, cielo oscuro y una potencia media revelan un pequeño núcleo dentro de un halo muy tenue.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "M72 es uno de los globulares más distantes incluidos por Messier. La gran distancia comprime su apariencia en una tenue masa, aunque en realidad contiene una población estelar grande y muy antigua."
       },
       "messier-M73": {
@@ -513,13 +513,13 @@
       "messier-M75": {
         "short_description": "M75 es un cúmulo globular en Sagitario. Se trata de uno de los globulares más concentrados del catálogo, con un núcleo compacto y de difícil resolución. Parece pequeño, pero esconde una densidad notable.",
         "observing_notes": "Con pocos aumentos M75 puede parecer casi estelar por su extrema concentración. Aumenta la potencia hasta que aparezca el pequeño halo; resolver estrellas sigue siendo difícil incluso con el núcleo bien definido.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "M75 posee uno de los núcleos más concentrados entre los cúmulos globulares del catálogo de Messier. La luminosidad crece rápidamente hacia el centro, donde la densidad estelar es mucho mayor que en el halo exterior."
       },
       "messier-M76": {
         "short_description": "M76 (Nebulosa de la Pequeña Mancuerna) es una nebulosa planetaria en Perseo. La Pequeña Mancuerna es una nebulosa planetaria exigente: pequeña, débil y estructurada. Sin embargo, cuando emerge, da mayor satisfacción que muchos objetos más fáciles.",
         "observing_notes": "OIII revela enseguida la barra rectangular de M76. Usa después aumentos medios-altos para separar sus dos nudos brillantes; bajo un cielo muy oscuro, una potencia menor puede mostrar las débiles alas que completan la forma bipolar.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "M76 ha recibido más nombres que casi cualquier otra nebulosa planetaria: Pequeña Mancuerna, Corcho y Mariposa. Los dos lóbulos brillantes son las paredes de una estructura expulsada por una estrella moribunda."
       },
       "messier-M77": {
@@ -531,19 +531,19 @@
       "messier-M78": {
         "short_description": "M78 es una nebulosa difusa en Orión. Es una nebulosa de reflexión: no brilla por gas ionizado, sino por la luz de estrellas jóvenes reflejadas por el polvo. Requiere transparencia en lugar de filtros agresivos.",
         "observing_notes": "La transparencia es crucial; obsérvela sin filtros de banda estrecha, con poco aumento y bajo un cielo oscuro.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "M78 es la nebulosa de reflexión más brillante del cielo. Su polvo no emite luz propia: difunde el resplandor azul de las estrellas jóvenes y rodea los chorros Herbig-Haro producidos por estrellas en formación."
       },
       "messier-M79": {
         "short_description": "M79 es un cúmulo globular de Liebre. Es un objeto invernal inusual, alejado de los campos estivales clásicos de la Vía Láctea. Bajo Orión aparece compacto y sorprendente.",
         "observing_notes": "M79 es un globular invernal que queda bajo desde latitudes septentrionales. Obsérvalo en el meridiano; los aumentos medios separan el núcleo brillante del halo compacto y lo hacen más evidente en el campo pobre de Liebre.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "M79 se encuentra en el lado del cielo opuesto al centro galáctico, una ubicación inusual para un cúmulo globular. Su órbita ha dado pie a la hipótesis de que fue adquirido durante la fusión con una galaxia enana."
       },
       "messier-M80": {
         "short_description": "M80 es un cúmulo globular en Escorpio. Es un cúmulo globular muy denso, pequeño pero intenso. Con aperturas medias, el borde comienza a brillar mientras el núcleo permanece compacto.",
         "observing_notes": "M80 es pequeño pero muy brillante en el centro. Tras localizarlo entre Antares y Acrab, usa aumentos medios-altos; el núcleo permanece apretado mientras pueden aparecer finos destellos estelares en el borde.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M80 es uno de los globulares más densos de la Vía Láctea. En 1860 apareció allí la nova T Scorpii, que durante unos días alcanzó un brillo comparable al de todo el cúmulo."
       },
       "messier-M81": {
@@ -615,7 +615,7 @@
       "messier-M92": {
         "short_description": "M92 es un cúmulo globular de Hércules. Es magnífico, aunque a menudo queda eclipsado por la fama de M13. De aspecto más compacto y antiguo, merece una visita siempre que Hércules esté alto en el cielo.",
         "observing_notes": "M92 es más compacto y simétrico que el cercano M13. Encuádralo con pocos aumentos y sube después la potencia; el núcleo admite bien los aumentos y el halo se divide en estrellas por el borde.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "Debido a la precesión de la Tierra, dentro de unos 14.000 años el polo norte celeste pasará a un grado de M92. El cúmulo se convertirá así en un vecino espectacular del punto alrededor del cual girará el cielo."
       },
       "messier-M93": {
@@ -645,7 +645,7 @@
       "messier-M97": {
         "short_description": "M97 (Nebulosa del Búho) es una nebulosa planetaria en la Osa Mayor. La Nebulosa del Búho es una nebulosa planetaria grande y tenue: los 'ojos' son un desafío visual, pero incluso sin verlos sigue siendo un objetivo muy característico.",
         "observing_notes": "M97 tiene un disco amplio pero bajo brillo superficial; un filtro OIII y aumentos medios-bajos hacen evidente su borde. Solo entonces, bajo un cielo oscuro, prueba más potencia y visión lateral para distinguir las dos cavidades oscuras de los ojos.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "Los ojos de la Nebulosa del Búho son dos cavidades menos densas en una capa de gas. El efecto depende de la orientación: observamos una estructura tridimensional moldeada por el viento de la enana blanca central."
       },
       "messier-M98": {
@@ -705,7 +705,7 @@
       "messier-M107": {
         "short_description": "M107 (Cúmulo del Crucifijo) es un cúmulo globular de Ofiuco, relativamente disperso y menos denso que los ejemplos más famosos. Requiere cielos oscuros, pero ofrece una delicada textura estelar.",
         "observing_notes": "M107 es suelto, débil y está atenuado por el polvo; espera a que Ofiuco esté alto. Los aumentos medios muestran una textura irregular; demasiada potencia borra el halo antes de aportar detalle al núcleo.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "M107 fue el último objeto Messier descubierto por Pierre Méchain y no se añadió oficialmente al catálogo hasta 1947. Con M105 y M106 completó la versión moderna de los 110 objetos."
       },
       "messier-M108": {
@@ -735,7 +735,7 @@
       "caldwell-C2": {
         "short_description": "C2 (NGC 40) es una nebulosa planetaria de Cefeo: una pequeña envoltura de gas expulsada por una estrella en las últimas etapas de su evolución. La estrella central destaca sobre el gas y puede ocultar su tenue resplandor, dificultando reconocer la nebulosa.",
         "observing_notes": "C2 es pequeña y su brillante estrella central puede borrar la envoltura. Con aumentos medios alterna visión directa y lateral; UHC puede separar mejor la nebulosidad y después retíralo para revisar la estrella.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "La estrella central de NGC 40 es una Wolf-Rayet muy caliente que expulsa material a gran velocidad. El viento reciente choca con capas más lentas expulsadas anteriormente y da forma a la envoltura irregular de la nebulosa."
       },
       "caldwell-C3": {
@@ -747,7 +747,7 @@
       "caldwell-C4": {
         "short_description": "C4 (NGC 7023), la Nebulosa Iris, es una nube de reflexión en Cefeo. El polvo dispersa la luz de la estrella central y dibuja pétalos azules en las imágenes, mientras las regiones más densas absorben luz y delimitan la nebulosidad brillante.",
         "observing_notes": "C4 es una nebulosa de reflexión: no uses filtros de banda estrecha. Centra la brillante HD 200775 en un campo medio-amplio y, bajo un cielo oscuro, busca el halo azulado y los bordes irregulares donde el polvo atenúa la luz.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "La Nebulosa Iris brilla porque el polvo refleja la luz de la estrella HD 200775. Alrededor del centro azul aparecen tonos rojizos producidos por pequeños granos y moléculas aromáticas iluminadas por la radiación ultravioleta."
       },
       "caldwell-C5": {
@@ -759,7 +759,7 @@
       "caldwell-C6": {
         "short_description": "C6 (NGC 6543), la Nebulosa Ojo de Gato, es una planetaria de Dragón con una región interior pequeña y brillante. Las imágenes profundas revelan envolturas concéntricas, chorros y nudos gaseosos alrededor del núcleo, una estructura mucho más compleja que el sencillo disco visible con telescopios pequeños.",
         "observing_notes": "Utilice aumentos medios o altos con un seeing estable; pruebe un filtro OIII para el disco, pero observe también sin filtro para evaluar el color y buscar la estrella central.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "El Ojo de Gato tiene anillos, chorros y nudos concéntricos que una sola eyección esférica no explica. La geometría sugiere episodios repetidos y quizás la acción de una compañera sobre la estrella central moribunda."
       },
       "caldwell-C7": {
@@ -777,7 +777,7 @@
       "caldwell-C9": {
         "short_description": "C9 (Sh2-155), la Nebulosa de la Cueva, es una región de emisión del complejo de gas y polvo Cefeo B. Un arco brillante de hidrógeno ionizado bordea la cavidad oscura que le da nombre; la nebulosidad difusa tiene poco contraste incluso bajo un cielo oscuro.",
         "observing_notes": "C9 es una nebulosa alargada de contraste extremadamente bajo. Usa un ocular de gran campo y busca sobre todo el borde luminoso contra la nube oscura. UHC puede ayudar al frente de emisión, pero el cielo oscuro y la adaptación importan más que los aumentos.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "La Nebulosa de la Cueva se encuentra en el borde de la nube molecular Cefeo B. La radiación de estrellas masivas comprime el gas adyacente, creando frentes brillantes y nuevas generaciones estelares a lo largo de la cavidad."
       },
       "caldwell-C10": {
@@ -789,7 +789,7 @@
       "caldwell-C11": {
         "short_description": "C11 (NGC 7635), la Nebulosa de la Burbuja, comprende una cavidad inflada por el viento de una estrella masiva y el gas luminoso circundante, en Casiopea. La estrella queda descentrada porque el material encuentra distinta resistencia a cada lado durante la expansión.",
         "observing_notes": "Proteja la adaptación a la oscuridad y deje que los bordes y las zonas oscuras emerjan lentamente.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "La burbuja es inflada por el viento de la estrella masiva BD+60 2522. La estrella no aparece en el centro geométrico porque el viento encuentra gas de diferentes densidades y la estrella misma se mueve con respecto a la nube."
       },
       "caldwell-C12": {
@@ -813,7 +813,7 @@
       "caldwell-C15": {
         "short_description": "C15 (NGC 6826), la Planetaria Parpadeante de Cisne, rodea una estrella central muy evidente con una pequeña envoltura gaseosa. El parpadeo es un efecto de percepción: la nebulosa parece desaparecer al mirar directamente la estrella y el gas reaparece al desviar la mirada.",
         "observing_notes": "Aprovecha el efecto que da nombre a C15: fija la estrella central y la envoltura se atenúa; usa visión lateral y reaparece. OIII realza el disco y aumentos medios-altos muestran su forma sin borrar el efecto de parpadeo.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "NGC 6826 parece parpadear cuando se alterna entre la visión directa y la periférica. Mirando al centro, domina la estrella; al mover ligeramente la mirada, la retina periférica resalta la capa débil y cambia repentinamente de apariencia."
       },
       "caldwell-C16": {
@@ -837,13 +837,13 @@
       "caldwell-C19": {
         "short_description": "C19 (IC 5146), la Nebulosa del Capullo, reúne gas de emisión, polvo de reflexión y un joven cúmulo en Cisne. La región luminosa se encuentra en el extremo de Barnard 168, una franja oscura que se prolonga hacia el oeste y oculta estrellas de fondo.",
         "observing_notes": "C19 necesita un cielo realmente oscuro: encuadra el Capullo junto al inicio de la franja oscura Barnard 168. Un filtro H-beta puede reforzar la emisión, pero compara siempre la vista sin filtro para no perder la reflexión ni el cúmulo.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "La Nebulosa del Capullo se encuentra en el extremo de la larga nebulosa oscura Barnard 168. El contraste entre el capullo brillante y la franja oscura muestra dos formas opuestas en las que el mismo polvo puede reflejar o bloquear la luz."
       },
       "caldwell-C20": {
         "short_description": "C20 (NGC 7000), la Nebulosa Norteamérica, es una extensa región de hidrógeno luminoso en Cisne. Las nubes oscuras recortan su perfil continental; el rojo del gas domina las imágenes, mientras en el ocular aparece como un tenue resplandor sobre la Vía Láctea.",
         "observing_notes": "Utilice el aumento más bajo, un filtro UHC y un cielo muy oscuro; explore principalmente la región del Golfo de México.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "El perfil de América del Norte no es un borde físico del gas: lo dibuja la nube oscura LDN 935, que oculta la luz de la nebulosa detrás de ella y crea el Golfo de México."
       },
       "caldwell-C21": {
@@ -855,7 +855,7 @@
       "caldwell-C22": {
         "short_description": "C22 (NGC 7662), la Nebulosa Bola de Nieve Azul, es una planetaria compacta de Andrómeda. Su pequeño disco azul encierra el remanente de la estrella que expulsó el gas; puede confundirse con estrellas a pocos aumentos, pero al aumentarlos se reconoce la envoltura nebulosa.",
         "observing_notes": "Con pocos aumentos C22 se confunde fácilmente con una estrella azul; una prueba rápida con OIII la destaca frente al campo. Una vez centrada, sube mucho los aumentos para buscar el disco elíptico y las diferencias entre las envolturas internas.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "El color azul de la bola de nieve proviene de líneas de oxígeno ionizado en el gas caliente. La nebulosa tiene múltiples capas en expansión, producidas por sucesivas etapas de pérdida de masa de la estrella central."
       },
       "caldwell-C23": {
@@ -873,7 +873,7 @@
       "caldwell-C25": {
         "short_description": "C25 (NGC 2419), el Vagabundo Intergaláctico, es un cúmulo globular remoto de Lince, a unos 300.000 años luz. La distancia convierte su gran población estelar en una pequeña nube difícil de resolver.",
         "observing_notes": "C25 es pequeño y débil pese a su núcleo compacto. Localízalo con pocos aumentos bajo un cielo muy oscuro, sube la potencia gradualmente y usa visión lateral para separar el halo del fondo.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "NGC 2419 recibe el sobrenombre de Vagabundo Intergaláctico porque orbita a una distancia enorme, más allá del borde brillante de la Vía Láctea. Es tan masivo y complejo que podría ser el núcleo residual de una galaxia enana capturada."
       },
       "caldwell-C26": {
@@ -885,7 +885,7 @@
       "caldwell-C27": {
         "short_description": "C27 (NGC 6888), la Nebulosa Creciente, es una envoltura filamentosa de Cisne alrededor de la estrella Wolf-Rayet WR 136. Su viento actual choca con material expulsado en una fase anterior y forma nudos y arcos brillantes que le dan aspecto de media luna incompleta.",
         "observing_notes": "Utilice poco aumento y un filtro OIII; localice primero el arco más brillante y después recorra lentamente el resto del anillo.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "La Nebulosa Creciente es material expulsado de la estrella Wolf-Rayet WR 136 que choca con un viento más lento emitido cuando la estrella era una supergigante roja. El impacto produce la envoltura filamentosa visible hoy."
       },
       "caldwell-C28": {
@@ -909,7 +909,7 @@
       "caldwell-C31": {
         "short_description": "IC 405, la Nebulosa de la Estrella Llameante en Auriga, combina gas ionizado y polvo que refleja la luz de AE Aurigae. En las fotografías, las regiones rojas de emisión se entrelazan con velos azulados de reflexión: son componentes distintos del mismo entorno, no dos nebulosas independientes.",
         "observing_notes": "El brillo integrado de C31 está dominado por la estrella AE Aurigae, no por la tenue nebulosa. Usa un campo ancho, protégete de luces parásitas y prueba H-beta en las zonas de emisión; revisa la componente de reflexión sin filtro.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "AE Aurigae, la estrella que ilumina la Nebulosa de la Estrella Llameante, es una fugitiva expulsada de la región de Orión hace millones de años. Su paso actual por una nube que no la originó es casual."
       },
       "caldwell-C32": {
@@ -921,13 +921,13 @@
       "caldwell-C33": {
         "short_description": "C33 comprende NGC 6992 y NGC 6995, la parte oriental de la Nebulosa del Velo en Cisne. Es una cinta de gas dejada por una supernova; los filamentos más nítidos son frentes de choque vistos de canto, mientras los vistos de frente parecen más difusos.",
         "observing_notes": "Utilice un filtro OIII, bajo aumento y un campo amplio; siga lentamente los filamentos a lo largo de toda su extensión.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "El Velo del Este es parte del Bucle del Cisne, la onda de choque de una estrella que explotó hace miles de años. Los finos filamentos marcan el punto donde el frente de supernova se encuentra con nubes interestelares más densas."
       },
       "caldwell-C34": {
         "short_description": "C34 (NGC 6960) es la rama occidental de la Nebulosa del Velo en Cisne, proyectada cerca de la brillante 52 Cygni. Sus largos filamentos curvos pertenecen a un remanente de supernova y brillan donde la onda de choque encuentra el gas interestelar circundante.",
         "observing_notes": "Centre 52 Cygni, inserte un filtro OIII y use el aumento más bajo para seguir los filamentos a ambos lados de la estrella.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "El Velo Occidental atraviesa visualmente la estrella 52 Cygni, pero la estrella solo está en primer plano y no pertenece al remanente de supernova. El contraste hace que este rasgo también se conozca como la Escoba de la Bruja."
       },
       "caldwell-C35": {
@@ -957,7 +957,7 @@
       "caldwell-C39": {
         "short_description": "C39 (NGC 2392) es una nebulosa planetaria de Géminis con una burbuja interior brillante y una envoltura exterior más amplia. Las imágenes del Hubble revelan nudos con forma de cometa en la periferia, con las colas dirigidas hacia fuera respecto a la estrella central.",
         "observing_notes": "C39 es diminuto y de alto brillo superficial. Identifícalo pasando un filtro OIII ante el ocular: la nebulosa sigue brillante mientras las estrellas se atenúan. Sin filtro, aumentos altos pueden separar el disco interior luminoso de la envoltura externa.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "NGC 2392 presenta dos envolturas: una capa interior brillante y una región exterior filamentosa. Los rápidos vientos de la estrella central golpean el material expulsado con anterioridad y generan esta doble arquitectura."
       },
       "caldwell-C40": {
@@ -975,7 +975,7 @@
       "caldwell-C42": {
         "short_description": "C42 (NGC 7006) es un cúmulo globular remoto del halo de la Vía Láctea, proyectado en Delfín. Su enorme distancia lo reduce a un disco pequeño y concentrado: las aperturas medias muestran el núcleo, mientras la periferia sigue siendo un reto de contraste.",
         "observing_notes": "Trata C42 como un objeto compacto, no como un globular extenso. Tras identificarlo con pocos aumentos, prueba aumentos medios-altos para definir el núcleo; resolver estrellas individuales sigue siendo difícil.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "NGC 7006 orbita en las regiones remotas del halo galáctico, a más de 100.000 años luz de nosotros. Su distancia lo convirtió en un tema histórico en el debate sobre el tamaño real de la Vía Láctea."
       },
       "caldwell-C43": {
@@ -999,13 +999,13 @@
       "caldwell-C46": {
         "short_description": "C46 (NGC 2261), la Nebulosa Variable de Hubble, es un pequeño abanico de reflexión en Unicornio, iluminado por R Monocerotis. Se cree que el polvo cercano a la estrella proyecta sombras sobre el resto de la nube y modifica su aspecto incluso en pocas semanas.",
         "observing_notes": "C46 es una pequeña nebulosa de reflexión, por lo que los filtros nebulares no ayudan. Usa aumentos medios para separar el abanico cometario de R Monocerotis y anota su forma y lado más brillante; una comparación semanas después puede revelar cambios.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "La Nebulosa Variable de Hubble puede cambiar de apariencia en tan solo unas pocas semanas, demasiado rápido para que el gas se mueva a esa escala. Son sombras móviles, proyectadas por el polvo cerca de la joven estrella R Monocerotis."
       },
       "caldwell-C47": {
         "short_description": "C47 (NGC 6934) es un cúmulo globular compacto en Delfín, con un centro claramente más brillante y un halo tenue. En un telescopio pequeño parece nebuloso; más apertura y aumentos dan a su borde una textura granulosa.",
         "observing_notes": "C47 responde bien a aumentos medios: observa la transición marcada entre el centro brillante y el halo. Con cielo estable, la visión lateral puede hacer centellear algunas estrellas del borde.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "NGC 6934 contiene estrellas rezagadas azules, más calientes y luminosas de lo esperable para la edad del cúmulo. Su distribución ayuda a reconstruir cómo las colisiones y los sistemas binarios han mezclado el núcleo."
       },
       "caldwell-C48": {
@@ -1017,7 +1017,7 @@
       "caldwell-C49": {
         "short_description": "La Roseta es una extensa región de hidrógeno ionizado en Unicornio que rodea al cúmulo NGC 2244, catalogado por separado como C50. Las estrellas masivas centrales iluminan el gas y excavan una cavidad con sus vientos; las nubes más densas de los bordes siguen formando estrellas.",
         "observing_notes": "Centre el cúmulo NGC 2244, utilice un aumento bajo y un filtro UHC u OIII, luego busque segmentos del anillo alrededor del cúmulo.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "La cavidad central de la Nebulosa Roseta ha sido tallada por la radiación y los vientos de las estrellas jóvenes de NGC 2244. El borde comprimido de la nube contiene glóbulos y pilares donde puede continuar la formación estelar."
       },
       "caldwell-C50": {
@@ -1053,13 +1053,13 @@
       "caldwell-C55": {
         "short_description": "C55 (NGC 7009), la Nebulosa de Saturno, es una planetaria de Acuario con una envoltura ovalada brillante. Dos finas extensiones laterales, las ansas, unen el cuerpo central con nudos de gas exteriores y le dan cierto parecido con el planeta de los anillos.",
         "observing_notes": "C55 es lo bastante brillante para admitir aumentos altos. Usa OIII a potencia media para aislar el disco verde azulado, retíralo y sube los aumentos en noches estables; busca el óvalo interior y las finas ansas laterales.",
-        "best_seen": "Verano y otoño",
+      "best_seen": "Verano y otoño boreales (invierno y primavera australes)",
         "curiosity_text": "Las dos extensiones laterales de la Nebulosa de Saturno se llaman ansae, asas. Son chorros y nudos de alta velocidad que, vistos con poco aumento, le recordaron a Lord Rosse los anillos del planeta."
       },
       "caldwell-C56": {
         "short_description": "NGC 246 es una nebulosa planetaria en Ballena: una envoltura gaseosa alrededor de una enana blanca, con varias estrellas superpuestas en la línea de visión. Al telescopio presenta un resplandor tenue y casi circular, distinto del pequeño disco de alto brillo superficial de otras planetarias.",
         "observing_notes": "C56 es grande para una nebulosa planetaria y su anillo es discontinuo. Usa OIII con aumentos medios para seguir las zonas brillantes y las cavidades oscuras; repite sin filtro para recuperar la estrella central y las estrellas proyectadas sobre el disco.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "En el centro de NGC 246 hay un sistema triple: una enana blanca y una enana roja forman una pareja alrededor de la cual orbita una tercera estrella más distante. La compañera roja, muy débil, fue identificada con el Very Large Telescope en 2014."
       },
       "caldwell-C57": {
@@ -1077,7 +1077,7 @@
       "caldwell-C59": {
         "short_description": "NGC 3242, el Fantasma de Júpiter en Hidra, debe su apodo al parecido de su disco nebuloso con el del planeta. En realidad es gas expulsado por una estrella convertida en enana blanca; las imágenes detalladas muestran una estructura semejante a un ojo dentro de una envoltura mayor.",
         "observing_notes": "Distingue las dos escalas de C59: su disco interior brillante, de unos 20″, admite aumentos altos y responde a OIII, mientras el enorme halo exterior catalogado es un objetivo fotográfico extremadamente tenue. En visual busca el anillo interno y la estrella central.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "El Fantasma de Júpiter tiene dimensiones aparentes cercanas a las del planeta, pero es una capa de gas muy distante. Las capas concéntricas y los pequeños chorros hablan de distintos episodios de pérdida de masa de la estrella central."
       },
       "caldwell-C60": {
@@ -1101,7 +1101,7 @@
       "caldwell-C63": {
         "short_description": "La Nebulosa de la Hélice, NGC 7293 en Acuario, es una de las planetarias más cercanas a la Tierra. Su gran anillo aparente rodea a la estrella moribunda, pero la estructura real incluye componentes inclinados entre sí. Las imágenes de alta resolución muestran nudos gaseosos cuyas colas se alejan de la estrella.",
         "observing_notes": "Utilice un aumento bajo, filtro OIII y cielo oscuro; busque el anillo grande con la visión periférica sin esperar bordes afilados.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "La Nebulosa de la Hélice contiene miles de nudos cometarios, cada uno del tamaño del sistema solar. Sus densas cabezas resisten la radiación de la estrella central, mientras que las largas colas apuntan hacia el exterior."
       },
       "caldwell-C64": {
@@ -1119,7 +1119,7 @@
       "caldwell-C66": {
         "short_description": "C66 (NGC 5694) es un cúmulo globular remoto y compacto en Hidra, perteneciente al halo galáctico exterior. Al ocular es un pequeño resplandor redondo de concentración moderada, más propicio para un cielo transparente que para resolver estrellas con facilidad.",
         "observing_notes": "La declinación austral y la debilidad de C66 exigen un horizonte limpio. Empieza con un campo amplio para identificarlo y usa después aumentos medios y visión lateral para seguir el tenue borde exterior.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "NGC 5694 es un cúmulo globular remoto e inusualmente compacto situado en el halo exterior de la Vía Láctea. Sus propiedades químicas y dinámicas sugieren que pudo originarse en una galaxia enana absorbida posteriormente."
       },
       "caldwell-C67": {
@@ -1131,13 +1131,13 @@
       "caldwell-C68": {
         "short_description": "NGC 6729 es un pequeño abanico de polvo iluminado por la joven estrella variable R Coronae Australis. Está en la nube molecular de Corona Austral, cerca de las nebulosas NGC 6726 y NGC 6727. Su contorno se extiende hacia T Coronae Australis y constituye solo una parte del complejo circundante.",
         "observing_notes": "Mantenga un campo amplio y busque cambios graduales en el brillo entre las estrellas.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "La nebulosidad alrededor de R Coronae Australis cambia porque la estrella es variable y las nubes cercanas proyectan sombras en movimiento. El complejo es una de las regiones de formación estelar más cercanas al sistema solar."
       },
       "caldwell-C69": {
         "short_description": "NGC 6302 es una nebulosa planetaria bipolar en Escorpio, conocida como la Nebulosa de la Mariposa. Dos lóbulos de gas se abren a ambos lados de un denso cinturón de material alrededor de la estrella central. Su espectacular forma en las imágenes procede de distintas fases de expulsión, no de una simple envoltura esférica.",
         "observing_notes": "La declinación austral de C69 exige una noche transparente y observar en el meridiano. OIII ayuda a separar sus dos lóbulos del campo de Escorpio; con aumentos medios-altos busca la cintura oscura que divide la estructura bipolar.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "La estrella central de la Nebulosa de la Mariposa supera los 200.000 K y se encuentra entre las más calientes conocidas. Un denso toro de polvo oculta el centro y obliga al gas a expandirse hacia dos lóbulos opuestos."
       },
       "caldwell-C70": {
@@ -1161,13 +1161,13 @@
       "caldwell-C73": {
         "short_description": "NGC 1851 es un cúmulo globular de Paloma con un centro muy compacto y un halo estelar mucho más difuso. Las observaciones revelan poblaciones de edades distintas: su aspecto de esfera luminosa oculta una historia de formación más compleja que la de un grupo nacido de una sola vez.",
         "observing_notes": "C73 es brillante pero muy concentrado. Con pocos aumentos sepáralo del rico campo próximo a la Pequeña Nube de Magallanes y luego aumenta la potencia para comparar el núcleo casi estelar con el halo de 11′.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "NGC 1851 muestra dos ramas subgigantes distintas en el diagrama de color-magnitud. Esta doble población podría resultar de diferentes episodios de formación o incluso de la fusión de dos cúmulos antiguos."
       },
       "caldwell-C74": {
         "short_description": "NGC 3132, la Nebulosa del Anillo del Sur en Vela, presenta una envoltura gaseosa ovalada recorrida por filamentos de polvo. La estrella más brillante cerca del centro no expulsó ese gas: la responsable es una compañera mucho más débil, convertida en enana blanca.",
         "observing_notes": "Utilice aumentos medios o altos y compare la vista con y sin filtro OIII para apreciar la forma ovalada y la cavidad central.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "Las imágenes del telescopio espacial James Webb han revelado capas y arcos moleculares previamente ocultos en la Nebulosa del Anillo Sur. La estrella moribunda tiene una compañera cercana que contribuye a la estructura asimétrica del material expulsado."
       },
       "caldwell-C75": {
@@ -1191,25 +1191,25 @@
       "caldwell-C78": {
         "short_description": "NGC 6541 es un cúmulo globular de Corona Austral, a unos 22.000 años luz. Los prismáticos ya muestran una concentración luminosa, mientras que un telescopio permite buscar estrellas individuales. Hubble ha estudiado su población en luz visible y ultravioleta para comparar estrellas de distinta composición química.",
         "observing_notes": "C78 muestra un núcleo intenso dentro de un halo amplio. Encuádralo primero con pocos aumentos y pasa después a una potencia media; con buen seeing empiezan a resolverse las estrellas exteriores mientras el centro permanece compacto.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "NGC 6541 es uno de los globulares más concentrados del cielo austral. La fuerte densidad central favorece los encuentros estelares y convierte el núcleo en un laboratorio natural para la dinámica de los sistemas antiguos."
       },
       "caldwell-C79": {
         "short_description": "NGC 3201 es un cúmulo globular relativamente cercano en Vela, a unos 16.000 años luz. Su órbita alrededor del centro galáctico es retrógrada respecto a la rotación del disco de la Vía Láctea. Ese movimiento inusual aporta pistas sobre su historia, pero no demuestra por sí solo un origen extragaláctico.",
         "observing_notes": "C79 es amplio y poco concentrado, por lo que agradece un campo bastante ancho. Bajo un cielo oscuro, aumentos medios convierten su neblina irregular en numerosas estrellas sin perder las prolongaciones exteriores.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "En NGC 3201, se identificó un candidato a agujero negro inactivo observando el movimiento orbital de su compañera visible. El cúmulo también sigue una órbita retrógrada, lo que indica un posible origen externo."
       },
       "caldwell-C80": {
         "short_description": "Omega Centauri, NGC 5139, es el cúmulo globular más masivo de la Vía Láctea: unos diez millones de estrellas forman un extenso sistema, visible incluso a simple vista desde los cielos australes.",
         "observing_notes": "Utilice un campo lo bastante amplio para abarcarlo por completo y aumentos medios para resolver su vasta periferia estelar.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "Las distintas poblaciones estelares y los indicios de un agujero negro central sugieren que Omega Centauri podría ser el núcleo superviviente de una galaxia enana despojada de sus estrellas externas."
       },
       "caldwell-C81": {
         "short_description": "C81 (NGC 6352) es un cúmulo globular compacto y relativamente rico en metales en Altar. Su disco de unos 7′ presenta un centro suave y brillante, rodeado por una periferia que los instrumentos medianos pueden empezar a desgranar.",
         "observing_notes": "Para C81 elige una noche transparente y suficiente altura sobre el horizonte sur. Los aumentos medios mantienen visible su pequeño disco y ayudan a distinguir el resplandor central de las primeras estrellas periféricas.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "NGC 6352 es un cúmulo globular relativamente rico en metales, asociado a las regiones internas de la Galaxia. Su química difiere de la de los cúmulos globulares pobres en elementos pesados que pueblan el halo remoto."
       },
       "caldwell-C82": {
@@ -1227,7 +1227,7 @@
       "caldwell-C84": {
         "short_description": "NGC 5286 es un antiguo cúmulo globular de Centauro, a unos 35.000 años luz. La cercana y mucho más brillante M Centauri crea un contraste llamativo en el campo y puede dificultar la visión del cúmulo con su luz dispersa; la proximidad aparente no implica una asociación física.",
         "observing_notes": "La brillante M Centauri facilita localizar C84, pero puede perjudicar la adaptación a la oscuridad. Déjala justo fuera del campo y usa aumentos medios para buscar granulación en el halo que rodea el núcleo concentrado.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "NGC 5286 contiene poblaciones con diferentes abundancias de hierro, comportamiento poco común para un globular. Podría ser el núcleo superviviente de una galaxia enana asimilada por la Vía Láctea."
       },
       "caldwell-C85": {
@@ -1239,13 +1239,13 @@
       "caldwell-C86": {
         "short_description": "NGC 6397 en Altar es uno de los cúmulos globulares más cercanos, a unos 7.800 años luz. Esa proximidad facilita resolver sus estrellas al telescopio y permitió a Hubble medir su paralaje. Su población muy antigua y pobre en elementos pesados conserva huellas de la joven Vía Láctea.",
         "observing_notes": "C86 es amplio y cercano: usa pocos aumentos para abarcar su extensión y después una potencia media para resolver numerosas estrellas. Su núcleo muy apiñado sigue siendo la mejor prueba del seeing y la apertura.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "NGC 6397 es uno de los globulares más cercanos y antiguos, con una edad cercana a la del Universo. Su núcleo ha sufrido un colapso gravitacional, concentrando fuertemente las estrellas hacia el centro."
       },
       "caldwell-C87": {
         "short_description": "NGC 1261 es un cúmulo globular de Reloj situado a unos 50.000 años luz, con una marcada concentración central. Entre sus estrellas se han identificado variables RR Lyrae y candidatas a rezagadas azules, inusualmente calientes para una población tan antigua.",
         "observing_notes": "C87 aparece como un globo regular con un centro bien condensado. Tras localizarlo, prueba aumentos medios sin estrechar demasiado el campo; la visión lateral revela la periferia y algunas estrellas del borde.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "En NGC 1261 las poblaciones estelares no están distribuidas de la misma manera: las estrellas de segunda generación están más concentradas. La diferencia conserva información sobre la formación inicial y la posterior mezcla dinámica."
       },
       "caldwell-C88": {
@@ -1263,7 +1263,7 @@
       "caldwell-C90": {
         "short_description": "NGC 2867 es una pequeña nebulosa planetaria de Quilla, tan compacta que parece estelar a bajo aumento. Su envoltura casi esférica es gas expulsado por la estrella central e iluminado por radiación ultravioleta. Identificarla exige distinguir su diminuto disco nebuloso de las estrellas del campo.",
         "observing_notes": "Para C90 (NGC 2867), con una extensión de 0,2′ y magnitud integrada 9,7, compare la vista sin filtrar con la filtrada y observe qué estructura cambia realmente.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "La estrella central de NGC 2867 es una Wolf-Rayet rica en carbono y oxígeno. Su espectro revela material producido en las capas internas durante fases avanzadas de la evolución estelar, antes de ser expulsado para formar la nebulosa."
       },
       "caldwell-C91": {
@@ -1275,13 +1275,13 @@
       "caldwell-C92": {
         "short_description": "La Nebulosa de Carina, NGC 3372, es un extenso complejo de formación estelar modelado por estrellas muy masivas. Cavidades, pilares y nubes oscuras rodean el gas luminoso; Eta Carinae está en su interior, pero la pequeña envoltura del Homúnculo no es toda la nebulosa.",
         "observing_notes": "Utilice prismáticos o un telescopio de campo amplio; explore Eta Carinae, las bandas oscuras y los cúmulos inmersos por separado.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "Eta Carinae, dentro de la Nebulosa de Carina, sobrevivió a la Gran Erupción del siglo XIX. El episodio expulsó la Nebulosa del Homúnculo y convirtió brevemente a la estrella en una de las más brillantes del cielo."
       },
       "caldwell-C93": {
         "short_description": "C93 (NGC 6752) es uno de los cúmulos globulares más cercanos y brillantes del cielo austral, en la constelación de Pavo. Su amplio halo de unos 20′ se resuelve generosamente con aperturas moderadas, mientras el centro conserva una trama densa y luminosa.",
         "observing_notes": "Encuadra C93 con pocos aumentos para no recortar su amplio halo y pasa después a una potencia media para seguir cadenas de estrellas hacia el centro. Un campo oscuro hace evidente la diferencia entre núcleo y periferia.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "NGC 6752 presenta suficientes huecos entre sus estrellas para que en imágenes profundas aparezcan galaxias mucho más lejanas detrás del cúmulo. El campo superpone así objetos separados por distancias cósmicas enormes."
       },
       "caldwell-C94": {
@@ -1317,7 +1317,7 @@
       "caldwell-C99": {
         "short_description": "El Saco de Carbón es una extensa nube oscura junto a la Cruz del Sur. En luz visible no brilla por emisión: el polvo intercepta la luz de estrellas más lejanas y crea un vacío aparente en la Vía Láctea. Su silueta se aprecia sobre todo por contraste con el fondo estelar circundante.",
         "observing_notes": "Obsérvela bajo un cielo muy oscuro a simple vista o con prismáticos, comparando el aparente vacío con la Vía Láctea circundante.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "El Saco de Carbón no emite luz: es una nube cercana que oscurece la Vía Láctea. En las tradiciones aborígenes australianas forma la cabeza del emú en el cielo, una constelación dibujada por espacios oscuros en lugar de estrellas."
       },
       "caldwell-C100": {
@@ -1341,43 +1341,43 @@
       "caldwell-C103": {
         "short_description": "La Tarántula, o 30 Doradus, es una gigantesca región de formación estelar en la Gran Nube de Magallanes, no en la Vía Láctea. Estrellas extremadamente masivas iluminan y excavan el gas circundante, creando filamentos y cavidades. NGC 2070 identifica la concentración estelar central asociada a este complejo nebuloso.",
         "observing_notes": "La Tarántula se extiende mucho más allá del núcleo NGC 2070. Usa la menor potencia y un campo ancho para seguir arcos y cavidades en la Gran Nube de Magallanes. Un filtro UHC aumenta el contraste del gas, pero atenúa el rico campo estelar.",
-        "best_seen": "Invierno",
+      "best_seen": "Invierno boreal (verano austral)",
         "curiosity_text": "La Nebulosa de la Tarántula es la región de formación estelar más grande del Grupo Local. Si estuviera a la distancia de la Nebulosa de Orión, proyectaría sombras; en sus proximidades también explotó la supernova SN 1987A."
       },
       "caldwell-C104": {
         "short_description": "NGC 362 es un cúmulo globular de Tucán, proyectado cerca de la Pequeña Nube de Magallanes, pero perteneciente a la Vía Láctea. Es relativamente joven para su clase: sus estrellas son dos o tres mil millones de años más jóvenes que las de muchos otros globulares galácticos.",
         "observing_notes": "C104 es un globular brillante situado delante del campo de la Pequeña Nube de Magallanes, no un miembro suyo. Los aumentos medios realzan su núcleo compacto; compáralo en el mismo cielo con el más extenso 47 Tucanae.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "NGC 362 aparece cerca de la Pequeña Nube de Magallanes, pero pertenece a la Vía Láctea y está mucho más cerca. Es relativamente rico en metales y unos miles de millones de años más joven que muchos globulares clásicos."
       },
       "caldwell-C105": {
         "short_description": "NGC 4833 es un cúmulo globular de Mosca, a unos 22.000 años luz, poblado por estrellas antiguas de la Vía Láctea. Lacaille lo identificó durante su estancia en Sudáfrica en 1751. No es de los globulares más espectaculares con instrumentos pequeños; examinar su población estelar requiere mayor apertura.",
         "observing_notes": "El polvo interestelar atenúa y enrojece C105, de modo que la transparencia y la culminación importan más que muchos aumentos. Usa un campo medio para captar su halo irregular y aumenta solo mientras el borde siga claro.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "NGC 4833 se observa a través de una región polvorienta que atenúa su luz. La órbita lo lleva repetidamente al disco galáctico, donde las mareas pueden haberle quitado una parte sustancial de su masa original."
       },
       "caldwell-C106": {
         "short_description": "47 Tucanae, NGC 104, es un cúmulo globular muy brillante con al menos medio millón de estrellas, fuertemente concentradas hacia el centro. Aparece cerca de la Pequeña Nube de Magallanes, pero pertenece a la Vía Láctea y está mucho más próximo. Su núcleo compacto y su amplio halo ofrecen dos escalas que explorar.",
         "observing_notes": "Utilice un campo medio para incluir el halo, luego suba el aumento para resolver la periferia y estudiar el núcleo.",
-        "best_seen": "Otoño",
+      "best_seen": "Otoño boreal (primavera austral)",
         "curiosity_text": "En 47 Tucanae las estrellas más masivas migran hacia el centro, mientras que las más ligeras se desplazan hacia el exterior. La distribución de las rezagadas azules funciona como un reloj dinámico que permite medir la evolución interna del cúmulo."
       },
       "caldwell-C107": {
         "short_description": "C107 (NGC 6101) es un cúmulo globular remoto e inusualmente poco concentrado en Ave del Paraíso. Su halo amplio y uniforme carece de un núcleo dominante; bajo un cielo oscuro parece una nube delicada que las grandes aperturas convierten en trama estelar.",
         "observing_notes": "No busques en C107 el núcleo brillante típico de los globulares compactos. Mantén aumentos bajos o medios y protege la adaptación a la oscuridad; el mejor resultado es una resolución difusa de todo el disco.",
-        "best_seen": "Verano",
+      "best_seen": "Verano boreal (invierno austral)",
         "curiosity_text": "NGC 6101 muestra sorprendentemente poca segregación en masa, a pesar de su edad. Una población de agujeros negros estelares retenida en el cúmulo puede haber ralentizado su evolución dinámica interna."
       },
       "caldwell-C108": {
         "short_description": "NGC 4372 es un cúmulo globular de Mosca que aparece como un resplandor amplio y débil cerca de la nebulosa oscura Dark Doodad. Una estrella relativamente brillante próxima puede atraer la mirada antes que el cúmulo. El campo reúne estrellas, luz difusa y una nube que oculta la Vía Láctea del fondo.",
         "observing_notes": "C108 es amplio, pero está oscurecido por el polvo del Saco de Carbón. Obsérvalo a máxima altura con un campo ancho; la visión lateral recupera el halo débil, mientras demasiados aumentos diluyen rápidamente su contraste.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "NGC 4372 se encuentra detrás del polvo del Saco de Carbón y aparece muy rojo. Se trata de un cúmulo globular muy bajo en metales, una reliquia de las primeras etapas de formación de la Vía Láctea."
       },
       "caldwell-C109": {
         "short_description": "NGC 3195 es una nebulosa planetaria en Camaleón, muy al sur en el cielo. Su pequeña envoltura de gas expulsado por la estrella central puede parecer una estrella ensanchada con un telescopio mediano. Está a unos 5.500 años luz y fue descubierta por John Herschel en 1835.",
         "observing_notes": "Para C109 (NGC 3195), utilice su tamaño de 0,6′ para mantener a la vista toda la nebulosa antes de reducir el campo.",
-        "best_seen": "Primavera",
+      "best_seen": "Primavera boreal (otoño austral)",
         "curiosity_text": "NGC 3195 es una de las nebulosas planetarias más australes accesibles a los observadores. Su estructura alargada y sus flujos de alta velocidad indican que la eyección de la estrella central no fue esférica."
       },
       "ngc-NGC292": {

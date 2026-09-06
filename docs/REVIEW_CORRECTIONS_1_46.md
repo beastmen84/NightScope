@@ -50,6 +50,17 @@ M40, C14 and C94 pass six contact sheets / 30 QML scenes with complete seasonal
 labels in both themes. Coverage is unchanged; 11 accepted batches now cover
 209 distinct remediated baseline IDs.
 
+## Source 1.46.17 — baseline globulars and nebulae
+
+R4, third bounded step: the remaining 87 baseline deep-sky `best_seen` fields
+are explicit in IT/EN/ES, bringing the corrected baseline total to 219.
+C80 now pairs northern spring with southern autumn, consistent with the
+[NASA observing guidance](https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-caldwell-catalog/caldwell-80/).
+The three evidence URLs pass. C80, M42, C20, C105 and M76 pass all six contact
+sheets / 30 QML scenes. No coordinate, magnitude, observing note, description,
+curiosity or difficulty changed. The ledger has 12 accepted batches and
+219 distinct remediated baseline IDs; NGC coverage remains unchanged.
+
 ## Remaining editorial steps
 
 R4 explicitly qualifies existing seasonal guidance without changing catalogue

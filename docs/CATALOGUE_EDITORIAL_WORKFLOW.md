@@ -213,6 +213,7 @@ Accepted batch ledger:
 | `1.46.9` | NGC enrichment | 20 planetary nebulae with distinct structure, observing limits and source-backed facts | 95 | 197 | 7,271 |
 | `1.46.15` | Baseline remediation | Hemisphere-qualified periods for 75 existing galaxies; other fields unchanged | 95 | 203 | 7,271 |
 | `1.46.16` | Baseline remediation | Hemisphere-qualified periods for 54 open clusters and three other stellar-field targets | 95 | 209 | 7,271 |
+| `1.46.17` | Baseline remediation | Hemisphere-qualified periods for 87 globular clusters and nebulous targets | 95 | 219 | 7,271 |
 
 The `1.46.9` batch deliberately uses fewer than the 100-object ceiling. Its
 20 records distinguish faint envelopes from bright compact cores, infrared
