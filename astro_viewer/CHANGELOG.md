@@ -6,6 +6,10 @@
   piano e alternative, senza costruire schede dettagli e setup completi.
   Conservati tutti gli oggetti, ordine, testi, immagini e fallback personali;
   nessuna cache persistente o modifica ai calcoli scientifici.
+- Accorpate le notifiche consecutive della Home nel percorso desktop asincrono;
+  mantenuti notifiche sincrone del controller diretto, segnali delle altre
+  pagine e aggiornamenti successivi o rientranti. Il timer appartiene al
+  controller e viene fermato alla chiusura.
 
 ## NightScope 1.46.20 - 2026-09-07
 

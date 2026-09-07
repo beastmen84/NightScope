@@ -267,9 +267,10 @@ class AppController(QObject, ObservingCalculations):
         self._catalogueMonthRefreshFinished.connect(self._finish_catalogue_month_refresh)
         self._detailGeometryFinished.connect(self._finish_detail_geometry)
         self._transientEventsRefreshFinished.connect(self._finish_transient_event_refresh)
-        self.dataChanged.connect(self.homeNightPlanChanged.emit)
-        self.weatherChanged.connect(self.homeNightPlanChanged.emit)
-        self.equipmentChanged.connect(self.homeNightPlanChanged.emit)
+        self._home_night_plan_notification_timer: QTimer | None = None
+        self.dataChanged.connect(self._notify_home_night_plan_changed)
+        self.weatherChanged.connect(self._notify_home_night_plan_changed)
+        self.equipmentChanged.connect(self._notify_home_night_plan_changed)
         self.equipmentChanged.connect(self.profileInventoryChanged.emit)
         self.selectedObjectChanged.connect(self.observingObjectDetailChanged.emit)
         self.weatherChanged.connect(self.observingObjectDetailChanged.emit)
@@ -4795,6 +4796,13 @@ class AppController(QObject, ObservingCalculations):
         )
 
     def _enable_observing_refresh(self) -> None:
+        # The desktop UI observes one complete publication, not three rebuilds
+        # from the equipment/data/weather burst. Direct synchronous controllers
+        # retain their immediate notifications and getters always read fresh data.
+        self._home_night_plan_notification_timer = QTimer(self)
+        self._home_night_plan_notification_timer.setSingleShot(True)
+        self._home_night_plan_notification_timer.setInterval(0)
+        self._home_night_plan_notification_timer.timeout.connect(self.homeNightPlanChanged.emit)
         self._observing_refresh_coordinator = ObservingRefreshCoordinator(
             capture=self._prepare_observing_calculation,
             signature=self._observing_refresh_signature,
@@ -4806,7 +4814,18 @@ class AppController(QObject, ObservingCalculations):
         self._observing_refresh_coordinator.changed.connect(self.statusChanged.emit)
 
     @Slot()
+    def _notify_home_night_plan_changed(self) -> None:
+        timer = self._home_night_plan_notification_timer
+        if timer is None or not QCoreApplication.instance():
+            self.homeNightPlanChanged.emit()
+        elif not timer.isActive():
+            timer.start()
+
+    @Slot()
     def stopPerformanceWorkers(self) -> None:
+        timer = getattr(self, "_home_night_plan_notification_timer", None)
+        if timer is not None:
+            timer.stop()
         coordinator = getattr(self, "_observing_refresh_coordinator", None)
         if coordinator is not None:
             coordinator.cancel()
