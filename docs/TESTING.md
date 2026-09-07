@@ -5,6 +5,29 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Unreleased Observing Refresh Parity Correction
+
+The post-1.46.21 source correction preserves the sequential effects of
+coalesced profile/VIIRS and weather/month refreshes, including changing
+equipment, weather and conditions. VERSION and public bundles are unchanged.
+The initial M31 ranking regression, per-request snapshots, independent Git
+oracle and remaining scope are documented in
+`PERFORMANCE_REFRESH_PARITY_FIX.md`. Earlier parity statements below describe
+their original test scenarios, not this subsequently discovered overlap case.
+
+Final `tools/run_checks.py --coverage --security`: 1,911 tests and ten subtests
+pass in 263.48 s, with 87% coverage (19,039 / 21,948). This adds 182 test cases
+to the preceding 1,729-test review. All standard static/data/dependency checks
+pass; pip-audit reports no known vulnerabilities. Isolated source smokes pass:
+backend 11.2 s, normal QML 10.4 s and Red Night Vision QML 11.1 s.
+Log: `build/performance-overlap-fix-20260907/full-source-gate-final.log`.
+Forty independent coalesced scenarios compare all 23 payload groups against
+`cda5912`, with default/full catalogues, adding/removing optics and changing
+weather: zero mismatches. Four ordinary full-catalogue refreshes also match.
+The repeated AST comparison preserves all 19 shared calculation routines.
+See the correction report for exact evidence files and diagnostic iterations.
+No distribution, publication or Linux validation is implied.
+
 ## Public Windows Release And Website - 1.46.21
 
 On 2026-09-07 GitHub confirms the user's Windows-only `v1.46.21` release,

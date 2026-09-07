@@ -13,7 +13,7 @@ from collections.abc import Callable
 
 from PySide6.QtCore import QObject, QTimer, Signal, Slot
 
-from astro_viewer.app.application.observing_refresh import ObservingRefreshCancelled
+from astro_viewer.app.application.observing_refresh import ObservingEquipmentSnapshot, ObservingRefreshCancelled
 
 
 logger = logging.getLogger(__name__)
@@ -26,6 +26,7 @@ class ObservingRefreshRequest:
     recalculate_outputs: bool | None = True
     month: int | None = None
     completion: Callable[[], None] | None = None
+    equipment_snapshot: ObservingEquipmentSnapshot | None = None
 
 
 class ObservingRefreshCoordinator(QObject):

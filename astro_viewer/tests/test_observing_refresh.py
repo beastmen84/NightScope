@@ -3,6 +3,7 @@
 from copy import deepcopy
 from dataclasses import replace
 from datetime import datetime, timedelta
+from itertools import permutations
 from threading import Event, Thread, get_ident
 from time import monotonic, sleep
 from types import SimpleNamespace
@@ -13,10 +14,11 @@ import pytest
 from PySide6.QtCore import QCoreApplication, QTimer
 
 from astro_viewer.app.application.observing_refresh import (
-    SERVICE_FIELDS, STATE_FIELDS, ObservingRefreshCalculation, ObservingRefreshCancelled,
+    SERVICE_FIELDS, STATE_FIELDS, ObservingEquipmentSnapshot, ObservingRefreshCalculation, ObservingRefreshCancelled,
 )
 from astro_viewer.app.astronomy.engine import ObserverLocation, ObservingNightWindow
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
+from astro_viewer.app.models.equipment import Eyepiece, Telescope
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.models.observing import MoonGeometrySummary
 from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshReason
@@ -90,6 +92,285 @@ def test_detached_refresh_matches_all_synchronous_outputs(observing_controller, 
     assert worker.sky_compass == controller._sky_compass
     assert worker.sky_compass_candidates == controller._sky_compass_candidate_snapshot
     assert worker.inputs.state == before
+
+
+def _overlap_fixture(controller, *, initially_optical, weather=True, context_change=None):
+    """Seed a populated old profile; retain real equipment/conditions/ranking services."""
+    telescope = Telescope("overlap-scope", "Newton 150/750", 150, 750, "Newton", "manuale")
+    eyepieces = [Eyepiece(f"overlap-{mm}", f"{mm} mm", mm, 60.) for mm in (25., 10.)]
+
+    def set_optical(optical):
+        _set_profile_equipment(controller, telescopes=[telescope] if optical else [],
+                               eyepieces=eyepieces if optical else [])
+
+    controller._sky_quality = SkyQuality(6, 5.5, 19.5, "test", "Polluted sky")
+    initial_sky, initial_seeing = controller._sky_quality, controller._seeing_transparency
+    weather_result = controller._weather_summary
+    if not weather:
+        controller._weather_summary = None
+    initial_weather = controller._weather_summary
+    controller._score_service.weather_score = Mock(return_value=weather_result)
+    controller._seeing_service.estimate = Mock(return_value=(
+        SeeingTransparency("Scarso", "Mediocre", 35, 55, "Updated weather")
+        if context_change == "weather" else initial_seeing
+    ))
+    controller._complete_weather_publication = Mock()
+    controller._complete_profile_publication = Mock()
+    controller._complete_condition_provider_publication = Mock()
+    controller._complete_viirs_publication = Mock()
+    set_optical(initially_optical)
+    controller._refresh_active_profile_dependencies()
+    initial = deepcopy({name: getattr(controller, name) for name in STATE_FIELDS})
+    initial_month = controller._catalogue_selected_month
+    next_month = initial_month % 12 + 1
+    key = controller._catalogue_visibility_cache_key()
+    controller._catalogue_visibility_cache[(*key[:4], next_month, key[-1])] = dict(controller._catalogue_visibility_map())
+
+    def restore():
+        for name, value in deepcopy(initial).items():
+            setattr(controller, name, value)
+        controller._catalogue_selected_month = initial_month
+        controller._weather_summary = initial_weather
+        controller._sky_quality, controller._seeing_transparency = initial_sky, initial_seeing
+        controller._home_target_timing = None
+        set_optical(initially_optical)
+
+    def dispatch(action):
+        if action == "profile":
+            set_optical(not initially_optical)
+            controller._refresh_active_profile_dependencies()
+        elif action == "weather":
+            controller._complete_weather_refresh("", False)
+        elif action == "conditions":
+            if context_change == "conditions":
+                controller._sky_quality = SkyQuality(8, 4.0, 18.0, "test", "Updated conditions")
+            controller._recalculate_after_condition_provider_refresh()
+        elif action == "month":
+            controller._publish_catalogue_month(
+                next_month, asynchronous=controller._observing_refresh_coordinator is not None,
+            )
+        elif action == "viirs":
+            set_optical(not initially_optical)
+            controller._finish_viirs_deep_sky_refresh(
+                SimpleNamespace(failed=False, deep_sky=controller._base_deep_sky), "Updated sky",
+            )
+        else:
+            raise AssertionError(action)
+
+    return restore, dispatch, initial
+
+
+def _overlap_outputs(controller):
+    """Include public payloads, not just private caches or a selected winner."""
+    result = {name: getattr(controller, name) for name in (
+        *STATE_FIELDS, "_sky_compass", "_sky_compass_candidate_snapshot", "_catalogue_selected_month",
+    )}
+    result["recommendedDeepSky"] = controller.recommendedDeepSky
+    result["homeNightPlanOverview"] = controller.homeNightPlanOverview
+    return deepcopy(result)
+
+
+OVERLAP_SEQUENCES = [
+    *permutations(("profile", "weather", "conditions")),
+    ("profile", "weather"), ("weather", "profile"),
+    ("profile", "month"), ("month", "profile"),
+    ("viirs", "weather"), ("weather", "viirs"),
+    ("profile", "weather", "profile"), ("weather", "profile", "weather"),
+]
+
+
+@pytest.mark.parametrize("sequence", OVERLAP_SEQUENCES, ids=lambda value: "-".join(value))
+@pytest.mark.parametrize("initially_optical", [False, True], ids=["add-optics", "remove-optics"])
+@pytest.mark.parametrize("in_flight", [False, True], ids=["pending", "superseded-worker"])
+@pytest.mark.parametrize("context_change", [None, "weather", "conditions"], ids=["stable", "new-weather", "new-sky"])
+def test_coalesced_rebuild_matches_sequential_profile_side_effects(
+    qt_app, observing_controller, sequence, initially_optical, in_flight, context_change,
+):
+    controller = observing_controller
+    restore, dispatch, initial = _overlap_fixture(
+        controller, initially_optical=initially_optical, context_change=context_change,
+    )
+    for action in sequence:
+        dispatch(action)
+    expected = _overlap_outputs(controller)
+    assert expected["_deep_sky_raw_condition_input_by_id"] != initial["_deep_sky_raw_condition_input_by_id"]
+    restore()
+    tasks = []
+    controller._start_background_task = tasks.append
+    controller._enable_observing_refresh()
+    coordinator = controller._observing_refresh_coordinator
+    try:
+        for index, action in enumerate(sequence):
+            dispatch(action)
+            if in_flight and index == 0:
+                coordinator._start()
+        if in_flight:
+            assert len(tasks) == 1
+            tasks.pop(0)()
+            # An obsolete worker must not publish even its intermediate caches.
+            assert {name: getattr(controller, name) for name in STATE_FIELDS} == initial
+        coordinator._start()
+        assert len(tasks) == 1
+        tasks.pop(0)()
+        assert not coordinator.active
+        actual = _overlap_outputs(controller)
+        for name, value in expected.items():
+            assert actual[name] == value, name
+    finally:
+        controller.stopPerformanceWorkers()
+
+
+@pytest.mark.parametrize("sequence", [("profile", "weather"), ("weather", "profile")])
+@pytest.mark.parametrize("initially_optical", [False, True])
+def test_coalesced_profile_before_first_weather_preserves_sequential_outputs(
+    qt_app, observing_controller, sequence, initially_optical,
+):
+    controller = observing_controller
+    restore, dispatch, _initial = _overlap_fixture(controller, initially_optical=initially_optical, weather=False)
+    for action in sequence:
+        dispatch(action)
+    expected = _overlap_outputs(controller)
+    restore()
+    tasks = []
+    controller._start_background_task = tasks.append
+    controller._enable_observing_refresh()
+    try:
+        for action in sequence:
+            dispatch(action)
+        controller._observing_refresh_coordinator._start()
+        tasks.pop(0)()
+        actual = _overlap_outputs(controller)
+        for name, value in expected.items():
+            assert actual[name] == value, name
+    finally:
+        controller.stopPerformanceWorkers()
+
+
+@pytest.mark.parametrize("sequence,apply_pollution,refresh_context", [
+    (("weather",), False, False),
+    (("profile",), True, True),
+    (("profile", "weather"), False, True),
+    (("weather", "profile"), True, True),
+])
+@pytest.mark.parametrize("changed_weather", [False, True])
+def test_merged_pollution_refresh_does_not_repeat_equipment_or_ranking(
+    observing_controller, sequence, apply_pollution, refresh_context, changed_weather,
+):
+    controller = observing_controller
+    snapshot = ObservingEquipmentSnapshot(
+        controller._catalogue_recommendation_preparation_context(),
+        tuple(controller._base_solar_system_objects), tuple(controller._base_deep_sky),
+    )
+    requests = {}
+    for kind in sequence:
+        context = snapshot.context
+        if kind == "weather" and changed_weather:
+            context = replace(context, seeing_transparency=SeeingTransparency("Scarso", "Mediocre", 35, 55, "Changed"))
+        requests[kind] = ObservingRefreshRequest(
+            rebuild_equipment=True, apply_pollution=kind == "profile",
+            equipment_snapshot=replace(snapshot, context=context),
+        )
+    worker = controller._prepare_observing_calculation(requests, lambda: False)
+    assert worker.inputs.apply_pollution is apply_pollution
+    assert worker.inputs.refresh_pollution_context is refresh_context
+    rebuild = Mock(wraps=worker._refresh_equipment_recommendations_for_current_objects)
+    pollution = Mock(wraps=worker._apply_deep_sky_pollution_context)
+    ranking = Mock(wraps=worker._refresh_conditioned_observing_candidates)
+    worker._refresh_equipment_recommendations_for_current_objects = rebuild
+    worker._apply_deep_sky_pollution_context = pollution
+    worker._refresh_conditioned_observing_candidates = ranking
+    worker.calculate()
+    expected_rebuilds = 2 if changed_weather and sequence == ("profile", "weather") else 1
+    assert rebuild.call_count == expected_rebuilds
+    assert all(call.kwargs == {"refresh_conditioned": False} for call in rebuild.call_args_list)
+    ranking.assert_called_once_with()
+    assert pollution.call_count == int(refresh_context)
+    assert worker._context is worker.inputs.context
+
+
+def test_separate_pollution_preparation_cannot_resurrect_empty_final_sources(observing_controller):
+    controller = observing_controller
+    controller._refresh_active_profile_dependencies()
+    pollution = ObservingEquipmentSnapshot(
+        controller._catalogue_recommendation_preparation_context(),
+        tuple(controller._base_solar_system_objects), tuple(controller._base_deep_sky),
+    )
+    controller._base_solar_system_objects = controller._solar_system_objects = []
+    controller._base_deep_sky = controller._deep_sky = []
+    equipment = replace(pollution, solar_system_source=(), deep_sky_source=())
+    worker = calculation(controller, rebuild_equipment=True, apply_pollution=False,
+                         refresh_pollution_context=True, equipment_snapshot=equipment, pollution_snapshot=pollution)
+    controller._refresh_equipment_recommendations_for_current_objects(refresh_conditioned=False)
+    controller._recalculate_observing_outputs()
+    worker.calculate()
+    for name, value in worker.results().items():
+        assert value == getattr(controller, name), name
+    assert not worker._deep_sky and not worker._solar_system_objects
+    assert worker._deep_sky_raw_condition_input_by_id
+
+
+def test_weather_supersedes_real_worker_after_profile_pollution_preparation(qt_app, observing_controller):
+    controller = observing_controller
+    restore, dispatch, initial = _overlap_fixture(controller, initially_optical=True)
+    dispatch("profile")
+    dispatch("weather")
+    expected = _overlap_outputs(controller)
+    restore()
+    entered, release = Event(), Event()
+    threads, captures, calculation_threads = [], [], []
+
+    def start(target):
+        thread = Thread(target=target, daemon=True)
+        threads.append(thread)
+        thread.start()
+
+    controller._start_background_task = start
+    controller._enable_observing_refresh()
+    coordinator = controller._observing_refresh_coordinator
+    original_capture = coordinator._capture
+
+    def capture(requests, cancelled):
+        worker = original_capture(requests, cancelled)
+        captures.append(tuple(requests))
+        if len(captures) == 1:
+            original_pollution = worker._apply_deep_sky_pollution_context
+
+            def pollution(objects):
+                result = original_pollution(objects)
+                calculation_threads.append(get_ident())
+                entered.set()
+                assert release.wait(10), "test must release the superseded worker"
+                return result
+
+            worker._apply_deep_sky_pollution_context = pollution
+        return worker
+
+    coordinator._capture = capture
+    try:
+        dispatch("profile")
+        deadline = monotonic() + 10
+        while not entered.is_set() and monotonic() < deadline:
+            qt_app.processEvents()
+            sleep(.002)
+        assert entered.is_set()
+        assert {name: getattr(controller, name) for name in STATE_FIELDS} == initial
+        dispatch("weather")
+        assert len(threads) == 1
+        release.set()
+        while coordinator.active and monotonic() < deadline:
+            qt_app.processEvents()
+            sleep(.002)
+        assert not coordinator.active
+        assert captures == [("profile",), ("profile", "weather")]
+        assert calculation_threads and get_ident() not in calculation_threads
+        actual = _overlap_outputs(controller)
+        for name, value in expected.items():
+            assert actual[name] == value, name
+    finally:
+        release.set()
+        for thread in threads:
+            thread.join(timeout=10)
+        controller.stopPerformanceWorkers()
 
 
 def test_worker_cancellation_prevents_equipment_and_publication(observing_controller):
@@ -187,8 +468,20 @@ def test_async_cached_month_keeps_selection_until_complete_and_matches_sync(qt_a
     assert controller._sky_compass_service._live_direction == expected._sky_compass_service._live_direction
 
 
-def test_async_conditions_and_profile_publish_on_latest_context(qt_app, observing_controller):
+def test_async_profile_then_conditions_preserves_sequence_and_latest_ranking(qt_app, observing_controller):
     controller = observing_controller
+    initial = deepcopy({name: getattr(controller, name) for name in STATE_FIELDS})
+    initial_sky = controller._sky_quality
+    updated_sky = SkyQuality(7, 4.0, 18.0, "test", "Updated")
+    # The oracle is the original two-step controller route: the new conditions
+    # update ranking, but do not retroactively rebuild the earlier profile.
+    controller._refresh_active_profile_dependencies()
+    controller._sky_quality = updated_sky
+    controller._recalculate_after_condition_provider_refresh()
+    expected = _overlap_outputs(controller)
+    for name, value in initial.items():
+        setattr(controller, name, value)
+    controller._sky_quality = initial_sky
     tasks = []
     controller._start_background_task = tasks.append
     controller._enable_observing_refresh()
@@ -197,16 +490,16 @@ def test_async_conditions_and_profile_publish_on_latest_context(qt_app, observin
     controller._refresh_active_profile_dependencies()
     coordinator = controller._observing_refresh_coordinator
     coordinator._start()
-    controller._sky_quality = SkyQuality(7, 4.0, 18.0, "test", "Updated")
+    controller._sky_quality = updated_sky
     controller._recalculate_after_condition_provider_refresh()
     assert len(tasks) == 1
     tasks.pop(0)()
     controller._complete_profile_publication.assert_not_called()
-    expected = calculation(controller, rebuild_equipment=True, apply_pollution=True).calculate()
     coordinator._start()
     tasks.pop(0)()
-    for name, value in expected.results().items():
-        assert value == getattr(controller, name), name
+    actual = _overlap_outputs(controller)
+    for name, value in expected.items():
+        assert actual[name] == value, name
     controller._complete_profile_publication.assert_called_once()
     controller._complete_condition_provider_publication.assert_called_once()
 

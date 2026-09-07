@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- Corretta una regressione nell'accorpamento degli aggiornamenti osservativi:
+  cambio profilo o VIIRS seguito da meteo/mese conserva ora i dati grezzi
+  dell'attrezzatura e il contesto d'inquinamento necessari alle raccomandazioni.
+  La lista finale mantiene la regola dell'ultimo aggiornamento, senza applicare
+  indiscriminatamente l'inquinamento luminoso a tutti i percorsi.
+- Conservati gli input delle richieste anche quando meteo o condizioni cambiano
+  prima della preparazione. Un solo worker e un solo ranking finale; la seconda
+  preparazione dell'attrezzatura serve soltanto se i due contesti sono diversi.
+  Aggiunte regressioni con cambi reali di strumenti, ordini diversi, richieste
+  duplicate e annullamento a calcolo avviato. Formule e criteri invariati.
+- Correzione nei sorgenti, non ancora rilasciata: VERSION e distribuzioni
+  restano invariati. Evidenze in `docs/PERFORMANCE_REFRESH_PARITY_FIX.md`.
+
 ## NightScope 1.46.21 - 2026-09-07
 
 - Pubblicata dall'utente per Windows soltanto; Linux pubblico resta 1.43.0.

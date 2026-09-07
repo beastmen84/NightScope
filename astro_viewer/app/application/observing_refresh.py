@@ -9,7 +9,8 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
-from dataclasses import dataclass
+from contextlib import contextmanager
+from dataclasses import dataclass, replace
 
 from astro_viewer.app.application.catalogue_recommendations import (
     apply_object_content_from_sources,
@@ -19,7 +20,7 @@ from astro_viewer.app.application.catalogue_recommendations import (
 from astro_viewer.app.application.observing_calculations import ObservingCalculations, ObservingRefreshCancelled
 from astro_viewer.app.application.snapshots import CatalogueRecommendationPreparationContext
 from astro_viewer.app.astronomy.engine import ObserverLocation
-from astro_viewer.app.models.observing import MoonGeometrySummary
+from astro_viewer.app.models.observing import CelestialObject, MoonGeometrySummary
 from astro_viewer.app.services.catalogue_query_service import CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG
 from astro_viewer.app.services.home_target_timing import HomeTargetTimingSnapshot
 from astro_viewer.app.services.observing_time import first_observing_datetime
@@ -43,6 +44,23 @@ SERVICE_FIELDS = (
 
 
 @dataclass(frozen=True)
+class ObservingEquipmentSnapshot:
+    """Retain a rebuild's inputs, not calculations or a controller reference."""
+
+    context: CatalogueRecommendationPreparationContext
+    solar_system_source: tuple[CelestialObject, ...]
+    deep_sky_source: tuple[CelestialObject, ...]
+
+    def same_equipment_inputs(self, other: ObservingEquipmentSnapshot | None) -> bool:
+        if other is None:
+            return False
+        fields = ("telescopes", "eyepieces", "barlows", "binoculars", "seeing_transparency", "sky_quality")
+        return (self.solar_system_source == other.solar_system_source
+                and self.deep_sky_source == other.deep_sky_source
+                and all(getattr(self.context, name) == getattr(other.context, name) for name in fields))
+
+
+@dataclass(frozen=True)
 class ObservingRefreshInputs:
     context: CatalogueRecommendationPreparationContext
     state: dict[str, object]
@@ -56,6 +74,9 @@ class ObservingRefreshInputs:
     rebuild_equipment: bool
     apply_pollution: bool
     recalculate_outputs: bool | None = True
+    refresh_pollution_context: bool = False
+    equipment_snapshot: ObservingEquipmentSnapshot | None = None
+    pollution_snapshot: ObservingEquipmentSnapshot | None = None
 
 
 class ObservingRefreshCalculation(ObservingCalculations):
@@ -95,11 +116,29 @@ class ObservingRefreshCalculation(ObservingCalculations):
 
     def calculate(self):
         self.check_cancelled()
+        equipment = self.inputs.equipment_snapshot
+        pollution = self.inputs.pollution_snapshot
+        separate_pollution = pollution is not None and not pollution.same_equipment_inputs(equipment)
+        if separate_pollution:
+            # Preserve the earlier profile/VIIRS raw inputs even if weather has
+            # since changed the equipment advice. Intermediate rankings are not
+            # needed, and no intermediate result leaves this worker.
+            self._rebuild_equipment(pollution)
+            self.check_cancelled()
+            with self._using_equipment_snapshot(pollution):
+                self._apply_deep_sky_pollution_context(self._deep_sky)
+            self.check_cancelled()
         if self.inputs.rebuild_equipment:
-            self._refresh_equipment_recommendations_for_current_objects(refresh_conditioned=False)
+            self._rebuild_equipment(equipment)
         self.check_cancelled()
-        if self.inputs.apply_pollution:
-            self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
+        if not separate_pollution and (self.inputs.apply_pollution or self.inputs.refresh_pollution_context):
+            # A profile/VIIRS refresh also replaces raw NSOM inputs and the
+            # pollution read model. A later weather/month rebuild retains those
+            # effects, but leaves the final deep-sky display unconditioned.
+            with self._using_equipment_snapshot(pollution or equipment):
+                conditioned = self._apply_deep_sky_pollution_context(self._deep_sky)
+            if self.inputs.apply_pollution:
+                self._deep_sky = conditioned
         self.check_cancelled()
         if self.inputs.recalculate_outputs is True:
             self._recalculate_observing_outputs()
@@ -117,6 +156,36 @@ class ObservingRefreshCalculation(ObservingCalculations):
         )
         self.check_cancelled()
         return self
+
+    def _rebuild_equipment(self, snapshot: ObservingEquipmentSnapshot | None):
+        with self._using_equipment_snapshot(snapshot):
+            if snapshot is not None:
+                # Empty sources must not fall back to an earlier preparation.
+                self._solar_system_objects = list(snapshot.solar_system_source)
+                self._deep_sky = list(snapshot.deep_sky_source)
+            self._refresh_equipment_recommendations_for_current_objects(refresh_conditioned=False)
+
+    @contextmanager
+    def _using_equipment_snapshot(self, snapshot: ObservingEquipmentSnapshot | None):
+        if snapshot is None:
+            yield
+            return
+        context, sky, seeing = self._context, self._sky_quality, self._seeing_transparency
+        solar, deep_sky = self._base_solar_system_objects, self._base_deep_sky
+        captured = snapshot.context
+        self._context = replace(
+            context, telescopes=captured.telescopes, eyepieces=captured.eyepieces,
+            barlows=captured.barlows, binoculars=captured.binoculars,
+            pollution_condition_inputs=captured.pollution_condition_inputs,
+        )
+        self._sky_quality, self._seeing_transparency = captured.sky_quality, captured.seeing_transparency
+        self._base_solar_system_objects = list(snapshot.solar_system_source)
+        self._base_deep_sky = list(snapshot.deep_sky_source)
+        try:
+            yield
+        finally:
+            self._context, self._sky_quality, self._seeing_transparency = context, sky, seeing
+            self._base_solar_system_objects, self._base_deep_sky = solar, deep_sky
 
     def results(self):
         return {name: getattr(self, name) for name in STATE_FIELDS}

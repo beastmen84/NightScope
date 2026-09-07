@@ -4,6 +4,22 @@ Updated: 2026-09-07
 
 ## Current State
 
+- Unreleased source correction after `57d4b37`: restore sequential equivalence
+  when profile/VIIRS and weather/month observing requests are coalesced.
+  Per-request equipment snapshots preserve the earlier raw/pollution inputs
+  even if weather or conditions change; the last rebuild still controls final
+  display policy. One worker and one final ranking, at most two necessary
+  preparations. See `docs/PERFORMANCE_REFRESH_PARITY_FIX.md` for the reproduced
+  1.46.20 regression, implementation and validation. VERSION remains 1.46.21;
+  this correction is not in the existing dist/public ZIP. No data, website,
+  rebuild, tag, push or release changes. Previous broad parity statements below
+  describe their tested scenarios and do not negate this later finding.
+  Final source/security gate: 1,911 tests / ten subtests, 87% coverage,
+  no known pip-audit vulnerabilities and isolated backend/normal/red smokes.
+  Evidence: `build/performance-overlap-fix-20260907/full-source-gate-final.log`.
+  Forty coalesced cases and four ordinary full-catalogue refreshes match all
+  23 payload groups against `cda5912`; the 19 shared calculation routines are
+  AST-identical apart from their pre-existing cancellation boundaries.
 - Current public Windows release: `v1.46.21`, published by the user on
   2026-09-07 for **Windows only**.
   GitHub metadata confirms a non-draft/non-prerelease release and one asset,

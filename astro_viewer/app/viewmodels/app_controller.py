@@ -18,6 +18,7 @@ from astro_viewer.app.application.observing_calculations import ObservingCalcula
 from astro_viewer.app.application.observing_refresh import (
     STATE_FIELDS as OBSERVING_STATE_FIELDS,
     SERVICE_FIELDS as OBSERVING_SERVICE_FIELDS,
+    ObservingEquipmentSnapshot,
     ObservingRefreshCalculation,
     ObservingRefreshInputs,
 )
@@ -4777,7 +4778,10 @@ class AppController(QObject, ObservingCalculations):
         Thread(target=target, daemon=True).start()
 
     def _capture_observing_refresh(self, *, rebuild_equipment: bool, apply_pollution: bool,
-                                  recalculate_outputs: bool | None = True, month: int | None = None) -> ObservingRefreshInputs:
+                                  recalculate_outputs: bool | None = True, month: int | None = None,
+                                  refresh_pollution_context: bool = False,
+                                  equipment_snapshot: ObservingEquipmentSnapshot | None = None,
+                                  pollution_snapshot: ObservingEquipmentSnapshot | None = None) -> ObservingRefreshInputs:
         selected_month = self._catalogue_selected_month if month is None else month
         key = catalogue_query_service.catalogue_visibility_cache_key(self._location, self._catalogue_year, selected_month)
         cached = self._catalogue_visibility_cache.get(key)
@@ -4798,6 +4802,9 @@ class AppController(QObject, ObservingCalculations):
             rebuild_equipment=rebuild_equipment,
             apply_pollution=apply_pollution,
             recalculate_outputs=recalculate_outputs,
+            refresh_pollution_context=refresh_pollution_context,
+            equipment_snapshot=equipment_snapshot,
+            pollution_snapshot=pollution_snapshot,
         )
 
     def _enable_observing_refresh(self) -> None:
@@ -4845,6 +4852,14 @@ class AppController(QObject, ObservingCalculations):
         coordinator = getattr(self, "_observing_refresh_coordinator", None)
         if coordinator is None or not QCoreApplication.instance():
             return False
+        if kwargs.get("rebuild_equipment"):
+            # Capture each request's calculation context before another provider
+            # changes it; preparation and ranking still run only on the worker.
+            kwargs["equipment_snapshot"] = ObservingEquipmentSnapshot(
+                context=self._catalogue_recommendation_preparation_context(),
+                solar_system_source=tuple(self._base_solar_system_objects or self._solar_system_objects),
+                deep_sky_source=tuple(self._recommendation_eligible_objects(self._base_deep_sky or self._deep_sky)),
+            )
         coordinator.request(kind, ObservingRefreshRequest(**kwargs))
         return True
 
@@ -4862,11 +4877,15 @@ class AppController(QObject, ObservingCalculations):
     def _prepare_observing_calculation(self, requests, cancelled) -> ObservingRefreshCalculation:
         ordered = list(requests.values())
         rebuilding = [request for request in ordered if request.rebuild_equipment]
+        polluting = [request for request in rebuilding if request.apply_pollution]
         months = [request.month for request in ordered if request.month is not None]
         output_modes = [request.recalculate_outputs for request in ordered if request.recalculate_outputs is not None]
         inputs = self._capture_observing_refresh(
             rebuild_equipment=bool(rebuilding),
             apply_pollution=rebuilding[-1].apply_pollution if rebuilding else False,
+            refresh_pollution_context=bool(polluting),
+            equipment_snapshot=rebuilding[-1].equipment_snapshot if rebuilding else None,
+            pollution_snapshot=polluting[-1].equipment_snapshot if polluting else None,
             recalculate_outputs=output_modes[-1] if output_modes else None,
             month=months[-1] if months else None,
         )
