@@ -89,6 +89,7 @@ from astro_viewer.app.models.sky import (
 )
 from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlockingStatus, WeatherHour, WeatherSummary
 from astro_viewer.app.services.object_imagery import resolve_object_image
+from astro_viewer.app.services import home_target_timing
 from astro_viewer.app.services.earthdata_credentials import (
     EARTHDATA_LAADS_AUTHORIZATION_URL,
 )
@@ -1012,12 +1013,16 @@ class AppController(QObject, ObservingCalculations):
         base_url = self._object_image_base_url()
         # Home only consumes compact row fields. Never build full detail DTOs
         # (and their nested setup options) for the entire enabled catalogue.
-        # This projection is local to one read: language, night and personal
-        # image changes cannot leave a retained presentation cache stale.
+        # Images and rendered text stay local to each read. Only clock labels
+        # and ordering can reuse the worker's exact target/night preparation.
+        timing = self._home_target_timing_for(target_pool)
         target_payloads_by_id = {
-            item.id: self._home_target_to_qml(item, base_url=base_url)
+            item.id: self._home_target_to_qml(
+                item, base_url=base_url, time_labels=timing.labels_by_id[item.id],
+            )
             for item in target_pool
         }
+        plan_ids = {item.object_id for item in self._night_plan}
         return render_payload(self._home_night_plan_overview_service.build(
             session=self._home_observing_overview_payload().get("session", {}),
             night_plan=self._night_plan,
@@ -1025,7 +1030,7 @@ class AppController(QObject, ObservingCalculations):
             setup_models_by_object_id=self._equipment_setup_read_models_by_object_id,
             alternatives=[
                 target_payloads_by_id[item.id]
-                for item in self._home_alternative_targets(target_pool)
+                for item in timing.ordered_targets if item.id not in plan_ids
             ],
             active_profile=self._active_profile_payload(),
             assigned_equipment=self._profile_assigned_equipment(),
@@ -4823,6 +4828,7 @@ class AppController(QObject, ObservingCalculations):
 
     @Slot()
     def stopPerformanceWorkers(self) -> None:
+        self._home_target_timing = None
         timer = getattr(self, "_home_night_plan_notification_timer", None)
         if timer is not None:
             timer.stop()
@@ -4874,6 +4880,7 @@ class AppController(QObject, ObservingCalculations):
             if name == "_moon_geometry_condition_cache":
                 value = {**value, **self._moon_geometry_condition_cache}
             setattr(self, name, value)
+        self._home_target_timing = calculation.home_target_timing
         if calculation._visibility_ready:
             inputs = calculation.inputs
             key = catalogue_query_service.catalogue_visibility_cache_key(inputs.location, inputs.catalogue_year,
@@ -6163,34 +6170,18 @@ class AppController(QObject, ObservingCalculations):
     def _home_alternative_sort_key(
         self, item: CelestialObject
     ) -> tuple[int, int, int, tuple[tuple[int, int | str], ...]]:
-        window_start = self._first_observing_datetime(item.observing_window)
-        best_time = self._first_observing_datetime(item.best_time)
-        window_order = self._home_alternative_time_order(window_start or best_time)
-        best_time_order = self._home_alternative_time_order(best_time)
-        category_order = 0 if item.object_type == "Pianeta" else 1
-        return (
-            window_order,
-            best_time_order,
-            category_order,
-            self._natural_name_sort_key(item.name),
+        return home_target_timing.alternative_sort_key(
+            item, getattr(self, "_observing_night_window", None),
         )
 
     @staticmethod
     def _natural_name_sort_key(value: str) -> tuple[tuple[int, int | str], ...]:
-        return tuple(
-            (1, int(part)) if part.isdigit() else (0, part.casefold())
-            for part in re.split(r"(\d+)", value)
-            if part
-        )
+        return home_target_timing.natural_name_sort_key(value)
 
     def _home_alternative_time_order(self, target_time: datetime | None) -> int:
-        if target_time is None:
-            return 10_000
-        window = getattr(self, "_observing_night_window", None)
-        if window is not None and window.start is not None:
-            return round((target_time - window.start).total_seconds() / 60)
-        hour = (target_time.hour + 24) if target_time.hour < 12 else target_time.hour
-        return hour * 60 + target_time.minute
+        return home_target_timing.alternative_time_order(
+            target_time, getattr(self, "_observing_night_window", None),
+        )
 
     def _solar_system_monthly_visible_for_home(self, item: CelestialObject) -> bool:
         visibility = self._catalogue_month_visible_for_object(item.id)
@@ -6736,12 +6727,26 @@ class AppController(QObject, ObservingCalculations):
         base_dir = getattr(self, "_base_dir", None) or Path(__file__).resolve().parents[2]
         return QUrl.fromLocalFile(str(base_dir)).toString()
 
-    def _home_target_to_qml(self, item: CelestialObject, *, base_url: str) -> dict:
+    def _home_target_timing_for(self, targets: list[CelestialObject]) -> home_target_timing.HomeTargetTimingSnapshot:
+        night_window = getattr(self, "_observing_night_window", None)
+        timing = getattr(self, "_home_target_timing", None)
+        if timing is None or not timing.matches(targets, night_window):
+            # Direct synchronous controllers and presentation-only replacements
+            # keep a correct fallback. Retain at most one exact-input snapshot.
+            timing = home_target_timing.HomeTargetTimingSnapshot.build(targets, night_window)
+            self._home_target_timing = timing
+        return timing
+
+    def _home_target_to_qml(
+        self, item: CelestialObject, *, base_url: str, time_labels: tuple[str, str] | None = None,
+    ) -> dict:
         """Project only the input fields consumed by HomeNightPlanOverviewService."""
         default_metadata, personal_metadata = self._object_image_sources(item)
         image_metadata = personal_metadata or default_metadata
         default_image = default_metadata["image_path"]
-        window_label = self._home_window_label(item)
+        if time_labels is None:
+            window_label = self._home_window_label(item)
+            time_labels = (window_label, "" if window_label else self._home_time_label(item))
         return {
             "id": item.id,
             "name": item.name,
@@ -6752,8 +6757,8 @@ class AppController(QObject, ObservingCalculations):
                 default_image if default_image.startswith("file:") else base_url + "/" + default_image
             ),
             "homeCategory": "planet" if item.object_type == "Pianeta" else "deep_sky",
-            "homeWindowLabel": window_label,
-            "homeTimeLabel": "" if window_label else self._home_time_label(item),
+            "homeWindowLabel": time_labels[0],
+            "homeTimeLabel": time_labels[1],
             "direction": item.direction,
             "difficulty": item.difficulty,
         }

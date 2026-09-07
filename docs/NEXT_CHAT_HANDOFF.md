@@ -4,7 +4,27 @@ Updated: 2026-09-07
 
 ## Current State
 
-- Source version: `1.46.20`; implementation of the follow-up performance review:
+- Source version: `1.46.21`; Home performance follow-up implemented. Lean
+  per-target projection and coalesced UI notifications are committed separately
+  as `efce203` and `18d53b7`. The existing observing worker now also prepares
+  immutable clock labels/sorting, with exact target/night identity checks.
+  Full payloads, profile state and personal-image metadata remain fresh.
+  See `docs/PERFORMANCE_IMPROVEMENTS_1_46_21.md` for paired results and limits.
+  109 focused Home/worker tests and the complete security/source gate pass:
+  1,728 tests / ten subtests in 181.12 s, 87% coverage (18,971 / 21,896),
+  unchanged Bandit baseline, no known pip-audit vulnerabilities and isolated
+  backend/normal/red smokes (9.6/9.0/8.2 s). Inventory: 271 Python / 36 QML /
+  17 operational files. Log: `build/home-performance-1.46.21/final-source-gate.log`.
+  Paired getter results match `8e86509`; full-catalogue prepared Home reads
+  are 0.098-0.123 s versus 3.044-3.457 s, cold fallback 0.503-0.537 s.
+  Actual QML month/profile heartbeat gaps improve from 13.88/28.77 s to
+  1.19/1.18 s; do not claim a fully nonblocking UI. Final QML probes include
+  69 captures, filters, last-row scrolling and a real full-detail click.
+  One earlier incubation/context warning pair was not reproduced in the
+  identical rerun or later tests, but is documented and not declared fixed.
+  Standalone qmllint remains an old, unresolved tooling limit; no new pass.
+  No user data, distribution, push, tag or publication is in scope.
+- Previous source `1.46.20`; implementation of the follow-up performance review:
   recoverable monthly failures, one final profile ranking, shared detached
   recommendation calculations and a bounded observing-refresh coordinator.
   General astronomy requests are bounded; detail geometry no longer waits
@@ -80,7 +100,7 @@ Updated: 2026-09-07
   existing DB snapshot and preferences have unchanged before/after hashes.
 - Public Windows remains 1.46.13 and Linux 1.43.0. This local rebuild does not
   publish an archive, push, create a tag or wait for GitHub Actions. The next
-  unused source patch is 1.46.21; new NGC work requires the user's next request.
+  unused source patch is 1.46.22; new NGC work requires the user's next request.
 - Public release update: on 2026-09-06 the user published `v1.46.13` for
   Windows only. Release metadata, the public tag and the exact asset name
   were checked through GitHub. README, manual, current release records and

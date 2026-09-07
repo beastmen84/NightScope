@@ -10,6 +10,29 @@ verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 del 2026-09-06 non chiude automaticamente i controlli mancanti della matrice:
 le verifiche in `RELEASE_CHECKLIST.md` restano specifiche di ogni artefatto.
 
+## Prestazioni Home - Sorgente 1.46.21
+
+- QML reale con catalogo predefinito e completo, Home/catalogo/profili,
+  IT/EN/ES e normale/rosso: 36 scene e otto stati di transizione. Sono verificati
+  ComboBox mensile, piano precedente, snapshot attrezzatura e 7.594 visibilità.
+- Ulteriori 25 catture: righe iniziali/finali in 12 combinazioni di lingua,
+  tema e larghezza (1440/1040), più apertura con clic della scheda completa.
+  Tutte le 4.458 alternative, i tre filtri di tipo e il filtro Sky Compass
+  coincidono con il backend. Ispezionati quattro campioni tabella/dettaglio,
+  incluso compatto inglese e rosso spagnolo. Nessun file QML o asset modificato.
+- Le prove finali non emettono warning QML. Una prima esecuzione automatizzata
+  aveva emesso due warning di incubazione/distruzione del contesto durante
+  navigazione rapida: non riprodotti nella ripetizione identica con diagnostica
+  né nelle prove successive, ma non dichiarati risolti. Nessuna soppressione
+  degli assert o correzione applicativa è stata introdotta per nasconderli.
+- Le catture restano offscreen: non approvano un nuovo pacchetto o il renderer
+  nativo sul PC dell'utente. Il messaggio di posizione della fixture e i limiti
+  delle icone rosse descritti sotto non vengono corretti nel codice applicativo.
+- Evidenze e confronto col vecchio percorso in
+  `PERFORMANCE_IMPROVEMENTS_1_46_21.md`, `build/home-performance-1.46.21/qml-final-*`
+  e `qml-rows/`. Restano pause Qt fino a circa 1,2 s con tutto il catalogo;
+  il miglioramento del getter non equivale a interfaccia interamente non bloccante.
+
 ## Reattività Ricalcoli - Sorgente 1.46.20
 
 - QML reale con catalogo predefinito e interamente attivo, Home/catalogo/profili,

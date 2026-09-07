@@ -104,13 +104,19 @@ def test_home_projection_preserves_every_field_for_session_and_profile(home_cont
     assert actual["alternatives"]["totalCount"] > 10
 
 
-@pytest.mark.parametrize("night", [None, "unavailable", "ordinary", "spring_dst", "autumn_dst"])
+@pytest.mark.parametrize("night", [None, "unavailable", "no_night", "continuous", "ordinary", "spring_dst", "autumn_dst"])
 def test_home_projection_preserves_midnight_dst_and_legacy_clock_fallbacks(home_controller, night):
     controller = home_controller
     if night is None:
         del controller._observing_night_window
     elif night == "unavailable":
         controller._observing_night_window = ObservingNightWindow.unavailable()
+    elif night == "no_night":
+        controller._observing_night_window = ObservingNightWindow.no_night()
+    elif night == "continuous":
+        controller._observing_night_window = ObservingNightWindow.continuous_night(
+            datetime(2026, 12, 7, tzinfo=ZoneInfo("Europe/Oslo")),
+        )
     else:
         month, day = {"ordinary": (9, 7), "spring_dst": (3, 28), "autumn_dst": (10, 24)}[night]
         start = datetime(2026, month, day, 19, tzinfo=ZoneInfo("Europe/Rome"))
@@ -137,8 +143,11 @@ def test_home_projection_preserves_translated_contract(home_controller, tmp_path
     translation = TranslationManager(BASE_DIR / "translations", tmp_path / "preferences.json")
     assert translation.install()
     try:
+        home_controller.homeNightPlanOverview
+        timing = home_controller._home_target_timing
         assert translation.setLanguage(language)
         assert home_controller.homeNightPlanOverview == legacy_overview(home_controller)
+        assert home_controller._home_target_timing is timing
     finally:
         translation.setLanguage("it")
         app.removeTranslator(translation._translator)

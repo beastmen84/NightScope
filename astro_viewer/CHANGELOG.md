@@ -2,14 +2,29 @@
 
 ## Unreleased
 
+## NightScope 1.46.21 - 2026-09-07
+
 - La Home prepara una sola proiezione compatta per bersaglio, condivisa fra
   piano e alternative, senza costruire schede dettagli e setup completi.
   Conservati tutti gli oggetti, ordine, testi, immagini e fallback personali;
-  nessuna cache persistente o modifica ai calcoli scientifici.
+  nessuna cache del payload finale o modifica ai calcoli scientifici.
 - Accorpate le notifiche consecutive della Home nel percorso desktop asincrono;
   mantenuti notifiche sincrone del controller diretto, segnali delle altre
   pagine e aggiornamenti successivi o rientranti. Il timer appartiene al
   controller e viene fermato alla chiusura.
+- Orari e ordinamento della Home preparati nel worker osservativo già presente,
+  senza nuovi thread o copie dei setup completi. Un solo snapshot immutabile,
+  riutilizzabile soltanto per gli stessi bersagli e la stessa notte; immagini
+  personali, profilo e testi sono letti nuovamente a ogni richiesta.
+- Il controller sincrono e i cambi di sola presentazione conservano un fallback
+  corretto. Nessuna modifica a database, precisione, punteggi, layout QML,
+  timer periodici, backup o distribuzioni. Evidenze e limiti nel rapporto
+  `docs/PERFORMANCE_IMPROVEMENTS_1_46_21.md`.
+- Gate completo superato: 1.728 test e dieci subtest, copertura 87%, sicurezza
+  e smoke backend/QML normale/rosso. Parità dei dati con `8e86509`, anche con
+  4.462 bersagli; getter preparato circa 0,10–0,12 s. Le prove QML mantengono
+  pause fino a circa 1,2 s: non tutti i rallentamenti sono risolti. Documentato
+  anche un warning sporadico di navigazione non riprodotto nelle prove finali.
 
 ## NightScope 1.46.20 - 2026-09-07
 

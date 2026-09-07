@@ -3,7 +3,7 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.46.20` (performance source changes; no matching bundle or public tag).
+Current target: `v1.46.21` (performance source changes; no matching bundle or public tag).
 The validated local Windows bundle remains 1.46.18 and does not contain these optimizations.
 Current public Windows release: `v1.46.13`. Current public Linux release: `v1.43.0`.
 The user published `v1.46.13` on 2026-09-06 for Windows only. GitHub exposes one
@@ -22,10 +22,10 @@ new platform artifact. Historical Windows/Linux evidence remains dated.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   generated-art provenance, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.46.20` source tag referenced by the
+- [ ] Create and verify the public `v1.46.21` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [x] Confirm source version, changelog, source-availability notices, and
-  About/build metadata agree on `1.46.20`.
+  About/build metadata agree on `1.46.21`.
 - [x] Freeze the release scope; defer unrelated refactors.
 
 ## 2. Automated Validation
@@ -33,10 +33,10 @@ new platform artifact. Historical Windows/Linux evidence remains dated.
 - [ ] Install runtime and developer requirements in a clean virtual environment.
 - [x] Keep the Windows release constraints, Python patch, and committed
   third-party license inventory exactly aligned.
-- [x] Run `python tools/run_checks.py --security` against source 1.46.20:
-  1,646 tests / ten subtests, 87% coverage; see TESTING. No artifact approval.
+- [x] Run `python tools/run_checks.py --security` against source 1.46.21:
+  1,728 tests / ten subtests, 87% coverage; see TESTING. No artifact approval.
 - [x] Run all translation compilation and catalogue tests.
-- [x] Run both normal and Red Night Vision QML smoke tests from source 1.46.20
+- [x] Run both normal and Red Night Vision QML smoke tests from source 1.46.21
   in disposable runtimes, plus the backend smoke.
 - [ ] Repeat `qmllint` over all packaged QML source files (36). Their last
   complete pass is 1.46.19; sources are unchanged, but the tool now hangs on

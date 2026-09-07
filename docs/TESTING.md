@@ -5,6 +5,33 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Home Presentation Responsiveness - 1.46.21 Source
+
+The Home follow-up preserves the full output contract while removing rich
+detail DTO work, coalescing asynchronous desktop notifications and preparing
+clock labels/sorting in the existing observing worker. One exact-input timing
+snapshot is retained; images, profile and rendered payloads remain fresh.
+
+The complete 2026-09-07 `tools/run_checks.py --security` gate passes:
+1,728 tests and ten subtests in 181.12 s, 87% coverage (18,971 / 21,896).
+Isolated backend/normal/red QML smokes pass in 9.6/9.0/8.2 s. All source,
+dependency, license, catalogue, imagery and import/layer checks pass;
+pip-audit finds no known vulnerabilities and the Bandit baseline remains
+48 findings (zero high). Inventory: 271 Python / 36 QML / 17 operational.
+Log: `build/home-performance-1.46.21/final-source-gate.log`.
+
+109 focused Home/worker tests also pass. Paired old/new checks cover all fields
+of Home, public alternatives and full details for 131 and 4,462 targets.
+The final QML probes cover 36 page scenes, eight transitions and 25 row/detail
+captures, including type/Compass filters, the final catalogue row and its
+actual click-through to full details, in IT/EN/ES and both themes. Final runs
+have no QML warnings; one earlier incubation warning pair was not reproduced
+and is disclosed rather than suppressed. The QML source is unchanged; no new
+standalone qmllint pass is claimed. Measurements, intermediate test corrections
+and remaining synchronous/UI limits are documented in
+`PERFORMANCE_IMPROVEMENTS_1_46_21.md`. Evidence directory:
+`build/home-performance-1.46.21/`. No bundle has been rebuilt.
+
 ## Observing Refresh Responsiveness - 1.46.20 Source
 
 The 2026-09-07 complete `tools/run_checks.py --security` gate passes:

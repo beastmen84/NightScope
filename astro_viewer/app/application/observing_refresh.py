@@ -21,6 +21,7 @@ from astro_viewer.app.application.snapshots import CatalogueRecommendationPrepar
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.models.observing import MoonGeometrySummary
 from astro_viewer.app.services.catalogue_query_service import CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG
+from astro_viewer.app.services.home_target_timing import HomeTargetTimingSnapshot
 from astro_viewer.app.services.observing_time import first_observing_datetime
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
 
@@ -84,6 +85,7 @@ class ObservingRefreshCalculation(ObservingCalculations):
         self.sky_compass_candidates = None
         self._visibility_ready = inputs.visibility_cached
         self.visibility = inputs.visibility
+        self.home_target_timing = None
 
     def check_cancelled(self):
         if self._cancelled():
@@ -108,6 +110,11 @@ class ObservingRefreshCalculation(ObservingCalculations):
             self._refresh_sky_compass()
         else:
             self._refresh_conditioned_observing_candidates()
+        self.check_cancelled()
+        self.home_target_timing = HomeTargetTimingSnapshot.build(
+            self._tonight_target_pool(), self._observing_night_window,
+            check_cancelled=self.check_cancelled,
+        )
         self.check_cancelled()
         return self
 
