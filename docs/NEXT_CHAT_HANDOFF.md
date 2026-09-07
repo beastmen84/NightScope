@@ -4,6 +4,29 @@ Updated: 2026-09-07
 
 ## Current State
 
+- Current public Windows release: `v1.46.21`, published by the user on
+  2026-09-07 for **Windows only**.
+  GitHub metadata confirms a non-draft/non-prerelease release and one asset,
+  `NightScope-v1.46.21-windows-x64.zip` (222,256,635 bytes). The user corrected
+  the initial duplicate extension on GitHub; the current asset has the same
+  size and GitHub-reported SHA-256 as before:
+  `660e32088ea680c008a4c8f4f005439d1af9ab86fb16fda0b777530db7a37d37`.
+  Public tag `v1.46.21` resolves to `f6b45e96f61e8d268157f1459f3a7791340881ff`;
+  compared with the validated build source `66c4b5a`, only validation docs differ.
+  The uploaded ZIP was not downloaded/re-audited in this documentation task.
+  Linux remains **1.43.0**, with its existing tarball/checksum verified on GitHub.
+  README, source notices, manual, release records and EN/IT/ES website sources
+  now reflect that split. This documentation work leaves application code,
+  VERSION, dist and website layout/assets unchanged. The existing GitHub Pages
+  workflow is retained; no Sites project, hosting migration or remote writes
+  by the agent. See TESTING for checks of the corrected download/update identity.
+  Validation: 79 documentation/website/update-manager tests pass twice (10.06/9.84 s),
+  Ruff and documentation inventory pass; corrected download HEAD is 200 and
+  seven recorded-metadata update-selector checks pass. The four checked dist
+  files retain their pre-edit hashes. No new full application or bundle gate.
+  This follow-up is local documentation/site source work; no push or deployment
+  is performed. Publishing the documentation commit triggers GitHub Pages.
+  The new release supersedes the historical public-version statements below.
 - Review and local Windows rebuild completed on 2026-09-07. No blocking
   Home regression found and no application/QML changes were needed. The full
   security gate passes again (1,728 tests / ten subtests, 87% coverage), as do
@@ -113,8 +136,8 @@ Updated: 2026-09-07
   The user manually removed the old 1.46.13 dist after tool-policy rejection;
   no backup was made. Test copies/runtimes were removed; development DB,
   existing DB snapshot and preferences have unchanged before/after hashes.
-- Public Windows remains 1.46.13 and Linux 1.43.0. This local rebuild does not
-  publish an archive, push, create a tag or wait for GitHub Actions. The next
+- At the time of that rebuild, public Windows was 1.46.13 and Linux 1.43.0.
+  The subsequent Windows publication is recorded above. The next
   unused source patch is 1.46.22; new NGC work requires the user's next request.
 - Public release update: on 2026-09-06 the user published `v1.46.13` for
   Windows only. Release metadata, the public tag and the exact asset name
@@ -222,7 +245,7 @@ Updated: 2026-09-07
   heuristic scoring weights remain untouched. Astronomy now uses positive
   absolute useful intervals, UTC elapsed time, conservative target-aware
   twilight, explicit unavailable ephemerides and valid-only provider rows.
-- Current public Windows release: `v1.46.13`, published 2026-09-06 at
+- Previous public Windows release: `v1.46.13`, published 2026-09-06 at
   13:27:16 UTC. The public tag points to
   `b34ec4a85783fde74bd384565aa6e3f0638e00eb`; its changes after the validated
   build source `be30cda` are documentation only. The release contains exactly
@@ -766,7 +789,7 @@ batches; they are not implied by each patch.
 
 ## Release Boundary
 
-The stable public versions are `v1.46.13` for Windows and `v1.43.0` for Linux.
+The stable public versions are `v1.46.21` for Windows and `v1.43.0` for Linux.
 Source readiness is not publication, and validation or publication of one
 platform does not approve the other. Before a future artifact, update the target
 version, run the coverage/security gate, compile translations, complete QML and

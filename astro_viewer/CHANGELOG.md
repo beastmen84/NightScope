@@ -4,6 +4,10 @@
 
 ## NightScope 1.46.21 - 2026-09-07
 
+- Pubblicata dall'utente per Windows soltanto; Linux pubblico resta 1.43.0.
+  Documentazione e website IT/EN/ES aggiornati ai pacchetti effettivamente
+  disponibili. Tag pubblico `v1.46.21` verificato; nessuna modifica al codice
+  applicativo o ai pacchetti già pubblicati durante questo aggiornamento.
 - La Home prepara una sola proiezione compatta per bersaglio, condivisa fra
   piano e alternative, senza costruire schede dettagli e setup completi.
   Conservati tutti gli oggetti, ordine, testi, immagini e fallback personali;

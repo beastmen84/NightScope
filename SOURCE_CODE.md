@@ -1,34 +1,33 @@
 # Source Code Availability
 
-This file accompanies the NightScope 1.46.21 development source. Its intended
-release tag is `v1.46.21`, not yet created or published. The planned source URL
-`https://github.com/beastmen84/NightScope/tree/v1.46.21` must be verified before
-distributing a corresponding binary. The current branch contains the source
-and build scripts; no new portable package is claimed here.
+This file identifies the corresponding source for NightScope 1.46.21, published
+on 2026-09-07 for Windows only. The public `v1.46.21` tag and Windows release
+were verified through GitHub. This documentation update does not rebuild or
+replace the already published portable package.
 
-The public portable Windows release remains NightScope 1.46.13.
+The public portable Windows release is NightScope 1.46.21.
 The published Linux package remains version 1.43.0 and carries its own
 version-specific source and native-component notices.
 
 ## NightScope
 
 NightScope is distributed under the Mozilla Public License 2.0. The complete
-corresponding source for the public Windows release is identified by `v1.46.13`:
+corresponding source for the public Windows release is identified by `v1.46.21`:
 
 - Repository: `https://github.com/beastmen84/NightScope`
-- Release source: `https://github.com/beastmen84/NightScope/tree/v1.46.13`
+- Release source: `https://github.com/beastmen84/NightScope/tree/v1.46.21`
 - Source archive:
-  `https://github.com/beastmen84/NightScope/archive/refs/tags/v1.46.13.tar.gz`
+  `https://github.com/beastmen84/NightScope/archive/refs/tags/v1.46.21.tar.gz`
 
 The source tag includes the PyInstaller specifications and scripts used to
 produce the portable bundles. The project license is reproduced in `LICENSE`.
-The public `v1.46.13` tag points to `b34ec4a85783fde74bd384565aa6e3f0638e00eb`.
-Its changes after the validated Windows build source `be30cda` are validation
+The public `v1.46.21` tag points to `f6b45e96f61e8d268157f1459f3a7791340881ff`.
+Its changes after the validated Windows build source `66c4b5a` are validation
 documentation only; application code and packaged resources are unchanged.
 
 ## Qt And Qt For Python
 
-NightScope 1.46.13 uses unmodified PySide6/shiboken6 6.11.2 and Qt 6.11.2 under
+NightScope 1.46.21 uses unmodified PySide6/shiboken6 6.11.2 and Qt 6.11.2 under
 the LGPL-3.0-only option. Complete corresponding upstream source is available
 without charge from:
 

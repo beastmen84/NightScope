@@ -6,9 +6,18 @@ Questo documento conserva i controlli visuali di release iniziati con la
 sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
 verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 `archive/TESTING_HISTORY_THROUGH_1.45.6.md`. Il bundle pubblico corrente e'
-`1.46.13` su Windows, mentre Linux resta a `1.43.0`. La pubblicazione Windows
-del 2026-09-06 non chiude automaticamente i controlli mancanti della matrice:
+`1.46.21` su Windows, mentre Linux resta a `1.43.0`. La pubblicazione Windows
+del 2026-09-07 non chiude automaticamente i controlli mancanti della matrice:
 le verifiche in `RELEASE_CHECKLIST.md` restano specifiche di ogni artefatto.
+
+## Documentazione E Website - Release Windows 1.46.21
+
+Aggiornati soltanto testi/link di release in README, manuale e sito EN/IT/ES,
+incluse etichette accessibili, FAQ, JSON-LD e sitemap. Windows indica 1.46.21,
+Linux resta 1.43.0. Layout, CSS, screenshot e icone non sono modificati.
+I controlli strutturali/di navigazione sono automatici; non viene dichiarata
+una nuova review visuale browser, desktop o del pacchetto già pubblicato.
+Il sorgente del sito viene aggiornato localmente, senza push/deploy in questa fase.
 
 ## Review E Bundle Windows - 1.46.21
 

@@ -3,14 +3,17 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.46.21` (reviewed source and validated local Windows bundle;
-no public tag verified by this build). Local `dist/NightScope` now contains
+Current target: `v1.46.21` (published for Windows only). Local `dist/NightScope` contains
 the 1.46.19-1.46.21 performance changes. Scope and remaining gates are in
 `REVIEW_HOME_PERFORMANCE_1_46_21.md`; this is not publication approval.
-Current public Windows release: `v1.46.13`. Current public Linux release: `v1.43.0`.
-The user published `v1.46.13` on 2026-09-06 for Windows only. GitHub exposes one
-`NightScope-v1.46.13-windows-x64.zip` asset and tag `v1.46.13` at `b34ec4a`.
-The preceding local Windows build was validated from `be30cda`; the tag adds
+Current public Windows release: `v1.46.21`. Current public Linux release: `v1.43.0`.
+The user published `v1.46.21` on 2026-09-07 for Windows only. GitHub exposes one
+`NightScope-v1.46.21-windows-x64.zip` asset and tag `v1.46.21` at `f6b45e9`.
+The user corrected the initial duplicate extension on GitHub; the current asset
+retains the same size and GitHub-reported SHA-256. Use the single-extension URL.
+The corrected URL responds to HEAD and the unchanged source update selector
+recognizes this Windows asset; see TESTING for scoped checks, not upgrade approval.
+The preceding local Windows build was validated from `66c4b5a`; the tag adds
 only validation documentation. The uploaded ZIP was not downloaded or
 re-audited during this documentation update. Unchecked gates remain open:
 publication alone does not provide missing evidence or approve a Linux build.
@@ -24,7 +27,7 @@ new platform artifact. Historical Windows/Linux evidence remains dated.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   generated-art provenance, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.46.21` source tag referenced by the
+- [x] Verify the user-created public `v1.46.21` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [x] Confirm source version, changelog, source-availability notices, and
   About/build metadata agree on `1.46.21`.
@@ -147,6 +150,10 @@ test copy and its three fresh runtimes were removed. The final bundle is pristin
 
 ## 7. Linux Artifact
 
+Deferred: no new Linux artifact accompanies the Windows-only 1.46.21 release.
+The public Linux download remains 1.43.0. Select a separate version only when
+a new Linux build and release are explicitly in scope.
+
 - [ ] Build through the declared Debian 12 x86-64/glibc 2.36 container with
   `packaging/build_linux_debian12.sh`.
 - [ ] Generate the environment-specific Python license archive.
@@ -162,10 +169,10 @@ test copy and its three fresh runtimes were removed. The final bundle is pristin
 - [ ] Confirm GIO modules remain isolated so newer-host GVFS plugins are not
   loaded against the bundled Debian 12 GLib.
 - [ ] Create the deterministic
-  `NightScope-v1.46.13-debian-12-x64.tar.gz` and adjacent SHA-256 file.
+  `NightScope-v<VERSION>-debian-12-x64.tar.gz` and adjacent SHA-256 file.
 - [ ] Verify checksum, extraction, audit and smoke tests from the final archive.
-- [ ] Publish the tarball and checksum together with the matching Windows ZIP
-  in the public `v1.46.13` GitHub release when both platforms are approved.
+- [ ] Publish the tarball and checksum in the matching version's GitHub release
+  only after that Linux artifact is approved.
   Update discovery checks actual compatible assets; publication can remain
   platform-specific and must not imply validation of the other platform.
 

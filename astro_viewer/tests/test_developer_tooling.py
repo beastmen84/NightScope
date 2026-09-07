@@ -866,11 +866,12 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     )
     assert (PROJECT_ROOT / "website" / "index.html").is_file()
     assert screenshot.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
-    assert "- Windows: [NightScope 1.46.13]" in readme
+    assert "- Windows: [NightScope 1.46.21]" in readme
     assert "- Linux: [NightScope 1.43.0]" in readme
-    assert "releases/tag/v1.46.13" in readme
+    assert "releases/tag/v1.46.21" in readme
     assert "releases/tag/v1.43.0" in readme
     assert "1.45.21" not in readme
+    assert "1.46.13" not in readme
 
     local_targets = {
         target.split("#", 1)[0]
@@ -881,6 +882,27 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     assert not [
         target for target in sorted(local_targets) if not (PROJECT_ROOT / target).exists()
     ]
+
+
+def test_public_windows_download_and_source_use_verified_release_identity() -> None:
+    repository = "https://github.com/beastmen84/NightScope"
+    release = "v1.46.21"
+    readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+    source_notice = (PROJECT_ROOT / "SOURCE_CODE.md").read_text(encoding="utf-8")
+    third_party_notice = (PROJECT_ROOT / "THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
+    # Match the verified asset name after the publisher corrected its duplicate extension.
+    asset = "NightScope-v1.46.21-windows-x64.zip"
+    assert f"]({repository}/releases/download/{release}/{asset})" in readme
+    assert ".zip.zip" not in readme
+    assert f"{repository}/archive/refs/tags/{release}.tar.gz" in source_notice
+    assert "f6b45e96f61e8d268157f1459f3a7791340881ff" in source_notice
+    assert "66c4b5a" in source_notice
+    for notice in (source_notice, third_party_notice):
+        assert f"{repository}/tree/{release}" in notice
+        assert "1.43.0" in notice
+        assert "1.46.13" not in notice
+        assert "not yet published" not in notice
+        assert "not yet created" not in notice
 
 
 @pytest.mark.parametrize(
@@ -898,10 +920,11 @@ def test_manual_public_releases_and_revision_are_consistent(
         re.DOTALL,
     )
     assert hero is not None
-    for version in ("1.46.13", "1.43.0"):
+    for version in ("1.46.21", "1.43.0"):
         assert f"NightScope {version}" in hero.group(1)
         assert f"releases/tag/v{version}" in hero.group(1)
     assert "1.45.21" not in hero.group(1)
+    assert "1.46.13" not in hero.group(1)
     assert "Windows" in hero.group(1) and "Linux" in hero.group(1)
     assert re.search(rf"\b{re.escape(source_version)}\b", hero.group(1))
     footer = re.search(r"<footer>(.*?)</footer>", source, re.DOTALL)
@@ -944,10 +967,10 @@ def test_multilingual_website_has_complete_local_links_and_seo_metadata() -> Non
         assert {"main-content", "why", "features", "downloads", "faq"}.issubset(
             parser.ids
         )
-        # Match complete tokens: 1.46.13 must not look like the unpublished 1.46.1.
+        # Match complete version tokens, never prefixes such as 1.46.2 within 1.46.21.
         mentioned_versions = set(re.findall(r"(?<!\d)(\d+\.\d+\.\d+)(?!\d)", source))
-        assert mentioned_versions == {"1.46.13", "1.43.0"}
-        assert "<span>Windows 1.46.13</span>" in source
+        assert mentioned_versions == {"1.46.21", "1.43.0"}
+        assert "<span>Windows 1.46.21</span>" in source
         assert "<span>Linux 1.43.0</span>" in source
 
         assert len(parser.json_ld_blocks) == 1
@@ -957,7 +980,7 @@ def test_multilingual_website_has_complete_local_links_and_seo_metadata() -> Non
         assert structured_data["url"] == canonical_url
         assert structured_data["offers"]["price"] == "0"
         assert structured_data["downloadUrl"] == [
-            "https://github.com/beastmen84/NightScope/releases/tag/v1.46.13",
+            "https://github.com/beastmen84/NightScope/releases/tag/v1.46.21",
             "https://github.com/beastmen84/NightScope/releases/tag/v1.43.0",
         ]
 
@@ -997,6 +1020,10 @@ def test_website_assets_sitemap_and_pages_workflow_are_consistent() -> None:
         element.text
         for element in sitemap.findall("sitemap:url/sitemap:loc", namespace)
     }
+    assert [
+        element.text
+        for element in sitemap.findall("sitemap:url/sitemap:lastmod", namespace)
+    ] == ["2026-09-07"] * 3
     assert locations == {
         "https://beastmen84.github.io/NightScope/",
         "https://beastmen84.github.io/NightScope/it/",

@@ -5,6 +5,58 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Public Windows Release And Website - 1.46.21
+
+On 2026-09-07 GitHub confirms the user's Windows-only `v1.46.21` release,
+published at 10:47:59 UTC, neither draft nor prerelease, with one Windows asset.
+Its exact name is `NightScope-v1.46.21-windows-x64.zip` (222,256,635 bytes),
+with GitHub-reported SHA-256
+`660e32088ea680c008a4c8f4f005439d1af9ab86fb16fda0b777530db7a37d37`.
+The public source tag points to `f6b45e96f61e8d268157f1459f3a7791340881ff`;
+only validation documentation differs from build source `66c4b5a`. The
+uploaded ZIP was not downloaded or re-audited during this metadata update.
+Linux remains 1.43.0; its existing Debian 12 tarball and SHA-256 asset were
+verified through the corresponding release metadata.
+
+README, source notices, manual release panels, current release records and
+EN/IT/ES website sources distinguish these public versions. Site version
+badges, release buttons/accessibility labels, FAQ, JSON-LD and sitemap dates
+are aligned. The direct README ZIP link uses the verified single extension;
+site buttons retain their release-page behavior. This documentation work changes
+no runtime code, VERSION, runtime translations, CSS/layout, artwork, dist or
+public asset. The user corrected the initial duplicate ZIP extension on GitHub;
+the replacement asset has the same size and GitHub-reported SHA-256.
+Source notices/manual differ from copies already inside the ZIP/dist; those
+copies remain untouched. Existing artifact results below remain dated evidence.
+
+Verification after the user's filename correction:
+
+- 79 tests pass in 10.06 s: the documentation/website contract and existing
+  update-manager suite. Earlier checks caught README/handoff version-label
+  mismatches; the documents were corrected without relaxing those assertions.
+  A final repeat after recording these results also passes: 79 tests in 9.84 s
+  (`docs-updates-tests-final.log`).
+- Ruff passes over `astro_viewer`, `tools` and `packaging`; documentation
+  inventory passes with 271 Python / 36 QML / 17 operational files.
+- The corrected download URL returns HTTP 200 to HEAD, with Content-Length
+  222,256,635. This verifies reachability, not the downloaded ZIP contents.
+- Seven checks of the unchanged source update selector using freshly recorded
+  GitHub metadata pass: Windows versions 1.46.13/1.46.18/1.46.20 are offered
+  1.46.21; current Windows 1.46.21, Linux and ARM64 receive no incompatible
+  offer; an in-memory duplicate-extension variant is rejected. No old-client
+  binary/UI or upgrade test is claimed.
+- The local dist executable, SOURCE_CODE.md, THIRD_PARTY_NOTICES.md and bundled
+  manual retain their pre-edit SHA-256 values. `git diff --check` passes.
+
+Validation evidence: `build/release-docs-1.46.21-20260907/`. This is a local
+source update, not a new application gate or an online website deployment.
+Current logs are `docs-updates-tests-corrected.log`, `ruff-corrected.log`,
+`documentation-inventory-corrected.log`, `download-head-corrected.log`,
+`update-discovery-corrected.log` and `preserved-artifact-hashes.log`.
+`release-metadata-corrected.json` records the corrected public asset; the
+original metadata and failed-name reproduction remain separate historical evidence.
+The existing GitHub Pages workflow publishes `website/` when this commit is pushed.
+
 ## Review And Local Windows Bundle - 1.46.21
 
 The 2026-09-07 follow-up review of `efce203`, `18d53b7` and `66c4b5a` found

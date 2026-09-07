@@ -18,21 +18,22 @@ tonight, from here, with this setup?**
 
 > [!NOTE]
 > NightScope is a released application. The current public portable builds are
-> Windows 1.46.13 and Linux 1.43.0. Source version 1.46.21 includes review
-> corrections and performance improvements not yet in either public package. Features added after 1.43.0
-> are not yet in the published Linux package.
+> Windows 1.46.21 and Linux 1.43.0. Source version 1.46.21 includes reviewed
+> corrections and Home/recalculation performance improvements now available
+> in the Windows package. Features added after 1.43.0 are not yet in the
+> published Linux package.
 > Release artifacts remain platform-specific portable builds rather than
 > universal installers.
 
 Current public downloads:
 
-- Windows: [NightScope 1.46.13](https://github.com/beastmen84/NightScope/releases/tag/v1.46.13),
-  published as a portable Windows x64 ZIP.
+- Windows: [NightScope 1.46.21](https://github.com/beastmen84/NightScope/releases/tag/v1.46.21),
+  published as a portable [Windows x64 ZIP](https://github.com/beastmen84/NightScope/releases/download/v1.46.21/NightScope-v1.46.21-windows-x64.zip).
 - Linux: [NightScope 1.43.0](https://github.com/beastmen84/NightScope/releases/tag/v1.43.0),
   published as a Debian 12 x86-64 tarball with an adjacent SHA-256 file.
 
-The `v1.46.13` release contains only the Windows package and points to source
-tag `v1.46.13`. Linux downloads remain on `v1.43.0`; consult each release for
+The `v1.46.21` release contains only the Windows package and points to source
+tag `v1.46.21`. Linux downloads remain on `v1.43.0`; consult each release for
 its own source, package and checksum information.
 
 ## What It Does
@@ -534,7 +535,7 @@ exact corresponding public source commit.
 ## Release And Development Status
 
 NightScope has stable public builds on separate platform versions: Windows
-`1.46.13` and Linux `1.43.0`. The `master` branch can be ahead of either
+`1.46.21` and Linux `1.43.0`. The `master` branch can be ahead of either
 published bundle while the next artifacts are validated. User-facing changes
 and fixes are recorded in
 [`astro_viewer/CHANGELOG.md`](astro_viewer/CHANGELOG.md); this README describes
