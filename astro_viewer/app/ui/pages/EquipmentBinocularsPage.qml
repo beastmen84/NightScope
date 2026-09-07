@@ -10,6 +10,11 @@ Item {
     id: root
 
     property var controller
+    EquipmentCatalogueSnapshot {
+        id: binocularSnapshot
+        controller: root.controller
+        catalogue: "binocularCatalog"
+    }
     property var editModel: ({})
     property var deleteModel: ({})
     property string binocularSearch: ""
@@ -50,7 +55,7 @@ Item {
     }
 
     function filteredBinocularModels() {
-        return controller.binocularCatalog.filter(function(item) {
+        return binocularSnapshot.items.filter(function(item) {
             return root.matchesBinocular(item)
         })
     }
@@ -122,7 +127,7 @@ Item {
                     Layout.fillWidth: true
                     text: qsTr("%1 di %2 modelli")
                         .arg(root.filteredBinocularModels().length)
-                        .arg(controller.binocularCatalog.length)
+                        .arg(binocularSnapshot.items.length)
                     color: theme.textSecondary
                     font.pixelSize: 13
                     font.weight: Font.DemiBold

@@ -92,6 +92,39 @@ def test_astronomy_refresh_discards_stale_request_result() -> None:
     assert controller._finish_viirs_deep_sky_refresh.call_args.args[1] == "new"
 
 
+def test_superseded_queued_astronomy_requests_do_not_run_the_engine() -> None:
+    controller, engine = _controller()
+    tasks = []
+    controller._start_background_task = tasks.append
+    for index in range(5):
+        controller._start_astronomy_refresh(ASTRONOMY_REFRESH_VIIRS_DEEP_SKY, context=str(index))
+    for task in tasks:
+        task()
+    assert engine.deep_sky_calls == 1
+    controller._finish_viirs_deep_sky_refresh.assert_called_once()
+    assert controller._finish_viirs_deep_sky_refresh.call_args.args[1] == "4"
+    assert not controller._astronomy_refresh_running
+
+
+def test_astronomy_request_rechecks_obsolescence_after_waiting_for_the_engine_lock() -> None:
+    controller, engine = _controller()
+    tasks = []
+    controller._start_background_task = tasks.append
+    controller._start_astronomy_refresh(ASTRONOMY_REFRESH_VIIRS_DEEP_SKY)
+
+    class SupersedingLock:
+        def __enter__(self):
+            controller._astronomy_refresh_request_id += 1
+
+        def __exit__(self, *_args):
+            return False
+
+    controller._astronomy_engine_lock = SupersedingLock()
+    tasks[0]()
+    assert engine.deep_sky_calls == 0
+    controller._finish_viirs_deep_sky_refresh.assert_not_called()
+
+
 def test_catalogue_recommendation_refresh_coalesces_to_the_latest_generation() -> None:
     controller, engine = _controller()
     tasks = []

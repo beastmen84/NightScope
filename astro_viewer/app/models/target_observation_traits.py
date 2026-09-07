@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 
 from astro_viewer.app.models.observing import CelestialObject
 
@@ -19,6 +20,19 @@ SUPERNOVA_REMNANT_TYPE_FRAGMENTS = (
 def is_supernova_remnant_type(object_type: str) -> bool:
     normalized = object_type.casefold()
     return any(fragment in normalized for fragment in SUPERNOVA_REMNANT_TYPE_FRAGMENTS)
+
+
+@dataclass(frozen=True)
+class _TraitSource:
+    """Only the immutable values consumed below; never retain a target or its mutable setup list."""
+
+    id: str
+    object_type: str
+    magnitude: str
+    apparent_size: str
+    max_angular_size_deg: float | None
+    max_altitude: str
+    recommended_observation_type: str
 
 
 @dataclass(frozen=True)
@@ -41,6 +55,19 @@ class TargetObservationTraits:
 
     @classmethod
     def from_object(cls, celestial_object: CelestialObject) -> TargetObservationTraits:
+        return cls._from_source(_TraitSource(
+            celestial_object.id,
+            celestial_object.object_type,
+            celestial_object.magnitude,
+            celestial_object.apparent_size,
+            celestial_object.max_angular_size_deg,
+            celestial_object.max_altitude,
+            celestial_object.recommended_observation_type,
+        ))
+
+    @classmethod
+    @lru_cache(maxsize=16_384)
+    def _from_source(cls, celestial_object: _TraitSource) -> TargetObservationTraits:
         object_type = celestial_object.object_type
         object_type_lower = object_type.lower()
         magnitude = _parse_magnitude(celestial_object.magnitude)
@@ -99,7 +126,7 @@ class TargetObservationTraits:
 
 
 def _recommended_observation_type(
-    celestial_object: CelestialObject,
+    celestial_object: CelestialObject | _TraitSource,
     object_type_lower: str,
     angular_size_deg: float | None,
 ) -> str:

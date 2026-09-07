@@ -1,6 +1,6 @@
 # NightScope - Visual Review Checklist
 
-Aggiornato: 2026-09-06
+Aggiornato: 2026-09-07
 
 Questo documento conserva i controlli visuali di release iniziati con la
 sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le
@@ -9,6 +9,25 @@ verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 `1.46.13` su Windows, mentre Linux resta a `1.43.0`. La pubblicazione Windows
 del 2026-09-06 non chiude automaticamente i controlli mancanti della matrice:
 le verifiche in `RELEASE_CHECKLIST.md` restano specifiche di ogni artefatto.
+
+## Prestazioni - Sorgente 1.46.19
+
+- Catturate 42 scene: sei pagine attrezzatura e catalogo celeste, IT/EN/ES,
+  tema normale e rosso. Snapshot attrezzatura identici ai getter canonici e
+  zero warning QML a runtime. Ispezionati otto campioni rappresentativi delle
+  sette pagine e della transizione mensile; nessun cambio ai layout o palette.
+- Il controllo reale del mese mantiene selezione e dati precedenti durante
+  il calcolo, poi pubblica insieme mese e risultati; controllati stato
+  disabilitato/ellissi e riattivazione. La mappa completa di 7.594 valori è
+  identica al calcolo diretto; i flag delle raccomandazioni non cambiano.
+- Il cambio lingua EN/ES/IT sulla pagina telescopi già aperta aggiorna anche
+  lo snapshot locale. Test di inventario/notifiche e smoke normali/rossi
+  completano questi controlli; non sono una nuova matrice desktop del bundle.
+- Evidenza: `build/performance-audit-1.46.18/step7-ui-rendered/` e
+  `step7-month-ui-final/`. Il backend offscreen richiede caricamento esplicito
+  dei font di Windows nel solo strumento di cattura; i primi render senza
+  glifi e la prima cattura senza import di QQuickWindow non sono accettati
+  come verifica visuale. I render finali sono a 1440 × 1000.
 
 ## Correzioni Review Sorgente 1.46.14–1.46.18
 

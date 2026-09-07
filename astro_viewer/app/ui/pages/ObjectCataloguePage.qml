@@ -267,10 +267,18 @@ Item {
                             Layout.preferredWidth: 170
                             enabled: controller.hasValidLocation
                                      && controller.catalogueVisibleThisMonthFilter
+                                     && !controller.catalogueMonthRefreshActive
                             opacity: enabled ? 1.0 : 0.55
                             model: controller.catalogueMonthLabels
                             currentIndex: Math.max(0, controller.catalogueSelectedMonth - 1)
-                            onActivated: controller.setCatalogueMonth(currentIndex + 1)
+                            displayText: currentText + (controller.catalogueMonthRefreshActive ? " …" : "")
+                            onActivated: {
+                                var requestedMonth = currentIndex + 1
+                                currentIndex = Qt.binding(function() {
+                                    return Math.max(0, controller.catalogueSelectedMonth - 1)
+                                })
+                                controller.requestCatalogueMonth(requestedMonth)
+                            }
                         }
                     }
                 }

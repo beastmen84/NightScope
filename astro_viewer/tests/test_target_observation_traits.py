@@ -9,7 +9,7 @@ import pytest
 from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
 from astro_viewer.app.models.equipment import Binocular
 from astro_viewer.app.models.observing import CelestialObject
-from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
+from astro_viewer.app.models.target_observation_traits import TargetObservationTraits, _TraitSource
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.recommendation_presenter import RecommendationPresenter
 
@@ -126,6 +126,42 @@ def test_traits_consume_skyfield_altitude_label_contract() -> None:
     target = replace(target, max_altitude=SkyfieldAstronomyEngine._degrees_label(49.25, decimals=2))
 
     assert TargetObservationTraits.from_object(target).max_altitude_deg == pytest.approx(49.25)
+
+
+@pytest.mark.parametrize("changed", [
+    {"id": "jupiter"}, {"object_type": "Open cluster"}, {"magnitude": "7,2"},
+    {"apparent_size": "12 arcsec"}, {"max_angular_size_deg": 0.4},
+    {"max_altitude": "-8,5°"}, {"recommended_observation_type": "General"},
+])
+def test_traits_cache_keys_every_consumed_value_and_matches_uncached_calculation(changed):
+    cache = TargetObservationTraits._from_source
+    cache.cache_clear()
+    original = _object("messier-M31", "M31", "Galaxy", "3.4", "178 arcmin", 2.97, "WideField")
+    first = TargetObservationTraits.from_object(original)
+    assert TargetObservationTraits.from_object(replace(original, notes="presentation only", setup_options=[{}])) is first
+    target = replace(original, **changed)
+    result = TargetObservationTraits.from_object(target)
+    source = _TraitSource(target.id, target.object_type, target.magnitude, target.apparent_size,
+                          target.max_angular_size_deg, target.max_altitude, target.recommended_observation_type)
+    assert result == cache.__wrapped__(TargetObservationTraits, source)
+    assert cache.cache_info().misses == 2
+    assert result is not first
+    assert TargetObservationTraits.from_object(original) is first
+    cache.cache_clear()
+
+
+def test_traits_cache_is_bounded_and_returns_immutable_values():
+    from dataclasses import FrozenInstanceError
+
+    cache = TargetObservationTraits._from_source
+    cache.cache_clear()
+    original = _object("bounded", "Target", "Galaxy", "3.4", "178 arcmin", 2.97, "WideField")
+    for index in range(16_400):
+        TargetObservationTraits.from_object(replace(original, id=f"bounded-{index}"))
+    assert cache.cache_info().currsize == cache.cache_info().maxsize == 16_384
+    with pytest.raises(FrozenInstanceError):
+        TargetObservationTraits.from_object(original).magnitude = 99
+    cache.cache_clear()
 
 
 def test_scoring_and_presenter_consume_same_observation_type_traits() -> None:

@@ -198,6 +198,7 @@ class AppController(QObject):
     catalogueChanged = Signal()
     catalogueFilteredCountChanged = Signal()
     catalogueRecommendationStateChanged = Signal()
+    catalogueMonthRefreshStateChanged = Signal()
     locationChanged = Signal()
     weatherChanged = Signal()
     equipmentChanged = Signal()
@@ -220,6 +221,7 @@ class AppController(QObject):
     _skyCompassLiveRefreshFinished = Signal(int, str, object)
     _astronomyRefreshFinished = Signal(int, str, str, object, object)
     _catalogueRecommendationRefreshFinished = Signal(int, str, object)
+    _catalogueMonthRefreshFinished = Signal(int, object, object)
     _transientEventsRefreshFinished = Signal(int, str, object)
 
     def __init__(
@@ -251,6 +253,7 @@ class AppController(QObject):
         self._catalogueRecommendationRefreshFinished.connect(
             self._finish_catalogue_recommendation_worker
         )
+        self._catalogueMonthRefreshFinished.connect(self._finish_catalogue_month_refresh)
         self._transientEventsRefreshFinished.connect(self._finish_transient_event_refresh)
         self.dataChanged.connect(self.homeNightPlanChanged.emit)
         self.weatherChanged.connect(self.homeNightPlanChanged.emit)
@@ -525,6 +528,9 @@ class AppController(QObject):
         self._catalogue_year = self._catalogue_current_year()
         self._catalogue_selected_month = self._catalogue_current_month()
         self._catalogue_month_user_selected = False
+        self._catalogue_month_refresh_generation = 0
+        self._catalogue_month_refresh_running = False
+        self._catalogue_month_pending: int | None = None
         self._catalogue_visible_this_month_only = False
         self._catalogue_visibility_cache: dict[tuple[float, float, str, int, int, float], dict[str, bool]] = {}
         self._catalogue_current_month_visibility_cache: dict[
@@ -876,6 +882,10 @@ class AppController(QObject):
     @Property(int, notify=catalogueChanged)
     def catalogueSelectedMonth(self) -> int:
         return self._catalogue_selected_month
+
+    @Property(bool, notify=catalogueMonthRefreshStateChanged)
+    def catalogueMonthRefreshActive(self) -> bool:
+        return getattr(self, "_catalogue_month_pending", None) is not None
 
     @Property(str, notify=catalogueChanged)
     def catalogueSelectedMonthLabel(self) -> str:
@@ -1413,6 +1423,17 @@ class AppController(QObject):
     def telescopeCatalogModels(self) -> list[dict]:
         return render_payload(self._telescope_catalog_models)
 
+    @Slot(str, result="QVariantList")
+    def equipmentCatalogueSnapshot(self, catalogue: str) -> list[dict]:
+        """Return a detached QML sequence once per notification, not a reference-sequence getter."""
+        if catalogue not in {
+            "telescopeCatalogModels", "eyepieceCatalog", "barlowCatalog", "binocularCatalog",
+            "astronomyCameraCatalog", "cameraBodyCatalog", "filterCatalog", "reducerCatalog",
+            "profileEquipmentCatalog", "profileAssignedEquipment",
+        }:
+            return []
+        return getattr(self, catalogue)
+
     @Property("QVariant", notify=equipmentChanged)
     def telescopeMountTypeOptions(self) -> list[dict[str, str]]:
         return render_payload(
@@ -1860,17 +1881,110 @@ class AppController(QObject):
     def setCatalogueMonth(self, month: int) -> None:
         if month < 1 or month > 12:
             return
+        self._cancel_catalogue_month_request()
         self._catalogue_month_user_selected = True
         if self._catalogue_selected_month == month:
             return
         self._catalogue_selected_month = month
-        self._invalidate_catalogue_month_visibility_cache()
-        self._refresh_equipment_recommendations_for_current_objects()
+        # The cache key already includes year/month; keep previously prepared months.
+        self._refresh_equipment_recommendations_for_current_objects(refresh_conditioned=False)
         self._recalculate_observing_outputs()
         self.dataChanged.emit()
         self.catalogueChanged.emit()
         if self._selected_object and self._selected_object_source == CATALOGUE_SOURCE:
             self.selectedObjectChanged.emit()
+
+    @Slot(int)
+    def requestCatalogueMonth(self, month: int) -> None:
+        """Prepare missing monthly geometry off-thread, then use the established publication path."""
+        if month < 1 or month > 12:
+            return
+        self._cancel_catalogue_month_request()
+        self._catalogue_month_user_selected = True
+        if month == self._catalogue_selected_month:
+            return
+        if not QCoreApplication.instance() or not self._has_valid_location():
+            self.setCatalogueMonth(month)
+            return
+        self._catalogue_month_pending = month
+        self.catalogueMonthRefreshStateChanged.emit()
+        self._start_pending_catalogue_month_refresh()
+
+    def _cancel_catalogue_month_request(self) -> None:
+        self._catalogue_month_refresh_generation = getattr(self, "_catalogue_month_refresh_generation", 0) + 1
+        if getattr(self, "_catalogue_month_pending", None) is not None:
+            self._catalogue_month_pending = None
+            self.catalogueMonthRefreshStateChanged.emit()
+
+    def _start_pending_catalogue_month_refresh(self) -> None:
+        month = getattr(self, "_catalogue_month_pending", None)
+        if month is None:
+            return
+        if not self._has_valid_location():
+            self._cancel_catalogue_month_request()
+            return
+        location = self._location
+        year = self._catalogue_year
+        cache_key = catalogue_query_service.catalogue_visibility_cache_key(location, year, month)
+        if cache_key in self._catalogue_visibility_cache:
+            self.setCatalogueMonth(month)
+            return
+        if getattr(self, "_catalogue_month_refresh_running", False):
+            return
+        visibility_method = getattr(self._astronomy_engine, "catalogue_month_visibility", None)
+        if not callable(visibility_method):
+            self._cache_catalogue_month_visibility(cache_key, {})
+            self.setCatalogueMonth(month)
+            return
+        # Detached inputs only: the worker must not query or mutate QML-facing state.
+        catalogue_objects = tuple(dict(item) for item in self._catalogue_objects)
+        engine_lock = self._astronomy_engine_lock_instance()
+        generation = self._catalogue_month_refresh_generation
+        self._catalogue_month_refresh_active_generation = generation
+        self._catalogue_month_refresh_running = True
+
+        def run_refresh() -> None:
+            visibility = None
+            try:
+                if generation == self._catalogue_month_refresh_generation:
+                    with engine_lock:
+                        if generation == self._catalogue_month_refresh_generation:
+                            result = visibility_method(
+                                catalogue_objects, location, year, month,
+                                CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG,
+                            )
+                            visibility = {str(object_id): bool(visible) for object_id, visible in result.items()}
+            except Exception:
+                logger.warning("Catalogue monthly visibility calculation failed.", exc_info=True)
+                visibility = {}
+            self._catalogueMonthRefreshFinished.emit(generation, cache_key, visibility)
+
+        try:
+            self._start_background_task(run_refresh)
+        except Exception:
+            self._catalogue_month_refresh_running = False
+            logger.warning("Catalogue monthly visibility worker could not start.", exc_info=True)
+            self.setCatalogueMonth(month)
+
+    @Slot(int, object, object)
+    def _finish_catalogue_month_refresh(self, generation: int, cache_key: object, visibility: object) -> None:
+        if generation != getattr(self, "_catalogue_month_refresh_active_generation", None):
+            return
+        self._catalogue_month_refresh_running = False
+        month = getattr(self, "_catalogue_month_pending", None)
+        if (
+            generation == self._catalogue_month_refresh_generation
+            and month is not None
+            and self._has_valid_location()
+            and cache_key == catalogue_query_service.catalogue_visibility_cache_key(
+                self._location, self._catalogue_year, month,
+            )
+            and isinstance(visibility, dict)
+        ):
+            self._cache_catalogue_month_visibility(cache_key, visibility)
+            # Equipment, conditions and selection are read now, never from the worker's old context.
+            self.setCatalogueMonth(month)
+        self._start_pending_catalogue_month_refresh()
 
     @Slot(bool)
     def setCatalogueVisibleThisMonthFilter(self, enabled: bool) -> None:
@@ -3795,14 +3909,20 @@ class AppController(QObject):
         self._astronomy_refresh_running = True
 
         def run_refresh() -> None:
-            snapshot = self._calculate_astronomy_snapshot(
-                location,
-                purpose,
-                catalogue_objects=catalogue_objects,
-                catalogue_year=catalogue_year,
-                catalogue_month=catalogue_month,
-                catalogue_visibility_cache_key=catalogue_visibility_cache_key,
-            )
+            if request_id != self._astronomy_refresh_request_id:
+                return
+            with self._astronomy_engine_lock_instance():
+                # A request can become obsolete while waiting for another Skyfield job.
+                if request_id != self._astronomy_refresh_request_id:
+                    return
+                snapshot = self._calculate_astronomy_snapshot(
+                    location,
+                    purpose,
+                    catalogue_objects=catalogue_objects,
+                    catalogue_year=catalogue_year,
+                    catalogue_month=catalogue_month,
+                    catalogue_visibility_cache_key=catalogue_visibility_cache_key,
+                )
             self._astronomyRefreshFinished.emit(
                 request_id,
                 location_key,
@@ -4009,8 +4129,8 @@ class AppController(QObject):
         for object_id, summary in snapshot.moon_geometry:
             self._moon_geometry_condition_cache[object_id] = self._moon_geometry_summary_to_condition_input(summary)
         if snapshot.catalogue_visibility_cache_key is not None:
-            self._catalogue_visibility_cache[snapshot.catalogue_visibility_cache_key] = dict(
-                snapshot.catalogue_visibility
+            self._cache_catalogue_month_visibility(
+                snapshot.catalogue_visibility_cache_key, dict(snapshot.catalogue_visibility)
             )
         self._refresh_equipment_recommendations_for_current_objects()
 
@@ -4354,7 +4474,7 @@ class AppController(QObject):
             observing_hours,
             self._sky_quality,
         )
-        self._refresh_equipment_recommendations_for_current_objects()
+        self._refresh_equipment_recommendations_for_current_objects(refresh_conditioned=False)
         self._recalculate_observing_outputs()
         self._refresh_local_atmosphere()
         self.weatherChanged.emit()
@@ -6156,7 +6276,7 @@ class AppController(QObject):
 
         visibility_method = getattr(self._astronomy_engine, "catalogue_month_visibility", None)
         if not callable(visibility_method):
-            self._catalogue_visibility_cache[cache_key] = {}
+            self._cache_catalogue_month_visibility(cache_key, {})
             return {}
         try:
             with self._astronomy_engine_lock_instance():
@@ -6171,8 +6291,14 @@ class AppController(QObject):
             logger.warning("Catalogue monthly visibility calculation failed.", exc_info=True)
             visibility = {}
         normalized_visibility = {str(object_id): bool(visible) for object_id, visible in visibility.items()}
-        self._catalogue_visibility_cache[cache_key] = normalized_visibility
+        self._cache_catalogue_month_visibility(cache_key, normalized_visibility)
         return normalized_visibility
+
+    def _cache_catalogue_month_visibility(self, cache_key: tuple, visibility: dict[str, bool]) -> None:
+        self._catalogue_visibility_cache[cache_key] = visibility
+        # Bound retained months without invalidating reusable geometry on every selection.
+        while len(self._catalogue_visibility_cache) > 12:
+            self._catalogue_visibility_cache.pop(next(iter(self._catalogue_visibility_cache)))
 
     def _catalogue_visibility_cache_key(
         self,
@@ -6227,6 +6353,7 @@ class AppController(QObject):
         self._clear_refresh_domains(RefreshDomain.CATALOG)
 
     def _invalidate_catalogue_month_visibility_cache(self) -> None:
+        self._cancel_catalogue_month_request()
         self._catalogue_visibility_cache.clear()
 
     def _invalidate_catalogue_observability_cache(self) -> None:

@@ -5,6 +5,69 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Performance Improvements - 1.46.19 Source
+
+The 2026-09-07 complete `tools/run_checks.py --security` gate passes:
+**1,609 tests plus ten subtests in 214.91 s**, 86% application coverage
+(18,404 / 21,277 executable lines). Isolated backend, normal QML and red QML
+smokes pass in 15.5 / 12.1 / 8.6 s. Ruff, compileall, import/layer boundaries,
+documentation inventory, licenses, pip check, MPC/NGC/editorial and imagery
+audits pass. pip-audit reports no known vulnerabilities; the reviewed Bandit
+baseline remains 48 findings (zero high, 34 medium, 14 low). All **263 Python,
+36 QML and 17 operational files** satisfy the documentation gate. Separate
+`pyside6-qmllint` validation covers all 36 QML files with exit 0 and existing
+non-fatal context-property/unqualified-access diagnostics.
+
+Evidence directory: `build/performance-audit-1.46.18/` (the name records the
+audit baseline, not the newly validated source version). Final logs:
+
+- `final-source-gate-clean.log`: complete passing gate above.
+- `final-qmllint.log`: all 36 QML sources.
+- `step7-engine-parity-final.txt` and `step7-engine-parity.json`: original
+  `cda5912` methods versus optimized methods in one process, 4,466 live targets
+  and 7,585 monthly boolean values; display/flags exact and maximum angular
+  delta 1.14e-13 degrees.
+- `step7-controller-all-parity.txt` and its `parity.json`: original optical
+  traits and complete weather/month recommendation payloads match for 4,466
+  targets, 4,457 deep-sky objects, 4,462 compass candidates, weather score 94
+  and four Planner slots. The numerical budget is applied before imports.
+- `step7-ui-rendered/`: 42 captured QML scenarios (seven pages, three languages,
+  two themes), exact equipment snapshots and zero runtime warnings. Eight
+  representative captures across the seven changed pages and monthly transition
+  were inspected, including the final settled monthly view. The probe explicitly
+  loads installed Segoe UI fonts for the Windows offscreen backend; source font
+  handling and the application's palette were not changed.
+- `step7-month-ui-verified.txt` and `step7-month-ui-final/`: real ComboBox
+  activation, nonblocking geometry preparation, correct pending/completed
+  selection, exact 7,594-value controller visibility map, unchanged recommendation
+  flags, and hot EN/ES/IT switches on the already open equipment page.
+- `native-app-default.json`: actual OpenBLAS pool of one thread; NumPy import
+  private commit about 25 MiB and RSS about 35 MiB, not an application-wide
+  RAM-saving claim. Explicit overrides/pre-import policy have five process tests.
+- `step7-native-parity.json`: separate one-thread/24-thread processes produce
+  exactly identical complete astronomy payloads for 4,466 targets, their live
+  positions, 7,585 monthly values and the Moon summary; zero differing numeric
+  fields. Their concurrent timings are not used as performance benchmarks.
+
+After updating source-version metadata and validation documentation, all 49
+developer-tooling/documentation tests pass again in 9.10 s
+(`final-docs-recheck.log`). No application code changed after the full gate.
+
+Focused suites were run after each implementation area; their commands/results
+and paired timings are summarized in `PERFORMANCE_IMPROVEMENTS_1_46_19.md`.
+The first full gate stopped at new Bandit B112 for a silent batch-coordinate
+fallback. Debug logging was added, without changing fallback behavior, before
+the fresh complete passing gate. The reviewed security baseline was not relaxed.
+Earlier fixture, structural-routing and probe corrections are disclosed in the
+implementation report; no result assertions were dropped to make tests pass.
+
+This validates source, not a new release or the affected user's PC. Full-catalogue
+recommendation publication can still block Qt; this change does not make the
+whole runtime pipeline asynchronous. Timer and backup cadence, scientific
+thresholds, ranking, editorial content and personal data are unchanged. The
+existing local Windows 1.46.18 bundle was neither rebuilt nor replaced; Linux,
+native-GPU/provider behavior and low-memory/antivirus stress remain separate.
+
 ## Local Windows Bundle - 1.46.18
 
 The 2026-09-06 user-requested rebuild completed from clean `971292d` through

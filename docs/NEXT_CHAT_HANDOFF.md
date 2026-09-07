@@ -1,10 +1,32 @@
 # NightScope - Next Chat Handoff
 
-Updated: 2026-09-06
+Updated: 2026-09-07
 
 ## Current State
 
-- Source version: `1.46.18`; all three image-redesign source steps are complete.
+- Source version: `1.46.19`; the conservative performance improvements pass
+  the complete source gate: 1,609 tests plus ten subtests in 214.91 s, 86%
+  coverage (18,404 / 21,277 lines), unchanged Bandit baseline, no known pip-audit
+  vulnerabilities and isolated backend/normal/red smokes (15.5/12.1/8.6 s).
+  Inventory: 263 Python / 36 QML / 17 operational files; all 36 QML lint exits
+  pass. Log: `build/performance-audit-1.46.18/final-source-gate-clean.log`.
+- Implemented: fixed-star live batching with scalar boundary fallback,
+  pending-target monthly batching, detached equipment QML snapshots,
+  bounded immutable trait/month caches, duplicate-work suppression, stale
+  astronomy skips, one-active/one-pending monthly geometry worker, and an
+  opt-out OpenBLAS startup budget that respects explicit environment settings.
+  Direct comparisons against `cda5912` preserve 4,466 live targets and 7,585
+  monthly values, plus the complete extended weather/month recommendation
+  payloads. QML matrix: 42 scenes, IT/EN/ES, normal/red, exact snapshots and
+  zero runtime warnings; real month control and hot language switches pass.
+- See `docs/PERFORMANCE_IMPROVEMENTS_1_46_19.md` for scope, paired measurements,
+  test/probe corrections and remaining work. General recommendation preparation
+  still runs on Qt and can be expensive with the full catalogue; timer/backup
+  cadence, scoring, thresholds, precision and editorial data are unchanged.
+  Source only: local Windows bundle remains 1.46.18 and has not been rebuilt.
+  The user subsequently requested the local performance commit. No distribution,
+  tag, push or publication is part of this work.
+- Previous source 1.46.18: all three image-redesign source steps are complete.
 - All five review findings are implemented across source 1.46.14–1.46.18:
   protected real editorial overlays, correct ended-window status at morning
   twilight, persisted-red startup/error widgets, 275 hemisphere-qualified
@@ -18,7 +40,7 @@ Updated: 2026-09-06
   219 distinct remediated baseline IDs. All 24 contact sheets / 120 QML scenes
   were inspected in IT/EN/ES and normal/red modes. Historical manifests and
   undeclared fields remain unchanged; no new NGC batch was added.
-- Fresh final `--security` gate: 1,515 tests plus ten subtests in 306.90 s;
+- Previous 1.46.18 final `--security` gate: 1,515 tests plus ten subtests in 306.90 s;
   86% coverage (18,219 / 21,120 lines). Backend/normal/red isolated smokes pass
   (14.0/14.1/14.6 s), with all source audits. Ruff clean, pip-audit reports no
   known vulnerabilities, Bandit baseline unchanged (48; zero high).
@@ -37,7 +59,7 @@ Updated: 2026-09-06
   existing DB snapshot and preferences have unchanged before/after hashes.
 - Public Windows remains 1.46.13 and Linux 1.43.0. This local rebuild does not
   publish an archive, push, create a tag or wait for GitHub Actions. The next
-  unused source patch is 1.46.19; new NGC work requires the user's next request.
+  unused source patch is 1.46.20; new NGC work requires the user's next request.
 - Public release update: on 2026-09-06 the user published `v1.46.13` for
   Windows only. Release metadata, the public tag and the exact asset name
   were checked through GitHub. README, manual, current release records and

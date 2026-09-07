@@ -10,6 +10,16 @@ Item {
     id: root
 
     property var controller
+    EquipmentCatalogueSnapshot {
+        id: profileCatalogueSnapshot
+        controller: root.controller
+        catalogue: "profileEquipmentCatalog"
+    }
+    EquipmentCatalogueSnapshot {
+        id: profileAssignedSnapshot
+        controller: root.controller
+        catalogue: "profileAssignedEquipment"
+    }
     property int renameProfileId: -1
     property string addFilter: "all"
     property string removeFilter: "all"
@@ -37,13 +47,13 @@ Item {
     }
 
     function filteredAddEquipment() {
-        return controller.profileEquipmentCatalog.filter(function(item) {
+        return profileCatalogueSnapshot.items.filter(function(item) {
             return root.matchesFilter(item, root.addFilter, root.addSearch)
         })
     }
 
     function filteredAssignedEquipment() {
-        return controller.profileAssignedEquipment.filter(function(item) {
+        return profileAssignedSnapshot.items.filter(function(item) {
             return root.matchesFilter(item, root.removeFilter, root.removeSearch)
         })
     }
@@ -222,7 +232,7 @@ Item {
                         Layout.preferredWidth: 1
                         title: qsTr("Telescopi")
                         emptyText: qsTr("Nessun telescopio assegnato.")
-                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "telescope" })
+                        items: profileAssignedSnapshot.items.filter(function(item) { return item.kind === "telescope" })
                         accent: theme.cyan
                     }
 
@@ -230,7 +240,7 @@ Item {
                         Layout.preferredWidth: 1
                         title: qsTr("Oculari")
                         emptyText: qsTr("Nessun oculare assegnato.")
-                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "eyepiece" })
+                        items: profileAssignedSnapshot.items.filter(function(item) { return item.kind === "eyepiece" })
                         accent: theme.teal
                     }
 
@@ -238,7 +248,7 @@ Item {
                         Layout.preferredWidth: 1
                         title: qsTr("Barlow")
                         emptyText: qsTr("Nessuna Barlow assegnata.")
-                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "barlow" })
+                        items: profileAssignedSnapshot.items.filter(function(item) { return item.kind === "barlow" })
                         accent: theme.violet
                     }
 
@@ -246,7 +256,7 @@ Item {
                         Layout.preferredWidth: 1
                         title: qsTr("Binocoli")
                         emptyText: qsTr("Nessun binocolo assegnato.")
-                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "binocular" })
+                        items: profileAssignedSnapshot.items.filter(function(item) { return item.kind === "binocular" })
                         accent: theme.cyan
                     }
 
@@ -254,7 +264,7 @@ Item {
                         Layout.preferredWidth: 1
                         title: qsTr("Filtri")
                         emptyText: qsTr("Nessun filtro assegnato.")
-                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "filter" })
+                        items: profileAssignedSnapshot.items.filter(function(item) { return item.kind === "filter" })
                         accent: theme.green
                     }
 
@@ -262,7 +272,7 @@ Item {
                         Layout.preferredWidth: 1
                         title: qsTr("Riduttori")
                         emptyText: qsTr("Nessun riduttore assegnato.")
-                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "reducer" })
+                        items: profileAssignedSnapshot.items.filter(function(item) { return item.kind === "reducer" })
                         accent: theme.coral
                     }
 
@@ -270,7 +280,7 @@ Item {
                         Layout.preferredWidth: 1
                         title: qsTr("Camere astronomiche")
                         emptyText: qsTr("Nessuna camera astronomica assegnata.")
-                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "astronomy_camera" })
+                        items: profileAssignedSnapshot.items.filter(function(item) { return item.kind === "astronomy_camera" })
                         accent: theme.cyan
                     }
 
@@ -278,7 +288,7 @@ Item {
                         Layout.preferredWidth: 1
                         title: qsTr("Corpi macchina")
                         emptyText: qsTr("Nessun corpo macchina assegnato.")
-                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "camera_body" })
+                        items: profileAssignedSnapshot.items.filter(function(item) { return item.kind === "camera_body" })
                         accent: theme.amber
                     }
                 }
@@ -295,7 +305,7 @@ Item {
 
                     DarkButton {
                         Layout.fillWidth: true
-                        enabled: controller.profileAssignedEquipment.length > 0
+                        enabled: profileAssignedSnapshot.items.length > 0
                         text: qsTr("Rimuovi equipaggiamento")
                         onClicked: removeEquipmentDialog.open()
                     }

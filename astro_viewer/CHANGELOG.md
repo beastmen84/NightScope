@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+## NightScope 1.46.19 - 2026-09-07
+
+- Ottimizzati i calcoli live dei bersagli fissi e la visibilità mensile senza
+  cambiare Skyfield, soglie, campionamento, criteri osservativi o risultati
+  mostrati; mantenuto il percorso scalare nei casi limite.
+- Le sei pagine dell'attrezzatura usano snapshot QML locali, aggiornati con
+  inventario e lingua, evitando conversioni ripetute dell'intero catalogo.
+  Conservati contenuti, filtri, schede e modalità Red Night Vision.
+- Cache limitate per caratteristiche ottiche immutabili e visibilità mensile;
+  eliminati ricalcoli duplicati dopo meteo e cambio mese. Le richieste
+  astronomiche superate vengono scartate prima di avviare altri calcoli.
+- Il selettore del mese prepara la geometria in background con un solo worker
+  e una sola richiesta pendente; pubblica soltanto il risultato ancora valido.
+  Le raccomandazioni continuano a usare il contesto corrente e il mese scelto.
+- All'avvio OpenBLAS usa un thread in assenza di una configurazione esplicita,
+  riducendo la memoria privata impegnata. Le impostazioni dell'utente e i
+  runtime numerici già caricati non vengono modificati.
+- Nessuna modifica a database, contenuti editoriali, frequenze di aggiornamento,
+  backup o distribuzioni. Verifiche e limiti in TESTING e nel rapporto
+  `docs/PERFORMANCE_IMPROVEMENTS_1_46_19.md`; nessuna pubblicazione.
+- Gate finale completo superato: 1.609 test e dieci subtest, copertura 86%,
+  controlli di sicurezza e smoke backend/QML normale/rosso in runtime isolati.
+  Verificati 42 scenari QML IT/EN/ES e il cambio mese dal controllo reale.
+
 ## NightScope 1.46.18 - 2026-09-06
 
 - Chiarito l'emisfero dei periodi osservativi per 56 galassie NGC già arricchite,

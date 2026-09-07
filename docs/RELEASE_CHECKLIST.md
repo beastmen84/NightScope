@@ -3,7 +3,8 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.46.18` (local Windows test bundle validated; no public tag).
+Current target: `v1.46.19` (performance source changes; no matching bundle or public tag).
+The validated local Windows bundle remains 1.46.18 and does not contain these optimizations.
 Current public Windows release: `v1.46.13`. Current public Linux release: `v1.43.0`.
 The user published `v1.46.13` on 2026-09-06 for Windows only. GitHub exposes one
 `NightScope-v1.46.13-windows-x64.zip` asset and tag `v1.46.13` at `b34ec4a`.
@@ -21,10 +22,10 @@ new platform artifact. Historical Windows/Linux evidence remains dated.
   packaged data, and image metadata.
 - [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
   generated-art provenance, and NASA/JPL attribution is present where required.
-- [ ] Create and verify the public `v1.46.18` source tag referenced by the
+- [ ] Create and verify the public `v1.46.19` source tag referenced by the
   portable bundles and `SOURCE_CODE.md`.
 - [x] Confirm source version, changelog, source-availability notices, and
-  About/build metadata agree on `1.46.18`.
+  About/build metadata agree on `1.46.19`.
 - [x] Freeze the release scope; defer unrelated refactors.
 
 ## 2. Automated Validation
@@ -32,12 +33,12 @@ new platform artifact. Historical Windows/Linux evidence remains dated.
 - [ ] Install runtime and developer requirements in a clean virtual environment.
 - [x] Keep the Windows release constraints, Python patch, and committed
   third-party license inventory exactly aligned.
-- [x] Run `python tools/run_checks.py --security` against source 1.46.18:
-  1,515 tests / ten subtests, 86% coverage; see TESTING. No artifact approval.
+- [x] Run `python tools/run_checks.py --security` against source 1.46.19:
+  1,609 tests / ten subtests, 86% coverage; see TESTING. No artifact approval.
 - [x] Run all translation compilation and catalogue tests.
-- [x] Run both normal and Red Night Vision QML smoke tests from source 1.46.18
-  in disposable runtimes; backend smoke also passes.
-- [x] Run `qmllint` over all packaged QML source files (35).
+- [x] Run both normal and Red Night Vision QML smoke tests from source 1.46.19
+  in disposable runtimes, plus the backend smoke.
+- [x] Run `qmllint` over all packaged QML source files (36).
 - [x] Run category artwork and Solar System asset checks (25 local JPEGs).
 - [x] Record exact Python, dependency, test, warning, and translation counts
   in `docs/TESTING.md`; non-fatal QML diagnostics remain tracked debt.
@@ -111,11 +112,14 @@ The local Windows dist was rebuilt on 2026-09-06 from clean `971292d`, version
 `1.46.18`; it includes the review's runtime/editorial corrections after the
 three image steps. Translation-maintenance tooling remains source-only.
 Artifact identity and scoped validation are in `docs/TESTING.md` and the handoff.
+The checked artifact items below remain historical 1.46.18 evidence; they do
+not approve or contain the 1.46.19 performance changes.
 The checks below approve only their stated scope, not publication or the
 remaining complete visual/provider matrix. The user removed the previous dist
 without backup; the disposable test copy and three fresh runtimes were removed.
 
 - [x] Build from a clean checkout with `packaging/build_windows.ps1`.
+- [ ] Build and validate a new Windows artifact containing source 1.46.19.
 - [x] Confirm the source commit and build environment are recorded.
 - [x] Run backend and QML smoke tests against the packaged executable.
 - [x] Confirm the bundle-root legal files and Qt module audit pass.

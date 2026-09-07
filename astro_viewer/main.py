@@ -184,7 +184,18 @@ def _copy_legacy_sidecar(source: Path, target: Path) -> None:
         shutil.copy2(source, target)
 
 
+def _configure_numerical_runtime() -> None:
+    """Bound the default OpenBLAS pool before import; respect embedding and explicit overrides."""
+    if "numpy" in sys.modules:
+        return
+    if not any(name in os.environ for name in (
+        "OPENBLAS_NUM_THREADS", "GOTO_NUM_THREADS", "OMP_NUM_THREADS",
+    )):
+        os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
+
 def _build_controller(progress_callback=None):
+    _configure_numerical_runtime()
     from astro_viewer.app.application.dependencies import (
         build_app_controller_dependencies,
     )
@@ -998,6 +1009,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    _configure_numerical_runtime()
     from astro_viewer.app.services.logging_service import configure_logging
 
     try:

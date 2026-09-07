@@ -10,6 +10,16 @@ Item {
     id: root
 
     property var controller
+    EquipmentCatalogueSnapshot {
+        id: eyepieceSnapshot
+        controller: root.controller
+        catalogue: "eyepieceCatalog"
+    }
+    EquipmentCatalogueSnapshot {
+        id: barlowSnapshot
+        controller: root.controller
+        catalogue: "barlowCatalog"
+    }
     property var editEyepiece: ({})
     property var editBarlow: ({})
     property var deleteEyepiece: ({})
@@ -99,13 +109,13 @@ Item {
     }
 
     function filteredEyepieces() {
-        return controller.eyepieceCatalog.filter(function(item) {
+        return eyepieceSnapshot.items.filter(function(item) {
             return root.matchesEyepiece(item)
         })
     }
 
     function filteredBarlows() {
-        return controller.barlowCatalog.filter(function(item) {
+        return barlowSnapshot.items.filter(function(item) {
             return root.matchesBarlow(item)
         })
     }
@@ -209,7 +219,7 @@ Item {
                                 Layout.fillWidth: true
                                 text: qsTr("%1 di %2 oculari")
                                     .arg(root.filteredEyepieces().length)
-                                    .arg(controller.eyepieceCatalog.length)
+                                    .arg(eyepieceSnapshot.items.length)
                                 color: theme.textSecondary
                                 font.pixelSize: 12
                                 elide: Text.ElideRight
@@ -303,7 +313,7 @@ Item {
                                 Layout.fillWidth: true
                                 text: qsTr("%1 di %2 Barlow")
                                     .arg(root.filteredBarlows().length)
-                                    .arg(controller.barlowCatalog.length)
+                                    .arg(barlowSnapshot.items.length)
                                 color: theme.textSecondary
                                 font.pixelSize: 12
                                 elide: Text.ElideRight

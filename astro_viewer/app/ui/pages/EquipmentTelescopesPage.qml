@@ -10,6 +10,11 @@ Item {
     id: root
 
     property var controller
+    EquipmentCatalogueSnapshot {
+        id: telescopeSnapshot
+        controller: root.controller
+        catalogue: "telescopeCatalogModels"
+    }
     property var editModel: ({})
     property var deleteModel: ({})
     property string telescopeSearch: ""
@@ -258,7 +263,7 @@ Item {
     }
 
     function filteredTelescopeModels() {
-        return controller.telescopeCatalogModels.filter(function(item) {
+        return telescopeSnapshot.items.filter(function(item) {
             return root.matchesTelescope(item)
         })
     }
@@ -330,7 +335,7 @@ Item {
                     Layout.fillWidth: true
                     text: qsTr("%1 di %2 modelli")
                         .arg(root.filteredTelescopeModels().length)
-                        .arg(controller.telescopeCatalogModels.length)
+                        .arg(telescopeSnapshot.items.length)
                     color: theme.textSecondary
                     font.pixelSize: 13
                     font.weight: Font.DemiBold

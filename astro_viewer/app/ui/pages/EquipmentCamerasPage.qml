@@ -12,6 +12,16 @@ Item {
     id: root
 
     property var controller
+    EquipmentCatalogueSnapshot {
+        id: astronomyCameraSnapshot
+        controller: root.controller
+        catalogue: "astronomyCameraCatalog"
+    }
+    EquipmentCatalogueSnapshot {
+        id: cameraBodySnapshot
+        controller: root.controller
+        catalogue: "cameraBodyCatalog"
+    }
     property var editAstronomyCamera: ({})
     property var editCameraBody: ({})
     property var deleteAstronomyCamera: ({})
@@ -228,7 +238,7 @@ Item {
 
     function filteredAstronomyCameras() {
         var query = root.searchText()
-        return controller.astronomyCameraCatalog.filter(function(item) {
+        return astronomyCameraSnapshot.items.filter(function(item) {
             if (query.length === 0)
                 return true
             var text = (
@@ -241,7 +251,7 @@ Item {
 
     function filteredCameraBodies() {
         var query = root.searchText()
-        return controller.cameraBodyCatalog.filter(function(item) {
+        return cameraBodySnapshot.items.filter(function(item) {
             if (query.length === 0)
                 return true
             var text = (
@@ -311,7 +321,7 @@ Item {
                 title: qsTr("Camere astronomiche")
                 countText: qsTr("%1 di %2 camere")
                     .arg(root.filteredAstronomyCameras().length)
-                    .arg(root.controller.astronomyCameraCatalog.length)
+                    .arg(astronomyCameraSnapshot.items.length)
                 addText: qsTr("Aggiungi camera")
                 accent: theme.cyan
                 items: root.filteredAstronomyCameras()
@@ -333,7 +343,7 @@ Item {
                 title: qsTr("Corpi macchina")
                 countText: qsTr("%1 di %2 corpi")
                     .arg(root.filteredCameraBodies().length)
-                    .arg(root.controller.cameraBodyCatalog.length)
+                    .arg(cameraBodySnapshot.items.length)
                 addText: qsTr("Aggiungi corpo")
                 accent: theme.amber
                 items: root.filteredCameraBodies()

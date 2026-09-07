@@ -535,10 +535,13 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         is_observing_night = night_window.contains(now)
         dark_window = self._deep_sky_night_window(location, night_window)
         body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
+        fixed_positions = self._fixed_current_positions(objects, observer, current_time, body_configs)
         updated = []
-        for item in objects:
+        for index, item in enumerate(objects):
             try:
-                position = self._current_position(item, observer, current_time, body_configs)
+                position = fixed_positions.get(index)
+                if position is None or self._position_near_display_boundary(item, position):
+                    position = self._current_position(item, observer, current_time, body_configs)
             except Exception:
                 logger.debug("Sky Compass live position update skipped for %s.", item.id, exc_info=True)
                 position = None
@@ -571,6 +574,52 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 )
             )
         return updated
+
+    def _fixed_current_positions(self, objects, observer, current_time, body_configs) -> dict[int, tuple[float, float]]:
+        """Batch fixed stars only; retain scalar per-target recovery and Solar ephemerides."""
+        targets = []
+        for index, item in enumerate(objects):
+            if item.id in body_configs:
+                continue
+            try:
+                coordinates = self._catalogue_coordinates(item.id)
+            except Exception:
+                # The established scalar path owns per-object error handling.
+                logger.debug("Fixed-target coordinates unavailable for %s; retaining scalar recovery.", item.id, exc_info=True)
+                continue
+            if coordinates is not None:
+                targets.append((index, *coordinates))
+        if not targets:
+            return {}
+        try:
+            stars = Star(
+                ra_hours=np.asarray([target[1] for target in targets], dtype=float),
+                dec_degrees=np.asarray([target[2] for target in targets], dtype=float),
+            )
+            altitude, azimuth, _ = observer.at(current_time).observe(stars).apparent().altaz()
+            return {
+                target[0]: (float(alt), float(az))
+                for target, alt, az in zip(
+                    targets, np.atleast_1d(altitude.degrees), np.atleast_1d(azimuth.degrees), strict=True,
+                )
+            }
+        except Exception:
+            logger.debug("Batched live positions failed; using per-target scalar recovery.", exc_info=True)
+            return {}
+
+    def _position_near_display_boundary(self, item: CelestialObject, position: tuple[float, float]) -> bool:
+        """Keep scalar decisions at altitude thresholds, rounding ties and compass boundaries."""
+        altitude, azimuth = position
+        tolerance = 1e-8
+        if not math.isfinite(altitude) or not math.isfinite(azimuth):
+            return True
+        return (
+            abs(altitude - self._geometry_altitude_threshold(item)) < tolerance
+            or abs(altitude) < tolerance
+            or min(azimuth % 360.0, 360.0 - azimuth % 360.0) < tolerance
+            or abs(azimuth % 1.0 - 0.5) < tolerance
+            or any(abs((value * 10.0) % 1.0 - 0.5) < tolerance for value in position)
+        )
 
     def _current_position(self, item: CelestialObject, observer, current_time, body_configs: dict):
         config = body_configs.get(item.id)
@@ -742,36 +791,35 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         samples: list[datetime],
         threshold: float,
     ) -> dict[str, bool]:
-        stars = Star(
-            ra_hours=np.asarray(
-                [target[1] for target in targets],
-                dtype=float,
-            ),
-            dec_degrees=np.asarray(
-                [target[2] for target in targets],
-                dtype=float,
-            ),
-        )
+        if not targets or not samples:
+            return {target[0]: False for target in targets}
+        right_ascensions = np.asarray([target[1] for target in targets], dtype=float)
+        declinations = np.asarray([target[2] for target in targets], dtype=float)
         times = self._timescale.from_datetimes(
             [sample.astimezone(UTC) for sample in samples]
         )
         reaches_threshold = np.zeros(len(targets), dtype=bool)
         for sample_index in range(len(samples)):
+            pending = np.flatnonzero(~reaches_threshold)
+            if not len(pending):
+                break
+            stars = Star(ra_hours=right_ascensions[pending], dec_degrees=declinations[pending])
+            observed = observer.at(times[sample_index])
             altitudes = (
-                observer.at(times[sample_index])
+                observed
                 .observe(stars)
                 .apparent()
                 .altaz()[0]
                 .degrees
             )
-            reaches_threshold |= (
-                np.atleast_1d(
-                    np.asarray(altitudes, dtype=float)
-                )
-                >= threshold
-            )
-            if bool(np.all(reaches_threshold)):
-                break
+            altitudes = np.atleast_1d(np.asarray(altitudes, dtype=float))
+            if np.any(np.abs(altitudes - threshold) < 1e-8):
+                # At an exact threshold retain the original full-batch arithmetic.
+                full_stars = Star(ra_hours=right_ascensions, dec_degrees=declinations)
+                altitudes = np.atleast_1d(
+                    observed.observe(full_stars).apparent().altaz()[0].degrees
+                )[pending]
+            reaches_threshold[pending] = altitudes >= threshold
         return {
             object_key: bool(reaches_threshold[index])
             for index, (object_key, _ra, _dec) in enumerate(targets)

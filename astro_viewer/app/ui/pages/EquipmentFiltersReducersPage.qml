@@ -12,6 +12,21 @@ Item {
     id: root
 
     property var controller
+    EquipmentCatalogueSnapshot {
+        id: filterSnapshot
+        controller: root.controller
+        catalogue: "filterCatalog"
+    }
+    EquipmentCatalogueSnapshot {
+        id: reducerSnapshot
+        controller: root.controller
+        catalogue: "reducerCatalog"
+    }
+    EquipmentCatalogueSnapshot {
+        id: telescopeSnapshot
+        controller: root.controller
+        catalogue: "telescopeCatalogModels"
+    }
     property var editFilter: ({})
     property var editReducer: ({})
     property var deleteFilter: ({})
@@ -77,13 +92,13 @@ Item {
     }
 
     function filteredFilters() {
-        return root.controller.filterCatalog.filter(function(item) {
+        return filterSnapshot.items.filter(function(item) {
             return root.matchesFilter(item)
         })
     }
 
     function filteredReducers() {
-        return root.controller.reducerCatalog.filter(function(item) {
+        return reducerSnapshot.items.filter(function(item) {
             return root.matchesReducer(item)
         })
     }
@@ -95,7 +110,7 @@ Item {
         profileTelescopes.forEach(function(item) {
             activeIds[item.id] = true
         })
-        return root.controller.telescopeCatalogModels.filter(function(item) {
+        return telescopeSnapshot.items.filter(function(item) {
             if (query.length === 0)
                 return true
             return (item.brand + " " + item.name + " " + item.optical_type)
@@ -265,7 +280,7 @@ Item {
                                 Layout.fillWidth: true
                                 text: qsTr("%1 di %2 filtri")
                                     .arg(root.filteredFilters().length)
-                                    .arg(root.controller.filterCatalog.length)
+                                    .arg(filterSnapshot.items.length)
                                 color: theme.textSecondary
                                 font.pixelSize: 12
                                 elide: Text.ElideRight
@@ -356,7 +371,7 @@ Item {
                                 Layout.fillWidth: true
                                 text: qsTr("%1 di %2 riduttori")
                                     .arg(root.filteredReducers().length)
-                                    .arg(root.controller.reducerCatalog.length)
+                                    .arg(reducerSnapshot.items.length)
                                 color: theme.textSecondary
                                 font.pixelSize: 12
                                 elide: Text.ElideRight
