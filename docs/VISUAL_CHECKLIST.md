@@ -10,6 +10,20 @@ verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 del 2026-09-06 non chiude automaticamente i controlli mancanti della matrice:
 le verifiche in `RELEASE_CHECKLIST.md` restano specifiche di ogni artefatto.
 
+## Review E Bundle Windows - 1.46.21
+
+- Ripetuta due volte la matrice QML con catalogo completo: IT/EN/ES,
+  normale/rosso, Home/catalogo/profili, cambio mese e profilo. Entrambe passano
+  senza warning: 36 catture pagina e otto transizioni aggiuntive. Ispezionati
+  due campioni Home della seconda prova, italiano normale e spagnolo rosso.
+- Conservati gli assert e la gestione dei warning originali. Il precedente
+  warning di incubazione non si ripresenta, ma non è dichiarato risolto.
+  I limiti della fixture/offscreen restano; pause massime fino a 1,4 s.
+- La dist Windows 1.46.21 supera gli smoke backend/QML normale/rosso da copia
+  isolata, con stderr vuoto e log puliti. Non è una nuova approvazione della
+  matrice visuale nativa completa o del PC dell'utente. Nessun QML modificato.
+- Evidenze e limiti: `REVIEW_HOME_PERFORMANCE_1_46_21.md`.
+
 ## Prestazioni Home - Sorgente 1.46.21
 
 - QML reale con catalogo predefinito e completo, Home/catalogo/profili,

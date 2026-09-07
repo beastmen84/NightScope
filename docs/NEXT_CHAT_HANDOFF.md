@@ -4,6 +4,20 @@ Updated: 2026-09-07
 
 ## Current State
 
+- Review and local Windows rebuild completed on 2026-09-07. No blocking
+  Home regression found and no application/QML changes were needed. The full
+  security gate passes again (1,728 tests / ten subtests, 87% coverage), as do
+  two additional full-catalogue QML matrices without warnings. Residual Qt
+  pauses reach about 1.4 s; the earlier incubation warning is not declared fixed.
+  `dist/NightScope` is now **1.46.21**, built from clean `66c4b5a`, with exact
+  source/archive/asset parity, final pristine audit and all three packaged
+  smokes passing. The full old 1.46.18 dist is preserved with verified hashes
+  at `build/windows-dist-1.46.21-20260907/previous-dist-1.46.18`; do not ship
+  this private-data backup. Seven development runtime files are unchanged.
+  See `docs/REVIEW_HOME_PERFORMANCE_1_46_21.md` for evidence and open gates.
+  Only validation documentation changed after the reviewed runtime commit.
+  No Linux build, ZIP, tag, push or publication. Older entries below describe
+  their historical scope, not a restriction on this authorized Windows rebuild.
 - Source version: `1.46.21`; Home performance follow-up implemented. Lean
   per-target projection and coalesced UI notifications are committed separately
   as `efce203` and `18d53b7`. The existing observing worker now also prepares
@@ -23,7 +37,8 @@ Updated: 2026-09-07
   One earlier incubation/context warning pair was not reproduced in the
   identical rerun or later tests, but is documented and not declared fixed.
   Standalone qmllint remains an old, unresolved tooling limit; no new pass.
-  No user data, distribution, push, tag or publication is in scope.
+  This implementation did not touch user data or distributions; the later
+  user-authorized Windows rebuild is recorded above. No push/tag/publication.
 - Previous source `1.46.20`; implementation of the follow-up performance review:
   recoverable monthly failures, one final profile ranking, shared detached
   recommendation calculations and a bounded observing-refresh coordinator.
@@ -92,7 +107,7 @@ Updated: 2026-09-07
   Final production reproducers show zero editorial
   overwrites in both EN/ES refresh modes and window-ended status for both
   Rome morning-twilight targets.
-- Local Windows `dist/NightScope` is now 1.46.18, rebuilt on 2026-09-06 from
+- Previous local Windows `dist/NightScope` was 1.46.18, rebuilt on 2026-09-06 from
   clean `971292d` at the user's request. Official build/audit, source parity
   and all three packaged smokes pass; details are in the bundle section below.
   The user manually removed the old 1.46.13 dist after tool-policy rejection;
@@ -460,7 +475,28 @@ diagnostics and passed five focused scenarios. The standard runner now reports
 slow test phases without narrowing selection or disabling coverage. See
 `docs/TESTING.md` for the fixture contract and measured scope.
 
-### Local Windows Bundle For User Testing - 1.46.18
+### Local Windows Bundle For User Testing - 1.46.21
+
+The official build was started from clean `66c4b5a` on 2026-09-07 after a
+fresh source review/security gate and two full-catalogue QML reruns passed.
+Bundle: 5,146 files / 429,395,620 bytes; embedded VERSION 1.46.21. EXE SHA-256:
+`c93006954f669e434acf51f1093823dc913d6a55681701ea1e088dd1d433b57f`.
+All 109 declared assets, five legal files, 131 application modules and startup
+entrypoint match source. Native Positioning and credential/timezone backends
+are present. Backend/normal/red smokes pass from a disposable copy and three
+fresh runtimes, with empty stderr and clean logs; all DB integrity/FK/editorial/
+image checks pass. Copied/final pristine audits pass; only test copies removed.
+
+The 5,150-file previous dist, including its user runtime, is preserved and
+hash-verified in `build/windows-dist-1.46.21-20260907/previous-dist-1.46.18`.
+The new dist is pristine: old settings/data remain in that backup, not inside
+the new deliverable. Seven development runtime files remain hash-identical.
+The backup is private and must not be archived as a distributable. Details,
+timings, optional build warnings and scope: `REVIEW_HOME_PERFORMANCE_1_46_21.md`.
+No native visual/provider/upgrade matrix, ZIP, Linux artifact, tag or publication
+is implied. The following bundle records remain historical.
+
+### Historical Windows Bundle For User Testing - 1.46.18
 
 The official Windows build completed from clean `971292d` on 2026-09-06 with
 Python 3.14.5, PyInstaller 6.22.2 and hooks-contrib 2026.7. Embedded version:

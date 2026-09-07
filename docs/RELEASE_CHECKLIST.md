@@ -3,8 +3,10 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.46.21` (performance source changes; no matching bundle or public tag).
-The validated local Windows bundle remains 1.46.18 and does not contain these optimizations.
+Current target: `v1.46.21` (reviewed source and validated local Windows bundle;
+no public tag verified by this build). Local `dist/NightScope` now contains
+the 1.46.19-1.46.21 performance changes. Scope and remaining gates are in
+`REVIEW_HOME_PERFORMANCE_1_46_21.md`; this is not publication approval.
 Current public Windows release: `v1.46.13`. Current public Linux release: `v1.43.0`.
 The user published `v1.46.13` on 2026-09-06 for Windows only. GitHub exposes one
 `NightScope-v1.46.13-windows-x64.zip` asset and tag `v1.46.13` at `b34ec4a`.
@@ -97,7 +99,7 @@ Do not commit credentials or exact personal locations.
 - [x] Source image-lifecycle fixtures: schema upgrade, WAL-consistent snapshot,
   old-backup restore after photo replacement/reset, personal profile/prose
   preservation, relocated file URLs and failed writes; see `docs/TESTING.md`.
-- [x] Windows 1.46.18 packaged backend/normal/red smokes start with separate
+- [x] Windows 1.46.21 packaged backend/normal/red smokes start with separate
   empty runtimes; this does not approve an existing-user upgrade.
 - [ ] Upgrade a copy of a representative current development database.
 - [ ] Verify profiles, user-edited built-ins, custom equipment, provider state,
@@ -110,25 +112,24 @@ Do not commit credentials or exact personal locations.
 
 ## 6. Windows Artifact
 
-The local Windows dist was rebuilt on 2026-09-06 from clean `971292d`, version
-`1.46.18`; it includes the review's runtime/editorial corrections after the
-three image steps. Translation-maintenance tooling remains source-only.
-Artifact identity and scoped validation are in `docs/TESTING.md` and the handoff.
-The checked artifact items below remain historical 1.46.18 evidence; they do
-not approve or contain the 1.46.19 performance changes.
-The checks below approve only their stated scope, not publication or the
-remaining complete visual/provider matrix. The user removed the previous dist
-without backup; the disposable test copy and three fresh runtimes were removed.
+The local Windows dist was rebuilt on 2026-09-07 from clean `66c4b5a`, version
+`1.46.21`, after a fresh full source gate and two full-catalogue QML review runs.
+Artifact identity and scoped validation are in `REVIEW_HOME_PERFORMANCE_1_46_21.md`,
+TESTING and the handoff. These checks approve only their stated scope, not
+publication or the complete visual/provider/upgrade matrix. The full previous
+1.46.18 dist and its runtime were copied to a retained hash-verified backup;
+seven development runtime files are unchanged. Only the validated disposable
+test copy and its three fresh runtimes were removed. The final bundle is pristine.
 
 - [x] Build from a clean checkout with `packaging/build_windows.ps1`.
-- [ ] Build and validate a new Windows artifact containing source 1.46.19.
+- [x] Build and validate a new Windows artifact containing source 1.46.21.
 - [x] Confirm the source commit and build environment are recorded.
 - [x] Run backend and QML smoke tests against the packaged executable.
 - [x] Confirm the bundle-root legal files and Qt module audit pass.
 - [x] Confirm Qt Quick Dialogs and folder-list plugins are present, with no
   user_images directory at any depth.
 - [ ] Repeat native photo selection, fallback open/accept, save/alias/cancel/
-  red/reset and restart-without-original on 1.46.18. The passing 1.46.13
+  red/reset and restart-without-original on 1.46.21. The passing 1.46.13
   packaged workflow remains historical evidence, not a repeated current gate.
 - [x] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
   timezone polygons, and credential backend.

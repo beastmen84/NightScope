@@ -1,7 +1,9 @@
 # NightScope 1.46.21 - Home Presentation Performance
 
-Date: 2026-09-07. Scope: source only; the local Windows bundle remains
-1.46.18. No data migration, package build, push, tag or publication.
+Date: 2026-09-07. Implementation scope: source only, without data migration,
+package build, push, tag or publication. The later review and user-authorized
+Windows 1.46.21 rebuild are recorded in `REVIEW_HOME_PERFORMANCE_1_46_21.md`;
+the measurements below describe the original implementation pass.
 
 ## Implementation And Preserved Behavior
 

@@ -5,6 +5,31 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Review And Local Windows Bundle - 1.46.21
+
+The 2026-09-07 follow-up review of `efce203`, `18d53b7` and `66c4b5a` found
+no blocking regression and made no application/QML changes. The full security
+gate was repeated: 1,728 tests / ten subtests in 210.68 s, 87% coverage
+(18,972 / 21,896). Source backend/normal/red smokes pass in 9.6/10.2/9.9 s.
+Two additional full-catalogue QML matrices pass with zero warnings; maximum
+month/profile heartbeat gaps are 0.727/1.398 s and 0.665/1.257 s. The prior
+sporadic incubation warning is still not declared fixed.
+
+Official Windows build from clean `66c4b5a`: 1.46.21, 5,146 files,
+429,395,620 bytes. All 109 declared assets, five legal files, 131 embedded
+application modules and startup entrypoint match source. Backend/normal/red
+packaged smokes pass in isolated fresh runtimes (29.55/24.11/22.68 s), with
+empty stderr, clean runtime logs and integrity/FK/editorial/image DB checks.
+Pristine copied/final bundle audits pass. The validated disposable copy was
+removed; the full old 1.46.18 dist (5,150 files) remains in a verified backup,
+and seven development runtime files remain hash-identical.
+
+Review, artifact SHA-256, exact backup path, evidence and remaining gates:
+`REVIEW_HOME_PERFORMANCE_1_46_21.md`. This is a local Windows validation, not
+a public release, Linux build or complete native/user-data upgrade matrix.
+The post-build documentation/tooling recheck passes 49 tests in 10.43 s and
+the code-documentation inventory passes unchanged (271 / 36 / 17).
+
 ## Home Presentation Responsiveness - 1.46.21 Source
 
 The Home follow-up preserves the full output contract while removing rich
@@ -30,7 +55,8 @@ and is disclosed rather than suppressed. The QML source is unchanged; no new
 standalone qmllint pass is claimed. Measurements, intermediate test corrections
 and remaining synchronous/UI limits are documented in
 `PERFORMANCE_IMPROVEMENTS_1_46_21.md`. Evidence directory:
-`build/home-performance-1.46.21/`. No bundle has been rebuilt.
+`build/home-performance-1.46.21/`. The implementation itself was source-only;
+the subsequent review and Windows rebuild are recorded above.
 
 ## Observing Refresh Responsiveness - 1.46.20 Source
 
@@ -150,7 +176,7 @@ thresholds, ranking, editorial content and personal data are unchanged. The
 existing local Windows 1.46.18 bundle was neither rebuilt nor replaced; Linux,
 native-GPU/provider behavior and low-memory/antivirus stress remain separate.
 
-## Local Windows Bundle - 1.46.18
+## Historical Local Windows Bundle - 1.46.18
 
 The 2026-09-06 user-requested rebuild completed from clean `971292d` through
 `packaging/build_windows.ps1`, with Python 3.14.5, PyInstaller 6.22.2,
