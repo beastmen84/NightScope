@@ -10,6 +10,31 @@ verifiche gia' concluse sugli artefatti `1.43.0` restano nello storico in
 del 2026-09-06 non chiude automaticamente i controlli mancanti della matrice:
 le verifiche in `RELEASE_CHECKLIST.md` restano specifiche di ogni artefatto.
 
+## Reattività Ricalcoli - Sorgente 1.46.20
+
+- QML reale con catalogo predefinito e interamente attivo, Home/catalogo/profili,
+  IT/EN/ES, normale/rosso: 36 scene e otto stati di transizione catturati in
+  `build/performance-audit-1.46.20/qml-default/` e `qml-all/`, zero warning QML.
+  Snapshot attrezzatura confrontati con i getter e 7.594 valori mensili esatti.
+- Azionato il ComboBox: mese precedente e controllo disabilitato durante la
+  preparazione, nuova selezione soltanto a risultato completo. Navigazione
+  consentita e piano precedente conservato durante il cambio di profilo.
+- Ispezionati quattro campioni: mese pendente, Home durante il cambio profilo,
+  Home inglese rossa e mese completato. Sono prove offscreen a 1440 × 1000,
+  non approvazione visuale del pacchetto. La fixture imposta direttamente
+  coordinate e meteo ma non il messaggio del provider di posizione; il testo
+  iniziale "Nessuna posizione" non verifica la geolocalizzazione reale.
+  Alcune icone rosse non sono rese nel backend offscreen; non si deduce da
+  questi screenshot la correttezza del renderer nativo, rimasto invariato.
+- Restano pause importanti della Home con il catalogo completo. Il test esteso
+  concorrente al gate registra intervalli Qt fino a 16,55/35,60 s; quello con
+  catalogo predefinito 0,53/0,34 s. I confronti del solo worker non devono essere
+  presentati come una soluzione completa dei blocchi dell'interfaccia.
+- Nessun file QML o asset modificato. Il tentativo separato di `qmllint --help`
+  resta bloccato all'avvio, anche invocando il binario Qt con backend offscreen;
+  fermati soltanto i due processi diagnostici avviati per questa prova. Il lint
+  delle 36 sorgenti sotto rimane evidenza datata 1.46.19, non un nuovo pass.
+
 ## Prestazioni - Sorgente 1.46.19
 
 - Catturate 42 scene: sei pagine attrezzatura e catalogo celeste, IT/EN/ES,

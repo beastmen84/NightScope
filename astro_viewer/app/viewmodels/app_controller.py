@@ -14,6 +14,15 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from PySide6.QtCore import QCoreApplication, QObject, Property, QTimer, QUrl, Signal, Slot
 
+from astro_viewer.app.application.observing_calculations import ObservingCalculations
+from astro_viewer.app.application.observing_refresh import (
+    STATE_FIELDS as OBSERVING_STATE_FIELDS,
+    SERVICE_FIELDS as OBSERVING_SERVICE_FIELDS,
+    ObservingRefreshCalculation,
+    ObservingRefreshInputs,
+)
+from astro_viewer.app.viewmodels.observing_refresh_coordinator import ObservingRefreshCoordinator, ObservingRefreshRequest
+
 from astro_viewer.app.application.dependencies import (
     AppControllerDependencies,
     build_app_controller_dependencies,
@@ -140,7 +149,6 @@ from astro_viewer.app.services.nsom_category_score_service import NsomCategorySc
 from astro_viewer.app.services.nsom_target import unique_targets_by_id
 from astro_viewer.app.services.observation_conditions_read_model import (
     ObservationConditionedTargetReadModel,
-    ObservationConditionsReadModelBuilder,
 )
 from astro_viewer.app.services.observation_log_service import (
     ObservationLogValidationError,
@@ -191,7 +199,7 @@ ASTRONOMY_REFRESH_CATALOGUE_RECOMMENDATION = (
 )
 
 
-class AppController(QObject):
+class AppController(QObject, ObservingCalculations):
     dataChanged = Signal()
     selectedObjectChanged = Signal()
     observingObjectDetailChanged = Signal()
@@ -220,8 +228,10 @@ class AppController(QObject):
     _nasaAodRefreshFinished = Signal(int, str, object)
     _skyCompassLiveRefreshFinished = Signal(int, str, object)
     _astronomyRefreshFinished = Signal(int, str, str, object, object)
+    _astronomyTaskFinished = Signal()
     _catalogueRecommendationRefreshFinished = Signal(int, str, object)
     _catalogueMonthRefreshFinished = Signal(int, object, object)
+    _detailGeometryFinished = Signal(int, object)
     _transientEventsRefreshFinished = Signal(int, str, object)
 
     def __init__(
@@ -238,6 +248,7 @@ class AppController(QObject):
         sky_compass_service: SkyCompassService | None = None,
         transient_event_sources: Sequence[TransientCalendarEventSource] = (),
         dependencies: AppControllerDependencies | None = None,
+        asynchronous_observing: bool = False,
     ):
         super().__init__()
         self._photographic_recommendation_input_state: object | None = None
@@ -254,6 +265,7 @@ class AppController(QObject):
             self._finish_catalogue_recommendation_worker
         )
         self._catalogueMonthRefreshFinished.connect(self._finish_catalogue_month_refresh)
+        self._detailGeometryFinished.connect(self._finish_detail_geometry)
         self._transientEventsRefreshFinished.connect(self._finish_transient_event_refresh)
         self.dataChanged.connect(self.homeNightPlanChanged.emit)
         self.weatherChanged.connect(self.homeNightPlanChanged.emit)
@@ -532,7 +544,8 @@ class AppController(QObject):
         self._catalogue_month_refresh_running = False
         self._catalogue_month_pending: int | None = None
         self._catalogue_visible_this_month_only = False
-        self._catalogue_visibility_cache: dict[tuple[float, float, str, int, int, float], dict[str, bool]] = {}
+        # None records a failed attempt, distinct from a successful empty map.
+        self._catalogue_visibility_cache: dict[tuple[float, float, str, int, int, float], dict[str, bool] | None] = {}
         self._catalogue_current_month_visibility_cache: dict[
             tuple[float, float, str, int, int, float, str], bool | None
         ] = {}
@@ -548,6 +561,10 @@ class AppController(QObject):
         self._barlow = 1.0
         self._equipment_message = self._equipment_status_message()
         self._camera_catalog_message: object = ""
+
+        self._observing_refresh_coordinator = None
+        if asynchronous_observing:
+            self._enable_observing_refresh()
 
         self._refresh_manager.mark_dirty(RefreshReason.STARTUP)
         self._initialize_startup_location()
@@ -689,7 +706,8 @@ class AppController(QObject):
 
     @Property(bool, notify=statusChanged)
     def isLoading(self) -> bool:
-        return self._is_loading
+        coordinator = getattr(self, "_observing_refresh_coordinator", None)
+        return self._is_loading or bool(coordinator is not None and coordinator.active)
 
     @Property(str, notify=statusChanged)
     def serviceStatus(self) -> str:
@@ -1703,6 +1721,8 @@ class AppController(QObject):
     def retranslatePresentation(self) -> None:
         """Refreshes localized payloads without recomputing astronomy or NSOM."""
 
+        self._presentation_generation = getattr(self, "_presentation_generation", 0) + 1
+
         self._observation_log = self._observation_log_service.build_entries(
             self._observation_rows
         )
@@ -1881,14 +1901,36 @@ class AppController(QObject):
     def setCatalogueMonth(self, month: int) -> None:
         if month < 1 or month > 12:
             return
+        retry_failed = self._forget_failed_catalogue_month(month)
+        self._publish_catalogue_month(month, force=retry_failed)
+
+    def _forget_failed_catalogue_month(self, month: int) -> bool:
+        key = catalogue_query_service.catalogue_visibility_cache_key(self._location, self._catalogue_year, month)
+        if key in self._catalogue_visibility_cache and self._catalogue_visibility_cache[key] is None:
+            del self._catalogue_visibility_cache[key]
+            return True
+        return False
+
+    def _publish_catalogue_month(self, month: int, *, force: bool = False, asynchronous: bool = False) -> None:
+        if asynchronous and (month != self._catalogue_selected_month or force) and self._queue_observing_update(
+            "month", rebuild_equipment=True, month=month,
+            completion=lambda: self._complete_catalogue_month_publication(month),
+        ):
+            return
         self._cancel_catalogue_month_request()
         self._catalogue_month_user_selected = True
-        if self._catalogue_selected_month == month:
+        if self._catalogue_selected_month == month and not force:
             return
         self._catalogue_selected_month = month
         # The cache key already includes year/month; keep previously prepared months.
         self._refresh_equipment_recommendations_for_current_objects(refresh_conditioned=False)
         self._recalculate_observing_outputs()
+        self._complete_catalogue_month_publication(month)
+
+    def _complete_catalogue_month_publication(self, month: int) -> None:
+        self._cancel_catalogue_month_request()
+        self._catalogue_month_user_selected = True
+        self._catalogue_selected_month = month
         self.dataChanged.emit()
         self.catalogueChanged.emit()
         if self._selected_object and self._selected_object_source == CATALOGUE_SOURCE:
@@ -1899,24 +1941,31 @@ class AppController(QObject):
         """Prepare missing monthly geometry off-thread, then use the established publication path."""
         if month < 1 or month > 12:
             return
+        retry_failed = self._forget_failed_catalogue_month(month)
         self._cancel_catalogue_month_request()
         self._catalogue_month_user_selected = True
-        if month == self._catalogue_selected_month:
+        if month == self._catalogue_selected_month and not retry_failed:
             return
         if not QCoreApplication.instance() or not self._has_valid_location():
-            self.setCatalogueMonth(month)
+            self._publish_catalogue_month(month, force=retry_failed)
             return
         self._catalogue_month_pending = month
         self.catalogueMonthRefreshStateChanged.emit()
         self._start_pending_catalogue_month_refresh()
 
     def _cancel_catalogue_month_request(self) -> None:
+        coordinator = getattr(self, "_observing_refresh_coordinator", None)
+        if coordinator is not None and coordinator.has_request("month"):
+            coordinator.cancel("month")
         self._catalogue_month_refresh_generation = getattr(self, "_catalogue_month_refresh_generation", 0) + 1
         if getattr(self, "_catalogue_month_pending", None) is not None:
             self._catalogue_month_pending = None
             self.catalogueMonthRefreshStateChanged.emit()
 
     def _start_pending_catalogue_month_refresh(self) -> None:
+        coordinator = getattr(self, "_observing_refresh_coordinator", None)
+        if coordinator is not None and coordinator.has_request("month"):
+            return
         month = getattr(self, "_catalogue_month_pending", None)
         if month is None:
             return
@@ -1927,14 +1976,14 @@ class AppController(QObject):
         year = self._catalogue_year
         cache_key = catalogue_query_service.catalogue_visibility_cache_key(location, year, month)
         if cache_key in self._catalogue_visibility_cache:
-            self.setCatalogueMonth(month)
+            self._publish_catalogue_month(month, asynchronous=True)
             return
         if getattr(self, "_catalogue_month_refresh_running", False):
             return
         visibility_method = getattr(self._astronomy_engine, "catalogue_month_visibility", None)
         if not callable(visibility_method):
             self._cache_catalogue_month_visibility(cache_key, {})
-            self.setCatalogueMonth(month)
+            self._publish_catalogue_month(month, asynchronous=True)
             return
         # Detached inputs only: the worker must not query or mutate QML-facing state.
         catalogue_objects = tuple(dict(item) for item in self._catalogue_objects)
@@ -1956,7 +2005,7 @@ class AppController(QObject):
                             visibility = {str(object_id): bool(visible) for object_id, visible in result.items()}
             except Exception:
                 logger.warning("Catalogue monthly visibility calculation failed.", exc_info=True)
-                visibility = {}
+                visibility = None
             self._catalogueMonthRefreshFinished.emit(generation, cache_key, visibility)
 
         try:
@@ -1979,11 +2028,11 @@ class AppController(QObject):
             and cache_key == catalogue_query_service.catalogue_visibility_cache_key(
                 self._location, self._catalogue_year, month,
             )
-            and isinstance(visibility, dict)
+            and (visibility is None or isinstance(visibility, dict))
         ):
             self._cache_catalogue_month_visibility(cache_key, visibility)
             # Equipment, conditions and selection are read now, never from the worker's old context.
-            self.setCatalogueMonth(month)
+            self._publish_catalogue_month(month, force=True, asynchronous=True)
         self._start_pending_catalogue_month_refresh()
 
     @Slot(bool)
@@ -3511,6 +3560,11 @@ class AppController(QObject):
         self._complete_refresh_all()
 
     def _complete_refresh_all(self) -> None:
+        coordinator = getattr(self, "_observing_refresh_coordinator", None)
+        if coordinator is not None and coordinator.active:
+            self._complete_refresh_all_pending = True
+            return
+        self._complete_refresh_all_pending = False
         self._set_loading(False)
         if self._selected_object and self._selected_object_source == CATALOGUE_SOURCE:
             pass
@@ -3535,6 +3589,9 @@ class AppController(QObject):
         self._service_status = tr("Ricerca della posizione in corso.")
 
     def _refresh_no_location_context(self) -> None:
+        coordinator = getattr(self, "_observing_refresh_coordinator", None)
+        if coordinator is not None:
+            coordinator.cancel()
         self._cancel_astronomy_refresh()
         self._cancel_catalogue_recommendation_refresh()
         self._cancel_transient_event_refresh()
@@ -3932,13 +3989,50 @@ class AppController(QObject):
             )
 
         try:
-            self._start_background_task(run_refresh)
+            self._start_bounded_astronomy_task(run_refresh)
         except Exception:
             self._astronomy_refresh_running = False
             self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
             logger.warning("Astronomy worker could not start.", exc_info=True)
             return False
         return True
+
+    def _start_bounded_astronomy_task(self, target: Callable[[], None]) -> None:
+        if getattr(self, "_astronomy_task_running", False):
+            self._astronomy_task_pending = target
+            return
+        if not getattr(self, "_astronomy_task_connected", False):
+            self._astronomyTaskFinished.connect(self._finish_bounded_astronomy_task)
+            self._astronomy_task_connected = True
+        self._astronomy_task_running = True
+
+        def run():
+            try:
+                target()
+            finally:
+                try:
+                    self._astronomyTaskFinished.emit()
+                except RuntimeError:
+                    logger.debug("Astronomy task finished after Qt shutdown.")
+
+        try:
+            self._start_background_task(run)
+        except Exception:
+            self._astronomy_task_running = False
+            raise
+
+    @Slot()
+    def _finish_bounded_astronomy_task(self) -> None:
+        self._astronomy_task_running = False
+        pending = getattr(self, "_astronomy_task_pending", None)
+        self._astronomy_task_pending = None
+        if pending is not None:
+            try:
+                self._start_bounded_astronomy_task(pending)
+            except Exception:
+                self._astronomy_refresh_running = False
+                self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
+                logger.warning("Pending astronomy worker could not start.", exc_info=True)
 
     def _calculate_astronomy_snapshot(
         self,
@@ -4093,6 +4187,7 @@ class AppController(QObject):
                 self._complete_refresh_all()
 
     def _apply_astronomy_snapshot(self, snapshot: AstronomyRefreshSnapshot) -> None:
+        self._invalidate_detail_geometry()
         self._moon_geometry_condition_cache = {}
         if snapshot.failed:
             self._base_solar_system_objects = []
@@ -4132,7 +4227,8 @@ class AppController(QObject):
             self._cache_catalogue_month_visibility(
                 snapshot.catalogue_visibility_cache_key, dict(snapshot.catalogue_visibility)
             )
-        self._refresh_equipment_recommendations_for_current_objects()
+        if not self._queue_observing_update("astronomy", rebuild_equipment=True, recalculate_outputs=None):
+            self._refresh_equipment_recommendations_for_current_objects()
 
     def _cancel_astronomy_refresh(self) -> None:
         if not getattr(self, "_astronomy_refresh_running", False):
@@ -4474,8 +4570,16 @@ class AppController(QObject):
             observing_hours,
             self._sky_quality,
         )
+        if self._queue_observing_update(
+            "weather", rebuild_equipment=True,
+            completion=lambda: self._complete_weather_publication(error, retry_recommended),
+        ):
+            return
         self._refresh_equipment_recommendations_for_current_objects(refresh_conditioned=False)
         self._recalculate_observing_outputs()
+        self._complete_weather_publication(error, retry_recommended)
+
+    def _complete_weather_publication(self, error: object, retry_recommended: bool) -> None:
         self._refresh_local_atmosphere()
         self.weatherChanged.emit()
         self.dataChanged.emit()
@@ -4516,146 +4620,6 @@ class AppController(QObject):
             )
         return tr("Dati meteo non disponibili al momento.")
 
-    def _recalculate_observing_outputs(self) -> None:
-        self._category_scores = self._nsom_category_score_service.scores(
-            self._build_observation_condition_inputs()
-        )
-        self._refresh_conditioned_observing_candidates()
-        planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
-        planning_objects = planning_objects or list(
-            unique_targets_by_id(self._visible_planets + self._deep_sky)
-        )
-        planner_moon_geometry = self._planner_moon_geometry_inputs(planning_objects)
-        planner_telescopes = self._planner_telescopes_by_object_id(planning_objects)
-        condition_inputs = self._build_observation_condition_inputs()
-        self._best_object = self._select_best_object(
-            planning_objects,
-            condition_inputs=condition_inputs,
-            moon_geometry_by_object_id=planner_moon_geometry,
-            telescope_by_object_id=planner_telescopes,
-        )
-        planner_kwargs = {}
-        if planner_moon_geometry is not None:
-            planner_kwargs["moon_geometry_by_object_id"] = planner_moon_geometry
-        if getattr(self._night_planner_service, "uses_target_equipment", False):
-            planner_kwargs["telescope_by_object_id"] = planner_telescopes
-        planner_kwargs["condition_inputs"] = condition_inputs
-        night_window = getattr(self, "_observing_night_window", None)
-        if isinstance(night_window, ObservingNightWindow) and night_window.has_observing_window:
-            planner_kwargs["night_window"] = night_window
-        self._night_plan = self._night_planner_service.plan(
-            planning_objects,
-            self._weather_summary,
-            self._current_telescope(),
-            **planner_kwargs,
-        )
-        self._refresh_sky_compass()
-
-    def _planner_telescopes_by_object_id(
-        self,
-        targets: list[CelestialObject],
-    ) -> dict[str, Telescope]:
-        setup_models = getattr(self, "_equipment_setup_read_models_by_object_id", {})
-        telescopes: dict[str, Telescope] = {}
-        for target in targets:
-            setup = setup_models.get(target.id)
-            if setup is None or setup.equipment_type != "Telescope" or not setup.telescope_id:
-                continue
-            telescope = self._find_telescope(setup.telescope_id)
-            if telescope is not None:
-                telescopes[target.id] = telescope
-        return telescopes
-
-    def _planner_moon_geometry_inputs(
-        self,
-        targets: list[CelestialObject],
-    ) -> dict[str, MoonGeometryConditionInput]:
-        self._populate_moon_geometry_condition_cache(targets)
-        geometry_by_id: dict[str, MoonGeometryConditionInput] = {}
-        for target in targets:
-            geometry = self._moon_geometry_condition_input(target)
-            if geometry is not None:
-                geometry_by_id[target.id] = geometry
-        return geometry_by_id
-
-    def _populate_moon_geometry_condition_cache(self, targets: list[CelestialObject]) -> None:
-        cache = getattr(self, "_moon_geometry_condition_cache", None)
-        if cache is None:
-            cache = {}
-            self._moon_geometry_condition_cache = cache
-        missing = [target for target in targets if target.id not in cache]
-        batch_method = getattr(getattr(self, "_astronomy_engine", None), "moon_geometry_batch", None)
-        if not missing or not callable(batch_method):
-            return
-        try:
-            with self._astronomy_engine_lock_instance():
-                summaries = batch_method(self._location, missing)
-        except Exception:
-            logger.debug("Moon geometry batch failed; using per-target fallback.", exc_info=True)
-            return
-        if not isinstance(summaries, Mapping):
-            return
-        for target in missing:
-            if target.id not in summaries:
-                continue
-            summary = summaries[target.id]
-            cache[target.id] = self._moon_geometry_summary_to_condition_input(
-                summary if isinstance(summary, MoonGeometrySummary) else None
-            )
-
-    def _select_best_object(
-        self,
-        planning_objects: list[CelestialObject],
-        *,
-        condition_inputs: ObservationConditionInputs | None = None,
-        moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
-        telescope_by_object_id: Mapping[str, Telescope] | None = None,
-    ) -> CelestialObject | None:
-        if not self._weather_summary:
-            return None
-        candidate_read_models = self._best_object_read_models(planning_objects)
-        selected_raw_target = self._best_object_nsom_selection_service.best_object(
-            [model.nsom_target_input for model in candidate_read_models],
-            weather=self._weather_summary,
-            telescope=self._current_telescope(),
-            condition_inputs=condition_inputs or self._build_observation_condition_inputs(),
-            moon_geometry_by_object_id=moon_geometry_by_object_id,
-            telescope_by_object_id=telescope_by_object_id,
-        )
-        if selected_raw_target is None:
-            return None
-        display_targets_by_raw_id = {
-            model.nsom_target_input.id: model.qml_display_target
-            for model in candidate_read_models
-        }
-        return display_targets_by_raw_id.get(selected_raw_target.id, selected_raw_target)
-
-    def _best_object_read_models(
-        self,
-        planning_objects: list[CelestialObject],
-    ) -> tuple[ObservationConditionedTargetReadModel, ...]:
-        existing_models = {
-            model.object_id: model
-            for model in getattr(self, "_conditioned_home_read_model", [])
-        }
-        missing_objects = [
-            item
-            for item in planning_objects
-            if item.id not in existing_models
-        ]
-        if missing_objects:
-            fallback_models = self._conditions_read_model_builder_instance().from_display_targets(
-                missing_objects,
-                source="best_object_nsom_raw_observable_order_fallback",
-                raw_targets_by_id=self._conditioned_raw_targets_by_id(),
-            )
-            existing_models.update({model.object_id: model for model in fallback_models})
-        return tuple(
-            existing_models[item.id]
-            for item in planning_objects
-            if item.id in existing_models
-        )
-
     def _moon_geometry_condition_input(self, target: object | None = None) -> MoonGeometryConditionInput | None:
         if target is None:
             return None
@@ -4668,6 +4632,8 @@ class AppController(QObject):
             self._moon_geometry_condition_cache = cache
         if geometry_target.id in cache:
             return cache[geometry_target.id]
+        if self._queue_detail_geometry("moon", geometry_target.id, geometry_target):
+            return None
         summary = self._moon_geometry_summary(geometry_target)
         condition_input = self._moon_geometry_summary_to_condition_input(summary)
         cache[geometry_target.id] = condition_input
@@ -4796,6 +4762,204 @@ class AppController(QObject):
     def _start_background_task(target: Callable[[], None]) -> None:
         Thread(target=target, daemon=True).start()
 
+    def _capture_observing_refresh(self, *, rebuild_equipment: bool, apply_pollution: bool,
+                                  recalculate_outputs: bool | None = True, month: int | None = None) -> ObservingRefreshInputs:
+        selected_month = self._catalogue_selected_month if month is None else month
+        key = catalogue_query_service.catalogue_visibility_cache_key(self._location, self._catalogue_year, selected_month)
+        cached = self._catalogue_visibility_cache.get(key)
+        state = {}
+        for name in OBSERVING_STATE_FIELDS:
+            value = getattr(self, name)
+            state[name] = value.copy() if isinstance(value, (dict, list)) else value
+        return ObservingRefreshInputs(
+            context=self._catalogue_recommendation_preparation_context(),
+            state=state,
+            location=self._location if self._has_valid_location() else None,
+            enabled_objects=dict(self._recommendation_enabled_by_object_id),
+            catalogue_rows=tuple(dict(item) for item in self._catalogue_objects),
+            catalogue_year=self._catalogue_year,
+            catalogue_month=selected_month,
+            visibility_cached=key in self._catalogue_visibility_cache,
+            visibility=dict(cached) if cached is not None else None,
+            rebuild_equipment=rebuild_equipment,
+            apply_pollution=apply_pollution,
+            recalculate_outputs=recalculate_outputs,
+        )
+
+    def _enable_observing_refresh(self) -> None:
+        self._observing_refresh_coordinator = ObservingRefreshCoordinator(
+            capture=self._prepare_observing_calculation,
+            signature=self._observing_refresh_signature,
+            publish=self._publish_observing_calculation,
+            failure=self._failed_observing_calculation,
+            start_worker=lambda target: self._start_background_task(target),
+            parent=self,
+        )
+        self._observing_refresh_coordinator.changed.connect(self.statusChanged.emit)
+
+    @Slot()
+    def stopPerformanceWorkers(self) -> None:
+        coordinator = getattr(self, "_observing_refresh_coordinator", None)
+        if coordinator is not None:
+            coordinator.cancel()
+        self._invalidate_detail_geometry()
+        self._astronomy_task_pending = None
+        self._astronomy_refresh_request_id += 1
+        self._cancel_catalogue_month_request()
+        self._cancel_sky_compass_live_refresh()
+
+    def _queue_observing_update(self, kind: str, **kwargs) -> bool:
+        coordinator = getattr(self, "_observing_refresh_coordinator", None)
+        if coordinator is None or not QCoreApplication.instance():
+            return False
+        coordinator.request(kind, ObservingRefreshRequest(**kwargs))
+        return True
+
+    def _observing_refresh_signature(self, _requests) -> tuple:
+        return (
+            self._catalogue_recommendation_runtime_signature(), self._location,
+            self._catalogue_year, self._catalogue_selected_month,
+            self._catalogue_month_refresh_generation,
+            getattr(self, "_presentation_generation", 0),
+            tuple(self._recommendation_enabled_by_object_id.items()),
+            tuple(id(getattr(self, name)) for name in OBSERVING_STATE_FIELDS),
+            id(self._object_descriptions), id(self._object_image_map), id(self._catalogue_objects),
+        )
+
+    def _prepare_observing_calculation(self, requests, cancelled) -> ObservingRefreshCalculation:
+        ordered = list(requests.values())
+        rebuilding = [request for request in ordered if request.rebuild_equipment]
+        months = [request.month for request in ordered if request.month is not None]
+        output_modes = [request.recalculate_outputs for request in ordered if request.recalculate_outputs is not None]
+        inputs = self._capture_observing_refresh(
+            rebuild_equipment=bool(rebuilding),
+            apply_pollution=rebuilding[-1].apply_pollution if rebuilding else False,
+            recalculate_outputs=output_modes[-1] if output_modes else None,
+            month=months[-1] if months else None,
+        )
+        return ObservingRefreshCalculation(
+            inputs, {name: getattr(self, name) for name in OBSERVING_SERVICE_FIELDS},
+            self._astronomy_engine, self._astronomy_engine_lock_instance(), cancelled,
+        )
+
+    def _publish_observing_calculation(self, calculation, requests) -> None:
+        for name, value in calculation.results().items():
+            if name == "_moon_geometry_condition_cache":
+                value = {**value, **self._moon_geometry_condition_cache}
+            setattr(self, name, value)
+        if calculation._visibility_ready:
+            inputs = calculation.inputs
+            key = catalogue_query_service.catalogue_visibility_cache_key(inputs.location, inputs.catalogue_year,
+                                                                         inputs.catalogue_month)
+            self._cache_catalogue_month_visibility(key, calculation.visibility)
+        if calculation.sky_compass is not None:
+            self._cancel_sky_compass_live_refresh()
+            self._sky_compass_candidate_snapshot = calculation.sky_compass_candidates
+            self._sky_compass_service.reset_live_direction_stability(
+                initial_direction=calculation._sky_compass_service._live_direction,
+            )
+            self._set_sky_compass(calculation.sky_compass)
+        for request in requests.values():
+            if request.completion is not None:
+                request.completion()
+        if getattr(self, "_complete_refresh_all_pending", False):
+            self._complete_refresh_all()
+
+    def _failed_observing_calculation(self, error, requests) -> None:
+        logger.error("Observing refresh did not complete: %s", error)
+        self._cancel_catalogue_month_request()
+        # Keep old observing outputs, but finish provider/profile bookkeeping and
+        # restart weather cadence. A failed month must never publish its selection.
+        for kind, request in requests.items():
+            if kind != "month" and request.completion is not None:
+                request.completion()
+        self._append_service_status(tr(
+            "NightScope non ha potuto aggiornare tutti i dati. I dati esistenti restano disponibili."
+        ))
+        if getattr(self, "_complete_refresh_all_pending", False):
+            self._complete_refresh_all()
+
+    def _invalidate_detail_geometry(self) -> None:
+        self._detail_geometry_generation = getattr(self, "_detail_geometry_generation", 0) + 1
+        self._detail_geometry_pending = {}
+
+    def _queue_detail_geometry(self, kind: str, cache_key, target) -> bool:
+        if getattr(self, "_observing_refresh_coordinator", None) is None or not QCoreApplication.instance():
+            return False
+        if not self._has_valid_location():
+            return False
+        generation = getattr(self, "_detail_geometry_generation", 0)
+        key = (kind, generation, cache_key)
+        if key in getattr(self, "_detail_geometry_active_keys", ()):
+            return True
+        pending = getattr(self, "_detail_geometry_pending", None)
+        if pending is None:
+            pending = self._detail_geometry_pending = {}
+        pending[key] = dict(target) if isinstance(target, dict) else target
+        while len(pending) > 32:
+            pending.pop(next(iter(pending)))
+        if not getattr(self, "_detail_geometry_running", False):
+            QTimer.singleShot(0, self, self._start_detail_geometry)
+        return True
+
+    def _start_detail_geometry(self) -> None:
+        if getattr(self, "_detail_geometry_running", False) or not getattr(self, "_detail_geometry_pending", None):
+            return
+        tasks = tuple(self._detail_geometry_pending.items())
+        self._detail_geometry_pending.clear()
+        self._detail_geometry_running = True
+        self._detail_geometry_active_keys = {key for key, _target in tasks}
+        generation = getattr(self, "_detail_geometry_generation", 0)
+        engine, location, lock = self._astronomy_engine, self._location, self._astronomy_engine_lock_instance()
+
+        def calculate():
+            results = []
+            for (kind, _generation, key), target in tasks:
+                if generation != getattr(self, "_detail_geometry_generation", 0):
+                    break
+                result = None
+                try:
+                    with lock:
+                        if generation != getattr(self, "_detail_geometry_generation", 0):
+                            break
+                        if kind == "moon":
+                            method = getattr(engine, "moon_geometry", None)
+                            result = method(location, target) if callable(method) else None
+                        else:
+                            method = getattr(engine, "catalogue_month_visibility", None)
+                            if callable(method):
+                                visibility = method([target], location, key[3], key[4], key[5])
+                                result = bool(visibility[key[6]]) if key[6] in visibility else None
+                except Exception:
+                    logger.debug("Detail geometry unavailable; retaining unknown presentation.", exc_info=True)
+                results.append((kind, key, result))
+            try:
+                self._detailGeometryFinished.emit(generation, results)
+            except RuntimeError:
+                logger.debug("Detail geometry discarded after Qt shutdown.")
+
+        try:
+            self._start_background_task(calculate)
+        except Exception:
+            self._detail_geometry_running = False
+            self._detail_geometry_active_keys = set()
+            logger.warning("Detail geometry worker could not start.", exc_info=True)
+
+    @Slot(int, object)
+    def _finish_detail_geometry(self, generation: int, results: object) -> None:
+        self._detail_geometry_running = False
+        self._detail_geometry_active_keys = set()
+        if generation == getattr(self, "_detail_geometry_generation", 0):
+            for kind, key, value in results:
+                if kind == "moon":
+                    self._moon_geometry_condition_cache[key] = self._moon_geometry_summary_to_condition_input(
+                        value if isinstance(value, MoonGeometrySummary) else None,
+                    )
+                else:
+                    self._catalogue_current_month_visibility_cache[key] = value
+            self.selectedObjectChanged.emit()
+        self._start_detail_geometry()
+
     def _astronomy_engine_lock_instance(self):
         lock = getattr(self, "_astronomy_engine_lock", None)
         if lock is None:
@@ -4853,28 +5017,6 @@ class AppController(QObject):
             return
         if timer.isActive():
             timer.stop()
-
-    def _sky_compass_candidates(self) -> list[CelestialObject]:
-        return self._tonight_target_pool()
-
-    def _sky_compass_observable_targets_by_id(
-        self,
-        candidates: list[CelestialObject],
-    ) -> dict[str, CelestialObject]:
-        read_models = {
-            model.object_id: model
-            for model in getattr(self, "_conditioned_home_read_model", [])
-        }
-        raw_targets_by_id = self._conditioned_raw_targets_by_id()
-        observable_targets = {}
-        for display_target in candidates:
-            model = read_models.get(display_target.id)
-            raw_target = model.nsom_target_input if model else raw_targets_by_id.get(display_target.id, display_target)
-            observable_targets[display_target.id] = self._sky_compass_observable_target(
-                raw_target,
-                display_target,
-            )
-        return observable_targets
 
     @staticmethod
     def _sky_compass_observable_target(
@@ -5137,14 +5279,25 @@ class AppController(QObject):
             self._sky_quality,
         )
         if not snapshot.failed:
+            self._base_deep_sky = list(snapshot.deep_sky)
+            if self._queue_observing_update(
+                "viirs", rebuild_equipment=True, apply_pollution=True,
+                completion=lambda: self._complete_viirs_publication(message),
+            ):
+                return
+        if not snapshot.failed:
             try:
                 self._base_deep_sky = list(snapshot.deep_sky)
-                self._refresh_equipment_recommendations_for_current_objects()
+                self._refresh_equipment_recommendations_for_current_objects(refresh_conditioned=False)
                 self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
             except Exception:
                 logger.warning("Deep-sky refresh after VIIRS update failed.", exc_info=True)
         self._light_pollution_status = message
         self._recalculate_observing_outputs()
+        self._complete_viirs_publication(message)
+
+    def _complete_viirs_publication(self, message: object) -> None:
+        self._light_pollution_status = message
         self.dataChanged.emit()
         self.weatherChanged.emit()
         self.selectedObjectChanged.emit()
@@ -5433,7 +5586,12 @@ class AppController(QObject):
             return
         if getattr(self, "_weather_summary", None) is None:
             return
+        if self._queue_observing_update("conditions", completion=self._complete_condition_provider_publication):
+            return
         self._recalculate_observing_outputs()
+        self._complete_condition_provider_publication()
+
+    def _complete_condition_provider_publication(self) -> None:
         self.dataChanged.emit()
         self.selectedObjectChanged.emit()
 
@@ -5473,7 +5631,12 @@ class AppController(QObject):
         if reload_profile_equipment:
             self._profile_equipment = self._initial_profile_equipment()
         self._selected_telescope_index = self._initial_telescope_index()
-        self._refresh_equipment_recommendations_for_current_objects()
+        if self._queue_observing_update(
+            "profile", rebuild_equipment=True, apply_pollution=True,
+            recalculate_outputs=bool(self._weather_summary), completion=self._complete_profile_publication,
+        ):
+            return
+        self._refresh_equipment_recommendations_for_current_objects(refresh_conditioned=False)
         self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
         if self._weather_summary:
             self._recalculate_observing_outputs()
@@ -5499,6 +5662,15 @@ class AppController(QObject):
             RefreshDomain.COMPASS,
         )
 
+    def _complete_profile_publication(self) -> None:
+        selected_id = self._selected_object.id if self._selected_object else None
+        if selected_id:
+            replacement = next((item for item in self._solar_system_objects + self._deep_sky if item.id == selected_id), None)
+            if replacement is not None:
+                self._selected_object = replacement
+        self._clear_refresh_domains(RefreshDomain.EQUIPMENT, RefreshDomain.PLANNER, RefreshDomain.COMPASS)
+        self._emit_profile_dependent_changes()
+
     def _refresh_after_catalogue_recommendation_changes(
         self,
         object_ids: Sequence[str],
@@ -5514,7 +5686,7 @@ class AppController(QObject):
 
         selected_id = self._selected_object.id if self._selected_object else None
         selected_source = self._selected_object_source
-        self._refresh_equipment_recommendations_for_current_objects()
+        self._refresh_equipment_recommendations_for_current_objects(refresh_conditioned=False)
         self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
         if self._weather_summary:
             self._recalculate_observing_outputs()
@@ -5642,42 +5814,6 @@ class AppController(QObject):
         self.weatherChanged.emit()
         self.selectedObjectChanged.emit()
 
-    def _refresh_equipment_recommendations_for_current_objects(
-        self,
-        *,
-        refresh_conditioned: bool = True,
-    ) -> None:
-        solar_system_source = self._base_solar_system_objects or self._solar_system_objects
-        deep_sky_source = self._base_deep_sky or self._deep_sky
-        deep_sky_source = self._recommendation_eligible_objects(deep_sky_source)
-        self._equipment_setup_read_models_by_object_id = {}
-        self._solar_system_objects = self._apply_equipment(solar_system_source)
-        self._visible_planets = [
-            item
-            for item in self._solar_system_objects
-            if item.object_type == "Pianeta"
-            and item.visible
-            and self._solar_system_monthly_visible_for_home(item)
-        ]
-        self._deep_sky = self._apply_equipment(deep_sky_source)
-        if refresh_conditioned:
-            self._refresh_conditioned_observing_candidates()
-
-    def _recommendation_eligible_objects(
-        self,
-        objects: list[CelestialObject],
-    ) -> list[CelestialObject]:
-        enabled_by_id = getattr(
-            self,
-            "_recommendation_enabled_by_object_id",
-            {},
-        )
-        return [
-            item
-            for item in objects
-            if enabled_by_id.get(item.id.strip().casefold(), True)
-        ]
-
     def _publish_location_command_result(
         self,
         result: LocationCommandResult,
@@ -5709,6 +5845,9 @@ class AppController(QObject):
         result: LocationDetectionResult,
         persist: bool = True,
     ) -> None:
+        coordinator = getattr(self, "_observing_refresh_coordinator", None)
+        if coordinator is not None:
+            coordinator.cancel()
         self._mark_refresh_dirty(RefreshReason.LOCATION_CHANGED)
         self._cancel_astronomy_refresh()
         self._cancel_catalogue_recommendation_refresh()
@@ -5939,45 +6078,6 @@ class AppController(QObject):
         }
         return labels.get(result.provider, result.accuracy or tr("n/d"))
 
-    def _apply_equipment(self, objects: list[CelestialObject]) -> list[CelestialObject]:
-        telescopes = self._active_profile_telescopes()
-        eyepieces = self._active_profile_eyepieces()
-        barlows = self._active_profile_barlows()
-        binoculars = self._active_profile_binoculars()
-        updated = []
-        for item in objects:
-            suggestion = self._equipment_service.suggest_for_profile(
-                item,
-                telescopes,
-                eyepieces,
-                barlows,
-                self._seeing_transparency,
-                self._sky_quality,
-                binoculars,
-            )
-            setup_read_model = self._equipment_setup_read_model_builder.from_suggestion(item, suggestion)
-            setup_models = getattr(self, "_equipment_setup_read_models_by_object_id", None)
-            if setup_models is None:
-                setup_models = {}
-                self._equipment_setup_read_models_by_object_id = setup_models
-            setup_models[item.id] = setup_read_model
-            naked_eye_blocked = (
-                not telescopes
-                and not binoculars
-                and setup_read_model.requires_optical_instrument
-            )
-            setup_updates = setup_read_model.to_celestial_object_updates()
-            updated.append(
-                self._apply_object_content(
-                    replace(
-                        item,
-                        visible=item.visible and not naked_eye_blocked,
-                        score=max(0, item.score - 45) if naked_eye_blocked else item.score,
-                        **setup_updates,
-                    )
-                )
-            )
-        return updated
 
     def _apply_object_content(self, item: CelestialObject) -> CelestialObject:
         return self._apply_object_content_from_sources(
@@ -6001,47 +6101,10 @@ class AppController(QObject):
             catalogue_identifier_index,
         )
 
-    def _apply_deep_sky_pollution_context(self, objects: list[CelestialObject]) -> list[CelestialObject]:
-        self._deep_sky_raw_condition_input_by_id = {item.id: item for item in objects}
-        conditioned = self._conditions_service.condition_deep_sky_pollution_context(
-            objects,
-            self._sky_quality,
-            self._build_observation_condition_inputs(include_moon=False),
-        )
-        builder = self._conditions_read_model_builder_instance()
-        self._deep_sky_pollution_read_model = list(
-            builder.from_conditioned_targets(
-                conditioned,
-                source="deep_sky_pollution_context",
-                raw_targets_by_id=self._deep_sky_raw_condition_input_by_id,
-            )
-        )
-        return [model.display_target for model in self._deep_sky_pollution_read_model]
 
-    def _conditions_read_model_builder_instance(self) -> ObservationConditionsReadModelBuilder:
-        builder = getattr(self, "_conditions_read_model_builder", None)
-        if builder is None:
-            builder = ObservationConditionsReadModelBuilder()
-            self._conditions_read_model_builder = builder
-        return builder
 
     def _deep_sky_pollution_base_penalty(self) -> float:
         return self._conditions_service.deep_sky_pollution_base_penalty(self._sky_quality)
-
-    def _home_visible_objects(self, objects: list[CelestialObject]) -> list[CelestialObject]:
-        return list(
-            unique_targets_by_id(
-                item
-                for item in objects
-                if self._first_observing_datetime(item.best_time)
-                or self._first_observing_datetime(item.observing_window)
-            )
-        )
-
-    def _tonight_target_pool(self) -> list[CelestialObject]:
-        candidates = self._home_visible_objects(self._visible_planets)
-        candidates.extend(self._conditioned_deep_sky_candidates())
-        return list(unique_targets_by_id(candidates))
 
     def _home_visible_alternative_payloads(
         self,
@@ -6270,9 +6333,10 @@ class AppController(QObject):
         if not self._has_valid_location():
             return {}
         cache_key = self._catalogue_visibility_cache_key()
-        cached = self._catalogue_visibility_cache.get(cache_key)
-        if cached is not None:
-            return cached
+        if cache_key in self._catalogue_visibility_cache:
+            cached = self._catalogue_visibility_cache[cache_key]
+            # Do not retry on every QML getter; a new explicit request can retry.
+            return cached if cached is not None else {}
 
         visibility_method = getattr(self._astronomy_engine, "catalogue_month_visibility", None)
         if not callable(visibility_method):
@@ -6289,12 +6353,13 @@ class AppController(QObject):
                 )
         except Exception:
             logger.warning("Catalogue monthly visibility calculation failed.", exc_info=True)
-            visibility = {}
+            self._cache_catalogue_month_visibility(cache_key, None)
+            return {}
         normalized_visibility = {str(object_id): bool(visible) for object_id, visible in visibility.items()}
         self._cache_catalogue_month_visibility(cache_key, normalized_visibility)
         return normalized_visibility
 
-    def _cache_catalogue_month_visibility(self, cache_key: tuple, visibility: dict[str, bool]) -> None:
+    def _cache_catalogue_month_visibility(self, cache_key: tuple, visibility: dict[str, bool] | None) -> None:
         self._catalogue_visibility_cache[cache_key] = visibility
         # Bound retained months without invalidating reusable geometry on every selection.
         while len(self._catalogue_visibility_cache) > 12:
@@ -6347,6 +6412,7 @@ class AppController(QObject):
         return catalogue_query_service.catalogue_boolean_label(value)
 
     def _invalidate_catalogue_visibility_cache(self) -> None:
+        self._invalidate_detail_geometry()
         self._invalidate_catalogue_month_visibility_cache()
         self._catalogue_current_month_visibility_cache.clear()
         self._invalidate_catalogue_observability_cache()
@@ -6479,29 +6545,6 @@ class AppController(QObject):
     def _is_catalogue_detail_object(item: CelestialObject) -> bool:
         return catalogue_detail_service.is_catalogue_detail_object(item)
 
-    def _refresh_conditioned_observing_candidates(self) -> None:
-        conditioned_deep_sky_read_model = self._recommended_deep_sky_read_models(
-            self._home_visible_objects(self._deep_sky)
-        )
-        conditioned_deep_sky = [
-            model.qml_display_target for model in conditioned_deep_sky_read_model
-        ]
-        self._conditioned_deep_sky = conditioned_deep_sky
-        self._conditioned_deep_sky_read_model = list(conditioned_deep_sky_read_model)
-        visible_planets = self._home_visible_objects(self._visible_planets)
-        self._conditioned_home_objects = list(
-            unique_targets_by_id(visible_planets + conditioned_deep_sky)
-        )
-        visible_planet_read_model = self._conditions_read_model_builder_instance().from_display_targets(
-            visible_planets,
-            source="home_observing_candidates_planets",
-            raw_targets_by_id=self._conditioned_raw_targets_by_id(),
-        )
-        self._conditioned_home_read_model = list(
-            unique_targets_by_id(
-                (*visible_planet_read_model, *conditioned_deep_sky_read_model)
-            )
-        )
 
     def _recommended_deep_sky_candidates(self, objects: list[CelestialObject]) -> list[CelestialObject]:
         return [
@@ -6509,47 +6552,11 @@ class AppController(QObject):
             for model in self._recommended_deep_sky_read_models(objects)
         ]
 
-    def _recommended_deep_sky_read_models(
-        self,
-        objects: list[CelestialObject],
-    ) -> tuple[ObservationConditionedTargetReadModel, ...]:
-        raw_targets_by_id = self._conditioned_raw_targets_by_id()
-        builder = self._conditions_read_model_builder_instance()
-        candidate_read_models = builder.from_display_targets(
-            objects,
-            source="home_recommended_deep_sky_nsom_raw_observable_order",
-            raw_targets_by_id=raw_targets_by_id,
-        )
-        ranked_nsom_targets = self._home_recommended_deep_sky_nsom_ranking_service.rank_by_observable_target_value(
-            [model.nsom_target_input for model in candidate_read_models],
-            condition_inputs=self._build_observation_condition_inputs(),
-            moon_geometry_by_object_id=self._planner_moon_geometry_inputs(
-                [model.nsom_target_input for model in candidate_read_models]
-            ),
-        )
-        models_by_raw_id = {model.nsom_target_input.id: model for model in candidate_read_models}
-        return tuple(
-            models_by_raw_id[target.id]
-            for target in ranked_nsom_targets
-            if target.id in models_by_raw_id
-        )
-
-    def _conditioned_deep_sky_candidates(self) -> list[CelestialObject]:
-        if not hasattr(self, "_conditioned_deep_sky"):
-            self._refresh_conditioned_observing_candidates()
-        if not self._conditioned_deep_sky and self._home_visible_objects(self._deep_sky):
-            self._refresh_conditioned_observing_candidates()
-        return list(self._conditioned_deep_sky)
-
     def _conditioned_deep_sky_nsom_targets(self) -> list[CelestialObject]:
         if not hasattr(self, "_conditioned_deep_sky_read_model"):
             self._refresh_conditioned_observing_candidates()
         return [model.nsom_target_input for model in self._conditioned_deep_sky_read_model]
 
-    def _conditioned_raw_targets_by_id(self) -> dict[str, CelestialObject]:
-        raw_targets = dict(getattr(self, "_deep_sky_raw_condition_input_by_id", {}))
-        raw_targets.update({item.id: item for item in getattr(self, "_visible_planets", [])})
-        return raw_targets
 
     def _moon_adjusted_objects(self, objects: list[CelestialObject]) -> list[CelestialObject]:
         conditioned = self._conditions_service.condition_targets(
@@ -6832,6 +6839,8 @@ class AppController(QObject):
         visibility_method = getattr(self._astronomy_engine, "catalogue_month_visibility", None)
         if not callable(visibility_method):
             self._catalogue_current_month_visibility_cache[cache_key] = None
+            return None, month_label
+        if self._queue_detail_geometry("month", cache_key, item):
             return None, month_label
         try:
             with self._astronomy_engine_lock_instance():

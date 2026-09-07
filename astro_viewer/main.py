@@ -234,6 +234,7 @@ def _build_controller(progress_callback=None):
         location_cache_path=RUNTIME_PATHS.location_cache_path,
         nasa_aod_cache_path=RUNTIME_PATHS.nasa_aod_cache_path,
         dependencies=dependencies,
+        asynchronous_observing=True,
     )
 
 
@@ -894,6 +895,7 @@ def run_app() -> int:
         "Startup database and services ready after %.3f s.",
         time.perf_counter() - startup_started,
     )
+    app.aboutToQuit.connect(controller.stopPerformanceWorkers)
     translation_manager.languageChanged.connect(controller.retranslatePresentation)
     _update_startup_splash(app, splash, _STARTUP_INTERFACE_MESSAGE)
 
@@ -962,6 +964,7 @@ def run_qml_smoke_test(*, red_night_vision: bool = False) -> int:
     if red_night_vision:
         appearance_manager.setRedNightVisionEnabled(True)
     controller = _build_controller()
+    app.aboutToQuit.connect(controller.stopPerformanceWorkers)
     translation_manager.languageChanged.connect(controller.retranslatePresentation)
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(BASE_DIR / "app" / "ui"))

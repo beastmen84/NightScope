@@ -268,6 +268,22 @@ def test_plain_compass_keeps_immediate_stateless_ranking() -> None:
     )
 
 
+def test_worker_direction_adoption_preserves_normal_live_confirmation_sequence() -> None:
+    reference, adopted = SkyCompassService(), SkyCompassService()
+    initial = [
+        _object("south", "South", "Pianeta", "Sud", 80),
+        _object("south-west", "South-West", "Pianeta", "Sud-Ovest", 79),
+    ]
+    challenger = [replace(initial[0], score=79), replace(initial[1], score=80)]
+    initial_result = reference.live_compass(initial, [], None, has_location=True)
+    adopted.live_compass(challenger, [], None, has_location=True)
+    adopted.reset_live_direction_stability(initial_direction=initial_result["direction"])
+    for _ in range(reference.LIVE_SWITCH_CONFIRMATIONS + 1):
+        assert adopted.live_compass(challenger, [], None, has_location=True) == reference.live_compass(
+            challenger, [], None, has_location=True,
+        )
+
+
 def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     source = HOME_PAGE.read_text(encoding="utf-8")
     glass_card_source = GLASS_CARD.read_text(encoding="utf-8")
@@ -400,6 +416,8 @@ def _plan_item(item: CelestialObject) -> NightPlanItem:
 def _python_function_body(name: str) -> str:
     source = APP_CONTROLLER.read_text(encoding="utf-8")
     marker = f"def {name}"
+    if marker not in source:
+        source = (APP_CONTROLLER.parents[1] / "application" / "observing_calculations.py").read_text(encoding="utf-8")
     start = source.index(marker)
     next_def = source.find("\n    def ", start + len(marker))
     if next_def == -1:

@@ -55,8 +55,9 @@ class SkyCompassService:
         self._pending_live_direction = ""
         self._pending_live_confirmations = 0
 
-    def reset_live_direction_stability(self) -> None:
-        self._live_direction = ""
+    def reset_live_direction_stability(self, *, initial_direction: str = "") -> None:
+        """Reset pending wins; optionally adopt an already calculated refresh baseline."""
+        self._live_direction = initial_direction
         self._clear_pending_live_direction()
 
     @classmethod

@@ -1,0 +1,211 @@
+"""Calculate observing refreshes on detached state, without a Qt controller.
+
+Outer containers are copied at capture. Frozen domain records and stateless
+services are borrowed read-only; neither the worker nor presentation may mutate
+their nested setup options. Only the returned fields are eligible for publication.
+"""
+
+from __future__ import annotations
+
+import logging
+from collections.abc import Callable
+from dataclasses import dataclass
+
+from astro_viewer.app.application.catalogue_recommendations import (
+    apply_object_content_from_sources,
+    moon_geometry_summary_to_condition_input,
+    sky_compass_observable_target,
+)
+from astro_viewer.app.application.observing_calculations import ObservingCalculations, ObservingRefreshCancelled
+from astro_viewer.app.application.snapshots import CatalogueRecommendationPreparationContext
+from astro_viewer.app.astronomy.engine import ObserverLocation
+from astro_viewer.app.models.observing import MoonGeometrySummary
+from astro_viewer.app.services.catalogue_query_service import CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG
+from astro_viewer.app.services.observing_time import first_observing_datetime
+from astro_viewer.app.services.sky_compass_service import SkyCompassService
+
+
+logger = logging.getLogger(__name__)
+
+# Explicit boundary: no repositories, settings, QObject, signals or timers.
+STATE_FIELDS = (
+    "_base_solar_system_objects", "_base_deep_sky", "_solar_system_objects", "_visible_planets", "_deep_sky",
+    "_equipment_setup_read_models_by_object_id", "_deep_sky_raw_condition_input_by_id", "_deep_sky_pollution_read_model",
+    "_conditioned_deep_sky", "_conditioned_home_objects", "_conditioned_deep_sky_read_model", "_conditioned_home_read_model",
+    "_category_scores", "_best_object", "_night_plan", "_moon_geometry_condition_cache",
+)
+SERVICE_FIELDS = (
+    "_equipment_service", "_equipment_setup_read_model_builder", "_conditions_service", "_conditions_read_model_builder",
+    "_home_recommended_deep_sky_nsom_ranking_service", "_nsom_category_score_service", "_best_object_nsom_selection_service",
+    "_night_planner_service",
+)
+
+
+@dataclass(frozen=True)
+class ObservingRefreshInputs:
+    context: CatalogueRecommendationPreparationContext
+    state: dict[str, object]
+    location: ObserverLocation | None
+    enabled_objects: dict[str, bool]
+    catalogue_rows: tuple[dict, ...]
+    catalogue_year: int
+    catalogue_month: int
+    visibility_cached: bool
+    visibility: dict[str, bool] | None
+    rebuild_equipment: bool
+    apply_pollution: bool
+    recalculate_outputs: bool | None = True
+
+
+class ObservingRefreshCalculation(ObservingCalculations):
+    """Worker-owned host for the exact routines also used by AppController."""
+
+    def __init__(self, inputs: ObservingRefreshInputs, services: dict, engine, engine_lock,
+                 cancelled: Callable[[], bool] = lambda: False):
+        self.inputs = inputs
+        self._context = inputs.context
+        self._cancelled = cancelled
+        for name in STATE_FIELDS:
+            value = inputs.state[name]
+            setattr(self, name, value.copy() if isinstance(value, (dict, list)) else value)
+        for name in SERVICE_FIELDS:
+            setattr(self, name, services[name])
+        self._location = inputs.location
+        self._astronomy_engine = engine
+        self._engine_lock = engine_lock
+        self._observing_night_window = self._context.observing_night_window
+        self._seeing_transparency = self._context.seeing_transparency
+        self._sky_quality = self._context.sky_quality
+        self._weather_summary = self._context.weather_summary
+        self._telescopes_by_id = dict(self._context.telescopes_by_id)
+        self._recommendation_enabled_by_object_id = inputs.enabled_objects
+        self._sky_compass_service = SkyCompassService()
+        self.sky_compass = None
+        self.sky_compass_candidates = None
+        self._visibility_ready = inputs.visibility_cached
+        self.visibility = inputs.visibility
+
+    def check_cancelled(self):
+        if self._cancelled():
+            raise ObservingRefreshCancelled()
+
+    _check_observing_cancelled = check_cancelled
+
+    def calculate(self):
+        self.check_cancelled()
+        if self.inputs.rebuild_equipment:
+            self._refresh_equipment_recommendations_for_current_objects(refresh_conditioned=False)
+        self.check_cancelled()
+        if self.inputs.apply_pollution:
+            self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
+        self.check_cancelled()
+        if self.inputs.recalculate_outputs is True:
+            self._recalculate_observing_outputs()
+        elif self.inputs.recalculate_outputs is False:
+            self._refresh_conditioned_observing_candidates()
+            self._best_object = None
+            self._night_plan = []
+            self._refresh_sky_compass()
+        else:
+            self._refresh_conditioned_observing_candidates()
+        self.check_cancelled()
+        return self
+
+    def results(self):
+        return {name: getattr(self, name) for name in STATE_FIELDS}
+
+    def _active_profile_telescopes(self):
+        return list(self._context.telescopes)
+
+    def _active_profile_eyepieces(self):
+        return list(self._context.eyepieces)
+
+    def _active_profile_barlows(self):
+        return list(self._context.barlows)
+
+    def _active_profile_binoculars(self):
+        return list(self._context.binoculars)
+
+    def _current_telescope(self):
+        return self._context.current_telescope
+
+    def _find_telescope(self, telescope_id):
+        return self._telescopes_by_id.get(telescope_id)
+
+    def _build_observation_condition_inputs(self, *, include_moon=True):
+        return self._context.condition_inputs if include_moon else self._context.pollution_condition_inputs
+
+    def _apply_object_content(self, item):
+        self.check_cancelled()
+        return apply_object_content_from_sources(item, self._context.object_image_map, self._context.object_descriptions,
+                                                self._context.catalogue_identifier_index)
+
+    def _first_observing_datetime(self, value):
+        return first_observing_datetime(value, self._observing_night_window)
+
+    def _solar_system_monthly_visible_for_home(self, item):
+        row = self._context.catalogue_identifier_index.get(item.id.strip().casefold())
+        if row is None or self._location is None:
+            return True
+        if not self._visibility_ready:
+            self._visibility_ready = True
+            method = getattr(self._astronomy_engine, "catalogue_month_visibility", None)
+            self.visibility = {}
+            if callable(method):
+                try:
+                    with self._engine_lock:
+                        self.check_cancelled()
+                        result = method(self.inputs.catalogue_rows, self._location, self.inputs.catalogue_year,
+                                        self.inputs.catalogue_month, CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG)
+                    self.visibility = {str(key): bool(value) for key, value in result.items()}
+                except ObservingRefreshCancelled:
+                    raise
+                except Exception:
+                    logger.warning("Catalogue monthly visibility calculation failed.", exc_info=True)
+                    self.visibility = None
+        return (self.visibility or {}).get(str(row.get("object_id", ""))) is not False
+
+    def _astronomy_engine_lock_instance(self):
+        self.check_cancelled()
+        return self._engine_lock
+
+    _moon_geometry_summary_to_condition_input = staticmethod(moon_geometry_summary_to_condition_input)
+    _sky_compass_observable_target = staticmethod(sky_compass_observable_target)
+
+    def _moon_geometry_condition_input(self, target):
+        self.check_cancelled()
+        if target.id in self._moon_geometry_condition_cache:
+            return self._moon_geometry_condition_cache[target.id]
+        summary = None
+        method = getattr(self._astronomy_engine, "moon_geometry", None)
+        if self._location is not None and callable(method):
+            try:
+                with self._engine_lock:
+                    self.check_cancelled()
+                    summary = method(self._location, target)
+            except ObservingRefreshCancelled:
+                raise
+            except Exception:
+                logger.debug("Moon geometry unavailable for observing refresh.", exc_info=True)
+        value = moon_geometry_summary_to_condition_input(summary if isinstance(summary, MoonGeometrySummary) else None)
+        self._moon_geometry_condition_cache[target.id] = value
+        return value
+
+    def _refresh_sky_compass(self):
+        self.check_cancelled()
+        candidates = self._sky_compass_candidates()
+        self.sky_compass_candidates = list(candidates)
+        self._sky_compass_service.reset_live_direction_stability()
+        kwargs = dict(has_location=self._location is not None, caution_text=self._context.sky_compass_caution_text)
+        try:
+            self.sky_compass = self._sky_compass_service.live_compass(
+                candidates, self._night_plan, self._best_object, **kwargs,
+                observable_objects_by_id=self._sky_compass_observable_targets_by_id(candidates),
+                condition_inputs=self._build_observation_condition_inputs(),
+                moon_geometry_by_object_id=self._planner_moon_geometry_inputs(candidates),
+            )
+        except ObservingRefreshCancelled:
+            raise
+        except Exception:
+            logger.warning("NSOM Sky Compass selection failed; using geometry fallback.", exc_info=True)
+            self.sky_compass = self._sky_compass_service.live_compass(candidates, self._night_plan, self._best_object, **kwargs)

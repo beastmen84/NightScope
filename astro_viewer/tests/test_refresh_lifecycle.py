@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import Mock, patch
 
+import pytest
 from PySide6.QtCore import QObject
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
@@ -17,6 +18,40 @@ from astro_viewer.app.services.refresh_lifecycle import (
     RefreshReason,
 )
 from astro_viewer.app.viewmodels.app_controller import AppController
+
+
+@pytest.mark.parametrize("has_weather", [False, True])
+@pytest.mark.parametrize("catalogue_change", [False, True])
+def test_profile_or_catalogue_refresh_ranks_once_after_pollution_context(has_weather, catalogue_change):
+    controller = AppController.__new__(AppController)
+    QObject.__init__(controller)
+    controller._selected_object = None
+    controller._selected_object_source = ""
+    controller._location = None
+    controller._weather_summary = object() if has_weather else None
+    for name in ("_base_solar_system_objects", "_solar_system_objects", "_base_deep_sky", "_deep_sky", "_visible_planets"):
+        setattr(controller, name, [])
+    for name in ("_mark_refresh_dirty", "_clear_refresh_domains", "_refresh_sky_compass", "_current_telescope",
+                 "_build_observation_condition_inputs"):
+        setattr(controller, name, Mock())
+    controller._initial_telescope_index = Mock(return_value=0)
+    controller._apply_equipment = lambda items: list(items)
+    phases = []
+    controller._apply_deep_sky_pollution_context = lambda items: phases.append("pollution") or list(items)
+    controller._home_visible_objects = lambda items: list(items)
+    controller._refresh_conditioned_observing_candidates = lambda: phases.append("ranking")
+    controller._nsom_category_score_service = Mock()
+    controller._night_planner_service = Mock()
+    controller._planner_moon_geometry_inputs = Mock(return_value={})
+    controller._planner_telescopes_by_object_id = Mock(return_value={})
+    controller._select_best_object = Mock(return_value=None)
+
+    if catalogue_change:
+        controller._refresh_after_catalogue_recommendation_changes(["M31"], True)
+    else:
+        controller._refresh_active_profile_dependencies()
+
+    assert phases == ["pollution", "ranking"]
 
 
 class RefreshManagerTest(unittest.TestCase):

@@ -98,8 +98,10 @@ def test_superseded_queued_astronomy_requests_do_not_run_the_engine() -> None:
     controller._start_background_task = tasks.append
     for index in range(5):
         controller._start_astronomy_refresh(ASTRONOMY_REFRESH_VIIRS_DEEP_SKY, context=str(index))
+    assert len(tasks) == 1  # Only the active worker exists; retain just the latest pending closure.
     for task in tasks:
         task()
+    assert len(tasks) == 2
     assert engine.deep_sky_calls == 1
     controller._finish_viirs_deep_sky_refresh.assert_called_once()
     assert controller._finish_viirs_deep_sky_refresh.call_args.args[1] == "4"

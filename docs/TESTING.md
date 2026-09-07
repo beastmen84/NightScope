@@ -5,6 +5,61 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Observing Refresh Responsiveness - 1.46.20 Source
+
+The 2026-09-07 complete `tools/run_checks.py --security` gate passes:
+**1,646 tests plus ten subtests in 184.66 s**, 87% application coverage
+(18,883 / 21,817 executable lines). Backend, normal QML and Red Night Vision
+QML smokes pass in isolated runtimes in 10.5 / 10.0 / 10.2 s. Ruff, compileall,
+import/layer boundaries, documentation, installed dependencies, licenses,
+MPC/NGC/editorial and imagery audits pass. pip-audit finds no known
+vulnerabilities. The reviewed Bandit baseline is unchanged: 48 findings,
+zero high, 34 medium and 14 low. Inventory: 267 Python / 36 QML / 17 operational
+files. This is source validation, not approval of a new portable artifact.
+
+Evidence: `build/performance-audit-1.46.20/final-source-gate.log`.
+The first gate stopped on the version-documentation check after 1,645 tests
+and ten subtests passed; the release checklist still named 1.46.19. After
+updating the current version records, the 49 tooling tests passed in 6.67 s
+and the entire security/source gate above was repeated successfully.
+No result assertion or security baseline was weakened.
+After the final validation records were filled in, all 49 developer-tooling
+tests passed again in 7.16 s (`final-docs-recheck.log`); application code was
+unchanged after the complete passing gate.
+
+New regression coverage exercises failed/empty monthly caches and explicit
+retry, duplicate profile ranking, detached output/input parity with and
+without equipment/weather, one-worker/latest-request behavior, real worker
+and Qt publication threads, cancellation after the engine lock, stale context
+and language changes, monthly selection through both preparation phases,
+failure recovery and weather cadence, detail getter deferral, shutdown, and
+the unchanged Sky Compass live confirmation sequence.
+
+Paired offline probes compare the original `e947838` methods with the new
+paths, from the same restored state, for weather, profile, conditions and
+month. Both default and fully enabled catalogues have zero differing
+published fields; the extended case includes 4,466 targets, 4,457 deep-sky
+objects and 4,462 compass candidates. Logs/JSON: `default-parity.log`,
+`all-parity.log`, `default-results.json`, `all-results.json`. Full timings,
+scope and interpretation are in `PERFORMANCE_IMPROVEMENTS_1_46_20.md`.
+
+Real QML, offline and with disposable runtime copies, covers 36 IT/EN/ES
+normal/red scenes plus eight pending/completed captures across the two
+catalogue sizes. The month ComboBox, page navigation, previous-plan retention,
+7,594 exact visibility values, recommendation flags and equipment snapshots
+are checked; no QML runtime warnings. See `qml-default/`, `qml-all/` and
+VISUAL_CHECKLIST for the four inspected samples and offscreen fixture limits.
+With all catalogue recommendations enabled, Home payload construction and
+notifications still produce long Qt pauses; this work does not establish a
+fully nonblocking UI. The extended QML probe ran alongside the first coverage
+gate, so its timing is diagnostic, not an isolated old/new GUI benchmark.
+
+No QML source changed. The separate lint executable hung even on `--help`,
+including a direct offscreen attempt; only those diagnostic processes were
+stopped. The 36-file lint pass recorded below remains dated 1.46.19. Current
+QML assurance comes from the runtime probes, tests and isolated source smokes,
+not from claiming a new lint pass. Windows dist remains 1.46.18 and is untouched.
+
 ## Performance Improvements - 1.46.19 Source
 
 The 2026-09-07 complete `tools/run_checks.py --security` gate passes:

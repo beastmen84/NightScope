@@ -251,6 +251,49 @@ def test_month_preparation_failure_retains_existing_fallback_policy(qt_app, fail
         assert value._catalogue_visibility_map() == {}
 
 
+@pytest.mark.parametrize("asynchronous", [False, True])
+@pytest.mark.parametrize("other_month", [None, 11])
+def test_failed_month_retries_on_explicit_request_without_getter_retry_storm(qt_app, asynchronous, other_month):
+    value = controller()
+    tasks = []
+    value._start_background_task = tasks.append
+    calculate = value._astronomy_engine.catalogue_month_visibility
+    calculate.side_effect = [RuntimeError("temporary failure"), {"M31": True}, {"M31": True}]
+
+    def select(month):
+        if asynchronous:
+            value.requestCatalogueMonth(month)
+            while tasks:
+                tasks.pop(0)()
+        else:
+            value.setCatalogueMonth(month)
+        return value._catalogue_visibility_map()
+
+    assert select(10) == {}
+    for _ in range(5):
+        assert value._catalogue_visibility_map() == {}
+    assert calculate.call_count == 1
+    if other_month is not None:
+        assert select(other_month) == {"M31": True}
+    assert select(10) == {"M31": True}
+    assert calculate.call_count == (2 if other_month is None else 3)
+    assert value.catalogueSelectedMonth == 10
+    assert not value.catalogueMonthRefreshActive
+
+
+def test_successful_empty_month_is_cached_and_not_treated_as_failure(qt_app):
+    value = controller()
+    tasks = []
+    value._start_background_task = tasks.append
+    value._astronomy_engine.catalogue_month_visibility.side_effect = lambda *_args: {}
+    for month in (10, 11, 10, 10):
+        value.requestCatalogueMonth(month)
+        while tasks:
+            tasks.pop(0)()
+        assert value._catalogue_visibility_map() == {}
+    assert value._astronomy_engine.catalogue_month_visibility.call_count == 2
+
+
 def test_month_engine_runs_off_thread_and_publication_returns_to_qt_thread(qt_app):
     value = controller()
     started, release = Event(), Event()

@@ -4,7 +4,27 @@ Updated: 2026-09-07
 
 ## Current State
 
-- Source version: `1.46.19`; the conservative performance improvements pass
+- Source version: `1.46.20`; implementation of the follow-up performance review:
+  recoverable monthly failures, one final profile ranking, shared detached
+  recommendation calculations and a bounded observing-refresh coordinator.
+  General astronomy requests are bounded; detail geometry no longer waits
+  for the shared engine lock in asynchronous presentation getters.
+  The default direct controller remains synchronous; the application enables
+  asynchronous observing. See `docs/PERFORMANCE_IMPROVEMENTS_1_46_20.md`.
+- All four paired default/full-catalogue refresh payloads match `e947838`:
+  4,466 targets, 4,457 deep-sky objects, 4,462 compass candidates. The complete
+  final security/source gate passes: 1,646 tests / ten subtests in 184.66 s,
+  87% coverage (18,883 / 21,817), unchanged Bandit baseline, no known pip-audit
+  vulnerabilities and isolated backend/normal/red smokes (10.5/10.0/10.2 s).
+  Inventory: 267 Python / 36 QML / 17 operational files. Log:
+  `build/performance-audit-1.46.20/final-source-gate.log`. The first gate's
+  version-documentation mismatch was corrected before this complete rerun.
+  QML captures 36 IT/EN/ES normal/red scenes and eight transition states
+  without runtime warnings. The separate lint tool hangs even on `--help`;
+  no new lint pass is claimed. Full-catalogue Home construction still blocks Qt;
+  do not call the whole UI nonblocking based on worker-only measurements.
+  No data, dist, push, tag or publication is authorized by this work.
+- Previous source `1.46.19`; the conservative performance improvements pass
   the complete source gate: 1,609 tests plus ten subtests in 214.91 s, 86%
   coverage (18,404 / 21,277 lines), unchanged Bandit baseline, no known pip-audit
   vulnerabilities and isolated backend/normal/red smokes (15.5/12.1/8.6 s).
@@ -19,9 +39,10 @@ Updated: 2026-09-07
   monthly values, plus the complete extended weather/month recommendation
   payloads. QML matrix: 42 scenes, IT/EN/ES, normal/red, exact snapshots and
   zero runtime warnings; real month control and hot language switches pass.
-- See `docs/PERFORMANCE_IMPROVEMENTS_1_46_19.md` for scope, paired measurements,
-  test/probe corrections and remaining work. General recommendation preparation
-  still runs on Qt and can be expensive with the full catalogue; timer/backup
+- See `docs/PERFORMANCE_IMPROVEMENTS_1_46_19.md` for previous scope, paired measurements,
+  test/probe corrections and remaining work at that baseline. General preparation
+  still ran on Qt in 1.46.19; it is detached in 1.46.20, but Home presentation
+  remains expensive with the full catalogue. Timer/backup
   cadence, scoring, thresholds, precision and editorial data are unchanged.
   Source only: local Windows bundle remains 1.46.18 and has not been rebuilt.
   The user subsequently requested the local performance commit. No distribution,
@@ -59,7 +80,7 @@ Updated: 2026-09-07
   existing DB snapshot and preferences have unchanged before/after hashes.
 - Public Windows remains 1.46.13 and Linux 1.43.0. This local rebuild does not
   publish an archive, push, create a tag or wait for GitHub Actions. The next
-  unused source patch is 1.46.20; new NGC work requires the user's next request.
+  unused source patch is 1.46.21; new NGC work requires the user's next request.
 - Public release update: on 2026-09-06 the user published `v1.46.13` for
   Windows only. Release metadata, the public tag and the exact asset name
   were checked through GitHub. README, manual, current release records and

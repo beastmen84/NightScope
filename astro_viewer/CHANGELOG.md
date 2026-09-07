@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+## NightScope 1.46.20 - 2026-09-07
+
+- Preparazione di attrezzatura, raccomandazioni, NSOM e Planner in background
+  per meteo, profilo, condizioni ambientali, VIIRS e cambio mese. Un solo
+  calcolo attivo e richieste accorpate; pubblicazione sul thread Qt soltanto
+  quando località, notte, lingua, profilo e contesto sono ancora validi.
+- Le formule e i criteri esistenti sono condivisi con il percorso sincrono,
+  conservato per l'uso diretto del controller. Il mese precedente resta
+  selezionato fino al completamento del nuovo risultato. Mantenuta la
+  stabilizzazione della bussola live dopo la pubblicazione.
+- Geometria dei dettagli differita quando manca in cache; richieste astronomiche
+  limitate a un worker attivo e all'ultima richiesta pendente. Le richieste
+  superate e quelle annullate alla chiusura non pubblicano risultati.
+- Una visibilità mensile fallita non diventa più un risultato valido permanente:
+  la selezione esplicita consente il recupero senza ripetere il calcolo nei getter.
+  Eliminato un secondo ordinamento NSOM nei ricalcoli di profilo e contesto.
+- Nessuna modifica a precisione, punteggi, timer, backup, dati personali o
+  distribuzioni. Misure e verifiche in `docs/PERFORMANCE_IMPROVEMENTS_1_46_20.md`;
+  il miglioramento della reattività non implica una riduzione di ogni tempo CPU.
+- Gate completo: 1.646 test e dieci subtest, copertura 87%, audit di sicurezza
+  e tre smoke isolati superati. Confronti con `e947838` senza differenze nei
+  risultati, anche con catalogo esteso. La pubblicazione della Home con tutti
+  gli oggetti resta un collo di bottiglia distinto, documentato e non risolto.
+
 ## NightScope 1.46.19 - 2026-09-07
 
 - Ottimizzati i calcoli live dei bersagli fissi e la visibilità mensile senza
