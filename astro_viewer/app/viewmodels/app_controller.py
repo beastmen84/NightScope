@@ -1008,8 +1008,13 @@ class AppController(QObject, ObservingCalculations):
     @Property("QVariant", notify=homeNightPlanChanged)
     def homeNightPlanOverview(self) -> dict:
         target_pool = self._tonight_target_pool()
+        base_url = self._object_image_base_url()
+        # Home only consumes compact row fields. Never build full detail DTOs
+        # (and their nested setup options) for the entire enabled catalogue.
+        # This projection is local to one read: language, night and personal
+        # image changes cannot leave a retained presentation cache stale.
         target_payloads_by_id = {
-            item.id: self._object_to_qml(item)
+            item.id: self._home_target_to_qml(item, base_url=base_url)
             for item in target_pool
         }
         return render_payload(self._home_night_plan_overview_service.build(
@@ -1017,7 +1022,10 @@ class AppController(QObject, ObservingCalculations):
             night_plan=self._night_plan,
             target_payloads_by_id=target_payloads_by_id,
             setup_models_by_object_id=self._equipment_setup_read_models_by_object_id,
-            alternatives=self._home_visible_alternative_payloads(target_pool),
+            alternatives=[
+                target_payloads_by_id[item.id]
+                for item in self._home_alternative_targets(target_pool)
+            ],
             active_profile=self._active_profile_payload(),
             assigned_equipment=self._profile_assigned_equipment(),
             loading=self._is_loading,
@@ -6106,18 +6114,24 @@ class AppController(QObject, ObservingCalculations):
     def _deep_sky_pollution_base_penalty(self) -> float:
         return self._conditions_service.deep_sky_pollution_base_penalty(self._sky_quality)
 
-    def _home_visible_alternative_payloads(
+    def _home_alternative_targets(
         self,
         target_pool: list[CelestialObject] | None = None,
-    ) -> list[dict]:
+    ) -> list[CelestialObject]:
         plan_ids = {item.object_id for item in self._night_plan}
         alternatives = [
             item
             for item in (target_pool if target_pool is not None else self._tonight_target_pool())
             if item.id not in plan_ids
         ]
+        return sorted(alternatives, key=self._home_alternative_sort_key)
+
+    def _home_visible_alternative_payloads(
+        self,
+        target_pool: list[CelestialObject] | None = None,
+    ) -> list[dict]:
         payload = []
-        for item in sorted(alternatives, key=self._home_alternative_sort_key):
+        for item in self._home_alternative_targets(target_pool):
             data = self._object_to_qml(item)
             is_planet = item.object_type == "Pianeta"
             data["homeCategory"] = "planet" if is_planet else "deep_sky"
@@ -6686,30 +6700,61 @@ class AppController(QObject, ObservingCalculations):
         self.dataChanged.emit()
         self.selectedObjectChanged.emit()
 
+    def _object_image_sources(self, item: CelestialObject) -> tuple[dict, dict | None]:
+        """Share default/personal image resolution between full details and Home."""
+        catalogue_item = getattr(self, "_catalogue_identifier_index", {}).get(
+            item.id.strip().casefold(), {}
+        )
+        default_metadata = resolve_object_image(
+            item.id, str(catalogue_item.get("type") or item.object_type),
+            getattr(self, "_object_image_map", {}),
+        )
+        personal_service = getattr(self, "_personal_image_service", None)
+        personal_metadata = personal_service.metadata(item.id) if personal_service else None
+        return default_metadata, personal_metadata
+
+    def _object_image_base_url(self) -> str:
+        base_dir = getattr(self, "_base_dir", None) or Path(__file__).resolve().parents[2]
+        return QUrl.fromLocalFile(str(base_dir)).toString()
+
+    def _home_target_to_qml(self, item: CelestialObject, *, base_url: str) -> dict:
+        """Project only the input fields consumed by HomeNightPlanOverviewService."""
+        default_metadata, personal_metadata = self._object_image_sources(item)
+        image_metadata = personal_metadata or default_metadata
+        default_image = default_metadata["image_path"]
+        window_label = self._home_window_label(item)
+        return {
+            "id": item.id,
+            "name": item.name,
+            "type": item.object_type,
+            "image": image_metadata["image_path"],
+            "thumbnail": image_metadata.get("thumbnail_path") or image_metadata["image_path"],
+            "defaultImageUrl": (
+                default_image if default_image.startswith("file:") else base_url + "/" + default_image
+            ),
+            "homeCategory": "planet" if item.object_type == "Pianeta" else "deep_sky",
+            "homeWindowLabel": window_label,
+            "homeTimeLabel": "" if window_label else self._home_time_label(item),
+            "direction": item.direction,
+            "difficulty": item.difficulty,
+        }
+
     def _object_to_qml(self, item: CelestialObject) -> dict:
         data = item.to_qml()
         description = self._object_descriptions.get(item.id) or {}
         curiosity = getattr(self, "_object_curiosities", {}).get(item.id) or {}
-        catalogue_item = getattr(self, "_catalogue_identifier_index", {}).get(
-            item.id.strip().casefold(), {}
-        )
-        image_metadata = resolve_object_image(
-            item.id, str(catalogue_item.get("type") or item.object_type),
-            getattr(self, "_object_image_map", {}),
-        )
+        image_metadata, personal_metadata = self._object_image_sources(item)
         default_image = image_metadata["image_path"]
         data["defaultImageKind"] = image_metadata["kind"]
         data["defaultImageAttribution"] = self._localized_image_attribution(image_metadata.get("attribution", ""))
         data["defaultImageSourceUrl"] = image_metadata.get("source_url", "")
         personal_service = getattr(self, "_personal_image_service", None)
-        personal_metadata = personal_service.metadata(item.id) if personal_service else None
         data["hasPersonalImage"] = bool(personal_service and item.id in personal_service.records)
         data["personalImageMissing"] = data["hasPersonalImage"] and personal_metadata is None
         image_metadata = personal_metadata or image_metadata
         data["image"] = image_metadata["image_path"]
         data["thumbnail"] = image_metadata.get("thumbnail_path") or data["image"]
-        base_dir = getattr(self, "_base_dir", None) or Path(__file__).resolve().parents[2]
-        base_url = QUrl.fromLocalFile(str(base_dir)).toString()
+        base_url = self._object_image_base_url()
         data["imageUrl"] = data["image"] if data["image"].startswith("file:") else base_url + "/" + data["image"]
         data["defaultImageUrl"] = default_image if default_image.startswith("file:") else base_url + "/" + default_image
         data["imageKind"] = image_metadata["kind"]

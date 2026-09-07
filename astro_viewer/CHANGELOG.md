@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- La Home prepara una sola proiezione compatta per bersaglio, condivisa fra
+  piano e alternative, senza costruire schede dettagli e setup completi.
+  Conservati tutti gli oggetti, ordine, testi, immagini e fallback personali;
+  nessuna cache persistente o modifica ai calcoli scientifici.
+
 ## NightScope 1.46.20 - 2026-09-07
 
 - Preparazione di attrezzatura, raccomandazioni, NSOM e Planner in background
