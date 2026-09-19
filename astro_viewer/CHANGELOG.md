@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Messa a punto delle finestre osservative: Home e riepilogo laterale distinguono
+  fasce meteo buone estese e picco previsto; il buio astronomico già calcolato
+  compare accanto alla località, senza aggiungere alba e tramonto.
+- Nei dettagli degli oggetti la fascia preferibile sostituisce il minuto
+  isolato; il massimo di altezza stimato resta un'informazione tecnica separata.
+  Punteggi, raccomandazioni di attrezzatura e calcoli del piano restano invariati.
+- Calendario con notti favorevoli intorno a congiunzioni/opposizioni, gruppi di
+  almeno tre pianeti ravvicinati e parate di almeno quattro pianeti luminosi.
+  Conservati gli istanti esatti, esplicitati soglie, meteo da verificare e
+  limiti temporali dell'analisi. Le comete mostrano un periodo, non l'ultimo
+  campione come miglior data assoluta. Traduzioni e risorse IT/EN/ES aggiornate.
+  Contratti, limiti ed evidenze: `docs/PRACTICAL_OBSERVING_WINDOWS.md`.
 - Ottimizzato l'avvio del database già aggiornato: i cataloghi integrati non
   vengono riallineati se contenuto dei file e dati interessati sono invariati.
   Modifiche, dati mancanti o checkpoint non valido mantengono il percorso

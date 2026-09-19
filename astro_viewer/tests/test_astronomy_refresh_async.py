@@ -417,6 +417,26 @@ def test_transient_event_refresh_prepares_without_lock_and_schedules_next_run() 
     controller._transient_event_refresh_timer.start.assert_called_once_with(3_600_000)
 
 
+def test_darkness_is_published_in_snapshot_without_recalculating_on_ui_thread() -> None:
+    controller, engine = _controller()
+    night = engine.observing_night_window(controller._location)
+    engine.astronomical_darkness = Mock(return_value=night)
+    snapshot = controller._calculate_astronomy_snapshot(controller._location, ASTRONOMY_REFRESH_FULL)
+    assert snapshot.astronomical_darkness == night
+    assert not snapshot.failed
+    engine.astronomical_darkness.assert_called_once_with(controller._location, night)
+
+
+def test_failed_optional_darkness_summary_does_not_lose_astronomical_targets() -> None:
+    controller, engine = _controller()
+    engine.astronomical_darkness = Mock(side_effect=RuntimeError("optional display unavailable"))
+    snapshot = controller._calculate_astronomy_snapshot(controller._location, ASTRONOMY_REFRESH_FULL)
+    assert not snapshot.failed
+    assert snapshot.solar_system_objects[0].id == "mars"
+    assert snapshot.deep_sky[0].id == "messier-M13"
+    assert snapshot.astronomical_darkness == ObservingNightWindow.unavailable()
+
+
 def _controller() -> tuple[AppController, _AstronomyEngine]:
     controller = AppController.__new__(AppController)
     QObject.__init__(controller)

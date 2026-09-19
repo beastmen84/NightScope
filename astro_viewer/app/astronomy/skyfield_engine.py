@@ -29,6 +29,7 @@ from skyfield import almanac, eclipselib, magnitudelib, searchlib
 from skyfield.api import Loader, Star, wgs84
 
 from astro_viewer.app.astronomy.coordinates import parse_dec_degrees, parse_ra_hours
+from astro_viewer.app.astronomy.planetary_opportunities import add_planetary_opportunities
 from astro_viewer.app.astronomy.engine import (
     AstronomyEngine,
     ObserverLocation,
@@ -513,6 +514,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     max_altitude=max_altitude,
                     best_dt=best_dt,
                     observing_window=self._sampled_window_label(useful_start, useful_end),
+                    preferred_window=self._preferred_window_label(samples),
                     useful_start=useful_start,
                     useful_end=useful_end,
                     now=now,
@@ -1149,6 +1151,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         start = self._to_skyfield_time(now)
         end = self._to_skyfield_time(end_datetime)
         zone = self._zone(location)
+        planet_start = self._to_skyfield_time(now - timedelta(days=90))
         events: list[AstronomicalEvent] = []
 
         moon_times, moon_indices = almanac.find_discrete(
@@ -1190,8 +1193,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 continue
             body = self._ephemeris[config.body_key]
             function = almanac.oppositions_conjunctions(self._ephemeris, body)
+            # Keep the original future search bounds (and exact event instants).
+            # A separate look-back lets an opposition remain useful afterwards.
             times, kinds = almanac.find_discrete(start, end, function)
-            for event_time, kind in zip(times, kinds):
+            past_times, past_kinds = almanac.find_discrete(planet_start, start, function)
+            event_pairs = list(zip(times, kinds)) + [
+                (event_time, kind) for event_time, kind in zip(past_times, past_kinds)
+                if int(kind) == 1 and event_time.tt < start.tt
+            ]
+            for event_time, kind in event_pairs:
                 is_opposition = int(kind) == 1
                 local_dt = event_time.utc_datetime().astimezone(zone)
                 if is_opposition:
@@ -1248,6 +1258,9 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 )
 
         events.extend(self._planetary_conjunction_events(location, start, end, zone))
+        events.extend(event for event in self._planetary_conjunction_events(
+            location, self._to_skyfield_time(now - timedelta(days=30)), start, zone,
+        ) if as_utc(datetime.fromisoformat(event.event_at)) < as_utc(now))
 
         eclipse_times, eclipse_kinds, _ = eclipselib.lunar_eclipses(
             start,
@@ -1288,6 +1301,12 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             )
 
         events.extend(self._recurring_meteor_showers(now, end_datetime))
+        try:
+            events = add_planetary_opportunities(self, location, events, now, end_datetime)
+        except Exception:
+            logger.warning("Practical planetary periods unavailable; retaining exact events.", exc_info=True)
+            events = [event for event in events
+                      if datetime.fromisoformat(event.event_at).date() >= now.date()]
         return sorted(events, key=lambda event: event.event_at)
 
     def prepare_transient_events(
@@ -1805,6 +1824,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             max_altitude=self._degrees_label(max_altitude),
             direction=self._azimuth_direction(azimuth.degrees),
             best_time=self._format_dt(best_dt) if best_dt else tr("n/d"),
+            preferred_window=self._preferred_window_label(sample) if config.object_id != "sun" else "",
             observing_window=observing_window,
             notes=self._body_note(config.object_id, max_altitude),
             recommended_setup=self._default_setup(config.object_id),
@@ -1872,6 +1892,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             max_altitude=max_altitude,
             best_dt=best_dt,
             observing_window=self._window_label_or_unavailable(useful_start, useful_end),
+            preferred_window=self._preferred_window_label(sample),
             useful_start=useful_start,
             useful_end=useful_end,
             now=now,
@@ -1891,6 +1912,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         night_window: ObservingNightWindow,
         useful_start: datetime | None = None,
         useful_end: datetime | None = None,
+        preferred_window: str = "",
     ) -> CelestialObject:
         magnitude = row["magnitude"]
         visible = useful_start is not None and useful_end is not None
@@ -1928,6 +1950,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             )
         return CelestialObject(
             id=object_id,
+            preferred_window=preferred_window,
             name=display_name,
             object_type=row["object_type"],
             image=self._catalogue_image(row["object_id"], designation, row["object_type"]),
@@ -2111,6 +2134,12 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             ) if altitude < sun_altitude_limit
         ]
 
+    def astronomical_darkness(
+        self, location: ObserverLocation, night: ObservingNightWindow,
+    ) -> ObservingNightWindow:
+        """Expose the existing cached -18 degree interval, without changing it."""
+        return self._deep_sky_night_window(location, night)
+
     def _deep_sky_night_window(
         self, location: ObserverLocation, night: ObservingNightWindow,
     ) -> ObservingNightWindow:
@@ -2240,6 +2269,23 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         else:
             best_dt = advance_time(start_dt, (as_utc(end_dt) - as_utc(start_dt)) / 2)
         return max_altitude, best_dt, start_dt, end_dt
+
+    def _preferred_window_label(self, samples: list[tuple[datetime, float]]) -> str:
+        """Altitude plateau: >=30 degrees and within 10 degrees of the maximum.
+
+        Reuse the already calculated, night-clipped curve. This is geometric
+        guidance only, not a seeing/weather prediction or a change to scores.
+        Suppress grazing/brief intervals shorter than 30 minutes.
+        """
+        if not samples:
+            return ""
+        peak = max(altitude for _, altitude in samples)
+        if not math.isfinite(peak) or peak < 30.0:
+            return ""
+        _, _, start, end = self._sample_window(samples, max(30.0, peak - 10.0))
+        if start is None or end is None or as_utc(end) - as_utc(start) < timedelta(minutes=30):
+            return ""
+        return self._sampled_window_label(start, end)
 
     def _window_label_or_unavailable(self, start: datetime | None, end: datetime | None) -> str:
         return self._sampled_window_label(start, end) if start and end else tr("Non sopra la soglia osservativa")

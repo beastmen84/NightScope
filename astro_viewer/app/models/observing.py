@@ -58,6 +58,8 @@ class CelestialObject:
     best_observing_at: str = ""
     observing_start_at: str = ""
     observing_end_at: str = ""
+    # Presentation only: an altitude-based plateau, never a scoring/planner input.
+    preferred_window: str = field(default="", compare=False)
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -152,6 +154,9 @@ class AstronomicalEvent:
     data_updated_at: str = ""
     data_valid_until: str = ""
     data_freshness: str = ""
+    favorable_periods: tuple[tuple[str, str], ...] = field(default_factory=tuple)
+    period_note: str = ""
+    analysis_end_at: str = ""
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -180,4 +185,7 @@ class AstronomicalEvent:
         data["dataUpdatedAt"] = self.data_updated_at
         data["dataValidUntil"] = self.data_valid_until
         data["dataFreshness"] = self.data_freshness
+        data["favorablePeriods"] = [{"start": start, "end": end} for start, end in self.favorable_periods]
+        data["periodNote"] = self.period_note
+        data["analysisEndAt"] = self.analysis_end_at
         return data

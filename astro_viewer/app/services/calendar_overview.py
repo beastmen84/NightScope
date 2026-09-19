@@ -5,11 +5,13 @@ from __future__ import annotations
 import re
 from collections import Counter
 from collections.abc import Mapping, Sequence
-from datetime import datetime
+from datetime import datetime, timedelta
 
+from astro_viewer.app.astronomy.engine import as_utc
 from astro_viewer.app.services.localization import (
     format_datetime,
     format_number,
+    join_text,
     presentation_text,
     tr,
 )
@@ -28,6 +30,8 @@ _EVENT_TYPE_CODES = {
     "Eclissi": "eclipse",
     "Passaggio ISS": "satellite_pass",
     "Cometa": "comet_window",
+    "Raggruppamento planetario": "planetary_group",
+    "Parata planetaria": "planet_parade",
 }
 
 _EVENT_TYPE_LABELS = {
@@ -39,6 +43,8 @@ _EVENT_TYPE_LABELS = {
     "eclipse": tr("Eclissi"),
     "satellite_pass": tr("Passaggio ISS"),
     "comet_window": tr("Cometa"),
+    "planetary_group": tr("Raggruppamento planetario"),
+    "planet_parade": tr("Parata planetaria"),
 }
 
 
@@ -63,7 +69,12 @@ class CalendarOverviewService:
                 continue
             if event_end is None and event_at.date() < now.date():
                 continue
-            days_until = max(0, (event_at.date() - now.date()).days)
+            practical_candidates = [start for start, end in _favorable_periods(event, now)
+                                    if as_utc(end) > as_utc(now)]
+            if event_at.date() >= now.date() or not practical_candidates:
+                practical_candidates.append(event_at)
+            practical_at = min(practical_candidates, key=as_utc)
+            days_until = max(0, (practical_at.date() - now.date()).days)
             if not 0 <= days_until <= CALENDAR_HORIZON_DAYS:
                 continue
             event_id = _text(event, "id").casefold()
@@ -74,7 +85,7 @@ class CalendarOverviewService:
             usefulness = _integer(event.get("usefulness"))
             candidates.append(
                 (
-                    event_at,
+                    practical_at,
                     usefulness,
                     _event_payload(
                         event,
@@ -132,6 +143,7 @@ class CalendarOverviewService:
                 "eclipses": counts["eclipse"],
                 "satellitePasses": counts["satellite_pass"],
                 "comets": counts["comet_window"],
+                "planetaryGroups": counts["planetary_group"] + counts["planet_parade"],
             },
         }
 
@@ -235,6 +247,11 @@ def _event_payload(
         "dataUpdatedLabel": _data_updated_label(data_updated_at, now),
         "dataValidUntil": _text(event, "dataValidUntil") or _text(event, "data_valid_until"),
         "dataFreshness": _text(event, "dataFreshness") or _text(event, "data_freshness"),
+        "favorablePeriodText": _favorable_period_text(event, now),
+        "periodNote": _text(event, "periodNote") or _text(event, "period_note"),
+        "analysisEndLabel": _analysis_end_label(
+            _text(event, "analysisEndAt") or _text(event, "analysis_end_at"), now,
+        ),
         "whyText": _why_text(
             event_type,
             event_type_code,
@@ -287,7 +304,11 @@ def _event_datetime(event: Mapping[str, object], now: datetime) -> datetime | No
 def _event_end_datetime(event: Mapping[str, object], now: datetime) -> datetime | None:
     value = _text(event, "endsAt") or _text(event, "ends_at")
     if not value:
-        return None
+        periods = _favorable_periods(event, now)
+        if not periods:
+            return None
+        instant = _event_datetime(event, now)
+        return max([end for _, end in periods] + ([instant] if instant else []), key=as_utc)
     try:
         parsed = datetime.fromisoformat(value)
     except ValueError:
@@ -295,6 +316,45 @@ def _event_end_datetime(event: Mapping[str, object], now: datetime) -> datetime 
     if parsed.tzinfo is None:
         return parsed.replace(tzinfo=now.tzinfo)
     return parsed.astimezone(now.tzinfo)
+
+
+def _favorable_periods(event: Mapping[str, object], now: datetime) -> list[tuple[datetime, datetime]]:
+    result = []
+    for item in event.get("favorablePeriods", event.get("favorable_periods", ())) or ():
+        try:
+            start, end = (item["start"], item["end"]) if isinstance(item, Mapping) else item
+            values = [datetime.fromisoformat(str(value)) for value in (start, end)]
+            values = [value.replace(tzinfo=now.tzinfo) if value.tzinfo is None
+                      else value.astimezone(now.tzinfo) for value in values]
+            if as_utc(values[1]) > as_utc(values[0]):
+                result.append((values[0], values[1]))
+        except (KeyError, TypeError, ValueError):
+            continue
+    return result
+
+
+def _favorable_period_text(event: Mapping[str, object], now: datetime) -> str:
+    labels = []
+    for start, end in _favorable_periods(event, now):
+        # Periods describe observing nights (noon-to-noon), not continuous
+        # all-day visibility. In particular, 00:10 belongs to the previous night.
+        first_night = start - timedelta(hours=12)
+        last_night = end - timedelta(hours=12, microseconds=1)
+        labels.append(tr("{start} – {end}", start=format_datetime(first_night, include_time=False),
+                         end=format_datetime(last_night, include_time=False)))
+    return join_text(labels)
+
+
+def _analysis_end_label(value: str, now: datetime) -> str:
+    if not value:
+        return ""
+    try:
+        parsed = datetime.fromisoformat(value)
+        if parsed.tzinfo is not None:
+            parsed = parsed.astimezone(now.tzinfo)
+        return tr("Analisi fino al {date}", date=format_datetime(parsed, include_time=False))
+    except ValueError:
+        return ""
 
 
 def _data_updated_label(value: str, now: datetime) -> str:
@@ -321,6 +381,8 @@ def _profile_setup_text(
     has_configured_equipment: bool,
 ) -> str:
     normalized_title = title.casefold()
+    if event_type_code in {"planetary_group", "planet_parade"}:
+        return setup
     if event_type_code == "satellite_pass":
         return setup or tr("Osservabile a occhio nudo; il telescopio non serve.")
     if event_type_code == "comet_window":
@@ -409,6 +471,8 @@ def _why_text(
     visibility_state: str,
 ) -> str:
     normalized_title = title.casefold()
+    if event_type_code in {"planetary_group", "planet_parade"}:
+        return fallback
     if event_type_code == "satellite_pass":
         return tr(
             "La stazione è illuminata dal Sole e attraversa il cielo mentre, per "

@@ -557,13 +557,21 @@ Item {
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: root.originMetricLabel(); value: root.originMetricValue() }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Altezza massima"); value: objectData.max_altitude }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Direzione"); value: objectData.direction }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Momento migliore"); value: root.geometryData.bestTimeLabel || qsTr("n/d") }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Fascia preferibile"); value: root.geometryData.preferredWindow || objectData.preferred_window || qsTr("n/d") }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Azimut"); value: objectData.azimuth }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Altezza attuale"); value: root.geometryData.currentAltitude || objectData.currentAltitude }
                         MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Sorge"); value: root.geometryData.riseTime || qsTr("n/d") }
                         MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Tramonta"); value: root.geometryData.setTime || qsTr("n/d") }
                         MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Inizio utile"); value: root.geometryData.windowStart || qsTr("n/d") }
                         MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Fine utile"); value: root.geometryData.windowEnd || qsTr("n/d") }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: qsTr("Massima altezza stimata intorno alle %1. La fascia preferibile dipende dall'altezza nel cielo, non dal meteo.").arg(root.geometryData.bestTimeLabel || qsTr("n/d"))
+                        color: theme.textMuted
+                        font.pixelSize: 12
+                        wrapMode: Text.WordWrap
                     }
                 }
             }

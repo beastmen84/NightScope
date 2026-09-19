@@ -26,7 +26,7 @@ from astro_viewer.app.database.orbital_element_cache_repository import (
     OrbitalElementCacheRepository,
 )
 from astro_viewer.app.models.observing import AstronomicalEvent
-from astro_viewer.app.services.localization import format_datetime, format_number, tr
+from astro_viewer.app.services.localization import format_datetime, format_number, join_text, tr
 
 
 logger = logging.getLogger(__name__)
@@ -201,7 +201,7 @@ class CometWindowEventSource:
                 best_group = _best_consecutive_group(windows)
                 if not best_group:
                     continue
-                event = self._event(record, best_group, prepared_data)
+                event = self._event(record, best_group, prepared_data, analysis_end=horizon_end)
                 candidates.append(
                     (min(window.predicted_magnitude for window in best_group), event)
                 )
@@ -515,6 +515,8 @@ class CometWindowEventSource:
         record: _CometRecord,
         windows: Sequence[_NightWindow],
         prepared: _PreparedComets,
+        *,
+        analysis_end: datetime | None = None,
     ) -> AstronomicalEvent:
         first = windows[0]
         last = windows[-1]
@@ -526,15 +528,16 @@ class CometWindowEventSource:
             ),
         )
         date_label = _date_range_label(first.night_date, last.night_date, first.start)
-        peak_label = format_datetime(peak.peak)
         observing_window = _observing_window_label(
             first.night_date,
             last.night_date,
-            peak_label,
             first.start,
         )
-        lower_magnitude = math.floor(peak.predicted_magnitude - 1.0)
-        upper_magnitude = math.ceil(peak.predicted_magnitude + 1.0)
+        lower_magnitude = math.floor(min(window.predicted_magnitude for window in windows) - 1.0)
+        upper_magnitude = math.ceil(max(window.predicted_magnitude for window in windows) + 1.0)
+        period_note = tr("Notti favorevoli stimate, non una finestra continua. Verificare il meteo della singola notte.")
+        if analysis_end is not None and _as_utc(analysis_end) - _as_utc(last.end) <= timedelta(days=1):
+            period_note = join_text((period_note, tr("La finestra raggiunge il limite del periodo analizzato e potrebbe proseguire oltre.")), " ")
         valid_until = _parse_datetime(prepared.cache_record.fetched_at) + (
             self.MAX_STALE_DATA_AGE
         )
@@ -548,7 +551,7 @@ class CometWindowEventSource:
             title=tr("{name}: finestra osservativa", name=record.designation),
             event_type=tr("Cometa"),
             date_label=date_label,
-            best_time=tr("Momento consigliato: {date}", date=peak_label),
+            best_time=date_label,
             usefulness=0,
             setup=_setup_for_magnitude(peak.predicted_magnitude),
             note=tr(
@@ -557,7 +560,7 @@ class CometWindowEventSource:
             ),
             event_at=first.start.isoformat(),
             timing_kind="window",
-            timing_label=tr("Finestra osservativa"),
+            timing_label=tr("Periodo favorevole stimato"),
             observing_window=observing_window,
             visibility_state="visible",
             visibility_label=tr("Finestra locale favorevole"),
@@ -571,6 +574,9 @@ class CometWindowEventSource:
             starts_at=first.start.isoformat(),
             ends_at=last.end.isoformat(),
             peak_at=peak.peak.isoformat(),
+            favorable_periods=((first.start.isoformat(), last.end.isoformat()),),
+            period_note=period_note,
+            analysis_end_at=analysis_end.isoformat() if analysis_end else "",
             event_facts=(
                 (
                     "predicted_magnitude",
@@ -583,7 +589,7 @@ class CometWindowEventSource:
                 ),
                 (
                     "maximum_altitude",
-                    tr("Altezza massima"),
+                    tr("Altezza massima nel periodo analizzato"),
                     tr(
                         "{degrees}°",
                         degrees=format_number(
@@ -825,21 +831,18 @@ def _date_range_label(start: date, end: date, local_reference: datetime) -> str:
 def _observing_window_label(
     start: date,
     end: date,
-    peak_label: str,
     local_reference: datetime,
 ) -> str:
     start_label = _local_date_label(start, local_reference)
     if start == end:
         return tr(
-            "Notte del {date}; momento consigliato {peak}",
+            "Notte del {date}",
             date=start_label,
-            peak=peak_label,
         )
     return tr(
-        "Dal {start} al {end}; momento consigliato {peak}",
+        "Dal {start} al {end}; notti osservative",
         start=start_label,
         end=_local_date_label(end, local_reference),
-        peak=peak_label,
     )
 
 

@@ -107,9 +107,10 @@ Rectangle {
 
             Text {
                 Layout.fillWidth: true
-                text: root.eventData.observingWindow.length > 0
-                      ? root.eventData.observingWindow
-                      : root.eventData.visibilityDetail
+                text: root.eventData.favorablePeriodText
+                      ? qsTr("Notti favorevoli: %1").arg(root.eventData.favorablePeriodText)
+                      : (root.eventData.observingWindow.length > 0
+                         ? root.eventData.observingWindow : root.eventData.visibilityDetail)
                 color: theme.textMuted
                 font.pixelSize: 12
                 elide: Text.ElideRight

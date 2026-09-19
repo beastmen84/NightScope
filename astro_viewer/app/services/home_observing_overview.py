@@ -34,6 +34,7 @@ class HomeObservingOverviewService:
         suggested_window: str,
         wind_label: str,
         category_source: str,
+        weather_windows: dict | None = None,
     ) -> dict[str, object]:
         if location_pending:
             return _location_context_payload(pending=True)
@@ -47,6 +48,12 @@ class HomeObservingOverviewService:
             blocking,
             suggested_window=suggested_window,
         )
+        if available_weather is not None and weather_windows is not None:
+            session_payload.update({
+                "goodWindowText": weather_windows.get("goodWindowText", ""),
+                "bestWindowText": weather_windows.get("bestWindowText", ""),
+                "windowAdvice": tr("Previsioni variabili: non è necessario attendere il picco se il meteo è già buono."),
+            })
         return {
             "schemaVersion": HOME_OBSERVING_OVERVIEW_SCHEMA_VERSION,
             "session": session_payload,
@@ -144,6 +151,8 @@ def _weather_payload(weather: WeatherSummary | None, session: dict[str, object])
         "scoreLabel": weather.score,
         "explanation": weather.explanation,
         "windowText": session["windowText"],
+        "goodWindowText": session.get("goodWindowText", ""),
+        "bestWindowText": session.get("bestWindowText", ""),
     }
 
 

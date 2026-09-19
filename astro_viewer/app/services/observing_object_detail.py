@@ -54,6 +54,7 @@ class ObservingObjectDetailService:
             "windowStart": window_start,
             "windowEnd": window_end,
             "bestTimeLabel": _text(payload, "homeTimeLabel") or tr("n/d"),
+            "preferredWindow": _text(payload, "preferred_window"),
             "duration": duration or tr("n/d"),
             "durationText": _duration_text(duration, altitude_threshold_deg),
             "altitudeThresholdDeg": altitude_threshold_deg,

@@ -34,7 +34,7 @@ Item {
             return theme.teal
         if (typeCode === "eclipse")
             return theme.coral
-        if (typeCode === "planetary_conjunction")
+        if (typeCode === "planetary_conjunction" || typeCode === "planetary_group" || typeCode === "planet_parade")
             return theme.violet
         if (typeCode === "solar_conjunction")
             return theme.coral
@@ -418,6 +418,8 @@ Item {
                                 { "label": qsTr("Luna"), "value": "moon" },
                                 { "label": qsTr("Opposizioni"), "value": "opposition" },
                                 { "label": qsTr("Cong. planetarie"), "value": "planetary_conjunction" },
+                                { "label": qsTr("Raggruppamenti"), "value": "planetary_group" },
+                                { "label": qsTr("Parate planetarie"), "value": "planet_parade" },
                                 { "label": qsTr("Cong. solari"), "value": "solar_conjunction" },
                                 { "label": qsTr("Sciami"), "value": "meteor_shower" },
                                 { "label": qsTr("Eclissi"), "value": "eclipse" },

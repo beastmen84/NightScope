@@ -171,7 +171,34 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
+                        visible: root.hasEvent && (root.eventData.favorablePeriodText || "").length > 0
+                        text: qsTr("Notti favorevoli: %1").arg(root.hasEvent ? (root.eventData.favorablePeriodText || "") : "")
+                        color: theme.teal
+                        font.pixelSize: 14
+                        wrapMode: Text.WordWrap
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.hasEvent && (root.eventData.periodNote || "").length > 0
+                        text: root.hasEvent ? (root.eventData.periodNote || "") : ""
+                        color: theme.textSecondary
+                        font.pixelSize: 12
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.hasEvent && (root.eventData.analysisEndLabel || "").length > 0
+                        text: root.hasEvent ? (root.eventData.analysisEndLabel || "") : ""
+                        color: theme.textMuted
+                        font.pixelSize: 12
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
                         visible: root.hasEvent && root.eventWindow.length === 0
+                                 && !(root.eventData.favorablePeriodText || "")
                         text: qsTr("Nessuna finestra osservativa locale")
                         color: theme.textSecondary
                         font.pixelSize: 13
@@ -181,7 +208,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.hasEvent && (root.eventData.separationLabel || "").length > 0
-                        text: qsTr("Separazione minima: %1").arg(root.eventData.separationLabel || "")
+                        text: qsTr("Separazione minima: %1").arg(root.hasEvent ? (root.eventData.separationLabel || "") : "")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -290,7 +317,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.hasEvent && (root.eventData.dataSource || "").length > 0
-                        text: qsTr("Fonte: %1").arg(root.eventData.dataSource || "")
+                        text: qsTr("Fonte: %1").arg(root.hasEvent ? (root.eventData.dataSource || "") : "")
                         color: theme.textMuted
                         font.pixelSize: 12
                         wrapMode: Text.WordWrap
@@ -299,7 +326,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.hasEvent && (root.eventData.dataFreshness || "").length > 0
-                        text: root.eventData.dataFreshness || ""
+                        text: root.hasEvent ? (root.eventData.dataFreshness || "") : ""
                         color: theme.textMuted
                         font.pixelSize: 12
                         wrapMode: Text.WordWrap
@@ -308,7 +335,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.hasEvent && (root.eventData.dataUpdatedLabel || "").length > 0
-                        text: root.eventData.dataUpdatedLabel || ""
+                        text: root.hasEvent ? (root.eventData.dataUpdatedLabel || "") : ""
                         color: theme.textMuted
                         font.pixelSize: 12
                         wrapMode: Text.WordWrap

@@ -5,6 +5,35 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Unreleased Practical Observing Windows
+
+The 2026-09-19 source-only update adds good-weather windows, cached Home
+astronomical darkness, preferred target altitude plateaus and practical
+planetary/comet periods. See `PRACTICAL_OBSERVING_WINDOWS.md` for thresholds,
+scientific references, limitations and the distinction from existing scores.
+VERSION remains 1.46.21; no dist rebuild or publication is included.
+
+Full `tools/run_checks.py --security`: **2,020 tests / ten subtests pass** in
+287.13 s, with 87% overall coverage and 97% of the new planetary-period module.
+Static/data/dependency checks pass, pip-audit finds no known vulnerabilities,
+and isolated backend / normal QML / red-night QML smokes pass in
+13.2 / 14.5 / 14.1 s. Inventory: 277 Python / 36 QML / 17 operational files.
+Log: `build/observing-windows-20260919/full-source-gate-final.log`.
+
+Independent Git-baseline comparisons preserve all prior fields for the Solar
+System and 252 annual events across three locations. With all 7,585 catalogue
+objects enabled, 14,725 returned target records and their ranking match exactly
+across Addis Ababa, Rome and Cape Town, plus 36 scalar detail calculations.
+Only newly introduced presentation metadata is excluded from the comparison.
+The final location/timezone invalidation guards, missing-forecast distinction
+and Calendar filtering across a gap between periods also receive focused reruns
+after the full run: 126 checks pass (`final-followup-checks.log`).
+
+IT/EN/ES: 2,118 completed and compiled messages per language. Offscreen visual
+checks use an explicitly loaded Windows font, a disposable runtime and synthetic
+weather; Home at 1240/1040 widths, red-night mode, Saturn details and the event
+pages are checked. No development DB/preferences or existing dist are replaced.
+
 ## Unreleased Database Startup And Backup Reuse
 
 The 2026-09-19 source-only change skips unchanged built-in seed work and, on the

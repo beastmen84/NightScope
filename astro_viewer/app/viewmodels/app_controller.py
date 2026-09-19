@@ -990,6 +990,21 @@ class AppController(QObject, ObservingCalculations):
     def homeObservingOverview(self) -> dict:
         return render_payload(self._home_observing_overview_payload())
 
+    @Property("QVariant", notify=weatherChanged)
+    def astronomicalDarkness(self) -> dict:
+        window = getattr(self, "_astronomical_darkness", ObservingNightWindow.unavailable())
+        if (not self._has_valid_location()
+                or getattr(self, "_startup_location_detection_running", False)
+                or getattr(self, "_darkness_location", None) != self._location):
+            window = ObservingNightWindow.unavailable()
+        if window.has_observing_window:
+            label = f"{window.start:%H:%M} – {window.end:%H:%M}"
+            detail = tr("Sole sotto −18°; orari locali della notte selezionata.")
+        else:
+            label = tr("Assente in questa notte") if window.state == "no_night" else tr("n/d")
+            detail = tr("Buio astronomico non disponibile")
+        return render_payload({"state": window.state, "windowLabel": label, "detail": detail})
+
     def _home_observing_overview_payload(self) -> dict:
         digest = self._weather_digest()
         return self._home_observing_overview_service.build(
@@ -1006,6 +1021,7 @@ class AppController(QObject, ObservingCalculations):
             suggested_window=self._suggested_observing_window(),
             wind_label=presentation_text(digest.get("windLabel") or tr("n/d")),
             category_source="nsom_canonical_environment",
+            weather_windows=digest,
         )
 
     @Property("QVariant", notify=homeNightPlanChanged)
@@ -4095,6 +4111,15 @@ class AppController(QObject, ObservingCalculations):
                 )
                 solar_system_objects = tuple(self._astronomy_engine.solar_system_objects(location))
                 deep_sky = tuple(self._astronomy_engine.recommended_deep_sky(location))
+                darkness_method = getattr(self._astronomy_engine, "astronomical_darkness", None)
+                try:
+                    darkness = (darkness_method(location, night_window) if callable(darkness_method)
+                                else ObservingNightWindow.unavailable())
+                except Exception:
+                    logger.warning("Astronomical darkness summary unavailable.", exc_info=True)
+                    darkness = ObservingNightWindow.unavailable()
+                if not isinstance(darkness, ObservingNightWindow):
+                    darkness = ObservingNightWindow.unavailable()
                 moon = self._astronomy_engine.moon_summary(location)
                 annual_events_method = getattr(
                     self._astronomy_engine,
@@ -4131,6 +4156,7 @@ class AppController(QObject, ObservingCalculations):
                     )
             return AstronomyRefreshSnapshot(
                 observing_night_window=night_window,
+                astronomical_darkness=darkness,
                 solar_system_objects=solar_system_objects,
                 deep_sky=deep_sky,
                 moon=moon,
@@ -4212,12 +4238,15 @@ class AppController(QObject, ObservingCalculations):
             self._deep_sky = []
             self._events = []
             self._observing_night_window = ObservingNightWindow.unavailable()
+            self._astronomical_darkness = ObservingNightWindow.unavailable()
             self._append_service_status(
                 tr("Dati astronomici temporaneamente non disponibili.")
             )
             return
 
         self._observing_night_window = snapshot.observing_night_window or ObservingNightWindow.unavailable()
+        self._astronomical_darkness = snapshot.astronomical_darkness or ObservingNightWindow.unavailable()
+        self._darkness_location = self._location
         self._base_solar_system_objects = list(snapshot.solar_system_objects)
         self._base_deep_sky = list(snapshot.deep_sky)
         self._moon = snapshot.moon
@@ -7350,6 +7379,10 @@ class AppController(QObject, ObservingCalculations):
         if not isinstance(current, ObservingNightWindow):
             current = ObservingNightWindow.unavailable()
         self._observing_night_window = current
+        if not self._same_observing_night(previous, current):
+            # The following astronomy worker publishes the new cached darkness.
+            # Never retain yesterday's interval while it is being calculated.
+            self._astronomical_darkness = ObservingNightWindow.unavailable()
         return not self._same_observing_night(previous, current)
 
     @staticmethod

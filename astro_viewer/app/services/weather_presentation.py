@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from astro_viewer.app.astronomy.engine import ObservingNightWindow
+from astro_viewer.app.astronomy.engine import ObservingNightWindow, advance_time, as_utc
 from astro_viewer.app.models.weather import (
     ObservingSessionDecision,
     WeatherBlockingStatus,
@@ -41,6 +41,9 @@ class WeatherPresentationService:
                 "rainProbability": 0,
                 "rainProbabilityLabel": tr("n/d"),
                 "bestHours": [],
+                "goodWindows": [],
+                "goodWindowText": "",
+                "bestWindowText": "",
             }
         average_cloud = round(
             sum(hour.cloud_cover for hour in night_hours) / len(night_hours)
@@ -50,7 +53,20 @@ class WeatherPresentationService:
             sum(hour.wind_kmh for hour in night_hours) / len(night_hours)
         )
         best_hours = best_weather_hours(night_hours)
+        good_groups = good_weather_windows(night_hours)
+        good_labels = [weather_window_label(group, night_window, timezone) for group in good_groups]
+        practical_best = best_weather_hours([hour for group in good_groups for hour in group])
         return {
+            "goodWindows": good_labels,
+            "goodWindowText": (
+                tr("Meteo buono: {windows}", windows=" · ".join(good_labels))
+                if good_labels else tr("Nessuna fascia meteo buona prevista")
+            ),
+            "bestWindowText": (
+                tr("Picco meteo previsto: {window}",
+                   window=weather_window_label(practical_best, night_window, timezone))
+                if practical_best else ""
+            ),
             "bestWindow": weather_window_label(
                 best_hours,
                 night_window,
@@ -191,6 +207,32 @@ def best_usable_observing_window(hours: list[WeatherHour]) -> list[WeatherHour]:
     return best_group if len(best_group) >= 2 else []
 
 
+def good_weather_windows(hours: list[WeatherHour]) -> list[list[WeatherHour]]:
+    """Continuous good forecasts, not the looser plan-admission policy.
+
+    Require two hourly samples, <=35% clouds, <=20% rain probability, <=20 km/h
+    wind and >=70/100 including humidity. Never bridge missing/bad hours.
+    These are presentation thresholds, not changes to session/NSOM scoring.
+    """
+    result: list[list[WeatherHour]] = []
+    for group in consecutive_weather_groups(hours):
+        current: list[WeatherHour] = []
+        for hour in group:
+            if (0 <= hour.cloud_cover <= 35
+                    and 0 <= hour.precipitation_probability <= 20
+                    and 0 <= hour.wind_kmh <= 20
+                    and 0 <= hour.humidity <= 100
+                    and weather_hour_observing_score(hour) >= 70):
+                current.append(hour)
+            else:
+                if len(current) >= 2:
+                    result.append(current)
+                current = []
+        if len(current) >= 2:
+            result.append(current)
+    return result
+
+
 def is_usable_weather_hour(hour: WeatherHour) -> bool:
     return (
         hour.precipitation_probability <= 35
@@ -238,9 +280,9 @@ def weather_window_label(
     start = selected[0].time
     last_timestamp = weather_hour_datetime(selected[-1], timezone)
     if last_timestamp is not None:
-        end_dt = last_timestamp + timedelta(hours=1)
+        end_dt = advance_time(last_timestamp, timedelta(hours=1))
         if night_window is not None and night_window.end is not None:
-            end_dt = min(end_dt, night_window.end)
+            end_dt = min(end_dt, night_window.end, key=as_utc)
     else:
         parsed_end = parse_hour_minute(selected[-1].time)
         if not parsed_end:

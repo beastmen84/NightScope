@@ -10,6 +10,26 @@ Updated: 2026-09-19
 
 ## Current State
 
+- Unreleased practical observing-window guidance after `35bd872`: Home and
+  sidebar separate extended good-weather runs from their forecast peak; the
+  header displays existing -18-degree astronomical darkness from the worker
+  snapshot (not sunrise/sunset). Target detail uses an altitude plateau plus
+  the subordinate technical maximum. Comets display observing-night periods
+  and their 90-day analysis limit. Planetary calendar events retain exact
+  instants while adding threshold-based favourable nights, compact groups of
+  >=3 planets and broad parades of >=4 bright planets. New periods are geometric
+  guidance, not weather forecasts or changes to NSOM/equipment/planner scores.
+  See `docs/PRACTICAL_OBSERVING_WINDOWS.md` for policies and known limitations.
+  Full source/security gate: 2,020 tests / ten subtests, 87% overall / 97% new
+  planetary-module coverage; all three isolated smokes pass. Independent Git
+  comparisons preserve all original solar-system fields, 252 annual events,
+  14,725 ranked full-catalogue target records and 36 scalar detail calculations.
+  Final cache-context/missing-forecast safeguards have focused reruns. IT/EN/ES
+  resources are complete and compiled; visual checks cover narrow Home and
+  red-night mode. Evidence: `build/observing-windows-20260919/`.
+  Annual analysis adds about 1.1-1.7 s in local single-run probes, in the existing
+  worker with a bounded numerical cache; this is not a startup speedup claim.
+  VERSION/dist/public Windows release remain 1.46.21; no push, rebuild or release.
 - Unreleased local startup optimization after `db03b1f`: unchanged built-in
   catalogue inputs/state skip full reseeding; the complete database and its
   validated backup can now be checksum-compared to avoid redundant snapshots.

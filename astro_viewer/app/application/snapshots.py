@@ -44,6 +44,7 @@ class AstronomyRefreshSnapshot:
     ) = None
     catalogue_visibility: tuple[tuple[str, bool], ...] = ()
     failed: bool = False
+    astronomical_darkness: ObservingNightWindow | None = None
 
 
 @dataclass(frozen=True)

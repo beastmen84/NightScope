@@ -109,7 +109,7 @@ Item {
             return theme.teal
         if (typeCode === "eclipse")
             return theme.coral
-        if (typeCode === "planetary_conjunction")
+        if (typeCode === "planetary_conjunction" || typeCode === "planetary_group" || typeCode === "planet_parade")
             return theme.violet
         if (typeCode === "solar_conjunction")
             return theme.coral
@@ -324,6 +324,34 @@ Item {
                     }
                 }
 
+                ColumnLayout {
+                    visible: controller.hasValidLocation
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    Layout.maximumWidth: Math.max(180, scroll.availableWidth * 0.3)
+                    spacing: 5
+
+                    Text {
+                        text: qsTr("Buio astronomico")
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        text: (controller.astronomicalDarkness || {}).windowLabel || qsTr("n/d")
+                        color: theme.teal
+                        font.pixelSize: 19
+                        font.weight: Font.DemiBold
+                        wrapMode: Text.WordWrap
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        text: (controller.astronomicalDarkness || {}).detail || ""
+                        color: theme.textMuted
+                        font.pixelSize: 11
+                        wrapMode: Text.WordWrap
+                    }
+                }
+
                 DarkButton {
                     visible: !controller.hasValidLocation
                     Layout.preferredWidth: 154
@@ -377,7 +405,7 @@ Item {
 
                     GlassCard {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 160
+                        Layout.preferredHeight: Math.max(160, implicitHeight)
                         title: qsTr("Sessione di stasera")
                         subtitle: root.sessionOverview.detail || ""
                         subtitleWrap: true
@@ -386,20 +414,18 @@ Item {
                         headerBadgeText: root.sessionOverview.badge || ""
                         headerBadgeColor: accentColor
 
-                        RowLayout {
+                        ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 12
 
                             Text {
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
-                                text: root.sessionOverview.windowText || qsTr("Finestra osservativa non disponibile")
+                                text: root.sessionOverview.goodWindowText || root.sessionOverview.windowText || qsTr("Finestra osservativa non disponibile")
                                 color: theme.textPrimary
                                 font.pixelSize: 18
                                 font.weight: Font.DemiBold
                                 wrapMode: Text.WordWrap
-                                elide: Text.ElideRight
-                                maximumLineCount: 2
                             }
 
                             Text {
@@ -408,11 +434,28 @@ Item {
                                 text: root.sessionOverview.limitingFactor || ""
                                 color: theme.textMuted
                                 font.pixelSize: 12
-                                horizontalAlignment: Text.AlignRight
+                                horizontalAlignment: Text.AlignLeft
                                 wrapMode: Text.WordWrap
                                 elide: Text.ElideRight
                                 maximumLineCount: 2
                             }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            visible: (root.sessionOverview.bestWindowText || "").length > 0
+                            text: root.sessionOverview.bestWindowText || ""
+                            color: theme.textSecondary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            visible: (root.sessionOverview.goodWindowText || "").length > 0
+                            text: root.sessionOverview.windowAdvice || ""
+                            color: theme.textMuted
+                            font.pixelSize: 11
+                            wrapMode: Text.WordWrap
                         }
                     }
 
@@ -622,7 +665,7 @@ Item {
                     Layout.alignment: Qt.AlignTop
                     title: qsTr("Meteo osservativo")
                     subtitle: controller.weatherStatus.length > 0
-                              ? controller.weatherStatus : (root.weatherOverview.windowText || "")
+                              ? controller.weatherStatus : (root.weatherOverview.bestWindowText || root.weatherOverview.windowText || "")
                     subtitleWrap: true
                     accentColor: root.weatherOverview.state === "pending"
                                  ? theme.cyan
@@ -1680,7 +1723,9 @@ Item {
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: modelData.timingValue + "  -  " + modelData.visibilityLabel
+                                        text: modelData.favorablePeriodText
+                                              ? qsTr("Notti favorevoli: %1").arg(modelData.favorablePeriodText)
+                                              : modelData.timingValue + "  -  " + modelData.visibilityLabel
                                         color: theme.textSecondary
                                         font.pixelSize: 12
                                         maximumLineCount: 1
