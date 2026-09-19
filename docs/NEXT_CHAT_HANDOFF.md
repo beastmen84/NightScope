@@ -1,9 +1,38 @@
 # NightScope - Next Chat Handoff
 
-Updated: 2026-09-07
+Updated: 2026-09-19
+
+## Working Agreement
+
+- Finish completed, validated implementation work with a local Git commit, as
+  requested by the user. Report the commit hash; do not push, tag or publish
+  unless separately requested. Read-only reviews do not require a commit.
 
 ## Current State
 
+- Unreleased local startup optimization after `db03b1f`: unchanged built-in
+  catalogue inputs/state skip full reseeding; the complete database and its
+  validated backup can now be checksum-compared to avoid redundant snapshots.
+  The user explicitly added backup reuse to the authorized DB-startup scope.
+  Integrity checking, schema migration/repair, default profiles and the original
+  seed/customization rules remain. WAL sources retain full consistent snapshots;
+  externally WAL-backed backup targets are preserved rather than overwritten.
+  Optional `.backup.state.json` metadata is private runtime state, not release
+  data. Seed-code changes must bump `database/seed_cache.py:SEED_REVISION` and
+  maintain the source/table dependency lists. No Home/scientific/location/network
+  changes, VERSION bump, dist rebuild, push, tag or publication.
+  See `docs/PERFORMANCE_DATABASE_STARTUP.md` for parity and safety details.
+  Local paired DB-bootstrap medians on a disposable 62.5 MB runtime copy:
+  5.645 s original versus 2.544 s with seed/backup reuse (about 55% less).
+  This is not whole-app startup; new DB initialization adds about 0.12 s and
+  necessary backups/changed-data seeds still run. Every business row/schema
+  matches the pre-change Git bootstrap. Final source/security gate: 1,989 tests
+  and ten subtests, 87% overall coverage, 100% seed-cache / 99% backup-cache
+  coverage, no known pip-audit vulnerabilities and all three isolated smokes.
+  Log: `build/database-startup-20260919/full-source-gate-final.log`.
+  Four development-runtime files retain their initial hashes. This work is
+  limited to local source changes and their commit; consult current Git status
+  on resumption. No push, bundle rebuild or publication is included.
 - Unreleased source correction after `57d4b37`: restore sequential equivalence
   when profile/VIIRS and weather/month observing requests are coalesced.
   Per-request equipment snapshots preserve the earlier raw/pollution inputs

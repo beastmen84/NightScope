@@ -12,6 +12,7 @@ build/
 dist/
 nightscope.db
 nightscope.db.backup
+*.backup.state.json
 nightscope.db.corrupt-*.bak
 user_preferences.json
 location_cache.json

@@ -24,10 +24,12 @@ MAX_MANAGED_IMAGE_BYTES = 16 * 1024 * 1024
 _MANAGED_IMAGE_NAME = re.compile(r"([0-9a-f]{64})(-thumb)?\.jpg")
 
 
-def snapshot_database(source: Path, target: Path) -> None:
-    """Copy committed SQLite state, including WAL, without replacing a good backup on failure."""
+def snapshot_database(source: Path, target: Path, *, fingerprint: bool = False) -> str | None:
+    """Copy committed state safely; optionally hash validated bytes before installation."""
     if not source.is_file() or source.resolve() == target.resolve() or target.is_symlink():
         raise OSError("Unsafe database snapshot path")
+    if target.with_name(target.name + "-wal").exists():
+        raise OSError("Cannot replace a backup with an external WAL")
     target.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(dir=target.parent, prefix=".nightscope-backup-", delete=False) as stream:
         temporary = Path(stream.name)
@@ -48,9 +50,11 @@ def snapshot_database(source: Path, target: Path) -> None:
                 raise sqlite3.DatabaseError("Invalid database snapshot")
         with temporary.open("r+b") as stream:
             os.fsync(stream.fileno())
+            digest = hashlib.file_digest(stream, "sha256").hexdigest() if fingerprint else None
         if target.is_symlink():
             raise OSError("Redirected database snapshot path")
         os.replace(temporary, target)
+        return digest
     finally:
         temporary.unlink(missing_ok=True)
 

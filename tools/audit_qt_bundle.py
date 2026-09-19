@@ -73,6 +73,7 @@ FORBIDDEN_RUNTIME_ENTRIES = {
     "logs",
     "nasa_aod_cache.json",
     "nightscope.db",
+    "nightscope.db.backup.state.json",
     "user_preferences.json",
 }
 FORBIDDEN_PATH_PARTS = {
@@ -366,7 +367,7 @@ def audit_bundle(
     } | {
         path.relative_to(bundle_dir).as_posix()
         for path in bundle_dir.rglob("*")
-        if path.name.lower() == "user_images"
+        if path.name.lower() in {"user_images", "nightscope.db.backup.state.json"}
     })
     if runtime_entries:
         errors.append(

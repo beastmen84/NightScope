@@ -237,11 +237,19 @@ def test_home_plan_and_alternatives_carry_current_thumbnail_and_default():
         assert payload["defaultImage"] == target["defaultImageUrl"]
 
 
-@pytest.mark.parametrize("relative", ["user_images", "_internal/astro_viewer/data/user_images"])
-def test_bundle_audit_rejects_personal_images_at_any_depth(tmp_path, relative):
+@pytest.mark.parametrize("relative", [
+    "user_images", "_internal/astro_viewer/data/user_images",
+    "nightscope.db.backup.state.json", "_internal/astro_viewer/data/nightscope.db.backup.state.json",
+])
+def test_bundle_audit_rejects_private_runtime_entries_at_any_depth(tmp_path, relative):
     for filename in REQUIRED_DLLS | REQUIRED_DATA_FILES | REQUIRED_LEGAL_FILES:
         (tmp_path / filename).touch()
-    (tmp_path / relative).mkdir(parents=True)
+    target = tmp_path / relative
+    if target.suffix == ".json":
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.touch()
+    else:
+        target.mkdir(parents=True)
     assert audit_bundle(tmp_path) == ["runtime state present in release bundle: " + relative]
 
 

@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Ottimizzato l'avvio del database già aggiornato: i cataloghi integrati non
+  vengono riallineati se contenuto dei file e dati interessati sono invariati.
+  Modifiche, dati mancanti o checkpoint non valido mantengono il percorso
+  completo. Controlli d'integrità, migrazioni e personalizzazioni restano
+  attivi; nessuna modifica a calcoli, Home o servizi di rete.
+  Dettagli e limiti in `docs/PERFORMANCE_DATABASE_STARTUP.md`.
+- Evitata la ricopia del backup quando l'intero DB e la copia già validata
+  sono invariati, verificando entrambi tramite SHA-256 sotto transazione di
+  lettura. DB modificato, backup mancante/alterato o metadati non validi
+  mantengono la copia completa; le sorgenti WAL non usano la scorciatoia.
+  Eliminata la riscrittura superflua della versione dello schema già corrente.
 - Corretta una regressione nell'accorpamento degli aggiornamenti osservativi:
   cambio profilo o VIIRS seguito da meteo/mese conserva ora i dati grezzi
   dell'attrezzatura e il contesto d'inquinamento necessari alle raccomandazioni.

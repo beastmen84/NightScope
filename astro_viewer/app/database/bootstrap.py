@@ -13,7 +13,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
-from astro_viewer.app.database.runtime_backup import snapshot_database
+from astro_viewer.app.database.backup_cache import refresh_database_backup
+from astro_viewer.app.database.seed_cache import seed_if_needed
 from astro_viewer.app.models.filtering import FILTER_CLASS_CODES
 from astro_viewer.app.services.equipment_taxonomy import (
     canonical_mount_type,
@@ -295,7 +296,7 @@ def _build_database(
         connection.executescript(schema_sql)
         existing_schema_version = _schema_version(connection)
         _migrate_database(connection, existing_schema_version)
-        if existing_schema_version <= SCHEMA_VERSION:
+        if existing_schema_version < SCHEMA_VERSION:
             connection.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
         data_dir = catalogue_objects_path.parent
         geonames_source_dir = geonames_data_dir or database_path.parent
@@ -310,40 +311,54 @@ def _build_database(
             connection,
             data_dir / "mpc_observatories_seed.csv",
         )
-        _seed_catalogue(
+        seed_if_needed(
             connection,
             catalogue_objects_path,
-            data_dir / "catalogue_designations_seed.csv",
+            schema_sql,
+            SCHEMA_VERSION,
+            lambda: _seed_builtin_catalogues(connection, catalogue_objects_path),
         )
-        _seed_telescope_catalog(connection, data_dir / "telescope_catalog_seed.csv")
-        _seed_smart_telescope_capabilities(
-            connection,
-            data_dir / "smart_telescope_capabilities_seed.csv",
-        )
-        _seed_optics_catalog(
-            connection,
-            data_dir / "eyepiece_catalog_seed.csv",
-            data_dir / "barlow_catalog_seed.csv",
-        )
-        _seed_binocular_catalog(connection, data_dir / "binocular_catalog_seed.csv")
-        _seed_camera_catalogs(
-            connection,
-            data_dir / "astronomy_camera_catalog_seed.csv",
-            data_dir / "camera_body_catalog_seed.csv",
-        )
-        _seed_filters_reducers_catalog(
-            connection,
-            data_dir / "filter_catalog_seed.csv",
-            data_dir / "reducer_catalog_seed.csv",
-            data_dir / "reducer_telescope_compatibility_seed.csv",
-        )
-        _seed_object_images(connection, data_dir / "object_images_seed.csv")
-        _seed_object_descriptions(connection, data_dir / "object_descriptions_seed.csv")
-        _seed_object_curiosities(connection, data_dir / "object_curiosities_seed.csv")
         _seed_default_profiles(connection)
         _notify_progress(progress_callback, tr("Finalizzazione..."))
         connection.commit()
     logger.info("Database ready.")
+
+
+def _seed_builtin_catalogues(
+    connection: sqlite3.Connection, catalogue_objects_path: Path
+) -> None:
+    """Keep the original seed ordering and repair/customization rules together."""
+    data_dir = catalogue_objects_path.parent
+    _seed_catalogue(
+        connection,
+        catalogue_objects_path,
+        data_dir / "catalogue_designations_seed.csv",
+    )
+    _seed_telescope_catalog(connection, data_dir / "telescope_catalog_seed.csv")
+    _seed_smart_telescope_capabilities(
+        connection,
+        data_dir / "smart_telescope_capabilities_seed.csv",
+    )
+    _seed_optics_catalog(
+        connection,
+        data_dir / "eyepiece_catalog_seed.csv",
+        data_dir / "barlow_catalog_seed.csv",
+    )
+    _seed_binocular_catalog(connection, data_dir / "binocular_catalog_seed.csv")
+    _seed_camera_catalogs(
+        connection,
+        data_dir / "astronomy_camera_catalog_seed.csv",
+        data_dir / "camera_body_catalog_seed.csv",
+    )
+    _seed_filters_reducers_catalog(
+        connection,
+        data_dir / "filter_catalog_seed.csv",
+        data_dir / "reducer_catalog_seed.csv",
+        data_dir / "reducer_telescope_compatibility_seed.csv",
+    )
+    _seed_object_images(connection, data_dir / "object_images_seed.csv")
+    _seed_object_descriptions(connection, data_dir / "object_descriptions_seed.csv")
+    _seed_object_curiosities(connection, data_dir / "object_curiosities_seed.csv")
 
 
 def _notify_progress(progress_callback: ProgressCallback | None, message: object) -> None:
@@ -1051,11 +1066,11 @@ def _mpc_import_needed(
 def _backup_database(database_path: Path) -> None:
     backup_path = database_path.with_suffix(database_path.suffix + ".backup")
     try:
-        snapshot_database(database_path, backup_path)
+        refreshed = refresh_database_backup(database_path, backup_path)
     except (OSError, sqlite3.Error):
         logger.warning("Database backup could not be created.", exc_info=True)
         return
-    logger.info("Database backup refreshed.")
+    logger.info("Database backup refreshed." if refreshed else "Database backup already current; reusing validated snapshot.")
 
 
 def _quarantine_database(database_path: Path) -> None:

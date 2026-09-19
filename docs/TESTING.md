@@ -5,6 +5,36 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Unreleased Database Startup And Backup Reuse
+
+The 2026-09-19 source-only change skips unchanged built-in seed work and, on the
+user's explicit follow-up request, reuses an unchanged validated database backup.
+It retains source integrity checks, pre-migration snapshot semantics, migrations,
+repair rules and WAL-safe full-copy fallbacks. VERSION/dist remain unchanged.
+See `PERFORMANCE_DATABASE_STARTUP.md` for contracts, limitations and measurements.
+
+Regression coverage includes every seed dependency, same-size/mtime edits,
+personalized data and recommendation preferences, interrupted work, invalid
+metadata, required/optional sources, trigger side effects, whole-DB mutations,
+missing/damaged/altered backups, metadata/copy failures, WAL and rollback-journal
+transactions, concurrent commits and byte-stable repeated bootstrap. The bundle
+audit rejects the new private checkpoint at both root and nested data paths.
+
+Independent Git-baseline probes compare every business row and schema on fresh,
+existing and repeat-start databases. On the local 62.5 MB snapshot, seven paired
+repeat-start medians improve from 5.645 to 2.544 s; six actual backup-reuse starts
+range from 2.493 to 2.570 s. No claim is made about total splash/Home latency or
+the reported user's hardware. New DB setup adds about 0.12 s for seed metadata.
+Final `tools/run_checks.py --security`: 1,989 tests and ten subtests pass in
+416.00 s; coverage is 87% overall (19,222 / 22,133), 100% seed cache and 99%
+backup cache. All static/data/dependency checks pass, Bandit retains its reviewed
+baseline and pip-audit reports no known vulnerabilities. Isolated backend,
+normal QML and Red Night Vision smokes pass in 18.8 / 19.2 / 18.5 s.
+Inventory: 275 Python / 36 QML / 17 operational files. Evidence lives in
+`build/database-startup-20260919/full-source-gate-final.log` and the paired
+comparison JSON/logs in the same directory. The four checked development-runtime
+files retain their pre-work hashes; no dist rebuild or publication is implied.
+
 ## Unreleased Observing Refresh Parity Correction
 
 The post-1.46.21 source correction preserves the sequential effects of
