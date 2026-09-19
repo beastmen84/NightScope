@@ -1,6 +1,15 @@
 {
   "schema_version": 1,
   "translations": {
+    "{date} (UT)": "{date} (UT)",
+    "Massimo previsto {name}": "Predicted {name} maximum",
+    "Data indicativa dalla tabella annuale IMO; non è un istante esatto né una previsione di visibilità locale. Eventuali picchi aggiuntivi non sono importati.": "Approximate date from the annual IMO table; not an exact instant or a local visibility forecast. Additional peaks are not imported.",
+    "Data del massimo (UT)": "Maximum date (UT)",
+    "Da valutare con buio, radiante, Luna e meteo locali": "Assess using local darkness, radiant, Moon and weather",
+    "Il tasso ZHR si riferisce a condizioni ideali, non alle meteore effettivamente visibili dalla propria località.": "ZHR describes ideal conditions, not the number of meteors actually visible from your location.",
+    "Calendario IMO {year}": "IMO calendar {year}",
+    "Periodo di attività (UT)": "Activity period (UT)",
+    "ZHR di riferimento (condizioni ideali)": "Reference ZHR (ideal conditions)",
     "Notti di osservabilità stimata, non una finestra continua né una garanzia di visibilità. Verificare il meteo della singola notte.": "Estimated observing nights, not a continuous window or a guarantee of visibility. Check the weather for each night.",
     "La finestra raggiunge il limite del periodo analizzato e potrebbe proseguire oltre.": "The window reaches the end of the analysed period and may extend beyond it.",
     "Periodo di osservabilità stimata": "Estimated observing period",
@@ -322,6 +331,28 @@
     "Piano non disponibile": "Plan unavailable"
   },
   "contexts": {
+    "DataProvidersPage": {
+      "Importa il calendario IMO dell'anno corrente": "Import the current year's IMO calendar",
+      "Calendari PDF (*.pdf)": "PDF calendars (*.pdf)",
+      "Fonti esterne, calendari scaricati e accessi opzionali.": "External sources, downloaded calendars and optional access.",
+      "IMO · International Meteor Organization": "IMO · International Meteor Organization",
+      "Calendario annuale degli sciami meteorici · Nessun account richiesto": "Annual meteor shower calendar · No account required",
+      "Sito ufficiale": "Official website",
+      "Caricamento": "Loading",
+      "Aggiornato": "Up to date",
+      "Anno precedente": "Previous year",
+      "Importazione non riuscita": "Import failed",
+      "In attesa": "Waiting",
+      "Non disponibile": "Unavailable",
+      "Calendario IMO %1 · %2 sciami principali": "IMO calendar %1 · %2 major showers",
+      "Calendario %1 non ancora scaricato": "Calendar %1 not downloaded yet",
+      "Salvato il %1": "Saved on %1",
+      "Download automatico una sola volta per anno, dopo l'avvio. Al cambio d'anno il calendario precedente viene eliminato solo quando il nuovo è stato scaricato e verificato. Le date IMO restano previsioni, non garanzie di osservabilità.": "Downloaded automatically once per year, after startup. At the change of year, the previous calendar is removed only after the new one has been downloaded and validated. IMO dates remain predictions, not guarantees of observability.",
+      "PDF non valido o di un altro anno. Il calendario già presente è stato conservato.": "Invalid PDF or wrong year. The existing calendar has been preserved.",
+      "Il calendario dell'anno corrente non è disponibile. Nuovo tentativo automatico entro 24 ore; nel frattempo restano le ricorrenze indicative. Puoi importare il PDF originale IMO se lo hai già scaricato.": "The current year's calendar is unavailable. Another automatic attempt will be made within 24 hours; approximate recurring dates are used meanwhile. You can import the original IMO PDF if you have already downloaded it.",
+      "Riprova": "Retry",
+      "Importa PDF": "Import PDF"
+    },
     "ObjectCataloguePage": {
       "Home": "Home",
       "Includi nei suggerimenti automatici": "Include in automatic suggestions",

@@ -54,6 +54,10 @@ class RuntimePaths:
     def nasa_aod_cache_path(self) -> Path:
         return self.cache_dir / "nasa_aod_cache.json"
 
+    @property
+    def imo_calendar_cache_dir(self) -> Path:
+        return self.cache_dir / "imo_calendar"
+
 
 def resolve_runtime_paths(
     *,

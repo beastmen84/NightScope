@@ -13,6 +13,28 @@ Updated: 2026-09-19
 
 ## Current State
 
+- Unreleased IMO integration after `873e927`: the current PC-year calendar is
+  downloaded once in a dedicated worker after the first frame and reused across
+  restarts. A new validated PDF is installed atomically before removing older
+  owned cache files; failures preserve the previous file and retry after 24 h.
+  Data Providers now shows the stored year/file/date/status, with optional PDF
+  import during upstream outages. The supplied `ShCal26-0.pdf` is valid; the
+  current IMO restoration page exposes the 2027 edition, not a usable 2026
+  download. Live 2027 rollover and restart reuse pass in a disposable cache.
+  Only the ten existing major showers use annual Table 5 dates/activity/ZHR;
+  no exact local peak, local visibility or additional-outburst claim is made.
+  Other astronomy, optics and ranking calculations are unchanged. PDFs are
+  obtained per installation, not bundled or redistributed; see
+  `docs/IMO_CALENDAR.md` for source, ownership and scientific boundaries.
+  Full source/security gate: 2,103 tests / ten subtests, 87% overall coverage,
+  no known pip-audit vulnerabilities and all three isolated smokes. Scientific
+  parity preserves 14,725 ranked target records, Solar System/Moon and 261
+  engine events; the IMO overlay retains all non-meteor objects/fields.
+  IT/EN/ES: 2,154 complete compiled messages; seven visual checks, no QML
+  warnings. Evidence: `build/imo-20260919/`; details in `docs/TESTING.md`.
+  Development DB/backup/preferences/location cache and the supplied PDF retain
+  their hashes. VERSION/dist/public Windows release remain 1.46.21; no rebuild,
+  push, tag or publication. Consult current Git state for the local commit.
 - Unreleased existing-data recommendation audit after `80cdb32`: hourly weather
   intersects target intervals before planner selection, with immutable context
   capture in both worker paths. Missing seeing is explicit `n/d`; neutral

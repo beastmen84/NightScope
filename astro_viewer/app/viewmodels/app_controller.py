@@ -184,6 +184,8 @@ from astro_viewer.app.viewmodels.catalogue_object_list_model import (
     CatalogueObjectListModel,
 )
 from astro_viewer.app.viewmodels.object_image_manager import ObjectImageManager
+from astro_viewer.app.viewmodels.imo_calendar_manager import ImoCalendarManager
+from astro_viewer.app.services.imo_meteor_events import annual_meteor_events
 
 
 logger = logging.getLogger(__name__)
@@ -306,6 +308,8 @@ class AppController(QObject, ObservingCalculations):
             transient_event_sources=transient_event_sources,
         )
         self._catalogue_repository = controller_dependencies.catalogue_repository
+        self._imo_calendar_manager = ImoCalendarManager(controller_dependencies.imo_calendar_store, self)
+        self._imo_calendar_manager.calendarChanged.connect(self.dataChanged.emit)
         self._equipment_catalog_repository = (
             controller_dependencies.equipment_catalog_repository
         )
@@ -942,13 +946,24 @@ class AppController(QObject, ObservingCalculations):
 
     @Property("QVariant", notify=dataChanged)
     def events(self) -> list[dict]:
-        return render_payload([self._event_to_qml(event) for event in self._events])
+        return render_payload([self._event_to_qml(event) for event in self._annual_calendar_events()])
+
+    @Property(QObject, constant=True)
+    def imoCalendar(self):
+        return self._imo_calendar_manager
+
+    def _annual_calendar_events(self):
+        manager = getattr(self, "_imo_calendar_manager", None)
+        calendar = manager.calendar if manager else None
+        if calendar is None:
+            return self._events
+        return annual_meteor_events(self._events, calendar, datetime.now(self._zone()))
 
     @Property("QVariant", notify=dataChanged)
     def calendarOverview(self) -> dict:
         assigned_equipment = self._profile_assigned_equipment()
         return render_payload(self._calendar_overview_service.build(
-            events=[self._event_to_qml(event) for event in self._events],
+            events=[self._event_to_qml(event) for event in self._annual_calendar_events()],
             now=datetime.now(self._zone()),
             has_configured_equipment=any(
                 str(item.get("id", "")) != "preset:naked-eye"
@@ -4867,6 +4882,9 @@ class AppController(QObject, ObservingCalculations):
 
     @Slot()
     def stopPerformanceWorkers(self) -> None:
+        manager = getattr(self, "_imo_calendar_manager", None)
+        if manager is not None:
+            manager.stop()
         self._home_target_timing = None
         timer = getattr(self, "_home_night_plan_notification_timer", None)
         if timer is not None:

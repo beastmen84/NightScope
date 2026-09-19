@@ -669,6 +669,8 @@ def _separation_label(value: float | None) -> str:
 
 
 def _detail_subtitle(date_label: str, timing_label: str, timing_value: str) -> str:
+    if timing_value == date_label:
+        return date_label
     if timing_value:
         return tr(
             "{date} - {label}: {value}",

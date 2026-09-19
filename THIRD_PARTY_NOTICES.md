@@ -61,6 +61,14 @@ distribution.
 
 ## Python And Python Packages
 
+The unreleased IMO integration adds `pypdf` and `fonttools` for local PDF text
+extraction under BSD-3-Clause; their notices are included in the generated
+archive. It does not add Qt PDF/PDFium to the application runtime. IMO calendars
+are copyright International Meteor Organization and are not distributed with
+NightScope. They are downloaded directly to each installation's runtime cache,
+or imported from a user-selected original; limited numerical facts carry IMO
+attribution. Public availability is not asserted to grant redistribution rights.
+
 The frozen application embeds CPython and Python packages resolved from
 `astro_viewer/requirements.txt`. Their exact installed versions, declared
 licenses, copyright notices, vendored native-library notices, and license texts

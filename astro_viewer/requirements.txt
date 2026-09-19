@@ -6,6 +6,8 @@ PySide6_Addons>=6.11.2
 skyfield>=1.55
 astropy>=7.0
 requests>=2.32
+pypdf>=6.19,<7
+fonttools>=4.65,<5
 keyring>=25.0
 # Earthdata transport stack: upgrade these five constraints as one resolver unit.
 earthaccess>=0.18,<0.19

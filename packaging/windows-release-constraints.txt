@@ -18,6 +18,7 @@ charset-normalizer==3.4.9
 colorama==0.4.6
 earthaccess==0.18.0
 flatbuffers==25.12.19
+fonttools==4.65.0
 frozenlist==1.8.0
 fsspec==2026.7.0
 h3==4.5.0
@@ -42,6 +43,7 @@ propcache==0.5.2
 pycparser==3.0
 pyerfa==2.0.1.5
 pyinstaller==6.22.2
+pypdf==6.19.0
 PySide6_Addons==6.11.2
 PySide6_Essentials==6.11.2
 python-cmr==0.13.0

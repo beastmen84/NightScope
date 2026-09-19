@@ -225,6 +225,7 @@ def _build_controller(progress_callback=None):
         preferences_path=RUNTIME_PATHS.preferences_path,
         location_cache_path=RUNTIME_PATHS.location_cache_path,
         nasa_aod_cache_path=RUNTIME_PATHS.nasa_aod_cache_path,
+        imo_calendar_cache_dir=RUNTIME_PATHS.imo_calendar_cache_dir,
         transient_event_sources=(iss_pass_source, comet_window_source),
     )
     return AppController(
@@ -925,6 +926,7 @@ def run_app() -> int:
     )
 
     def startup_ready() -> None:
+        QTimer.singleShot(1500, controller.imoCalendar.start)
         _mark_startup_completed()
         logging.getLogger(__name__).info(
             "Startup first frame ready after %.3f s.",

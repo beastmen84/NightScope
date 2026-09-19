@@ -1,6 +1,15 @@
 {
   "schema_version": 1,
   "translations": {
+    "{date} (UT)": "{date} (UT)",
+    "Massimo previsto {name}": "Máximo previsto de {name}",
+    "Data indicativa dalla tabella annuale IMO; non è un istante esatto né una previsione di visibilità locale. Eventuali picchi aggiuntivi non sono importati.": "Fecha orientativa de la tabla anual de IMO; no es un instante exacto ni una previsión de visibilidad local. No se importan posibles picos adicionales.",
+    "Data del massimo (UT)": "Fecha del máximo (UT)",
+    "Da valutare con buio, radiante, Luna e meteo locali": "Evaluar según la oscuridad, el radiante, la Luna y el tiempo locales",
+    "Il tasso ZHR si riferisce a condizioni ideali, non alle meteore effettivamente visibili dalla propria località.": "La tasa ZHR se refiere a condiciones ideales, no a los meteoros realmente visibles desde su ubicación.",
+    "Calendario IMO {year}": "Calendario IMO {year}",
+    "Periodo di attività (UT)": "Periodo de actividad (UT)",
+    "ZHR di riferimento (condizioni ideali)": "ZHR de referencia (condiciones ideales)",
     "Notti di osservabilità stimata, non una finestra continua né una garanzia di visibilità. Verificare il meteo della singola notte.": "Noches de observación estimadas, no una ventana continua ni una garantía de visibilidad. Compruebe el tiempo de cada noche.",
     "La finestra raggiunge il limite del periodo analizzato e potrebbe proseguire oltre.": "La ventana alcanza el límite del periodo analizado y podría prolongarse más allá.",
     "Periodo di osservabilità stimata": "Periodo de observación estimado",
@@ -286,7 +295,7 @@
     "Timeline eventi": "Cronología de eventos",
     "30 giorni": "30 días",
     "Provider dati": "Proveedores de datos",
-    "Configura gli accessi opzionali ai servizi esterni.": "Configure el acceso opcional a servicios externos.",
+    "Fonti esterne, calendari scaricati e accessi opzionali.": "Fuentes externas, calendarios descargados y accesos opcionales.",
     "NASA Earthdata": "NASA Earthdata",
     "Connessione LAADS verificata": "Conexión con LAADS verificada",
     "Accesso opzionale ai dati VIIRS e AOD": "Acceso opcional a los datos VIIRS y AOD",
@@ -922,6 +931,27 @@
     "Piano non disponibile": "Plan no disponible"
   },
   "contexts": {
+    "DataProvidersPage": {
+      "Importa il calendario IMO dell'anno corrente": "Importar el calendario IMO del año actual",
+      "Calendari PDF (*.pdf)": "Calendarios PDF (*.pdf)",
+      "IMO · International Meteor Organization": "IMO · International Meteor Organization",
+      "Calendario annuale degli sciami meteorici · Nessun account richiesto": "Calendario anual de lluvias de meteoros · Sin necesidad de cuenta",
+      "Sito ufficiale": "Sitio oficial",
+      "Caricamento": "Cargando",
+      "Aggiornato": "Actualizado",
+      "Anno precedente": "Año anterior",
+      "Importazione non riuscita": "Error de importación",
+      "In attesa": "En espera",
+      "Non disponibile": "No disponible",
+      "Calendario IMO %1 · %2 sciami principali": "Calendario IMO %1 · %2 lluvias principales",
+      "Calendario %1 non ancora scaricato": "Calendario %1 aún no descargado",
+      "Salvato il %1": "Guardado el %1",
+      "Download automatico una sola volta per anno, dopo l'avvio. Al cambio d'anno il calendario precedente viene eliminato solo quando il nuovo è stato scaricato e verificato. Le date IMO restano previsioni, non garanzie di osservabilità.": "Descarga automática una sola vez al año, después del inicio. Al cambiar de año, el calendario anterior solo se elimina cuando se ha descargado y validado el nuevo. Las fechas de IMO siguen siendo previsiones, no garantías de observabilidad.",
+      "PDF non valido o di un altro anno. Il calendario già presente è stato conservato.": "PDF no válido o de otro año. Se ha conservado el calendario existente.",
+      "Il calendario dell'anno corrente non è disponibile. Nuovo tentativo automatico entro 24 ore; nel frattempo restano le ricorrenze indicative. Puoi importare il PDF originale IMO se lo hai già scaricato.": "El calendario del año actual no está disponible. Se volverá a intentar automáticamente en un plazo de 24 horas; mientras tanto, se mantienen las fechas recurrentes orientativas. Puede importar el PDF original de IMO si ya lo ha descargado.",
+      "Riprova": "Reintentar",
+      "Importa PDF": "Importar PDF"
+    },
     "ObjectDetailPage": {
       "Calante": "Gibosa menguante",
       "Gibbosa": "Gibosa creciente"

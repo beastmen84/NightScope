@@ -1631,7 +1631,7 @@ def test_internal_read_models_receive_canonical_unrendered_payloads() -> None:
     assert "events=self.events" not in source
     assert "self.homeObservingOverview" not in source
     assert "self.activeEquipmentProfile" not in source
-    assert "events=[self._event_to_qml(event) for event in self._events]" in source
+    assert "events=[self._event_to_qml(event) for event in self._annual_calendar_events()]" in source
 
 
 def test_translation_assets_are_packaged_and_sidebar_exposes_selector() -> None:

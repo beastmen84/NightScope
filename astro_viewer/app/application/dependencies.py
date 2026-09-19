@@ -40,6 +40,7 @@ from astro_viewer.app.services.best_object_nsom_ranking import (
     BestObjectNsomSelectionService,
 )
 from astro_viewer.app.services.calendar_overview import CalendarOverviewService
+from astro_viewer.app.services.imo_calendar import ImoCalendarStore
 from astro_viewer.app.services.catalogue_detail_service import CatalogueDetailService
 from astro_viewer.app.services.catalogue_query_service import CatalogueQueryService
 from astro_viewer.app.services.earthdata_credentials import (
@@ -169,6 +170,7 @@ class AppControllerDependencies:
     home_observing_overview_service: HomeObservingOverviewService
     home_night_plan_overview_service: HomeNightPlanOverviewService
     calendar_overview_service: CalendarOverviewService
+    imo_calendar_store: ImoCalendarStore
     night_planner_service: NightPlannerService
     sky_compass_service: SkyCompassService
     observing_object_detail_service: ObservingObjectDetailService
@@ -189,6 +191,7 @@ def build_app_controller_dependencies(
     preferences_path: Path | None = None,
     location_cache_path: Path | None = None,
     nasa_aod_cache_path: Path | None = None,
+    imo_calendar_cache_dir: Path | None = None,
     best_object_nsom_selection_service: BestObjectNsomSelectionService | None = None,
     home_recommended_deep_sky_nsom_ranking_service: (
         HomeRecommendedDeepSkyNsomRankingService | None
@@ -351,6 +354,7 @@ def build_app_controller_dependencies(
         home_observing_overview_service=HomeObservingOverviewService(),
         home_night_plan_overview_service=HomeNightPlanOverviewService(),
         calendar_overview_service=CalendarOverviewService(),
+        imo_calendar_store=ImoCalendarStore(imo_calendar_cache_dir or database_path.parent / "imo_calendar"),
         night_planner_service=night_planner_service,
         sky_compass_service=resolved_sky_compass_service,
         observing_object_detail_service=ObservingObjectDetailService(),

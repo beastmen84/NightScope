@@ -5,6 +5,59 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Unreleased Automatic IMO Calendar
+
+The 2026-09-19 source-only integration follows `873e927`. The current-year IMO
+calendar is loaded in a dedicated worker after the first frame; validated local
+files are reused across starts, and a new edition is installed before old owned
+files are removed. The provider card exposes cache status and optional import.
+See `IMO_CALENDAR.md` for parsing, retry, licensing and scientific boundaries.
+VERSION/dist remain 1.46.21; no bundle rebuild or publication is included.
+
+Full `tools/run_checks.py --security`: **2,103 tests and ten subtests pass** in
+326.31 s, with **87%** overall coverage (19,956 / 22,894 statements). New module
+coverage: calendar store/parser **96%**, meteor overlay **100%**, Qt manager
+**92%**. Static, data, dependency and licence-archive checks pass; pip-audit
+reports no known vulnerabilities. Isolated backend / normal QML / red-night
+QML smokes pass in 16.2 / 15.2 / 16.3 s. Inventory: 282 Python / 36 QML /
+17 operational files. `OPENBLAS_NUM_THREADS=1` was set for this validation,
+not as an application performance measurement. Final evidence:
+`build/imo-20260919/full-source-gate-final.log`.
+
+Offline regressions use generated synthetic PDFs rather than republished IMO
+documents. They cover once-per-year/restart reuse, persisted retry deadlines,
+safe rollover, wrong years, malformed/partial tables, HTML maintenance responses,
+network/disk failures, atomic replacement, cleanup ownership, URL/response limits,
+manual import and source preservation. Qt checks exercise responsiveness during
+a blocked worker, duplicate requests, year changes during a download and shutdown.
+Presentation checks prohibit fabricated exact peak times and preserve non-meteor
+events. Earlier in-progress runs exposed old provider-count/dependency expectations
+and translation-review issues; these were corrected before the final complete run.
+The final provider/tooling/translation rerun also passes **125** tests in 14.65 s
+after the documentation update (`final-focused-checks.log`).
+
+Additional real-source validation parses all ten supported rows in the user's
+2026 PDF and the official 2027 PDF, including year-spanning activity and `+` ZHR
+qualifiers. A simulated 2027 rollover downloads the live official publication,
+validates it before deleting the disposable 2026 cache, and makes no new request
+on restart. The original user PDF is unchanged. The current official 2026 URL
+returns HTML during site restoration, so a working automatic 2026 download is
+not claimed; the optional import provides recovery. See `real-source-validation.log`.
+
+Independent read-only comparison with Git `873e927` across Addis Ababa, Rome
+(DST night) and Cape Town enables all **7,585** catalogue objects: **14,725**
+ranked target records match all fields/order, as do all Solar System/Moon fields
+and **261** annual engine events. The real IMO overlay separately preserves every
+non-meteor event object and field. Annual meteor dates/activity/ZHR deliberately
+change when a matching edition is available. Evidence: `scientific-parity.log`.
+
+IT/EN/ES: **2,154** complete, reviewed and compiled messages each. Seven offscreen
+visual checks at 1040 px cover all three languages, normal/red-night mode,
+ready/unavailable/stale/invalid-import states and the meteor detail page. There
+are no QML warnings (`visual-qa-final.log`); the source tables are also visually
+cross-checked. The four development-runtime files and user PDF preserve their
+original SHA-256 hashes. Source validation is not validation of a new distribution.
+
 ## Unreleased Recommendation Guidance Audit
 
 Follow-up to `80cdb32`, existing inputs only; implementation policy and remaining

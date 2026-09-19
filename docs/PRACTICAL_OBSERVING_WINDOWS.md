@@ -190,7 +190,8 @@ Only genuinely free sources compatible with NightScope's distribution may be
 considered. Free trials, payment-dependent tiers and Meteoblue are excluded.
 Free access alone does not establish permission to redistribute a dataset:
 licence, attribution, quotas and non-commercial restrictions must be checked
-before enabling a provider. Annual meteor data, observed comet brightness and
+before enabling a provider. The subsequent local-only annual meteor calendar
+integration is documented in `IMO_CALENDAR.md`; observed comet brightness and
 specialised atmospheric estimates remain subsequent work, not implemented here.
 Any future integration must use cached/offline fallback data and avoid adding
 network waits to startup. The existing Meteoblue-named compatibility placeholder

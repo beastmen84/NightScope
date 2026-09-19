@@ -1,9 +1,10 @@
-// Purpose: Present Earthdata and OpenAQ credential setup and connection status.
+// Purpose: Present credential setup and the automatic annual IMO calendar cache.
 // Contract: Credentials cross only controller APIs; secure storage and provider tests stay in services.
 
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Dialogs
 import "../components"
 
 Item {
@@ -12,6 +13,14 @@ Item {
     property var controller
     readonly property string earthdataRegistrationUrl: "https://urs.earthdata.nasa.gov/users/new"
     readonly property string openAQRegistrationUrl: "https://explore.openaq.org/register"
+    readonly property var imo: controller.imoCalendar.info
+
+    FileDialog {
+        id: imoImportDialog
+        title: qsTr("Importa il calendario IMO dell'anno corrente")
+        nameFilters: [qsTr("Calendari PDF (*.pdf)")]
+        onAccepted: controller.imoCalendar.importFile(selectedFile)
+    }
 
     AppTheme {
         id: theme
@@ -50,7 +59,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: qsTr("Configura gli accessi opzionali ai servizi esterni.")
+                        text: qsTr("Fonti esterne, calendari scaricati e accessi opzionali.")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight
@@ -65,6 +74,80 @@ Item {
                 columns: scroll.availableWidth >= 1320 ? 2 : 1
                 columnSpacing: 16
                 rowSpacing: 16
+
+                GlassCard {
+                    id: imoCard
+                    Layout.fillWidth: true
+                    Layout.columnSpan: parent.columns
+                    title: qsTr("IMO · International Meteor Organization")
+                    subtitle: qsTr("Calendario annuale degli sciami meteorici · Nessun account richiesto")
+                    subtitleWrap: true
+                    accentColor: root.imo.busy ? theme.cyan : root.imo.current ? theme.green : theme.amber
+                    accentMeaningful: true
+                    headerActionText: qsTr("Sito ufficiale")
+                    headerActionWidth: 148
+                    onHeaderActionClicked: Qt.openUrlExternally(root.imo.sourceUrl)
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 12
+                        StatusPill {
+                            text: root.imo.state === "loading" ? qsTr("Caricamento")
+                                  : root.imo.state === "ready" ? qsTr("Aggiornato")
+                                  : root.imo.state === "stale" ? qsTr("Anno precedente")
+                                  : root.imo.state === "invalid_import" ? qsTr("Importazione non riuscita")
+                                  : root.imo.state === "pending" ? qsTr("In attesa") : qsTr("Non disponibile")
+                            accentColor: imoCard.accentColor
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            text: root.imo.year ? qsTr("Calendario IMO %1 · %2 sciami principali").arg(root.imo.year).arg(root.imo.count)
+                                                : qsTr("Calendario %1 non ancora scaricato").arg(root.imo.requestedYear)
+                            color: theme.textPrimary
+                            font.pixelSize: 14
+                            wrapMode: Text.WordWrap
+                        }
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.imo.year > 0
+                        text: root.imo.filename + " · " + qsTr("Salvato il %1").arg(root.imo.downloadedAt ? new Date(root.imo.downloadedAt).toLocaleString(Qt.locale(), Locale.ShortFormat) : "")
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        text: qsTr("Download automatico una sola volta per anno, dopo l'avvio. Al cambio d'anno il calendario precedente viene eliminato solo quando il nuovo è stato scaricato e verificato. Le date IMO restano previsioni, non garanzie di osservabilità.")
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.imo.state === "unavailable" || root.imo.state === "stale" || root.imo.state === "invalid_import"
+                        text: root.imo.state === "invalid_import"
+                              ? qsTr("PDF non valido o di un altro anno. Il calendario già presente è stato conservato.")
+                              : qsTr("Il calendario dell'anno corrente non è disponibile. Nuovo tentativo automatico entro 24 ore; nel frattempo restano le ricorrenze indicative. Puoi importare il PDF originale IMO se lo hai già scaricato.")
+                        color: theme.amber
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 12
+                        DarkButton {
+                            text: qsTr("Riprova")
+                            enabled: !root.imo.busy && !root.imo.current
+                            onClicked: controller.imoCalendar.retry()
+                        }
+                        DarkButton {
+                            text: qsTr("Importa PDF")
+                            enabled: !root.imo.busy
+                            onClicked: imoImportDialog.open()
+                        }
+                    }
+                }
 
                 GlassCard {
                     id: earthdataCard

@@ -68,6 +68,7 @@ REQUIRED_DATA_FILES = {
     "mpc_observatories_seed.csv",
 }
 FORBIDDEN_RUNTIME_ENTRIES = {
+    "imo_calendar",
     "user_images",
     "location_cache.json",
     "logs",

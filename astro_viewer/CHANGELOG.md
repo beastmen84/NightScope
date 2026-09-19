@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Provider IMO senza account: calendario dell'anno corrente scaricato una sola
+  volta in background, riutilizzato ai riavvii e sostituito al cambio d'anno
+  solo dopo validazione del nuovo PDF. Scheda Provider dati con anno, file,
+  data e stato; importazione locale facoltativa durante i disservizi della fonte.
+- I dieci sciami principali usano date annuali IMO, periodo di attività e ZHR
+  qualificato quando il calendario corrispondente è disponibile. Nessun falso
+  orario preciso o conteggio locale garantito; altri anni restano indicativi.
+  Calcoli astronomici, ottica e punteggi invariati. Vedi `docs/IMO_CALENDAR.md`.
 - Audit delle raccomandazioni con le fonti esistenti: il piano interseca le
   finestre dei bersagli con le ore meteo utilizzabili, senza riempire buchi
   delle previsioni. Gli input orari sono isolati negli snapshot dei worker;
