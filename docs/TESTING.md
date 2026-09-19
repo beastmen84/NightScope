@@ -5,6 +5,63 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Local Windows Test Bundle - 2026-09-19
+
+Rebuilt from clean source **`3fd68e6`**, including the unreleased startup,
+recommendation, observing-window and IMO changes. The final directory is
+**`dist/NightScope`**. Its embedded version remains **1.46.21** for this local
+test build; it is not the published 1.46.21 artifact and was not uploaded.
+No application source, version, Linux artifact, archive, tag or release changed.
+The preceding 2,103-test/security source gate remains applicable: every packaged
+application code object and declared source asset is checked against that source.
+
+The build used Python 3.14.5, PyInstaller 6.22.2 and hooks-contrib 2026.7, with
+the official spec/clean build, licence check, legal-file copy and bundle audit.
+While awaiting the user's data-reset confirmation, the PyInstaller command used
+`--distpath build/windows-dist-imo-20260919/staging` instead of overwriting the
+old directory. The resulting validated directory was then moved into place.
+
+- **5,192 files / 434,674,832 bytes**.
+- Executable SHA-256:
+  `a6813bc3e152f5815a6dc538646a9a7e72e3b1762bdab8dd9ed410eb72aa491a`.
+- All **109** declared assets, **five** legal files, **137** application modules
+  and the startup entry point match source. Qt Positioning, credential/timezone
+  backends and the new `pypdf`/`fontTools` modules are present.
+- Staged, copied and final pristine Qt/legal/runtime audits pass. The existing
+  Qt PDF image codec is byte-identical to the previous bundle; the IMO reader
+  does not introduce a `QtPdf.pyd` binding. An initial extra QA assertion wrongly
+  assumed that the old bundle contained no PDF codec and was corrected after
+  directly comparing both artifacts.
+- Packaged backend / normal QML / red-night QML smokes pass in **40.46 / 34.93 /
+  32.05 s**, each with a separate new runtime, empty stderr and clean runtime
+  logs. These are full fresh-runtime checks, not an application startup benchmark.
+  All three DBs pass integrity, foreign keys, schema 27, image counts and exact
+  source parity for 323 descriptions and 323 curiosities.
+- An additional disposable QML entry point exercises the unchanged frozen Python
+  and production provider page: importing the user's real 2026 PDF and a new
+  process reusing it both pass. The restart leaves its SHA-256 and modification
+  time unchanged. Normal/red screenshots are visually checked. These checks do
+  not exercise the native file-picker dialog or a complete provider/UI matrix.
+  The harness needs explicit Windows fonts and Qt stderr capture under offscreen
+  QPA; final diagnostics contain only the expected unsupported-size-hint message
+  and QA success markers. The production bundle does not contain the harness.
+
+The user explicitly requested a fresh start and no old-dist backup. Environment
+policy blocked recursive deletion; the **user deleted the old distribution**, and
+the new clean bundle was installed at the usual path. No old DB/settings/cache
+were copied and no backup of that distribution was created. The four checked
+development-runtime files and original user PDF retain their pre-build hashes.
+
+Evidence: `build/windows-dist-imo-20260919/` (`build.log`, `final-source-parity.log`,
+`final-bundle-audit.log`, `packaged-smokes.log`, `database-validation.log`,
+`imo-import.log`, `imo-reuse.log` and screenshots). Recursive cleanup of the
+disposable QA copy was also blocked by environment policy; it remains at
+`C:\Users\beast\AppData\Local\Temp\nightscope-imo-dist-qa-8f302ca644714d05ac462cd8146669f7`.
+This contains only the new test copy and generated runtimes, not the old user's
+distribution or a backup of it. It may be removed manually with NightScope closed.
+The final documentation/tooling recheck passes **50 tests** in 11.12 s
+(`documentation-recheck.log`); `git diff --check` also passes.
+
 ## Unreleased Automatic IMO Calendar
 
 The 2026-09-19 source-only integration follows `873e927`. The current-year IMO

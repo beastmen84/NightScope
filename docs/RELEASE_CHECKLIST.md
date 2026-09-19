@@ -3,9 +3,14 @@
 This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
-Current target: `v1.46.21` (published for Windows only). Local `dist/NightScope` contains
-the 1.46.19-1.46.21 performance changes. Scope and remaining gates are in
-`REVIEW_HOME_PERFORMANCE_1_46_21.md`; this is not publication approval.
+Current target: `v1.46.21` (published for Windows only).
+On 2026-09-19, local `dist/NightScope` was rebuilt from `3fd68e6` for user testing
+and now includes the unreleased startup/recommendation/IMO changes. Its version
+metadata still says 1.46.21, but it is NOT the published artifact or its matching
+tag. Scoped packaged checks pass; see the latest Windows-bundle section in
+`TESTING.md`. No new publication, ZIP, tag, version bump or Linux build is implied.
+The remaining checklist retains dated public-release evidence, not automatic
+approval to publish the current test directory.
 Current public Windows release: `v1.46.21`. Current public Linux release: `v1.43.0`.
 The user published `v1.46.21` on 2026-09-07 for Windows only. GitHub exposes one
 `NightScope-v1.46.21-windows-x64.zip` asset and tag `v1.46.21` at `f6b45e9`.
@@ -115,7 +120,7 @@ Do not commit credentials or exact personal locations.
 
 ## 6. Windows Artifact
 
-The local Windows dist was rebuilt on 2026-09-07 from clean `66c4b5a`, version
+The historical release build was produced on 2026-09-07 from clean `66c4b5a`, version
 `1.46.21`, after a fresh full source gate and two full-catalogue QML review runs.
 Artifact identity and scoped validation are in `REVIEW_HOME_PERFORMANCE_1_46_21.md`,
 TESTING and the handoff. These checks approve only their stated scope, not

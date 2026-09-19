@@ -13,6 +13,21 @@ Updated: 2026-09-19
 
 ## Current State
 
+- Local Windows test bundle rebuilt on 2026-09-19 from clean `3fd68e6`, including
+  all recent unreleased changes, now installed at `dist/NightScope`. Embedded
+  version remains 1.46.21; this is NOT the published 1.46.21 artifact. No new
+  release, ZIP, tag, push, Linux build or version bump. The user requested a
+  clean start without backup and personally deleted the old dist after the
+  environment blocked recursive deletion. No old runtime was transferred.
+  Final audit and source parity pass: 5,192 files / 434,674,832 bytes, 109 assets,
+  five legal files, 137 application modules and startup entry point match.
+  EXE SHA-256: `a6813bc3e152f5815a6dc538646a9a7e72e3b1762bdab8dd9ed410eb72aa491a`.
+  Three packaged smokes plus fresh DB integrity/editorial/image checks pass.
+  Packaged IMO import/restart and normal/red screenshots pass; cache hash/mtime
+  are unchanged on reuse. Source runtime and original PDF hashes are unchanged.
+  Evidence: `build/windows-dist-imo-20260919/`. The temporary QA copy could not
+  be deleted by the environment; its exact path and manual cleanup note are in
+  `docs/TESTING.md`. No application code changed during this rebuild.
 - Unreleased IMO integration after `873e927`: the current PC-year calendar is
   downloaded once in a dedicated worker after the first frame and reused across
   restarts. A new validated PDF is installed atomically before removing older
@@ -33,8 +48,8 @@ Updated: 2026-09-19
   IT/EN/ES: 2,154 complete compiled messages; seven visual checks, no QML
   warnings. Evidence: `build/imo-20260919/`; details in `docs/TESTING.md`.
   Development DB/backup/preferences/location cache and the supplied PDF retain
-  their hashes. VERSION/dist/public Windows release remain 1.46.21; no rebuild,
-  push, tag or publication. Consult current Git state for the local commit.
+  their hashes. Public Windows release remains 1.46.21; the subsequent local
+  test-bundle rebuild is recorded above. Consult current Git state for commits.
 - Unreleased existing-data recommendation audit after `80cdb32`: hourly weather
   intersects target intervals before planner selection, with immutable context
   capture in both worker paths. Missing seeing is explicit `n/d`; neutral
@@ -608,7 +623,10 @@ diagnostics and passed five focused scenarios. The standard runner now reports
 slow test phases without narrowing selection or disabling coverage. See
 `docs/TESTING.md` for the fixture contract and measured scope.
 
-### Local Windows Bundle For User Testing - 1.46.21
+### Historical Windows Bundle For User Testing - 1.46.21 (2026-09-07)
+
+Superseded locally by the 2026-09-19 test rebuild recorded in Current State and
+TESTING. The public release is unchanged; the following evidence remains historical.
 
 The official build was started from clean `66c4b5a` on 2026-09-07 after a
 fresh source review/security gate and two full-catalogue QML reruns passed.
