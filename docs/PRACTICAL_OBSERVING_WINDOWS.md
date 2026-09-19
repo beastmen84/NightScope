@@ -11,7 +11,8 @@ published Windows bundle. No release, push, website change or dist rebuild.
   hourly forecasts split them. At least two consecutive hourly samples must
   satisfy cloud cover <=35%, precipitation probability <=20%, wind <=20 km/h
   and the existing humidity-aware hourly weather score >=70. These are
-  presentation thresholds, not changes to session admission, NSOM or planning.
+  presentation thresholds, distinct from the usable-weather planner policy
+  documented in the follow-up audit below. NSOM/session admission is unchanged.
   Forecasts are not guarantees, and good weather is not a claim of astronomical
   darkness, favourable Moon position or target visibility.
 - The Home header shows the existing **astronomical darkness** interval
@@ -28,8 +29,8 @@ published Windows bundle. No release, push, website change or dist rebuild.
 - Comet cards show the favourable observing-night period, not the final
   highest-altitude sample as an absolute best date. The original `peak_at`
   remains technical metadata. The magnitude envelope covers the selected
-  group, not only its peak. The 90-day calculation horizon is displayed, with
-  an explicit warning when the selected group reaches its end. No claim is
+  nights, not only the highest-altitude night. The 90-day calculation horizon
+  is displayed, with an explicit warning when the last group reaches its end. No claim is
   made about the following months or uninterrupted day-and-night visibility.
 
 ## Planetary periods
@@ -124,3 +125,76 @@ This is roughly 1.1-1.7 s of additional annual analysis, **not** a whole-app
 startup benchmark or a speed improvement. Numerical arrays are cached; the
 normal desktop runs this work in the existing astronomy worker, not in QML
 getters. Existing startup/network limits are not claimed to be resolved here.
+
+## Follow-up guidance audit: existing data only
+
+Baseline `80cdb32`, 2026-09-19. This second pass intentionally changes which
+times/targets enter the plan and which comet nights pass the duration policy;
+it is not a claim of identical guidance. Astronomical positions, ephemerides,
+optical formulas, NSOM arithmetic and equipment scoring are not changed.
+
+- The planner intersects each target's useful astronomical interval with
+  usable hourly forecast bins before choosing up to four targets. It keeps
+  the original time when usable; otherwise chooses the closest usable time.
+  Usable means the existing weather policy: clouds <=65%, precipitation
+  probability <=35%, wind <=28 km/h and hourly weather score >=45. These are
+  not the stricter **good-window** thresholds. Bad, invalid and missing hours
+  are not bridged. Each row covers at most one elapsed hour, clipped by the
+  following row, the night, the target window and the current time. Duplicate
+  conflicts are conservative; UTC comparison preserves explicit DST folds,
+  while offset-free ambiguous/nonexistent hours are rejected.
+- A production refresh always snapshots the hourly forecast as an immutable
+  tuple and includes it in the catalogue runtime signature. An empty forecast
+  cannot substantiate a plan. `None` retains compatibility only for older
+  service adapters without an hourly contract. Both synchronous and detached
+  catalogue/observing paths pass the same inputs. Existing nightly weather
+  blocking remains; this is not a new global scheduler, slew/exposure budget,
+  hourly NSOM model or rescore of target-specific lunar geometry at the moved
+  instant. The plan labels direction as **now**, because it is current azimuth,
+  not the azimuth forecast for the scheduled time.
+- Comet windows stop at the last passing sample, not 30 minutes after it.
+  At least 60 minutes must be spanned by valid samples (three points at the
+  existing half-hour cadence). This conservative grid can miss short/grazing
+  opportunities; it no longer awards an unverified extra half-hour. All useful
+  groups are retained, with gaps and one aggregate event per comet. Existing
+  magnitude/geometry thresholds and the 12-comet display cap remain. As before,
+  the longest useful sampled interval represents each observing night.
+- Comet details show the next local sampled interval, plus an explicit local
+  reference time for solar elongation and lunar data from that first night.
+  Maximum altitude is still labelled as the maximum over the analysis period;
+  `peak_at` remains technical metadata. The magnitude range is rounded outward
+  from the model values at nightly altitude peaks across **all** retained nights.
+  The arbitrary extra +/-1 magnitude padding is removed: this is a model range,
+  not a confidence interval or a guarantee of visual detectability. Equipment
+  text refers to the first night. Actual comet brightness remains uncertain.
+- Missing seeing inputs carry explicit availability metadata. QML/Home display
+  `n/d`, not the internal neutral 50/100 fallback as a real forecast. A partial
+  deep-sky diagnosis does not display a complete numeric score. The fallback
+  remains unchanged inside NSOM/optical calculations. Available seeing is
+  explicitly an empirical estimate, not measured turbulence or an arcsecond
+  forecast; users are advised to check the image at the eyepiece.
+- The compact Moon card describes **potential** interference from illumination,
+  conditional on altitude/time and angular distance to the target. It does not
+  calculate a new Moon-free period or imply interference all night. Existing
+  per-target lunar geometry remains in recommendations. At narrow widths the
+  decorative icon is omitted so rise/set times retain space. Meteor-shower
+  maxima are explicitly indicative: dates and observing-clock templates are
+  still recurring approximations, not an annual IMO prediction.
+- IT/EN/ES translations are manually reviewed and compiled. Event detail avoids
+  repeating the same comet period in three different blocks. No provider,
+  dependency, network request, database schema or startup calculation is added.
+
+### Subsequent data-source policy
+
+Only genuinely free sources compatible with NightScope's distribution may be
+considered. Free trials, payment-dependent tiers and Meteoblue are excluded.
+Free access alone does not establish permission to redistribute a dataset:
+licence, attribution, quotas and non-commercial restrictions must be checked
+before enabling a provider. Annual meteor data, observed comet brightness and
+specialised atmospheric estimates remain subsequent work, not implemented here.
+Any future integration must use cached/offline fallback data and avoid adding
+network waits to startup. The existing Meteoblue-named compatibility placeholder
+only calls the local basic estimator; it is not a Meteoblue API integration.
+
+Evidence for this follow-up is under `build/recommendation-guidance-20260919/`.
+Current validation results are recorded in `TESTING.md` and the handoff.

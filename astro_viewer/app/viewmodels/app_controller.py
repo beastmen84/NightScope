@@ -3678,6 +3678,7 @@ class AppController(QObject, ObservingCalculations):
             tr("Configura una località."),
             "unavailable",
             "unavailable",
+            available=False,
         )
         self._category_scores = ObservingCategoryScores(
             0,
@@ -3876,6 +3877,7 @@ class AppController(QObject, ObservingCalculations):
                 )
             ),
             weather_summary=self._weather_summary,
+            weather_hours=tuple(self._weather_hours),
             current_telescope=self._current_telescope(),
             observing_night_window=self._observing_night_window,
             telescopes_by_id=tuple(
@@ -3908,6 +3910,7 @@ class AppController(QObject, ObservingCalculations):
             id(getattr(self, "_seeing_transparency", None)),
             id(getattr(self, "_sky_quality", None)),
             id(getattr(self, "_weather_summary", None)),
+            tuple(getattr(self, "_weather_hours", ())),
             id(getattr(self, "_moon", None)),
             id(getattr(self, "_nasa_aod_result", None)),
             id(getattr(self, "_local_atmosphere", None)),

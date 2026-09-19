@@ -131,8 +131,8 @@ def test_moon_summary_describes_only_lunar_impact() -> None:
     )
 
     assert payload["moon"]["impact"] == "low"
-    assert payload["moon"]["impactLabel"] == "Impatto lunare basso"
-    assert payload["moon"]["summary"] == "Luna poco luminosa: impatto ridotto sul cielo profondo."
+    assert payload["moon"]["impactLabel"] == "Disturbo potenziale basso"
+    assert payload["moon"]["summary"] == "Luna poco luminosa: disturbo generalmente contenuto, da valutare per il singolo bersaglio."
     assert "Cielo favorevole" not in payload["moon"]["summary"]
 
 
@@ -195,7 +195,7 @@ def test_missing_sky_quality_marks_deep_sky_diagnostic_as_partial() -> None:
 
     assert payload["deepSky"]["state"] == "partial"
     assert payload["deepSky"]["label"] == "Parziale"
-    assert payload["deepSky"]["scoreValue"] == 86
+    assert payload["deepSky"]["scoreValue"] is None  # Do not advertise a complete numerical diagnosis.
     assert payload["deepSky"]["secondaryMetric"] == "Qualità del cielo non disponibile"
     assert payload["deepSky"]["hint"] == (
         "Inquinamento luminoso non disponibile: visibilità degli oggetti deboli da verificare"

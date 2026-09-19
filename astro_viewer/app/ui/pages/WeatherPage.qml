@@ -173,7 +173,7 @@ Item {
                 MetricTile { label: qsTr("Vento medio"); value: controller.hasValidLocation ? controller.weatherSummary.windLabel : qsTr("n/d") }
                 MetricTile { label: qsTr("Umidità media"); value: controller.hasValidLocation ? controller.weatherSummary.humidityLabel : qsTr("n/d") }
                 MetricTile { label: qsTr("Temperatura media"); value: controller.hasValidLocation ? controller.weatherSummary.temperatureLabel : qsTr("n/d") }
-                MetricTile { label: qsTr("Seeing notturno"); value: controller.hasValidLocation ? controller.seeingTransparency.seeing : qsTr("n/d") }
+                MetricTile { label: qsTr("Seeing stimato"); value: controller.hasValidLocation ? controller.seeingTransparency.seeing : qsTr("n/d") }
                 MetricTile { label: qsTr("Trasparenza notturna"); value: controller.hasValidLocation ? controller.seeingTransparency.atmosphericTransparency : qsTr("n/d") }
                 MetricTile { label: qsTr("Bortle locale"); value: root.hasSkyQuality ? controller.skyQuality.bortleLabel : qsTr("n/d") }
             }

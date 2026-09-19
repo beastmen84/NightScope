@@ -2650,7 +2650,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             events.append(
                 AstronomicalEvent(
                     id=f"shower-{shower_id}-{event_date.year}",
-                    title=tr("Massimo {name}", name=name),
+                    title=tr("Massimo indicativo {name}", name=name),
                     event_type="Sciame meteorico",
                     date_label=format_datetime(event_date, include_time=False),
                     best_time=best_time,

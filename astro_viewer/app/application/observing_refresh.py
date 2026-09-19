@@ -99,6 +99,7 @@ class ObservingRefreshCalculation(ObservingCalculations):
         self._seeing_transparency = self._context.seeing_transparency
         self._sky_quality = self._context.sky_quality
         self._weather_summary = self._context.weather_summary
+        self._weather_hours = self._context.weather_hours
         self._telescopes_by_id = dict(self._context.telescopes_by_id)
         self._recommendation_enabled_by_object_id = inputs.enabled_objects
         self._sky_compass_service = SkyCompassService()

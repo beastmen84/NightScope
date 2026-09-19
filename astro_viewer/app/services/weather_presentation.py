@@ -15,7 +15,9 @@ from astro_viewer.app.services.localization import format_number, tr
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.observing_night_service import (
     consecutive_weather_groups,
+    is_usable_weather_hour as is_usable_weather_hour,
     weather_hour_datetime,
+    weather_hour_observing_score as weather_hour_observing_score,
 )
 from astro_viewer.app.services.observing_time import parse_hour_minute
 
@@ -231,24 +233,6 @@ def good_weather_windows(hours: list[WeatherHour]) -> list[list[WeatherHour]]:
         if len(current) >= 2:
             result.append(current)
     return result
-
-
-def is_usable_weather_hour(hour: WeatherHour) -> bool:
-    return (
-        hour.precipitation_probability <= 35
-        and hour.cloud_cover <= 65
-        and hour.wind_kmh <= 28
-        and weather_hour_observing_score(hour) >= 45
-    )
-
-
-def weather_hour_observing_score(hour: WeatherHour) -> int:
-    score = 100
-    score -= min(55, round(hour.cloud_cover * 0.55))
-    score -= min(30, round(hour.precipitation_probability * 0.45))
-    score -= max(0, hour.wind_kmh - 10)
-    score -= max(0, round((hour.humidity - 70) * 0.25))
-    return max(0, min(100, score))
 
 
 def weather_slice_score(hours: list[WeatherHour]) -> float:

@@ -21,6 +21,8 @@ Item {
                                                       : ""
     readonly property bool hasDistinctWindow: root.eventWindow.length > 0
                                                       && root.eventWindow !== root.eventTimingValue
+                                                      && !root.isCometPeriod
+    readonly property bool isCometPeriod: root.hasEvent && root.eventData.typeCode === "comet_window"
 
     signal backToCalendar()
     signal openObject(string objectId)
@@ -172,7 +174,8 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.hasEvent && (root.eventData.favorablePeriodText || "").length > 0
-                        text: qsTr("Notti favorevoli: %1").arg(root.hasEvent ? (root.eventData.favorablePeriodText || "") : "")
+                        text: (root.isCometPeriod ? qsTr("Notti di osservabilità stimata: %1") : qsTr("Notti favorevoli: %1"))
+                              .arg(root.hasEvent ? (root.eventData.favorablePeriodText || "") : "")
                         color: theme.teal
                         font.pixelSize: 14
                         wrapMode: Text.WordWrap

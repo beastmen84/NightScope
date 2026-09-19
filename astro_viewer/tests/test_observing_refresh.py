@@ -62,6 +62,26 @@ def calculation(controller, **kwargs):
     )
 
 
+def test_hourly_weather_is_immutable_worker_input_and_invalidates_catalogue_context(observing_controller):
+    from astro_viewer.tests.test_recommendation_guidance_audit import NIGHT, START, hour
+
+    controller = observing_controller
+    controller._observing_night_window = NIGHT
+    controller._weather_hours = [hour(START)]
+    signature = controller._catalogue_recommendation_runtime_signature()
+    worker = calculation(controller, rebuild_equipment=False, apply_pollution=False, recalculate_outputs=True)
+    controller._weather_hours[:] = [hour(START, 100)]
+    assert controller._catalogue_recommendation_runtime_signature() != signature
+    assert worker._weather_hours == (hour(START),)
+    with pytest.MonkeyPatch.context() as monkeypatch:
+        planner = Mock(wraps=controller._night_planner_service.plan)
+        monkeypatch.setattr(controller._night_planner_service, "plan", planner)
+        worker.calculate()
+        assert planner.call_args.kwargs["weather_hours"] == (hour(START),)
+        controller._recalculate_observing_outputs()
+        assert planner.call_args.kwargs["weather_hours"] == [hour(START, 100)]
+
+
 @pytest.mark.parametrize("rebuild,pollution,outputs", [(True, False, True), (True, True, True),
                                                       (False, False, True), (True, True, False)])
 @pytest.mark.parametrize("optical", [False, True])

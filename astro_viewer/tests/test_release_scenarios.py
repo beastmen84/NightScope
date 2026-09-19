@@ -37,9 +37,22 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertGreater(len(controller.solarSystemObjects), 0)
             self.assertGreater(len(controller.weatherHourly), 0)
             self.assertNotIn("NightScope could not update all data", controller.serviceStatus)
+            # Core weather is valid but the fixture omits seeing-specific fields.
+            self.assertEqual(controller.homeObservingOverview["planetary"]["state"], "unavailable")
+            self.assertEqual(controller.homeObservingOverview["deepSky"]["state"], "unavailable")
+            self.assertEqual(controller.seeingTransparency["seeing"], "n/d")
+            self.assertTrue(controller.homeObservingOverview["weather"]["available"])
+
+    def test_complete_atmospheric_forecast_keeps_seeing_available(self) -> None:
+        response = _valid_weather_response()
+        hourly = response.json.return_value["hourly"]
+        hourly.update(cloud_cover_low=[5] * 48, cloud_cover_mid=[5] * 48, cloud_cover_high=[8] * 48,
+                      wind_gusts_10m=[10] * 48, dew_point_2m=[10] * 48)
+        with self._controller_with_weather(response) as controller:
+            controller.setManualLocation("9.03", "38.74", "Addis Ababa")
             self.assertEqual(controller.homeObservingOverview["planetary"]["state"], "available")
             self.assertEqual(controller.homeObservingOverview["deepSky"]["state"], "partial")
-            self.assertEqual(controller.homeObservingOverview["deepSky"]["label"], "Parziale")
+            self.assertTrue(controller.seeingTransparency["available"])
 
     def test_home_overview_separates_session_weather_and_category_diagnostics(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:
@@ -515,7 +528,7 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn('text: qsTr("Sintesi notte osservativa")', qml)
         self.assertIn('label: qsTr("Nuvolosità media")', qml)
         self.assertIn('label: qsTr("Precipitazioni max")', qml)
-        self.assertIn('label: qsTr("Seeing notturno")', qml)
+        self.assertIn('label: qsTr("Seeing stimato")', qml)
         self.assertIn(
             "controller.seeingTransparency.atmosphericTransparency",
             qml,

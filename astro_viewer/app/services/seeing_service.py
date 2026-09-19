@@ -69,6 +69,7 @@ class BasicForecastSeeingProvider:
                 tr("Dati meteo insufficienti."),
                 source=self.name,
                 confidence="low",
+                available=False,
             )
 
         avg_wind = self._average_weather_value(observing_hours, "wind_kmh")
@@ -211,6 +212,7 @@ class MeteoblueSeeingProviderPlaceholder:
             source=self.name,
             confidence="low",
             atmospheric_transparency_score=result.atmospheric_transparency_score,
+            available=result.available,
         )
 
 

@@ -322,9 +322,7 @@ class Phase6RealDataTests(unittest.TestCase):
             controller._deep_sky = [target]
             controller._selected_object = target
             controller._observing_night_window = _test_night_window()
-            controller._weather_hours = [
-                WeatherHour("2026-06-21T22:00", "22:00", 8, 0, 4, 45, 14.0, 20_000)
-            ]
+            controller._weather_hours = _test_night_weather()
             controller._weather_summary = controller._score_service.weather_score(
                 controller._weather_hours,
                 controller._moon,
@@ -365,7 +363,9 @@ class Phase6RealDataTests(unittest.TestCase):
                 )
             )
 
-    def test_active_profile_barlow_assignment_refreshes_home_and_detail_without_restart(self) -> None:
+    @patch("astro_viewer.app.services.night_planner_service.datetime", wraps=datetime)
+    def test_active_profile_barlow_assignment_refreshes_home_and_detail_without_restart(self, planner_clock) -> None:
+        planner_clock.now.side_effect = lambda tz=None: _test_night_window().start.replace(hour=20).astimezone(tz)
         with _controller() as controller:
             controller.addTelescopeModel("Refresh", "Maksutov 90/1250", "Maksutov", "90", "1250", "manuale", "")
             controller.addEyepieceModel(
@@ -412,9 +412,8 @@ class Phase6RealDataTests(unittest.TestCase):
             )
             controller._seeing_service.estimate.return_value = seeing
             controller._seeing_transparency = seeing
-            controller._weather_hours = [
-                WeatherHour("2026-06-21T22:00", "22:00", 8, 0, 4, 45, 14.0, 20_000)
-            ]
+            controller._observing_night_window = _test_night_window()
+            controller._weather_hours = _test_night_weather()
             controller._weather_summary = controller._score_service.weather_score(
                 controller._weather_hours,
                 controller._moon,
@@ -1919,6 +1918,7 @@ class Phase6RealDataTests(unittest.TestCase):
             )
             controller._observing_night_window = _test_night_window()
             # This test isolates catalogue exclusion, not unavailable seeing.
+            controller._weather_hours = _test_night_weather()
             # Zero-opportunity rows are now correctly rejected by the planner.
             controller._seeing_transparency = SeeingTransparency(
                 "Good", "Good", 80, 80, "test conditions",
@@ -3516,6 +3516,13 @@ def _test_night_window() -> ObservingNightWindow:
     start_date = now.date() - timedelta(days=1) if now.hour < 8 else now.date()
     start = datetime.combine(start_date, datetime.min.time(), tzinfo=zone).replace(hour=18)
     return ObservingNightWindow.bounded(start, start + timedelta(hours=13))
+
+
+def _test_night_weather() -> list[WeatherHour]:
+    """Substantiate the fixture targets' 21-23 window on the same night."""
+    start = _test_night_window().start.replace(hour=21)
+    return [WeatherHour((start + timedelta(hours=index)).isoformat(), f"{21 + index}:00",
+                        8, 0, 4, 45, 14.0, 20_000) for index in range(2)]
 
 
 def _planet(

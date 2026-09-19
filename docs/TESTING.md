@@ -5,6 +5,48 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Unreleased Recommendation Guidance Audit
+
+Follow-up to `80cdb32`, existing inputs only; implementation policy and remaining
+limits are in `PRACTICAL_OBSERVING_WINDOWS.md`. VERSION/dist stay at 1.46.21.
+No new provider, paid service, API trial, network dependency or release artifact.
+
+Full `tools/run_checks.py --security`: **2,060 tests and ten subtests pass** in
+295.60 s, with 87% overall coverage (19,590 / 22,508 statements). Static, data,
+licence-archive and dependency checks pass; pip-audit finds no known
+vulnerabilities. Isolated backend / normal QML / red-night QML smokes pass in
+16.3 / 14.9 / 15.7 s. Inventory: 278 Python / 36 QML / 17 operational files.
+Evidence: `build/recommendation-guidance-20260919/full-source-gate-final.log`.
+The test runner used `OPENBLAS_NUM_THREADS=1`; this is not an app performance
+measurement. The first in-progress run exposed dated weather fixtures and
+obsolete UI expectations; fixes preserve equipment-refresh assertions and add
+separate complete/incomplete atmospheric-forecast integration cases.
+
+The new regressions cover cloudy geometric peaks despite good nightly averages,
+all-clear plan parity, empty/missing/invalid forecasts, clipping, duplicates,
+DST folds/gaps, filtering before the four-target limit, expiring intervals and
+immutable worker context. Comet tests cover last-valid-sample bounds, near-term
+short groups, multiple periods and time-anchored lunar facts. Missing seeing
+stays numerically compatible internally but unavailable in the UI. Moon phase
+alone is not advertised as actual all-night interference.
+
+Independent read-only comparison with Git `80cdb32` across Addis Ababa, Rome
+(DST night) and Cape Town enables all **7,585** catalogue objects: **14,725**
+ranked target records match every field and order. All Solar System / Moon
+summary fields match. **261** annual events retain every field except the
+intentional indicative meteor-shower title. Log: `scientific-parity.log` in
+the same evidence directory. Planned times and comet intervals intentionally
+change; neither is included in a claim of unchanged recommendations.
+
+IT/EN/ES: **2,126** completed messages each, reviewed and compiled. The final
+legacy-adapter expiry guard and narrow-width QML wrapping pass **322** additional
+targeted regressions in 75.32 s, three fresh isolated smokes (15.3 / 14.4 / 15.1 s)
+and offscreen visual inspection in normal/red mode. Results are recorded in
+`final-boundary-ui-regressions.log`, `final-isolated-smokes.log` and
+`visual-qa-final.log`. Visual checks use synthetic weather/comet data, an explicit
+Windows font and disposable runtime, including assertions that Moon rise/set
+labels are not truncated. No development DB, preferences or dist are replaced.
+
 ## Unreleased Practical Observing Windows
 
 The 2026-09-19 source-only update adds good-weather windows, cached Home

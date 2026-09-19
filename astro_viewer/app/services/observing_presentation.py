@@ -224,12 +224,13 @@ class ObservingPresentationService:
                     illumination=moon.illumination,
                 )
             )
+        elif seeing_transparency and not seeing_transparency.available and item.object_type == "Pianeta":
+            reasons.append(tr("Seeing non disponibile"))
         elif seeing_transparency and item.object_type == "Pianeta":
             seeing = localized_seeing(seeing_transparency.seeing)
             reasons.append(
                 tr(
-                    "Seeing previsto: {seeing}. Adatto a valutare dettagli "
-                    "planetari.",
+                    "Seeing stimato: {seeing}. Verificare la stabilità dell'immagine all'oculare.",
                     seeing=seeing,
                 )
             )

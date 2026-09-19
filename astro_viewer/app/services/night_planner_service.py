@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from datetime import datetime, timedelta
 
 from astro_viewer.app.astronomy.engine import ObservingNightWindow, advance_time, as_utc
@@ -13,7 +13,8 @@ from astro_viewer.app.models.condition_inputs import (
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import NightPlanItem
-from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
+from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherHour, WeatherSummary
+from astro_viewer.app.services.observing_night_service import usable_weather_intervals
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
 from astro_viewer.app.services.nsom_target import unique_targets_by_id
 from astro_viewer.app.services.localization import join_text, tr
@@ -45,6 +46,10 @@ class NightPlannerService:
     def uses_target_equipment(self) -> bool:
         return True
 
+    @property
+    def uses_hourly_weather(self) -> bool:
+        return True
+
     def plan(
         self,
         objects: list[CelestialObject],
@@ -55,6 +60,7 @@ class NightPlannerService:
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
         telescope_by_object_id: Mapping[str, Telescope] | None = None,
         night_window: ObservingNightWindow | None = None,
+        weather_hours: Sequence[WeatherHour] | None = None,
     ) -> list[NightPlanItem]:
         blocking_status = self.weather_blocking_status(weather)
         if blocking_status.blocks_plan:
@@ -73,6 +79,16 @@ class NightPlannerService:
                 item for item in unique_objects
                 if item.visible and item.score > 0 and item.night_eligible is None
             ]
+        # None preserves legacy adapters; an explicitly empty forecast cannot
+        # substantiate an observing time. Filter before selecting the top four.
+        scheduled_times: dict[str, datetime] = {}
+        if weather_hours is not None:
+            intervals = usable_weather_intervals(weather_hours, night_window)
+            for item in visible:
+                observing_at = self._weather_observing_time(item, night_window, intervals)
+                if observing_at is not None:
+                    scheduled_times[item.id] = observing_at
+            visible = [item for item in visible if item.id in scheduled_times]
         scored_visible = self._scored_visible(
             visible,
             weather=weather,
@@ -104,11 +120,12 @@ class NightPlannerService:
         items = []
         for item, raw_score in selected:
             score = round(raw_score)
-            observing_at = self._observing_time(item, night_window)
+            observing_at = (self._weather_observing_time(item, night_window, intervals) if weather_hours is not None
+                            else self._observing_time(item, night_window))
             if observing_at is None:
                 # A real interval can expire while scoring. Never replace its
                 # closing bound with a fabricated legacy schedule time.
-                if item.night_eligible is not None or item.observing_start_at:
+                if weather_hours is not None or item.night_eligible is not None or item.observing_start_at:
                     continue
                 observing_at = advance_time(start, timedelta(minutes=45 * len(items)))
             time_label = self._format_observing_time(observing_at, night_window)
@@ -126,6 +143,43 @@ class NightPlannerService:
                 )
             )
         return self._sort_plan_items(items, night_window)
+
+    @staticmethod
+    def _weather_observing_time(
+        item: CelestialObject,
+        night_window: ObservingNightWindow | None,
+        intervals: tuple[tuple[datetime, datetime], ...],
+    ) -> datetime | None:
+        preferred = NightPlannerService._observing_time(item, night_window)
+        if preferred is None:
+            return None
+        bounds = target_observing_interval(item, night_window)
+        if bounds is None:
+            bounds = NightPlannerService._observing_window_interval(item.observing_window, night_window)
+        if bounds is None:
+            # Without a useful interval only the supplied instant is justified.
+            return preferred if any(start <= as_utc(preferred) < end for start, end in intervals) else None
+        earliest = max(as_utc(bounds[0]), as_utc(datetime.now(bounds[0].tzinfo)))
+        latest = as_utc(bounds[1])
+        preferred_utc = as_utc(preferred)
+        candidates: list[datetime] = []
+        for weather_start, weather_end in intervals:
+            start, end = max(earliest, weather_start), min(latest, weather_end)
+            if start >= end:
+                continue
+            if start <= preferred_utc < end:
+                return preferred
+            # The displayed minute must itself lie inside the usable interval.
+            first_minute = start.replace(second=0, microsecond=0)
+            if first_minute < start:
+                first_minute += timedelta(minutes=1)
+            last_minute = (end - timedelta(microseconds=1)).replace(second=0, microsecond=0)
+            if first_minute <= last_minute:
+                candidates.append(min(max(preferred_utc, first_minute), last_minute))
+        if not candidates:
+            return None
+        selected = min(candidates, key=lambda instant: (abs(instant - preferred_utc), instant))
+        return selected.astimezone(preferred.tzinfo)
 
     def _scored_visible(
         self,

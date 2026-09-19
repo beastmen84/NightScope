@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from math import isfinite
+
 from astro_viewer.app.models.observing import MoonSummary
 from astro_viewer.app.models.sky import ObservingCategoryScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import (
@@ -162,13 +164,14 @@ def _planetary_payload(
     wind_label: str,
     source: str,
 ) -> dict[str, object]:
-    seeing_label = _quality_label(seeing.seeing if seeing else "")
-    label = scores.planetary_label if scores else tr("n/d")
+    available = seeing is not None and seeing.available
+    seeing_label = _quality_label(seeing.seeing if available else "")
+    label = scores.planetary_label if scores and available else tr("n/d")
     return {
         "state": "available" if seeing_label != "n/d" and label != "n/d" else "unavailable",
         "label": label,
-        "scoreValue": scores.planetary_score if scores else None,
-        "primaryMetric": tr("Seeing {value}", value=seeing_label)
+        "scoreValue": scores.planetary_score if scores and available else None,
+        "primaryMetric": tr("Seeing stimato: {value}", value=seeing_label)
         if seeing_label != "n/d"
         else tr("Seeing non disponibile"),
         "secondaryMetric": tr("Vento {value}", value=wind_label)
@@ -185,14 +188,15 @@ def _deep_sky_payload(
     scores: ObservingCategoryScores | None,
     source: str,
 ) -> dict[str, object]:
-    transparency = _quality_label(seeing.atmospheric_transparency if seeing else "")
+    available = seeing is not None and seeing.available
+    transparency = _quality_label(seeing.atmospheric_transparency if available else "")
     bortle = sky_quality.bortle_class if sky_quality else 0
     label = scores.deep_sky_label if scores else tr("n/d")
     sky_quality_available = bortle > 0
-    if label == "n/d":
+    if label == "n/d" or (not available and not sky_quality_available):
         state = "unavailable"
-        display_label = label
-    elif not sky_quality_available:
+        display_label = tr("n/d")
+    elif not sky_quality_available or not available:
         state = "partial"
         display_label = tr("Parziale")
     else:
@@ -201,11 +205,9 @@ def _deep_sky_payload(
     return {
         "state": state,
         "label": display_label,
-        "scoreValue": scores.deep_sky_score if scores else None,
+        "scoreValue": scores.deep_sky_score if scores and available and sky_quality_available else None,
         "primaryMetric": (
             tr("Trasparenza {value}", value=transparency)
-            if transparency != "n/d"
-            else tr("Trasparenza non disponibile")
         ),
         "secondaryMetric": (
             tr("Bortle {value} - {label}", value=bortle, label=bortle_sky_label(bortle))
@@ -234,28 +236,28 @@ def _moon_payload(moon: MoonSummary | None) -> dict[str, object]:
     if illumination >= 70:
         return {
             "impact": "high",
-            "impactLabel": tr("Impatto lunare elevato"),
-            "summary": tr("Luna luminosa: maggiore fondo cielo per gli oggetti deboli."),
+            "impactLabel": tr("Disturbo potenziale elevato"),
+            "summary": tr("Luna luminosa: può schiarire il cielo quando è sopra l'orizzonte. L'effetto dipende anche dalla distanza dal bersaglio."),
         }
     if illumination >= 35:
         return {
             "impact": "medium",
-            "impactLabel": tr("Impatto lunare medio"),
-            "summary": tr("Luna moderatamente luminosa: impatto variabile sul cielo profondo."),
+            "impactLabel": tr("Disturbo potenziale medio"),
+            "summary": tr("Luna moderatamente luminosa: il disturbo dipende da altezza, orario e distanza dal bersaglio."),
         }
     return {
         "impact": "low",
-        "impactLabel": tr("Impatto lunare basso"),
-        "summary": tr("Luna poco luminosa: impatto ridotto sul cielo profondo."),
+        "impactLabel": tr("Disturbo potenziale basso"),
+        "summary": tr("Luna poco luminosa: disturbo generalmente contenuto, da valutare per il singolo bersaglio."),
     }
 
 
 def _planetary_hint(seeing: SeeingTransparency | None) -> str:
-    if seeing is None or _quality_label(seeing.seeing) == "n/d":
+    if seeing is None or not seeing.available or _quality_label(seeing.seeing) == "n/d":
         return tr("Dati atmosferici non disponibili")
     score = seeing.seeing_score if seeing else 0
     if score >= 80:
-        return tr("Atmosfera stabile per i dettagli fini")
+        return tr("Stima favorevole ai dettagli fini; verificare all'oculare")
     if score >= 60:
         return tr("Dettaglio planetario generalmente favorito")
     if score >= 40:
@@ -264,7 +266,7 @@ def _planetary_hint(seeing: SeeingTransparency | None) -> str:
 
 
 def _deep_sky_hint(seeing: SeeingTransparency | None, sky_quality: SkyQuality | None) -> str:
-    transparency_available = seeing is not None and _quality_label(seeing.atmospheric_transparency) != "n/d"
+    transparency_available = seeing is not None and seeing.available and _quality_label(seeing.atmospheric_transparency) != "n/d"
     transparency_score = 0
     if seeing is not None:
         transparency_score = (
@@ -275,6 +277,8 @@ def _deep_sky_hint(seeing: SeeingTransparency | None, sky_quality: SkyQuality | 
     sky_quality_available = sky_quality is not None and sky_quality.bortle_class > 0
     if not transparency_available and not sky_quality_available:
         return tr("Dati del cielo non disponibili")
+    if not transparency_available:
+        return tr("Valutazione parziale: solo buio del sito")
     if not sky_quality_available:
         if seeing is not None and transparency_score < 40:
             return tr("Trasparenza limitante; inquinamento luminoso non disponibile")
@@ -347,7 +351,8 @@ def _bortle_warning_label(bortle: int) -> str:
 
 def _percentage(value: str) -> float | None:
     try:
-        return float((value or "").replace("%", "").strip())
+        percentage = float((value or "").replace("%", "").strip())
+        return percentage if isfinite(percentage) and 0 <= percentage <= 100 else None
     except ValueError:
         return None
 

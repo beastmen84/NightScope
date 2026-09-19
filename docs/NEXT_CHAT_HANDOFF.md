@@ -7,9 +7,32 @@ Updated: 2026-09-19
 - Finish completed, validated implementation work with a local Git commit, as
   requested by the user. Report the commit hash; do not push, tag or publish
   unless separately requested. Read-only reviews do not require a commit.
+- Improve guidance using existing inputs first. New sources must be genuinely
+  free, with compatible reuse terms; exclude time-limited trials and Meteoblue.
+  Provider integrations must not add network waits to startup.
 
 ## Current State
 
+- Unreleased existing-data recommendation audit after `80cdb32`: hourly weather
+  intersects target intervals before planner selection, with immutable context
+  capture in both worker paths. Missing seeing is explicit `n/d`; neutral
+  internal fallback values and NSOM/optical formulas are preserved. Moon Home
+  labels are potential interference, conditional on geometry, not a new
+  Moon-free-night calculation. Comet windows end at the last valid half-hour
+  sample, keep all consecutive-night groups with gaps, and expose a first-night
+  reference for lunar facts and the next local interval. Arbitrary extra
+  magnitude padding is removed; detectability/brightness remain uncertain.
+  Meteor maxima are indicative; the plan's direction is labelled current.
+  No new sources or network work. IT/EN/ES: 2,126 complete compiled messages.
+  Full source/security gate: 2,060 tests / ten subtests, 87% coverage, all three
+  isolated smokes. Final legacy-boundary and narrow-layout follow-ups pass 322
+  checks, fresh smokes and visual inspections. Scientific parity against `80cdb32`
+  covers 14,725 all-catalogue results, Solar System/Moon and 261 annual events
+  (only meteor title text differs). Planned times/comet intervals deliberately
+  change, not the fundamental calculations. See `docs/TESTING.md` and
+  `docs/PRACTICAL_OBSERVING_WINDOWS.md`; evidence directory:
+  `build/recommendation-guidance-20260919/`. VERSION/dist remain 1.46.21;
+  no rebuild, push, tag, website change or publication.
 - Unreleased practical observing-window guidance after `35bd872`: Home and
   sidebar separate extended good-weather runs from their forecast peak; the
   header displays existing -18-degree astronomical darkness from the worker

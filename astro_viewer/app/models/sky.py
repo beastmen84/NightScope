@@ -74,6 +74,9 @@ class SeeingTransparency:
     source: str = "BasicForecastSeeingProvider"
     confidence: str = "medium"
     atmospheric_transparency_score: int | None = None
+    # Keep the legacy neutral numeric fallback for calculations, but never
+    # present it as a forecast when the provider inputs are missing.
+    available: bool = True
 
     @property
     def atmospheric_transparency(self) -> str:
@@ -91,6 +94,11 @@ class SeeingTransparency:
         data["source"] = _localized_source(self.source)
         data["confidence"] = _localized_confidence(self.confidence)
         data.pop("atmospheric_transparency_score", None)
+        if not self.available:
+            data.update(seeing=tr("n/d"), transparency=tr("n/d"),
+                        atmosphericTransparency=tr("n/d"), seeingScore=None, transparencyScore=None)
+            data["seeing_score"] = None
+            data["transparency_score"] = None
         return data
 
 

@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Audit delle raccomandazioni con le fonti esistenti: il piano interseca le
+  finestre dei bersagli con le ore meteo utilizzabili, senza riempire buchi
+  delle previsioni. Gli input orari sono isolati negli snapshot dei worker;
+  formule astronomiche, ottiche e NSOM restano invariate.
+- Comete: niente mezz'ora aggiunta dopo l'ultimo campione valido, conservati
+  tutti i gruppi di notti utili e le interruzioni. Dettagli con prossima finestra
+  stimata e riferimento temporale dei dati lunari; rimossa la maggiorazione
+  arbitraria di magnitudine e chiarita la distinzione fra geometria e rilevabilità.
+- Seeing non valutabile mostrato come n/d, non come previsione discreta;
+  disturbo lunare esplicitamente potenziale. Massimi degli sciami indicativi,
+  direzione nel piano etichettata come attuale, scheda Luna più leggibile in
+  finestre strette. Testi e risorse IT/EN/ES aggiornati, nessuna nuova fonte.
+- Per le prossime integrazioni sono ammesse soltanto fonti realmente gratuite
+  e con licenza compatibile; esclusi trial a scadenza e Meteoblue.
 - Messa a punto delle finestre osservative: Home e riepilogo laterale distinguono
   fasce meteo buone estese e picco previsto; il buio astronomico già calcolato
   compare accanto alla località, senza aggiungere alba e tramonto.

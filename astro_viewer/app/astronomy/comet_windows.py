@@ -198,12 +198,11 @@ class CometWindowEventSource:
                 ):
                     continue
                 windows = self._night_windows(comet, record, context=context)
-                best_group = _best_consecutive_group(windows)
-                if not best_group:
+                if not windows:
                     continue
-                event = self._event(record, best_group, prepared_data, analysis_end=horizon_end)
+                event = self._event(record, windows, prepared_data, analysis_end=horizon_end)
                 candidates.append(
-                    (min(window.predicted_magnitude for window in best_group), event)
+                    (min(window.predicted_magnitude for window in windows), event)
                 )
             except Exception:
                 logger.warning(
@@ -480,14 +479,15 @@ class CometWindowEventSource:
             segments.append(current)
 
         by_night: dict[date, _NightWindow] = {}
-        step = timedelta(minutes=self.SAMPLE_MINUTES)
         datetimes = context["datetimes"]
         horizon_end = context["end"]
         for segment in segments:
             first_index = segment[0]
             last_index = segment[-1]
             start = datetimes[first_index]
-            end = min(datetimes[last_index] + step, horizon_end)
+            # End at the last verified sample, not the next (possibly invalid)
+            # altitude/darkness/Moon position. This is a conservative window.
+            end = min(datetimes[last_index], horizon_end)
             if end - start < timedelta(minutes=self.MIN_NIGHTLY_DURATION_MINUTES):
                 continue
             peak_index = max(segment, key=lambda item: altitude_values[item])
@@ -528,14 +528,14 @@ class CometWindowEventSource:
             ),
         )
         date_label = _date_range_label(first.night_date, last.night_date, first.start)
-        observing_window = _observing_window_label(
-            first.night_date,
-            last.night_date,
-            first.start,
-        )
-        lower_magnitude = math.floor(min(window.predicted_magnitude for window in windows) - 1.0)
-        upper_magnitude = math.ceil(max(window.predicted_magnitude for window in windows) + 1.0)
-        period_note = tr("Notti favorevoli stimate, non una finestra continua. Verificare il meteo della singola notte.")
+        groups = _consecutive_groups(windows)
+        observing_window = join_text((
+            _observing_window_label(group[0].night_date, group[-1].night_date, group[0].start)
+            for group in groups
+        ), "; ")
+        lower_magnitude = math.floor(min(window.predicted_magnitude for window in windows))
+        upper_magnitude = math.ceil(max(window.predicted_magnitude for window in windows))
+        period_note = tr("Notti di osservabilità stimata, non una finestra continua né una garanzia di visibilità. Verificare il meteo della singola notte.")
         if analysis_end is not None and _as_utc(analysis_end) - _as_utc(last.end) <= timedelta(days=1):
             period_note = join_text((period_note, tr("La finestra raggiunge il limite del periodo analizzato e potrebbe proseguire oltre.")), " ")
         valid_until = _parse_datetime(prepared.cache_record.fetched_at) + (
@@ -553,20 +553,20 @@ class CometWindowEventSource:
             date_label=date_label,
             best_time=date_label,
             usefulness=0,
-            setup=_setup_for_magnitude(peak.predicted_magnitude),
+            setup=_setup_for_magnitude(first.predicted_magnitude),
             note=tr(
                 "La luminosità cometaria è una previsione indicativa e può differire "
                 "anche sensibilmente da quella osservata."
             ),
             event_at=first.start.isoformat(),
             timing_kind="window",
-            timing_label=tr("Periodo favorevole stimato"),
+            timing_label=tr("Periodo di osservabilità stimata"),
             observing_window=observing_window,
             visibility_state="visible",
-            visibility_label=tr("Finestra locale favorevole"),
+            visibility_label=tr("Finestra geometrica stimata"),
             visibility_detail=tr(
                 "La cometa supera le soglie locali di altezza, buio, elongazione "
-                "solare e disturbo lunare."
+                "solare e disturbo lunare. La rilevabilità dipende anche da cielo, strumento e luminosità reale."
             ),
             event_type_code="comet_window",
             source_code="short_horizon_comet_windows",
@@ -574,10 +574,15 @@ class CometWindowEventSource:
             starts_at=first.start.isoformat(),
             ends_at=last.end.isoformat(),
             peak_at=peak.peak.isoformat(),
-            favorable_periods=((first.start.isoformat(), last.end.isoformat()),),
+            favorable_periods=tuple((group[0].start.isoformat(), group[-1].end.isoformat()) for group in groups),
             period_note=period_note,
             analysis_end_at=analysis_end.isoformat() if analysis_end else "",
             event_facts=(
+                (
+                    "next_window",
+                    tr("Prossima finestra locale stimata"),
+                    tr("{start} - {end}", start=format_datetime(first.start), end=format_datetime(first.end)),
+                ),
                 (
                     "predicted_magnitude",
                     tr("Magnitudine prevista"),
@@ -599,12 +604,17 @@ class CometWindowEventSource:
                     ),
                 ),
                 (
+                    "geometry_reference",
+                    tr("Riferimento di elongazione e dati lunari"),
+                    format_datetime(first.peak),
+                ),
+                (
                     "solar_elongation",
                     tr("Elongazione solare"),
                     tr(
                         "{degrees}°",
                         degrees=format_number(
-                            peak.solar_elongation_deg,
+                            first.solar_elongation_deg,
                             decimals=0,
                         ),
                     ),
@@ -615,7 +625,7 @@ class CometWindowEventSource:
                     tr(
                         "{degrees}°",
                         degrees=format_number(
-                            peak.moon_separation_deg,
+                            first.moon_separation_deg,
                             decimals=0,
                         ),
                     ),
@@ -626,7 +636,7 @@ class CometWindowEventSource:
                     tr(
                         "{percent}%",
                         percent=format_number(
-                            peak.moon_illumination * 100.0,
+                            first.moon_illumination * 100.0,
                             decimals=0,
                         ),
                     ),
@@ -778,9 +788,9 @@ def _sample_datetimes(
     return values
 
 
-def _best_consecutive_group(
+def _consecutive_groups(
     windows: Sequence[_NightWindow],
-) -> list[_NightWindow]:
+) -> list[list[_NightWindow]]:
     groups: list[list[_NightWindow]] = []
     current: list[_NightWindow] = []
     for window in sorted(windows, key=lambda item: item.night_date):
@@ -790,17 +800,7 @@ def _best_consecutive_group(
         current.append(window)
     if current:
         groups.append(current)
-    if not groups:
-        return []
-    return max(
-        groups,
-        key=lambda group: (
-            len(group),
-            sum((window.duration for window in group), timedelta()),
-            -min(window.predicted_magnitude for window in group),
-            max(window.maximum_altitude_deg for window in group),
-        ),
-    )
+    return groups
 
 
 def _window_rank(window: _NightWindow) -> tuple[float, float, float]:

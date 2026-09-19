@@ -476,11 +476,13 @@ Item {
                             border.width: 1
 
                             RowLayout {
+                                id: moonSummaryRow
                                 anchors.fill: parent
                                 anchors.margins: 10
                                 spacing: 12
 
                                 Rectangle {
+                                    visible: moonSummaryRow.width >= 350
                                     Layout.preferredWidth: 62
                                     Layout.preferredHeight: 62
                                     radius: 8
@@ -518,6 +520,8 @@ Item {
                                         color: theme.textPrimary
                                         font.pixelSize: 13
                                         font.weight: Font.DemiBold
+                                        wrapMode: Text.WordWrap
+                                        maximumLineCount: 2
                                         elide: Text.ElideRight
                                     }
 
@@ -527,12 +531,14 @@ Item {
                                         color: theme.textPrimary
                                         font.pixelSize: 13
                                         font.weight: Font.DemiBold
+                                        wrapMode: Text.WordWrap
+                                        maximumLineCount: 2
                                         elide: Text.ElideRight
                                     }
                                 }
 
                                 ColumnLayout {
-                                    Layout.preferredWidth: 150
+                                    Layout.preferredWidth: Math.min(150, moonSummaryRow.width * 0.5)
                                     spacing: 4
 
                                     Text {
@@ -541,6 +547,8 @@ Item {
                                         color: theme.textSecondary
                                         font.pixelSize: 12
                                         horizontalAlignment: Text.AlignRight
+                                        wrapMode: Text.WordWrap
+                                        maximumLineCount: 2
                                         elide: Text.ElideRight
                                     }
 
@@ -636,9 +644,9 @@ Item {
                                 Layout.minimumWidth: 0
                                 text: root.deepSkyOverview.primaryMetric || ""
                                 color: theme.textPrimary
-                                font.pixelSize: 18
+                                font.pixelSize: root.width < 900 ? 14 : 18
                                 font.weight: Font.DemiBold
-                                wrapMode: Text.WordWrap
+                                wrapMode: Text.Wrap
                                 elide: Text.ElideRight
                                 maximumLineCount: 2
                             }
@@ -652,7 +660,7 @@ Item {
                                 horizontalAlignment: Text.AlignRight
                                 wrapMode: Text.WordWrap
                                 elide: Text.ElideRight
-                                maximumLineCount: 2
+                                maximumLineCount: 3
                             }
                         }
                     }

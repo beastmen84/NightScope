@@ -168,7 +168,8 @@ def test_comet_source_builds_one_aggregate_window_and_reuses_cache(
     assert int(facts["useful_nights"]) > 1
     assert facts["predicted_magnitude"].startswith("circa ")
     assert facts["estimate_reliability"] == "Bassa"
-    assert event.observing_window.startswith("Dal 29/08/2026 al 11/10/2026")
+    # Two half-hour samples no longer fabricate a full hour of observability.
+    assert event.observing_window.startswith("Dal 07/09/2026 al 11/10/2026")
 
 
 def test_comet_source_uses_recent_stale_cache_but_rejects_old_data(

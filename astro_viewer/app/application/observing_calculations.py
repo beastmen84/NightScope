@@ -61,6 +61,8 @@ class ObservingCalculations:
         if getattr(self._night_planner_service, "uses_target_equipment", False):
             planner_kwargs["telescope_by_object_id"] = planner_telescopes
         planner_kwargs["condition_inputs"] = condition_inputs
+        if getattr(self._night_planner_service, "uses_hourly_weather", False):
+            planner_kwargs["weather_hours"] = getattr(self, "_weather_hours", None)
         night_window = getattr(self, "_observing_night_window", None)
         if isinstance(night_window, ObservingNightWindow) and night_window.has_observing_window:
             planner_kwargs["night_window"] = night_window

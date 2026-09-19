@@ -247,6 +247,8 @@ class CatalogueRecommendationWorkflow:
             }
             if context.use_target_equipment:
                 planner_kwargs["telescope_by_object_id"] = planner_telescopes
+            if getattr(self._night_planner_service, "uses_hourly_weather", False):
+                planner_kwargs["weather_hours"] = context.weather_hours
             if context.observing_night_window.has_observing_window:
                 planner_kwargs["night_window"] = context.observing_night_window
             night_plan = tuple(

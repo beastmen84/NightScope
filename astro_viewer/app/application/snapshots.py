@@ -22,7 +22,7 @@ from astro_viewer.app.models.sky import (
     SeeingTransparency,
     SkyQuality,
 )
-from astro_viewer.app.models.weather import WeatherSummary
+from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.equipment_setup_read_model import (
     EquipmentSetupReadModel,
 )
@@ -79,6 +79,7 @@ class CatalogueRecommendationPreparationContext:
     telescopes_by_id: tuple[tuple[str, Telescope], ...]
     use_target_equipment: bool
     sky_compass_caution_text: str
+    weather_hours: tuple[WeatherHour, ...] | None = None
 
 
 @dataclass(frozen=True)

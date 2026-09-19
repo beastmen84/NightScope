@@ -38,7 +38,7 @@ Rectangle {
         if (time.length > 0)
             parts.push(time)
         if (direction.length > 0)
-            parts.push(direction)
+            parts.push(qsTr("ora %1").arg(direction))
         return parts.join("  -  ")
     }
 

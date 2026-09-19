@@ -149,8 +149,8 @@ def test_discovered_language_catalogs_are_complete_and_symmetric() -> None:
     assert catalogs["es"][("EquipmentBinocularsPage", "Catalogo binocoli")] == (
         "Catálogo de prismáticos"
     )
-    assert catalogs["es"][("WeatherPage", "Seeing notturno")] == (
-        "Seeing nocturno"
+    assert catalogs["es"][("WeatherPage", "Seeing stimato")] == (
+        "Seeing estimado"
     )
     assert catalogs["es"][("DataProvidersPage", earthdata_profile_source)] == (
         "Abra Editar perfil y complete todos los campos, también los indicados "
