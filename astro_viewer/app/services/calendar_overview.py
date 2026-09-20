@@ -19,6 +19,7 @@ from astro_viewer.app.services.localization import (
 
 CALENDAR_OVERVIEW_SCHEMA_VERSION = "calendar_overview_v4"
 CALENDAR_HORIZON_DAYS = 365
+CALENDAR_HIGHLIGHT_LIMIT = 5
 
 _EVENT_TYPE_CODES = {
     "Luna": "moon",
@@ -119,7 +120,7 @@ class CalendarOverviewService:
                     ),
                     candidate[0],
                 ),
-            )[:3]
+            )[:CALENDAR_HIGHLIGHT_LIMIT]
         ]
         counts = Counter(str(item["typeCode"]) for item in items)
         return {

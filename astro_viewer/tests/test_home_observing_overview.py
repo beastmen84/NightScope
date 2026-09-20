@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from PySide6.QtCore import QObject
 
 from astro_viewer.app.models.observing import MoonSummary
@@ -334,6 +336,27 @@ def test_upper_home_cards_use_the_overview_contract_without_category_scores() ->
     assert "property bool subtitleWrap: false" in glass_card
     assert "wrapMode: root.subtitleWrap ? Text.WordWrap : Text.NoWrap" in glass_card
     assert "maximumLineCount: root.subtitleWrap ? 2 : 1" in glass_card
+
+
+@pytest.mark.parametrize("duplicate,available", [(True, True), (False, True), (None, True), (True, False)])
+def test_session_preserves_peak_text_but_exposes_its_duplicate_flag(duplicate, available):
+    windows = {"goodWindows": ["02:00 - 04:00"], "goodWindowText": "Meteo buono: 02:00 - 04:00",
+               "bestWindowText": "Picco meteo previsto: 02:00 - 04:00"}
+    if duplicate is not None:
+        windows["bestWindowMatchesGood"] = duplicate
+    payload = _service().build(
+        location_available=True, location_pending=False, weather=_weather(), weather_available=available,
+        seeing=_seeing(), sky_quality=_sky_quality(), moon=_moon("64%"), category_scores=None,
+        session=ObservingSessionDecision(state="monitor"), blocking=WeatherBlockingStatus(False, False),
+        suggested_window="02:00 - 04:00", wind_label="debole", category_source="test", weather_windows=windows)
+    if available:
+        assert payload["session"]["bestWindowMatchesGood"] is (duplicate is True)
+        assert payload["session"]["hasGoodWindows"] is True
+        assert payload["session"]["bestWindowText"] == windows["bestWindowText"]
+        assert payload["weather"]["bestWindowText"] == windows["bestWindowText"]
+    else:
+        assert not payload["session"].get("bestWindowMatchesGood", False)
+        assert not payload["session"].get("bestWindowText")
 
 
 def _service() -> HomeObservingOverviewService:

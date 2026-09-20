@@ -198,3 +198,32 @@ def test_calendar_summary_cards_share_height_only_when_side_by_side():
     assert source.count("Layout.fillHeight: calendarSummaryGrid.columns === 2") == 2
     assert 'objectName: "calendarHighlightsCard"' in source
     assert 'objectName: "calendarOverviewCard"' in source
+
+
+def test_home_hides_only_the_redundant_session_peak_and_keeps_adaptive_rows():
+    source = (Path(__file__).parents[1] / "app/ui/pages/HomePage.qml").read_text(encoding="utf-8")
+    peak = source[source.index('objectName: "homeSessionPeak"'):source.index('text: root.sessionOverview.bestWindowText')]
+    assert 'bestWindowText || ""' in peak
+    assert "root.sessionOverview.hasGoodWindows" in peak
+    assert "root.sessionOverview.bestWindowMatchesGood === true" in peak
+    overview = source[source.index("id: topOverview"):source.index("id: skyCompassCard")]
+    assert overview.count("Layout.fillHeight: true") == 5
+    assert "Layout.rowSpan: 2" in overview
+
+
+def test_meteor_summary_cards_share_height_only_in_the_two_column_layout():
+    source = (Path(__file__).parents[1] / "app/ui/pages/EventDetailPage.qml").read_text(encoding="utf-8")
+    assert source.count("Layout.fillHeight: root.isMeteorShower && eventSummaryGrid.columns === 2") == 2
+    assert 'objectName: "eventTimingCard"' in source
+    assert 'objectName: "eventProfileCard"' in source
+
+
+def test_home_event_cards_stack_the_date_above_full_width_details():
+    source = (Path(__file__).parents[1] / "app/ui/pages/HomePage.qml").read_text(encoding="utf-8")
+    cards = source[source.index('objectName: "homeEventCard_"'):]
+    assert "Layout.preferredHeight: Math.max(140, homeEventContent.implicitHeight + 20)" in cards
+    assert "ColumnLayout {\n                                id: homeEventContent" in cards
+    assert "Layout.alignment: Qt.AlignLeft | Qt.AlignTop" in cards
+    assert 'objectName: "homeEventDetails_"' in cards
+    assert "Layout.preferredWidth: 1" in cards
+    assert "onClicked: root.openEvent(modelData.id)" in cards

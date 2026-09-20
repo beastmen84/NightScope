@@ -5,6 +5,50 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Home, Calendar and Meteor Card Refinements - 2026-09-20
+
+Source-only follow-up against `4b41908`, VERSION still **1.46.21**. Four scoped
+presentation changes: redundant Session weather peaks hidden, meteor timing/
+profile heights shared when side by side, up to five Calendar highlights, and
+Home event date badges above full-width details in content-sized cards.
+
+- The final full source/security gate passes **2,207 tests / ten subtests**,
+  **87% coverage**, static/data/security checks and all three isolated startup
+  smokes (backend, normal QML and red-night QML). No production changes were
+  needed after the two outdated layout expectations were corrected.
+- Twenty-one new regression cases cover duplicate/nonduplicate weather
+  intervals, multiple good windows, midnight, unavailable data, Home metadata,
+  meteor-only layout, event-card layout, highlight limits and preserved ranking/
+  date ties/eligibility. Two older source-contract tests were updated from
+  fixed-height/vertically centred event cards to the requested adaptive stacked
+  layout after the first full run identified those obsolete expectations.
+  Their isolated rerun passes; no production workaround was added for them.
+- Baseline comparison: **1,000 weather digests and Home overviews** retain all
+  existing values; only the new duplicate flag is excluded from comparison.
+  **100 calendars** retain all items, counts, Home events and the original first
+  three highlights; the only difference is up to two additional highlights.
+  These are deterministic fixture comparisons, not fresh astronomical forecasts.
+- **162 distinct real Qt layout cases** use an isolated runtime and synthetic
+  presentation fixtures (132 Home/detail cases plus 30 Calendar overview cases):
+  IT/EN/ES, 1920/1480/1240 logical widths, normal/red modes, normal and 150% scale.
+  Home card row edges remain aligned; the duplicate case saves **29 logical
+  pixels** in these fixtures and the peak returns when intervals differ.
+  Event-card details occupy the full padded width below the date, with no
+  geometric text overflow. Meteor cards align at both ends when side by side,
+  including a longer right-hand note; narrow stacking and non-meteor policy
+  remain unchanged. Calendar screenshot checks explicitly return from the
+  detail to the overview before checking the five highlights.
+- All scoped Qt cases pass without QML warnings, including the separate
+  Calendar overview reruns. Representative screenshots were inspected.
+  Root DB, backup, preferences, location-cache and dist EXE hashes are unchanged.
+- No new strings, translation regeneration, scientific computation changes,
+  version bump or dist rebuild. The existing Windows test bundle from `a2ebb97`
+  contains neither this follow-up nor the preceding `4b41908` alignment fix.
+
+Evidence: `build/home-meteor-layout-20260920/` (`focused.log`, `parity.log`,
+`layout-contract-rerun.log`, `full-gate-final.log`, `visual-qa*.log`,
+`calendar-visual-qa*.log` and captures).
+
 ## Observing Detail Footer Alignment - 2026-09-20
 
 Source-only follow-up against `f5dc258`, VERSION still **1.46.21**. The fixed

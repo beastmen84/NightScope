@@ -49,6 +49,7 @@ class WeatherPresentationService:
                 "goodWindows": [],
                 "goodWindowText": "",
                 "bestWindowText": "",
+                "bestWindowMatchesGood": False,
                 "usableWindowText": "",
             }
         average_cloud = round(
@@ -62,6 +63,7 @@ class WeatherPresentationService:
         good_groups = good_weather_windows(night_hours)
         good_labels = [weather_window_label(group, night_window, timezone) for group in good_groups]
         practical_best = best_weather_hours([hour for group in good_groups for hour in group])
+        peak_label = weather_window_label(practical_best, night_window, timezone) if practical_best else ""
         return {
             "usableWindowText": (
                 tr("Possibile finestra meteo: {windows}", windows=" · ".join(
@@ -74,10 +76,12 @@ class WeatherPresentationService:
                 if good_labels else tr("Nessuna fascia meteo buona prevista")
             ),
             "bestWindowText": (
-                tr("Picco meteo previsto: {window}",
-                   window=weather_window_label(practical_best, night_window, timezone))
+                tr("Picco meteo previsto: {window}", window=peak_label)
                 if practical_best else ""
             ),
+            # Compare complete displayed intervals, not translated prefixes or
+            # bestWindow (which is the longest usable interval, not the peak).
+            "bestWindowMatchesGood": bool(peak_label and good_labels == [peak_label]),
             "bestWindow": _interval_label(*max(usable, key=lambda pair: as_utc(pair[1]) - as_utc(pair[0])))
             if usable else tr("n/d"),
             "cloudAverage": average_cloud,

@@ -129,6 +129,7 @@ Item {
             }
 
             GridLayout {
+                id: eventSummaryGrid
                 visible: root.hasEvent
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
@@ -138,7 +139,9 @@ Item {
                 rowSpacing: 16
 
                 GlassCard {
+                    objectName: "eventTimingCard"
                     Layout.fillWidth: true
+                    Layout.fillHeight: root.isMeteorShower && eventSummaryGrid.columns === 2
                     Layout.minimumHeight: 244
                     title: qsTr("Quando osservare l'evento")
                     subtitle: qsTr("Istante, finestra e visibilità locale")
@@ -230,7 +233,9 @@ Item {
                 }
 
                 GlassCard {
+                    objectName: "eventProfileCard"
                     Layout.fillWidth: true
+                    Layout.fillHeight: root.isMeteorShower && eventSummaryGrid.columns === 2
                     Layout.minimumHeight: 244
                     title: root.hasEvent && root.eventData.typeCode === "solar_conjunction"
                            ? qsTr("Indicazione di sicurezza")

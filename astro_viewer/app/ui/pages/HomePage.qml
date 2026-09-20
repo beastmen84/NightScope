@@ -445,8 +445,11 @@ Item {
                     }
 
                     Text {
+                        objectName: "homeSessionPeak"
                         Layout.fillWidth: true
                         visible: (root.sessionOverview.bestWindowText || "").length > 0
+                                 && !(root.sessionOverview.hasGoodWindows
+                                      && root.sessionOverview.bestWindowMatchesGood === true)
                         text: root.sessionOverview.bestWindowText || ""
                         color: theme.textSecondary
                         font.pixelSize: 13
@@ -1705,10 +1708,14 @@ Item {
                         model: root.chronologicalEvents(root.width > 900 ? 8 : 4)
 
                         delegate: Rectangle {
+                            objectName: "homeEventCard_" + modelData.id
                             property bool hovered: false
 
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 140
+                            Layout.fillHeight: true
+                            Layout.minimumWidth: 0
+                            Layout.preferredWidth: 1
+                            Layout.preferredHeight: Math.max(140, homeEventContent.implicitHeight + 20)
                             radius: 8
                         color: hovered ? theme.surfaceDeepHover : theme.surfaceDeep
                         border.color: hovered
@@ -1724,18 +1731,23 @@ Item {
                                 onClicked: root.openEvent(modelData.id)
                             }
 
-                            RowLayout {
-                                anchors.fill: parent
+                            ColumnLayout {
+                                id: homeEventContent
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.right: parent.right
                                 anchors.margins: 10
                                 spacing: 10
 
                                 StatusPill {
+                                    objectName: "homeEventDate_" + modelData.id
                                     text: modelData.dateLabel
                                     accentColor: root.eventAccent(modelData.typeCode)
-                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 }
 
                                 ColumnLayout {
+                                    objectName: "homeEventDetails_" + modelData.id
                                     Layout.fillWidth: true
                                     Layout.minimumWidth: 0
                                     spacing: 2

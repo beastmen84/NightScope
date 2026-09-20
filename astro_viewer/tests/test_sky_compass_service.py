@@ -318,9 +318,9 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert 'if (typeCode === "meteor_shower")' in source
     assert "accentColor: root.eventAccent(modelData.typeCode)" in events_block
     assert "columns: root.width > 1040 ? 4 : root.width > 760 ? 2 : 1" in events_block
-    assert "Layout.preferredHeight: 140" in events_block
+    assert "Layout.preferredHeight: Math.max(140, homeEventContent.implicitHeight + 20)" in events_block
     assert "modelData.analysisBoundaryText" in events_block
-    assert "Layout.alignment: Qt.AlignVCenter" in events_block
+    assert "Layout.alignment: Qt.AlignLeft | Qt.AlignTop" in events_block
     assert "root.chronologicalEvents(root.width > 900 ? 8 : 4)" in events_block
     assert "Perché questa direzione?" in source
     assert "Oggetti principali" in source

@@ -44,7 +44,26 @@ def test_weather_good_window_covers_evening_without_losing_dawn_peak():
     assert digest["bestWindow"] == "19:00 - 06:14"  # Longest usable opening, distinct from the peak.
     assert digest["bestWindowText"] == "Picco meteo previsto: 04:00 - 06:14"
     assert len(digest["bestHours"]) == 5  # Existing evenly-spaced forecast preview.
+    assert digest["bestWindowMatchesGood"] is False
     assert WeatherPresentationService(None).digest([], night, LOCATION.timezone)["goodWindowText"] == ""
+
+
+@pytest.mark.parametrize("clouds,start_hour,duplicates", [
+    ([10, 10], 19, True), ([10, 10, 10], 19, True),
+    ([10, 10, 10, 10], 19, False), ([10, 10, 85, 10, 10], 19, False),
+    ([85, 85], 19, False), ([], 19, False), ([10], 19, False),
+    ([10, 10], 23, True),
+])
+def test_weather_peak_duplicate_flag_compares_the_entire_good_window(clouds, start_hour, duplicates):
+    start = NOW.replace(hour=start_hour)
+    hours = [hour(start + timedelta(hours=index), cloud) for index, cloud in enumerate(clouds)]
+    night = ObservingNightWindow.bounded(NOW, (NOW + timedelta(days=1)).replace(hour=6, minute=14))
+    digest = WeatherPresentationService(None).digest(hours, night, LOCATION.timezone)
+    assert digest["bestWindowMatchesGood"] is duplicates
+    if duplicates:
+        # Only Home hides the redundant line; other consumers retain the peak.
+        assert len(digest["goodWindows"]) == 1
+        assert digest["bestWindowText"] == f"Picco meteo previsto: {digest['goodWindows'][0]}"
 
 
 @pytest.mark.parametrize("bad", [dict(cloud=36), dict(rain=21), dict(wind=21), dict(humidity=101),

@@ -607,7 +607,7 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertNotIn("function hasBlockingWeather", qml)
         self.assertNotIn("function blockingWeatherReason", qml)
         self.assertNotIn("function blockingWeatherDetail", qml)
-        self.assertIn("Layout.preferredHeight: 140", qml)
+        self.assertIn("Layout.preferredHeight: Math.max(140, homeEventContent.implicitHeight + 20)", qml)
         self.assertIn("maximumLineCount: 2", qml[qml.index('title: qsTr("Prossimi eventi")'):])
         self.assertIn("Layout.preferredWidth: 250", target_row_qml)
         self.assertIn("Layout.preferredWidth: 180", target_row_qml)

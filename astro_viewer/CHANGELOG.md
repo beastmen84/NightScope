@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Home: il picco meteo non viene ripetuto nella sessione se coincide con
+  l'intera fascia di meteo buono; le schede superiori si ridimensionano insieme.
+  Nei prossimi eventi il tag data è sopra i dettagli, che usano tutta la
+  larghezza della scheda con altezza adattiva. Calendario: fino a cinque eventi
+  in evidenza, mantenendo filtri e priorità esistenti. Dettaglio meteore:
+  Quando osservare e Con il tuo profilo condividono l'altezza se affiancate.
+  Nessuna modifica a calcoli astronomici, meteo, punteggi o piano osservativo.
 - Dettaglio osservativo: il bordo inferiore della scheda Finestra osservativa
   si allinea alla nota Massima altezza nella colonna destra. La foto adatta la
   propria altezza al contenuto; conservati scheda compatta, layout impilato e

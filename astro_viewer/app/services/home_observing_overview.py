@@ -56,6 +56,7 @@ class HomeObservingOverviewService:
                 "bestWindowText": weather_windows.get("bestWindowText", ""),
                 "usableWindowText": weather_windows.get("usableWindowText", ""),
                 "hasGoodWindows": bool(weather_windows.get("goodWindows")),
+                "bestWindowMatchesGood": bool(weather_windows.get("bestWindowMatchesGood", False)),
                 "windowAdvice": (
                     tr("Previsioni variabili: non è necessario attendere il picco se il meteo è già buono.")
                     if session.state == "recommended" else session.description

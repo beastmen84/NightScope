@@ -13,6 +13,21 @@ Updated: 2026-09-20
 
 ## Current State
 
+- Source-only Home/Calendar/meteor layout follow-up after `4b41908`: Session
+  hides the weather peak only when its complete displayed interval equals the
+  single good-weather interval. The existing shared Home rows then shrink
+  together; the digest and Weather card retain the peak. Meteor timing/profile
+  cards share height only side by side. Home event cards stack the date badge
+  above full-width details and size to content. Calendar highlights increase
+  from three to at most five with unchanged ranking and eligibility.
+  No astronomical, weather-score, NSOM, optics or planner calculations change;
+  no strings or translation catalogues change. Full source/security gate passes
+  2,207 tests / ten subtests, 87% coverage and three isolated smokes. 162 distinct
+  Qt layout cases pass in IT/EN/ES, including red mode and 150% scaling; baseline
+  parity passes 1,000 weather/Home and 100 calendar fixtures. Runtime/dist hashes
+  are unchanged. Evidence: `docs/TESTING.md`, `build/home-meteor-layout-20260920/`.
+  VERSION remains 1.46.21. This follow-up and `4b41908` are NOT in the Windows
+  bundle below; no rebuild, push, tag or publication was requested.
 - Source-only detail alignment after `f5dc258`: the observing-window card
   ends level with the right column's final maximum-altitude note in the wide,
   normal layout. Photo height follows the facts column's natural height;

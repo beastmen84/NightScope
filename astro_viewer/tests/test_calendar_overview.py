@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock
 from zoneinfo import ZoneInfo
+
+import pytest
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.astronomy.skyfield_engine import (
@@ -238,6 +240,41 @@ def test_calendar_highlights_balance_priority_with_local_visibility() -> None:
         "moon-new",
         "meteor-shower",
         "first-quarter",
+        "partial-eclipse",
+    ]
+
+
+@pytest.mark.parametrize("count", [0, 1, 3, 4, 5, 8])
+def test_calendar_highlights_expand_to_five_without_changing_ranking_or_filters(count: int) -> None:
+    events = [
+        _event(
+            event_id=f"event-{index}", title=f"Event {index}", event_type="Luna",
+            event_at=(NOW + timedelta(days=index + 1)).isoformat(),
+            usefulness=80 + index // 2, visibility_state="visible",
+            visibility_label="Visibile nella notte",
+        ).to_qml()
+        for index in range(count)
+    ]
+    excluded = [
+        _event(
+            event_id=event_id, title=event_id, event_type=event_type,
+            event_at=(NOW + timedelta(days=days)).isoformat(), usefulness=100,
+            visibility_state="visible", visibility_label="Visibile nella notte",
+        ).to_qml()
+        for event_id, event_type, days in (
+            ("solar", "Congiunzione solare", 1),
+            ("outside-30-days", "Luna", 31),
+        )
+    ]
+    overview = CalendarOverviewService().build(
+        events=list(reversed(events)) + excluded, now=NOW, has_configured_equipment=False,
+    )
+    expected = sorted(range(count), key=lambda index: (-(80 + index // 2), index))[:5]
+    assert [item["id"] for item in overview["highlights"]] == [f"event-{index}" for index in expected]
+    assert overview["totalCount"] == count + 2
+    assert len(overview["homeItems"]) == count + 1
+    assert [item["id"] for item in overview["homeItems"] if item["id"].startswith("event-")] == [
+        f"event-{index}" for index in range(count)
     ]
 
 
