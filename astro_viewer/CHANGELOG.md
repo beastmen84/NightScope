@@ -5,8 +5,7 @@
 - Versione sorgente e pacchetto Windows locale; non ancora una pubblicazione.
   Manuale IT/EN/ES, documentazione tecnica e note di provenienza allineati.
   I download pubblici restano Windows 1.46.21 e Linux 1.43.0. Le voci seguenti
-  consolidano il lavoro successivo alla 1.46.21; le indicazioni di mancata
-  rigenerazione si riferiscono ai singoli passaggi storici, non al bundle 1.47.0.
+  consolidano il lavoro successivo alla 1.46.21.
 
 - Provider COBS gratuito e senza account: osservazioni cometarie scaricate in
   background dopo il primo frame, cache giornaliera separata e scheda accanto
@@ -20,7 +19,7 @@
 - Dettaglio comete con osservazioni datate, ultima misura distinta dalla
   previsione, motivazione del fallback e scadenza della correzione. Testi lunghi
   adattivi anche nelle finestre strette; IT/EN/ES aggiornati. Contratti e limiti:
-  `docs/COBS_OBSERVATIONS.md`. Nessuna rigenerazione della dist o release.
+  `docs/COBS_OBSERVATIONS.md`.
 
 - Home: il picco meteo non viene ripetuto nella sessione se coincide con
   l'intera fascia di meteo buono; le schede superiori si ridimensionano insieme.
@@ -42,8 +41,8 @@
   tasso locale garantito, nuova fonte o modifica a NSOM/ottica/altri eventi.
   Testi IT/EN/ES aggiornati; indicazione generica Rilevante sostituita da
   Calendario IMO per questi eventi.
-- Ritocchi al layout: scheda IMO a mezza larghezza su schermi ampi, con spazio
-  libero per un futuro provider; foto più grande nel dettaglio osservativo e
+- Ritocchi al layout: schede IMO e COBS affiancate su schermi ampi;
+  foto più grande nel dettaglio osservativo e
   Finestra osservativa compatta; schede superiori del calendario di pari altezza
   quando affiancate. Conservati adattamento alle finestre strette e modalità
   rossa. Nessuna modifica a calcoli, dati o raccomandazioni.
@@ -59,7 +58,7 @@
   già in catalogo, con interpolazione e fallback al nominale se incompleti.
   Ingrandimento, pupilla, effemeridi e formule NSOM invariati; selezione/orari
   del piano e raccomandazioni sensibili al campo possono cambiare intenzionalmente.
-  Testi IT/EN/ES aggiornati. Nessuna nuova fonte, modifica alla dist o release.
+  Testi IT/EN/ES aggiornati.
 - Provider IMO senza account: calendario dell'anno corrente scaricato una sola
   volta in background, riutilizzato ai riavvii e sostituito al cambio d'anno
   solo dopo validazione del nuovo PDF. Scheda Provider dati con anno, file,
@@ -115,8 +114,7 @@
   preparazione dell'attrezzatura serve soltanto se i due contesti sono diversi.
   Aggiunte regressioni con cambi reali di strumenti, ordini diversi, richieste
   duplicate e annullamento a calcolo avviato. Formule e criteri invariati.
-- Correzione nei sorgenti, non ancora rilasciata: VERSION e distribuzioni
-  restano invariati. Evidenze in `docs/PERFORMANCE_REFRESH_PARITY_FIX.md`.
+  Evidenze in `docs/PERFORMANCE_REFRESH_PARITY_FIX.md`.
 
 ## NightScope 1.46.21 - 2026-09-07
 

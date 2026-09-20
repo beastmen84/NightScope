@@ -1,4 +1,8 @@
-# Unreleased Database Startup Optimization
+# Database Startup Optimization
+
+Included in source 1.47.0 and its local Windows build. The implementation
+record below describes the original 1.46.21 source-only work; its version and
+distribution statements are historical. Current artifact evidence: `TESTING.md`.
 
 Scope: local database initialization, including the user's subsequent explicit
 authorization to reuse unchanged valid backups on 2026-09-19. VERSION remains 1.46.21. No Home,

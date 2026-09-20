@@ -9,7 +9,11 @@ COBS, scadenze e limiti delle stime. Sito con nota sul sorgente in preparazione;
 i download pubblici restano invariati. Nessuna modifica alla UI dell'app in
 questo passaggio. Le precedenti matrici QML IMO/COBS e layout sono in `TESTING.md`;
 non equivalgono alla matrice nativa completa del nuovo artefatto. L'esito dei
-controlli del pacchetto 1.47.0 viene registrato separatamente nello stesso documento.
+controlli del pacchetto 1.47.0 è registrato separatamente nello stesso documento:
+smoke backend/QML normale/QML rosso da copia isolata superati. Manuale e sito
+superano i controlli strutturali, ma nessun browser è connesso: la nuova verifica
+visiva desktop/mobile del manuale resta da eseguire. La copia QA privata non è
+stata eliminata perché la policy ha bloccato la rimozione; percorso in `TESTING.md`.
 
 Questo documento conserva i controlli visuali di release iniziati con la
 sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le

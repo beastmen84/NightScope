@@ -40,21 +40,26 @@ single-extension `NightScope-v1.46.21-windows-x64.zip`; its evidence remains in
 
 ## 3. Windows Artifact And Data Safety
 
-- [ ] Build from a clean recorded source commit using `packaging/build_windows.ps1`.
-- [ ] Audit the pristine bundle: legal files, Qt modules, native Positioning,
+- [x] Build from clean `15cc17a` using `packaging/build_windows.ps1`.
+- [x] Audit the pristine bundle: legal files, Qt modules, native Positioning,
   dialog/folder plugins, seeds, translations, manual, ephemeris and timezone data.
-- [ ] Compare embedded application code/assets and VERSION against source.
-- [ ] Pass backend, normal QML and red QML smokes from a disposable copy,
+- [x] Compare embedded application code/assets and VERSION against source.
+- [x] Pass backend, normal QML and red QML smokes from a disposable copy,
   with separate NIGHTSCOPE_RUNTIME_DIR paths and database integrity/FK checks.
-- [ ] Exercise an upgrade of a representative existing database copy and verify
-  profiles, custom equipment, edited built-ins, image references and observation log.
-- [ ] Confirm runtime files stay outside the pristine deliverable.
+- [x] Upgrade a consistent copy of the current development DB; its one Default
+  profile and 28 tables are preserved, city/alias semantics and current editorial
+  seeds verified. Four original runtime files retain their SHA-256 hashes.
+- [ ] Repeat with a populated personal archive: custom equipment, assignments,
+  edited built-ins, image references and observation log. The sparse copy above
+  is not evidence for every populated-user scenario.
+- [x] Confirm runtime files stay outside the pristine deliverable. Disposable
+  copy cleanup was blocked by execution policy; private path recorded in TESTING.
 - [ ] Test closed-app backup/restore and document any retained private QA copy.
 - [x] Portable Windows use requires a writable extracted directory; a read-only
   install path is not the documented deployment.
 - [ ] Repeat native photo selection, save/alias/cancel/red/reset and restart
   without the original image on the new artifact.
-- [ ] Record artifact file count, size, EXE SHA-256 and exact source/environment.
+- [x] Record artifact file count, size, EXE SHA-256 and exact source/environment.
 - [ ] Immediately before archiving, repeat the pristine audit; exclude databases,
   backups, caches, logs, preferences, credentials and personal images.
 - [ ] Scan the artifact with the chosen security tooling.

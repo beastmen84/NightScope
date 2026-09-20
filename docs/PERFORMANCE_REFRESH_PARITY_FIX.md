@@ -1,5 +1,9 @@
 # Parità degli aggiornamenti osservativi accorpati
 
+Correzione inclusa nel sorgente 1.47.0 e nel relativo bundle Windows locale.
+Il testo seguente conserva il contesto storico del primo intervento sui
+sorgenti 1.46.21; versione e pacchetto attuali sono documentati in `TESTING.md`.
+
 Data: 2026-09-07. Correzione sorgente successiva a `57d4b37` (1.46.21),
 non ancora rilasciata. Riferimento precedente alle ottimizzazioni: `cda5912`.
 VERSION, website, dati personali e distribuzioni non vengono modificati.

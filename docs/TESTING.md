@@ -36,13 +36,64 @@ dated evidence, not the current source/artifact state.
   matrix remains separate from these automated checks.
 - Four original runtime files were hashed before checks. The old dist directory
   was absent at task start; no previous distribution backup/replacement is needed.
-  Packaged validation and final runtime hash comparison are recorded below after
-  the new artifact has been built.
+  Packaged validation and the final runtime hash comparison are recorded below.
 
 Evidence: `build/release-1.47.0-20260920/` (`source-gate.log`,
 `docs-focused-final.log`, `translations.log`, `qmllint.log`). No push, tag,
 public release or website deployment; public links remain Windows 1.46.21 and
 Linux 1.43.0. A passing local build does not approve publication.
+
+### Validated Local Windows Artifact
+
+Official build from clean **`15cc17ad8a00a36341951e323e30dd5074b233ee`**, embedded
+VERSION **1.47.0**. Windows 11 / Python 3.14.5 / PyInstaller 6.22.2,
+hooks-contrib 2026.7 / PySide6 and Qt 6.11.2. The final evidence commit changes
+only unbundled documentation, not application code or the packaged manual/notices.
+
+- `dist/NightScope`: **5,192 files / 434,890,413 bytes**. EXE SHA-256:
+  `947a65ec9609003297efc7d6773fa82183c1e43810edbe7f984f5006c37fa36e`.
+- Official pristine Qt/legal/runtime audit passes. Archive/source comparison
+  verifies **144 application modules plus main**, including COBS and meteor
+  workers, **107 assets**, manual, VERSION and five legal files. Native
+  `QtPositioning.pyd` / `Qt6Positioning.dll` are present. No downloaded IMO PDF,
+  COBS cache or user runtime is included.
+- Disposable packaged backend/normal-QML/red-QML smokes exit 0 with their success
+  markers, empty stderr and no application errors; elapsed **39.46/34.80/32.06 s**.
+  A fourth backend run on a consistent SQLite backup of the existing development
+  DB passes in **46.52 s**. These are single-run functional timings, not performance
+  benchmarks. All four DBs pass integrity and foreign-key checks.
+- The initial upgrade harness incorrectly required unchanged catalogue storage
+  across bootstrap. It reported City/CityAlias surrogate-ID regeneration and
+  older editorial seeds. The corrected check does not discard these differences:
+  all city fields and aliases match after resolving IDs; all **323 descriptions
+  and 323 curiosities** match current source seeds. The historical DB changes are
+  **275 best_seen fields and one curiosity**, not new application edits in this
+  version-preparation step. **28 other tables are byte-value identical**.
+  Root DB signatures are rechecked against the original snapshot. This database
+  has one Default profile, no assigned instruments/log entries/custom prose;
+  it is not a populated-equipment/user-customization upgrade matrix.
+- The disposable bundle remains pristine after all runs; its audit passes.
+  **Four original runtime file hashes are unchanged**. Only the copied database
+  was upgraded. No changes to original user settings, data or backups.
+- Known optional packaging diagnostics (assetdownloader, pycparser/importlib
+  hooks and snappy/zlib resolution) are retained in the build log. Passing smokes
+  do not certify every optional native compression/provider path.
+
+Evidence: `windows-build.log`, `bundle-parity.log`, `packaged-smokes.log`,
+per-mode stdout/stderr/application logs, `upgrade-validation.log`,
+`qa-bundle-audit.log`, final pristine audit and preservation logs in
+`build/release-1.47.0-20260920/`. The first combined helper exits on its overly
+strict DB comparison; the subsequent explicit semantic/seed/integrity validation
+and separate audit pass on those same four runtimes. No application fix or
+second artifact was needed.
+
+Cleanup of the validated disposable copy was **blocked by execution policy**.
+It remains at
+`C:\Users\beast\AppData\Local\Temp\NightScope-147-qa-8d015a2690fd45699b4717df06d0a338`.
+It contains a private database/settings copy: do not publish it. It may be removed
+manually after review; the distributable is the separate pristine `dist/NightScope`.
+No previous-dist backup was created. No ZIP, signature, antivirus scan, tag,
+publication, Linux build or complete native visual/provider matrix is claimed.
 
 ## COBS Observations and Short-Term Comet Guidance - 2026-09-20
 

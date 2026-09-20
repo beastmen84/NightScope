@@ -17,7 +17,7 @@ Updated: 2026-09-20
   bump and a new local Windows distribution. Manual IT/EN/ES, README, source/legal
   notices and the website's development notice now distinguish 1.47.0 from the
   still-public Windows 1.46.21 / Linux 1.43.0 downloads. No public links move to
-  1.47.0 until publication. Build and validation evidence will be recorded in
+  1.47.0 until publication. Build and validation evidence are recorded in
   `docs/TESTING.md`; no tag, push, public release or Linux build is authorized.
   The 1.47.0 source gate passes 2,303 tests / ten subtests, 87% coverage, security
   and all three isolated smokes. The 86-test documentation/translation rerun and
@@ -27,6 +27,18 @@ Updated: 2026-09-20
   At the start of this task `dist/NightScope` was absent, so the older bundle
   entries below are historical records, not an inventory of the current disk.
   They also retain historical source-only/version statements superseded here.
+  The new `dist/NightScope` was built from clean `15cc17a`: 5,192 files /
+  434,890,413 bytes, EXE SHA-256
+  `947a65ec9609003297efc7d6773fa82183c1e43810edbe7f984f5006c37fa36e`.
+  Pristine/source parity audit (144 modules + main, 107 assets), three packaged
+  smokes and a sparse development-DB upgrade copy pass. Four SQLite integrity/FK
+  checks and original runtime hash preservation pass. The upgrade regenerates
+  GeoNames IDs without changing city/alias content and applies current editorial
+  seeds; 28 other tables are identical. No populated-custom-profile claim.
+  Temporary QA cleanup was blocked; its private copy remains at
+  `C:\Users\beast\AppData\Local\Temp\NightScope-147-qa-8d015a2690fd45699b4717df06d0a338`.
+  Do not ship that directory. Final evidence edits are unbundled documentation
+  only; no application change after the build source commit. No ZIP/publication.
 
 - Source-only COBS integration after `c46aac6`, with the user's explicit request
   to use qualified observations in calculations, not just display them. Daily
@@ -80,7 +92,7 @@ Updated: 2026-09-20
   `build/detail-alignment-20260920/`; details in `docs/TESTING.md`.
   This last alignment is NOT in the Windows bundle below; no rebuild was
   requested in this follow-up. Root runtime and dist EXE hashes are unchanged.
-- Latest local Windows test bundle: rebuilt **2026-09-20 from `a2ebb97`** into
+- Earlier local Windows test bundle: rebuilt **2026-09-20 from `a2ebb97`** into
   `dist/NightScope`, including the local meteor windows and preceding layout/
   recommendation fixes. VERSION remains 1.46.21; it is NOT the public artifact.
   Official build, pristine audit, source/archive parity (140 application
