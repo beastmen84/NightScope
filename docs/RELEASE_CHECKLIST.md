@@ -4,8 +4,9 @@ This checklist is the approval gate for public NightScope builds. A source
 commit or a passing unit suite alone is not a release approval.
 
 Current target: `v1.46.21` (published for Windows only).
-On 2026-09-19, local `dist/NightScope` was rebuilt from `3fd68e6` for user testing
-and now includes the unreleased startup/recommendation/IMO changes. Its version
+On 2026-09-20, local `dist/NightScope` was rebuilt from `a2ebb97` for user testing
+and now includes the unreleased startup/recommendation/IMO changes, Home/layout
+corrections and local meteor windows. Its version
 metadata still says 1.46.21, but it is NOT the published artifact or its matching
 tag. Scoped packaged checks pass; see the latest Windows-bundle section in
 `TESTING.md`. No new publication, ZIP, tag, version bump or Linux build is implied.

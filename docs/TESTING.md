@@ -5,6 +5,45 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Windows Test Bundle With Local Meteor Windows - 2026-09-20
+
+`dist/NightScope` was rebuilt with `packaging/build_windows.ps1` from clean
+source commit **`a2ebb97`**. It contains the local meteor-window work and the
+preceding Home/provider/detail/Calendar corrections. VERSION remains **1.46.21**;
+this is a local Windows test artifact, not the published 1.46.21 ZIP or tag.
+No backup of an old dist was created: the target directory was absent at the
+build preflight, after the user's clean-start deletion. No runtime was copied
+into the deliverable and no IMO publication is bundled.
+
+- Official build and pristine Qt/legal/runtime-state audit pass. Native
+  `QtPositioning.pyd` and `Qt6Positioning.dll` are present. The final directory
+  has **5,192 files / 434,783,726 bytes**.
+- Archive/source parity passes for **140 application modules and the startup
+  entry point**, including all three new meteor modules. **107 application
+  assets**, the manual, VERSION and five legal files match the checkout.
+- Packaged backend, normal-QML and red-night-QML smokes each exit **0** from
+  a disposable copy, with separate `NIGHTSCOPE_RUNTIME_DIR` values, empty
+  stderr and no application errors. All three fresh databases pass SQLite
+  integrity and foreign-key checks. These smokes check initialization; the
+  scoped meteor/translation/visual science checks are recorded below, not
+  misrepresented as an exhaustive packaged provider matrix.
+- Final bundle audit still passes after testing; source DB/backup/preferences/
+  location-cache and supplied PDF hashes remain unchanged. No ZIP, signing,
+  antivirus certification, push, tag, publication, website or Linux rebuild.
+  The final documentation/tooling recheck passes 50 tests; `git diff --check`
+  is clean.
+- EXE SHA-256:
+  `2db11721ab11502e353903027d3ac5acd1c8c339b1be17feb4a53d6364d9b988`.
+
+Evidence: `build/meteor-windows-20260920/` (`windows-build.log`,
+`bundle-parity.log`, `bundle-final-audit.log`, `packaged-smokes.log`, individual
+packaged logs and `packaged-db-integrity.log`). The environment rejected the
+recursive cleanup command, so the **new disposable QA copy**, not an old-dist
+backup, remains at:
+`C:\Users\beast\AppData\Local\Temp\NightScope-meteor-qa-eee920a5e508429097f8ea7558a1fd18`.
+It can be removed manually; do not use it as the final distribution. No bypass
+of the deletion restriction was attempted.
+
 ## Unreleased Local Meteor Windows - 2026-09-20
 
 Implementation against `cada095`, VERSION still **1.46.21**. Local intervals

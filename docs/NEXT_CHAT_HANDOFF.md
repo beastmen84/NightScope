@@ -13,6 +13,19 @@ Updated: 2026-09-20
 
 ## Current State
 
+- Latest local Windows test bundle: rebuilt **2026-09-20 from `a2ebb97`** into
+  `dist/NightScope`, including the local meteor windows and preceding layout/
+  recommendation fixes. VERSION remains 1.46.21; it is NOT the public artifact.
+  Official build, pristine audit, source/archive parity (140 application
+  modules plus startup, 107 assets, manual/VERSION/five legal files), native
+  Qt Positioning and all three packaged smokes pass. Three disposable DBs pass
+  integrity/FK checks. Bundle: 5,192 files / 434,783,726 bytes; EXE SHA-256
+  `2db11721ab11502e353903027d3ac5acd1c8c339b1be17feb4a53d6364d9b988`.
+  No old-dist backup/runtime migration, ZIP, release, push, tag or Linux build.
+  Root runtime/PDF hashes are unchanged. The environment blocked removal of
+  the new disposable QA copy; exact manual-cleanup path is in `docs/TESTING.md`.
+  Evidence: `build/meteor-windows-20260920/`. This entry supersedes the older
+  statements below that the September 20 fixes have not been bundled.
 - Local meteor-window follow-up after `cada095`: the existing annual IMO
   edition now drives background local geometry for the maximum UT date and
   its two neighbouring dates. Astronomical darkness, radiant altitude and Moon
