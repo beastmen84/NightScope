@@ -4,6 +4,7 @@ Updated: 2026-09-20
 
 ## Working Agreement
 
+- Keep each changelog bullet or paragraph on one physical line. Do not hard-wrap Markdown prose at a fixed character limit; retain line breaks only for real paragraph/list/section boundaries so release notes can be copied directly to GitHub.
 - Finish completed, validated implementation work with a local Git commit, as
   requested by the user. Report the commit hash; do not push, tag or publish
   unless separately requested. Read-only reviews do not require a commit.
