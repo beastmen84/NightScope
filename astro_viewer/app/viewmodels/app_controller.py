@@ -7,7 +7,7 @@ import math
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import replace
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from threading import RLock, Thread
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -186,6 +186,7 @@ from astro_viewer.app.viewmodels.catalogue_object_list_model import (
 from astro_viewer.app.viewmodels.object_image_manager import ObjectImageManager
 from astro_viewer.app.viewmodels.imo_calendar_manager import ImoCalendarManager
 from astro_viewer.app.services.imo_meteor_events import annual_meteor_events
+from astro_viewer.app.viewmodels.meteor_window_manager import MeteorWindowManager
 
 
 logger = logging.getLogger(__name__)
@@ -388,6 +389,10 @@ class AppController(QObject, ObservingCalculations):
         self._sky_compass_live_refresh_running = False
         self._sky_compass_live_refresh_request_id = 0
         self._astronomy_engine = controller_dependencies.astronomy_engine
+        self._meteor_window_manager = MeteorWindowManager(
+            getattr(self._astronomy_engine, "meteor_geometry", None), self._astronomy_engine_lock, self)
+        self._meteor_window_manager.changed.connect(self.dataChanged.emit)
+        self._meteor_weather_location = None
         self._weather_service = controller_dependencies.weather_service
         self._equipment_service = controller_dependencies.equipment_service
         self._equipment_catalog_service = (
@@ -956,8 +961,17 @@ class AppController(QObject, ObservingCalculations):
         manager = getattr(self, "_imo_calendar_manager", None)
         calendar = manager.calendar if manager else None
         if calendar is None:
+            windows = getattr(self, "_meteor_window_manager", None)
+            if windows is not None:
+                windows.request(None, None, None)
             return self._events
-        return annual_meteor_events(self._events, calendar, datetime.now(self._zone()))
+        now = datetime.now(self._zone())
+        location = self._location if self._has_valid_location() and not self._startup_location_detection_running else None
+        windows = getattr(self, "_meteor_window_manager", None)
+        geometry = windows.request(calendar, location, now.astimezone(UTC).date()) if windows else {}
+        weather = self._weather_hours if location and getattr(self, "_meteor_weather_location", None) == location else ()
+        return annual_meteor_events(self._events, calendar, now, geometry=geometry,
+                                   weather_hours=weather, location=location)
 
     @Property("QVariant", notify=dataChanged)
     def calendarOverview(self) -> dict:
@@ -4600,8 +4614,11 @@ class AppController(QObject, ObservingCalculations):
             ),
         )
         refreshed_hours = hours if isinstance(hours, list) else []
+        if error or not refreshed_hours:
+            self._meteor_weather_location = None
         if refreshed_hours:
             self._weather_hours = refreshed_hours
+            self._meteor_weather_location = self._location if not error else None
         elif self._weather_hours:
             error = error or WEATHER_UNAVAILABLE_MESSAGE
         else:
@@ -4882,6 +4899,9 @@ class AppController(QObject, ObservingCalculations):
 
     @Slot()
     def stopPerformanceWorkers(self) -> None:
+        meteor_manager = getattr(self, "_meteor_window_manager", None)
+        if meteor_manager is not None:
+            meteor_manager.stop()
         manager = getattr(self, "_imo_calendar_manager", None)
         if manager is not None:
             manager.stop()

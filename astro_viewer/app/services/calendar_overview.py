@@ -210,6 +210,9 @@ def _event_payload(
     if primary_target_id and primary_target_id.casefold() not in normalized_target_ids:
         target_object_ids.insert(0, primary_target_id)
     priority_state, priority_label = _priority(usefulness)
+    if event_type_code == "meteor_shower" and _text(event, "sourceCode") == "imo_calendar":
+        # Annual reference data are not a prediction of spectacular local rates.
+        priority_state, priority_label = "informational", tr("Calendario IMO")
     data_updated_at = _text(event, "dataUpdatedAt") or _text(event, "data_updated_at")
     return {
         "id": _text(event, "id"),

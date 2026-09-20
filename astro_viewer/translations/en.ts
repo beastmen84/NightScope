@@ -2,11 +2,11 @@
 <!DOCTYPE TS []>
 <TS version="2.1" language="en_US" sourcelanguage="it_IT">
   <context>
-    <name></name>
+    <name />
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="37" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="427" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3755" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3821" />
       <source>Giove</source>
       <translation>Jupiter</translation>
     </message>
@@ -21,12 +21,12 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="433" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="437" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="441" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1539" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1541" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2155" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3715" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3763" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3771" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1543" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2157" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3781" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3829" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3837" />
       <source>Pianeta</source>
       <translation>Planet</translation>
     </message>
@@ -39,7 +39,7 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="45" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="125" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="617" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1763" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1765" />
       <source>Sud-Est</source>
       <translation>South-East</translation>
     </message>
@@ -70,7 +70,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="57" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="431" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3757" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3823" />
       <source>Saturno</source>
       <translation>Saturn</translation>
     </message>
@@ -83,9 +83,9 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="65" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="105" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="619" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1765" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3741" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3769" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1767" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3807" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3835" />
       <source>Sud</source>
       <translation>South</translation>
     </message>
@@ -114,7 +114,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="77" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="421" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3751" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3817" />
       <source>Venere</source>
       <translation>Venus</translation>
     </message>
@@ -126,7 +126,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="85" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="623" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1769" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1771" />
       <source>Ovest</source>
       <translation>West</translation>
     </message>
@@ -147,15 +147,15 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="639" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="647" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="755" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1875" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1877" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1887" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2163" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2735" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3335" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3337" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3345" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3723" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1879" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1889" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2165" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2737" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3401" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3403" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3411" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3789" />
       <source>Occhio nudo</source>
       <translation>Naked eye</translation>
     </message>
@@ -171,7 +171,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="99" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1517" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1519" />
       <source>Ammasso globulare</source>
       <translation>Globular cluster</translation>
     </message>
@@ -195,11 +195,11 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="169" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="641" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="649" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1813" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1853" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1857" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2161" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3299" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1815" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1855" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1859" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2163" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3365" />
       <source>Binocolo</source>
       <translation>Binoculars</translation>
     </message>
@@ -215,7 +215,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="119" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1543" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1545" />
       <source>Nebulosa planetaria</source>
       <translation>Planetary nebula</translation>
     </message>
@@ -247,7 +247,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="143" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="615" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1761" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1763" />
       <source>Est</source>
       <translation>East</translation>
     </message>
@@ -273,7 +273,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="157" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1509" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1511" />
       <source>Galassia</source>
       <translation>Galaxy</translation>
     </message>
@@ -285,7 +285,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="163" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="613" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1759" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1761" />
       <source>Nord-Est</source>
       <translation>North-East</translation>
     </message>
@@ -443,7 +443,7 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="257" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="287" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="309" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2751" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2753" />
       <source>{start} - {end}</source>
       <translation>{start} - {end}</translation>
     </message>
@@ -593,7 +593,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="409" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1555" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1557" />
       <source>Stella</source>
       <translation>Star</translation>
     </message>
@@ -601,9 +601,9 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="411" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="451" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1243" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3733" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3735" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3743" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3799" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3801" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3809" />
       <source>Luna</source>
       <translation>Moon</translation>
     </message>
@@ -615,25 +615,25 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="415" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3749" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3815" />
       <source>Mercurio</source>
       <translation>Mercury</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="423" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3753" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3819" />
       <source>Marte</source>
       <translation>Mars</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="435" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3759" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3825" />
       <source>Urano</source>
       <translation>Uranus</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="439" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3761" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3827" />
       <source>Nettuno</source>
       <translation>Neptune</translation>
     </message>
@@ -664,7 +664,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="465" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1911" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1913" />
       <source>Telescopio medio</source>
       <translation>Medium telescope</translation>
     </message>
@@ -680,7 +680,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="471" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3077" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3143" />
       <source>Non osservabile</source>
       <translation>Not observable</translation>
     </message>
@@ -691,7 +691,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="477" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3727" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3793" />
       <source>Nessuna configurazione osservativa</source>
       <translation>No observation setup</translation>
     </message>
@@ -771,291 +771,436 @@
       <translation>Annual astronomical events</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1279" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1281" />
       <source>Osservabile a occhio nudo; il telescopio non serve.</source>
       <translation>Visible to the naked eye; no telescope required.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1315" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1317" />
       <source>La stazione è illuminata dal Sole e attraversa il cielo mentre, per l'osservatore, il Sole è abbastanza sotto l'orizzonte.</source>
       <translation>The station is sunlit and crosses the sky while the Sun is far enough below the observer's horizon.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1331" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1333" />
       <source>È un evento da pianificare usando protezioni certificate specifiche per l'osservazione solare.</source>
       <translation>Plan this event using certified protection designed specifically for solar viewing.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1343" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1345" />
       <source>Raggiungi un punto con orizzonte libero qualche minuto prima.</source>
       <translation>Reach a location with a clear horizon a few minutes early.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1345" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1347" />
       <source>Segui la ISS a occhio nudo dalla direzione iniziale a quella finale.</source>
       <translation>Track the ISS with the naked eye from the start direction to the end direction.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1347" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1349" />
       <source>Non usare alti ingrandimenti: il passaggio è rapido.</source>
       <translation>Avoid high magnification: the pass is brief.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1349" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1351" />
       <source>Ricontrolla l'orario dopo un aggiornamento dei dati orbitali.</source>
       <translation>Recheck the time after an orbital-data update.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1743" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1745" />
       <source>{designation} {name}</source>
       <translation>{designation} {name}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2127" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2129" />
       <source>Oggetti compatibili con l'occhio nudo</source>
       <translation>Objects suitable for naked-eye observing</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2129" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2131" />
       <source>Oggetti compatibili con l'occhio nudo stasera</source>
       <translation>Objects suitable for naked-eye observing tonight</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2141" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2143" />
       <source>Oggetti non disponibili senza località.</source>
       <translation>Objects are unavailable without a location.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2145" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2147" />
       <source>Nessun altro oggetto compatibile con l'occhio nudo.</source>
       <translation>No other objects suitable for naked-eye observing.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2149" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2151" />
       <source>Altri oggetti compatibili con l'occhio nudo</source>
       <translation>Other objects suitable for naked-eye observing</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2243" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2245" />
       <source>Seeing stimato: {value}</source>
       <translation>Estimated seeing: {value}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2271" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2273" />
       <source>Disturbo potenziale elevato</source>
       <translation>High potential interference</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2275" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2277" />
       <source>Disturbo potenziale medio</source>
       <translation>Moderate potential interference</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2279" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2281" />
       <source>Disturbo potenziale basso</source>
       <translation>Low potential interference</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2285" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2287" />
       <source>Stima favorevole ai dettagli fini; verificare all'oculare</source>
       <translation>Estimate favours fine detail; check at the eyepiece</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2409" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2411" />
       <source>Località necessaria per valutare la sessione.</source>
       <translation>Location required to evaluate the session.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2411" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2413" />
       <source>Configura una località per ottenere le condizioni locali.</source>
       <translation>Configure a location to get local conditions.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2415" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2417" />
       <source>Località non disponibile</source>
       <translation>Location unavailable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2421" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2423" />
       <source>Località necessaria per il meteo.</source>
       <translation>Location required for weather.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2427" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2435" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2429" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2437" />
       <source>Località necessaria</source>
       <translation>Location required</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2429" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2437" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2431" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2439" />
       <source>Configura una località</source>
       <translation>Configure a location</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2441" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2443" />
       <source>Località necessaria per la Luna.</source>
       <translation>Location required for Moon data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2731" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2733" />
       <source>{date} (UT)</source>
       <translation>{date} (UT)</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2733" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2735" />
       <source>Massimo previsto {name}</source>
       <translation>Predicted {name} maximum</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2737" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2739" />
       <source>Data indicativa dalla tabella annuale IMO; non è un istante esatto né una previsione di visibilità locale. Eventuali picchi aggiuntivi non sono importati.</source>
       <translation>Approximate date from the annual IMO table; not an exact instant or a local visibility forecast. Additional peaks are not imported.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2739" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2741" />
       <source>Data del massimo (UT)</source>
       <translation>Maximum date (UT)</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2741" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2743" />
       <source>Da valutare con buio, radiante, Luna e meteo locali</source>
       <translation>Assess using local darkness, radiant, Moon and weather</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2745" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2747" />
       <source>Il tasso ZHR si riferisce a condizioni ideali, non alle meteore effettivamente visibili dalla propria località.</source>
       <translation>ZHR describes ideal conditions, not the number of meteors actually visible from your location.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2747" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2749" />
       <source>Calendario IMO {year}</source>
       <translation>IMO calendar {year}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2749" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2751" />
       <source>Periodo di attività (UT)</source>
       <translation>Activity period (UT)</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2753" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2755" />
       <source>ZHR di riferimento (condizioni ideali)</source>
       <translation>Reference ZHR (ideal conditions)</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2847" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2757" />
+      <source>{start} (UTC{start_offset}) – {end} (UTC{end_offset})</source>
+      <translation>{start} (UTC{start_offset}) – {end} (UTC{end_offset})</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2761" />
+      <source>Notti vicine al massimo (±1 giorno UT), non l'intero periodo di attività. Orari locali: {zone}.</source>
+      <translation>Nights near the maximum (±1 UT day), not the entire activity period. Local times: {zone}.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2763" />
+      <source>Il massimo IMO resta una data prevista, non un istante esatto. La finestra locale descrive la geometria del cielo, non un picco di meteore né una garanzia meteo.</source>
+      <translation>The IMO maximum remains a predicted date, not an exact instant. The local window describes sky geometry, not a meteor peak or guaranteed weather.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2765" />
+      <source>Buio astronomico assente nelle notti analizzate.</source>
+      <translation>No astronomical darkness during the analysed nights.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2767" />
+      <source>Radiante sotto 15° durante il buio astronomico nelle notti analizzate.</source>
+      <translation>The radiant stays below 15° during astronomical darkness on the analysed nights.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2769" />
+      <source>Nessun intervallo continuo di almeno 30 minuti supera le soglie osservative.</source>
+      <translation>No continuous interval of at least 30 minutes meets the observing thresholds.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2771" />
+      <source>Le finestre calcolate sono terminate o restano meno di 30 minuti utili.</source>
+      <translation>The calculated windows have ended or fewer than 30 useful minutes remain.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2773" />
+      <source>Calcolo locale temporaneamente non disponibile.</source>
+      <translation>Local calculation temporarily unavailable.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2777" />
+      <source>Nessuna finestra astronomica utile</source>
+      <translation>No useful astronomical window</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2781" />
+      <source>Geometria sfavorevole</source>
+      <translation>Unfavourable geometry</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2783" />
+      <source>{low}°–{high}°</source>
+      <translation>{low}°–{high}°</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2785" />
+      <source>Sotto l'orizzonte per tutta la finestra</source>
+      <translation>Below the horizon throughout the window</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2787" />
+      <source>Presente almeno in parte; illuminazione fino al {value}%</source>
+      <translation>Above the horizon for at least part of the window; illumination up to {value}%</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2789" />
+      <source>Radiante interpolato dalla tabella annuale IMO.</source>
+      <translation>Radiant interpolated from the annual IMO table.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2791" />
+      <source>Radiante approssimato alla posizione del massimo IMO; deriva non disponibile per tutta la finestra.</source>
+      <translation>Radiant approximated by its position at the IMO maximum; drift data do not cover the entire window.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2793" />
+      <source>Buio astronomico, radiante almeno a 30° e Luna sotto l'orizzonte o illuminata al massimo al 25%. Meteo valutato separatamente.</source>
+      <translation>Astronomical darkness, radiant at least 30° high, and Moon below the horizon or no more than 25% illuminated. Weather assessed separately.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2795" />
+      <source>Buio astronomico e radiante almeno a 15°; altezza ridotta o luce lunare limitano l'osservazione. Meteo valutato separatamente.</source>
+      <translation>Astronomical darkness and radiant at least 15° high; low altitude or moonlight limits observation. Weather assessed separately.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2797" />
+      <source>Altezza del radiante nella finestra</source>
+      <translation>Radiant altitude during the window</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2799" />
+      <source>Luna nella finestra</source>
+      <translation>Moon during the window</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2801" />
+      <source>Meteo nella finestra astronomica</source>
+      <translation>Weather during the astronomical window</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2803" />
+      <source>Finestra più ampia, con limiti di altezza o Luna</source>
+      <translation>Wider window, with altitude or Moon limitations</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2805" />
+      <source>Altre finestre astronomiche vicine al massimo</source>
+      <translation>Other astronomical windows near the maximum</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2807" />
+      <source>Geometria favorevole</source>
+      <translation>Favourable geometry</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2809" />
+      <source>Geometria limitata</source>
+      <translation>Limited geometry</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2811" />
+      <source>Previsioni non disponibili per questa finestra; ricontrolla vicino alla data.</source>
+      <translation>Forecast unavailable for this window; check again nearer the date.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2813" />
+      <source>Meteo utilizzabile: {windows}. Da riconfermare vicino all'osservazione.</source>
+      <translation>Usable weather: {windows}. Recheck before observing.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2815" />
+      <source>Previsioni parziali; meteo utilizzabile: {windows}. Ore mancanti non valutate.</source>
+      <translation>Partial forecast; usable weather: {windows}. Missing hours have not been assessed.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2817" />
+      <source>Meteo sfavorevole nella finestra astronomica secondo le previsioni disponibili.</source>
+      <translation>Unfavourable weather during the astronomical window according to the available forecast.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2819" />
+      <source>Previsioni parziali: nessuna apertura meteo utilizzabile nelle ore coperte; ore mancanti non valutate.</source>
+      <translation>Partial forecast: no usable weather interval in the covered hours; missing hours have not been assessed.</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2913" />
       <source>Configura una località per recuperare i dati NASA AOD.</source>
       <translation>Configure a location to retrieve NASA AOD data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2883" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2949" />
       <source>Nessun granulo NASA AOD disponibile dal {start} al {end} per questa località. Prodotti controllati: {products}.</source>
       <translation>No NASA AOD granules were available from {start} to {end} for this location. Products checked: {products}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2967" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3033" />
       <source>Soglia utile {value:g}°</source>
       <translation>Useful threshold {value:g}°</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2987" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3053" />
       <source>Catalogo</source>
       <translation>Catalog</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2989" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3055" />
       <source>Distanza</source>
       <translation>Distance</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2993" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3059" />
       <source>{duration} nella finestra utile, sopra {threshold:g}°</source>
       <translation>{duration} in the useful window, above {threshold:g}°</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3087" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3153" />
       <source>Seeing stimato: {seeing}. Verificare la stabilità dell'immagine all'oculare.</source>
       <translation>Estimated seeing: {seeing}. Check image stability at the eyepiece.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3201" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3267" />
       <source>Configura una località per visualizzare l'atmosfera locale.</source>
       <translation>Configure a location to view the local atmosphere.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3371" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3437" />
       <source>; altezza massima {altitude}°</source>
       <translation>; maximum altitude {altitude}°</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3373" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3439" />
       <source>{magnification}x con pupilla {exit_pupil} mm; campo reale {true_field}°; {barlow}{altitude}.</source>
       <translation>{magnification}x with {exit_pupil} mm exit pupil; {true_field}° true field; {barlow}{altitude}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3389" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3663" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3455" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3729" />
       <source>Nessun oggetto osservabile in questo momento.</source>
       <translation>No objects are observable right now.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3393" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3459" />
       <source>1 oggetto osservabile ora</source>
       <translation>1 object observable now</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3395" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3461" />
       <source>{count} oggetti osservabili ora</source>
       <translation>{count} objects observable now</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="13" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3489" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3609" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3611" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3555" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3675" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3677" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3741" />
       <source>Configura una località per ottenere meteo e cielo locale.</source>
       <translation>Configure a location to get local weather and sky data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3495" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3561" />
       <source>Nessuna località configurata</source>
       <translation>No location configured</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3523" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3589" />
       <source>Inquinamento luminoso non disponibile: visibilità locale da verificare.</source>
       <translation>Light-pollution data unavailable: verify local visibility.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3603" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3669" />
       <source>Configura una località per calcolare i dati lunari locali.</source>
       <translation>Configure a location to calculate local lunar data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3605" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3629" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3671" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3695" />
       <source>Configura una località per visualizzare il meteo.</source>
       <translation>Configure a location to view weather data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3613" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3619" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3679" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3685" />
       <source>Configura una località.</source>
       <translation>Configure a location.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3647" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3713" />
       <source>Dati VIIRS in cache da aggiornare; configura o verifica l'account Earthdata.</source>
       <translation>Cached VIIRS data needs updating; configure or verify your Earthdata account.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3649" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3715" />
       <source>Dati VIIRS NASA non disponibili; mantengo il dataset locale.</source>
       <translation>NASA VIIRS data unavailable; retaining the local dataset.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3651" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3717" />
       <source>Dati VIIRS NASA non disponibili; qualità cielo locale n/d.</source>
       <translation>NASA VIIRS data unavailable; local sky quality n/a.</translation>
     </message>
@@ -1066,58 +1211,58 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="515" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="609" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="971" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1439" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1755" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1929" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2011" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2015" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3033" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3351" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1441" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1757" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1931" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2013" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2017" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3099" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3417" />
       <source>{value}°</source>
       <translation>{value}°</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3067" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3133" />
       <source>Attualmente a {altitude}°, sotto la soglia utile di {threshold}°. Finestra utile: {window}.</source>
       <translation>Currently at {altitude}°, below the useful threshold of {threshold}°. Useful window: {window}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3089" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3155" />
       <source>Culmina molto alto ({altitude}°): meno atmosfera e immagine più stabile.</source>
       <translation>Culminates very high ({altitude}°): less atmosphere and a steadier image.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3091" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3157" />
       <source>Raggiunge una buona altezza ({altitude}°): osservazione realistica.</source>
       <translation>Reaches a good altitude ({altitude}°): realistically observable.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3093" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3159" />
       <source>Resta basso ({altitude}°): serve orizzonte libero e cielo stabile.</source>
       <translation>Remains low ({altitude}°): needs a clear horizon and steady sky.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3095" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3161" />
       <source>Altezza massima critica ({altitude}°): oggetto difficile da sfruttare.</source>
       <translation>Critical maximum altitude ({altitude}°): a difficult object to observe effectively.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3111" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3177" />
       <source>Cielo Bortle {bortle}: oggetto penalizzato, meglio trasparenza alta e luci schermate.</source>
       <translation>Bortle {bortle} sky: object is penalized; high transparency and shielded lights are preferable.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3795" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3861" />
       <source>Intervallo AFOV non valido.</source>
       <translation>Invalid AFOV range.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1819" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1821" />
       <source>Profilo con binocolo: configura o seleziona un telescopio per usare oculari e Barlow.</source>
       <translation>Binocular profile: configure or select a telescope to use eyepieces and Barlow lenses.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1821" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1823" />
       <source>Modalità Occhio nudo: configura o seleziona un telescopio per usare oculari e Barlow.</source>
       <translation>Naked Eye Mode: Configure or select a telescope to use eyepieces and Barlows.</translation>
     </message>
@@ -1130,10 +1275,10 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1231" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1233" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1237" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3435" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3437" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3439" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3443" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3501" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3503" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3505" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3509" />
       <source>{value}%</source>
       <translation>{value}%</translation>
     </message>
@@ -1198,7 +1343,9 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="761" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1161" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1267" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2743" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2745" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2775" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2779" />
       <source>Da verificare</source>
       <translation>To be checked</translation>
     </message>
@@ -1229,9 +1376,9 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="563" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1447" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1471" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3017" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1449" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1473" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3083" />
       <source>Catalogo {catalogue}</source>
       <translation>Catalog {catalogue}</translation>
     </message>
@@ -1272,7 +1419,6 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1211" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1213" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1219" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1449" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1451" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1453" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1455" />
@@ -1281,7 +1427,7 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1461" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1463" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1465" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1473" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1467" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1475" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1477" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1479" />
@@ -1292,10 +1438,10 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1489" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1491" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1493" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1751" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1495" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1753" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1773" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1935" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1755" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1775" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1937" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1939" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1941" />
@@ -1304,80 +1450,81 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1947" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1949" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1951" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1955" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1953" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1957" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1967" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1959" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1969" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1971" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1973" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1975" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1977" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1981" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1979" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1983" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1993" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1997" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2001" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2005" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2009" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2013" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2157" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1985" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1995" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1999" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2003" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2007" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2011" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2015" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2159" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2233" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2161" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2235" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2241" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2251" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2237" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2243" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2253" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2333" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2381" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2417" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2255" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2335" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2383" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2419" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2423" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2431" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2961" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2963" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2965" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2969" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2971" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2973" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2975" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2977" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2979" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2997" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2999" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3001" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3003" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3005" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3105" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3303" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3353" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3357" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3417" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2421" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2425" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2433" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3027" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3029" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3031" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3035" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3037" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3039" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3041" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3043" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3045" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3063" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3065" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3067" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3069" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3071" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3171" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3369" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3419" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3421" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3423" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3433" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3461" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3463" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3517" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3521" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3595" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3597" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3599" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3601" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3607" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3615" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3617" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3711" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3747" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3765" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3775" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3483" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3485" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3487" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3489" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3499" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3527" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3529" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3583" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3587" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3661" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3663" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3665" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3667" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3673" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3681" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3683" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3777" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3813" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3831" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3841" />
       <source>n/d</source>
       <translation>n/a</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="569" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="571" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2995" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3061" />
       <source>calcolato da finestra</source>
       <translation>calculated from window</translation>
     </message>
@@ -1393,42 +1540,42 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="591" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3143" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3169" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3209" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3235" />
       <source>Pessima</source>
       <translation>Very bad</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="593" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3171" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3237" />
       <source>Scarsa</source>
       <translation>Poor</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="595" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3173" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3193" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3239" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3259" />
       <source>Discreta</source>
       <translation>Fair</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="597" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2875" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3175" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2941" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3241" />
       <source>Buona</source>
       <translation>Good</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="599" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3177" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3243" />
       <source>Ottima</source>
       <translation>Excellent</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="603" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="605" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3227" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3737" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3293" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3803" />
       <source>{value} km</source>
       <translation>{value} km</translation>
     </message>
@@ -1439,19 +1586,19 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="611" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1757" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1759" />
       <source>Nord</source>
       <translation>North</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="621" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1767" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1769" />
       <source>Sud-Ovest</source>
       <translation>South-West</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="625" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1771" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1773" />
       <source>Nord-Ovest</source>
       <translation>North-West</translation>
     </message>
@@ -1479,8 +1626,8 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="637" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="643" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="645" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1723" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1839" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1725" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1841" />
       <source>Telescopio</source>
       <translation>Telescope</translation>
     </message>
@@ -1618,7 +1765,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="719" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2715" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2717" />
       <source>Quadrantidi</source>
       <translation>Quadrantids</translation>
     </message>
@@ -1629,7 +1776,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="723" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2713" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2715" />
       <source>Liridi</source>
       <translation>Lyrids</translation>
     </message>
@@ -1745,31 +1892,31 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="725" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2711" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2713" />
       <source>Eta Aquaridi</source>
       <translation>Eta Aquarids</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="727" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1431" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1433" />
       <source>Pre-alba</source>
       <translation>Pre-dawn</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="729" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2717" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2719" />
       <source>Delta Aquaridi meridionali</source>
       <translation>Southern Delta Aquarids</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="733" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2719" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2721" />
       <source>Perseidi</source>
       <translation>Perseids</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="735" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2721" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2723" />
       <source>Draconidi</source>
       <translation>Draconids</translation>
     </message>
@@ -1780,25 +1927,25 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="741" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2725" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2727" />
       <source>Orionidi</source>
       <translation>Orionids</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="745" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2723" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2725" />
       <source>Leonidi</source>
       <translation>Leonids</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="747" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2727" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2729" />
       <source>Geminidi</source>
       <translation>Geminids</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="751" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2729" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2731" />
       <source>Ursidi</source>
       <translation>Ursids</translation>
     </message>
@@ -1850,7 +1997,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="779" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2075" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2077" />
       <source>Rifrattore</source>
       <translation>Refractor</translation>
     </message>
@@ -1861,7 +2008,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="783" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2085" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2087" />
       <source>Altro</source>
       <translation>Other</translation>
     </message>
@@ -2076,23 +2223,23 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="965" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1009" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1109" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1815" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1817" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1931" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1961" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1819" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1933" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1963" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1987" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1965" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1989" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2003" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2007" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2509" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3355" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1991" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2005" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2009" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2511" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3421" />
       <source>{value} mm</source>
       <translation>{value} mm</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="961" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2513" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2515" />
       <source>f/{value}</source>
       <translation>f/{value}</translation>
     </message>
@@ -2105,14 +2252,14 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="973" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1007" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1849" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1863" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1927" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1933" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1995" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1999" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2029" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3349" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1851" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1865" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1929" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1935" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1997" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2001" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2031" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3415" />
       <source>{value}x</source>
       <translation>{value}x</translation>
     </message>
@@ -2240,25 +2387,25 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1185" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3097" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3163" />
       <source>Eccellente</source>
       <translation>Excellent</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1187" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3099" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3165" />
       <source>Buono</source>
       <translation>Good</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1189" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3101" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3167" />
       <source>Discreto</source>
       <translation>Fair</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1191" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3103" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3169" />
       <source>Scarso</source>
       <translation>Poor</translation>
     </message>
@@ -2513,7 +2660,8 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="383" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1271" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1273" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2759" />
       <source>{start} – {end}</source>
       <translation>{start} – {end}</translation>
     </message>
@@ -2749,7 +2897,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1039" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3785" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3851" />
       <source>Dati della camera astronomica non validi.</source>
       <translation>Invalid astronomy camera data.</translation>
     </message>
@@ -2787,7 +2935,7 @@
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1063" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3787" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3853" />
       <source>Dati del corpo macchina non validi.</source>
       <translation>Invalid camera body data.</translation>
     </message>
@@ -2877,1469 +3025,1474 @@
       <translation>Local visibility not available.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1273" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1271" />
+      <source>Calendario IMO</source>
+      <translation>IMO calendar</translation>
+    </message>
+    <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1275" />
       <source>Limite dell'analisi: il periodo potrebbe proseguire</source>
       <translation>Analysis limit: the period may continue</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1275" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1277" />
       <source>Analisi fino al {date}</source>
       <translation>Analysed through {date}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1283" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1285" />
       <source>Il telescopio non serve: osserva a occhio nudo. Un binocolo può essere utile solo per esplorare il cielo tra una meteora e l'altra.</source>
       <translation>A telescope is not required: observe with the naked eye. Binoculars may only help scan the sky between meteors.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1285" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1287" />
       <source>Osserva il Sole solo con filtri solari certificati davanti all'obiettivo. Non usare oculari o cercatori non filtrati.</source>
       <translation>Observe the Sun only with a certified solar filter in front of the objective. Do not use unfiltered eyepieces or finders.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1287" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1289" />
       <source>Nessun setup osservativo: il pianeta è troppo vicino al Sole per un'osservazione visuale sicura.</source>
       <translation>No observing setup: the planet is too close to the Sun for safe visual observation.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1289" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1291" />
       <source>Il massimo non è osservabile localmente. Prepara binocolo o basso ingrandimento solo dopo aver verificato gli orari completi delle fasi.</source>
       <translation>The maximum is not observable locally. Prepare binoculars or low magnification only after checking the full phase timings.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1291" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1293" />
       <source>Osservabile a occhio nudo. Con binocolo o telescopio usa basso ingrandimento: l'intero disco lunare deve restare nel campo.</source>
       <translation>Observable with the naked eye. With binoculars or telescope use low magnification: the entire lunar disk must remain in the field.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1293" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1295" />
       <source>Configura un profilo per consigli più precisi; resta comunque la notte migliore del mese per galassie, nebulose e ammassi deboli.</source>
       <translation>Set up a profile for more precise recommendations; however, it remains the best night of the month for galaxies, nebulae and faint clusters.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1295" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1297" />
       <source>Osservabile a occhio nudo o con binocolo.</source>
       <translation>Observable with the naked eye or with binoculars.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1297" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1299" />
       <source>Il terminatore evidenzia crateri e rilievi; usa ingrandimenti progressivi.</source>
       <translation>The terminator highlights craters and reliefs; use progressive magnifications.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1299" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1301" />
       <source>Usa filtro lunare o ingrandimenti moderati: il disco è molto luminoso.</source>
       <translation>Use moon filter or moderate magnification - the disk is very bright.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1301" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1303" />
       <source>Mantieni il disco comodo nel campo e aumenta l'ingrandimento solo con immagine stabile.</source>
       <translation>Keep the disk comfortable in the field and zoom in only with stable image.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1303" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1305" />
       <source>Aumenta l'ingrandimento solo se il seeing della notte dell'evento mantiene il pianeta nitido.</source>
       <translation>Increase magnification only if the event night's seeing keeps the planet sharp.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1305" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1307" />
       <source>La separazione indicata determina se entrambi entrano nello stesso campo.</source>
       <translation>The indicated separation determines whether both enter the same field.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1307" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1309" />
       <source>Osservabile a occhio nudo</source>
       <translation>Observable with the naked eye</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1309" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1311" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1313" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1315" />
       <source>Configura un profilo per consigli più precisi.</source>
       <translation>Set up a profile for more precise recommendations.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1319" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1321" />
       <source>Il pianeta resta visibile a lungo, diventa più luminoso e permette di aspettare i momenti di seeing stabile.</source>
       <translation>The planet remains visible longer and grows brighter, giving you more time to wait for steady seeing.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1321" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1323" />
       <source>È la finestra con meno luce lunare: riservala a galassie, nebulose e ammassi deboli che perdono contrasto nelle altre notti.</source>
       <translation>It is the window with the least moonlight: reserve it for galaxies, nebulae and faint clusters that lose contrast on other nights.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1323" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1325" />
       <source>Il terminatore attraversa zone ricche di rilievi e mostra più dettaglio rispetto alla Luna piena.</source>
       <translation>The terminator passes through areas rich in relief and shows more detail than the full Moon.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1325" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1327" />
       <source>La Luna piena è facile e luminosa, ma penalizza il cielo profondo debole.</source>
       <translation>The full Moon is easy and bright, but penalizes the weak deep sky.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1327" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1329" />
       <source>La fase lunare determina il fondo cielo e i dettagli lunari più accessibili.</source>
       <translation>The moon phase determines the sky background and the most accessible lunar details.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1329" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1331" />
       <source>Conta più il cielo buio del telescopio: servono campo ampio, pazienza e vista adattata al buio.</source>
       <translation>Dark-sky quality matters more than aperture: use a wide field, patience, and fully dark-adapted vision.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1333" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1335" />
       <source>Il massimo non è osservabile dalla posizione attuale; le fasi iniziali o finali possono avere una visibilità diversa e vanno verificate.</source>
       <translation>The maximum is not observable from the current position; the initial or final phases may have different visibility and must be verified.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1335" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1337" />
       <source>È osservabile anche a occhio nudo; binocolo o basso ingrandimento aiutano a seguire ombra e colore sul disco lunare.</source>
       <translation>It can also be observed with the naked eye; binoculars or low magnification help to follow shadow and color on the lunar disk.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1337" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1339" />
       <source>È un riferimento effemeride che segna il passaggio del pianeta dalla visibilità serale a quella mattutina, non un'opportunità visuale.</source>
       <translation>It is an ephemeris reference that marks the planet's transition from evening to morning visibility, not a visual opportunity.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1339" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1341" />
       <source>I due pianeti raggiungono la minima separazione apparente e possono entrare nello stesso campo con binocolo o bassi ingrandimenti.</source>
       <translation>The two planets achieve minimum apparent separation and can enter the same field with binoculars or low magnifications.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1341" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1343" />
       <source>Evento astronomico nell'orizzonte annuale.</source>
       <translation>Astronomical event on the annual horizon.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1359" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3301" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1361" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3367" />
       <source>Usa alti ingrandimenti solo se il seeing lo permette.</source>
       <translation>Use high magnifications only if seeing permits.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1361" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1363" />
       <source>Osserva nella finestra locale indicata, quando il pianeta è più alto.</source>
       <translation>Observe in the indicated local window, when the planet is highest.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1363" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1365" />
       <source>Lascia acclimatare il telescopio prima dei dettagli fini.</source>
       <translation>Allow the telescope to reach thermal equilibrium before looking for fine detail.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1365" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1367" />
       <source>Non serve il telescopio.</source>
       <translation>No telescope needed.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1367" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1369" />
       <source>Scegli una zona ampia e buia, lontana da luci dirette.</source>
       <translation>Choose a large, dark area away from direct lights.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1369" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1371" />
       <source>Controlla fase lunare e meteo vicino alla data del massimo.</source>
       <translation>Check moon phase and weather close to the maximum date.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1371" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1373" />
       <source>Osserva a lungo con una sedia reclinabile.</source>
       <translation>Observe patiently from a reclining chair.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1373" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1375" />
       <source>Dai priorità a galassie, nebulose e ammassi deboli.</source>
       <translation>Prioritize galaxies, nebulae, and faint clusters.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1375" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1377" />
       <source>Evita luci dirette e lascia adattare la vista al buio.</source>
       <translation>Avoid direct lights and let your vision adapt to the dark.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1377" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1379" />
       <source>Controlla il meteo quando la data entra nell'orizzonte previsionale.</source>
       <translation>Check the weather as the date enters the forecast horizon.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1379" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1381" />
       <source>Osserva lungo il terminatore.</source>
       <translation>Look along the terminator.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1381" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1383" />
       <source>Aumenta l'ingrandimento a piccoli passi.</source>
       <translation>Increase the magnification in small steps.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1383" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1385" />
       <source>Usa un filtro lunare se l'immagine è troppo luminosa.</source>
       <translation>Use a moon filter if the image is too bright.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1385" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1387" />
       <source>Usa filtro lunare o riduci l'ingrandimento.</source>
       <translation>Use moon filter or zoom out.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1387" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1389" />
       <source>Evita gli oggetti più deboli del cielo profondo.</source>
       <translation>Avoid the faintest objects in the deep sky.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1389" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1391" />
       <source>Preferisci pianeti brillanti, stelle doppie e osservazione lunare.</source>
       <translation>Prefer bright planets, double stars and lunar observation.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1391" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1393" />
       <source>Usa solo filtri solari certificati davanti all'obiettivo.</source>
       <translation>Use only certified solar filters in front of the objective.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1393" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1395" />
       <source>Non guardare mai il Sole attraverso strumenti non filtrati.</source>
       <translation>Never look at the Sun through unfiltered instruments.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1395" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1397" />
       <source>Prepara il setup prima dell'inizio dell'evento.</source>
       <translation>Prepare the setup before the event starts.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1397" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1399" />
       <source>Verifica gli orari completi delle fasi per la tua posizione.</source>
       <translation>Check the full phase timings for your location.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1399" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1401" />
       <source>Non considerare il solo massimo come finestra osservativa.</source>
       <translation>Do not consider the maximum alone as an observation window.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1401" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1403" />
       <source>Prepara lo strumento solo se almeno una fase risulta visibile.</source>
       <translation>Prepare the instrument only if at least one phase is visible.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1403" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1405" />
       <source>Controlla lo stato di visibilità locale del massimo.</source>
       <translation>Check the local visibility status of the maximum.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1405" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1407" />
       <source>Usa binocolo o basso ingrandimento.</source>
       <translation>Use binoculars or low magnification.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1407" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1409" />
       <source>Mantieni il disco lunare completo nel campo.</source>
       <translation>Keep the complete lunar disk in the field.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1409" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1411" />
       <source>Non puntare binocoli, telescopi o cercatori vicino al Sole.</source>
       <translation>Do not point binoculars, telescopes or finders close to the Sun.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1411" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1413" />
       <source>Attendi che il pianeta riemerga nel cielo mattutino dopo la congiunzione.</source>
       <translation>Wait for the planet to reemerge into the morning sky after the conjunction.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1413" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1415" />
       <source>Usa la scheda del pianeta per controllarne la visibilità nelle notti successive.</source>
       <translation>Use the planet card to check its visibility on subsequent nights.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1415" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1417" />
       <source>Preferisci bassi ingrandimenti o binocolo.</source>
       <translation>Prefer low magnifications or binoculars.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1417" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1419" />
       <source>Usa la finestra locale in cui entrambi superano la soglia utile.</source>
       <translation>Use the local window where both exceed the useful threshold.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1419" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1421" />
       <source>Cerca un orizzonte libero nella direzione indicata dalle schede dei pianeti.</source>
       <translation>Look for a clear horizon in the direction indicated by the planet cards.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1421" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1423" />
       <source>Controlla visibilità locale e meteo vicino alla data.</source>
       <translation>Check local visibility and weather near the date.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1423" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1425" />
       <source>Prepara il setup in anticipo per non perdere la finestra utile.</source>
       <translation>Prepare the setup in advance so as not to miss the useful window.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1425" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1427" />
       <source>In evidenza</source>
       <translation>Highlighted</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1427" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1429" />
       <source>Rilevante</source>
       <translation>Relevant</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1429" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1431" />
       <source>Informativo</source>
       <translation>Informative</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1433" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1437" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1435" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1439" />
       <source>Notte</source>
       <translation>Night</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1435" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1437" />
       <source>Sera</source>
       <translation>Evening</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1441" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1443" />
       <source>{date} - {label}: {value}</source>
       <translation>{date} - {label}: {value}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1443" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1445" />
       <source>{setup}{suffix} {guidance}</source>
       <translation>{setup}{suffix} {guidance}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1445" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1447" />
       <source>Evento</source>
       <translation>Event</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1495" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1497" />
       <source>Asterismo</source>
       <translation>Asterism</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1497" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1499" />
       <source>Galassia spirale barrata</source>
       <translation>Barred spiral galaxy</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1499" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1501" />
       <source>Nebulosa diffusa</source>
       <translation>Diffuse nebula</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1501" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1503" />
       <source>Nebulosa oscura</source>
       <translation>Dark nebula</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1503" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1505" />
       <source>Galassia ellittica nana</source>
       <translation>Dwarf elliptical galaxy</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1505" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1507" />
       <source>Galassia ellittica</source>
       <translation>Elliptical galaxy</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1507" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1509" />
       <source>Nebulosa a emissione</source>
       <translation>Emission nebula</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1511" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1513" />
       <source>Gruppo di galassie</source>
       <translation>Galaxy group</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1513" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1515" />
       <source>Coppia di galassie</source>
       <translation>Galaxy pair</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1515" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1517" />
       <source>Terzetto di galassie</source>
       <translation>Galaxy triplet</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1519" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1521" />
       <source>Nebulosa H II</source>
       <translation>Nebula H II</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1521" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1523" />
       <source>Nebulosa H II di Orione</source>
       <translation>H II Nebula in Orion</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1523" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1525" />
       <source>Nebulosa H II con ammasso</source>
       <translation>H II nebula with cluster</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1525" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1527" />
       <source>Galassia irregolare</source>
       <translation>Irregular galaxy</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1527" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1529" />
       <source>Galassia lenticolare</source>
       <translation>Lenticular galaxy</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1529" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1531" />
       <source>Nube stellare della Via Lattea</source>
       <translation>Star cloud of the Milky Way</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1531" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1533" />
       <source>Nebulosa</source>
       <translation>Nebula</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1533" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1535" />
       <source>Nebulosa con ammasso</source>
       <translation>Nebula with cluster</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1535" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1537" />
       <source>Ammasso aperto</source>
       <translation>Open cluster</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1537" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1539" />
       <source>Doppia ottica</source>
       <translation>Double optics</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1545" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1547" />
       <source>Galassia peculiare</source>
       <translation>Peculiar galaxy</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1547" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1549" />
       <source>Nebulosa a riflessione</source>
       <translation>Reflection nebula</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1549" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1551" />
       <source>Galassia di Seyfert</source>
       <translation>Seyfert Galaxy</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1551" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1553" />
       <source>Galassia spirale</source>
       <translation>Spiral galaxy</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1553" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1555" />
       <source>Galassia starburst</source>
       <translation>Starburst galaxy</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1557" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1559" />
       <source>Resto di supernova</source>
       <translation>Supernova remnant</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1559" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1561" />
       <source>Oggetto non classificato</source>
       <translation>Unclassified object</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1561" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1563" />
       <source>Generale</source>
       <translation>General</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1563" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3291" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1565" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3357" />
       <source>Alto ingrandimento</source>
       <translation>High magnification</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1565" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3293" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1567" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3359" />
       <source>Campo largo</source>
       <translation>Wide field</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1567" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1569" />
       <source>Andromeda</source>
       <translation>Andromeda</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1569" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1571" />
       <source>Macchina Pneumatica</source>
       <translation>Antlia</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1571" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1573" />
       <source>Uccello del Paradiso</source>
       <translation>Apus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1573" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1575" />
       <source>Aquila</source>
       <translation>Aquila</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1575" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1577" />
       <source>Acquario</source>
       <translation>Aquarius</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1577" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1579" />
       <source>Altare</source>
       <translation>Ara</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1579" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1581" />
       <source>Auriga</source>
       <translation>Auriga</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1581" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1583" />
       <source>Ariete</source>
       <translation>Aries</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1583" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1585" />
       <source>Boote</source>
       <translation>Boötes</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1585" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1587" />
       <source>Giraffa</source>
       <translation>Camelopardalis</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1587" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1589" />
       <source>Bulino</source>
       <translation>Caelum</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1589" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1591" />
       <source>Cancro</source>
       <translation>Cancer</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1591" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1593" />
       <source>Cani da Caccia</source>
       <translation>Canes Venatici</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1593" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1595" />
       <source>Cane Maggiore</source>
       <translation>Canis Major</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1595" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1597" />
       <source>Cane Minore</source>
       <translation>Canis Minor</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1597" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1599" />
       <source>Capricorno</source>
       <translation>Capricornus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1599" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1601" />
       <source>Carena</source>
       <translation>Carina</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1601" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1603" />
       <source>Cassiopea</source>
       <translation>Cassiopeia</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1603" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1605" />
       <source>Centauro</source>
       <translation>Centaurus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1605" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1607" />
       <source>Cefeo</source>
       <translation>Cepheus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1607" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1609" />
       <source>Balena</source>
       <translation>Cetus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1609" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1611" />
       <source>Camaleonte</source>
       <translation>Chamaeleon</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1611" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1613" />
       <source>Compasso</source>
       <translation>Circinus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1613" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1615" />
       <source>Colomba</source>
       <translation>Columba</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1615" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1617" />
       <source>Chioma di Berenice</source>
       <translation>Coma Berenices</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1617" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1619" />
       <source>Corona Australe</source>
       <translation>Corona Australis</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1619" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1621" />
       <source>Corona Boreale</source>
       <translation>Corona Borealis</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1621" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1623" />
       <source>Coppa</source>
       <translation>Crater</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1623" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1625" />
       <source>Corvo</source>
       <translation>Corvus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1625" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1627" />
       <source>Croce del Sud</source>
       <translation>Crux</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1627" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1629" />
       <source>Cigno</source>
       <translation>Cygnus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1629" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1631" />
       <source>Delfino</source>
       <translation>Delphinus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1631" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1633" />
       <source>Dorado</source>
       <translation>Dorado</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1633" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1635" />
       <source>Drago</source>
       <translation>Draco</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1635" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1637" />
       <source>Cavallino</source>
       <translation>Equuleus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1637" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1639" />
       <source>Eridano</source>
       <translation>Eridanus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1639" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1641" />
       <source>Fornace</source>
       <translation>Fornax</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1641" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1643" />
       <source>Gemelli</source>
       <translation>Gemini</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1643" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1645" />
       <source>Gru</source>
       <translation>Grus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1645" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1647" />
       <source>Ercole</source>
       <translation>Hercules</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1647" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1649" />
       <source>Orologio</source>
       <translation>Horologium</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1649" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1651" />
       <source>Idra</source>
       <translation>Hydra</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1651" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1653" />
       <source>Idro</source>
       <translation>Hydrus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1653" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1655" />
       <source>Indiano</source>
       <translation>Indus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1655" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1657" />
       <source>Lucertola</source>
       <translation>Lacerta</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1657" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1659" />
       <source>Leone</source>
       <translation>Leo</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1659" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1661" />
       <source>Leone Minore</source>
       <translation>Leo Minor</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1661" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1663" />
       <source>Lepre</source>
       <translation>Lepus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1663" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1665" />
       <source>Bilancia</source>
       <translation>Libra</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1665" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1667" />
       <source>Lupo</source>
       <translation>Lupus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1667" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1669" />
       <source>Lince</source>
       <translation>Lynx</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1669" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1671" />
       <source>Lira</source>
       <translation>Lyra</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1671" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1673" />
       <source>Mensa</source>
       <translation>Mensa</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1673" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1675" />
       <source>Microscopio</source>
       <translation>Microscopium</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1675" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1677" />
       <source>Unicorno</source>
       <translation>Monoceros</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1677" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1679" />
       <source>Mosca</source>
       <translation>Musca</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1679" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1681" />
       <source>Regolo</source>
       <translation>Norma</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1681" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1683" />
       <source>Ottante</source>
       <translation>Octans</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1683" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1685" />
       <source>Ofiuco</source>
       <translation>Ophiuchus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1685" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1687" />
       <source>Orione</source>
       <translation>Orion</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1687" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1689" />
       <source>Pavone</source>
       <translation>Pavo</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1689" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1691" />
       <source>Pegaso</source>
       <translation>Pegasus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1691" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1693" />
       <source>Perseo</source>
       <translation>Perseus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1693" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1695" />
       <source>Fenice</source>
       <translation>Phoenix</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1695" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1697" />
       <source>Pittore</source>
       <translation>Pictor</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1697" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1699" />
       <source>Pesce Australe</source>
       <translation>Piscis Austrinus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1699" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1701" />
       <source>Pesci</source>
       <translation>Pisces</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1701" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1703" />
       <source>Poppa</source>
       <translation>Puppis</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1703" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1705" />
       <source>Bussola</source>
       <translation>Pyxis</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1705" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1707" />
       <source>Reticolo</source>
       <translation>Reticulum</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1707" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1709" />
       <source>Freccia</source>
       <translation>Sagitta</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1709" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1711" />
       <source>Sagittario</source>
       <translation>Sagittarius</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1711" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1713" />
       <source>Scorpione</source>
       <translation>Scorpius</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1713" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1715" />
       <source>Scultore</source>
       <translation>Sculptor</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1715" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1717" />
       <source>Scudo</source>
       <translation>Scutum</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1717" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1719" />
       <source>Serpente</source>
       <translation>Serpens</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1719" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1721" />
       <source>Sestante</source>
       <translation>Sextans</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1721" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1723" />
       <source>Toro</source>
       <translation>Taurus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1725" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1727" />
       <source>Triangolo</source>
       <translation>Triangulum</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1727" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1729" />
       <source>Triangolo Australe</source>
       <translation>Triangulum Australe</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1729" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1731" />
       <source>Tucano</source>
       <translation>Tucana</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1731" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1733" />
       <source>Orsa Maggiore</source>
       <translation>Ursa Major</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1733" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1735" />
       <source>Orsa Minore</source>
       <translation>Ursa Minor</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1735" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1737" />
       <source>Vele</source>
       <translation>Vela</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1737" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1739" />
       <source>Vergine</source>
       <translation>Virgo</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1739" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1741" />
       <source>Pesce Volante</source>
       <translation>Volans</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1741" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1743" />
       <source>Volpetta</source>
       <translation>Vulpecula</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1775" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1785" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1797" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1777" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1787" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1799" />
       <source>Credenziali Earthdata non configurate.</source>
       <translation>Earthdata credentials not configured.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1777" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1789" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3245" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3255" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1779" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1791" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3311" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3321" />
       <source>Archivio credenziali di sistema non disponibile.</source>
       <translation>System credential store unavailable.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1779" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1801" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1781" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1803" />
       <source>Connessione Earthdata LAADS verificata.</source>
       <translation>Earthdata LAADS connection verified.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1781" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1803" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1783" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1805" />
       <source>Autorizza l'app LAADS OPeNDAP, poi ripeti il test.</source>
       <translation>Authorize the LAADS OPeNDAP app, then repeat the test.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1783" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1793" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1785" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1795" />
       <source>Credenziali Earthdata salvate. Esegui il test connessione.</source>
       <translation>Earthdata credentials saved. Run the connection test.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1787" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1789" />
       <source>Inserisci username e password Earthdata.</source>
       <translation>Enter your Earthdata username and password.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1791" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1793" />
       <source>Impossibile salvare le credenziali nel vault di sistema.</source>
       <translation>Unable to save credentials in the system vault.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1795" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1797" />
       <source>Credenziali Earthdata rimosse.</source>
       <translation>Earthdata credentials removed.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1799" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2853" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1801" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2919" />
       <source>Connessione Earthdata non riuscita: {error_type}.</source>
       <translation>Earthdata connection failed: {error_type}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1807" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1809" />
       <source>Earthdata ha risposto con HTTP {status_code}.</source>
       <translation>Earthdata responded with HTTP {status_code}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1805" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1807" />
       <source>Login Earthdata non riuscito. Verifica username e password.</source>
       <translation>Earthdata login failed. Verify username and password.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1809" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1811" />
       <source>Risposta Earthdata non riconosciuta.</source>
       <translation>Earthdata response not recognized.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1879" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1881" />
       <source>nessuna</source>
       <translation>none</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1881" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1883" />
       <source>Costellazioni e meteore</source>
       <translation>Constellations and meteors</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1885" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1887" />
       <source>Nessuna configurazione richiesta.</source>
       <translation>No configuration required.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2755" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2821" />
       <source>Dati NASA VIIRS non disponibili al momento.</source>
       <translation>NASA VIIRS data are currently unavailable.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2763" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2765" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2829" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2831" />
       <source>Connessione NASA VIIRS non riuscita: {error_type}.</source>
       <translation>NASA VIIRS connection failed: {error_type}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2767" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2833" />
       <source>Autenticazione Earthdata non riuscita durante il recupero VIIRS.</source>
       <translation>Earthdata authentication failed while retrieving VIIRS data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2769" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2835" />
       <source>NASA VIIRS ha applicato un limite di traffico. Riprova più tardi.</source>
       <translation>NASA VIIRS rate limit reached. Try again later.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2771" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2837" />
       <source>NASA VIIRS ha risposto con HTTP {status_code}.</source>
       <translation>NASA VIIRS returned HTTP {status_code}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3343" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3409" />
       <source>Oggetto non realistico senza strumento ottico.</source>
       <translation>Unrealistic target without an optical instrument.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3403" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3469" />
       <source>Più oggetti deep sky nella stessa zona</source>
       <translation>Multiple deep-sky targets in the same area</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3407" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3473" />
       <source>Maggiore concentrazione di oggetti osservabili ora</source>
       <translation>Higher concentration of observable targets now</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3409" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3475" />
       <source>Più oggetti osservabili ora nella stessa zona</source>
       <translation>More observable targets now in the same area</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3413" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3479" />
       <source>+1 altro oggetto</source>
       <translation>+1 more target</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3415" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3481" />
       <source>+{count} altri oggetti</source>
       <translation>+{count} other targets</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3027" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3093" />
       <source>Finestra marginale: l'oggetto non raggiunge la visibilità utile mensile.</source>
       <translation>Marginal window: the target does not reach useful monthly visibility.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1837" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1839" />
       <source>Profilo attivo: {telescope}. Opzioni di ingrandimento: {eyepieces}, {barlows}.</source>
       <translation>Active profile: {telescope}. Magnification options: {eyepieces}, {barlows}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1883" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1885" />
       <source>Luna, Venere, Giove, sciami meteorici</source>
       <translation>Moon, Venus, Jupiter, meteor showers</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1811" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1891" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1813" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1893" />
       <source>Binocolo 10x50</source>
       <translation>10x50 binoculars</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1889" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1891" />
       <source>Ammassi aperti e Luna</source>
       <translation>Open clusters and the Moon</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1893" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1895" />
       <source>Campo ampio e uso immediato.</source>
       <translation>Wide field and immediate use.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1895" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1897" />
       <source>M31, Pleiadi, Luna crescente</source>
       <translation>M31, Pleiades, crescent Moon</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1903" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1905" />
       <source>Telescopio piccolo</source>
       <translation>Small telescope</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1899" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1901" />
       <source>Luna, pianeti luminosi, stelle doppie</source>
       <translation>Moon, bright planets, double stars</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1901" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1903" />
       <source>Rifrattore o Maksutov fino a 90 mm.</source>
       <translation>Refractor or Maksutov up to 90 mm.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1897" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1899" />
       <source>Giove, Saturno, Albireo</source>
       <translation>Jupiter, Saturn, Albireo</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1907" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1909" />
       <source>Pianeti e cielo profondo brillante</source>
       <translation>Planets and bright deep sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1909" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1911" />
       <source>Strumento versatile da 130-200 mm.</source>
       <translation>Versatile tool from 130-200 mm.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1905" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1907" />
       <source>M13, M57, nebulose luminose</source>
       <translation>M13, M57, bright nebulae</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1919" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1921" />
       <source>Telescopio grande</source>
       <translation>Large telescope</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1915" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1917" />
       <source>Oggetti deboli e dettagli planetari</source>
       <translation>Faint objects and planetary details</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1917" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1919" />
       <source>Richiede seeing e acclimatazione accurati.</source>
       <translation>Requires good seeing and careful acclimation.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1913" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1915" />
       <source>Galassie, nebulose planetarie, globulari risolti</source>
       <translation>Galaxies, planetary nebulae, resolved globulars</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1921" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1923" />
       <source>Grandangolare 15 mm</source>
       <translation>15mm wide angle</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1923" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1925" />
       <source>Planetario 10 mm</source>
       <translation>Planetary 10 mm</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1925" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1927" />
       <source>Planetario 6 mm</source>
       <translation>Planetary 6 mm</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2019" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2021" />
       <source>{value} stimata</source>
       <translation>{value} estimated</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2021" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2023" />
       <source>{value}" stimata</source>
       <translation>{value}" estimated</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1953" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1955" />
       <source>1x occhio</source>
       <translation>1x eye</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1959" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1961" />
       <source>Aggiungi attrezzatura al profilo</source>
       <translation>Add equipment to profile</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1991" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1993" />
       <source>{minimum}x - {maximum}x</source>
       <translation>{minimum}x - {maximum}x</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2017" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2019" />
       <source>{value}x occhio</source>
       <translation>{value}x eye</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2023" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3307" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2025" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3373" />
       <source>Aggiungi oculari al profilo</source>
       <translation>Add eyepieces to profile</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2087" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2089" />
       <source>Filtro raccomandato</source>
       <translation>Recommended filter</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2089" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2091" />
       <source>Filtro suggerito (non disponibile)</source>
       <translation>Suggested filter (not available)</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2091" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2093" />
       <source>Filtro colorato opzionale</source>
       <translation>Optional color filter</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2093" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2095" />
       <source>Filtro colorato opzionale (non disponibile)</source>
       <translation>Optional color filter (not available)</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2095" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2097" />
       <source>occhio nudo</source>
       <translation>naked eye</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2097" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2099" />
       <source>Profilo attivo: {name}  ·  {equipment}</source>
       <translation>Active profile: {name} · {equipment}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2099" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2101" />
       <source>Piano in aggiornamento</source>
       <translation>Plan being updated</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2101" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2103" />
       <source>Piano osservativo consigliato</source>
       <translation>Recommended observation plan</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2105" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2199" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2959" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3455" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2107" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2201" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3025" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3521" />
       <source>Sessione sconsigliata</source>
       <translation>Session not recommended</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2107" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2109" />
       <source>Piano osservativo non disponibile</source>
       <translation>Observation plan not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2109" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2111" />
       <source>La sequenza sarà calcolata appena la posizione è disponibile</source>
       <translation>The sequence will be calculated as soon as the position is available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2115" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2117" />
       <source>Nessun piano consigliato nelle condizioni previste</source>
       <translation>No plan recommended under expected conditions</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2117" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2139" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2119" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2141" />
       <source>Servono posizione e condizioni aggiornate</source>
       <translation>Updated location and conditions needed</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2119" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2121" />
       <source>Aggiornamento del piano osservativo...</source>
       <translation>Update of the observation plan...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2121" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2123" />
       <source>Nessun oggetto utile nella finestra notturna.</source>
       <translation>No useful objects in the night window.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2123" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2125" />
       <source>Oggetti visibili da monitorare</source>
       <translation>Visible objects to monitor</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2125" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2127" />
       <source>Oggetti astronomicamente visibili stasera</source>
       <translation>Objects astronomically visible tonight</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2131" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2133" />
       <source>La lista sarà calcolata appena la posizione è disponibile</source>
       <translation>The list will be calculated as soon as the position is available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2133" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2135" />
       <source>Fuori dal piano, ordinati per finestra osservativa</source>
       <translation>Outside the plan, sorted by observing window</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2135" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2137" />
       <source>Visibilità astronomica; verifica le condizioni prima di osservare</source>
       <translation>Astronomical visibility; check the conditions before observing</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2137" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2139" />
       <source>Geometria favorevole, ma la sessione non è consigliata</source>
       <translation>Favorable geometry, but the session is not recommended</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2143" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2145" />
       <source>Calcolo della visibilità...</source>
       <translation>Visibility calculation...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2147" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2149" />
       <source>Nessun altro oggetto utile fuori dal piano.</source>
       <translation>No other useful objects outside the plan.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2151" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2153" />
       <source>Altri oggetti visibili stasera</source>
       <translation>Other objects visible this evening</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2057" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2153" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3713" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2059" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2155" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3779" />
       <source>Cielo profondo</source>
       <translation>Deep sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2165" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2167" />
       <source>Oggetto</source>
       <translation>Object</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2169" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2171" />
       <source>{count} telescopio</source>
       <translation>{count} telescope</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2167" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2169" />
       <source>{count} telescopi</source>
       <translation>{count} telescopes</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2173" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2175" />
       <source>{count} binocolo</source>
       <translation>{count} binoculars</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2171" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2173" />
       <source>{count} binocoli</source>
       <translation>{count} binoculars</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2175" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2177" />
       <source>{count} oculare</source>
       <translation>{count} eyepiece</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1835" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2177" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1837" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2179" />
       <source>{count} oculari</source>
       <translation>{count} eyepieces</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1829" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2179" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1831" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2181" />
       <source>{count} Barlow</source>
       <translation>{count} Barlow</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2183" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2201" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2405" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2983" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3445" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2185" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2203" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2407" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3049" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3511" />
       <source>Sessione non valutabile</source>
       <translation>Session not evaluable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2185" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2211" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2407" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2985" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2187" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2213" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2409" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3051" />
       <source>Non disponibile</source>
       <translation>Not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2187" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2189" />
       <source>Previsioni meteo non disponibili.</source>
       <translation>Weather forecast not available.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2189" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2191" />
       <source>Aggiorna i dati meteo per valutare la sessione.</source>
       <translation>Update weather data to evaluate the session.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2191" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2223" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2193" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2225" />
       <source>Finestra osservativa non disponibile</source>
       <translation>Observation window not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2193" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2195" />
       <source>Condizioni della sessione non valutabili</source>
       <translation>Session conditions not evaluable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2195" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2955" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2197" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3021" />
       <source>Sessione consigliata</source>
       <translation>Recommended session</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2197" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2957" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3449" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2199" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3023" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3515" />
       <source>Sessione da monitorare</source>
       <translation>Monitor conditions</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2203" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2205" />
       <source>Sessione da valutare</source>
       <translation>Session to be evaluated</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2205" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2207" />
       <source>Consigliata</source>
       <translation>Recommended</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2207" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2209" />
       <source>Da monitorare</source>
       <translation>Monitor conditions</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2209" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2211" />
       <source>Sconsigliata</source>
       <translation>Not recommended</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2213" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2215" />
       <source>Da valutare</source>
       <translation>To be evaluated</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2215" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2217" />
       <source>Nessuna finestra consigliata</source>
       <translation>No windows recommended</translation>
     </message>
@@ -4411,1968 +4564,1968 @@
       <translation>Video values must be greater than zero.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1277" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1279" />
       <source>Ultimo aggiornamento: {date}</source>
       <translation>Last updated: {date}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1281" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1283" />
       <source>Serve un cielo buio e una carta stellare aggiornata.</source>
       <translation>You need a dark sky and a current star chart.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1317" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1319" />
       <source>La finestra riunisce le notti in cui altezza, buio, elongazione solare e disturbo lunare superano le soglie osservative.</source>
       <translation>The window groups nights when altitude, darkness, solar elongation and Moon interference meet the observing thresholds.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1351" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1353" />
       <source>Consulta una carta stellare aggiornata vicino alla notte scelta.</source>
       <translation>Consult a current star chart for the selected night.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1353" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1355" />
       <source>Inizia con basso ingrandimento e un campo ampio.</source>
       <translation>Start with low magnification and a wide field.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1355" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1357" />
       <source>Adatta la vista al buio ed evita luci dirette.</source>
       <translation>Let your eyes adapt to the dark and avoid direct light.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1357" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1359" />
       <source>Ricontrolla finestra e luminosità dopo un aggiornamento dei dati.</source>
       <translation>Recheck the observing window and brightness after a data update.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2071" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2073" />
       <source>Tradizionale</source>
       <translation>Traditional</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2073" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2075" />
       <source>Smart integrato</source>
       <translation>Integrated smart telescope</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2077" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2079" />
       <source>Rifrattore apocromatico</source>
       <translation>Apochromatic refractor</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2079" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2081" />
       <source>Rifrattore Petzval</source>
       <translation>Petzval refractor</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2081" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2083" />
       <source>Cassegrain classico</source>
       <translation>Classical Cassegrain</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2083" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2085" />
       <source>Catadiottrico</source>
       <translation>Catadioptric</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2033" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2035" />
       <source>Solo tubo ottico (OTA)</source>
       <translation>Optical tube only (OTA)</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2035" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2037" />
       <source>Montatura manuale non specificata</source>
       <translation>Unspecified manual mount</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2037" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2039" />
       <source>Altazimutale manuale</source>
       <translation>Manual alt-azimuth</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2039" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2041" />
       <source>Altazimutale GoTo</source>
       <translation>GoTo alt-azimuth</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2041" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2043" />
       <source>Altazimutale PushTo</source>
       <translation>PushTo alt-azimuth</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2043" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2045" />
       <source>Equatoriale manuale</source>
       <translation>Manual equatorial</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2045" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2047" />
       <source>Equatoriale motorizzata</source>
       <translation>Motorized equatorial</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2047" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2049" />
       <source>Forcella GoTo</source>
       <translation>GoTo fork</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2049" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2051" />
       <source>Dobson manuale</source>
       <translation>Manual Dobsonian</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2051" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2053" />
       <source>Dobson GoTo</source>
       <translation>GoTo Dobsonian</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2053" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2055" />
       <source>Dobson PushTo</source>
       <translation>PushTo Dobsonian</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2055" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2057" />
       <source>Altra montatura</source>
       <translation>Other mount</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2059" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2061" />
       <source>Planetaria, lunare e solare</source>
       <translation>Planetary, lunar and solar</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2061" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2063" />
       <source>Polivalente</source>
       <translation>All-round</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2063" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2065" />
       <source>Colore</source>
       <translation>Color</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2065" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2067" />
       <source>Monocromatica</source>
       <translation>Monochrome</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2067" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2069" />
       <source>Rolling shutter</source>
       <translation>Rolling shutter</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2069" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2071" />
       <source>Global shutter</source>
       <translation>Global shutter</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2181" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2183" />
       <source>Previsioni variabili: non è necessario attendere il picco se il meteo è già buono.</source>
       <translation>Forecasts can change: there is no need to wait for the peak if the weather is already good.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2221" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2223" />
       <source>{label}: {value}</source>
       <translation>{label}: {value}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2225" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2227" />
       <source>Fattore limitante: {reason}</source>
       <translation>Limiting Factor: {reason}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2231" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2233" />
       <source>Nessun fattore bloccante</source>
       <translation>No blocking factors</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2237" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3145" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2239" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3211" />
       <source>Previsioni non disponibili.</source>
       <translation>Forecasts not available.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2239" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2241" />
       <source>{score}  {value}/100</source>
       <translation>{score} {value}/100</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2245" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2425" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3085" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2247" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2427" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3151" />
       <source>Seeing non disponibile</source>
       <translation>Seeing not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2247" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2249" />
       <source>Vento {value}</source>
       <translation>Wind {value}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2249" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2251" />
       <source>Vento non disponibile</source>
       <translation>Wind not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2255" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2257" />
       <source>Parziale</source>
       <translation>Partial</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2257" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2259" />
       <source>Trasparenza {value}</source>
       <translation>Transparency {value}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2433" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2435" />
       <source>Trasparenza non disponibile</source>
       <translation>Transparency not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2259" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2261" />
       <source>Bortle {value} - {label}</source>
       <translation>Bortle {value} - {label}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2263" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2267" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2439" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2265" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2269" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2441" />
       <source>Impatto lunare non disponibile</source>
       <translation>Lunar impact not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2265" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2269" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2267" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2271" />
       <source>Dati lunari non disponibili.</source>
       <translation>Lunar data not available.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2283" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2285" />
       <source>Dati atmosferici non disponibili</source>
       <translation>Atmospheric data not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2287" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2289" />
       <source>Dettaglio planetario generalmente favorito</source>
       <translation>Planetary detail generally favored</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2289" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2291" />
       <source>Dettaglio planetario variabile</source>
       <translation>Variable planetary detail</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2291" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2293" />
       <source>Seeing limitante per i dettagli fini</source>
       <translation>Seeing limits fine detail</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2293" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2295" />
       <source>Dati del cielo non disponibili</source>
       <translation>Sky data not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2297" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2299" />
       <source>Trasparenza limitante; inquinamento luminoso non disponibile</source>
       <translation>Transparency is limiting; light-pollution data unavailable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2299" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2301" />
       <source>Inquinamento luminoso non disponibile: visibilità degli oggetti deboli da verificare</source>
       <translation>Light-pollution data unavailable: faint-object visibility must be verified</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2301" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2303" />
       <source>Trasparenza limitante per gli oggetti deboli</source>
       <translation>Limiting transparency for faint objects</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2305" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2307" />
       <source>Ammassi favoriti rispetto agli oggetti diffusi</source>
       <translation>Clusters favored over diffuse objects</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2309" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2311" />
       <source>Buon potenziale per gli oggetti deboli</source>
       <translation>Good potential for weak objects</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2311" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2319" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2313" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2321" />
       <source>eccellente</source>
       <translation>excellent</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2313" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2321" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2315" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2323" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3185" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2325" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3251" />
       <source>buona</source>
       <translation>good</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2315" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2325" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2317" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2327" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3183" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2329" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3249" />
       <source>discreta</source>
       <translation>fair</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2317" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2329" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2319" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2331" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3181" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2333" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3247" />
       <source>scarsa</source>
       <translation>poor</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2335" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2337" />
       <source>cielo eccezionalmente buio</source>
       <translation>exceptionally dark sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2337" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2339" />
       <source>cielo molto buio</source>
       <translation>very dark sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2339" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2341" />
       <source>cielo rurale</source>
       <translation>rural sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2341" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2343" />
       <source>transizione rurale-suburbana</source>
       <translation>rural-suburban transition</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2343" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2345" />
       <source>cielo suburbano</source>
       <translation>suburban sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2345" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2347" />
       <source>cielo suburbano luminoso</source>
       <translation>bright suburban sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2347" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2349" />
       <source>transizione suburbana-urbana</source>
       <translation>suburban-urban transition</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2349" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2351" />
       <source>cielo urbano</source>
       <translation>urban sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2351" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2353" />
       <source>centro urbano</source>
       <translation>urban centre</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2355" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2357" />
       <source>{label}: oggetti cielo profondo limitati. Preferire ammassi aperti, pianeti e Luna.</source>
       <translation>{label}: Limited deep sky objects. Prefer open clusters, planets and the Moon.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2357" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2359" />
       <source>{label}: privilegiare oggetti brillanti e pianeti.</source>
       <translation>{label}: favor bright objects and planets.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2359" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2361" />
       <source>Transizione suburbana-urbana</source>
       <translation>Suburban-urban transition</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2361" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2779" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2363" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2845" />
       <source>Cielo urbano</source>
       <translation>Urban sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2363" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2365" />
       <source>Centro urbano</source>
       <translation>Urban center</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2367" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2389" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3493" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2369" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2391" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3559" />
       <source>Posizione in aggiornamento</source>
       <translation>Position being updated</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2369" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2379" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2385" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2393" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2371" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2381" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2387" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2395" />
       <source>In attesa</source>
       <translation>Waiting</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2371" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3593" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2373" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3659" />
       <source>Ricerca della posizione in corso.</source>
       <translation>Searching for location.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2375" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2377" />
       <source>Finestra in attesa della posizione</source>
       <translation>Window waiting for position</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2377" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2379" />
       <source>Dati locali in aggiornamento</source>
       <translation>Local data being updated</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2383" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2385" />
       <source>Previsioni in attesa della posizione.</source>
       <translation>Predictions pending position.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2387" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2389" />
       <source>Seeing in attesa</source>
       <translation>Seeing pending</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2391" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2399" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2393" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2401" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2403" />
       <source>Calcolo dopo il rilevamento</source>
       <translation>Calculation after detection</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2395" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2397" />
       <source>Trasparenza in attesa</source>
       <translation>Transparency waiting</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2397" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2399" />
       <source>Cielo locale in aggiornamento</source>
       <translation>Local sky being updated</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2403" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2405" />
       <source>Dati lunari in attesa.</source>
       <translation>Lunar data pending.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2413" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2415" />
       <source>Finestra non disponibile</source>
       <translation>Window unavailable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2445" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2447" />
       <source>Piano di posa</source>
       <translation>Exposure plan</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2451" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2453" />
       <source>Acquisisci molte pose e sommale; regola gain o ISO con prove sul campo senza superare il limite prudenziale indicato.</source>
       <translation>Capture and stack multiple sub-exposures; adjust gain or ISO with field tests without exceeding the stated conservative limit.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2455" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2457" />
       <source>Piano video</source>
       <translation>Video capture plan</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2457" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2459" />
       <source>Registra più clip separate e seleziona i frame migliori durante lo stacking.</source>
       <translation>Record multiple separate clips and select the best frames during stacking.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2461" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2463" />
       <source>Migliore combinazione disponibile nel profilo attivo</source>
       <translation>Best available combination in the active profile</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2463" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2465" />
       <source>Scelta tra {count} configurazioni</source>
       <translation>Selected from {count} configurations</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2467" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2469" />
       <source>Foto a lunga posa</source>
       <translation>Long-exposure imaging</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2471" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2473" />
       <source>Video planetario</source>
       <translation>Planetary video</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2473" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2475" />
       <source>Inquadratura e campionamento</source>
       <translation>Framing and image scale</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2479" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2481" />
       <source>Riduttore di focale {factor}×</source>
       <translation>Focal reducer {factor}×</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2481" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2483" />
       <source>Barlow {factor}×</source>
       <translation>Barlow {factor}×</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2483" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2485" />
       <source>Fuoco diretto</source>
       <translation>Prime focus</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2485" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2487" />
       <source>Backfocus richiesto dal riduttore: {required} mm</source>
       <translation>Reducer back focus required: {required} mm</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2487" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2489" />
       <source>Backfocus richiesto: {required} mm · spaziatura ottica residua stimata: {remaining} mm</source>
       <translation>Required back focus: {required} mm · estimated remaining optical spacing: {remaining} mm</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2489" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2491" />
       <source>Il backfocus della camera supera di {overrun} mm la distanza richiesta dal riduttore.</source>
       <translation>The camera back focus exceeds the reducer's required distance by {overrun} mm.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2491" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2493" />
       <source>Campo video</source>
       <translation>Video field of view</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2493" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2495" />
       <source>Campo del sensore</source>
       <translation>Sensor field of view</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2495" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2503" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2497" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2505" />
       <source>Non verificato</source>
       <translation>Unverified</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2497" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2499" />
       <source>{width}° × {height}°</source>
       <translation>{width}° × {height}°</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2499" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2501" />
       <source>Campionamento video</source>
       <translation>Video image scale</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2501" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2503" />
       <source>Campionamento</source>
       <translation>Image scale</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2505" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2507" />
       <source>{value}″/px</source>
       <translation>{value}″/px</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2507" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2509" />
       <source>Focale effettiva</source>
       <translation>Effective focal length</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2511" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2513" />
       <source>Rapporto focale</source>
       <translation>Focal ratio</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2521" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2523" />
       <source>Posa singola</source>
       <translation>Sub-exposure</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2519" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2523" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2521" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2525" />
       <source>Integrazione totale</source>
       <translation>Total integration</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2525" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2527" />
       <source>Numero minimo di pose</source>
       <translation>Minimum number of sub-exposures</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2527" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2529" />
       <source>Numero di pose indicativo</source>
       <translation>Estimated sub-exposures</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2529" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2531" />
       <source>Limite prudenziale per posa</source>
       <translation>Conservative sub-exposure limit</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2531" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2681" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2533" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2683" />
       <source>{value} s</source>
       <translation>{value} s</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2533" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2535" />
       <source>Durata della singola clip</source>
       <translation>Single-clip duration</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2535" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2537" />
       <source>Frame rate pianificato</source>
       <translation>Planned frame rate</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2537" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2539" />
       <source>Frame indicativi</source>
       <translation>Estimated frames</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2539" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2541" />
       <source>Riferimento del frame rate</source>
       <translation>Frame-rate source</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2541" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2543" />
       <source>Valore misurato</source>
       <translation>Measured value</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2543" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2545" />
       <source>Massimo di catalogo</source>
       <translation>Catalog maximum</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2545" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2547" />
       <source>Obiettivo per il target</source>
       <translation>Target goal</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2547" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2549" />
       <source>Il frame rate deriva dal massimo di catalogo a piena risoluzione: durata e FPS non sono prestazioni garantite.</source>
       <translation>The frame rate is based on the full-resolution catalog maximum; duration and FPS are not guaranteed performance.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2549" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2551" />
       <source>Il frame rate è un obiettivo per il target: durata e FPS non sono prestazioni garantite.</source>
       <translation>The frame rate is a target goal; duration and FPS are not guaranteed performance.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2551" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2553" />
       <source>Durata e FPS sono intervalli di pianificazione, non una calibrazione di acquisizione.</source>
       <translation>Duration and FPS are planning ranges, not an acquisition calibration.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2557" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2559" />
       <source>Il ritaglio e il ricampionamento video del corpo macchina non sono verificati: campo e campionamento possono differire dal sensore fotografico.</source>
       <translation>The camera body's video crop and resampling are unverified: field of view and image scale may differ from the still sensor.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2563" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2565" />
       <source>Il target non entra interamente nel campo del sensore: inquadra una regione oppure pianifica un mosaico.</source>
       <translation>The target does not fit entirely within the sensor field of view; frame a region or plan a mosaic.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2565" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2567" />
       <source>L'inquadratura è stretta: lascia margine per orientamento, allineamento e ritaglio.</source>
       <translation>The framing is tight; leave room for orientation, alignment, and cropping.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2567" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2569" />
       <source>Il target è sotto l'orizzonte: pianifica la ripresa nella sua finestra di visibilità.</source>
       <translation>The target is below the horizon; plan the capture during its visibility window.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2569" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2571" />
       <source>Il target resta sotto 30° anche al culmine: è una quota bassa per il cielo profondo e riduce contrasto e qualità dei dati.</source>
       <translation>The target remains below 30° even at culmination: this is low for deep-sky imaging and reduces contrast and data quality.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2571" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2573" />
       <source>Il target è basso sull'orizzonte; attendi un'altezza maggiore per ridurre turbolenza e dispersione.</source>
       <translation>The target is low above the horizon; wait for a higher altitude to reduce turbulence and atmospheric dispersion.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2573" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2575" />
       <source>La stima supera il limite di pianificazione di 15 h: il valore mostrato è una soglia minima cumulabile su più notti, non una durata prescritta.</source>
       <translation>The estimate exceeds the 15 h planning limit: the displayed value is a cumulative lower bound across multiple nights, not a prescribed duration.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2575" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2577" />
       <source>Il seeing corrente limita il dettaglio planetario.</source>
       <translation>Current seeing limits planetary detail.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2577" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2579" />
       <source>Il seeing è variabile: acquisisci più clip e confronta i risultati.</source>
       <translation>Seeing is variable; capture multiple clips and compare the results.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2579" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2581" />
       <source>A questa altezza la dispersione atmosferica può ridurre il dettaglio.</source>
       <translation>At this altitude, atmospheric dispersion can reduce detail.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2581" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2583" />
       <source>La montatura altazimutale limita la posa singola per contenere la rotazione di campo.</source>
       <translation>The alt-azimuth mount limits each sub-exposure to control field rotation.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2583" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2585" />
       <source>La montatura altazimutale limita le clip più lunghe per la rotazione di campo.</source>
       <translation>The alt-azimuth mount limits longer clips because of field rotation.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2585" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2587" />
       <source>L'inseguimento manuale richiede pose singole molto brevi.</source>
       <translation>Manual tracking requires very short sub-exposures.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2587" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2589" />
       <source>L'inseguimento manuale può richiedere clip più brevi e ripetute.</source>
       <translation>Manual tracking may require shorter, repeated clips.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2589" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2591" />
       <source>Il corpo macchina non dichiara la modalità Bulb; verifica il tempo massimo disponibile.</source>
       <translation>The camera body does not declare Bulb mode; verify the maximum available exposure time.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2591" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2593" />
       <source>Il pianeta è debole: bilancia tempo di esposizione del singolo frame e gain senza inseguire soltanto gli FPS.</source>
       <translation>The planet is faint; balance per-frame exposure time and gain instead of pursuing frame rate alone.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2593" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2595" />
       <source>La rotazione del pianeta limita la durata utile di una singola clip senza derotazione.</source>
       <translation>Planetary rotation limits the useful duration of a single clip without derotation.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2595" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2597" />
       <source>La camera non raffreddata può richiedere più frame e una gestione accurata del rumore termico.</source>
       <translation>The uncooled camera may require more frames and careful thermal-noise management.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2597" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2599" />
       <source>La luce lunare è forte e può aumentare l'integrazione necessaria.</source>
       <translation>Strong moonlight can increase the required total integration.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2599" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2601" />
       <source>La Luna è presente nella finestra del target; controlla gradienti e contrasto.</source>
       <translation>The Moon is present during the target window; check gradients and contrast.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2601" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2603" />
       <source>Il moto della cometa può richiedere pose più brevi o stacking allineato sul nucleo.</source>
       <translation>Comet motion may require shorter sub-exposures or stacking aligned on the nucleus.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2603" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2605" />
       <source>Il tipo di montatura non è verificato; usa il limite di posa come valore prudenziale.</source>
       <translation>The mount type is unverified; treat the sub-exposure limit as a conservative value.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2605" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2607" />
       <source>Il video del corpo macchina può applicare compressione o ridimensionamento.</source>
       <translation>Camera-body video may apply compression or rescaling.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2607" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2609" />
       <source>Il frame rate disponibile è inferiore all'obiettivo tipico per questo target.</source>
       <translation>The available frame rate is below the typical goal for this target.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2609" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2611" />
       <source>Affidabilità bassa</source>
       <translation>Low confidence</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2611" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2613" />
       <source>Affidabilità media</source>
       <translation>Medium confidence</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2613" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2615" />
       <source>Affidabilità alta</source>
       <translation>High confidence</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2615" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2617" />
       <source>Affidabilità non disponibile</source>
       <translation>Confidence unavailable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2633" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2635" />
       <source>Nessun profilo Equipment attivo</source>
       <translation>No active Equipment profile</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2635" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2637" />
       <source>Attiva un profilo per costruire una raccomandazione fotografica.</source>
       <translation>Activate a profile to build an imaging recommendation.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2637" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2639" />
       <source>Profilo richiesto</source>
       <translation>Profile required</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2639" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2641" />
       <source>Nessun telescopio nel profilo</source>
       <translation>No telescope in the profile</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2641" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2643" />
       <source>Aggiungi almeno un telescopio al profilo attivo per costruire il treno fotografico.</source>
       <translation>Add at least one telescope to the active profile to build an imaging train.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2643" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2649" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2645" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2651" />
       <source>Inventario incompleto</source>
       <translation>Incomplete inventory</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2645" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2647" />
       <source>Nessuna camera nel profilo</source>
       <translation>No camera in the profile</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2647" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2649" />
       <source>Aggiungi una camera astronomica o un corpo macchina al profilo attivo.</source>
       <translation>Add an astronomy camera or camera body to the active profile.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2651" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2653" />
       <source>Nessun treno fotografico valido</source>
       <translation>No valid imaging train</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2653" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2655" />
       <source>Verifica telescopio, camera e compatibilità dei riduttori assegnati.</source>
       <translation>Check the telescope, camera, and compatibility of the assigned focal reducers.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2655" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2657" />
       <source>Configurazione non valida</source>
       <translation>Invalid configuration</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2657" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2659" />
       <source>Parametri di acquisizione non disponibili</source>
       <translation>Capture parameters unavailable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2659" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2661" />
       <source>La combinazione è stata valutata, ma i dati non bastano per un piano di acquisizione affidabile.</source>
       <translation>The combination was evaluated, but the available data is insufficient for a reliable capture plan.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2661" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2663" />
       <source>Piano non disponibile</source>
       <translation>Plan unavailable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2623" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2625" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2663" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2627" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2665" />
       <source>Configurazione fotografica del profilo attivo</source>
       <translation>Active profile imaging setup</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2665" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2667" />
       <source>Filtro solare certificato richiesto</source>
       <translation>Certified full-aperture solar filter required</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2667" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2669" />
       <source>Il Sole viene raccomandato solo con un filtro solare certificato a tutta apertura, fissato davanti all'obiettivo del telescopio selezionato.</source>
       <translation>The Sun is recommended only with a certified full-aperture solar filter secured in front of the selected telescope's objective.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2669" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2671" />
       <source>Sicurezza solare</source>
       <translation>Solar safety</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2671" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2673" />
       <source>Piano fotografico non disponibile</source>
       <translation>Imaging plan unavailable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2673" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2675" />
       <source>Questo target non dispone ancora di una policy fotografica affidabile.</source>
       <translation>This target does not yet have a reliable imaging policy.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2675" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2677" />
       <source>Target non supportato</source>
       <translation>Unsupported target</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2679" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2699" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2681" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2701" />
       <source>{minimum}–{maximum} min</source>
       <translation>{minimum}–{maximum} min</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2683" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2685" />
       <source>{minimum}–{maximum} s</source>
       <translation>{minimum}–{maximum} s</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2685" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2687" />
       <source>≥{value} h</source>
       <translation>≥{value} h</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2687" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2689" />
       <source>{value} h</source>
       <translation>{value} h</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2689" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2691" />
       <source>{minimum}–{maximum}+ h</source>
       <translation>{minimum}–{maximum}+ h</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2691" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2693" />
       <source>{minimum}–{maximum} h</source>
       <translation>{minimum}–{maximum} h</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2693" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2695" />
       <source>≥{value} min</source>
       <translation>≥{value} min</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2677" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2695" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2679" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2697" />
       <source>{value} min</source>
       <translation>{value} min</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2697" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2699" />
       <source>{minimum}–{maximum}+ min</source>
       <translation>{minimum}–{maximum}+ min</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2701" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2703" />
       <source>≥{value}</source>
       <translation>≥{value}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2703" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2705" />
       <source>{minimum}–{maximum}+</source>
       <translation>{minimum}–{maximum}+</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2705" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2707" />
       <source>{minimum}–{maximum}</source>
       <translation>{minimum}–{maximum}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2707" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2709" />
       <source>{value} FPS</source>
       <translation>{value} FPS</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2709" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2711" />
       <source>{minimum}–{maximum} FPS</source>
       <translation>{minimum}–{maximum} FPS</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2757" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2823" />
       <source>Librerie HDF5 non disponibili.</source>
       <translation>HDF5 libraries not available.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2759" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2825" />
       <source>Credenziali Earthdata non verificate.</source>
       <translation>Earthdata credentials not verified.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2761" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2827" />
       <source>Dati NASA VIIRS non disponibili per questa posizione.</source>
       <translation>NASA VIIRS data not available for this location.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2773" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2839" />
       <source>Cielo buio eccellente</source>
       <translation>Super dark sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2775" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2841" />
       <source>Cielo rurale</source>
       <translation>Rural sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2777" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2843" />
       <source>Cielo suburbano</source>
       <translation>Suburban sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2781" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2847" />
       <source>Cielo urbano centrale</source>
       <translation>Central urban sky</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2791" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2841" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2857" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2907" />
       <source>Posizione Windows</source>
       <translation>Windows location</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2793" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2801" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2807" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2859" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2867" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2873" />
       <source>{value} m</source>
       <translation>{value} m</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2795" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3695" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2861" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3761" />
       <source>precisa</source>
       <translation>precise</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2797" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2863" />
       <source>Posizione Windows acquisita.</source>
       <translation>Windows location captured.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2799" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2865" />
       <source>Posizione Windows approssimata</source>
       <translation>Approximate Windows location</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2803" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3697" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2869" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3763" />
       <source>approssimata</source>
       <translation>approximate</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2805" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2871" />
       <source>Posizione Windows approssimata acquisita.</source>
       <translation>Approximate Windows location captured.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2815" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2881" />
       <source>Posizione approssimata</source>
       <translation>Approximate location</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="29" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2821" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2887" />
       <source>sconosciuto</source>
       <translation>unknown</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="19" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2829" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2895" />
       <source>Posizione impostata su {city}, {country}.</source>
       <translation>Position set to {city}, {country}.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="9" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2831" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3689" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2897" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3755" />
       <source>Coordinate manuali</source>
       <translation>Manual coordinates</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2833" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3707" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2899" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3773" />
       <source>fornita dall'utente</source>
       <translation>provided by the user</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2837" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3705" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2903" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3771" />
       <source>coordinate MPC</source>
       <translation>MPC coordinates</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2839" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2905" />
       <source>Località impostata su {observatory} (MPC {code}).</source>
       <translation>Location set to {observatory} (MPC {code}).</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2845" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2911" />
       <source>Credenziali Earthdata non configurate o non verificate.</source>
       <translation>Earthdata credentials not configured or not verified.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2849" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2871" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2915" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2937" />
       <source>Dati NASA AOD disponibili.</source>
       <translation>NASA AOD data available.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2851" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2905" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2917" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2971" />
       <source>Pixel valido più vicino: {distance} km</source>
       <translation>Nearest valid pixel: {distance} km</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2855" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2921" />
       <source>Autenticazione Earthdata AOD non riuscita: {error_type}.</source>
       <translation>Earthdata AOD authentication failed: {error_type}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2859" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2925" />
       <source>Ricerca NASA AOD non riuscita per {product}: {error_type}.</source>
       <translation>NASA AOD search failed for {product}: {error_type}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2861" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2863" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2927" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2929" />
       <source>Nessun pixel AOD valido trovato in {product}.</source>
       <translation>No valid AOD pixels found in {product}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2865" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2931" />
       <source>Download NASA AOD non riuscito per {granule}: {error_type}.</source>
       <translation>NASA AOD download failed for {granule}: {error_type}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2867" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2933" />
       <source>Parsing NASA AOD non riuscito per {granule}: {error_type}.</source>
       <translation>NASA AOD parsing failed for {granule}: {error_type}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2869" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2935" />
       <source>Nessun pixel AOD valido trovato in {granule}.</source>
       <translation>No valid AOD pixels found in {granule}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2873" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2939" />
       <source>Molto buona</source>
       <translation>Very good</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2877" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3195" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2943" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3261" />
       <source>Velata</source>
       <translation>Hazy</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2879" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2945" />
       <source>Aerosol elevati</source>
       <translation>High aerosol load</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2881" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2947" />
       <source>Nessuna misura AOD locale con qualità sufficiente trovata dal {start} al {end}. Granuli controllati: {count} ({products}).</source>
       <translation>No local AOD measurement with sufficient quality was found from {start} to {end}. Granules checked: {count} ({products}).</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2885" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2951" />
       <source>Pixel diretto</source>
       <translation>Direct pixel</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2887" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2953" />
       <source>Area locale 5x5</source>
       <translation>Local area 5x5</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2889" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2955" />
       <source>Area locale {size}x{size}</source>
       <translation>Local area {size}x{size}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2891" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3233" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2957" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3299" />
       <source>Aggiornamento non disponibile</source>
       <translation>Update not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2893" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2959" />
       <source>Misura di oggi</source>
       <translation>Today's measurement</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2895" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2961" />
       <source>Misura di ieri</source>
       <translation>Yesterday's measurement</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2897" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2963" />
       <source>Misura di {days} giorni fa</source>
       <translation>Measurement of {days} days ago</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2899" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2965" />
       <source>Misura vecchia di {days} giorni</source>
       <translation>Measurement {days} days old</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2901" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2967" />
       <source>Misura storica di {days} giorni</source>
       <translation>Historical measurement of {days} days</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2903" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2969" />
       <source>{method}, {count} pixel validi</source>
       <translation>{method}, {count} valid pixels</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2907" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2973" />
       <source>Incertezza {value}</source>
       <translation>Uncertainty {value}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2909" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2975" />
       <source>Da cache</source>
       <translation>From cache</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2911" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3155" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2977" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3221" />
       <source>rischio precipitazioni</source>
       <translation>risk of precipitation</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2913" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2979" />
       <source>Rischio precipitazioni elevato.</source>
       <translation>High risk of precipitation.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2917" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2983" />
       <source>Copertura nuvolosa severa.</source>
       <translation>Severe cloud cover.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2921" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2987" />
       <source>Punteggio osservativo sotto la soglia minima.</source>
       <translation>Observational score below the minimum threshold.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2925" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2931" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2991" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2997" />
       <source>sera</source>
       <translation>evening</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2923" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2929" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2989" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2995" />
       <source>notte</source>
       <translation>night</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1965" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3313" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1967" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3379" />
       <source>Non applicabile</source>
       <translation>Not applicable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1979" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1981" />
       <source>Canale fotografico integrato</source>
       <translation>Integrated imaging channel</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1985" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1987" />
       <source>Telescopio smart: usa il piano EAA/fotografico integrato.</source>
       <translation>Smart telescope: use the integrated EAA/imaging plan.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2443" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2445" />
       <source>Piano EAA / live stacking</source>
       <translation>EAA / live-stacking plan</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2447" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2449" />
       <source>Lascia al dispositivo la gestione delle singole pose e usa l'integrazione totale come obiettivo cumulativo del live stacking.</source>
       <translation>Let the device manage individual exposures and use total integration as the cumulative live-stacking target.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2449" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2451" />
       <source>NightScope non prescrive gain o durata della singola posa per questo sistema integrato. L'integrazione totale è una stima operativa, non una calibrazione del dispositivo.</source>
       <translation>NightScope does not prescribe gain or individual exposure duration for this integrated system. Total integration is an operational estimate, not a device calibration.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2453" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2455" />
       <source>L'integrazione totale è la somma delle pose luce utilizzabili e può essere distribuita su più notti. I tempi sono intervalli di pianificazione, non una calibrazione della camera.</source>
       <translation>Total integration is the sum of usable light frames and can be spread across multiple nights. The times are planning ranges, not a camera calibration.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2459" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2461" />
       <source>Piano del sistema smart integrato</source>
       <translation>Integrated smart-system plan</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2465" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2467" />
       <source>EAA / live stacking</source>
       <translation>EAA / live stacking</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2469" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2471" />
       <source>Video integrato</source>
       <translation>Integrated video</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2475" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2477" />
       <source>{telescope} · {sensor} integrato</source>
       <translation>{telescope} · integrated {sensor}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2477" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2479" />
       <source>Treno ottico integrato</source>
       <translation>Integrated optical train</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2515" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2517" />
       <source>Pose singole</source>
       <translation>Individual exposures</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2517" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2519" />
       <source>Gestite dal dispositivo</source>
       <translation>Managed by the device</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2553" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2555" />
       <source>Per le nebulose è disponibile il filtro dual-band integrato; attivalo quando cielo e target lo rendono utile.</source>
       <translation>An integrated dual-band filter is available for nebulae; enable it when useful for the sky conditions and target.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2555" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2557" />
       <source>Il pianeta è poco campionato alla scala nativa: puoi registrarlo, ma il dettaglio fine resterà limitato dal treno integrato.</source>
       <translation>The planet is undersampled at the native scale: you can record it, but fine detail will remain limited by the integrated optical train.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2559" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2561" />
       <source>Il target supera il campo nativo: usa il mosaico automatico integrato.</source>
       <translation>The target exceeds the native field: use the integrated automatic mosaic.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2561" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2563" />
       <source>Il target supera il campo nativo e questo modello non dichiara il mosaico automatico: inquadra solo una regione.</source>
       <translation>The target exceeds the native field and this model does not declare automatic mosaic support: frame only a region.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2617" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2619" />
       <source>Specifiche integrate incomplete</source>
       <translation>Incomplete integrated specifications</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2619" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2621" />
       <source>Completa sensore, dimensioni, risoluzione, passo pixel e profondità del telescopio smart. NightScope non userà camere esterne come sostituto implicito.</source>
       <translation>Complete the smart telescope's sensor, dimensions, resolution, pixel size, and bit depth. NightScope will not use external cameras as an implicit substitute.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2621" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2623" />
       <source>Dati smart insufficienti</source>
       <translation>Insufficient smart-system data</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2627" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2629" />
       <source>Capacità smart non disponibile</source>
       <translation>Smart capability unavailable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2629" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2631" />
       <source>Modalità di acquisizione non supportata</source>
       <translation>Unsupported capture mode</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2631" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2633" />
       <source>Il modello smart non dichiara live stacking per questo target o video per Luna e pianeti. Abilita solo capacità verificate.</source>
       <translation>The smart model does not declare live stacking for this target or video for the Moon and planets. Enable only verified capabilities.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2787" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2853" />
       <source>La posizione di sistema non è disponibile. Scegli una città o inserisci le coordinate manualmente.</source>
       <translation>System location is unavailable. Choose a city or enter coordinates manually.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2809" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3699" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2875" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3765" />
       <source>fornita dal sistema</source>
       <translation>provided by the system</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2811" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3677" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3681" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2877" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3743" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3747" />
       <source>Posizione di sistema</source>
       <translation>System location</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="33" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2813" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2879" />
       <source>Posizione di sistema acquisita.</source>
       <translation>System location detected.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="31" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2843" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2909" />
       <source>Posizione di sistema acquisita: {city}, {country}.</source>
       <translation>System location detected: {city}, {country}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2103" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2105" />
       <source>Opportunità da confermare</source>
       <translation>Opportunities to confirm</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2111" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2113" />
       <source>Orari suggeriti considerando visibilità e meteo</source>
       <translation>Suggested times based on visibility and weather</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2113" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2115" />
       <source>Orari suggeriti per il meteo previsto: ricontrollare prima di osservare</source>
       <translation>Times based on the forecast: check again before observing</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2217" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2219" />
       <source>Finestra meteo utilizzabile</source>
       <translation>Usable weather window</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2219" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2221" />
       <source>Possibile finestra meteo</source>
       <translation>Possible weather window</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2227" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2229" />
       <source>Nessuna finestra meteo utilizzabile</source>
       <translation>No usable weather window</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2229" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2231" />
       <source>Condizioni da verificare</source>
       <translation>Conditions need checking</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2273" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2275" />
       <source>Luna luminosa: disturbo se sopra l'orizzonte, variabile col bersaglio.</source>
       <translation>Bright Moon: interference above the horizon varies by target.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2277" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2279" />
       <source>Disturbo moderato, se visibile; varia con il bersaglio.</source>
       <translation>Moderate interference if above the horizon; varies by target.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2281" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2283" />
       <source>Luna poco luminosa: disturbo generalmente contenuto.</source>
       <translation>Dim Moon: generally limited interference.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2295" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2297" />
       <source>Valutazione parziale: solo buio del sito</source>
       <translation>Partial assessment: site darkness only</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2927" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2933" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2993" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2999" />
       <source>prima dell'alba</source>
       <translation>before dawn</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2935" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3001" />
       <source>{time} {period}</source>
       <translation>{time} {period}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2937" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3003" />
       <source>Condizioni di categoria NSOM: ambiente atmosferico, fondo cielo e Luna sono applicati una sola volta; sessione ed equipaggiamento restano separati.</source>
       <translation>NSOM category conditions: atmospheric environment, sky background and Moon are applied only once; session and equipment remain separate.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2941" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3007" />
       <source>Inserisci data e ora nei formati AAAA-MM-GG e HH:MM.</source>
       <translation>Enter the date and time in YYYY-MM-DD and HH:MM formats.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2945" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3011" />
       <source>Indica l'oggetto osservato.</source>
       <translation>Specify the observed object.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2947" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3013" />
       <source>La valutazione deve essere compresa tra 1 e 5.</source>
       <translation>The rating must be between 1 and 5.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2949" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3015" />
       <source>Non specificata</source>
       <translation>Not specified</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2951" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3017" />
       <source>Non specificato</source>
       <translation>Not specified</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2953" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3019" />
       <source>Nessuna nota</source>
       <translation>No notes</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2981" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3047" />
       <source>Valutazione osservativa</source>
       <translation>Observational evaluation</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2991" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3057" />
       <source>Durata utile non disponibile</source>
       <translation>Useful duration unavailable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3007" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3073" />
       <source>Geometria, cielo e configurazione per la sessione consigliata</source>
       <translation>Geometry, sky and configuration for the recommended session</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3009" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3075" />
       <source>Geometria favorevole, condizioni da monitorare</source>
       <translation>Favorable geometry, conditions to monitor</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3013" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3079" />
       <source>Valutazione in aggiornamento</source>
       <translation>Evaluation in progress</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3015" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3081" />
       <source>Condizioni della sessione non disponibili</source>
       <translation>Session conditions not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3147" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3213" />
       <source>Meteo non disponibile: uso dei dati astronomici possibile, ma senza valutazione del cielo.</source>
       <translation>Weather not available: use of astronomical data possible, but without sky evaluation.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3149" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3215" />
       <source>Poche nuvole</source>
       <translation>Few clouds</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3157" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3223" />
       <source>vento debole</source>
       <translation>weak wind</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3159" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3225" />
       <source>vento sostenuto</source>
       <translation>strong wind</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3161" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3227" />
       <source>umidità elevata</source>
       <translation>high humidity</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3163" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3229" />
       <source>Luna luminosa</source>
       <translation>Bright moon</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3165" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3231" />
       <source>{factors}.</source>
       <translation>{factors}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3179" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3245" />
       <source>pessima</source>
       <translation>very bad</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3187" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3253" />
       <source>ottima</source>
       <translation>excellent</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3191" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3257" />
       <source>Aria limpida</source>
       <translation>Clear air</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3197" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3263" />
       <source>Polverosa</source>
       <translation>Dusty</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3199" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3265" />
       <source>Molto polverosa</source>
       <translation>Very dusty</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3205" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3271" />
       <source>Nessuna misura OpenAQ recente disponibile. Ultima misura: {measured_at}. Misura storica.</source>
       <translation>No recent OpenAQ measurements available. Last measurement: {measured_at}. Historical measurement.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3207" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3643" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3645" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3273" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3709" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3711" />
       <source>Dati OpenAQ non disponibili al momento.</source>
       <translation>OpenAQ data not available at the moment.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3209" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3211" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3223" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3275" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3277" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3289" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3343" />
       <source>Risposta OpenAQ non riconosciuta.</source>
       <translation>Unrecognized OpenAQ response.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3213" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3265" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3279" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3331" />
       <source>Connessione OpenAQ non riuscita: {error_type}.</source>
       <translation>OpenAQ connection failed: {error_type}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3215" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3267" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3281" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3333" />
       <source>API key OpenAQ non valida o non autorizzata.</source>
       <translation>Invalid or unauthorized OpenAQ API key.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3219" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3271" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3285" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3337" />
       <source>OpenAQ ha risposto con HTTP {status_code}.</source>
       <translation>OpenAQ responded with HTTP {status_code}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3221" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3273" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3287" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3339" />
       <source>Risposta OpenAQ non valida.</source>
       <translation>Invalid OpenAQ response.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3225" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3291" />
       <source>{value} {unit}</source>
       <translation>{value} {unit}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3229" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3295" />
       <source>{datetime} UTC</source>
       <translation>{datetime} UTC</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3231" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3297" />
       <source>data non disponibile</source>
       <translation>date not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3235" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3301" />
       <source>Aggiornato oggi</source>
       <translation>Updated today</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3237" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3303" />
       <source>Aggiornato ieri</source>
       <translation>Updated yesterday</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3239" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3305" />
       <source>Aggiornato {days} giorni fa</source>
       <translation>Updated {days} days ago</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3241" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3307" />
       <source>Ultima misura {days} giorni fa</source>
       <translation>Last measurement {days} days ago</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3243" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3251" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3263" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3309" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3317" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3329" />
       <source>API key OpenAQ non configurata.</source>
       <translation>OpenAQ API key not configured.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3247" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3275" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3313" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3341" />
       <source>Connessione OpenAQ verificata.</source>
       <translation>OpenAQ connection verified.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3249" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3259" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3315" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3325" />
       <source>API key OpenAQ salvata. Esegui il test connessione.</source>
       <translation>OpenAQ API key saved. Run the connection test.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3253" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3319" />
       <source>Inserisci una API key OpenAQ.</source>
       <translation>Enter an OpenAQ API key.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3257" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3323" />
       <source>Impossibile salvare la API key nel vault di sistema.</source>
       <translation>Unable to save the API key in the system vault.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3261" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3327" />
       <source>API key OpenAQ rimossa.</source>
       <translation>OpenAQ API key removed.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3279" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3345" />
       <source>Facile</source>
       <translation>Easy</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3281" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3347" />
       <source>Media</source>
       <translation>Medium</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3283" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3349" />
       <source>Difficile</source>
       <translation>Difficult</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3285" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3351" />
       <source>Limitata</source>
       <translation>Limited</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3287" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3353" />
       <source>Consigliato</source>
       <translation>Recommended</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3289" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3355" />
       <source>Alternativa</source>
       <translation>Alternative</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3295" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3347" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3361" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3413" />
       <source>{telescope} + {setup}</source>
       <translation>{telescope} + {setup}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3297" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3363" />
       <source>Non richiesto</source>
       <translation>Not required</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3309" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3375" />
       <source>Aggiungi oculari per suggerimenti completi</source>
       <translation>Add eyepieces for comprehensive suggestions</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3311" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3377" />
       <source>Telescopio presente, ma nessun oculare configurato.</source>
       <translation>Telescope present, but no eyepiece configured.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3315" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3381" />
       <source>Per il visuale ottico usa un telescopio con oculari</source>
       <translation>For optical viewing, use a telescope with eyepieces</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3317" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3383" />
       <source>{telescope}: usa il piano EAA/fotografico</source>
       <translation>{telescope}: use the EAA/imaging plan</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3319" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3385" />
       <source>Questo telescopio smart usa il sensore integrato: ingrandimento, pupilla d'uscita, oculari e Barlow non sono applicabili. Consulta il piano fotografico EAA.</source>
       <translation>This smart telescope uses its integrated sensor: magnification, exit pupil, eyepieces, and Barlows do not apply. See the EAA imaging plan.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3323" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3389" />
       <source>Nessuna combinazione utile</source>
       <translation>No useful combinations</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3325" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3391" />
       <source>Aggiungi oculari adatti al profilo</source>
       <translation>Add profile-matching eyepieces</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3327" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3393" />
       <source>Le combinazioni disponibili superano i limiti pratici dello strumento.</source>
       <translation>The available combinations exceed the practical limits of the instrument.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3331" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3397" />
       <source>Non adatto a occhio nudo</source>
       <translation>Not suitable for the naked eye</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3333" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3399" />
       <source>Binocolo o telescopio consigliato</source>
       <translation>Binoculars or telescope recommended</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3339" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3405" />
       <source>Serve almeno un binocolo o telescopio</source>
       <translation>You need at least binoculars or a telescope</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3341" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3407" />
       <source>Oggetto compatibile con osservazione a occhio nudo.</source>
       <translation>Object compatible with naked eye observation.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3367" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3433" />
       <source>Barlow usata per aumentare l'ingrandimento utile</source>
       <translation>Barlow used to increase useful magnification</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3369" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3435" />
       <source>senza Barlow per mantenere contrasto e campo</source>
       <translation>without a Barlow to preserve contrast and field of view</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3375" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3441" />
       <source>{name} ({factor}x)</source>
       <translation>{name} ({factor}x)</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3377" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3443" />
       <source>Riduttore fotografico consigliato</source>
       <translation>Recommended photographic focal reducer</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3379" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3445" />
       <source>Riduttore fotografico suggerito (non disponibile)</source>
       <translation>Suggested photographic focal reducer (unavailable)</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3381" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3447" />
       <source>Dati meteo insufficienti.</source>
       <translation>Insufficient weather data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3385" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3451" />
       <source>{explanation} Provider Meteoblue non configurato; usata stima base.</source>
       <translation>{explanation} Meteoblue provider not configured; basic estimate used.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3391" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3457" />
       <source>Migliore zona adesso</source>
       <translation>Better area now</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3397" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3463" />
       <source>{name} guida la scelta in questo momento</source>
       <translation>{name} guides the choice at this time</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3399" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3465" />
       <source>Pianeti e deep sky nella stessa zona</source>
       <translation>Planets and deep sky in the same area</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3411" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3477" />
       <source>Include una tappa del piano attualmente osservabile</source>
       <translation>Includes a currently observable plan milestone</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3425" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3491" />
       <source>Possibile finestra meteo: {windows}</source>
       <translation>Possible weather window: {windows}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3429" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3495" />
       <source>Nessuna fascia meteo buona prevista</source>
       <translation>No good-weather window forecast</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3427" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3493" />
       <source>Meteo buono: {windows}</source>
       <translation>Good weather: {windows}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3431" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3497" />
       <source>Picco meteo previsto: {window}</source>
       <translation>Forecast weather peak: {window}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3471" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3537" />
       <source>Servizio meteo temporaneamente non disponibile.</source>
       <translation>Weather service temporarily unavailable.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3473" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3539" />
       <source>Richiesta meteo scaduta.</source>
       <translation>Weather request expired.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3475" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3541" />
       <source>Open-Meteo HTTP status=429: limite richieste raggiunto.</source>
       <translation>Open-Meteo HTTP status=429: request limit reached.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3477" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3543" />
       <source>API meteo non raggiungibile.</source>
       <translation>Weather API not reachable.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3479" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3545" />
       <source>L'API meteo ha restituito JSON non valido.</source>
       <translation>The weather API returned invalid JSON.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3481" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3547" />
       <source>L'API meteo ha restituito dati inattesi.</source>
       <translation>The weather API returned unexpected data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3483" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3549" />
       <source>L'API meteo ha restituito una previsione vuota.</source>
       <translation>The weather API returned a blank forecast.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3485" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3551" />
       <source>Ricerca della posizione in corso...</source>
       <translation>Searching for location...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3487" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3553" />
       <source>Meteo in attesa della posizione.</source>
       <translation>Weather pending location.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3499" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3565" />
       <source>Rilevamento automatico</source>
       <translation>Automatic detection</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3501" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3693" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3567" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3759" />
       <source>Nessuna posizione</source>
       <translation>No location</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3503" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3631" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3635" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3569" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3697" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3701" />
       <source>Dati meteo non disponibili al momento.</source>
       <translation>Weather data not available at the moment.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3505" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3571" />
       <source>{city}, {country}</source>
       <translation>{city}, {country}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3507" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3573" />
       <source>Città</source>
       <translation>City</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3509" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3575" />
       <source>Osservatorio</source>
       <translation>Observatory</translation>
     </message>
@@ -6392,408 +6545,408 @@
       <translation>System location is unavailable. Try approximate online location?</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3447" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3513" />
       <source>Previsioni orarie della notte non disponibili.</source>
       <translation>Hourly forecasts for the night are unavailable.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3451" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3517" />
       <source>Condizioni variabili: sono previste solo opportunità da verificare.</source>
       <translation>Variable conditions: forecast opportunities need checking.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3453" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3519" />
       <source>Gli orari suggeriti richiedono conferma del meteo prima di osservare.</source>
       <translation>Check the weather before observing at the suggested times.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3513" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3579" />
       <source>Sole sotto −18°; orari locali della notte selezionata.</source>
       <translation>Sun below −18°; local times for the selected night.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3515" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3581" />
       <source>Assente in questa notte</source>
       <translation>None this night</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3519" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3585" />
       <source>Buio astronomico non disponibile</source>
       <translation>Astronomical darkness unavailable</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3525" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3591" />
       <source>Salva le credenziali Earthdata prima del test.</source>
       <translation>Save your Earthdata credentials before testing.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3527" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3593" />
       <source>Verifica connessione Earthdata in corso...</source>
       <translation>Checking Earthdata connection...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3529" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3595" />
       <source>Connessione Earthdata non riuscita.</source>
       <translation>Earthdata connection failed.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3531" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3597" />
       <source>Salva la API key OpenAQ prima del test.</source>
       <translation>Save the OpenAQ API key before testing.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3533" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3599" />
       <source>Verifica connessione OpenAQ in corso...</source>
       <translation>Checking OpenAQ connection...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3535" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3601" />
       <source>Connessione OpenAQ non riuscita.</source>
       <translation>OpenAQ connection failed.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3537" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3543" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3603" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3609" />
       <source>Inserisci un nome profilo.</source>
       <translation>Enter a profile name.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3541" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3607" />
       <source>Profilo creato: {name}.</source>
       <translation>Profile created: {name}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3547" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3613" />
       <source>Profilo rinominato: {name}.</source>
       <translation>Renamed profile: {name}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3549" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3615" />
       <source>Mantieni almeno un profilo attrezzatura.</source>
       <translation>Maintain at least one equipment profile.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3551" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3617" />
       <source>Profilo eliminato.</source>
       <translation>Profile deleted.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3553" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3619" />
       <source>Filtro solare a tutta apertura disponibile per {name}. Le raccomandazioni visuali restano invariate.</source>
       <translation>Full-aperture solar filter available for {name}. Visual recommendations remain unchanged.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3555" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3621" />
       <source>Filtro solare a tutta apertura non disponibile per {name}. Le raccomandazioni visuali restano invariate.</source>
       <translation>Full-aperture solar filter unavailable for {name}. Visual recommendations remain unchanged.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3557" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3623" />
       <source>Riduttore assegnato, ma compatibilità non configurata: resterà escluso dalle raccomandazioni visuali e fotografiche finché non colleghi almeno un telescopio.</source>
       <translation>Reducer assigned, but compatibility is not configured: it will remain excluded from visual and photographic recommendations until you link at least one telescope.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3559" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3625" />
       <source>Riduttore assegnato, ma non collegato a un telescopio del profilo attivo: resterà escluso dalle raccomandazioni visuali e fotografiche per questo profilo.</source>
       <translation>Reducer assigned, but not linked to a telescope in the active profile: it will remain excluded from visual and photographic recommendations for this profile.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3561" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3565" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3627" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3631" />
       <source>Camera assegnata al profilo. Le raccomandazioni visuali restano invariate.</source>
       <translation>Camera assigned to the profile. Visual recommendations remain unchanged.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3563" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3567" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3629" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3633" />
       <source>Camera rimossa dal profilo. Le raccomandazioni visuali restano invariate.</source>
       <translation>Camera removed from the profile. Visual recommendations remain unchanged.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3569" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3635" />
       <source>Crea o seleziona un telescopio prima di usare oculari o Barlow.</source>
       <translation>Create or select a telescope before using eyepieces or Barlows.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3571" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3573" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3637" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3639" />
       <source>Dati telescopio non validi.</source>
       <translation>Invalid telescope data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3575" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3577" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3641" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3643" />
       <source>Moltiplicatore Barlow non valido.</source>
       <translation>Invalid Barlow multiplier.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3581" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3647" />
       <source>Osservazione aggiunta al log.</source>
       <translation>Observation added to log.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3585" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3651" />
       <source>Osservazione aggiornata.</source>
       <translation>Observation updated.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3589" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3655" />
       <source>Osservazione eliminata.</source>
       <translation>Observation deleted.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3591" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3625" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3637" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3657" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3691" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3703" />
       <source>NightScope non ha potuto aggiornare tutti i dati. I dati esistenti restano disponibili.</source>
       <translation>NightScope was unable to update all data. Existing data remains available.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3623" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3689" />
       <source>Configura la posizione per ottenere meteo e cielo locale.</source>
       <translation>Configure your location to get local weather and sky.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3627" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3693" />
       <source>Dati astronomici temporaneamente non disponibili.</source>
       <translation>Astronomical data temporarily unavailable.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3633" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3699" />
       <source>Tentativo di aggiornamento meteo fallito; uso ultimi dati disponibili.</source>
       <translation>Weather update attempt failed; I use the latest data available.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3639" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3705" />
       <source>Condizioni meteo non disponibili: usa la direzione come orientamento, non come invito a osservare.</source>
       <translation>Unavailable weather conditions: Use the direction as orientation, not as an invitation to observe.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3641" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3707" />
       <source>Condizioni non ideali: usa la direzione come orientamento, non come invito a osservare.</source>
       <translation>Non-ideal conditions: Use direction as guidance, not as an invitation to observe.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3653" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3719" />
       <source>Verifica aggiornamenti VIIRS NASA...</source>
       <translation>Check NASA VIIRS updates...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3655" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3721" />
       <source>Recupero dati VIIRS NASA...</source>
       <translation>Retrieving NASA VIIRS data...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3657" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3723" />
       <source>Dati VIIRS NASA aggiornati.</source>
       <translation>NASA VIIRS data updated.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3659" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3661" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3725" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3727" />
       <source>Aggiornamento VIIRS non disponibile; uso dati in cache.</source>
       <translation>VIIRS update not available; I use cached data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3665" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3667" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3731" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3733" />
       <source>Dati NASA AOD non disponibili al momento.</source>
       <translation>NASA AOD data not available at this time.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="21" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2835" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2901" />
       <source>Coordinate impostate: {latitude}, {longitude}.</source>
       <translation>Coordinates set: {latitude}, {longitude}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2261" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2263" />
       <source>Qualità del cielo non disponibile</source>
       <translation>Sky quality not available</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2303" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2305" />
       <source>Privilegiare gli oggetti più brillanti</source>
       <translation>Favor the brightest objects</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2307" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2309" />
       <source>Galassie brillanti più accessibili</source>
       <translation>More accessible bright galaxies</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2353" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2355" />
       <source>qualità non classificata</source>
       <translation>unclassified quality</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2365" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2367" />
       <source>Qualità non classificata</source>
       <translation>Unclassified quality</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2373" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2375" />
       <source>Le condizioni saranno valutate appena la posizione è disponibile.</source>
       <translation>Conditions will be evaluated as soon as the position is available.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2785" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2851" />
       <source>La posizione Windows non è disponibile. Scegli una città o inserisci le coordinate manualmente.</source>
       <translation>The Windows location is not available. Choose a city or enter coordinates manually.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2789" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2855" />
       <source>La posizione approssimata online non è disponibile. Scegli una città o inserisci le coordinate manualmente.</source>
       <translation>The approximate online location is not available. Choose a city or enter coordinates manually.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2817" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2823" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3701" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2883" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2889" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3767" />
       <source>livello città</source>
       <translation>city level</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="27" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2819" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2885" />
       <source>Posizione approssimata rilevata tramite connessione internet: {city}, {country}. La precisione può essere limitata.</source>
       <translation>Approximate position detected via internet connection: {city}, {country}. Accuracy may be limited.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2827" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3703" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2893" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3769" />
       <source>coordinate della città</source>
       <translation>coordinates of the city</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2857" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2923" />
       <source>Nessun granulo NASA AOD trovato per questa località.</source>
       <translation>No NASA AOD granules found for this location.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2915" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2981" />
       <source>nuvolosità quasi coperta</source>
       <translation>mostly cloudy</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2919" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2985" />
       <source>qualità osservativa pessima</source>
       <translation>very bad observational quality</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2939" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3005" />
       <source>Cielo luminoso: visibilità limitata, serve trasparenza buona e schermare luci dirette.</source>
       <translation>Bright sky: limited visibility, good transparency and screening of direct lights is needed.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2943" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3009" />
       <source>Il Log Osservazioni accetta soltanto osservazioni già effettuate.</source>
       <translation>The Observation Log only accepts past observations.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3011" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3077" />
       <source>Visibilità geometrica con sessione non consigliata</source>
       <translation>Geometric visibility with session not recommended</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3151" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3217" />
       <source>Nuvolosità moderata</source>
       <translation>Moderate cloud cover</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3153" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3219" />
       <source>Nuvolosità elevata</source>
       <translation>High cloud cover</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3167" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3233" />
       <source>Qualità osservativa stanotte: {score}/100, {label}. {explanation}</source>
       <translation>Observational quality tonight: {score}/100, {label}. {explanation}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3203" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3269" />
       <source>Nessun dato OpenAQ disponibile per questa località.</source>
       <translation>No OpenAQ data available for this location.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3217" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3269" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3283" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3335" />
       <source>OpenAQ ha applicato un limite di traffico. Riprova più tardi.</source>
       <translation>OpenAQ has enforced a traffic limit. Please try again later.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3359" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3425" />
       <source>Il binocolo permette di individuare l'oggetto, ma non è ideale per i dettagli: servirebbe maggiore ingrandimento. Configurazione disponibile: {magnification}x con pupilla {exit_pupil} mm.</source>
       <translation>Binoculars can locate the object but are not ideal for detail: more magnification is needed. Available configuration: {magnification}x with exit pupil {exit_pupil} mm.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3361" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3427" />
       <source> Binocolo stabilizzato: immagine più ferma.</source>
       <translation>Stabilized binoculars: steadier image.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3363" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3429" />
       <source>Oggetto esteso: il binocolo offre una visione più naturale a largo campo. {magnification}x con pupilla {exit_pupil} mm; il campo reale non è stimato perché il catalogo binocoli non include il FOV.{stabilization}</source>
       <translation>Extended object: binoculars offer a more natural wide-field view. {magnification}x with exit pupil {exit_pupil} mm; true field is not estimated because the binocular catalog does not include FOV data.{stabilization}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3365" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3431" />
       <source>Configurazione utilizzabile a basso ingrandimento: {magnification}x con pupilla {exit_pupil} mm; un telescopio può mostrare più dettaglio se disponibile.</source>
       <translation>Usable low-magnification configuration: {magnification}x with exit pupil {exit_pupil} mm; a telescope can show more detail if available.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3383" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3449" />
       <source>Vento medio {wind} km/h, raffiche {gusts} km/h, nuvolosità bassa/media/alta {low}/{mid}/{high}%, umidità {humidity}%.</source>
       <translation>Average wind {wind} km/h, gusts {gusts} km/h, low/medium/high cloud cover {low}/{mid}/{high}%, humidity {humidity}%.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3387" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3491" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3621" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3453" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3557" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3687" />
       <source>Configura una località per usare Sky Compass.</source>
       <translation>Configure a location to use Sky Compass.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3401" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3467" />
       <source>Più ammassi nella stessa zona</source>
       <translation>Multiple clusters in the same area</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3405" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3471" />
       <source>{name} è il riferimento planetario della zona</source>
       <translation>{name} is the planetary reference for the area</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3497" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3563" />
       <source>{city} — {timezone}</source>
       <translation>{city} — {timezone}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3539" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3545" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3605" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3611" />
       <source>Questo profilo esiste già.</source>
       <translation>This profile already exists.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3583" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3587" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3649" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3653" />
       <source>L'osservazione selezionata non esiste più.</source>
       <translation>The selected observation no longer exists.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="35" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2783" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2825" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2849" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2891" />
       <source>Posizione caricata.</source>
       <translation>Position loaded.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3671" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3737" />
       <source>Aggiornamento dati NASA AOD per la nuova posizione.</source>
       <translation>NASA AOD data update for new location.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3673" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3739" />
       <source>Aggiornamento dati OpenAQ per la nuova posizione.</source>
       <translation>OpenAQ data update for new location.</translation>
     </message>
@@ -6809,91 +6962,91 @@
       <translation>Last location loaded: {city}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3683" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3749" />
       <source>Online approssimata</source>
       <translation>Approximate online</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3685" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3751" />
       <source>Città manuale</source>
       <translation>Manual city</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3691" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3757" />
       <source>Posizione salvata</source>
       <translation>Location saved</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3709" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3775" />
       <source>salvata</source>
       <translation>saved</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1157" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1165" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1749" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2025" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1751" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2027" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2031" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3305" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3321" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3329" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2029" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2033" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3371" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3387" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3395" />
       <source>No</source>
       <translation>No</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1747" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1749" />
       <source>Sì</source>
       <translation>Yes</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3725" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3791" />
       <source>Occhio nudo; binocolo o basso ingrandimento</source>
       <translation>Naked eye; binoculars or low magnification</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3729" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3795" />
       <source>Notte migliore del mese per il cielo profondo: usa il setup più adatto al singolo oggetto del tuo profilo.</source>
       <translation>Best night of the month for deep-sky observing: use the setup best suited to each object in your profile.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3731" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3797" />
       <source>Osservazione lunare</source>
       <translation>Lunar observation</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3777" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3843" />
       <source>{telescope}: aggiungi oculari</source>
       <translation>{telescope}: Add eyepieces</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3779" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3845" />
       <source>Nota osservativa</source>
       <translation>Observational note</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3781" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3847" />
       <source>Telescopio consigliato</source>
       <translation>Recommended telescope</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1467" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1469" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1471" />
       <source>locale</source>
       <translation>local</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3511" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3577" />
       <source>{latitude}, {longitude}</source>
       <translation>{latitude}, {longitude}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3579" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3645" />
       <source>Nuovo profilo</source>
       <translation>New profile</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3669" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3735" />
       <source>Aggiornamento suggerimenti in corso.</source>
       <translation>Updating recommendations.</translation>
     </message>
@@ -6903,496 +7056,496 @@
       <translation>MPC observatory selected.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3687" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3753" />
       <source>Osservatorio MPC</source>
       <translation>MPC observatory</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1745" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1747" />
       <source>Sistema Solare</source>
       <translation>Solar System</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3717" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3783" />
       <source>Work in progress</source>
       <translation>Work in progress</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3719" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3785" />
       <source>HiPS a colori e ritaglio: CDS</source>
       <translation>Color HiPS and crop: CDS</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3721" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3787" />
       <source>SVG locale generato da NightScope</source>
       <translation>Local SVG generated by NightScope</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3739" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3767" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3805" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3833" />
       <source>45°</source>
       <translation>45°</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3745" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3773" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3811" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3839" />
       <source>180°</source>
       <translation>180°</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3019" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3085" />
       <source>Scheda informativa caricata dal catalogo locale.</source>
       <translation>Information sheet loaded from the local catalog.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3021" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3041" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3087" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3107" />
       <source>Sopra l'orizzonte</source>
       <translation>Above the horizon</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3023" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3089" />
       <source>Sopra l'orizzonte, ma non utile per l'osservazione questo mese.</source>
       <translation>Above the horizon, but not useful for observation this month.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3025" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3091" />
       <source>Finestra marginale</source>
       <translation>Marginal window</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3029" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3095" />
       <source>Non utile questo mese</source>
       <translation>Not useful this month</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3035" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3101" />
       <source>quota utile</source>
       <translation>a useful altitude</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3037" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3103" />
       <source>Osservabile ora</source>
       <translation>Observable now</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3039" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3105" />
       <source>Attualmente a {altitude}. Finestra utile: {window}.</source>
       <translation>Currently at {altitude}. Useful window: {window}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3057" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3123" />
       <source>Meglio prima dell'alba</source>
       <translation>Better before dawn</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3059" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3125" />
       <source>Attualmente sotto la soglia utile. Finestra prima dell'alba: {window}.</source>
       <translation>Currently below the useful threshold. Window before dawn: {window}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3065" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3131" />
       <source>Troppo basso ora</source>
       <translation>Too low now</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3045" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3069" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3111" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3135" />
       <source>Finestra conclusa</source>
       <translation>Window concluded</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3047" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3071" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3113" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3137" />
       <source>La finestra utile di questa notte era {window}.</source>
       <translation>Tonight's useful window was {window}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3049" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3053" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3073" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3115" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3119" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3139" />
       <source>Finestra utile</source>
       <translation>Useful window</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3051" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3055" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3075" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3117" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3121" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3141" />
       <source>Finestra osservativa: {window}.</source>
       <translation>Observation window: {window}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3079" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3145" />
       <source>Nessuna finestra notturna utile per questa posizione.</source>
       <translation>No useful night window for this location.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3081" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3147" />
       <source>Finestra utile sopra soglia: {duration}.</source>
       <translation>Useful window above threshold: {duration}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3083" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3149" />
       <source>Fase lunare: {phase}, illuminazione {illumination}.</source>
       <translation>Moon phase: {phase}, illumination {illumination}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3115" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3181" />
       <source>da valutare</source>
       <translation>to be evaluated</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3117" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3183" />
       <source>{magnification} e pupilla {exit_pupil}: campo ampio e visione naturale dell'ammasso.</source>
       <translation>{magnification} and exit pupil {exit_pupil}: wide field and natural view of the cluster.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3119" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3185" />
       <source>{magnification} e pupilla {exit_pupil}: adatto a oggetti molto estesi e a basso contrasto.</source>
       <translation>{magnification} and exit pupil {exit_pupil}: suitable for very extended, low-contrast objects.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3121" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3187" />
       <source>{magnification} e pupilla {exit_pupil}: utile per individuare l'oggetto senza stringere troppo il campo.</source>
       <translation>{magnification} and exit pupil {exit_pupil}: useful for locating the object without narrowing the field too much.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3123" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3189" />
       <source>{magnification} e pupilla {exit_pupil}: configurazione binoculare a basso ingrandimento.</source>
       <translation>{magnification} and exit pupil {exit_pupil}: low-magnification binocular configuration.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3125" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3191" />
       <source>{magnification} e pupilla {exit_pupil}: dettaglio lunare leggibile senza spingere troppo l'immagine.</source>
       <translation>{magnification} with a {exit_pupil} exit pupil shows clear lunar detail without pushing magnification too far.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3127" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3193" />
       <source>{magnification} e pupilla {exit_pupil}: compromesso tra dettaglio planetario e seeing previsto.</source>
       <translation>{magnification} and exit pupil {exit_pupil}: balance between planetary detail and expected seeing.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3129" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3195" />
       <source>Campo reale {true_field}: mantiene l'oggetto nel suo contesto stellare.</source>
       <translation>Real Field {true_field}: Keeps the object in its stellar context.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3131" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3197" />
       <source>{magnification} e pupilla {exit_pupil}: aiuta a separare il nucleo senza scurire troppo.</source>
       <translation>{magnification} and exit pupil {exit_pupil}: helps resolve the core without darkening the view too much.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3133" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3199" />
       <source>Pupilla {exit_pupil} e campo {true_field}: privilegia contrasto e orientamento della galassia.</source>
       <translation>Exit pupil {exit_pupil} and true field {true_field}: favor contrast and orientation of the galaxy.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3135" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3201" />
       <source>Pupilla {exit_pupil} e campo {true_field}: equilibrio utile per oggetti diffusi.</source>
       <translation>Exit pupil {exit_pupil} and true field {true_field}: useful balance for diffuse objects.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3139" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3205" />
       <source>Configurazione scelta in base al profilo attivo e al tipo di oggetto.</source>
       <translation>Configuration chosen based on the active profile and the type of object.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3141" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3207" />
       <source>Giorno {day} di {cycle}</source>
       <translation>Day {day} of {cycle}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3457" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3523" />
       <source>Le condizioni previste rimangono sfavorevoli per tutta la notte.</source>
       <translation>Conditions are expected to remain unfavorable throughout the night.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3465" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3531" />
       <source>debole</source>
       <translation>weak</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3467" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3533" />
       <source>moderato</source>
       <translation>moderate</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3469" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3535" />
       <source>sostenuto</source>
       <translation>supported</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3189" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3255" />
       <source>Non in finestra notturna</source>
       <translation>Not in the night window</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3789" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3855" />
       <source>Dati filtro non validi.</source>
       <translation>Invalid filter data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3791" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3857" />
       <source>Dati riduttore non validi.</source>
       <translation>Invalid focal reducer data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3793" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3859" />
       <source>Dati binocolo non validi.</source>
       <translation>Invalid binocular data.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1015" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3799" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3865" />
       <source>Dati oculare non validi.</source>
       <translation>Invalid eyepiece data.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3797" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3863" />
       <source>Focale e campo apparente devono essere maggiori di zero.</source>
       <translation>Focal and apparent field must be greater than zero.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1841" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1843" />
       <source>{aperture} mm / {focal_length} mm</source>
       <translation>{aperture} mm / {focal_length} mm</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="969" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1845" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1847" />
       <source>Zoom</source>
       <translation>Zoom</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1843" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1845" />
       <source>Oculare</source>
       <translation>Eyepiece</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3783" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3849" />
       <source>Bassa priorità osservativa</source>
       <translation>Low observation priority</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3679" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3745" />
       <source>Posizione di sistema approssimata</source>
       <translation>Approximate system location</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3031" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3097" />
       <source>Non raggiunge una finestra utile questo mese secondo il criterio di visibilità mensile.</source>
       <translation>It does not reach a useful window this month according to the monthly visibility criterion.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3043" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3109" />
       <source>Attualmente a {altitude}°, ma fuori dalla notte osservativa. Finestra utile: {window}.</source>
       <translation>Currently at {altitude}°, but outside the observing night. Useful window: {window}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3061" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3127" />
       <source>Meglio più tardi</source>
       <translation>Better later</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3063" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3129" />
       <source>Attualmente sotto la soglia utile. Finestra più tardi: {window}.</source>
       <translation>Currently below the useful threshold. Later window: {window}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3107" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3173" />
       <source>Cielo Bortle {bortle}: oggetto ancora gestibile, difficoltà stimata facile.</source>
       <translation>Bortle {bortle} sky: the object remains manageable, with an easy estimated difficulty.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3109" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3175" />
       <source>Cielo Bortle {bortle}: richiede adattamento al buio, difficoltà media.</source>
       <translation>Bortle {bortle} sky: requires dark adaptation, with medium difficulty.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3113" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3179" />
       <source>Cielo Bortle {bortle}: difficoltà stimata {difficulty}.</source>
       <translation>Bortle {bortle} sky: estimated difficulty {difficulty}.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3137" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3203" />
       <source>Barlow inclusa per raggiungere un ingrandimento più utile.</source>
       <translation>Barlow included to achieve more useful magnification.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3459" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3525" />
       <source>Non è consigliabile preparare una sessione osservativa.</source>
       <translation>It is not advisable to prepare an observation session.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1847" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1851" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1849" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1853" />
       <source>Barlow</source>
       <translation>Barlow</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1855" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1857" />
       <source>Binocolo stabilizzato</source>
       <translation>Stabilized binoculars</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1859" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1861" />
       <source>Filtro</source>
       <translation>Filter</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1861" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1863" />
       <source>Riduttore</source>
       <translation>Focal reducer</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1865" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1867" />
       <source>Camera astronomica</source>
       <translation>Astronomy camera</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1867" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1869" />
       <source>Corpo macchina</source>
       <translation>Camera body</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1869" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1871" />
       <source>Visuale + foto</source>
       <translation>Visual + photo</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1871" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1873" />
       <source>Visuale</source>
       <translation>Visual</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1873" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1875" />
       <source>Fotografico</source>
       <translation>Photographic</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1823" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1825" />
       <source>Telescopio smart attivo: oculari, Barlow e ingrandimenti visuali non si applicano. Usa il piano EAA/fotografico integrato.</source>
       <translation>Active smart telescope: eyepieces, Barlows, and visual magnification do not apply. Use the integrated EAA/imaging plan.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1825" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1827" />
       <source>Telescopio attivo senza oculari: suggerimenti limitati. Aggiungi oculari per calcoli completi.</source>
       <translation>Active telescope without eyepieces: limited suggestions. Add eyepieces for complete calculations.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1827" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1829" />
       <source>1 Barlow</source>
       <translation>1 Barlow</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1831" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1833" />
       <source>nessuna Barlow</source>
       <translation>no Barlow</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1833" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1835" />
       <source>1 oculare</source>
       <translation>1 eyepiece</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3801" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3867" />
       <source>{latitude} / {longitude}</source>
       <translation>{latitude} / {longitude}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3803" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3821" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3869" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3887" />
       <source>Apertura del database locale...</source>
       <translation>Opening the local database...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3805" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3823" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3871" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3889" />
       <source>Creazione del database locale...</source>
       <translation>Creating the local database...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3807" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3873" />
       <source>Avvio di NightScope</source>
       <translation>Starting NightScope</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3809" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3875" />
       <source>Caricamento del database e dell'interfaccia.</source>
       <translation>Loading the database and interface.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3811" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3877" />
       <source>Database locale</source>
       <translation>Local database</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3813" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3879" />
       <source>Cataloghi locali</source>
       <translation>Local catalogues</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3815" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3881" />
       <source>Servizi applicativi</source>
       <translation>Application services</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3817" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3883" />
       <source>Interfaccia</source>
       <translation>Interface</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3819" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3885" />
       <source>Passaggio {current} di {total}</source>
       <translation>Step {current} of {total}</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3825" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3891" />
       <source>Ricostruzione del database locale...</source>
       <translation>Rebuilding the local database...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3827" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3893" />
       <source>Sincronizzazione dei cataloghi locali...</source>
       <translation>Synchronizing the local catalogues...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3829" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3895" />
       <source>Aggiornamento del catalogo città - {rows} righe elaborate</source>
       <translation>Updating the city catalogue - {rows} rows processed</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3831" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3897" />
       <source>Finalizzazione dei cataloghi locali...</source>
       <translation>Finalizing the local catalogues...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3833" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3899" />
       <source>Preparazione dei servizi applicativi...</source>
       <translation>Preparing application services...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3835" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3901" />
       <source>Apertura dell'interfaccia...</source>
       <translation>Opening the interface...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3837" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3903" />
       <source>NightScope è pronto.</source>
       <translation>NightScope is ready.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3839" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3905" />
       <source>Preparazione dei dati locali...</source>
       <translation>Preparing local data...</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3841" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3907" />
       <source>Impossibile inizializzare il database locale.</source>
       <translation>Failed to initialize local database.</translation>
     </message>
     <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3843" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3909" />
       <source>Impossibile inizializzare il database locale.
 
 Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</source>
@@ -7403,7 +7556,7 @@ Check the application folder permissions and restart NightScope.</translation>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1225" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1235" />
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3441" />
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="3507" />
       <source>{value} km/h</source>
       <translation>{value} km/h</translation>
     </message>
@@ -7413,7 +7566,7 @@ Check the application folder permissions and restart NightScope.</translation>
     <message>
       <location filename="../app/ui/pages/CalendarPage.qml" line="104" />
       <location filename="../app/ui/pages/CalendarPage.qml" line="112" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="460" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="465" />
       <source>n/d</source>
       <translation>n/a</translation>
     </message>
@@ -7428,22 +7581,22 @@ Check the application folder permissions and restart NightScope.</translation>
       <translation>Annual events, ISS passes and short-horizon comets</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="222" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="225" />
       <source>In evidenza nei prossimi 30 giorni</source>
       <translation>Highlights in the next 30 days</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="223" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="226" />
       <source>Eventi osservativi da controllare per primi</source>
       <translation>Observing events to check first</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="230" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="233" />
       <source>Nessun evento rilevante nei prossimi 30 giorni.</source>
       <translation>No relevant events in the next 30 days.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="277" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="282" />
       <source>Panoramica</source>
       <translation>Overview</translation>
     </message>
@@ -7458,155 +7611,155 @@ Check the application folder permissions and restart NightScope.</translation>
       <translation>Configure location</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="231" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="498" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="234" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="503" />
       <source>Eventi non disponibili senza località.</source>
       <translation>Events are unavailable without a location.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="279" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="284" />
       <source>Dati non disponibili senza località</source>
       <translation>Data unavailable without a location</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="281" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="286" />
       <source>1 evento nella vista corrente</source>
       <translation>1 event in the current view</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="282" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="287" />
       <source>%1 eventi nella vista corrente</source>
       <translation>%1 events in the current view</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="292" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="297" />
       <source>Prossimo</source>
       <translation>Next</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="297" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="418" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="302" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="423" />
       <source>Luna</source>
       <translation>Moon</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="304" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="419" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="309" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="424" />
       <source>Opposizioni</source>
       <translation>Oppositions</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="311" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="420" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="316" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="425" />
       <source>Cong. planetarie</source>
       <translation>Planetary conj.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="318" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="423" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="323" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="428" />
       <source>Cong. solari</source>
       <translation>Solar conj.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="325" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="424" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="330" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="429" />
       <source>Sciami</source>
       <translation>Meteor showers</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="332" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="425" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="337" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="430" />
       <source>Eclissi</source>
       <translation>Eclipses</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="339" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="344" />
       <source>Passaggi ISS</source>
       <translation>ISS passes</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="346" />
-      <location filename="../app/ui/pages/CalendarPage.qml" line="427" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="351" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="432" />
       <source>Comete</source>
       <translation>Comets</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="359" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="364" />
       <source>Vista calendario</source>
       <translation>Calendar view</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="361" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="366" />
       <source>%1 di %2 eventi</source>
       <translation>%1 of %2 events</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="364" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="369" />
       <source>Località necessaria</source>
       <translation>Location required</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="373" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="378" />
       <source>Periodo</source>
       <translation>Period</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="386" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="391" />
       <source>30 giorni</source>
       <translation>30 days</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="387" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="392" />
       <source>6 mesi</source>
       <translation>6 months</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="388" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="393" />
       <source>12 mesi</source>
       <translation>12 months</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="404" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="409" />
       <source>Tipo evento</source>
       <translation>Event type</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="417" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="422" />
       <source>Tutti</source>
       <translation>All</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="421" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="426" />
       <source>Raggruppamenti</source>
       <translation>Groupings</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="422" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="427" />
       <source>Parate planetarie</source>
       <translation>Planet parades</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="426" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="431" />
       <source>ISS</source>
       <translation>ISS</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="451" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="456" />
       <source>Timeline eventi</source>
       <translation>Event timeline</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="462" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="467" />
       <source>1 evento</source>
       <translation>1 event</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="463" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="468" />
       <source>%1 eventi</source>
       <translation>%1 events</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/CalendarPage.qml" line="497" />
+      <location filename="../app/ui/pages/CalendarPage.qml" line="502" />
       <source>Nessun evento per i filtri selezionati.</source>
       <translation>No events match the selected filters.</translation>
     </message>
@@ -7660,282 +7813,282 @@ Check the application folder permissions and restart NightScope.</translation>
       <translation>External sources, downloaded calendars and optional access.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="82" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="84" />
       <source>IMO · International Meteor Organization</source>
       <translation>IMO · International Meteor Organization</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="83" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="85" />
       <source>Calendario annuale degli sciami meteorici · Nessun account richiesto</source>
       <translation>Annual meteor shower calendar · No account required</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="87" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="89" />
       <source>Sito ufficiale</source>
       <translation>Official website</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="95" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="97" />
       <source>Caricamento</source>
       <translation>Loading</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="96" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="98" />
       <source>Aggiornato</source>
       <translation>Up to date</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="97" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="99" />
       <source>Anno precedente</source>
       <translation>Previous year</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="98" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="100" />
       <source>Importazione non riuscita</source>
       <translation>Import failed</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="99" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="101" />
       <source>In attesa</source>
       <translation>Waiting</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="99" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="101" />
       <source>Non disponibile</source>
       <translation>Unavailable</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="104" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="106" />
       <source>Calendario IMO %1 · %2 sciami principali</source>
       <translation>IMO calendar %1 · %2 major showers</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="105" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="107" />
       <source>Calendario %1 non ancora scaricato</source>
       <translation>Calendar %1 not downloaded yet</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="114" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="116" />
       <source>Salvato il %1</source>
       <translation>Saved on %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="121" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="123" />
       <source>Download automatico una sola volta per anno, dopo l'avvio. Al cambio d'anno il calendario precedente viene eliminato solo quando il nuovo è stato scaricato e verificato. Le date IMO restano previsioni, non garanzie di osservabilità.</source>
       <translation>Downloaded automatically once per year, after startup. At the change of year, the previous calendar is removed only after the new one has been downloaded and validated. IMO dates remain predictions, not guarantees of observability.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="130" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="132" />
       <source>PDF non valido o di un altro anno. Il calendario già presente è stato conservato.</source>
       <translation>Invalid PDF or wrong year. The existing calendar has been preserved.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="131" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="133" />
       <source>Il calendario dell'anno corrente non è disponibile. Nuovo tentativo automatico entro 24 ore; nel frattempo restano le ricorrenze indicative. Puoi importare il PDF originale IMO se lo hai già scaricato.</source>
       <translation>The current year's calendar is unavailable. Another automatic attempt will be made within 24 hours; approximate recurring dates are used meanwhile. You can import the original IMO PDF if you have already downloaded it.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="140" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="142" />
       <source>Riprova</source>
       <translation>Retry</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="145" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="147" />
       <source>Importa PDF</source>
       <translation>Import PDF</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="158" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="170" />
       <source>NASA Earthdata</source>
       <translation>NASA Earthdata</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="159" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="171" />
       <source>Connessione LAADS verificata</source>
       <translation>LAADS connection verified</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="159" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="171" />
       <source>Credenziali salvate nel vault di sistema</source>
       <translation>Credentials saved in the system vault</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="159" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="171" />
       <source>Accesso opzionale ai dati VIIRS e AOD</source>
       <translation>Optional access to VIIRS and AOD data</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="170" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="331" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="182" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="345" />
       <source>Crea account</source>
       <translation>Create account</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="174" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="335" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="186" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="349" />
       <source>Account già configurato</source>
       <translation>Account already configured</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="174" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="186" />
       <source>Crea un account NASA Earthdata</source>
       <translation>Create a NASA Earthdata account</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="191" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="343" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="203" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="357" />
       <source>Verifica</source>
       <translation>Checking</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="191" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="343" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="203" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="357" />
       <source>Verificato</source>
       <translation>Verified</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="191" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="203" />
       <source>Autorizza</source>
       <translation>Authorize</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="191" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="343" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="203" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="357" />
       <source>Da testare</source>
       <translation>To be tested</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="191" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="203" />
       <source>Fallback</source>
       <translation>Fallback</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="213" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="225" />
       <source>Utente Earthdata</source>
       <translation>Earthdata username</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="221" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="233" />
       <source>Nuova password</source>
       <translation>New password</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="221" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="233" />
       <source>Password Earthdata</source>
       <translation>Earthdata password</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="233" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="370" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="245" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="384" />
       <source>Salva</source>
       <translation>Save</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="244" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="381" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="256" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="395" />
       <source>Verifica...</source>
       <translation>Checking...</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="244" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="381" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="256" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="395" />
       <source>Test connessione</source>
       <translation>Test connection</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="252" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="264" />
       <source>Autorizza app</source>
       <translation>Authorize app</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="264" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="393" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="276" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="407" />
       <source>Rimuovi</source>
       <translation>Remove</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="283" />
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="411" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="295" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="425" />
       <source>Guida alla configurazione</source>
       <translation>Setup guide</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="292" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="304" />
       <source>Crea l'account Earthdata, conferma l'e-mail di attivazione e accedi.</source>
       <translation>Create an Earthdata account, confirm the activation email, and sign in.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="298" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="310" />
       <source>Apri Modifica profilo e compila tutti i campi, anche quelli indicati come facoltativi: organizzazione, affiliazione, tipo di utente e area di studio. Inserisci informazioni veritiere e pertinenti al tuo caso.</source>
       <translation>Open Edit Profile and complete every field, including those marked optional: organization, affiliation, user type, and study area. Enter truthful information that applies to you.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="304" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="316" />
       <source>In NightScope inserisci nome utente e password. Seleziona quindi Salva e Test connessione.</source>
       <translation>In NightScope, enter your username and password. Then select Save and Test connection.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="310" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="322" />
       <source>Se richiesto, seleziona Autorizza app, spunta tutte le autorizzazioni richieste da LAADS OPeNDAP e conferma con Authorize. Torna quindi in NightScope e ripeti il test.</source>
       <translation>If prompted, select Authorize app, check every authorization option requested by LAADS OPeNDAP, and confirm with Authorize. Then return to NightScope and repeat the test.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="320" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="334" />
       <source>OpenAQ</source>
       <translation>OpenAQ</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="321" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="335" />
       <source>Connessione API verificata</source>
       <translation>API connection verified</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="321" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="335" />
       <source>API key salvata nel vault di sistema</source>
       <translation>API key saved in the system vault</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="321" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="335" />
       <source>Accesso opzionale ai dati qualità aria</source>
       <translation>Optional access to air quality data</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="335" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="349" />
       <source>Crea un account OpenAQ</source>
       <translation>Create an OpenAQ account</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="343" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="357" />
       <source>Non configurato</source>
       <translation>Not configured</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="359" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="373" />
       <source>Nuova API key OpenAQ</source>
       <translation>New OpenAQ API key</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="359" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="373" />
       <source>API key OpenAQ</source>
       <translation>OpenAQ API key</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="420" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="434" />
       <source>Crea un account OpenAQ e accedi.</source>
       <translation>Create an OpenAQ account and sign in.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="426" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="440" />
       <source>Apri la pagina dell'account dal menu del profilo e scorri fino alla sezione API Keys.</source>
       <translation>Open the account page from the profile menu and scroll to the API Keys section.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="432" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="446" />
       <source>Crea o copia la chiave API. Trattala come una password e non condividerla.</source>
       <translation>Create or copy the API key. Treat it like a password and do not share it.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/DataProvidersPage.qml" line="438" />
+      <location filename="../app/ui/pages/DataProvidersPage.qml" line="452" />
       <source>In NightScope incolla la chiave, seleziona Salva e poi Test connessione. La configurazione è completa quando lo stato diventa Verificato.</source>
       <translation>In NightScope, paste the key, select Save, then Test connection. Setup is complete when the status shows Verified.</translation>
     </message>
@@ -9418,143 +9571,148 @@ Check the application folder permissions and restart NightScope.</translation>
   <context>
     <name>EventDetailPage</name>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="78" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="79" />
       <source>Torna al Calendario</source>
       <translation>Back to Calendar</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="85" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="86" />
       <source>Dettaglio evento</source>
       <translation>Event details</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="151" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="152" />
       <source>Istante evento</source>
       <translation>Event time</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="159" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="160" />
       <source>n/d</source>
       <translation>n/a</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="177" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="170" />
+      <source>Finestra astronomica locale: %1</source>
+      <translation>Local astronomical window: %1</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="180" />
       <source>Notti favorevoli: %1</source>
       <translation>Favourable nights: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="177" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="180" />
       <source>Notti di osservabilità stimata: %1</source>
       <translation>Estimated observing nights: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="205" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="208" />
       <source>Nessuna finestra osservativa locale</source>
       <translation>No local observing window</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="233" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="236" />
       <source>Indicazione di sicurezza</source>
       <translation>Safety guidance</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="236" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="239" />
       <source>Osservazione</source>
       <translation>Observation</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="237" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="240" />
       <source>Con il tuo profilo</source>
       <translation>With your profile</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="239" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="242" />
       <source>Evento informativo, non osservativo</source>
       <translation>Informational, non-observing event</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="241" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="244" />
       <source>Indicazioni per la finestra cometaria</source>
       <translation>Guidance for the comet observing window</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="243" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="246" />
       <source>Indicazioni essenziali per il passaggio</source>
       <translation>Essential pass information</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="244" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="247" />
       <source>Configurazione consigliata per l'evento</source>
       <translation>Recommended configuration for the event</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="289" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="292" />
       <source>Dettagli del passaggio</source>
       <translation>Pass details</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="291" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="294" />
       <source>Dettagli della cometa</source>
       <translation>Comet details</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="292" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="295" />
       <source>Dettagli evento</source>
       <translation>Event details</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="323" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="336" />
       <source>Fonte: %1</source>
       <translation>Source: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="354" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="367" />
       <source>Consigli osservativi</source>
       <translation>Observing advice</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="355" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="368" />
       <source>Azioni pratiche per preparare l'evento</source>
       <translation>Practical actions to prepare for the event</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="85" />
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="390" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="86" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="403" />
       <source>Nessun evento selezionato</source>
       <translation>No event selected</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="142" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="143" />
       <source>Quando osservare l'evento</source>
       <translation>When to observe the event</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="143" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="144" />
       <source>Istante, finestra e visibilità locale</source>
       <translation>Instant, window and local visibility</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="168" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="171" />
       <source>Finestra osservativa: %1</source>
       <translation>Observation window: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="214" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="217" />
       <source>Separazione minima: %1</source>
       <translation>Minimum separation: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="273" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="276" />
       <source>Apri %1</source>
       <translation>Open %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="391" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="404" />
       <source>Torna al calendario e scegli una voce dalla timeline</source>
       <translation>Return to the calendar and choose an item from the timeline</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/EventDetailPage.qml" line="396" />
+      <location filename="../app/ui/pages/EventDetailPage.qml" line="409" />
       <source>Seleziona una scheda evento per aprire il dettaglio.</source>
       <translation>Select an event card to open its details.</translation>
     </message>
@@ -10363,13 +10521,13 @@ Check the application folder permissions and restart NightScope.</translation>
       <translation>Back to Home</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="486" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="492" />
       <source>Finestra osservativa</source>
       <translation>Observing window</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="174" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="556" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="562" />
       <source>Magnitudine</source>
       <translation>Magnitude</translation>
     </message>
@@ -10414,29 +10572,29 @@ Check the application folder permissions and restart NightScope.</translation>
       <translation>Eyepiece: %1 - Barlow: %2 - Difficulty: %3</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="558" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="564" />
       <source>Altezza massima</source>
       <translation>Maximum altitude</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="559" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="565" />
       <source>Direzione</source>
       <translation>Direction</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="181" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="561" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="567" />
       <source>Azimut</source>
       <translation>Azimuth</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="562" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="568" />
       <source>Altezza attuale</source>
       <translation>Current altitude</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="182" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="563" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="569" />
       <source>Sorge</source>
       <translation>Rises</translation>
     </message>
@@ -10447,14 +10605,14 @@ Check the application folder permissions and restart NightScope.</translation>
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="136" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="145" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="152" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="494" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="560" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="563" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="564" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="565" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="500" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="566" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="569" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="570" />
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="571" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1137" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="572" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="577" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1143" />
       <source>n/d</source>
       <translation>n/a</translation>
     </message>
@@ -10507,7 +10665,7 @@ Check the application folder permissions and restart NightScope.</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="184" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="564" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="570" />
       <source>Tramonta</source>
       <translation>Sets</translation>
     </message>
@@ -10532,63 +10690,63 @@ Check the application folder permissions and restart NightScope.</translation>
       <translation>No object selected</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="458" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="634" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="462" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="640" />
       <source>Fonte immagine</source>
       <translation>Image source</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="487" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="493" />
       <source>Durata utile non disponibile</source>
       <translation>Useful duration unavailable</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="513" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="519" />
       <source>Da valutare</source>
       <translation>To be assessed</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="560" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="566" />
       <source>Fascia migliore per altezza</source>
       <translation>Best altitude window</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="565" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="571" />
       <source>Inizio utile</source>
       <translation>Useful window start</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="566" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="572" />
       <source>Fine utile</source>
       <translation>Useful window end</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="702" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="708" />
       <source>Dati di catalogo</source>
       <translation>Catalog data</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="733" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="739" />
       <source>Descrizione</source>
       <translation>Description</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="754" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="760" />
       <source>Storia, scienza e contesto</source>
       <translation>History, science and context</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="790" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="796" />
       <source>Configurazione consigliata</source>
       <translation>Recommended configuration</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="793" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="799" />
       <source>Suggerimento operativo</source>
       <translation>Practical recommendation</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="735" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="741" />
       <source>Periodo migliore: %1</source>
       <translation>Best time: %1</translation>
     </message>
@@ -10623,170 +10781,170 @@ Check the application folder permissions and restart NightScope.</translation>
       <translation>Manage image</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="456" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="632" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="460" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="638" />
       <source>Illustrazione di categoria (generata con IA)</source>
       <translation>Category illustration (AI-generated)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="457" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="633" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="461" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="639" />
       <source>Immagine personale</source>
       <translation>Personal image</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="556" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="562" />
       <source>Magnitudine (Luna piena)</source>
       <translation>Magnitude (full Moon)</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="571" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="577" />
       <source>Massima altezza intorno alle %1. Questa fascia considera solo l'altezza; il piano della notte considera anche il meteo.</source>
       <translation>Maximum altitude around %1. This window only considers altitude; the night plan also considers weather.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="753" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="759" />
       <source>Curiosità</source>
       <translation>Curiosity</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="769" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="775" />
       <source>Fonte: &lt;a href="%1"&gt;%2&lt;/a&gt;</source>
       <translation>Source: &lt;a href="%1"&gt;%2&lt;/a&gt;</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="771" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="777" />
       <source>Apri la fonte</source>
       <translation>Open the source</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="792" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="798" />
       <source>Setup scelto per %1</source>
       <translation>Setup chosen for %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="808" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="814" />
       <source>Perché questa configurazione: %1</source>
       <translation>Why this configuration: %1</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="828" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="834" />
       <source>Filtro</source>
       <translation>Filter</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="837" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="843" />
       <source>Disponibile</source>
       <translation>Available</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="838" />
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="874" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="844" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="880" />
       <source>Non disponibile</source>
       <translation>Unavailable</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="865" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="871" />
       <source>Riduttore fotografico</source>
       <translation>Imaging focal reducer</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="874" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="880" />
       <source>Nel profilo</source>
       <translation>In profile</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="937" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="943" />
       <source>Piano fotografico</source>
       <translation>Imaging plan</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="938" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="944" />
       <source>Configurazione fotografica del profilo attivo</source>
       <translation>Active profile imaging setup</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1134" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1140" />
       <source>Ciclo lunare</source>
       <translation>Lunar cycle</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1135" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1141" />
       <source>%1  -  %2  -  %3</source>
       <translation>%1 - %2 - %3</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1136" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1142" />
       <source>Fase lunare</source>
       <translation>Lunar phase</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1147" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1153" />
       <source>Nuova</source>
       <translation>New</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1148" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1154" />
       <source>Crescente</source>
       <translation>Waxing crescent</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1149" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1155" />
       <source>Primo quarto</source>
       <translation>First quarter</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1150" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1156" />
       <source>Gibbosa</source>
       <translation>Waxing gibbous</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1151" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1157" />
       <source>Piena</source>
       <translation>Full</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1152" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1158" />
       <source>Calante</source>
       <translation>Waning gibbous</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1153" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1159" />
       <source>Ultimo quarto</source>
       <translation>Last quarter</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1154" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1160" />
       <source>Falce calante</source>
       <translation>Waning crescent</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1248" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1254" />
       <source>Seleziona un oggetto</source>
       <translation>Select an object</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1249" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1255" />
       <source>Il dettaglio si apre dalle pagine dell'app</source>
       <translation>Details open from the app pages</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1254" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1260" />
       <source>Scegli un oggetto dalla Home, dal calendario o dal catalogo.</source>
       <translation>Choose an object from Home, the calendar or the catalog.</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1266" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1272" />
       <source>Valutazione osservativa</source>
       <translation>Observing assessment</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1267" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1273" />
       <source>Geometria e condizioni locali</source>
       <translation>Geometry and local conditions</translation>
     </message>
     <message>
-      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1310" />
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="1316" />
       <source>Valutazione specifica non disponibile.</source>
       <translation>Target-specific assessment unavailable.</translation>
     </message>

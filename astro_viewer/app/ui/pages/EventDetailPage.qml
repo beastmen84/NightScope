@@ -23,6 +23,7 @@ Item {
                                                       && root.eventWindow !== root.eventTimingValue
                                                       && !root.isCometPeriod
     readonly property bool isCometPeriod: root.hasEvent && root.eventData.typeCode === "comet_window"
+    readonly property bool isMeteorShower: root.hasEvent && root.eventData.typeCode === "meteor_shower"
 
     signal backToCalendar()
     signal openObject(string objectId)
@@ -165,7 +166,9 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.hasDistinctWindow
-                        text: qsTr("Finestra osservativa: %1").arg(root.eventWindow)
+                        text: (root.hasEvent && root.eventData.typeCode === "meteor_shower"
+                               ? qsTr("Finestra astronomica locale: %1")
+                               : qsTr("Finestra osservativa: %1")).arg(root.eventWindow)
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -296,20 +299,30 @@ Item {
                     Repeater {
                         model: root.hasEvent ? (root.eventData.eventFacts || []) : []
 
-                        delegate: RowLayout {
+                        delegate: GridLayout {
+                            objectName: "eventFact_" + modelData.code
                             Layout.fillWidth: true
-                            spacing: 12
+                            columns: root.isMeteorShower && scroll.availableWidth < 1160 ? 1 : 2
+                            columnSpacing: 12
+                            rowSpacing: 4
 
                             Text {
                                 Layout.fillWidth: true
+                                Layout.preferredWidth: root.isMeteorShower ? 300 : -1
                                 text: modelData.label
                                 color: theme.textSecondary
                                 font.pixelSize: 13
-                                elide: Text.ElideRight
+                                wrapMode: root.isMeteorShower ? Text.WordWrap : Text.NoWrap
+                                elide: root.isMeteorShower ? Text.ElideNone : Text.ElideRight
                             }
 
                             Text {
+                                objectName: "eventFactValue_" + modelData.code
+                                Layout.fillWidth: root.isMeteorShower
+                                Layout.preferredWidth: root.isMeteorShower ? 600 : -1
                                 text: modelData.value
+                                wrapMode: root.isMeteorShower ? Text.WordWrap : Text.NoWrap
+                                horizontalAlignment: parent.columns === 1 ? Text.AlignLeft : Text.AlignRight
                                 color: theme.textPrimary
                                 font.pixelSize: 13
                                 font.weight: Font.DemiBold

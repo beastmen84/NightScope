@@ -13,6 +13,23 @@ Updated: 2026-09-20
 
 ## Current State
 
+- Local meteor-window follow-up after `cada095`: the existing annual IMO
+  edition now drives background local geometry for the maximum UT date and
+  its two neighbouring dates. Astronomical darkness, radiant altitude and Moon
+  are combined; the maximum date and meteor count are not inferred from that
+  window. Table 6 drift is interpolated conservatively for nine showers in
+  both inspected editions; Draconids retain an explicit approximate-radiant
+  fallback. Forecasts are separate and require matching-location coverage.
+  Geometry is cached/coalesced off the Qt thread, including safe cancellation
+  on rapid location changes. New details wrap in IT/EN/ES and the generic
+  meteor Relevant badge is now Calendario IMO. See `docs/IMO_CALENDAR.md` and
+  the latest `docs/TESTING.md` entry. Older snapshots below retain their dated
+  validation facts; their "not yet implemented" statements are superseded.
+  Final source/security gate: 2,186 tests / ten subtests, 87% coverage and
+  three isolated smokes. IT/EN/ES: 2,190 compiled messages; 36 scoped Qt scenes
+  including 150% scaling pass without QML warnings. Real 2026/2027 PDFs and
+  three-location baseline astronomy parity pass. Root runtime hashes remain
+  unchanged. Evidence: `build/meteor-windows-20260920/`.
 - Unreleased layout-only follow-up after `ef8d6bf`: IMO occupies one half-width
   provider slot on wide layouts, with empty space beside it; observing-detail
   photos gain height while their observing-window card stays content-sized;

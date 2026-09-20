@@ -14,7 +14,7 @@ import re
 import tempfile
 import time
 from io import BytesIO
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime, timedelta
 from html.parser import HTMLParser
 from threading import Lock
@@ -58,6 +58,7 @@ class MeteorShower:
     radiant_ra_deg: int
     radiant_dec_deg: int
     zhr: str
+    radiant_drift: tuple[tuple[date, float, float], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -135,7 +136,17 @@ def parse_calendar_pdf(payload: bytes, year: int) -> tuple[MeteorShower, ...]:
             pages = (first, document.pages[int(reference[1]) - 1].extract_text())
         else:
             pages = (first, *(page.extract_text() for page in document.pages[1:]))
-        return parse_calendar_text(pages, year)
+        showers = parse_calendar_text(pages, year)
+        # Table 6 follows the Working List in the supported editions. Layout
+        # extraction preserves empty cells: ordinary text loses their columns.
+        if reference and int(reference[1]) < len(document.pages):
+            table_text = pages[1]
+            if re.search(r"T\s*able\s+6\s*\(next page\).*Radiant positions", table_text):
+                from astro_viewer.app.services.imo_radiant_drift import extract_drift_layout, radiant_drift_rows
+                layout = extract_drift_layout(document.pages[int(reference[1])])
+                showers = tuple(replace(shower, radiant_drift=radiant_drift_rows(layout, shower))
+                                for shower in showers)
+        return showers
     except (PyPdfError, KeyError, TypeError, IndexError) as exc:
         raise ValueError("Unreadable IMO PDF") from exc
 

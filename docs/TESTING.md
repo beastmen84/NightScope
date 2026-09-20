@@ -5,6 +5,56 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Unreleased Local Meteor Windows - 2026-09-20
+
+Implementation against `cada095`, VERSION still **1.46.21**. Local intervals
+combine astronomical darkness, radiant altitude and lunar interference around
+the annual IMO maximum; forecasts are assessed separately, only when available
+for the same location. These are planning heuristics, not a meteor-flux model.
+The following older entries describe their own snapshots, not the current
+scientific boundary or artifact contents.
+
+- The final source/security gate passes **2,186 tests / ten subtests**, **87%**
+  overall coverage, all static/documentation/catalogue/imagery checks, an
+  unchanged Bandit baseline and pip-audit with no known vulnerabilities.
+  Backend, normal QML and red-night QML smokes pass in disposable runtimes.
+- **39 new meteor regressions** cover physical thresholds, minimum duration,
+  missing samples, polar daylight, RA wrap/drift fallback, conservative PDF
+  columns, expired intervals, ongoing-window facts, forecast gaps and DST.
+  Worker tests cover coalescing, failures, shutdown, stale locations and the
+  cancellation race A -> B -> A. The final focused meteor/translation run
+  passes **72 tests**.
+- Real IMO **2026 and 2027** editions parse all ten supported showers; nine
+  have usable Table 6 drift. Draconids' single point cannot establish drift
+  and uses the explicitly labelled approximate maximum radiant. The 2026
+  radiant table was also rendered and visually inspected. Source publications
+  remain outside the repository and distribution.
+- Independent Skyfield `Star` comparisons check the new radiant rotation;
+  three-location baseline comparison with `cada095` preserves **27 Solar
+  System records, three Moon records and 252 annual engine events**. The
+  non-meteor overlay retains original objects/fields. Full-catalogue deep-sky
+  parity was not newly repeated; existing regression contracts remain in the
+  source suite. Twenty shower/edition calculations take 1.174-1.237 s per
+  location in this local probe, not a performance guarantee for other PCs.
+- **18 normal-scale and 18 150%-scale Qt scenes** cover IT/EN/ES meteor details,
+  1920/1240 logical widths, red mode, providers, Saturn detail and Calendar.
+  Geometry/text-bound assertions pass without QML warnings; representative
+  captures were inspected. Meteor facts wrap/stack on narrow windows. A 20 ms
+  Qt heartbeat continues during the annual geometry worker (largest final
+  measured gaps approximately 23/25 ms). This is a scoped offline visual
+  matrix, not exhaustive live-provider/display certification.
+- All **2,190 messages** are complete and compiled in IT/EN/ES. New numerical
+  criteria, timezones, approximation and missing-forecast labels are reviewed;
+  the Spanish meteor/meteorite terminology is corrected within this scope.
+- Source DB, backup, preferences, location cache and the supplied IMO PDF keep
+  their original SHA-256 hashes. No new provider, credentials, public release,
+  version bump, push or Linux artifact is involved.
+
+Evidence: `build/meteor-windows-20260920/` (`source-gate-complete.log`,
+`science.log`, `final-targeted.log`,
+`visual-qa-verified.log`, `visual-qa-dpi150.log` and captures). Intermediate
+failed runs are retained as superseded diagnostic evidence, not passing gates.
+
 ## Unreleased Provider/Detail/Calendar Layouts - 2026-09-20
 
 Source-only follow-up against `ef8d6bf`, with VERSION still **1.46.21**.

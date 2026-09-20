@@ -233,6 +233,11 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             if item.id in self.PLANET_IDS and item.visible
         ]
 
+    def meteor_geometry(self, location: ObserverLocation, shower):
+        """Calculate one annual meteor opportunity without changing engine caches."""
+        from astro_viewer.app.astronomy.meteor_windows import calculate_meteor_geometry
+        return calculate_meteor_geometry(self._ephemeris, self._timescale, location, shower)
+
     def observing_night_window(
         self,
         location: ObserverLocation,

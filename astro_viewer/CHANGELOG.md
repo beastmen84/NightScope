@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Sciami meteorici: finestre astronomiche locali calcolate in background per
+  le notti vicine al massimo IMO, combinando buio, altezza del radiante e Luna.
+  Deriva del radiante interpolata quando la tabella annuale lo consente;
+  approssimazioni dichiarate. Mostrati intervallo favorevole, alternative e
+  fascia più ampia con limiti, senza confonderli con il massimo dello sciame.
+  Meteo valutato separatamente solo nelle ore coperte dalle previsioni. Nessun
+  tasso locale garantito, nuova fonte o modifica a NSOM/ottica/altri eventi.
+  Testi IT/EN/ES aggiornati; indicazione generica Rilevante sostituita da
+  Calendario IMO per questi eventi.
 - Ritocchi al layout: scheda IMO a mezza larghezza su schermi ampi, con spazio
   libero per un futuro provider; foto più grande nel dettaglio osservativo e
   Finestra osservativa compatta; schede superiori del calendario di pari altezza
