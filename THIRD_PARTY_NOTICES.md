@@ -169,6 +169,22 @@ the Open Data Commons Open Database License 1.0 (`ODbL-1.0`). Its complete
 
 ### Astronomical Data And Images
 
+The unreleased COBS integration downloads comet observations per installation;
+no COBS observation dataset is shipped with the application. Credit: COBS Comet
+Observation Database and contributing observers, https://cobs.si/. These data
+are licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0:
+https://creativecommons.org/licenses/by-nc-sa/4.0/ (policy:
+https://cobs.si/help/data_policy/). This integration is intended for
+noncommercial use. Commercial reuse of these data requires separate permission.
+
+NightScope filters observations, groups comparable series and derives a
+short-term brightness correction; these are NightScope analyses, not COBS
+predictions or an endorsement. Shared COBS-derived adaptations retain
+CC BY-NC-SA 4.0, attribution and change notices. The local cache retains the
+source observation/observer metadata and licence link. These data terms do not
+replace the MPL 2.0 licence of NightScope's code or the separate licences of
+other datasets. See `docs/COBS_OBSERVATIONS.md` for scientific limits.
+
 NightScope includes the JPL DE421 ephemeris used by Skyfield. The nine Solar
 System photographs retain their NASA/JPL mission credits and source links in
 the application data and user interface. Deep-sky defaults are now 16 shared

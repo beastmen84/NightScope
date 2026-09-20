@@ -185,6 +185,7 @@ from astro_viewer.app.viewmodels.catalogue_object_list_model import (
 )
 from astro_viewer.app.viewmodels.object_image_manager import ObjectImageManager
 from astro_viewer.app.viewmodels.imo_calendar_manager import ImoCalendarManager
+from astro_viewer.app.viewmodels.cobs_manager import CobsManager
 from astro_viewer.app.services.imo_meteor_events import annual_meteor_events
 from astro_viewer.app.viewmodels.meteor_window_manager import MeteorWindowManager
 
@@ -311,6 +312,9 @@ class AppController(QObject, ObservingCalculations):
         self._catalogue_repository = controller_dependencies.catalogue_repository
         self._imo_calendar_manager = ImoCalendarManager(controller_dependencies.imo_calendar_store, self)
         self._imo_calendar_manager.calendarChanged.connect(self.dataChanged.emit)
+        self._cobs_manager = CobsManager(controller_dependencies.cobs_observation_store, self)
+        self._cobs_manager.observationsChanged.connect(self._cobs_observations_changed)
+        self._cobs_refresh_pending = False
         self._equipment_catalog_repository = (
             controller_dependencies.equipment_catalog_repository
         )
@@ -956,6 +960,15 @@ class AppController(QObject, ObservingCalculations):
     @Property(QObject, constant=True)
     def imoCalendar(self):
         return self._imo_calendar_manager
+
+    @Property(QObject, constant=True)
+    def cobsObservations(self):
+        return self._cobs_manager
+
+    @Slot()
+    def _cobs_observations_changed(self):
+        self._cobs_refresh_pending = True
+        self._start_transient_event_refresh()
 
     def _annual_calendar_events(self):
         manager = getattr(self, "_imo_calendar_manager", None)
@@ -4336,6 +4349,7 @@ class AppController(QObject, ObservingCalculations):
         )
         request_id = self._transient_event_refresh_request_id
         self._transient_event_refresh_running = True
+        self._cobs_refresh_pending = False
 
         def run_refresh() -> None:
             try:
@@ -4386,6 +4400,9 @@ class AppController(QObject, ObservingCalculations):
             self._events = self._sorted_events(annual_events + list(snapshot.events))
             self._transient_events_location_key = location_key
             self.dataChanged.emit()
+        if getattr(self, "_cobs_refresh_pending", False):
+            self._start_transient_event_refresh()
+            return
         self._schedule_next_transient_event_refresh()
 
     def _refresh_transient_events_from_timer(self) -> None:
@@ -4899,6 +4916,9 @@ class AppController(QObject, ObservingCalculations):
 
     @Slot()
     def stopPerformanceWorkers(self) -> None:
+        cobs_manager = getattr(self, "_cobs_manager", None)
+        if cobs_manager is not None:
+            cobs_manager.stop()
         meteor_manager = getattr(self, "_meteor_window_manager", None)
         if meteor_manager is not None:
             meteor_manager.stop()

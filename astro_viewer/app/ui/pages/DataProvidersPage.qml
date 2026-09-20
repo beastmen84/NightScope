@@ -1,4 +1,4 @@
-// Purpose: Present credential setup and the automatic annual IMO calendar cache.
+// Purpose: Present credential setup and account-free IMO/COBS cache status.
 // Contract: Credentials cross only controller APIs; secure storage and provider tests stay in services.
 
 import QtQuick
@@ -14,6 +14,7 @@ Item {
     readonly property string earthdataRegistrationUrl: "https://urs.earthdata.nasa.gov/users/new"
     readonly property string openAQRegistrationUrl: "https://explore.openaq.org/register"
     readonly property var imo: controller.imoCalendar.info
+    readonly property var cobs: controller.cobsObservations.info
 
     FileDialog {
         id: imoImportDialog
@@ -80,6 +81,7 @@ Item {
                     id: imoCard
                     objectName: "imoProviderCard"
                     Layout.fillWidth: true
+                    Layout.fillHeight: true
                     Layout.preferredWidth: (providersGrid.width - providersGrid.columnSpacing * (providersGrid.columns - 1)) / providersGrid.columns
                     title: qsTr("IMO · International Meteor Organization")
                     subtitle: qsTr("Calendario annuale degli sciami meteorici · Nessun account richiesto")
@@ -151,12 +153,80 @@ Item {
                     }
                 }
 
-                // Keep the next provider slot empty on wide layouts, not a card.
-                Item {
-                    objectName: "providerExpansionSpace"
-                    visible: providersGrid.columns === 2
+                GlassCard {
+                    id: cobsCard
+                    objectName: "cobsProviderCard"
                     Layout.fillWidth: true
                     Layout.preferredWidth: imoCard.Layout.preferredWidth
+                    Layout.fillHeight: true
+                    title: qsTr("COBS · Comet Observation Database")
+                    subtitle: qsTr("Osservazioni della luminosità cometaria · Nessun account richiesto")
+                    subtitleWrap: true
+                    accentColor: root.cobs.busy ? theme.cyan : root.cobs.state === "ready" ? theme.green : theme.amber
+                    accentMeaningful: true
+                    headerActionText: qsTr("Sito ufficiale")
+                    headerActionWidth: 148
+                    onHeaderActionClicked: Qt.openUrlExternally(root.cobs.sourceUrl)
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 12
+                        StatusPill {
+                            text: root.cobs.state === "loading" ? qsTr("Caricamento")
+                                  : root.cobs.state === "ready" ? qsTr("Aggiornato")
+                                  : root.cobs.state === "stale" ? qsTr("Dati di riserva")
+                                  : root.cobs.state === "pending" ? qsTr("In attesa") : qsTr("Non disponibile")
+                            accentColor: cobsCard.accentColor
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            text: qsTr("%1 osservazioni · %2 comete negli ultimi 14 giorni").arg(root.cobs.count).arg(root.cobs.comets)
+                            color: theme.textPrimary
+                            font.pixelSize: 14
+                            wrapMode: Text.WordWrap
+                        }
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        visible: !!root.cobs.downloadedAt
+                        text: qsTr("Salvato il %1").arg(root.cobs.downloadedAt ? new Date(root.cobs.downloadedAt).toLocaleString(Qt.locale(), Locale.ShortFormat) : "")
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        visible: !!root.cobs.latestAt
+                        text: qsTr("Ultima osservazione: %1").arg(root.cobs.latestAt ? new Date(root.cobs.latestAt).toLocaleString(Qt.locale(), Locale.ShortFormat) : "")
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        text: qsTr("Aggiornamento automatico ogni 24 ore in background. Serie recenti e coerenti correggono la luminosità a breve termine e quindi selezione, notti utili e strumento consigliato. Dati insufficienti o discordanti mantengono il modello JPL.")
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        text: qsTr("Le stime visuali e quelle CCD equivalenti restano separate. La correzione scade entro 72 ore dall'ultima osservazione usata; non prevede outburst né garantisce la visibilità.")
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        text: qsTr("Dati: COBS e osservatori contributori · CC BY-NC-SA 4.0. Uso non commerciale; elaborazioni NightScope soggette alla stessa licenza. La licenza del codice resta MPL 2.0.")
+                        color: theme.textSecondary
+                        font.pixelSize: 12
+                        wrapMode: Text.WordWrap
+                    }
+                    DarkButton {
+                        text: qsTr("Licenza dei dati")
+                        onClicked: Qt.openUrlExternally(root.cobs.licenseUrl)
+                    }
                 }
 
                 GlassCard {

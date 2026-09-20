@@ -168,13 +168,13 @@ def test_calendar_sorts_visible_event_dates_and_flags_analysis_boundary():
     assert result["homeItems"][2]["daysUntil"] == 0  # The useful season is already active.
 
 
-def test_provider_grid_reserves_one_half_width_slot_without_a_visible_placeholder():
+def test_provider_grid_places_cobs_in_the_other_half_width_slot():
     source = (Path(__file__).parents[1] / "app/ui/pages/DataProvidersPage.qml").read_text(encoding="utf-8")
     imo = source[source.index("id: imoCard"):source.index("id: earthdataCard")]
     assert "Layout.columnSpan" not in imo
     assert "providersGrid.columns" in imo
-    assert 'objectName: "providerExpansionSpace"' in imo
-    assert "visible: providersGrid.columns === 2" in imo
+    assert 'objectName: "cobsProviderCard"' in imo
+    assert 'objectName: "providerExpansionSpace"' not in source
     assert source.count("Layout.preferredWidth: imoCard.Layout.preferredWidth") == 3
 
 
@@ -216,6 +216,10 @@ def test_meteor_summary_cards_share_height_only_in_the_two_column_layout():
     assert source.count("Layout.fillHeight: root.isMeteorShower && eventSummaryGrid.columns === 2") == 2
     assert 'objectName: "eventTimingCard"' in source
     assert 'objectName: "eventProfileCard"' in source
+    assert "readonly property bool wrapEventFacts: root.isMeteorShower || root.isCometPeriod" in source
+    assert "columns: root.wrapEventFacts && scroll.availableWidth < 1160 ? 1 : 2" in source
+    assert "Layout.fillWidth: root.wrapEventFacts" in source
+    assert source.count("wrapMode: root.wrapEventFacts ? Text.WordWrap : Text.NoWrap") == 2
 
 
 def test_home_event_cards_stack_the_date_above_full_width_details():

@@ -535,13 +535,26 @@ Current runtime status for `1.46.13`:
   Detailed 30-minute samples require magnitude at most 14.5, altitude at least
   20 degrees, local solar altitude at or below -12 degrees, solar elongation at
   least 30 degrees and acceptable Moon geometry. Each useful segment lasts at
-  least 60 minutes. Consecutive observing nights are aggregated and only the
-  best continuous group becomes one stable event per comet, capped to the 12
+  least 60 minutes. All consecutive-night groups and their gaps are retained
+  in one stable event per comet, capped to the 12
   brightest candidates. This path is independent from Catalogue, weather,
   profile equipment, score, Planner, Home ranking and NSOM.
   Calendar rows reserve at most two lines for the compact date label, so a
   comet start/end range remains visible without allowing the tile to grow
   without bound.
+- `CobsObservationStore` downloads a global, bounded 14-day observation snapshot
+  through a dedicated `CobsManager` worker after the first frame. The separate
+  runtime cache and failure backoff last 24 hours. Immutable snapshots and
+  captured transient-source revision tokens keep overlapping refreshes coherent.
+  `comet_brightness` derives guarded short-term offsets against JPL magnitudes
+  at each observation epoch, separately for visual and CCD visual-equivalent
+  series. Qualified offsets expire 72 hours after the last measurement and feed
+  comet admission, useful nights, brightest-12 selection and generic instrument
+  advice; inappropriate/insufficient/expired data retain JPL. Other instrumental
+  bands never become visual estimates. Orbit/NSOM/optical calculations and the
+  fixed-object planner are unchanged. COBS has a half-width provider card next
+  to IMO, explicit data licensing and dated/fallback detail facts. See
+  `docs/COBS_OBSERVATIONS.md` for policy thresholds, rights and limitations.
 - Planetary conjunction candidates are observational close approaches found by
   `Skyfield.searchlib.find_minima()` across all 21 pairs of the seven planets.
   The annual contract retains minima up to 6 degrees, then samples adjacent

@@ -91,6 +91,7 @@ class _TransientEventResult:
     location: ObserverLocation
     built_at: datetime
     events: tuple[AstronomicalEvent, ...]
+    source_token: object = None
 
 
 def _lunar_eclipse_title(kind_name: str) -> str:
@@ -1321,10 +1322,14 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         now = self._now(location)
         entries: list[tuple[TransientCalendarEventSource, object]] = []
         attempted_sources: list[TransientCalendarEventSource] = []
+        source_tokens = []
         for source in self._transient_event_sources:
             if not self._transient_source_is_due(source, location, now):
                 continue
             attempted_sources.append(source)
+            # Capture before preparation: a provider update racing with the
+            # worker must make the next run due, never bless an older snapshot.
+            source_tokens.append((id(source), getattr(source, "cache_token", None)))
             try:
                 prepared_data = source.prepare_event_data(location, now=now)
                 if prepared_data is not None:
@@ -1339,6 +1344,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             now=now,
             entries=tuple(entries),
             attempted_sources=tuple(attempted_sources),
+            source_tokens=tuple(source_tokens),
         )
 
     def upcoming_transient_events(
@@ -1366,6 +1372,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     location=location,
                     built_at=prepared.now,
                     events=source_events,
+                    source_token=dict(prepared.source_tokens).get(id(source)),
                 )
             except Exception:
                 logger.warning(
@@ -1388,6 +1395,8 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     ) -> bool:
         result = self._transient_event_results.get(id(source))
         if result is None or result.location != location or now < result.built_at:
+            return True
+        if result.source_token != getattr(source, "cache_token", None):
             return True
         interval = getattr(source, "refresh_interval", None)
         if not isinstance(interval, timedelta) or interval.total_seconds() <= 0:

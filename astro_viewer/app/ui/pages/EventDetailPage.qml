@@ -24,6 +24,7 @@ Item {
                                                       && !root.isCometPeriod
     readonly property bool isCometPeriod: root.hasEvent && root.eventData.typeCode === "comet_window"
     readonly property bool isMeteorShower: root.hasEvent && root.eventData.typeCode === "meteor_shower"
+    readonly property bool wrapEventFacts: root.isMeteorShower || root.isCometPeriod
 
     signal backToCalendar()
     signal openObject(string objectId)
@@ -307,26 +308,26 @@ Item {
                         delegate: GridLayout {
                             objectName: "eventFact_" + modelData.code
                             Layout.fillWidth: true
-                            columns: root.isMeteorShower && scroll.availableWidth < 1160 ? 1 : 2
+                            columns: root.wrapEventFacts && scroll.availableWidth < 1160 ? 1 : 2
                             columnSpacing: 12
                             rowSpacing: 4
 
                             Text {
                                 Layout.fillWidth: true
-                                Layout.preferredWidth: root.isMeteorShower ? 300 : -1
+                                Layout.preferredWidth: root.wrapEventFacts ? 300 : -1
                                 text: modelData.label
                                 color: theme.textSecondary
                                 font.pixelSize: 13
-                                wrapMode: root.isMeteorShower ? Text.WordWrap : Text.NoWrap
-                                elide: root.isMeteorShower ? Text.ElideNone : Text.ElideRight
+                                wrapMode: root.wrapEventFacts ? Text.WordWrap : Text.NoWrap
+                                elide: root.wrapEventFacts ? Text.ElideNone : Text.ElideRight
                             }
 
                             Text {
                                 objectName: "eventFactValue_" + modelData.code
-                                Layout.fillWidth: root.isMeteorShower
-                                Layout.preferredWidth: root.isMeteorShower ? 600 : -1
+                                Layout.fillWidth: root.wrapEventFacts
+                                Layout.preferredWidth: root.wrapEventFacts ? 600 : -1
                                 text: modelData.value
-                                wrapMode: root.isMeteorShower ? Text.WordWrap : Text.NoWrap
+                                wrapMode: root.wrapEventFacts ? Text.WordWrap : Text.NoWrap
                                 horizontalAlignment: parent.columns === 1 ? Text.AlignLeft : Text.AlignRight
                                 color: theme.textPrimary
                                 font.pixelSize: 13

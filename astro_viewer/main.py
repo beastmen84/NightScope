@@ -200,6 +200,7 @@ def _build_controller(progress_callback=None):
         build_app_controller_dependencies,
     )
     from astro_viewer.app.astronomy.comet_windows import CometWindowEventSource
+    from astro_viewer.app.services.cobs_observations import CobsObservationStore
     from astro_viewer.app.astronomy.iss_passes import IssPassEventSource
     from astro_viewer.app.database.bootstrap import initialize_database
     from astro_viewer.app.database.orbital_element_cache_repository import (
@@ -218,7 +219,8 @@ def _build_controller(progress_callback=None):
         progress_callback(_STARTUP_SERVICES_MESSAGE)
     orbital_cache = OrbitalElementCacheRepository(database_path)
     iss_pass_source = IssPassEventSource(orbital_cache)
-    comet_window_source = CometWindowEventSource(orbital_cache)
+    cobs_store = CobsObservationStore(database_path.parent / "cobs_observations.json")
+    comet_window_source = CometWindowEventSource(orbital_cache, observation_store=cobs_store)
     dependencies = build_app_controller_dependencies(
         base_dir=BASE_DIR,
         database_path=database_path,
@@ -226,6 +228,7 @@ def _build_controller(progress_callback=None):
         location_cache_path=RUNTIME_PATHS.location_cache_path,
         nasa_aod_cache_path=RUNTIME_PATHS.nasa_aod_cache_path,
         imo_calendar_cache_dir=RUNTIME_PATHS.imo_calendar_cache_dir,
+        cobs_observation_store=cobs_store,
         transient_event_sources=(iss_pass_source, comet_window_source),
     )
     return AppController(
@@ -927,6 +930,7 @@ def run_app() -> int:
 
     def startup_ready() -> None:
         QTimer.singleShot(1500, controller.imoCalendar.start)
+        QTimer.singleShot(2000, controller.cobsObservations.start)
         _mark_startup_completed()
         logging.getLogger(__name__).info(
             "Startup first frame ready after %.3f s.",

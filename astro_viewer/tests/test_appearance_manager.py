@@ -280,7 +280,7 @@ def test_glass_card_uses_teal_unless_accent_is_meaningful() -> None:
     assert "opacity: root.accentMeaningful ? 1.0 : 0.7" in component
 
     expected_meaningful_counts = {
-        "DataProvidersPage.qml": 3,
+        "DataProvidersPage.qml": 4,
         "EquipmentProfilesPage.qml": 1,
         "EventDetailPage.qml": 2,
         "HomePage.qml": 6,

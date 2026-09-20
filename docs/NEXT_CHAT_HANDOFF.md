@@ -13,6 +13,32 @@ Updated: 2026-09-20
 
 ## Current State
 
+- Source-only COBS integration after `c46aac6`, with the user's explicit request
+  to use qualified observations in calculations, not just display them. Daily
+  global downloads run after the first frame into a separate atomic runtime
+  cache, with persistent failure backoff and no account or location upload.
+  Visual and CCD visual-equivalent series are assessed separately against JPL
+  predictions at their original UTC epochs. Guarded corrections expire 72 h
+  after the latest measurement and affect comet candidate selection, useful
+  nights and generic instrument advice; unsuitable data preserve JPL.
+  Orbit/optical/NSOM/fixed-object planner calculations remain unchanged.
+  Provider revision snapshots/coalescing protect concurrent refreshes. IMO and
+  COBS share the upper provider row; comet facts wrap/stack at narrow widths.
+  IT/EN/ES: 2,224 compiled messages. Data licensing is explicitly CC BY-NC-SA
+  4.0 for this noncommercial integration; code stays MPL. No additional COBS
+  permission or endorsement is claimed. See `docs/COBS_OBSERVATIONS.md`.
+  Full source/security gate: 2,300 tests / ten subtests, 87% coverage and all
+  three isolated smokes. Strengthened real Qt geometry checks pass 108 cases
+  across IT/EN/ES, normal/red and 100%/150% scale; representative images were
+  inspected. Nine baseline parity contexts retain all original scientific
+  event fields when no correction applies. The live probe retrieves/reuses
+  416 observations, matches 18 JPL candidates, and correctly applies NO
+  automatic correction to this insufficient/stale sample. This is not a
+  measured on-sky accuracy improvement. Evidence: `build/cobs-20260920/`,
+  details in `docs/TESTING.md`. VERSION remains 1.46.21. No dist rebuild,
+  source push, tag, website change or publication; the bundle below predates
+  this integration and the intervening layout-only changes.
+
 - Source-only Home/Calendar/meteor layout follow-up after `4b41908`: Session
   hides the weather peak only when its complete displayed interval equals the
   single good-weather interval. The existing shared Home rows then shrink

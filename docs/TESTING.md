@@ -5,6 +5,74 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## COBS Observations and Short-Term Comet Guidance - 2026-09-20
+
+Source-only integration against `c46aac6`, VERSION still **1.46.21**. Unlike
+the previous display-only proposal, qualified COBS observations intentionally
+affect comet admission, brightness-based selection, useful nights and generic
+instrument advice. Eligibility/safety boundaries: `docs/COBS_OBSERVATIONS.md`.
+
+- Final full source/security gate: **2,300 tests / ten subtests**, **87% overall
+  coverage**, static/data/dependency/security checks and three isolated smokes
+  (backend, normal QML, red-night QML). New-module coverage: observations/cache
+  **97%**, calibration **99%**, observation presentation **100%**, Qt manager
+  **93%**. No new dependency or installed-package change.
+  The final focused rerun passes **241 tests**, including the strengthened
+  comet-fact wrapping contract after the visual review.
+- New deterministic regressions cover API version/schema, limits and bad-data
+  flags, pagination completeness/change/failure, response byte/time bounds,
+  timezone/future/old observations, exact designation and fragment safety,
+  deduplication, disk corruption/clock skew, offline/stale cache, atomic write
+  failure and restart backoff. Remote observer/method codes cannot inject
+  markup or unbounded text into QML.
+- Calibration tests cover 100 known-truth synthetic distance laws, observer
+  balancing, repeated measurements, minimum independent support, disallowed
+  instrumental bands, variable/conflicting series, uncertainty margins and
+  expiry. Real Skyfield geometry demonstrates recovery of a synthetic bright
+  comet excluded by the JPL model, then restoration of the baseline after
+  expiry. Separate tests exercise fainter corrections, threshold margins and
+  instrument advice; calibration failures retain the original comet model.
+  These validate the policy and implementation, not universal on-sky accuracy.
+- Immutable snapshot, revision-race and worker coalescing checks protect an
+  update arriving during calculation. COBS store/manager constructors do no
+  disk/network work; COBS retrieval is separate from the calculation worker.
+- Independent Git-baseline comparison: **nine** location/date contexts (Rome,
+  Sydney, 75-degree latitude; three dates; a 14-day numerical test horizon)
+  retain **12 complete event records**, excluding only the added COBS facts
+  and the known JPL downloaded-vs-cached freshness label. Ninety-eight existing
+  Skyfield engine function ASTs are identical; only three transient scheduling
+  functions change. Additional integration tests retain the original fields
+  with empty, instrumental-only, old or discordant observations.
+- One bounded live COBS/JPL probe: **416 accepted observations** over 14 days,
+  COBS API 1.5, 3.425-second local fetch; restart cache reuse needs no request.
+  Eighteen of 151 JPL candidate records match; seventeen lack qualified support
+  and one is stale, so **no automatic correction** is applied in this sample.
+  The Rome calculation produces two comet events in 13.945 seconds. This is a
+  single-run functional probe, not a startup benchmark or measured precision
+  improvement. All cache/DB work is in disposable storage; no COBS dataset is
+  bundled or checked in.
+- IT/EN/ES: **2,224 complete compiled messages**, with 34 reviewed additions.
+  **108 real Qt layout cases** cover provider/detail, qualified/fallback/empty
+  fixtures, 1920/1240 logical widths, normal/red modes, 100%/150% scaling.
+  The final checks verify wrapping, text height, text containment within the
+  viewport and equal provider row edges. All pass without QML warnings;
+  representative Italian/English/Spanish images were inspected.
+- Review caught comet values extending past the viewport at narrow widths:
+  this is fixed by sharing the meteor wrapping/stacking policy, without
+  changing satellite or other event layout. The first harness checked only
+  text-vs-item dimensions, so those early passes were insufficient; final
+  geometry tests add viewport containment. Earlier harness-only wrapper/enum
+  access errors were corrected. Initial full-gate failures were stale provider
+  count/module inventory expectations and a translation update in progress;
+  their focused rerun and the final full gate pass.
+- No version bump, distribution rebuild, public release, push, tag or website
+  update. The existing `dist/NightScope` is still the earlier `a2ebb97` bundle.
+
+Evidence: `build/cobs-20260920/` (`full-gate-final.log`, `focused-final.log`,
+`parity.log`, `live-probe.log`, `visual-qa-final.log`,
+`visual-qa-dpi150-final.log`, scripts and screenshots). Legal attribution:
+`THIRD_PARTY_NOTICES.md`; licence and source links also appear in the provider.
+
 ## Home, Calendar and Meteor Card Refinements - 2026-09-20
 
 Source-only follow-up against `4b41908`, VERSION still **1.46.21**. Four scoped

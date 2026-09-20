@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Provider COBS gratuito e senza account: osservazioni cometarie scaricate in
+  background dopo il primo frame, cache giornaliera separata e scheda accanto
+  a IMO. Attribuzione e licenza dati CC BY-NC-SA 4.0 esplicite; codice MPL invariato.
+- Le serie recenti e coerenti possono correggere la luminosità entro 72 ore
+  dall'ultima misura: la correzione entra nella selezione delle comete, nelle
+  notti utili e nel consiglio sullo strumento, con margine prudenziale.
+  Stime visuali e CCD equivalenti separate; altre bande, dati discordanti,
+  insufficienti o scaduti mantengono JPL. Nessuna modifica a orbite, NSOM o
+  formule ottiche; nessuna estrapolazione COBS sui 90 giorni dell'analisi.
+- Dettaglio comete con osservazioni datate, ultima misura distinta dalla
+  previsione, motivazione del fallback e scadenza della correzione. Testi lunghi
+  adattivi anche nelle finestre strette; IT/EN/ES aggiornati. Contratti e limiti:
+  `docs/COBS_OBSERVATIONS.md`. Nessuna rigenerazione della dist o release.
+
 - Home: il picco meteo non viene ripetuto nella sessione se coincide con
   l'intera fascia di meteo buono; le schede superiori si ridimensionano insieme.
   Nei prossimi eventi il tag data è sopra i dettagli, che usano tutta la

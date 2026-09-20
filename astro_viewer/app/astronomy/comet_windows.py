@@ -8,7 +8,7 @@ import math
 import sqlite3
 import time
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -26,6 +26,11 @@ from astro_viewer.app.database.orbital_element_cache_repository import (
     OrbitalElementCacheRepository,
 )
 from astro_viewer.app.models.observing import AstronomicalEvent
+from astro_viewer.app.services.cobs_observations import CobsObservationStore, CobsSnapshot
+from astro_viewer.app.services.comet_brightness import (
+    BrightnessAssessment, BrightnessCalibration, assess_brightness,
+)
+from astro_viewer.app.services.comet_observation_presentation import observation_facts
 from astro_viewer.app.services.localization import format_datetime, format_number, join_text, tr
 
 
@@ -55,6 +60,7 @@ class _PreparedComets:
     records: tuple[_CometRecord, ...]
     cache_record: OrbitalElementCacheRecord
     freshness: str
+    observations: CobsSnapshot = CobsSnapshot()
 
 
 @dataclass(frozen=True)
@@ -68,6 +74,7 @@ class _NightWindow:
     solar_elongation_deg: float
     moon_separation_deg: float
     moon_illumination: float
+    magnitude_margin: float = 0.0
 
     @property
     def duration(self) -> timedelta:
@@ -122,9 +129,17 @@ class CometWindowEventSource:
         cache_repository: OrbitalElementCacheRepository,
         *,
         http_get: Callable[..., requests.Response] = requests.get,
+        observation_store: CobsObservationStore | None = None,
     ):
         self._cache_repository = cache_repository
         self._http_get = http_get
+        self._observation_store = observation_store
+        if observation_store is not None:
+            self.refresh_interval = timedelta(hours=1)
+
+    @property
+    def cache_token(self) -> str:
+        return self._observation_store.snapshot.revision if self._observation_store else ""
 
     def upcoming_events(
         self,
@@ -152,7 +167,10 @@ class CometWindowEventSource:
         *,
         now: datetime,
     ) -> _PreparedComets | None:
-        return self._comet_records(_as_utc(now))
+        prepared = self._comet_records(_as_utc(now))
+        if prepared is not None and self._observation_store is not None:
+            prepared = replace(prepared, observations=self._observation_store.snapshot)
+        return prepared
 
     def build_events(
         self,
@@ -189,18 +207,24 @@ class CometWindowEventSource:
         for record in prepared_data.records:
             try:
                 comet = _comet_vector(record, timescale, ephemeris["sun"])
+                assessment = self._brightness_assessment(
+                    record, comet, prepared_data.observations, now_utc, timescale, ephemeris,
+                )
                 if not self._passes_coarse_magnitude_filter(
                     comet,
                     record,
                     coarse_times=coarse_times,
                     earth=ephemeris["earth"],
                     sun=ephemeris["sun"],
+                    calibration=assessment.calibration,
                 ):
                     continue
-                windows = self._night_windows(comet, record, context=context)
+                windows = self._night_windows(comet, record, context=context,
+                                              calibration=assessment.calibration)
                 if not windows:
                     continue
-                event = self._event(record, windows, prepared_data, analysis_end=horizon_end)
+                event = self._event(record, windows, prepared_data, analysis_end=horizon_end,
+                                    assessment=assessment if self._observation_store else None)
                 candidates.append(
                     (min(window.predicted_magnitude for window in windows), event)
                 )
@@ -218,6 +242,22 @@ class CometWindowEventSource:
             (event for _, event in brightest),
             key=lambda event: (event.starts_at, event.title),
         )
+
+    @staticmethod
+    def _brightness_assessment(record, comet, snapshot, now, timescale, ephemeris):
+        observations = snapshot.for_comet(record.designation, now)
+        if not observations:
+            return BrightnessAssessment()
+        try:
+            # Geocentric geometry at the original UTC measurement epochs, not
+            # the user's position/today's distance. No observer location is sent.
+            times = timescale.from_datetimes([row.observed_at for row in observations])
+            solar = np.asarray((comet - ephemeris["sun"]).at(times).distance().au)
+            earth = np.asarray(ephemeris["earth"].at(times).observe(comet).distance().au)
+            return assess_brightness(observations, _predicted_magnitude(record, solar, earth), now)
+        except Exception:
+            logger.warning("COBS calibration unavailable for %s.", record.designation, exc_info=True)
+            return BrightnessAssessment(observations, reason="insufficient")
 
     def _comet_records(self, now: datetime) -> _PreparedComets | None:
         cached = self._cached_record()
@@ -391,6 +431,7 @@ class CometWindowEventSource:
         coarse_times: object,
         earth: object,
         sun: object,
+        calibration: BrightnessCalibration | None = None,
     ) -> bool:
         solar_distance = np.asarray(
             (comet - sun).at(coarse_times).distance().au,
@@ -401,6 +442,8 @@ class CometWindowEventSource:
             dtype=float,
         )
         magnitudes = _predicted_magnitude(record, solar_distance, earth_distance)
+        if calibration is not None:
+            magnitudes = calibration.adjust(magnitudes, list(coarse_times.utc_datetime()))
         finite = magnitudes[np.isfinite(magnitudes)]
         return bool(
             finite.size
@@ -414,6 +457,7 @@ class CometWindowEventSource:
         record: _CometRecord,
         *,
         context: Mapping[str, object],
+        calibration: BrightnessCalibration | None = None,
     ) -> list[_NightWindow]:
         times = context["times"]
         observer_at = context["observer_at"]
@@ -429,6 +473,10 @@ class CometWindowEventSource:
             solar_distances,
             np.asarray(observer_distances.au, dtype=float),
         )
+        limiting_magnitudes = predicted_magnitudes
+        if calibration is not None:
+            predicted_magnitudes = calibration.adjust(predicted_magnitudes, context["datetimes"])
+            limiting_magnitudes = calibration.faint_limit(predicted_magnitudes, context["datetimes"])
         solar_elongations = np.asarray(
             comet_apparent.separation_from(context["sun_apparent"]).degrees,
             dtype=float,
@@ -441,7 +489,7 @@ class CometWindowEventSource:
         sun_altitudes = context["sun_altitudes"]
         valid = (
             np.isfinite(predicted_magnitudes)
-            & (predicted_magnitudes <= self.MAX_PREDICTED_MAGNITUDE)
+            & (limiting_magnitudes <= self.MAX_PREDICTED_MAGNITUDE)
             & (altitude_values >= self.MIN_ALTITUDE_DEG)
             & (sun_altitudes <= self.MAX_OBSERVER_SUN_ALTITUDE_DEG)
             & (solar_elongations >= self.MIN_SOLAR_ELONGATION_DEG)
@@ -504,6 +552,7 @@ class CometWindowEventSource:
                 solar_elongation_deg=float(solar_elongations[peak_index]),
                 moon_separation_deg=float(moon_separations[peak_index]),
                 moon_illumination=float(moon_illumination[peak_index]),
+                magnitude_margin=(calibration.margin if calibration and calibration.applies(local_peak) else 0.0),
             )
             previous = by_night.get(window.night_date)
             if previous is None or _window_rank(window) > _window_rank(previous):
@@ -517,6 +566,7 @@ class CometWindowEventSource:
         prepared: _PreparedComets,
         *,
         analysis_end: datetime | None = None,
+        assessment: BrightnessAssessment | None = None,
     ) -> AstronomicalEvent:
         first = windows[0]
         last = windows[-1]
@@ -553,7 +603,7 @@ class CometWindowEventSource:
             date_label=date_label,
             best_time=date_label,
             usefulness=0,
-            setup=_setup_for_magnitude(first.predicted_magnitude),
+            setup=_setup_for_magnitude(first.predicted_magnitude + first.magnitude_margin),
             note=tr(
                 "La luminosità cometaria è una previsione indicativa e può differire "
                 "anche sensibilmente da quella osservata."
@@ -651,8 +701,8 @@ class CometWindowEventSource:
                     tr("Affidabilità della stima"),
                     tr("Bassa"),
                 ),
-            ),
-            data_source=self.DATA_SOURCE,
+            ) + (observation_facts(assessment, prepared.observations, first) if assessment is not None else ()),
+            data_source=self.DATA_SOURCE + (" + COBS" if assessment and assessment.observations else ""),
             data_updated_at=prepared.cache_record.fetched_at,
             data_valid_until=valid_until.isoformat(),
             data_freshness=freshness_label,
