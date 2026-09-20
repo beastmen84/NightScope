@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from astro_viewer.app.astronomy.engine import ObservingNightWindow, advance_time, as_utc
 from astro_viewer.app.models.weather import (
@@ -14,8 +15,10 @@ from astro_viewer.app.models.weather import (
 from astro_viewer.app.services.localization import format_number, tr
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.observing_night_service import (
+    MIN_PRACTICAL_OBSERVING_DURATION,
     consecutive_weather_groups,
     is_usable_weather_hour as is_usable_weather_hour,
+    usable_weather_intervals,
     weather_hour_datetime,
     weather_hour_observing_score as weather_hour_observing_score,
 )
@@ -46,6 +49,7 @@ class WeatherPresentationService:
                 "goodWindows": [],
                 "goodWindowText": "",
                 "bestWindowText": "",
+                "usableWindowText": "",
             }
         average_cloud = round(
             sum(hour.cloud_cover for hour in night_hours) / len(night_hours)
@@ -54,11 +58,16 @@ class WeatherPresentationService:
         average_wind = round(
             sum(hour.wind_kmh for hour in night_hours) / len(night_hours)
         )
-        best_hours = best_weather_hours(night_hours)
+        usable = practical_weather_windows(night_hours, night_window, timezone)
         good_groups = good_weather_windows(night_hours)
         good_labels = [weather_window_label(group, night_window, timezone) for group in good_groups]
         practical_best = best_weather_hours([hour for group in good_groups for hour in group])
         return {
+            "usableWindowText": (
+                tr("Possibile finestra meteo: {windows}", windows=" · ".join(
+                    _interval_label(start, end) for start, end in usable
+                )) if usable else ""
+            ),
             "goodWindows": good_labels,
             "goodWindowText": (
                 tr("Meteo buono: {windows}", windows=" · ".join(good_labels))
@@ -69,11 +78,8 @@ class WeatherPresentationService:
                    window=weather_window_label(practical_best, night_window, timezone))
                 if practical_best else ""
             ),
-            "bestWindow": weather_window_label(
-                best_hours,
-                night_window,
-                timezone,
-            ),
+            "bestWindow": _interval_label(*max(usable, key=lambda pair: as_utc(pair[1]) - as_utc(pair[0])))
+            if usable else tr("n/d"),
             "cloudAverage": average_cloud,
             "cloudAverageLabel": tr(
                 "{value}%",
@@ -120,21 +126,28 @@ class WeatherPresentationService:
         self,
         weather_summary: WeatherSummary | None,
         night_hours: list[WeatherHour],
+        night_window: ObservingNightWindow | None = None,
+        timezone: str = "UTC",
     ) -> ObservingSessionDecision:
+        if weather_summary is None or not night_hours:
+            return ObservingSessionDecision(
+                state="unavailable", title=tr("Sessione non valutabile"),
+                detail=tr("Previsioni orarie della notte non disponibili."),
+            )
         blocking = self.blocking_status(weather_summary)
-        if not blocking.show_warning:
+        usable = practical_weather_windows(night_hours, night_window, timezone)
+        if (usable and good_weather_windows(night_hours)
+                and weather_summary.score_value >= 70 and not blocking.show_warning):
             return ObservingSessionDecision(state="recommended")
 
-        if best_usable_observing_window(night_hours):
+        if usable:
             return ObservingSessionDecision(
                 state="monitor",
                 title=tr("Sessione da monitorare"),
                 icon="⚠",
-                detail=tr("Le condizioni attuali non sono ancora favorevoli."),
+                detail=tr("Condizioni variabili: sono previste solo opportunità da verificare."),
                 description=tr(
-                    "Le condizioni migliorano in una finestra osservativa "
-                    "successiva.\nRicontrolla il meteo prima di preparare la "
-                    "sessione."
+                    "Gli orari suggeriti richiedono conferma del meteo prima di osservare."
                 ),
                 show_opportunity=True,
             )
@@ -159,15 +172,9 @@ class WeatherPresentationService:
         night_window: ObservingNightWindow,
         timezone: str,
     ) -> str:
-        decision = self.session_decision(weather_summary, night_hours)
-        if decision.state == "discouraged":
+        decision = self.session_decision(weather_summary, night_hours, night_window, timezone)
+        if decision.state in {"discouraged", "unavailable"}:
             return ""
-        if decision.state == "monitor":
-            return weather_window_label(
-                best_usable_observing_window(night_hours),
-                night_window,
-                timezone,
-            ).replace(" - ", "–")
         best_window = self.digest(
             night_hours,
             night_window,
@@ -176,6 +183,29 @@ class WeatherPresentationService:
         if not best_window or best_window == "n/d":
             return ""
         return str(best_window).replace(" - ", "–")
+
+
+def practical_weather_windows(
+    hours: list[WeatherHour],
+    night_window: ObservingNightWindow | None,
+    timezone: str,
+) -> list[tuple[datetime, datetime]]:
+    """Use the planner's usable bins and minimum duration, in local time."""
+    try:
+        zone = ZoneInfo(timezone)
+    except ZoneInfoNotFoundError:
+        zone = ZoneInfo("UTC")
+    # Preserve offset-free timestamps until the shared parser can reject DST
+    # folds/gaps. Do not attach an arbitrary offset before validating them.
+    if night_window is not None and not night_window.has_observing_window:
+        return []
+    return [(start.astimezone(zone), end.astimezone(zone))
+            for start, end in usable_weather_intervals(hours, night_window, timezone=zone.key)
+            if end - start >= MIN_PRACTICAL_OBSERVING_DURATION]
+
+
+def _interval_label(start: datetime, end: datetime) -> str:
+    return f"{start:%H:%M} - {end:%H:%M}"
 
 
 def best_weather_hours(hours: list[WeatherHour]) -> list[WeatherHour]:

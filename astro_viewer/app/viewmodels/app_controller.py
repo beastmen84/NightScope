@@ -1123,7 +1123,7 @@ class AppController(QObject, ObservingCalculations):
 
     @Property(bool, notify=weatherChanged)
     def isObservingSessionBlocked(self) -> bool:
-        return self._observing_session_decision().state != "recommended"
+        return self._observing_session_decision().state in {"monitor", "discouraged"}
 
     @Property(str, notify=weatherChanged)
     def blockingReason(self) -> str:
@@ -7465,6 +7465,8 @@ class AppController(QObject, ObservingCalculations):
         return self._weather_presentation_service_instance().session_decision(
             self._weather_summary,
             self._observing_weather_hours(),
+            getattr(self, "_observing_night_window", None),
+            self._location.timezone if getattr(self, "_location", None) else "UTC",
         )
 
     def _suggested_observing_window(self) -> str:

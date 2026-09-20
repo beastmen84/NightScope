@@ -11,7 +11,7 @@ from astro_viewer.app.models.weather import (
     WeatherBlockingStatus,
     WeatherSummary,
 )
-from astro_viewer.app.services.localization import tr
+from astro_viewer.app.services.localization import join_text, tr
 
 
 HOME_OBSERVING_OVERVIEW_SCHEMA_VERSION = "home_observing_overview_v1"
@@ -43,7 +43,7 @@ class HomeObservingOverviewService:
         if not location_available:
             return _location_context_payload(pending=False)
 
-        available_weather = weather if weather_available else None
+        available_weather = weather if weather_available and session.state != "unavailable" else None
         session_payload = _session_payload(
             available_weather,
             session,
@@ -54,7 +54,12 @@ class HomeObservingOverviewService:
             session_payload.update({
                 "goodWindowText": weather_windows.get("goodWindowText", ""),
                 "bestWindowText": weather_windows.get("bestWindowText", ""),
-                "windowAdvice": tr("Previsioni variabili: non è necessario attendere il picco se il meteo è già buono."),
+                "usableWindowText": weather_windows.get("usableWindowText", ""),
+                "hasGoodWindows": bool(weather_windows.get("goodWindows")),
+                "windowAdvice": (
+                    tr("Previsioni variabili: non è necessario attendere il picco se il meteo è già buono.")
+                    if session.state == "recommended" else session.description
+                ),
             })
         return {
             "schemaVersion": HOME_OBSERVING_OVERVIEW_SCHEMA_VERSION,
@@ -93,18 +98,20 @@ def _session_payload(
         "recommended": tr("Sessione consigliata"),
         "monitor": tr("Sessione da monitorare"),
         "discouraged": tr("Sessione sconsigliata"),
+        "unavailable": tr("Sessione non valutabile"),
     }.get(state, tr("Sessione da valutare"))
     badge = {
         "recommended": tr("Consigliata"),
         "monitor": tr("Da monitorare"),
         "discouraged": tr("Sconsigliata"),
+        "unavailable": tr("Non disponibile"),
     }.get(state, tr("Da valutare"))
     if state == "discouraged":
         window_label = ""
         window_value = ""
         window_text = tr("Nessuna finestra consigliata")
     elif suggested_window:
-        window_label = tr("Possibile finestra") if state == "monitor" else tr("Migliore finestra")
+        window_label = tr("Possibile finestra meteo") if state == "monitor" else tr("Finestra meteo utilizzabile")
         window_value = suggested_window
         window_text = tr("{label}: {value}", label=window_label, value=window_value)
     else:
@@ -112,13 +119,15 @@ def _session_payload(
         window_value = ""
         window_text = tr("Finestra osservativa non disponibile")
 
-    detail = blocking.detail if blocking.show_warning and blocking.detail else weather.explanation
+    detail = session.detail or weather.explanation
     description = session.description or weather.alert
-    limiting_factor = (
-        tr("Fattore limitante: {reason}", reason=blocking.reason)
-        if blocking.show_warning and blocking.reason
-        else tr("Nessun fattore bloccante")
-    )
+    reason = blocking.reason if blocking.show_warning else ""
+    if not reason and weather.limiting_factors:
+        reason = join_text(weather.limiting_factors, ", ")
+    limiting_factor = (tr("Fattore limitante: {reason}", reason=reason) if reason else
+                       tr("Nessuna finestra meteo utilizzabile") if state == "discouraged" else
+                       tr("Condizioni da verificare") if state != "recommended" else
+                       tr("Nessun fattore bloccante"))
     return {
         "state": state,
         "title": title,
@@ -129,7 +138,7 @@ def _session_payload(
         "windowValue": window_value,
         "windowText": window_text,
         "hasWindow": bool(window_value),
-        "limitingFactorCode": "weather" if blocking.show_warning else "none",
+        "limitingFactorCode": "weather" if reason or state != "recommended" else "none",
         "limitingFactor": limiting_factor,
     }
 
@@ -237,18 +246,18 @@ def _moon_payload(moon: MoonSummary | None) -> dict[str, object]:
         return {
             "impact": "high",
             "impactLabel": tr("Disturbo potenziale elevato"),
-            "summary": tr("Luna luminosa: può schiarire il cielo quando è sopra l'orizzonte. L'effetto dipende anche dalla distanza dal bersaglio."),
+            "summary": tr("Luna luminosa: disturbo se sopra l'orizzonte, variabile col bersaglio."),
         }
     if illumination >= 35:
         return {
             "impact": "medium",
             "impactLabel": tr("Disturbo potenziale medio"),
-            "summary": tr("Luna moderatamente luminosa: il disturbo dipende da altezza, orario e distanza dal bersaglio."),
+            "summary": tr("Disturbo moderato, se visibile; varia con il bersaglio."),
         }
     return {
         "impact": "low",
         "impactLabel": tr("Disturbo potenziale basso"),
-        "summary": tr("Luna poco luminosa: disturbo generalmente contenuto, da valutare per il singolo bersaglio."),
+        "summary": tr("Luna poco luminosa: disturbo generalmente contenuto."),
     }
 
 

@@ -51,7 +51,7 @@ def test_plan_avoids_cloudy_peak_despite_good_nightly_average_without_mutating_i
     assert result[0].score == plan([value], None)[0].score  # Canonical NSOM unchanged.
 
 
-@pytest.mark.parametrize("best", [0, 1, 2, 5, 9, 9.9])
+@pytest.mark.parametrize("best", [0, 1, 2, 5, 9, 9.75])
 def test_fully_usable_forecast_preserves_complete_legacy_plan(best):
     values = [target(best=best)]
     hours = [hour(START + timedelta(hours=i)) for i in range(10)]
@@ -88,7 +88,7 @@ def test_partial_forecast_bin_is_clipped_at_start_and_next_bad_row():
 
 def test_nearest_earlier_minute_stays_before_exclusive_bad_weather_boundary():
     result = plan([target(best=2)], [hour(START), hour(START + timedelta(hours=1), 100)])
-    assert result[0].observing_at == (START + timedelta(minutes=59)).isoformat()
+    assert result[0].observing_at == (START + timedelta(minutes=45)).isoformat()
     assert plan([target(start=1, best=1)], [hour(START)]) == []
 
 
@@ -208,8 +208,8 @@ def test_available_seeing_and_optical_nsom_calculations_are_unchanged_by_display
 def test_bright_moon_does_not_claim_actual_all_night_interference_from_phase_alone():
     result = _moon_payload(_inputs(moon=95).moon)
     assert result["impactLabel"] == "Disturbo potenziale elevato"
-    assert "quando è sopra l'orizzonte" in result["summary"]
-    assert "distanza dal bersaglio" in result["summary"]
+    assert "se sopra l'orizzonte" in result["summary"]
+    assert "bersaglio" in result["summary"]
 
 
 @pytest.mark.parametrize("illumination", ["NaN%", "-1%", "101%", "n/d"])

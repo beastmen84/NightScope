@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- Coerenza della Home: distinta la fascia migliore per altezza dagli orari del
+  piano, che considerano anche il meteo. Finestre soltanto utilizzabili mostrate
+  come opportunità da confermare, senza promuovere a buona una notte sfavorevole
+  né dichiarare assenti i fattori limitanti. Esclusi orari con meno di 15 minuti
+  utili residui; una vera apertura oraria non è più annullata dalla media notturna.
+- Schede superiori allineate con altezze adattive, testo della Luna a capo e
+  metriche leggibili nelle finestre strette. Nomi delle fasi lunari più precisi,
+  eventi ordinati per la data mostrata e limite dell'analisi comete anche in Home.
+- Campo degli oculari zoom stimato alla focale scelta usando gli estremi AFOV
+  già in catalogo, con interpolazione e fallback al nominale se incompleti.
+  Ingrandimento, pupilla, effemeridi e formule NSOM invariati; selezione/orari
+  del piano e raccomandazioni sensibili al campo possono cambiare intenzionalmente.
+  Testi IT/EN/ES aggiornati. Nessuna nuova fonte, modifica alla dist o release.
 - Provider IMO senza account: calendario dell'anno corrente scaricato una sola
   volta in background, riutilizzato ai riavvii e sostituito al cambio d'anno
   solo dopo validazione del nuovo PDF. Scheda Provider dati con anno, file,

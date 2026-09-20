@@ -41,7 +41,7 @@ def test_weather_good_window_covers_evening_without_losing_dawn_peak():
     night = ObservingNightWindow.bounded(NOW, (NOW + timedelta(days=1)).replace(hour=6, minute=14))
     digest = WeatherPresentationService(None).digest(hours, night, LOCATION.timezone)
     assert digest["goodWindows"] == ["21:00 - 06:14"]
-    assert digest["bestWindow"] == "04:00 - 06:14"  # Original optimum retained.
+    assert digest["bestWindow"] == "19:00 - 06:14"  # Longest usable opening, distinct from the peak.
     assert digest["bestWindowText"] == "Picco meteo previsto: 04:00 - 06:14"
     assert len(digest["bestHours"]) == 5  # Existing evenly-spaced forecast preview.
     assert WeatherPresentationService(None).digest([], night, LOCATION.timezone)["goodWindowText"] == ""

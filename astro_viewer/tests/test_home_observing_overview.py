@@ -108,8 +108,8 @@ def test_monitor_session_exposes_only_the_actionable_window() -> None:
     )
 
     assert payload["session"]["hasWindow"] is True
-    assert payload["session"]["windowLabel"] == "Possibile finestra"
-    assert payload["session"]["windowText"] == "Possibile finestra: 01:00–03:00"
+    assert payload["session"]["windowLabel"] == "Possibile finestra meteo"
+    assert payload["session"]["windowText"] == "Possibile finestra meteo: 01:00–03:00"
     assert payload["weather"]["windowText"] == payload["session"]["windowText"]
 
 
@@ -132,7 +132,7 @@ def test_moon_summary_describes_only_lunar_impact() -> None:
 
     assert payload["moon"]["impact"] == "low"
     assert payload["moon"]["impactLabel"] == "Disturbo potenziale basso"
-    assert payload["moon"]["summary"] == "Luna poco luminosa: disturbo generalmente contenuto, da valutare per il singolo bersaglio."
+    assert payload["moon"]["summary"] == "Luna poco luminosa: disturbo generalmente contenuto."
     assert "Cielo favorevole" not in payload["moon"]["summary"]
 
 

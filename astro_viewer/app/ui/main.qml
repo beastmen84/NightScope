@@ -419,7 +419,8 @@ ApplicationWindow {
                         Text {
                             Layout.fillWidth: true
                             Layout.minimumWidth: 0
-                            text: window.sidebarSession.goodWindowText || window.sidebarSession.windowText || qsTr("Finestra osservativa non disponibile")
+                            text: (window.sidebarSession.hasGoodWindows ? window.sidebarSession.goodWindowText : window.sidebarSession.usableWindowText)
+                                  || window.sidebarSession.windowText || qsTr("Finestra osservativa non disponibile")
                             color: theme.textPrimary
                             font.pixelSize: 12
                             font.weight: Font.DemiBold

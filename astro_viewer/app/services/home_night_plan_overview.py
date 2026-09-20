@@ -45,7 +45,7 @@ class HomeNightPlanOverviewService:
                 setup_models_by_object_id=setup_models_by_object_id,
                 telescope_count=int(profile["telescopeCount"]),
             )
-            if state == "recommended"
+            if state in {"recommended", "monitor"}
             else []
         )
         return {
@@ -116,24 +116,24 @@ def _plan_payload(
     titles = {
         "pending": tr("Piano in aggiornamento"),
         "recommended": tr("Piano osservativo consigliato"),
-        "monitor": tr("Finestra da monitorare"),
+        "monitor": tr("Opportunità da confermare"),
         "discouraged": tr("Sessione sconsigliata"),
         "unavailable": tr("Piano osservativo non disponibile"),
     }
     subtitles = {
         "pending": tr("La sequenza sarà calcolata appena la posizione è disponibile"),
-        "recommended": tr("Le quattro opportunità migliori, ordinate per orario"),
-        "monitor": tr("Condizioni variabili: nessuna sequenza viene consigliata"),
+        "recommended": tr("Orari suggeriti considerando visibilità e meteo"),
+        "monitor": tr("Orari suggeriti per il meteo previsto: ricontrollare prima di osservare"),
         "discouraged": tr("Nessun piano consigliato nelle condizioni previste"),
         "unavailable": tr("Servono posizione e condizioni aggiornate"),
     }
-    if state == "recommended" and not items:
+    if state in {"recommended", "monitor"} and not items:
         message = (
             tr("Aggiornamento del piano osservativo...")
             if loading
             else tr("Nessun oggetto utile nella finestra notturna.")
         )
-    elif state == "recommended":
+    elif state in {"recommended", "monitor"}:
         message = ""
     else:
         message = _text(session, "detail") or _text(session, "description")
@@ -150,7 +150,7 @@ def _plan_payload(
         "windowLabel": _text(session, "windowLabel"),
         "windowValue": _text(session, "windowValue"),
         "showWindow": state == "monitor" and bool(_text(session, "windowValue")),
-        "showsSequence": state == "recommended" and bool(items),
+        "showsSequence": state in {"recommended", "monitor"} and bool(items),
         "items": items,
     }
 

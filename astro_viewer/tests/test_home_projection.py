@@ -100,7 +100,7 @@ def test_home_projection_preserves_every_field_for_session_and_profile(home_cont
         controller._test_assigned.append(dict(controller._test_assigned[0]))
     actual = controller.homeNightPlanOverview
     assert actual == legacy_overview(controller)
-    assert len(actual["plan"]["items"]) == (4 if state == "recommended" else 0)
+    assert len(actual["plan"]["items"]) == (4 if state in {"recommended", "monitor"} else 0)
     assert actual["alternatives"]["totalCount"] > 10
 
 

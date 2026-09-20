@@ -109,13 +109,13 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertEqual(controller.observingSessionState, "monitor")
             self.assertEqual(controller.observingSessionTitle, "Sessione da monitorare")
             self.assertEqual(controller.observingSessionIcon, "⚠")
-            self.assertEqual(controller.observingSessionDetail, "Le condizioni attuali non sono ancora favorevoli.")
-            self.assertIn("finestra osservativa successiva", controller.observingSessionDescription)
+            self.assertEqual(controller.observingSessionDetail, "Condizioni variabili: sono previste solo opportunità da verificare.")
+            self.assertIn("conferma del meteo", controller.observingSessionDescription)
             self.assertTrue(controller.showObservingSessionOpportunity)
             self.assertEqual(controller.suggestedObservingWindow, "03:00–06:00")
-            self.assertEqual(controller.nightPlan, [])
-            self.assertEqual(controller.homeNightPlanOverview["plan"]["title"], "Finestra da monitorare")
-            self.assertEqual(controller.homeNightPlanOverview["plan"]["items"], [])
+            self.assertEqual(controller.homeNightPlanOverview["plan"]["title"], "Opportunità da confermare")
+            self.assertIn("ricontrollare", controller.homeNightPlanOverview["plan"]["subtitle"])
+            self.assertTrue(all("03:00" <= step["timeLabel"] < "06:00" for step in controller.nightPlan))
 
     def test_app_starts_with_saved_location_and_refreshes_weather(self) -> None:
         with self._controller_with_weather(_valid_weather_response(), saved_location=True) as controller:
@@ -607,7 +607,7 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertNotIn("function hasBlockingWeather", qml)
         self.assertNotIn("function blockingWeatherReason", qml)
         self.assertNotIn("function blockingWeatherDetail", qml)
-        self.assertIn("Layout.preferredHeight: 108", qml)
+        self.assertIn("Layout.preferredHeight: 140", qml)
         self.assertIn("maximumLineCount: 2", qml[qml.index('title: qsTr("Prossimi eventi")'):])
         self.assertIn("Layout.preferredWidth: 250", target_row_qml)
         self.assertIn("Layout.preferredWidth: 180", target_row_qml)

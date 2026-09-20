@@ -58,15 +58,16 @@ def test_single_telescope_plan_omits_redundant_instrument_name() -> None:
     assert item["usesProfileChoice"] is False
 
 
-def test_monitor_state_never_exposes_a_numbered_plan() -> None:
+def test_monitor_state_exposes_only_conditional_opportunities() -> None:
     payload = _build(
         session=_session("monitor"),
         assigned_equipment=[{"kind": "telescope"}],
     )
 
-    assert payload["plan"]["title"] == "Finestra da monitorare"
-    assert payload["plan"]["items"] == []
-    assert payload["plan"]["showsSequence"] is False
+    assert payload["plan"]["title"] == "Opportunità da confermare"
+    assert payload["plan"]["items"]
+    assert "ricontrollare" in payload["plan"]["subtitle"]
+    assert payload["plan"]["showsSequence"] is True
     assert payload["plan"]["showWindow"] is True
     assert payload["plan"]["windowValue"] == "23:00 - 02:00"
     assert payload["alternatives"]["title"] == "Oggetti visibili da monitorare"

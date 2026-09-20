@@ -6,6 +6,56 @@ published Windows bundle. No release, push, website change or dist rebuild.
 
 ## Presentation contracts
 
+### Coherence follow-up - 2026-09-20
+
+This follow-up against `0a2d873` supersedes the original statements below about
+unchanged session admission and zoom optics. VERSION remains 1.46.21; the local
+test bundle built on September 19 is not rebuilt by this source-only work.
+
+- The altitude plateau is explicitly labelled **best altitude window**; its
+  explanatory text distinguishes it from weather-aware plan times. Neither the
+  plateau nor the astronomical geometry is moved to match a weather opening.
+- A recommended session requires usable hourly intervals, an extended good
+  weather run, summary score >=70 and no severe summary warning. A merely usable
+  opening is **monitor**, with conditional opportunities and a recheck warning;
+  no opening is **discouraged** and missing night forecasts are **unavailable**.
+  This is a guidance policy, not a guarantee or a change to the NSOM formulas.
+- The actionable window now comes from the same usable forecast bins as the
+  planner, not the least-bad three-hour block. The separate good-weather peak
+  remains conditional on a genuinely good run. Missing/bad/ambiguous forecast
+  bins are not bridged. An hourly opening can admit targets despite a poor
+  nightly average; legacy callers without hourly forecasts retain the old gate.
+- Target/weather intersections must leave **15 elapsed minutes** after the
+  displayed start. The planner no longer suggests the last few minutes before
+  the target's useful interval ends. This minimum is a NightScope practical
+  policy, not an astronomical standard or a promised exposure duration. The
+  plan remains a ranked shortlist, not a non-overlapping session scheduler.
+- Limiting factors are shown even below the old severe-blocking threshold.
+  Only a recommended session with no reported factor says none is blocking.
+- The upper Home uses shared grid rows: session aligns with planetary conditions,
+  Moon with deep-sky conditions, and weather spans both. Moon text wraps, cards
+  grow with their content and narrow metric rows stack vertically.
+- Principal Moon names use a one-degree tolerance around phase angles 0/90/
+  180/270, with crescent/gibbous labels between them. Illumination, rise/set,
+  position and event times do not change; 63% waxing is no longer first quarter.
+  See [NASA Moon phases](https://science.nasa.gov/moon/moon-phases/).
+- Calendar/Home cards sort by the **displayed event date**, retaining active
+  favourable-period filters. Home also indicates a period reaching the analysis
+  boundary, rather than implying the comet stops being observable there.
+- Zoom AFOV uses existing catalogue `afov_min` / `afov_max`: maximum field at
+  minimum focal length, minimum field at maximum focal length, linear estimates
+  in between. The Baader 8/12/16/20/24 mm values match 68/63/58/53/48 degrees in
+  the [manufacturer manual](https://www.baader-planetarium.com/media/mageworx/downloads/attachment/file/356/E_Hyperion-MarkIV-Anleitung_A5_RGB_LR_0820.pdf).
+  This remains an approximate AFOV/magnification field, not a measured field-stop
+  model; other zooms need not vary exactly linearly. Invalid/incomplete endpoints
+  retain the nominal field. Fixed eyepieces, magnification and exit pupils are
+  unchanged; field-dependent setup rankings may deliberately change.
+
+Validation and scope limits are recorded in `docs/TESTING.md`. No new network
+source, database migration or catalogue seed change is introduced.
+
+### Original implementation
+
 - Home and its sidebar show **good weather windows**, alongside a separately
   labelled forecast peak. Good runs can exceed three hours; bad or missing
   hourly forecasts split them. At least two consecutive hourly samples must

@@ -388,289 +388,311 @@ Item {
                 }
             }
 
-            RowLayout {
+            GridLayout {
                 id: topOverview
-                property real usableWidth: Math.max(0, scroll.availableWidth - 56 - (spacing * 2))
+                property real usableWidth: Math.max(0, scroll.availableWidth - 56 - (columnSpacing * 2))
 
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                spacing: 14
+                columns: 3
+                columnSpacing: 14
+                rowSpacing: 14
 
-                ColumnLayout {
+                GlassCard {
+                    objectName: "homeSessionCard"
+                    Layout.row: 0
+                    Layout.column: 0
                     Layout.preferredWidth: topOverview.usableWidth / 3
                     Layout.maximumWidth: topOverview.usableWidth / 3
-                    Layout.alignment: Qt.AlignTop
-                    spacing: 14
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: Math.max(160, implicitHeight)
+                    title: qsTr("Sessione di stasera")
+                    subtitle: root.sessionOverview.detail || ""
+                    subtitleWrap: true
+                    accentColor: root.sessionAccent(root.sessionOverview.state || "unavailable")
+                    accentMeaningful: true
+                    headerBadgeText: root.sessionOverview.badge || ""
+                    headerBadgeColor: accentColor
 
-                    GlassCard {
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: Math.max(160, implicitHeight)
-                        title: qsTr("Sessione di stasera")
-                        subtitle: root.sessionOverview.detail || ""
-                        subtitleWrap: true
-                        accentColor: root.sessionAccent(root.sessionOverview.state || "unavailable")
-                        accentMeaningful: true
-                        headerBadgeText: root.sessionOverview.badge || ""
-                        headerBadgeColor: accentColor
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 12
-
-                            Text {
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                text: root.sessionOverview.goodWindowText || root.sessionOverview.windowText || qsTr("Finestra osservativa non disponibile")
-                                color: theme.textPrimary
-                                font.pixelSize: 18
-                                font.weight: Font.DemiBold
-                                wrapMode: Text.WordWrap
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                text: root.sessionOverview.limitingFactor || ""
-                                color: theme.textMuted
-                                font.pixelSize: 12
-                                horizontalAlignment: Text.AlignLeft
-                                wrapMode: Text.WordWrap
-                                elide: Text.ElideRight
-                                maximumLineCount: 2
-                            }
-                        }
+                        spacing: 12
 
                         Text {
                             Layout.fillWidth: true
-                            visible: (root.sessionOverview.bestWindowText || "").length > 0
-                            text: root.sessionOverview.bestWindowText || ""
-                            color: theme.textSecondary
-                            font.pixelSize: 13
+                            Layout.minimumWidth: 0
+                            text: (root.sessionOverview.hasGoodWindows ? root.sessionOverview.goodWindowText : root.sessionOverview.usableWindowText)
+                                  || root.sessionOverview.windowText || qsTr("Finestra osservativa non disponibile")
+                            color: theme.textPrimary
+                            font.pixelSize: 18
+                            font.weight: Font.DemiBold
                             wrapMode: Text.WordWrap
                         }
+
                         Text {
                             Layout.fillWidth: true
-                            visible: (root.sessionOverview.goodWindowText || "").length > 0
-                            text: root.sessionOverview.windowAdvice || ""
+                            Layout.minimumWidth: 0
+                            text: root.sessionOverview.limitingFactor || ""
                             color: theme.textMuted
-                            font.pixelSize: 11
+                            font.pixelSize: 12
+                            horizontalAlignment: Text.AlignLeft
                             wrapMode: Text.WordWrap
+                            elide: Text.ElideRight
+                            maximumLineCount: 2
                         }
                     }
 
-                    GlassCard {
+                    Text {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 160
-                        title: qsTr("Luna")
-                        subtitle: root.moonOverview.summary || ""
-                        accentColor: root.moonImpactAccent(root.moonOverview.impact || "unavailable")
-                        accentMeaningful: true
-
-                        Rectangle {
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 82
-                            radius: 8
-                                color: moonMouse.containsMouse ? theme.surfaceRaised : "transparent"
-                                border.color: moonMouse.containsMouse ? theme.border : "transparent"
-                            border.width: 1
-
-                            RowLayout {
-                                id: moonSummaryRow
-                                anchors.fill: parent
-                                anchors.margins: 10
-                                spacing: 12
-
-                                Rectangle {
-                                    visible: moonSummaryRow.width >= 350
-                                    Layout.preferredWidth: 62
-                                    Layout.preferredHeight: 62
-                                    radius: 8
-                                    color: theme.imageWell
-                                    border.color: theme.border
-                                    border.width: 1
-
-                                    NightVisionIcon {
-                                        anchors.centerIn: parent
-                                        width: 38
-                                        height: 38
-                                        visible: controller.hasValidLocation
-                                        source: visible
-                                                ? controller.assetBaseUrl + "/resources/icons/moon.svg"
-                                                : ""
-                                    }
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        visible: !controller.hasValidLocation
-                                        text: qsTr("n/d")
-                                        color: theme.textMuted
-                                        font.pixelSize: 13
-                                        font.weight: Font.DemiBold
-                                    }
-                                }
-
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 3
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: qsTr("Sorge %1").arg(controller.moonSummary.rise_time)
-                                        color: theme.textPrimary
-                                        font.pixelSize: 13
-                                        font.weight: Font.DemiBold
-                                        wrapMode: Text.WordWrap
-                                        maximumLineCount: 2
-                                        elide: Text.ElideRight
-                                    }
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: qsTr("Tramonta %1").arg(controller.moonSummary.set_time)
-                                        color: theme.textPrimary
-                                        font.pixelSize: 13
-                                        font.weight: Font.DemiBold
-                                        wrapMode: Text.WordWrap
-                                        maximumLineCount: 2
-                                        elide: Text.ElideRight
-                                    }
-                                }
-
-                                ColumnLayout {
-                                    Layout.preferredWidth: Math.min(150, moonSummaryRow.width * 0.5)
-                                    spacing: 4
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: controller.moonSummary.phase + "  -  " + controller.moonSummary.illumination
-                                        color: theme.textSecondary
-                                        font.pixelSize: 12
-                                        horizontalAlignment: Text.AlignRight
-                                        wrapMode: Text.WordWrap
-                                        maximumLineCount: 2
-                                        elide: Text.ElideRight
-                                    }
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        Layout.minimumWidth: 0
-                                        text: root.moonOverview.impactLabel || ""
-                                        color: theme.textMuted
-                                        font.pixelSize: 12
-                                        horizontalAlignment: Text.AlignRight
-                                        wrapMode: Text.WordWrap
-                                        elide: Text.ElideRight
-                                        maximumLineCount: 2
-                                    }
-                                }
-                            }
-
-                            MouseArea {
-                                id: moonMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: root.openObject("moon")
-                            }
-                        }
+                        visible: (root.sessionOverview.bestWindowText || "").length > 0
+                        text: root.sessionOverview.bestWindowText || ""
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        visible: (root.sessionOverview.windowAdvice || "").length > 0
+                        text: root.sessionOverview.windowAdvice || ""
+                        color: theme.textMuted
+                        font.pixelSize: 11
+                        wrapMode: Text.WordWrap
                     }
                 }
 
-                ColumnLayout {
+                GlassCard {
+                    objectName: "homeMoonCard"
+                    Layout.row: 1
+                    Layout.column: 0
                     Layout.preferredWidth: topOverview.usableWidth / 3
                     Layout.maximumWidth: topOverview.usableWidth / 3
-                    Layout.alignment: Qt.AlignTop
-                    spacing: 14
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: Math.max(160, implicitHeight)
+                    title: qsTr("Luna")
+                    subtitle: root.moonOverview.summary || ""
+                    subtitleWrap: true
+                    accentColor: root.moonImpactAccent(root.moonOverview.impact || "unavailable")
+                    accentMeaningful: true
 
-                    GlassCard {
+                    Rectangle {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 160
-                        title: qsTr("Condizioni planetarie")
-                        subtitle: root.planetaryOverview.secondaryMetric || ""
-                        subtitleWrap: true
-                        accentColor: root.observingCategoryAccent(root.planetaryOverview)
-                        accentMeaningful: true
-                        headerBadgeText: root.planetaryOverview.label || ""
-                        headerBadgeColor: accentColor
+                        Layout.preferredHeight: 82
+                        radius: 8
+                            color: moonMouse.containsMouse ? theme.surfaceRaised : "transparent"
+                            border.color: moonMouse.containsMouse ? theme.border : "transparent"
+                        border.width: 1
 
                         RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 10
+                            id: moonSummaryRow
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            spacing: 12
 
-                            Text {
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                text: root.planetaryOverview.primaryMetric || ""
-                                color: theme.textPrimary
-                                font.pixelSize: 18
-                                font.weight: Font.DemiBold
-                                wrapMode: Text.WordWrap
-                                elide: Text.ElideRight
-                                maximumLineCount: 2
+                            Rectangle {
+                                visible: moonSummaryRow.width >= 350
+                                Layout.preferredWidth: 62
+                                Layout.preferredHeight: 62
+                                radius: 8
+                                color: theme.imageWell
+                                border.color: theme.border
+                                border.width: 1
+
+                                NightVisionIcon {
+                                    anchors.centerIn: parent
+                                    width: 38
+                                    height: 38
+                                    visible: controller.hasValidLocation
+                                    source: visible
+                                            ? controller.assetBaseUrl + "/resources/icons/moon.svg"
+                                            : ""
+                                }
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    visible: !controller.hasValidLocation
+                                    text: qsTr("n/d")
+                                    color: theme.textMuted
+                                    font.pixelSize: 13
+                                    font.weight: Font.DemiBold
+                                }
                             }
 
-                            Text {
+                            ColumnLayout {
                                 Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                text: root.planetaryOverview.hint || ""
-                                color: theme.textMuted
-                                font.pixelSize: 12
-                                horizontalAlignment: Text.AlignRight
-                                wrapMode: Text.WordWrap
-                                elide: Text.ElideRight
-                                maximumLineCount: 2
+                                spacing: 3
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: qsTr("Sorge %1").arg(controller.moonSummary.rise_time)
+                                    color: theme.textPrimary
+                                    font.pixelSize: 13
+                                    font.weight: Font.DemiBold
+                                    wrapMode: Text.WordWrap
+                                    maximumLineCount: 2
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: qsTr("Tramonta %1").arg(controller.moonSummary.set_time)
+                                    color: theme.textPrimary
+                                    font.pixelSize: 13
+                                    font.weight: Font.DemiBold
+                                    wrapMode: Text.WordWrap
+                                    maximumLineCount: 2
+                                    elide: Text.ElideRight
+                                }
+                            }
+
+                            ColumnLayout {
+                                Layout.preferredWidth: Math.min(150, moonSummaryRow.width * 0.5)
+                                spacing: 4
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: controller.moonSummary.phase + "  -  " + controller.moonSummary.illumination
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    horizontalAlignment: Text.AlignRight
+                                    wrapMode: Text.WordWrap
+                                    maximumLineCount: 2
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    text: root.moonOverview.impactLabel || ""
+                                    color: theme.textMuted
+                                    font.pixelSize: 12
+                                    horizontalAlignment: Text.AlignRight
+                                    wrapMode: Text.WordWrap
+                                    elide: Text.ElideRight
+                                    maximumLineCount: 2
+                                }
                             }
                         }
+
+                        MouseArea {
+                            id: moonMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.openObject("moon")
+                        }
                     }
+                }
+                GlassCard {
+                    objectName: "homePlanetaryCard"
+                    Layout.row: 0
+                    Layout.column: 1
+                    Layout.preferredWidth: topOverview.usableWidth / 3
+                    Layout.maximumWidth: topOverview.usableWidth / 3
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: Math.max(160, implicitHeight)
+                    title: qsTr("Condizioni planetarie")
+                    subtitle: root.planetaryOverview.secondaryMetric || ""
+                    subtitleWrap: true
+                    accentColor: root.observingCategoryAccent(root.planetaryOverview)
+                    accentMeaningful: true
+                    headerBadgeText: root.planetaryOverview.label || ""
+                    headerBadgeColor: accentColor
 
-                    GlassCard {
+                    GridLayout {
+                        id: planetaryMetrics
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 160
-                        title: qsTr("Condizioni del cielo profondo")
-                        subtitle: root.deepSkyOverview.secondaryMetric || ""
-                        subtitleWrap: true
-                        accentColor: root.observingCategoryAccent(root.deepSkyOverview)
-                        accentMeaningful: true
-                        headerBadgeText: root.deepSkyOverview.label || ""
-                        headerBadgeColor: accentColor
+                        columns: width >= 330 ? 2 : 1
+                        columnSpacing: 10
+                        rowSpacing: 8
 
-                        RowLayout {
+                        Text {
                             Layout.fillWidth: true
-                            spacing: 10
+                            Layout.minimumWidth: 0
+                            text: root.planetaryOverview.primaryMetric || ""
+                            color: theme.textPrimary
+                            font.pixelSize: 18
+                            font.weight: Font.DemiBold
+                            wrapMode: Text.WordWrap
+                            elide: Text.ElideRight
+                            maximumLineCount: 2
+                        }
 
-                            Text {
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                text: root.deepSkyOverview.primaryMetric || ""
-                                color: theme.textPrimary
-                                font.pixelSize: root.width < 900 ? 14 : 18
-                                font.weight: Font.DemiBold
-                                wrapMode: Text.Wrap
-                                elide: Text.ElideRight
-                                maximumLineCount: 2
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                text: root.deepSkyOverview.hint || ""
-                                color: theme.textMuted
-                                font.pixelSize: 12
-                                horizontalAlignment: Text.AlignRight
-                                wrapMode: Text.WordWrap
-                                elide: Text.ElideRight
-                                maximumLineCount: 3
-                            }
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
+                            text: root.planetaryOverview.hint || ""
+                            color: theme.textMuted
+                            font.pixelSize: 12
+                            horizontalAlignment: planetaryMetrics.columns === 2 ? Text.AlignRight : Text.AlignLeft
+                            wrapMode: Text.WordWrap
+                            elide: Text.ElideRight
+                            maximumLineCount: 2
                         }
                     }
                 }
 
                 GlassCard {
+                    objectName: "homeDeepSkyCard"
+                    Layout.row: 1
+                    Layout.column: 1
                     Layout.preferredWidth: topOverview.usableWidth / 3
                     Layout.maximumWidth: topOverview.usableWidth / 3
-                    Layout.preferredHeight: 334
-                    Layout.alignment: Qt.AlignTop
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: Math.max(160, implicitHeight)
+                    title: qsTr("Condizioni del cielo profondo")
+                    subtitle: root.deepSkyOverview.secondaryMetric || ""
+                    subtitleWrap: true
+                    accentColor: root.observingCategoryAccent(root.deepSkyOverview)
+                    accentMeaningful: true
+                    headerBadgeText: root.deepSkyOverview.label || ""
+                    headerBadgeColor: accentColor
+
+                    GridLayout {
+                        id: deepSkyMetrics
+                        Layout.fillWidth: true
+                        columns: width >= 330 ? 2 : 1
+                        columnSpacing: 10
+                        rowSpacing: 8
+
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
+                            text: root.deepSkyOverview.primaryMetric || ""
+                            color: theme.textPrimary
+                            font.pixelSize: root.width < 900 ? 14 : 18
+                            font.weight: Font.DemiBold
+                            wrapMode: Text.Wrap
+                            elide: Text.ElideRight
+                            maximumLineCount: 2
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
+                            text: root.deepSkyOverview.hint || ""
+                            color: theme.textMuted
+                            font.pixelSize: 12
+                            horizontalAlignment: deepSkyMetrics.columns === 2 ? Text.AlignRight : Text.AlignLeft
+                            wrapMode: Text.WordWrap
+                            elide: Text.ElideRight
+                            maximumLineCount: 3
+                        }
+                    }
+                }
+                GlassCard {
+                    objectName: "homeWeatherCard"
+                    Layout.row: 0
+                    Layout.column: 2
+                    Layout.rowSpan: 2
+                    Layout.fillHeight: true
+                    Layout.preferredWidth: topOverview.usableWidth / 3
+                    Layout.maximumWidth: topOverview.usableWidth / 3
+                    Layout.preferredHeight: Math.max(334, implicitHeight)
                     title: qsTr("Meteo osservativo")
                     subtitle: controller.weatherStatus.length > 0
                               ? controller.weatherStatus : (root.weatherOverview.bestWindowText || root.weatherOverview.windowText || "")
@@ -1686,7 +1708,7 @@ Item {
                             property bool hovered: false
 
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 108
+                            Layout.preferredHeight: 140
                             radius: 8
                         color: hovered ? theme.surfaceDeepHover : theme.surfaceDeep
                         border.color: hovered
@@ -1736,7 +1758,19 @@ Item {
                                               : modelData.timingValue + "  -  " + modelData.visibilityLabel
                                         color: theme.textSecondary
                                         font.pixelSize: 12
-                                        maximumLineCount: 1
+                                        maximumLineCount: 2
+                                        wrapMode: Text.WordWrap
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        visible: (modelData.analysisBoundaryText || "").length > 0
+                                        text: modelData.analysisBoundaryText || ""
+                                        color: theme.textMuted
+                                        font.pixelSize: 11
+                                        wrapMode: Text.WordWrap
+                                        maximumLineCount: 2
                                         elide: Text.ElideRight
                                     }
                                 }

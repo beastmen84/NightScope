@@ -1759,9 +1759,10 @@ class Phase6RealDataTests(unittest.TestCase):
         ):
             self.assertIn(observing_section, object_detail_qml)
         self.assertIn('title: root.evaluationData.title || qsTr("Valutazione osservativa")', object_detail_qml)
-        self.assertIn('label: qsTr("Fascia preferibile")', object_detail_qml)
+        self.assertIn('label: qsTr("Fascia migliore per altezza")', object_detail_qml)
         self.assertIn('root.geometryData.preferredWindow', object_detail_qml)
-        self.assertIn('Massima altezza stimata intorno alle %1.', object_detail_qml)
+        self.assertIn('Massima altezza intorno alle %1.', object_detail_qml)
+        self.assertIn('il piano della notte considera anche il meteo.', object_detail_qml)
         self.assertIn('label: qsTr("Inizio utile")', object_detail_qml)
         self.assertIn('label: qsTr("Fine utile")', object_detail_qml)
         self.assertIn("root.geometryData.showHorizonEvents === true", object_detail_qml)

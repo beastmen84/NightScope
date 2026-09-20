@@ -1,6 +1,6 @@
 # NightScope - Next Chat Handoff
 
-Updated: 2026-09-19
+Updated: 2026-09-20
 
 ## Working Agreement
 
@@ -13,6 +13,27 @@ Updated: 2026-09-19
 
 ## Current State
 
+- Unreleased Home/recommendation coherence fixes after `0a2d873`: altitude
+  windows are explicitly separate from weather-aware plan times. Marginal
+  openings remain monitor/conditional opportunities, missing night forecasts
+  are unavailable, limiting factors are explicit, and starts retain at least
+  15 useful minutes. A verified hourly opening can override the nightly-average
+  admission gate; NSOM formulas themselves are unchanged. Upper Home cards
+  share adaptive rows, Moon text wraps and narrow metrics stack. Lunar phase
+  labels, displayed-date calendar ordering and compact comet analysis warnings
+  are corrected. Zoom fields use existing AFOV endpoints with interpolation;
+  field-dependent setup choices may change, not magnification or exit pupils.
+  Full source/security gate passes 2,142 tests / ten subtests, 87% coverage and
+  all three isolated smokes. Final 273-test rerun includes all 40 new regressions
+  and the subsequently added missing-night-summary case. Baseline parity keeps
+  14,728 raw target records, 27 Solar System records, Moon physical fields and
+  261 annual engine events; only the Moon phase name is intentionally excluded.
+  IT/EN/ES: 2,159 compiled messages. Thirty Home/detail visual cases plus the
+  multi-comet-grid recheck have no QML warnings. Runtime hashes are unchanged.
+  Details: `docs/TESTING.md`, `docs/PRACTICAL_OBSERVING_WINDOWS.md`;
+  evidence: `build/coherence-check-20260920/`. VERSION and existing dist remain
+  1.46.21; **the following local bundle does not contain these new fixes**.
+  No rebuild, public release, push, tag or website change in this workstream.
 - Local Windows test bundle rebuilt on 2026-09-19 from clean `3fd68e6`, including
   all recent unreleased changes, now installed at `dist/NightScope`. Embedded
   version remains 1.46.21; this is NOT the published 1.46.21 artifact. No new

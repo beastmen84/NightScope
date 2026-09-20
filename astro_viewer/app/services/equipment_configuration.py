@@ -149,7 +149,7 @@ class EquipmentConfigurationService:
         return {
             "magnification": magnification,
             "true_field_of_view_deg": (
-                eyepiece.apparent_field_deg / magnification
+                eyepiece.apparent_field_at(focal_mm) / magnification
             ),
             "exit_pupil_mm": telescope.aperture_mm / magnification,
             "limiting_magnitude_estimate": (

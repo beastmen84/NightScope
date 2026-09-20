@@ -11,6 +11,9 @@ from astro_viewer.app.astronomy.engine import ObservingNightWindow, advance_time
 from astro_viewer.app.models.weather import WeatherHour
 
 
+MIN_PRACTICAL_OBSERVING_DURATION = timedelta(minutes=15)
+
+
 def is_usable_weather_hour(hour: WeatherHour) -> bool:
     values = (hour.precipitation_probability, hour.cloud_cover, hour.wind_kmh, hour.humidity)
     if any(not isinstance(value, (int, float)) or not isfinite(value) or value < 0 for value in values):
@@ -36,6 +39,8 @@ def weather_hour_observing_score(hour: WeatherHour) -> int:
 def usable_weather_intervals(
     hours: Sequence[WeatherHour],
     night_window: ObservingNightWindow | None,
+    *,
+    timezone: str | None = None,
 ) -> tuple[tuple[datetime, datetime], ...]:
     """Return UTC forecast bins, without bridging missing/bad/ambiguous hours.
 
@@ -48,9 +53,15 @@ def usable_weather_intervals(
         if instant is None:
             continue
         if instant.tzinfo is None:
-            if night_window is None or night_window.start is None:
+            if night_window is not None and night_window.start is not None:
+                zone = night_window.start.tzinfo
+            elif timezone is not None:
+                try:
+                    zone = ZoneInfo(timezone)
+                except ZoneInfoNotFoundError:
+                    zone = ZoneInfo("UTC")
+            else:
                 continue
-            zone = night_window.start.tzinfo
             first = instant.replace(tzinfo=zone, fold=0)
             second = instant.replace(tzinfo=zone, fold=1)
             # Offset-free ambiguous/nonexistent DST hours cannot locate a bin.

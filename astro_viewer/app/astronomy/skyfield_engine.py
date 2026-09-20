@@ -2584,19 +2584,22 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
 
     @staticmethod
     def _moon_phase_name(angle: float) -> str:
-        if angle < 22.5 or angle >= 337.5:
+        # Reserve the four principal-phase names for a narrow +/-1 degree
+        # neighbourhood. Broad 45-degree bins mislabeled a 63% Moon as quarter.
+        angle %= 360
+        if angle <= 1 or angle >= 359:
             return tr("Nuova")
-        if angle < 67.5:
+        if angle < 89:
             return tr("Crescente")
-        if angle < 112.5:
+        if angle <= 91:
             return tr("Primo quarto")
-        if angle < 157.5:
+        if angle < 179:
             return tr("Gibbosa crescente")
-        if angle < 202.5:
+        if angle <= 181:
             return tr("Piena")
-        if angle < 247.5:
+        if angle < 269:
             return tr("Gibbosa calante")
-        if angle < 292.5:
+        if angle <= 271:
             return tr("Ultimo quarto")
         return tr("Calante")
 

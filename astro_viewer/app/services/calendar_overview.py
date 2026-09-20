@@ -85,7 +85,7 @@ class CalendarOverviewService:
             usefulness = _integer(event.get("usefulness"))
             candidates.append(
                 (
-                    practical_at,
+                    event_at,
                     usefulness,
                     _event_payload(
                         event,
@@ -252,6 +252,7 @@ def _event_payload(
         "analysisEndLabel": _analysis_end_label(
             _text(event, "analysisEndAt") or _text(event, "analysis_end_at"), now,
         ),
+        "analysisBoundaryText": _analysis_boundary_text(event, now),
         "whyText": _why_text(
             event_type,
             event_type_code,
@@ -343,6 +344,23 @@ def _favorable_period_text(event: Mapping[str, object], now: datetime) -> str:
         labels.append(tr("{start} – {end}", start=format_datetime(first_night, include_time=False),
                          end=format_datetime(last_night, include_time=False)))
     return join_text(labels)
+
+
+def _analysis_boundary_text(event: Mapping[str, object], now: datetime) -> str:
+    """Expose a clipped comet period in compact cards, not just its detail."""
+    analysis = _text(event, "analysisEndAt") or _text(event, "analysis_end_at")
+    end = _event_end_datetime(event, now)
+    if not analysis or end is None:
+        return ""
+    try:
+        limit = datetime.fromisoformat(analysis)
+        if limit.tzinfo is None:
+            limit = limit.replace(tzinfo=now.tzinfo)
+    except ValueError:
+        return ""
+    if timedelta(0) <= as_utc(limit) - as_utc(end) <= timedelta(days=1):
+        return tr("Limite dell'analisi: il periodo potrebbe proseguire")
+    return ""
 
 
 def _analysis_end_label(value: str, now: datetime) -> str:

@@ -152,11 +152,33 @@ class Eyepiece:
     min_focal_length_mm: float | None = None
     max_focal_length_mm: float | None = None
     zoom_click_positions_mm: tuple[float, ...] = ()
+    afov_min: float | None = None
+    afov_max: float | None = None
+
+    def apparent_field_at(self, focal_mm: float) -> float:
+        """Nominal zoom AFOV: interpolate endpoints, otherwise keep fixed AFOV.
+
+        Minimum AFOV belongs to the longest focal length. The linear model is
+        an estimate, not a field-stop/distortion measurement; it also matches
+        the published Hyperion 8/12/16/20/24 mm nominal click-stop values.
+        """
+        values = (self.min_focal_length_mm, self.max_focal_length_mm,
+                  self.afov_min, self.afov_max, focal_mm)
+        if (self.eyepiece_type != "Zoom"
+                or any(value is None or not math.isfinite(value) or value <= 0 for value in values)):
+            return self.apparent_field_deg
+        low, high, field_min, field_max, focal = values
+        if high <= low or field_max < field_min or field_max >= 180:
+            return self.apparent_field_deg
+        fraction = (min(high, max(low, focal)) - low) / (high - low)
+        return field_max + fraction * (field_min - field_max)
 
     def to_qml(self) -> dict:
         data = asdict(self)
         data["focalLengthMm"] = self.focal_length_mm
         data["apparentFieldDeg"] = self.apparent_field_deg
+        data["afovMin"] = self.afov_min
+        data["afovMax"] = self.afov_max
         data["type"] = self.eyepiece_type
         data["minFocalLengthMm"] = self.min_focal_length_mm or self.focal_length_mm
         data["maxFocalLengthMm"] = self.max_focal_length_mm or self.focal_length_mm

@@ -14,7 +14,10 @@ from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import NightPlanItem
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherHour, WeatherSummary
-from astro_viewer.app.services.observing_night_service import usable_weather_intervals
+from astro_viewer.app.services.observing_night_service import (
+    MIN_PRACTICAL_OBSERVING_DURATION,
+    usable_weather_intervals,
+)
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
 from astro_viewer.app.services.nsom_target import unique_targets_by_id
 from astro_viewer.app.services.localization import join_text, tr
@@ -63,8 +66,12 @@ class NightPlannerService:
         weather_hours: Sequence[WeatherHour] | None = None,
     ) -> list[NightPlanItem]:
         blocking_status = self.weather_blocking_status(weather)
-        if blocking_status.blocks_plan:
+        if blocking_status.blocks_plan and weather_hours is None:
             return []
+        if weather_hours is not None:
+            # Hourly admission below owns the gate. A nightly average must not
+            # veto an independently verified opening; NSOM arithmetic is unchanged.
+            blocking_status = WeatherBlockingStatus(blocks_plan=False, show_warning=False)
         if night_window is not None and not night_window.has_observing_window:
             return []
 
@@ -158,22 +165,25 @@ class NightPlannerService:
             bounds = NightPlannerService._observing_window_interval(item.observing_window, night_window)
         if bounds is None:
             # Without a useful interval only the supplied instant is justified.
-            return preferred if any(start <= as_utc(preferred) < end for start, end in intervals) else None
+            return preferred if any(
+                start <= as_utc(preferred) <= end - MIN_PRACTICAL_OBSERVING_DURATION
+                for start, end in intervals
+            ) else None
         earliest = max(as_utc(bounds[0]), as_utc(datetime.now(bounds[0].tzinfo)))
         latest = as_utc(bounds[1])
-        preferred_utc = as_utc(preferred)
+        preferred_utc = as_utc(preferred).replace(second=0, microsecond=0)
         candidates: list[datetime] = []
         for weather_start, weather_end in intervals:
             start, end = max(earliest, weather_start), min(latest, weather_end)
-            if start >= end:
+            if end - start < MIN_PRACTICAL_OBSERVING_DURATION:
                 continue
-            if start <= preferred_utc < end:
-                return preferred
+            if start <= preferred_utc <= end - MIN_PRACTICAL_OBSERVING_DURATION:
+                return preferred_utc.astimezone(preferred.tzinfo)
             # The displayed minute must itself lie inside the usable interval.
             first_minute = start.replace(second=0, microsecond=0)
             if first_minute < start:
                 first_minute += timedelta(minutes=1)
-            last_minute = (end - timedelta(microseconds=1)).replace(second=0, microsecond=0)
+            last_minute = (end - MIN_PRACTICAL_OBSERVING_DURATION).replace(second=0, microsecond=0)
             if first_minute <= last_minute:
                 candidates.append(min(max(preferred_utc, first_minute), last_minute))
         if not candidates:

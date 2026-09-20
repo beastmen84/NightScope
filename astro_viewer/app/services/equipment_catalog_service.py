@@ -277,6 +277,8 @@ def eyepiece_from_catalog_row(row: dict) -> Eyepiece:
             row.get("focal_length_mm") or row.get("max_focal_length_mm") or 0
         ),
         apparent_field_deg=float(row["apparent_field_deg"]),
+        afov_min=float(row["afov_min"]) if row.get("afov_min") else None,
+        afov_max=float(row["afov_max"]) if row.get("afov_max") else None,
         eyepiece_type=str(
             row.get("eyepiece_type") or row.get("type") or "Fixed"
         ),

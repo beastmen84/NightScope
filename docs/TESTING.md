@@ -5,6 +5,55 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Unreleased Home/Recommendation Coherence - 2026-09-20
+
+Source-only follow-up against `0a2d873`, with VERSION still **1.46.21**. It is
+not present in the September 19 local bundle or the published Windows release.
+No dist rebuild, push, tag, website or Linux artifact change was requested.
+
+- The full `tools/run_checks.py --security` gate passes: **2,142 tests / ten
+  subtests**, **87%** overall coverage, dependency checks, Ruff, documentation,
+  import boundaries, unchanged Bandit baseline, compileall, licences, catalogue
+  and imagery audits; pip-audit reports no known vulnerabilities. The backend,
+  normal QML and red-night QML isolated smokes all pass.
+- A final **273-test** focused rerun passes after preserving lazy translation
+  of limiting factors and suppressing stale weather summaries when night hours
+  are missing. It includes all **40** new screenshot/coherence regressions;
+  the final missing-night test was added after the full suite was collected.
+  Final Ruff and `git diff --check` pass. Existing snapshot/label tests were
+  updated to the intentionally revised contracts, not weakened to skip checks.
+- Tests cover poor overall weather with a real dawn opening, no usable hours,
+  unavailable forecasts, clear nights, 5/14/15-minute boundaries, minute rounding,
+  bad nightly averages with valid hourly openings, legacy callers, missing and
+  ambiguous DST hours, zoom focal positions/Barlows/fallbacks, lunar labels and
+  chronological event cards. Existing Home projection parity tests still pass.
+- A baseline engine loaded from Git preserves **14,728 raw ranked target
+  records**, **27 Solar System records**, physical Moon fields and **261 annual
+  engine events** across Addis Ababa, Rome's DST boundary and Cape Town. Only
+  the descriptive lunar phase label is excluded intentionally. This verifies
+  astronomical invariants, not equality of the corrected planner selections,
+  start times, field-dependent equipment choices or presentation models.
+- IT/EN/ES each contain **2,159 finished compiled messages**, with no unfinished
+  translations and idempotent review dictionaries. **18 Home scenes** check
+  geometry and complete lunar text at 1920/1240 widths across recommended,
+  monitor, discouraged and unavailable states, including red mode. Another
+  **12 captures** cover comet Home cards at 1480 and Saturn detail at 1920/1240
+  in normal/red mode. The multi-comet grid was rechecked in all three languages;
+  representative screenshots were inspected. No QML warnings were recorded.
+  These are synthetic offline fixtures, not a live-provider accuracy claim or
+  an exhaustive display-scaling/accessibility matrix.
+- Root DB, backup, preferences and location cache retain their pre-work SHA-256
+  hashes. `dist/NightScope/NightScope.exe` also remains unchanged at
+  `a6813bc3e152f5815a6dc538646a9a7e72e3b1762bdab8dd9ed410eb72aa491a`.
+  QA uses disposable runtime directories; no live settings are migrated.
+
+Evidence: `build/coherence-check-20260920/` (`source-gate.log`,
+`final-focused.log`, `scientific-parity.log`, `translations-compiled.log`,
+`visual-qa-extended.log`, `visual-qa-extras.log` and screenshots). The initial
+test runs also record superseded text expectations and a temporary translation
+review edit error; those were corrected and rerun. Scientific policy, intended
+behavior changes and approximation limits are in `docs/PRACTICAL_OBSERVING_WINDOWS.md`.
+
 ## Local Windows Test Bundle - 2026-09-19
 
 Rebuilt from clean source **`3fd68e6`**, including the unreleased startup,
