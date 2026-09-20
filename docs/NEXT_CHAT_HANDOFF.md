@@ -13,6 +13,21 @@ Updated: 2026-09-20
 
 ## Current State
 
+- Unreleased layout-only follow-up after `ef8d6bf`: IMO occupies one half-width
+  provider slot on wide layouts, with empty space beside it; observing-detail
+  photos gain height while their observing-window card stays content-sized;
+  Calendar's summary cards share height when side by side. Narrow stacking and
+  red-mode image suppression are preserved. No production Python, UI strings,
+  calculations, scores or recommendations changed. The IMO scientific boundary
+  is clarified in `docs/IMO_CALENDAR.md`: annual dates/activity/ZHR are used,
+  local radiant/Moon/darkness optimisation is not, and Relevant is generic.
+  Full source/security gate passes 2,147 tests / ten subtests, 87% coverage and
+  all three isolated smokes. Forty-five offline IT/EN/ES layout scenes plus
+  fifteen Italian scenes at 150% scaling pass without QML warnings; representative
+  captures were inspected. Root runtime and dist EXE hashes remain unchanged.
+  Evidence: `build/layout-followup-20260920/`; details: `docs/TESTING.md`.
+  VERSION remains 1.46.21. No rebuild, push, tag or release; the September 19
+  local bundle below does not contain this follow-up or the preceding fixes.
 - Unreleased Home/recommendation coherence fixes after `0a2d873`: altitude
   windows are explicitly separate from weather-aware plan times. Marginal
   openings remain monitor/conditional opportunities, missing night forecasts

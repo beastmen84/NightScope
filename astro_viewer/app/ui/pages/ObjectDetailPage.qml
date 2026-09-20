@@ -402,17 +402,21 @@ Item {
                 rowSpacing: 18
 
                 ColumnLayout {
+                    objectName: "observingMediaColumn"
                     Layout.fillWidth: observingDetailGrid.columns === 1
                     Layout.preferredWidth: observingDetailGrid.columns === 2 ? 420 : observingDetailGrid.width
                     Layout.maximumWidth: observingDetailGrid.columns === 2 ? 420 : 16777215
-                    Layout.fillHeight: true
+                    Layout.fillHeight: observingDetailGrid.columns === 2 && !theme.redNightVision
                     Layout.alignment: Qt.AlignTop
                     spacing: 14
 
                     Rectangle {
+                        objectName: "observingImagePanel"
                         visible: !theme.redNightVision
                         Layout.fillWidth: true
-                        Layout.preferredHeight: visible ? 300 : 0
+                        Layout.fillHeight: visible
+                        Layout.minimumHeight: visible ? 360 : 0
+                        Layout.preferredHeight: visible ? 420 : 0
                         radius: 8
                         color: theme.imageWell
                         border.color: theme.border
@@ -479,9 +483,11 @@ Item {
                     }
 
                     GlassCard {
+                        objectName: "observingWindowCard"
                         visible: !root.isCatalogueDetail
                         Layout.fillWidth: true
-                        Layout.fillHeight: true
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignTop
                         Layout.minimumHeight: 118
                         title: qsTr("Finestra osservativa")
                         subtitle: root.geometryData.durationText || qsTr("Durata utile non disponibile")

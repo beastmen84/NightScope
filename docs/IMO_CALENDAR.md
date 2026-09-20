@@ -50,6 +50,17 @@ local count. Activity dates are not presented as local observing windows.
 
 Local radiant/Moon/night-window optimisation and extraction of additional peaks
 from narrative sections are not implemented. Visibility remains to be checked.
+The table's radiant coordinates are parsed and validated, but are not yet used
+to derive a local observing interval. The existing generic meteor usefulness
+score (78, displayed as Relevant) is retained: it is not an IMO assessment of
+the selected location or a promise of a strong shower that night.
+
+For example, the supplied 2026 calendar replaces the built-in October 8
+Draconids recurrence with October 9 UT, activity October 6-10 and reference
+ZHR 5. These are edition-specific facts, not five guaranteed visible meteors
+per hour or a locally calculated best time. An offline regression preserves
+this distinction and the unchanged visibility-check state.
+
 Future years without a downloaded matching edition retain the explicitly
 indicative built-in recurrence. The immutable annual overlay affects only meteor
 events in Home/Calendar; ephemerides, optics, NSOM, equipment and planner scoring

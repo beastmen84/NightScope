@@ -2,6 +2,7 @@
 
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -165,3 +166,31 @@ def test_calendar_sorts_visible_event_dates_and_flags_analysis_boundary():
     assert [item["id"] for item in result["homeItems"]] == ["comet", "moon", "opposition"]
     assert "potrebbe proseguire" in result["homeItems"][0]["analysisBoundaryText"]
     assert result["homeItems"][2]["daysUntil"] == 0  # The useful season is already active.
+
+
+def test_provider_grid_reserves_one_half_width_slot_without_a_visible_placeholder():
+    source = (Path(__file__).parents[1] / "app/ui/pages/DataProvidersPage.qml").read_text(encoding="utf-8")
+    imo = source[source.index("id: imoCard"):source.index("id: earthdataCard")]
+    assert "Layout.columnSpan" not in imo
+    assert "providersGrid.columns" in imo
+    assert 'objectName: "providerExpansionSpace"' in imo
+    assert "visible: providersGrid.columns === 2" in imo
+    assert source.count("Layout.preferredWidth: imoCard.Layout.preferredWidth") == 3
+
+
+def test_observing_image_absorbs_extra_height_instead_of_the_window_card():
+    source = (Path(__file__).parents[1] / "app/ui/pages/ObjectDetailPage.qml").read_text(encoding="utf-8")
+    image = source[source.index('objectName: "observingImagePanel"'):source.index('objectName: "observingWindowCard"')]
+    window = source[source.index('objectName: "observingWindowCard"'):source.index('title: qsTr("Finestra osservativa")')]
+    assert "Layout.fillHeight: visible" in image
+    assert "Layout.preferredHeight: visible ? 420 : 0" in image
+    assert "fillMode: Image.PreserveAspectFit" in image
+    assert "Layout.fillHeight: false" in window
+    assert "Layout.alignment: Qt.AlignTop" in window
+
+
+def test_calendar_summary_cards_share_height_only_when_side_by_side():
+    source = (Path(__file__).parents[1] / "app/ui/pages/CalendarPage.qml").read_text(encoding="utf-8")
+    assert source.count("Layout.fillHeight: calendarSummaryGrid.columns === 2") == 2
+    assert 'objectName: "calendarHighlightsCard"' in source
+    assert 'objectName: "calendarOverviewCard"' in source

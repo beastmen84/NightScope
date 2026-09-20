@@ -5,6 +5,42 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Unreleased Provider/Detail/Calendar Layouts - 2026-09-20
+
+Source-only follow-up against `ef8d6bf`, with VERSION still **1.46.21**.
+Only three production QML files change: the IMO card reserves one of two
+provider columns, the observing image receives vertical room instead of its
+window card, and adjacent Calendar summary cards share their row height.
+No production Python, translations, astronomical formulas, scoring or event
+data change. The existing dist has not been regenerated.
+
+- The complete `tools/run_checks.py --security` gate passes **2,147 tests / ten
+  subtests**, **87%** overall coverage, all static/catalogue/imagery/documentation
+  checks, an unchanged Bandit baseline and pip-audit with no known vulnerabilities.
+  Backend, normal QML and red-night QML smokes pass in disposable runtimes.
+- Four new regressions cover the three layout contracts and the Draconids
+  annual overlay: its date/activity/ZHR facts change, but visibility remains
+  to be checked and generic usefulness remains unchanged. The previous
+  scientific engine-parity evidence is not presented as a newly repeated run.
+- **45 offline Qt scenes** cover IT/EN/ES, all three pages, 1920/1480/1240
+  logical-pixel widths, normal/red mode and available/unavailable provider
+  states. **15 additional Italian scenes** run at `QT_SCALE_FACTOR=1.5`.
+  All geometry assertions pass with no QML warnings. Representative captures
+  were visually inspected, including narrow Spanish, red mode and 150% scale.
+  At 1920 logical pixels, provider widths are 791 each, the observing image
+  panel is 420 high, Saturn paints at 334 x 334, and its window card is 142 high.
+  Calendar summaries are both 356 high; narrow stacked cards retain their own
+  content heights. These are isolated synthetic fixtures, not live-provider
+  accuracy tests or an exhaustive display/accessibility matrix.
+- Root DB, backup, preferences and location-cache SHA-256 hashes are unchanged.
+  The existing dist EXE is unchanged at
+  `a6813bc3e152f5815a6dc538646a9a7e72e3b1762bdab8dd9ed410eb72aa491a`.
+  No credentials, user runtime, source PDF or public release were changed.
+
+Evidence: `build/layout-followup-20260920/` (`source-gate.log`, `visual-qa.log`,
+`visual-qa-dpi150.log` and captures). `docs/IMO_CALENDAR.md` records what the
+annual source actually improves and the still-unimplemented local optimisation.
+
 ## Unreleased Home/Recommendation Coherence - 2026-09-20
 
 Source-only follow-up against `0a2d873`, with VERSION still **1.46.21**. It is

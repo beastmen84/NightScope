@@ -68,6 +68,7 @@ Item {
             }
 
             GridLayout {
+                id: providersGrid
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
@@ -77,8 +78,9 @@ Item {
 
                 GlassCard {
                     id: imoCard
+                    objectName: "imoProviderCard"
                     Layout.fillWidth: true
-                    Layout.columnSpan: parent.columns
+                    Layout.preferredWidth: (providersGrid.width - providersGrid.columnSpacing * (providersGrid.columns - 1)) / providersGrid.columns
                     title: qsTr("IMO · International Meteor Organization")
                     subtitle: qsTr("Calendario annuale degli sciami meteorici · Nessun account richiesto")
                     subtitleWrap: true
@@ -149,10 +151,20 @@ Item {
                     }
                 }
 
+                // Keep the next provider slot empty on wide layouts, not a card.
+                Item {
+                    objectName: "providerExpansionSpace"
+                    visible: providersGrid.columns === 2
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: imoCard.Layout.preferredWidth
+                }
+
                 GlassCard {
                     id: earthdataCard
+                    objectName: "earthdataProviderCard"
 
                     Layout.fillWidth: true
+                    Layout.preferredWidth: imoCard.Layout.preferredWidth
                     Layout.fillHeight: true
                     Layout.minimumHeight: 500
                     title: qsTr("NASA Earthdata")
@@ -313,8 +325,10 @@ Item {
 
                 GlassCard {
                     id: openaqCard
+                    objectName: "openaqProviderCard"
 
                     Layout.fillWidth: true
+                    Layout.preferredWidth: imoCard.Layout.preferredWidth
                     Layout.fillHeight: true
                     Layout.minimumHeight: 500
                     title: qsTr("OpenAQ")

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Ritocchi al layout: scheda IMO a mezza larghezza su schermi ampi, con spazio
+  libero per un futuro provider; foto più grande nel dettaglio osservativo e
+  Finestra osservativa compatta; schede superiori del calendario di pari altezza
+  quando affiancate. Conservati adattamento alle finestre strette e modalità
+  rossa. Nessuna modifica a calcoli, dati o raccomandazioni.
 - Coerenza della Home: distinta la fascia migliore per altezza dagli orari del
   piano, che considerano anche il meteo. Finestre soltanto utilizzabili mostrate
   come opportunità da confermare, senza promuovere a buona una notte sfavorevole

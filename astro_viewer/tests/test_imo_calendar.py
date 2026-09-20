@@ -350,3 +350,25 @@ def test_calendar_subtitle_does_not_repeat_imo_date(tmp_path):
     events = annual_meteor_events(baseline, calendar, now)
     overview = CalendarOverviewService().build(events=[event.to_qml() for event in events], now=now, has_configured_equipment=False)
     assert all(item["detailSubtitle"] == item["dateLabel"] for item in overview["items"])
+
+
+def test_draconids_annual_overlay_changes_facts_not_local_visibility(tmp_path):
+    now = datetime(2026, 9, 20, tzinfo=UTC)
+    baseline = SkyfieldAstronomyEngine._recurring_meteor_showers(now, now + timedelta(days=365))
+    old = next(event for event in baseline if event.id == "shower-draconids-2026")
+    assert datetime.fromisoformat(old.event_at).date() == date(2026, 10, 8)
+    showers = tuple(replace(shower, peak=date(2026, 10, 9), active_start=date(2026, 10, 6),
+                            active_end=date(2026, 10, 10), zhr="5") if shower.code == "DRA" else shower
+                    for shower in parse_calendar_text(table_pages(), 2026))
+    calendar = ImoCalendar(2026, showers, now, tmp_path / "calendar-2026.pdf")
+    updated = next(event for event in annual_meteor_events(baseline, calendar, now)
+                   if event.id == old.id)
+    assert updated.best_time == "09/10/2026 (UT)"
+    assert updated.event_facts == (
+        ("activity", "Periodo di attività (UT)", "06/10/2026 - 10/10/2026"),
+        ("zhr", "ZHR di riferimento (condizioni ideali)", "5"),
+    )
+    assert updated.visibility_state == "check"
+    assert updated.usefulness == old.usefulness
+    assert not updated.peak_at
+    assert updated.source_code == "imo_calendar"

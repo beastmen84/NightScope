@@ -209,6 +209,7 @@ Item {
             }
 
             GridLayout {
+                id: calendarSummaryGrid
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
@@ -217,7 +218,9 @@ Item {
                 rowSpacing: 16
 
                 GlassCard {
+                    objectName: "calendarHighlightsCard"
                     Layout.fillWidth: true
+                    Layout.fillHeight: calendarSummaryGrid.columns === 2
                     Layout.minimumHeight: 212
                     title: qsTr("In evidenza nei prossimi 30 giorni")
                     subtitle: qsTr("Eventi osservativi da controllare per primi")
@@ -272,7 +275,9 @@ Item {
                 }
 
                 GlassCard {
+                    objectName: "calendarOverviewCard"
                     Layout.fillWidth: true
+                    Layout.fillHeight: calendarSummaryGrid.columns === 2
                     Layout.minimumHeight: 212
                     title: qsTr("Panoramica")
                     subtitle: !controller.hasValidLocation
