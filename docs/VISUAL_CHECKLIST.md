@@ -1,6 +1,15 @@
 # NightScope - Visual Review Checklist
 
-Aggiornato: 2026-09-07
+Aggiornato: 2026-09-20
+
+## Preparazione Windows 1.47.0
+
+Manuale IT/EN/ES aggiornato per finestre meteo/geometriche, IMO, meteore locali,
+COBS, scadenze e limiti delle stime. Sito con nota sul sorgente in preparazione;
+i download pubblici restano invariati. Nessuna modifica alla UI dell'app in
+questo passaggio. Le precedenti matrici QML IMO/COBS e layout sono in `TESTING.md`;
+non equivalgono alla matrice nativa completa del nuovo artefatto. L'esito dei
+controlli del pacchetto 1.47.0 viene registrato separatamente nello stesso documento.
 
 Questo documento conserva i controlli visuali di release iniziati con la
 sorgente `1.33.1` e i successivi passaggi per lingua e funzionalita'. Le

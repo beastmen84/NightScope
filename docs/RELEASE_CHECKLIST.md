@@ -1,191 +1,102 @@
 # NightScope Release Checklist
 
-This checklist is the approval gate for public NightScope builds. A source
-commit or a passing unit suite alone is not a release approval.
-
-Current target: `v1.46.21` (published for Windows only).
-On 2026-09-20, local `dist/NightScope` was rebuilt from `a2ebb97` for user testing
-and now includes the unreleased startup/recommendation/IMO changes, Home/layout
-corrections and local meteor windows. Its version
-metadata still says 1.46.21, but it is NOT the published artifact or its matching
-tag. Scoped packaged checks pass; see the latest Windows-bundle section in
-`TESTING.md`. No new publication, ZIP, tag, version bump or Linux build is implied.
-The remaining checklist retains dated public-release evidence, not automatic
-approval to publish the current test directory.
+Current target: `v1.47.0` (local Windows build; not published).
 Current public Windows release: `v1.46.21`. Current public Linux release: `v1.43.0`.
-The user published `v1.46.21` on 2026-09-07 for Windows only. GitHub exposes one
-`NightScope-v1.46.21-windows-x64.zip` asset and tag `v1.46.21` at `f6b45e9`.
-The user corrected the initial duplicate extension on GitHub; the current asset
-retains the same size and GitHub-reported SHA-256. Use the single-extension URL.
-The corrected URL responds to HEAD and the unchanged source update selector
-recognizes this Windows asset; see TESTING for scoped checks, not upgrade approval.
-The preceding local Windows build was validated from `66c4b5a`; the tag adds
-only validation documentation. The uploaded ZIP was not downloaded or
-re-audited during this documentation update. Unchecked gates remain open:
-publication alone does not provide missing evidence or approve a Linux build.
-Unless explicitly scoped to Windows, gates still apply separately to each
-new platform artifact. Historical Windows/Linux evidence remains dated.
 
-## 1. Product And Legal
+Updated 2026-09-20. This is the checklist for the new target, not inherited
+approval from an older artifact. A source commit or unit suite alone does not
+approve publication. The historical 1.46.21 release used tag `f6b45e9` and the
+single-extension `NightScope-v1.46.21-windows-x64.zip`; its evidence remains in
+`TESTING.md` and `REVIEW_HOME_PERFORMANCE_1_46_21.md`.
 
-- [x] Select and add the project `LICENSE` file.
-- [x] Create a consolidated third-party notice from runtime dependencies,
-  packaged data, and image metadata.
-- [x] Confirm GeoNames CC BY 4.0, MPC observatory, timezone-boundary ODbL 1.0,
-  generated-art provenance, and NASA/JPL attribution is present where required.
-- [x] Verify the user-created public `v1.46.21` source tag referenced by the
-  portable bundles and `SOURCE_CODE.md`.
-- [x] Confirm source version, changelog, source-availability notices, and
-  About/build metadata agree on `1.46.21`.
-- [x] Freeze the release scope; defer unrelated refactors.
+## 1. Product, Documentation And Legal
 
-## 2. Automated Validation
+- [x] Freeze scope: startup/recommendation fixes, practical windows, IMO,
+  local meteor windows, COBS and reviewed layout work. No new provider/refactor.
+- [x] Align VERSION, changelog, manual IT/EN/ES, README, source/legal notices
+  and architecture with 1.47.0 while preserving historical records.
+- [x] Explain COBS noncommercial CC BY-NC-SA 4.0 data separately from MPL code;
+  preserve attribution, observer credits and modification notices. Do not bundle
+  or mirror IMO publications or a COBS dataset.
+- [x] Keep website download links/structured release metadata on the published
+  platform versions; identify 1.47.0 only as source/local preparation.
+- [ ] Publish and verify the matching audited source tag, then update
+  SOURCE_CODE.md with its exact public identity before public distribution.
+- [ ] Complete the desktop/mobile browser review of the revised manual.
 
-- [ ] Install runtime and developer requirements in a clean virtual environment.
-- [x] Keep the Windows release constraints, Python patch, and committed
-  third-party license inventory exactly aligned.
-- [x] Run `python tools/run_checks.py --security` against source 1.46.21:
-  1,728 tests / ten subtests, 87% coverage; see TESTING. No artifact approval.
-- [x] Run all translation compilation and catalogue tests.
-- [x] Run both normal and Red Night Vision QML smoke tests from source 1.46.21
-  in disposable runtimes, plus the backend smoke.
-- [ ] Repeat `qmllint` over all packaged QML source files (36). Their last
-  complete pass is 1.46.19; sources are unchanged, but the tool now hangs on
-  `--help`. Current runtime smoke/probe evidence is separate.
-- [x] Run category artwork and Solar System asset checks (25 local JPEGs).
-- [x] Record exact Python, dependency, test, warning, and translation counts
-  in `docs/TESTING.md`; non-fatal QML diagnostics remain tracked debt.
+## 2. Automated Source Validation
+
+- [x] Run the complete 1.47.0 `tools/run_checks.py --security` gate with coverage,
+  catalogue/editorial, imagery, dependency and license checks: 2,303 tests / ten
+  subtests, 87% coverage; evidence in TESTING.
+- [x] Compile and validate all three translation catalogues (2,224 messages each).
+- [x] Run isolated backend, normal QML and Red Night Vision source smokes.
+- [x] Recheck all 36 QML files: the native qmllint executable now exits 0.
+  The 1.47.0 rerun recorded 849 warnings / 710 informational messages;
+  context/property diagnostics are not a zero-warning approval.
+- [ ] Install dependencies in a fresh environment and repeat the release gate.
+  The configured, pinned development environment is not a fresh-install test.
 - [ ] Produce an artifact-derived SBOM for the final release environment.
 
-## 3. Visual Matrix
+## 3. Windows Artifact And Data Safety
 
-Run every row in every supported language (currently Italian, English, and
-Spanish) at the supported minimum and normal desktop sizes.
-
-Record findings and their resolution status in
-[`VISUAL_CHECKLIST.md`](VISUAL_CHECKLIST.md).
-
-- [ ] First start with no location.
-- [ ] Valid location, no optional provider, Default profile in Naked eye mode.
-- [ ] Valid location and a multi-instrument profile.
-- [ ] Earthdata configured, authorized, verified, and returning data.
-- [ ] Earthdata verified with legitimate no-data AOD/VIIRS results.
-- [ ] OpenAQ verified with data and with legitimate no-data results.
-- [ ] Stale weather/VIIRS cache and offline behavior.
-- [ ] Home, Calendar, Weather, every Equipment catalogue, Object catalogue,
-  object detail, event detail, Providers, Profiles, Location, and Observation
-  log.
-- [ ] Long names, long event titles, missing optional fields, and empty states.
-- [ ] Sidebar fits without unnecessary scrolling at minimum supported height.
-- [ ] Repeat every application page in Red Night Vision; confirm icons,
-  controls, popups, focus, hover, Canvas drawings and empty states contain no
-  bright white, green, cyan or blue output.
-- [ ] Confirm object photographs, attributions and Home plan thumbnails are
-  absent and not loaded in Red Night Vision.
-- [ ] Record a pixel-channel audit for representative normal and red renders.
-- [ ] Manual opens from the help button in the current language and works at
-  desktop/mobile widths.
-
-## 4. Live Provider Matrix
-
-Use test accounts and coordinates that exercise positive and negative coverage.
-Do not commit credentials or exact personal locations.
-
-- [ ] Open-Meteo forecast and cache fallback.
-- [ ] Windows precise location, denied permission, and timeout paths.
-- [ ] Explicit IP fallback.
-- [ ] CelesTrak refresh and visible/no-visible ISS pass results.
-- [ ] JPL SBDB comet refresh and cached/offline behavior.
-- [ ] Earthdata credential save, LAADS authorization, test, removal, VIIRS, and
-  MAIAC AOD quality/no-data paths.
-- [ ] OpenAQ key save, test, removal, measurement, distance, freshness, and
-  no-data paths.
-- [ ] Confirm logs contain no credential secrets, usernames, API keys, or exact
-  coordinates.
-
-## 5. Data And Upgrade Safety
-
-- [x] Source image-lifecycle fixtures: schema upgrade, WAL-consistent snapshot,
-  old-backup restore after photo replacement/reset, personal profile/prose
-  preservation, relocated file URLs and failed writes; see `docs/TESTING.md`.
-- [x] Windows 1.46.21 packaged backend/normal/red smokes start with separate
-  empty runtimes; this does not approve an existing-user upgrade.
-- [ ] Upgrade a copy of a representative current development database.
-- [ ] Verify profiles, user-edited built-ins, custom equipment, provider state,
-  cached location, and observation log survive.
-- [ ] Confirm database sidecars and JSON files are written only to the intended
-  runtime directory.
-- [ ] Test backup and restore with the application closed.
-- [ ] Confirm a read-only install location produces a clear deployment decision
-  or is explicitly excluded from supported use.
-
-## 6. Windows Artifact
-
-The historical release build was produced on 2026-09-07 from clean `66c4b5a`, version
-`1.46.21`, after a fresh full source gate and two full-catalogue QML review runs.
-Artifact identity and scoped validation are in `REVIEW_HOME_PERFORMANCE_1_46_21.md`,
-TESTING and the handoff. These checks approve only their stated scope, not
-publication or the complete visual/provider/upgrade matrix. The full previous
-1.46.18 dist and its runtime were copied to a retained hash-verified backup;
-seven development runtime files are unchanged. Only the validated disposable
-test copy and its three fresh runtimes were removed. The final bundle is pristine.
-
-- [x] Build from a clean checkout with `packaging/build_windows.ps1`.
-- [x] Build and validate a new Windows artifact containing source 1.46.21.
-- [x] Confirm the source commit and build environment are recorded.
-- [x] Run backend and QML smoke tests against the packaged executable.
-- [x] Confirm the bundle-root legal files and Qt module audit pass.
-- [x] Confirm Qt Quick Dialogs and folder-list plugins are present, with no
-  user_images directory at any depth.
-- [ ] Repeat native photo selection, fallback open/accept, save/alias/cancel/
-  red/reset and restart-without-original on 1.46.21. The passing 1.46.13
-  packaged workflow remains historical evidence, not a repeated current gate.
-- [x] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
-  timezone polygons, and credential backend.
-- [x] Rebuild with the current review corrections and repeat artifact validation
-  before publishing a bundle from the updated source.
-- [ ] Run the complete visual and provider matrices on the packaged build, not
-  only from source. Test a copy and preserve a pristine release bundle.
-- [ ] Immediately before archiving, rerun `tools/audit_qt_bundle.py` on the
-  pristine bundle and confirm that no runtime database, backup, cache, settings,
-  or logs are present.
+- [ ] Build from a clean recorded source commit using `packaging/build_windows.ps1`.
+- [ ] Audit the pristine bundle: legal files, Qt modules, native Positioning,
+  dialog/folder plugins, seeds, translations, manual, ephemeris and timezone data.
+- [ ] Compare embedded application code/assets and VERSION against source.
+- [ ] Pass backend, normal QML and red QML smokes from a disposable copy,
+  with separate NIGHTSCOPE_RUNTIME_DIR paths and database integrity/FK checks.
+- [ ] Exercise an upgrade of a representative existing database copy and verify
+  profiles, custom equipment, edited built-ins, image references and observation log.
+- [ ] Confirm runtime files stay outside the pristine deliverable.
+- [ ] Test closed-app backup/restore and document any retained private QA copy.
+- [x] Portable Windows use requires a writable extracted directory; a read-only
+  install path is not the documented deployment.
+- [ ] Repeat native photo selection, save/alias/cancel/red/reset and restart
+  without the original image on the new artifact.
+- [ ] Record artifact file count, size, EXE SHA-256 and exact source/environment.
+- [ ] Immediately before archiving, repeat the pristine audit; exclude databases,
+  backups, caches, logs, preferences, credentials and personal images.
 - [ ] Scan the artifact with the chosen security tooling.
-- [ ] Sign the executable or document the explicit initial-release policy.
-- [ ] Publish a SHA-256 hash with the artifact.
-- [ ] Test extraction and first launch from a normal writable user directory.
+- [x] Current policy: unsigned portable executable, no installer or automatic updater.
+  Do not claim Authenticode signing or bypass operating-system warnings.
+- [ ] Create the final ZIP, verify its SHA-256 and test extraction/first launch.
+  An EXE hash is not the ZIP checksum.
 
-## 7. Linux Artifact
+## 4. Native Visual And Provider Matrix
 
-Deferred: no new Linux artifact accompanies the Windows-only 1.46.21 release.
-The public Linux download remains 1.43.0. Select a separate version only when
-a new Linux build and release are explicitly in scope.
+Repeat on the packaged application in IT/EN/ES, normal/red modes and supported
+minimum/normal desktop sizes. Scoped earlier matrices in TESTING remain useful
+evidence but do not silently check off this complete manual matrix.
 
-- [ ] Build through the declared Debian 12 x86-64/glibc 2.36 container with
-  `packaging/build_linux_debian12.sh`.
-- [ ] Generate the environment-specific Python license archive.
-- [ ] Inventory every copied native ELF file with binary/source versions,
-  bundle SHA-256, notice path and exact Debian Sources or CPython source URL.
-- [ ] Bundle every source-component copyright notice and Debian common-license
-  text referenced by the generated inventory.
-- [ ] Verify every unique exact-version source URL returns HTTP success.
-- [ ] Reject unmanifested/stale native files, changed hashes, missing notices,
-  missing common licenses, unsupported Qt plugins and GPL-only Qt modules.
-- [ ] Run backend and normal/red QML smoke tests in Debian 12 and Debian 13;
-  run Wayland normal/red and XCB QML smoke tests on the Ubuntu host.
-- [ ] Confirm GIO modules remain isolated so newer-host GVFS plugins are not
-  loaded against the bundled Debian 12 GLib.
-- [ ] Create the deterministic
-  `NightScope-v<VERSION>-debian-12-x64.tar.gz` and adjacent SHA-256 file.
-- [ ] Verify checksum, extraction, audit and smoke tests from the final archive.
-- [ ] Publish the tarball and checksum in the matching version's GitHub release
-  only after that Linux artifact is approved.
-  Update discovery checks actual compatible assets; publication can remain
-  platform-specific and must not imply validation of the other platform.
+- [ ] No location; valid location without optional providers; naked-eye and
+  multi-instrument profiles; long text, missing fields and empty states.
+- [ ] Home, Calendar, Weather, all equipment pages, Catalogue, both detail pages,
+  Providers, Profiles, Location and Observation log; sidebar fit and help/manual.
+- [ ] Red-mode icons, controls, popups, focus/hover, Canvas and photographs;
+  representative pixel-channel audit.
+- [ ] Open-Meteo fresh/stale/offline; Windows location allowed/denied/timeout;
+  explicit approximate IP fallback; CelesTrak visible/no-visible passes.
+- [ ] JPL and COBS valid/empty/stale/offline; correction versus JPL fallback
+  explained without implying measured accuracy from an insufficient sample.
+- [ ] IMO download/import/year rollover/failure; preserve the old edition until
+  the new one validates; local meteor windows with partial/no weather.
+- [ ] Earthdata credentials/authorization/removal, positive and legitimate
+  no-data VIIRS/AOD; OpenAQ key lifecycle and valid/no-data/freshness paths.
+- [ ] Ensure inspected logs contain no credential secrets or personal coordinates.
+  Use test credentials only; never commit them.
 
-## 8. Release Approval
+## 5. Publication Boundary
 
-- [x] No unresolved severity-1 or severity-2 defect.
-- [x] Known limitations match README and manual.
-- [x] Changelog contains only verified results.
-- [ ] Git worktree is clean and release tag points to the audited commit.
-- [ ] Final artifact identity and hash are recorded in the release notes.
+- [ ] Resolve any newly found blocking issue and review known limitations.
+- [ ] Complete the remaining artifact/manual gates, or explicitly record
+  release-owner acceptance of each uncompleted gate.
+- [ ] Ensure the tag identifies the audited source, the final archive/hash are
+  recorded and source-availability notices match; only then publish.
+- [ ] Update website public download links/metadata only after the actual
+  Windows release asset exists. Do not imply publication from a local build.
+
+No push, tag, GitHub publication or Linux build is part of this preparation.
+Linux 1.43.0 stays public; a future Linux artifact needs its own Debian 12 build,
+native-component/source/license inventory, Debian/Ubuntu Wayland/XCB smokes,
+archive/hash/extraction checks and explicit approval.

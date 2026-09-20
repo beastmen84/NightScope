@@ -1,5 +1,31 @@
 # NightScope Local Data Sources
 
+## Runtime Meteor And Comet Sources (1.47.0)
+
+These sources supplement the packaged catalogue; no IMO PDF or COBS observation
+dataset is shipped in the distribution. Neither requires an account or receives
+the observer's location. Downloads start in background workers after the first frame.
+
+- **IMO**: the official annual meteor calendar from `https://www.imo.net/` is
+  downloaded once per current civil year, or imported from an original local PDF.
+  A successful validated rollover replaces the prior edition; a failed update
+  retains it without treating it as current-year evidence. Annual activity/maxima,
+  qualified ZHR and supported radiant drift supplement the ten principal showers.
+  Local windows use darkness, radiant altitude and lunar geometry, not a local
+  meteor-rate forecast. The publication remains copyright IMO; public access is
+  not an open redistribution licence. See `docs/IMO_CALENDAR.md`.
+- **COBS**: `https://cobs.si/api/obs_list.api` provides a global recent-observation
+  feed, cached for 24 hours in `cobs_observations.json` beside the database. Eligible
+  observations can adjust brightness only within 72 hours of their latest measure;
+  unsuitable data preserve JPL. Dates, observers, licence and modification notices
+  are retained. Data/derived adaptations remain CC BY-NC-SA 4.0 for noncommercial
+  use, independently of NightScope's MPL code licence. Policy:
+  `https://cobs.si/help/data_policy/`; calculation contract: `docs/COBS_OBSERVATIONS.md`.
+
+Photometry does not replace orbital elements, certify detectability or introduce
+moving targets into fixed-object NSOM/planner rankings. See the implementation
+documents for thresholds and limits; data freshness is not measured accuracy.
+
 ## Cities
 
 `cities15000.txt` is the packaged city seed and should be extracted from the official GeoNames `cities15000.zip` dump:

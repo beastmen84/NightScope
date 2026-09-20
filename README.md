@@ -18,9 +18,10 @@ tonight, from here, with this setup?**
 
 > [!NOTE]
 > NightScope is a released application. The current public portable builds are
-> Windows 1.46.21 and Linux 1.43.0. Source version 1.46.21 includes reviewed
-> corrections and Home/recalculation performance improvements now available
-> in the Windows package. Features added after 1.43.0 are not yet in the
+> Windows 1.46.21 and Linux 1.43.0. Source version 1.47.0 adds practical observing
+> windows, annual IMO meteor calendars, guarded short-term COBS comet guidance,
+> and database-startup improvements. The 1.47.0 Windows build is prepared locally;
+> it is not a published download. Features added after 1.43.0 are not yet in the
 > published Linux package.
 > Release artifacts remain platform-specific portable builds rather than
 > universal installers.
@@ -50,6 +51,18 @@ its own source, package and checksum information.
   while keeping optical compatibility and recommendation ranking separate.
 - Shows annual astronomical events, short-horizon visible ISS passes, and
   multi-night comet windows in one calendar.
+- Separates extended good-weather intervals from the forecast peak, and shows
+  astronomical darkness beside the location. Object altitude windows and the
+  weather-aware plan answer different questions; neither is a one-minute deadline.
+- Downloads the current annual IMO meteor calendar without an account, reuses
+  it across launches, and replaces it only after validating the new year's edition.
+  Local meteor windows combine darkness, radiant altitude and the Moon; weather
+  coverage is shown separately, and ZHR is not a predicted local count.
+- Uses qualified recent COBS observations to adjust short-term comet brightness,
+  useful nights and generic instrument advice. Corrections expire 72 hours after
+  the latest supporting measurement; unsuitable observations retain the JPL model.
+  Downloads run in the background with a daily cache. COBS data retain their
+  CC BY-NC-SA 4.0 terms; this integration is intended for noncommercial use.
 - Provides live directional guidance through Sky Compass.
 - Stores observation logs and user-maintained equipment locally.
 - Provides a separate two-column Cameras catalogue for astronomy cameras and
@@ -130,7 +143,12 @@ remain unavailable when NightScope has no real local source.
 ISS passes and comet windows deliberately bypass object scoring, Equipment,
 Planner, and the NightScope observation model. They are transient calendar
 events. Comet brightness is inherently uncertain and is presented as an
-estimate rather than a precise promise.
+estimate rather than a precise promise. COBS can change comet selection and
+generic instrument guidance, not fixed-object NSOM scores, orbits or optical
+formulas. The comet period preserves gaps and the analysis boundary; it is not
+a claim that its final date is the best night of the season. See
+[`docs/COBS_OBSERVATIONS.md`](docs/COBS_OBSERVATIONS.md) and
+[`docs/IMO_CALENDAR.md`](docs/IMO_CALENDAR.md).
 
 In the current UI, filters and focal reducers remain presentation guidance and
 do not change visual target ranking. The separate photographic backend can
@@ -202,6 +220,8 @@ data.
 | timezonefinder | Offline IANA timezone lookup | No | No |
 | CelesTrak | ISS orbital elements | No | No |
 | JPL SBDB | Comet orbital elements | No | No |
+| International Meteor Organization (IMO) | Annual meteor calendar and supported radiant drift | No | No |
+| Comet Observation Database (COBS) | Recent comet photometry and guarded short-term corrections | No | No |
 | NASA Earthdata / LAADS | VIIRS sky background and MAIAC AOD | Optional login | Yes |
 | OpenAQ | Local particulate measurements | Optional API key | Yes |
 | IP geolocation fallback | Approximate location after explicit user action | No | Public IP is visible to the service |
@@ -216,6 +236,11 @@ CelesTrak and JPL downloads provide orbital catalogues; NightScope performs the
 location-specific pass and visibility calculations locally. External results
 are cached in SQLite with source-specific refresh and staleness rules.
 
+IMO and COBS start after the first frame, on background workers. IMO reuses a
+validated annual PDF; COBS reuses a separate daily JSON cache. Their provider
+cards report the actual downloaded data and fallback state. Neither a fresh
+download nor a calculated window guarantees favourable weather or detection.
+
 See [`astro_viewer/data/DATA_SOURCES.md`](astro_viewer/data/DATA_SOURCES.md) for
 catalogue provenance and [`docs/IMAGE_ASSET_POLICY.md`](docs/IMAGE_ASSET_POLICY.md)
 for image attribution and redistribution policy.
@@ -229,13 +254,20 @@ application keeps its runtime data next to the executable:
 - `user_preferences.json`: interface and provider state;
 - `location_cache.json`: last location acquisition result; approximate IP
   fallback data is accepted for at most 24 hours and is labelled as cached;
+- `imo_calendar/`: downloaded/imported annual IMO edition and validation state;
+- `cobs_observations.json`: recent COBS observations, attribution and retry state;
 - `logs/`: rotating diagnostic logs.
+
+Startup reuses unchanged catalogue imports and a verified unchanged DB backup.
+Changed data, invalid checkpoints or an altered backup trigger the full safe
+path; WAL databases do not use the backup shortcut. The backup is not a copy of
+personal images or system-stored credentials. See the manual for restoration.
 
 On Linux, NightScope follows the XDG base-directory contract:
 
-- `~/.local/share/NightScope`: SQLite database and database backup;
+- `~/.local/share/NightScope`: SQLite database, database backup and COBS cache;
 - `~/.config/NightScope`: interface and provider preferences;
-- `~/.cache/NightScope`: location and NASA AOD caches;
+- `~/.cache/NightScope`: location, NASA AOD and annual IMO caches;
 - `~/.local/state/NightScope/logs`: rotating diagnostic logs.
 
 Absolute `XDG_DATA_HOME`, `XDG_CONFIG_HOME`, `XDG_CACHE_HOME`, and
@@ -403,8 +435,10 @@ The wrapper creates a Debian 12/Python 3.12 build image, runs PyInstaller, and
 writes the portable application to `dist/NightScope`. It then creates the
 deterministic release archive and checksum:
 
-`dist/NightScope-v1.46.21-debian-12-x64.tar.gz` and its adjacent `.sha256`
-file. The inner build scripts copy the project notices, generate the installed
+`dist/NightScope-v1.47.0-debian-12-x64.tar.gz` and its adjacent `.sha256`
+file when run against this source version. No Linux 1.47.0 artifact is built or
+published by this Windows-only preparation. The inner build scripts copy the
+project notices, generate the installed
 Linux Python dependency license archive, inventory every copied Debian ELF
 file, bundle the matching copyright and common-license texts, and run the
 platform-aware Qt/data/runtime-state/legal audit.
@@ -491,6 +525,11 @@ current approval gate is
 - Weather, AOD, particulate, and VIIRS availability depends on provider
   coverage, freshness, authorization, and quality gates.
 - Comet magnitudes can differ materially from orbital-catalogue estimates.
+- IMO dates and ZHR do not guarantee a local meteor rate. COBS corrections are
+  conservative, short-lived estimates, not certified photometric accuracy or
+  an independent comet-outburst alert service.
+- Full-catalogue updates can still briefly pause the interface; performance
+  improvements do not make every GUI operation nonblocking.
 - The photographic plan calculates sensor geometry and known backfocus
   spacing, but still cannot prove adapters, image circle, tracking accuracy or
   vignetting. Its exposure output is a broadband planning range, not a camera
@@ -535,8 +574,9 @@ exact corresponding public source commit.
 ## Release And Development Status
 
 NightScope has stable public builds on separate platform versions: Windows
-`1.46.21` and Linux `1.43.0`. The `master` branch can be ahead of either
-published bundle while the next artifacts are validated. User-facing changes
+`1.46.21` and Linux `1.43.0`. Source 1.47.0 and its local Windows build are
+separate from these public artifacts; no 1.47.0 publication is implied.
+The `master` branch can be ahead of either published bundle. User-facing changes
 and fixes are recorded in
 [`astro_viewer/CHANGELOG.md`](astro_viewer/CHANGELOG.md); this README describes
 the current source tree instead of duplicating the release history.

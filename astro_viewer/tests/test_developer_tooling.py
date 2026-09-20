@@ -829,6 +829,24 @@ def test_manual_language_switch_keeps_all_languages_on_one_row() -> None:
     assert re.search(r"flex:\s*0\s+0\s+auto", declarations)
 
 
+@pytest.mark.parametrize("language", ["it", "en", "es"])
+def test_manual_documents_147_windows_and_free_providers(language: str) -> None:
+    """Each language explains the new sources and their scientific boundaries."""
+    manual = (PROJECT_ROOT / "manuale.html").read_text(encoding="utf-8")
+    article = re.search(
+        rf'<main id="{language}-main"[^>]*>(.*?)</main>', manual, re.DOTALL,
+    )
+    assert article is not None
+    content = article.group(1)
+    for marker in ("IMO", "COBS", "ZHR", "72", "24", "18°", "CC BY-NC-SA 4.0"):
+        assert marker in content
+    calendar = re.search(
+        rf'<section id="{language}-calendar">(.*?)</section>', content, re.DOTALL,
+    )
+    assert calendar is not None
+    assert "JPL" in calendar.group(1) and "NSOM" in calendar.group(1)
+
+
 def test_localization_release_workflow_reapplies_reviewed_ts_overlay() -> None:
     documentation = (PROJECT_ROOT / "docs" / "LOCALIZATION.md").read_text(
         encoding="utf-8"
@@ -969,7 +987,12 @@ def test_multilingual_website_has_complete_local_links_and_seo_metadata() -> Non
         )
         # Match complete version tokens, never prefixes such as 1.46.2 within 1.46.21.
         mentioned_versions = set(re.findall(r"(?<!\d)(\d+\.\d+\.\d+)(?!\d)", source))
-        assert mentioned_versions == {"1.46.21", "1.43.0"}
+        assert mentioned_versions == {"1.47.0", "1.46.21", "1.43.0"}
+        assert 'class="source-status"' in source
+        assert "IMO" in source and "COBS" in source
+        assert "CC BY-NC-SA 4.0" in source
+        assert "/releases/tag/v1.47.0" not in source
+        assert "/releases/download/v1.47.0" not in source
         assert "<span>Windows 1.46.21</span>" in source
         assert "<span>Linux 1.43.0</span>" in source
 
@@ -1023,7 +1046,7 @@ def test_website_assets_sitemap_and_pages_workflow_are_consistent() -> None:
     assert [
         element.text
         for element in sitemap.findall("sitemap:url/sitemap:lastmod", namespace)
-    ] == ["2026-09-07"] * 3
+    ] == ["2026-09-20"] * 3
     assert locations == {
         "https://beastmen84.github.io/NightScope/",
         "https://beastmen84.github.io/NightScope/it/",

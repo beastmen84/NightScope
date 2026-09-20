@@ -5,6 +5,45 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Windows 1.47.0 Preparation - 2026-09-20
+
+The user requested documentation alignment, source version 1.47.0 and a local
+Windows distribution. Production Python/QML, catalogue data and astronomical
+formulas are unchanged from `f6d866e`; this step updates VERSION, documentation,
+manual IT/EN/ES, a clearly separated website source notice and document tests.
+Historical version/publication statements in the older entries below remain
+dated evidence, not the current source/artifact state.
+
+- Full source/security gate: **2,303 tests / ten subtests**, **87% coverage**
+  (23,742 statements / 2,979 missed), pytest 297.96 s. Backend/normal/red smokes
+  pass in isolated runtimes in 15.1/15.1/14.5 s. Static, import/layer, catalogue,
+  editorial, imagery, dependency and license checks pass; pip-audit reports no
+  known vulnerabilities. Bandit remains 48 findings, zero high, not zero findings.
+- Focused documentation/translation rerun: **86 passed**. Initial failures were
+  the old sitemap date expectation and a generic Linux build-filename example;
+  the new date and source-version-specific example now retain explicit separation
+  from the public Linux 1.43.0 artifact. No Linux build was performed.
+- All three translation catalogues recompiled: **2,224 complete messages** each.
+  No application message or reviewed translation changed.
+- Native qmllint over **36 files** exits 0, with **849 warnings / 710 information
+  messages**. This supersedes the previous tool-startup limitation, not the
+  outstanding context/property warning debt. Inventory: 293 Python / 36 QML /
+  17 operational files. Documentation introduces no new production module.
+- Manual/source/download version distinctions, language sections, new provider
+  guidance, navigation links and site metadata are covered by structural tests.
+  The browser connection reported no available browser; no new desktop/mobile
+  browser rendering approval is claimed. The application's native visual/provider
+  matrix remains separate from these automated checks.
+- Four original runtime files were hashed before checks. The old dist directory
+  was absent at task start; no previous distribution backup/replacement is needed.
+  Packaged validation and final runtime hash comparison are recorded below after
+  the new artifact has been built.
+
+Evidence: `build/release-1.47.0-20260920/` (`source-gate.log`,
+`docs-focused-final.log`, `translations.log`, `qmllint.log`). No push, tag,
+public release or website deployment; public links remain Windows 1.46.21 and
+Linux 1.43.0. A passing local build does not approve publication.
+
 ## COBS Observations and Short-Term Comet Guidance - 2026-09-20
 
 Source-only integration against `c46aac6`, VERSION still **1.46.21**. Unlike

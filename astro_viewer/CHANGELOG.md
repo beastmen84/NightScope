@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## NightScope 1.47.0 - 2026-09-20
+
+- Versione sorgente e pacchetto Windows locale; non ancora una pubblicazione.
+  Manuale IT/EN/ES, documentazione tecnica e note di provenienza allineati.
+  I download pubblici restano Windows 1.46.21 e Linux 1.43.0. Le voci seguenti
+  consolidano il lavoro successivo alla 1.46.21; le indicazioni di mancata
+  rigenerazione si riferiscono ai singoli passaggi storici, non al bundle 1.47.0.
 
 - Provider COBS gratuito e senza account: osservazioni cometarie scaricate in
   background dopo il primo frame, cache giornaliera separata e scheda accanto

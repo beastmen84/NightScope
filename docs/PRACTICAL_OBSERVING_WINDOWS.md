@@ -1,4 +1,8 @@
-# Practical observing windows (unreleased source)
+# Practical observing windows
+
+Included in source 1.47.0 and its Windows build preparation. The dated entries
+below describe implementation history, not the current artifact/version status.
+See `TESTING.md` and `RELEASE_CHECKLIST.md` for validation and publication.
 
 Date: 2026-09-19. Baseline: `35bd872`. VERSION remains 1.46.21.
 This work changes observing guidance and Calendar presentation, not the

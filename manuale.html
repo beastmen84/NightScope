@@ -627,19 +627,19 @@
       <p class="eyebrow">Guida operativa e logica osservativa</p>
       <h1>Manuale utente NightScope</h1>
       <p>Configura la tua postazione, interpreta le raccomandazioni e prepara una sessione visuale sapendo quali dati sono reali, quali sono stimati e quali non sono disponibili.</p>
-      <div class="release-note"><strong>Versioni pubbliche.</strong> <a href="https://github.com/beastmen84/NightScope/releases/tag/v1.46.21">NightScope 1.46.21 per Windows</a>; il pacchetto Linux resta <a href="https://github.com/beastmen84/NightScope/releases/tag/v1.43.0">NightScope 1.43.0</a>. Questo manuale segue il sorgente 1.46.21: le funzionalità introdotte dopo la 1.43.0, incluse le immagini personali, non sono ancora nel pacchetto Linux pubblicato.</div>
+      <div class="release-note"><strong>Versioni pubbliche.</strong> <a href="https://github.com/beastmen84/NightScope/releases/tag/v1.46.21">NightScope 1.46.21 per Windows</a>; il pacchetto Linux resta <a href="https://github.com/beastmen84/NightScope/releases/tag/v1.43.0">NightScope 1.43.0</a>. Questo manuale segue il sorgente 1.47.0 e il nuovo pacchetto Windows locale, non ancora pubblicato. IMO, COBS e le nuove finestre qui descritte non sono nei download pubblici precedenti; Linux non include neppure le altre novità successive alla 1.43.0.</div>
     </div>
     <div class="hero-inner" data-article="en" hidden>
       <p class="eyebrow">Operating guide and observing logic</p>
       <h1>NightScope user manual</h1>
       <p>Configure your site, interpret recommendations, and prepare a visual session while knowing which data is measured, estimated, or unavailable.</p>
-      <div class="release-note"><strong>Public releases.</strong> <a href="https://github.com/beastmen84/NightScope/releases/tag/v1.46.21">NightScope 1.46.21 for Windows</a>; the Linux package remains <a href="https://github.com/beastmen84/NightScope/releases/tag/v1.43.0">NightScope 1.43.0</a>. This manual tracks source 1.46.21: features introduced after 1.43.0, including personal images, are not yet in the published Linux package.</div>
+      <div class="release-note"><strong>Public releases.</strong> <a href="https://github.com/beastmen84/NightScope/releases/tag/v1.46.21">NightScope 1.46.21 for Windows</a>; the Linux package remains <a href="https://github.com/beastmen84/NightScope/releases/tag/v1.43.0">NightScope 1.43.0</a>. This manual tracks source 1.47.0 and the new local Windows build, which is not published. IMO, COBS and the new windows described here are absent from the earlier public downloads; Linux also lacks the other features introduced after 1.43.0.</div>
     </div>
     <div class="hero-inner" data-article="es" hidden>
       <p class="eyebrow">Guía operativa y lógica de observación</p>
       <h1>Manual de usuario de NightScope</h1>
       <p>Configure su ubicación, interprete las recomendaciones y prepare una sesión visual sabiendo qué datos son medidos, estimados o no disponibles.</p>
-      <div class="release-note"><strong>Versiones públicas.</strong> <a href="https://github.com/beastmen84/NightScope/releases/tag/v1.46.21">NightScope 1.46.21 para Windows</a>; el paquete de Linux sigue siendo <a href="https://github.com/beastmen84/NightScope/releases/tag/v1.43.0">NightScope 1.43.0</a>. Este manual sigue el código fuente 1.46.21: las funciones posteriores a 1.43.0, incluidas las imágenes personales, aún no están en el paquete publicado para Linux.</div>
+      <div class="release-note"><strong>Versiones públicas.</strong> <a href="https://github.com/beastmen84/NightScope/releases/tag/v1.46.21">NightScope 1.46.21 para Windows</a>; el paquete de Linux sigue siendo <a href="https://github.com/beastmen84/NightScope/releases/tag/v1.43.0">NightScope 1.43.0</a>. Este manual sigue el código fuente 1.47.0 y el nuevo paquete local de Windows, aún sin publicar. IMO, COBS y las nuevas ventanas descritas aquí no están en las descargas públicas anteriores; Linux tampoco incluye las demás novedades posteriores a 1.43.0.</div>
     </div>
   </div>
 
@@ -755,6 +755,8 @@
       <section id="it-home">
         <h2>4. Home e stato della sessione</h2>
         <p>La Home è il punto operativo. Le schede superiori riassumono la <strong>notte osservativa</strong>, non necessariamente l'ora corrente. La finestra normale va dal tramonto locale all'alba successiva.</p>
+        <p>Accanto alla località compare il <strong>buio astronomico</strong>, quando il Sole è almeno 18° sotto l'orizzonte: non coincide con tramonto e alba e in alcune stagioni/località può mancare. La fascia di <strong>meteo buono</strong> può durare più di tre ore; il <strong>picco meteo</strong> indica la parte migliore della previsione, non l'unico momento utile. Nella sessione il picco è nascosto quando coincide esattamente con l'unica fascia buona mostrata. Ricontrolli le previsioni prima di uscire.</p>
+        <p>Il piano interseca la visibilità dei bersagli con le ore meteo utilizzabili, senza riempire lacune nelle previsioni. Una semplice apertura utilizzabile resta un'opportunità da confermare, non rende automaticamente favorevole tutta la notte. Nel dettaglio, la <strong>fascia migliore per altezza</strong> descrive invece la geometria: può differire dall'orario del piano. Il minuto di massima altezza è un riferimento tecnico, non una scadenza per osservare.</p>
         <dl class="term-grid">
           <dt>Da valutare</dt>
           <dd>Mancano località o dati sufficienti per una decisione.</dd>
@@ -846,10 +848,18 @@
           <dt>Passaggi ISS</dt>
           <dd>Eventi a breve orizzonte calcolati localmente da elementi orbitali aggiornati. Mostrano ingresso, culminazione, uscita, quota massima, direzioni e durata quando il passaggio è visibile e il cielo è sufficientemente buio.</dd>
           <dt>Finestre cometarie</dt>
-          <dd>Più notti utili vengono aggregate in un intervallo con data migliore. La magnitudine è prevista e può essere molto incerta.</dd>
+          <dd>Il periodo riunisce le notti utili, conservando le interruzioni e indicando la prossima finestra stimata. L'estremo finale può essere il limite dell'analisi, non la miglior notte assoluta. La magnitudine resta incerta.</dd>
         </dl>
         <p>ISS e comete sono <strong>score-free</strong>: non percorrono Catalogo, Equipment, Planner, meteo o NSOM. Servono a sapere che un oggetto transitorio sarà osservabile, non a dichiarare che è la scelta migliore della notte.</p>
         <p>I dati orbitali sono scaricati senza inviare la località a CelesTrak o JPL; la propagazione e la verifica di visibilità locale avvengono sul computer.</p>
+        <h3>Eventi planetari e notti vicine</h3>
+        <p>Il calendario mette in evidenza fino a cinque eventi, quando disponibili. L'istante esatto di congiunzione o opposizione resta distinto dalle notti vicine favorevoli: non occorre osservare in un unico minuto. Possono comparire anche gruppi ravvicinati di almeno tre pianeti o parate di almeno quattro pianeti luminosi. Legga sempre separazioni, orari locali e limiti indicati; il meteo va verificato a parte.</p>
+        <h3>Sciami meteorici: massimo e finestra locale</h3>
+        <p>Il calendario annuale IMO aggiorna i dieci sciami principali con date, attività e ZHR qualificato. Il massimo pubblicato in UT non viene trasformato in un falso orario locale preciso. Lo <strong>ZHR</strong> è un riferimento in condizioni standard ideali, non il numero di meteore che vedrà dalla sua postazione.</p>
+        <p>NightScope calcola in anticipo le finestre locali vicino al massimo combinando buio astronomico, altezza del radiante e Luna. Mostra l'intervallo favorevole, le alternative e, quando disponibile, una fascia più ampia con limiti. La deriva del radiante è usata solo quando i dati IMO lo consentono; altrimenti l'approssimazione è dichiarata. La selezione riguarda le notti vicine al massimo, non un modello dell'attività di tutta la stagione. Meteo assente o copertura parziale sono indicati separatamente e non annullano il calcolo astronomico.</p>
+        <h3>Comete: osservazioni COBS e previsione</h3>
+        <p>Osservazioni COBS recenti, coerenti e sufficientemente indipendenti possono correggere la luminosità JPL, cambiando le comete selezionate, le notti utili e il consiglio generico sullo strumento. Le serie visuali e CCD equivalenti sono valutate separatamente. La correzione scade <strong>72 ore dopo l'ultima misura</strong>: oltre quella scadenza, o con dati insufficienti, discordanti o in altre bande, resta il modello JPL. Una singola misura datata non è la previsione per la prossima notte.</p>
+        <p>Il dettaglio spiega fonte, data, validità o motivo del fallback. Non vengono modificate orbite, formule ottiche o classifiche NSOM; COBS non è un servizio indipendente di allerta per outburst. Magnitudine integrata e consiglio sullo strumento non garantiscono la percezione della chioma.</p>
       </section>
 
       <section id="it-weather">
@@ -871,6 +881,9 @@
         <p>OpenAQ fornisce PM2.5 e PM10 vicino al suolo. È diverso da AOD e richiede una API key. Una misura corrente che supera i controlli di qualità può entrare nella trasparenza atmosferica come <strong>fallback non additivo</strong> quando AOD non è disponibile. AOD e OpenAQ non vengono mai sommati come due penalità indipendenti.</p>
         <h3>Configurazione provider</h3>
         <p>Apri <strong>Provider dati</strong> e segui la guida del servizio che vuoi abilitare.</p>
+        <h4>IMO e COBS: senza account</h4>
+        <p><strong>IMO</strong> scarica automaticamente il calendario dell'anno corrente dopo l'apertura della finestra, senza rallentare lo splash. Una copia valida viene riutilizzata ai riavvii; al cambio d'anno il vecchio calendario viene eliminato soltanto dopo aver scaricato e validato il nuovo. La scheda mostra anno, file, data e stato. Se la fonte è indisponibile può importare il PDF originale; senza un'edizione corrispondente le ricorrenze restano esplicitamente indicative.</p>
+        <p><strong>COBS</strong> scarica osservazioni globali in background, senza account e senza inviare la località. La cache è riutilizzata per 24 ore; un errore conserva i dati precedenti senza renderli più recenti. La scheda mostra aggiornamento, osservazioni e stato; l'idoneità scientifica dipende dalle date delle misure, non dal download. Dati e derivati COBS mantengono attribuzione e licenza <strong>CC BY-NC-SA 4.0</strong>, per uso non commerciale; la licenza del codice NightScope resta MPL 2.0. Il PDF IMO non viene redistribuito con l'app.</p>
         <h4>NASA Earthdata / LAADS</h4>
         <ol class="steps">
           <li>Seleziona <strong>Crea account</strong>, registrati e conferma l'e-mail di attivazione prima di accedere.</li>
@@ -1015,6 +1028,8 @@
       <section id="en-home">
         <h2>4. Home and session state</h2>
         <p>Home is the operational starting point. Its top metrics summarize the <strong>observing night</strong>, not necessarily the current hour. A normal window runs from local sunset to the next sunrise.</p>
+        <p><strong>Astronomical darkness</strong> appears beside the location, when the Sun is at least 18° below the horizon. It differs from sunset and sunrise and may be absent at some locations or seasons. A <strong>good-weather interval</strong> can last longer than three hours; the <strong>weather peak</strong> is the best part of the forecast, not the only useful time. The session hides the peak when it exactly matches the single displayed good interval. Check the forecast again before leaving.</p>
+        <p>The plan intersects target visibility with usable forecast hours without filling forecast gaps. A merely usable opening is an opportunity to confirm, not an automatic endorsement of the whole night. The detail's <strong>best altitude window</strong> describes geometry instead and may differ from the plan's timing. The maximum-altitude minute is a technical reference, not an observing deadline.</p>
         <dl class="term-grid">
           <dt>Pending</dt>
           <dd>Location or sufficient data is missing, so a decision cannot be made.</dd>
@@ -1106,10 +1121,18 @@
           <dt>ISS passes</dt>
           <dd>Short-horizon events calculated locally from updated orbital elements. They show entry, culmination, exit, maximum altitude, directions, and duration when the station is illuminated and the observer's sky is sufficiently dark.</dd>
           <dt>Comet windows</dt>
-          <dd>Several useful nights are aggregated into a range with a preferred date. Predicted magnitude can be highly uncertain.</dd>
+          <dd>The period collects useful nights, preserves gaps and identifies the next estimated window. Its final date may be the analysis boundary, not the best night overall. Magnitude remains uncertain.</dd>
         </dl>
         <p>ISS and comets are <strong>score-free</strong>: they do not pass through Catalogue, Equipment, Planner, weather, or NSOM. They tell you that a transient object should be visible, not that it is the night's best target.</p>
         <p>Orbital catalogues are downloaded without sending your location to CelesTrak or JPL; propagation and local visibility checks run on your computer.</p>
+        <h3>Planetary events and nearby nights</h3>
+        <p>Calendar highlights up to five events when available. The exact conjunction or opposition time remains separate from useful nearby nights: observing is not limited to a single minute. Close groups of at least three planets and parades of at least four bright planets may also appear. Read the stated separations, local times and limitations; check weather separately.</p>
+        <h3>Meteor showers: maximum and local window</h3>
+        <p>The annual IMO calendar updates ten major showers with dates, activity periods and qualified ZHR values. A maximum published as a UT date is not turned into a falsely precise local time. <strong>ZHR</strong> describes a reference rate under ideal standard conditions, not the number of meteors you will see from your site.</p>
+        <p>NightScope can calculate local windows in advance near the maximum by combining astronomical darkness, radiant altitude and the Moon. It shows a favourable interval, alternatives and, when available, a broader usable interval with limitations. Radiant drift is used only where IMO data support it; otherwise the approximation is stated. Selection covers nights near the maximum, not an activity model for the whole season. Missing or partial weather coverage is reported separately and does not invalidate the astronomical calculation.</p>
+        <h3>Comets: COBS observations and predictions</h3>
+        <p>Recent, consistent and sufficiently independent COBS observations can correct JPL brightness estimates, changing comet selection, useful nights and generic instrument advice. Visual and CCD visual-equivalent series are assessed separately. Corrections expire <strong>72 hours after the latest measurement</strong>; beyond that deadline, or with insufficient, conflicting or incompatible-band data, JPL remains the model. A single dated measurement is not the prediction for the next night.</p>
+        <p>The detail explains the source, dates, validity or fallback reason. Orbits, optical formulas and NSOM rankings are unchanged; COBS is not an independent outburst-alert service. Integrated magnitude and instrument advice do not guarantee detection of the coma.</p>
       </section>
 
       <section id="en-weather">
@@ -1131,6 +1154,9 @@
         <p>OpenAQ supplies near-surface PM2.5 and PM10. It differs from AOD and requires an API key. A current measurement that passes quality gates can enter atmospheric transparency as a <strong>non-additive fallback</strong> when AOD is unavailable. AOD and OpenAQ are never added as two independent penalties.</p>
         <h3>Provider setup</h3>
         <p>Open <strong>Data providers</strong> and follow the guide for the service you want to enable.</p>
+        <h4>IMO and COBS: no account required</h4>
+        <p><strong>IMO</strong> automatically downloads the current year's calendar after the window opens, without delaying the splash. A valid copy is reused across launches; at the year change, the old calendar is removed only after the new one has been downloaded and validated. The card shows year, file, date and status. If the source is unavailable, you can import the original PDF; without a matching edition, recurring dates remain explicitly indicative.</p>
+        <p><strong>COBS</strong> downloads global observations in the background without an account or transmitting your location. Its cache is reused for 24 hours; an error preserves older data without making it fresh. The card shows the update, observations and status; scientific eligibility depends on measurement dates, not the download date. COBS data and derivatives retain attribution and the <strong>CC BY-NC-SA 4.0</strong> licence for noncommercial use; NightScope code remains MPL 2.0. The IMO PDF is not redistributed with the app.</p>
         <h4>NASA Earthdata / LAADS</h4>
         <ol class="steps">
           <li>Select <strong>Create account</strong>, register, and confirm the activation email before signing in.</li>
@@ -1275,6 +1301,8 @@
       <section id="es-home">
         <h2>4. Inicio y estado de la sesión</h2>
         <p>Inicio es el punto de partida operativo. Sus métricas superiores resumen la <strong>noche de observación</strong>, no necesariamente la hora actual. Una ventana normal se extiende desde la puesta de sol local hasta el amanecer siguiente.</p>
+        <p>Junto a la ubicación se muestra la <strong>oscuridad astronómica</strong>, cuando el Sol está al menos 18° por debajo del horizonte. No coincide con la puesta y la salida del Sol y puede faltar en ciertas estaciones o lugares. La franja de <strong>buen tiempo</strong> puede durar más de tres horas; el <strong>máximo meteorológico</strong> señala la mejor parte de la previsión, no el único momento útil. La sesión lo oculta cuando coincide exactamente con la única franja buena mostrada. Revise la previsión antes de salir.</p>
+        <p>El plan cruza la visibilidad del objeto con las horas meteorológicas utilizables, sin rellenar huecos de la previsión. Una apertura meramente utilizable es una oportunidad por confirmar, no convierte toda la noche en favorable. La <strong>mejor franja por altitud</strong> de los detalles describe la geometría y puede diferir del horario del plan. El minuto de altitud máxima es una referencia técnica, no una hora límite para observar.</p>
         <dl class="term-grid">
           <dt>Por evaluar</dt>
           <dd>Falta la ubicación o no hay datos suficientes, por lo que no se puede tomar una decisión.</dd>
@@ -1366,10 +1394,18 @@
           <dt>Pasos de la ISS</dt>
           <dd>Eventos a corto plazo calculados localmente a partir de elementos orbitales actualizados. Muestran entrada, culminación, salida, altitud máxima, direcciones y duración cuando la estación está iluminada y el cielo del observador está suficientemente oscuro.</dd>
           <dt>Ventanas de cometas</dt>
-          <dd>Varias noches útiles se agrupan en un intervalo con una fecha preferente. La magnitud prevista puede ser muy incierta.</dd>
+          <dd>El período reúne las noches útiles, conserva las interrupciones e indica la próxima ventana estimada. La fecha final puede ser el límite del análisis, no la mejor noche de toda la temporada. La magnitud sigue siendo incierta.</dd>
         </dl>
         <p>La ISS y los cometas <strong>no reciben puntuación</strong>: no pasan por Catálogo, Equipo, Planificador, tiempo ni NSOM. Indican que un objeto transitorio debería ser visible, no que sea el mejor objeto de la noche.</p>
         <p>Los catálogos orbitales se descargan sin enviar su ubicación a CelesTrak ni JPL; la propagación y las comprobaciones de visibilidad local se realizan en su equipo.</p>
+        <h3>Eventos planetarios y noches cercanas</h3>
+        <p>El Calendario destaca hasta cinco eventos cuando están disponibles. El instante exacto de una conjunción u oposición se distingue de las noches cercanas favorables: no es necesario observar en un único minuto. También pueden aparecer grupos próximos de al menos tres planetas o desfiles de al menos cuatro planetas brillantes. Lea las separaciones, las horas locales y los límites indicados; compruebe el tiempo por separado.</p>
+        <h3>Lluvias de meteoros: máximo y ventana local</h3>
+        <p>El calendario anual de IMO actualiza diez lluvias principales con fechas, períodos de actividad y valores de ZHR acompañados de sus limitaciones. Un máximo publicado como fecha UT no se convierte en una hora local falsamente precisa. La <strong>ZHR</strong> es una tasa de referencia en condiciones ideales normalizadas, no el número de meteoros que verá desde su ubicación.</p>
+        <p>NightScope calcula por adelantado ventanas locales próximas al máximo combinando oscuridad astronómica, altitud del radiante y Luna. Muestra un intervalo favorable, alternativas y, cuando existe, una franja utilizable más amplia con limitaciones. Solo se aplica la deriva del radiante cuando los datos de IMO lo permiten; de lo contrario se declara la aproximación. La selección abarca noches cercanas al máximo, no un modelo de actividad de toda la temporada. La falta de previsión o su cobertura parcial se indican por separado y no invalidan el cálculo astronómico.</p>
+        <h3>Cometas: observaciones COBS y predicción</h3>
+        <p>Las observaciones COBS recientes, coherentes y suficientemente independientes pueden corregir el brillo previsto por JPL, modificando la selección de cometas, las noches útiles y el consejo genérico sobre el instrumento. Las series visuales y las CCD equivalentes al visual se evalúan por separado. La corrección caduca <strong>72 horas después de la última medida</strong>; después, o con datos insuficientes, discordantes o en bandas incompatibles, se mantiene el modelo JPL. Una medida individual fechada no es la previsión para la noche siguiente.</p>
+        <p>Los detalles explican la fuente, las fechas, la validez o el motivo para mantener JPL. No se modifican órbitas, fórmulas ópticas ni clasificaciones NSOM; COBS no es un servicio independiente de alertas por estallidos. La magnitud integrada y el consejo sobre el instrumento no garantizan detectar la coma.</p>
       </section>
 
       <section id="es-weather">
@@ -1391,6 +1427,9 @@
         <p>OpenAQ proporciona PM2.5 y PM10 cerca de la superficie. Es distinto del AOD y requiere una clave de API. Una medición actual que supere los controles de calidad puede intervenir en la transparencia atmosférica como <strong>alternativa no aditiva</strong> cuando el AOD no está disponible. El AOD y OpenAQ nunca se suman como dos penalizaciones independientes.</p>
         <h3>Configuración de los proveedores</h3>
         <p>Abra <strong>Proveedores de datos</strong> y siga la guía del servicio que quiera habilitar.</p>
+        <h4>IMO y COBS: sin cuenta</h4>
+        <p><strong>IMO</strong> descarga automáticamente el calendario del año actual después de abrir la ventana, sin retrasar la pantalla de inicio. Una copia válida se reutiliza en cada arranque; al cambiar de año, el calendario anterior solo se elimina tras descargar y validar el nuevo. La tarjeta muestra año, archivo, fecha y estado. Si la fuente no está disponible, puede importar el PDF original; sin una edición correspondiente, las fechas recurrentes siguen siendo explícitamente orientativas.</p>
+        <p><strong>COBS</strong> descarga observaciones globales en segundo plano, sin cuenta ni envío de su ubicación. La caché se reutiliza durante 24 horas; un error conserva los datos anteriores sin convertirlos en recientes. La tarjeta muestra actualización, observaciones y estado; la idoneidad científica depende de las fechas de las medidas, no de la descarga. Los datos COBS y sus derivados conservan la atribución y la licencia <strong>CC BY-NC-SA 4.0</strong> para uso no comercial; el código de NightScope sigue bajo MPL 2.0. El PDF de IMO no se redistribuye con la aplicación.</p>
         <h4>NASA Earthdata / LAADS</h4>
         <ol class="steps">
           <li>Seleccione <strong>Crear cuenta</strong>, regístrese y confirme el correo electrónico de activación antes de iniciar sesión.</li>
@@ -1487,9 +1526,9 @@
 
   <footer>
     <div class="footer-inner">
-      <span data-copy-it>NightScope - Manuale utente multilingue - revisione 1.46.21</span>
-      <span data-copy-en hidden>NightScope - Multilingual user manual - revision 1.46.21</span>
-      <span data-copy-es hidden>NightScope - Manual de usuario multilingüe - revisión 1.46.21</span>
+      <span data-copy-it>NightScope - Manuale utente multilingue - revisione 1.47.0</span>
+      <span data-copy-en hidden>NightScope - Multilingual user manual - revision 1.47.0</span>
+      <span data-copy-es hidden>NightScope - Manual de usuario multilingüe - revisión 1.47.0</span>
     </div>
   </footer>
 

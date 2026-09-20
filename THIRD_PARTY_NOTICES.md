@@ -6,10 +6,15 @@ Public License 2.0. The complete project license is in `LICENSE`.
 Public NightScope source repository:
 `https://github.com/beastmen84/NightScope`
 
+This notice accompanies the local NightScope 1.47.0 Windows build. Its intended
+source tag `v1.47.0` must be published and verified before public distribution;
+no tag or release is created by the local build. See `SOURCE_CODE.md` and the
+artifact evidence in `docs/TESTING.md` for the source/publication boundary.
+
 The public NightScope 1.46.21 Windows bundle, published on 2026-09-07,
 corresponds to the verified source tag `v1.46.21`:
-`https://github.com/beastmen84/NightScope/tree/v1.46.21`. This documentation-only
-update does not replace notices already inside the published ZIP. The published Linux
+`https://github.com/beastmen84/NightScope/tree/v1.46.21`. Preparing 1.47.0
+does not replace notices already inside the published ZIP. The published Linux
 bundle remains 1.43.0 and retains its own release-specific notices. The adjacent
 `SOURCE_CODE.md` gives direct source-archive links and source-availability
 instructions.

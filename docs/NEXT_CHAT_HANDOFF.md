@@ -13,6 +13,21 @@ Updated: 2026-09-20
 
 ## Current State
 
+- Source version: `1.47.0`. The user requested documentation alignment, version
+  bump and a new local Windows distribution. Manual IT/EN/ES, README, source/legal
+  notices and the website's development notice now distinguish 1.47.0 from the
+  still-public Windows 1.46.21 / Linux 1.43.0 downloads. No public links move to
+  1.47.0 until publication. Build and validation evidence will be recorded in
+  `docs/TESTING.md`; no tag, push, public release or Linux build is authorized.
+  The 1.47.0 source gate passes 2,303 tests / ten subtests, 87% coverage, security
+  and all three isolated smokes. The 86-test documentation/translation rerun and
+  2,224-message compilation per language pass. Native qmllint now completes on
+  all 36 files, with 849 warnings and 710 informational messages, not zero warnings.
+  No browser is connected, so manual/browser visual approval remains open.
+  At the start of this task `dist/NightScope` was absent, so the older bundle
+  entries below are historical records, not an inventory of the current disk.
+  They also retain historical source-only/version statements superseded here.
+
 - Source-only COBS integration after `c46aac6`, with the user's explicit request
   to use qualified observations in calculations, not just display them. Daily
   global downloads run after the first frame into a separate atomic runtime

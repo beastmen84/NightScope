@@ -1,8 +1,9 @@
 # COBS comet observations
 
-Source-only integration, 2026-09-20. The user's confirmed intended use is
-noncommercial. VERSION remains 1.46.21; this is not in the existing Windows
-test bundle or public release.
+Included in source 1.47.0 and its Windows build preparation, 2026-09-20.
+The user's confirmed intended use is noncommercial. Public Windows 1.46.21
+does not include this integration. Artifact validation is recorded separately
+in `TESTING.md`; a local build is not publication.
 
 ## Sources and rights
 

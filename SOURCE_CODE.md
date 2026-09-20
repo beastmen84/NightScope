@@ -1,9 +1,12 @@
 # Source Code Availability
 
-This file identifies the corresponding source for NightScope 1.46.21, published
-on 2026-09-07 for Windows only. The public `v1.46.21` tag and Windows release
-were verified through GitHub. This documentation update does not rebuild or
-replace the already published portable package.
+This file accompanies NightScope 1.47.0, prepared as a local Windows build on
+2026-09-20. It is not a public release. The exact local build commit and artifact
+identity are recorded in `docs/TESTING.md`; preserve that checkout with this
+test package. The intended release source is
+`https://github.com/beastmen84/NightScope/tree/v1.47.0`, but this preparation
+does not create or publish that tag. Before public distribution, publish the
+matching audited source and update this notice with its verified identity.
 
 The public portable Windows release is NightScope 1.46.21.
 The published Linux package remains version 1.43.0 and carries its own
@@ -27,7 +30,7 @@ documentation only; application code and packaged resources are unchanged.
 
 ## Qt And Qt For Python
 
-NightScope 1.46.21 uses unmodified PySide6/shiboken6 6.11.2 and Qt 6.11.2 under
+NightScope 1.47.0 uses unmodified PySide6/shiboken6 6.11.2 and Qt 6.11.2 under
 the LGPL-3.0-only option. Complete corresponding upstream source is available
 without charge from:
 
