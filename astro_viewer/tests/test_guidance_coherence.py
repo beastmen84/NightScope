@@ -183,7 +183,11 @@ def test_observing_image_absorbs_extra_height_instead_of_the_window_card():
     image = source[source.index('objectName: "observingImagePanel"'):source.index('objectName: "observingWindowCard"')]
     window = source[source.index('objectName: "observingWindowCard"'):source.index('title: qsTr("Finestra osservativa")')]
     assert "Layout.fillHeight: visible" in image
-    assert "Layout.preferredHeight: visible ? 420 : 0" in image
+    assert "observingDetailGrid.columns === 1 ? 420" in image
+    assert "Layout.minimumHeight: visible && observingDetailGrid.columns === 1 ? 360 : 0" in image
+    assert "observingFactsColumn.implicitHeight" in image
+    assert "Math.max(observingWindowCard.implicitHeight, observingWindowCard.Layout.minimumHeight)" in image
+    assert "- observingMediaColumn.spacing" in image
     assert "fillMode: Image.PreserveAspectFit" in image
     assert "Layout.fillHeight: false" in window
     assert "Layout.alignment: Qt.AlignTop" in window

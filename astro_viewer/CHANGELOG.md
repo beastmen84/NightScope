@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Dettaglio osservativo: il bordo inferiore della scheda Finestra osservativa
+  si allinea alla nota Massima altezza nella colonna destra. La foto adatta la
+  propria altezza al contenuto; conservati scheda compatta, layout impilato e
+  modalità rossa. Nessuna modifica ai calcoli.
 - Sciami meteorici: finestre astronomiche locali calcolate in background per
   le notti vicine al massimo IMO, combinando buio, altezza del radiante e Luna.
   Deriva del radiante interpolata quando la tabella annuale lo consente;

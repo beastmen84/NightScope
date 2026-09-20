@@ -402,6 +402,7 @@ Item {
                 rowSpacing: 18
 
                 ColumnLayout {
+                    id: observingMediaColumn
                     objectName: "observingMediaColumn"
                     Layout.fillWidth: observingDetailGrid.columns === 1
                     Layout.preferredWidth: observingDetailGrid.columns === 2 ? 420 : observingDetailGrid.width
@@ -415,8 +416,13 @@ Item {
                         visible: !theme.redNightVision
                         Layout.fillWidth: true
                         Layout.fillHeight: visible
-                        Layout.minimumHeight: visible ? 360 : 0
-                        Layout.preferredHeight: visible ? 420 : 0
+                        Layout.minimumHeight: visible && observingDetailGrid.columns === 1 ? 360 : 0
+                        // Match the facts column, including its final altitude note.
+                        // Keep the window card content-sized; only the photo adapts.
+                        Layout.preferredHeight: !visible ? 0 : observingDetailGrid.columns === 1 ? 420
+                            : Math.max(0, observingFactsColumn.implicitHeight
+                                       - Math.max(observingWindowCard.implicitHeight, observingWindowCard.Layout.minimumHeight)
+                                       - observingMediaColumn.spacing)
                         radius: 8
                         color: theme.imageWell
                         border.color: theme.border
@@ -483,6 +489,7 @@ Item {
                     }
 
                     GlassCard {
+                        id: observingWindowCard
                         objectName: "observingWindowCard"
                         visible: !root.isCatalogueDetail
                         Layout.fillWidth: true
@@ -507,6 +514,8 @@ Item {
                 }
 
                 ColumnLayout {
+                    id: observingFactsColumn
+                    objectName: "observingFactsColumn"
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     spacing: 14
@@ -573,6 +582,7 @@ Item {
                     }
 
                     Text {
+                        objectName: "observingAltitudeNote"
                         Layout.fillWidth: true
                         text: qsTr("Massima altezza intorno alle %1. Questa fascia considera solo l'altezza; il piano della notte considera anche il meteo.").arg(root.geometryData.bestTimeLabel || qsTr("n/d"))
                         color: theme.textMuted

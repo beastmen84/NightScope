@@ -5,6 +5,34 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
+## Observing Detail Footer Alignment - 2026-09-20
+
+Source-only follow-up against `f5dc258`, VERSION still **1.46.21**. The fixed
+wide-layout photo preference previously made the left column taller than the
+right. Its preferred height now follows the facts column's natural height
+minus the compact observing-window card and their spacing. The two lower
+edges therefore agree without stretching the window card or the right column.
+
+- **126 tests** pass: guidance-coherence regression, translations and developer
+  tooling. The existing layout regression now protects the dynamic-height
+  relationship and the unchanged narrow-layout policy. Ruff, the documentation
+  gate and `git diff --check` pass. No full source suite or scientific parity
+  run is claimed for this one-QML-file change; no production Python changed.
+- **36 normal-scale plus 36 150%-scale Qt scenes** exercise IT/EN/ES, 1920,
+  1480 and 1240 logical widths, normal/red modes and normal/long wrapped notes.
+  Wide normal-mode card/note lower-edge differences are **0 logical pixels**;
+  window cards stay 142 high in these fixtures. Narrow photos remain 420 high;
+  red-mode photographs are hidden with empty sources. No QML warnings or
+  clipped note text; representative Italian and Spanish/high-DPI captures
+  were inspected. Fixtures run in an isolated runtime, not on personal data.
+- Root DB, backup, preferences, location-cache and dist EXE hashes remain
+  unchanged. No new strings, translation regeneration, version change, dist
+  rebuild, push, tag or publication. The following Windows bundle does **not**
+  yet contain this final alignment tweak.
+
+Evidence: `build/detail-alignment-20260920/` (`focused.log`, `visual-qa.log`,
+`visual-qa-dpi150.log` and captures).
+
 ## Windows Test Bundle With Local Meteor Windows - 2026-09-20
 
 `dist/NightScope` was rebuilt with `packaging/build_windows.ps1` from clean

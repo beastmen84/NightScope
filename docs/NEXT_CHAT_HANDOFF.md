@@ -13,6 +13,17 @@ Updated: 2026-09-20
 
 ## Current State
 
+- Source-only detail alignment after `f5dc258`: the observing-window card
+  ends level with the right column's final maximum-altitude note in the wide,
+  normal layout. Photo height follows the facts column's natural height;
+  the card remains content-sized. Narrow stacking/420-pixel photo preference
+  and red-mode image suppression are unchanged. Only one production QML file
+  changes; no calculations, strings or translation catalogues change.
+  126 focused tests and 72 IT/EN/ES Qt scenes (including 150% scaling, wrapped
+  text and red mode) pass without QML warnings. Evidence:
+  `build/detail-alignment-20260920/`; details in `docs/TESTING.md`.
+  This last alignment is NOT in the Windows bundle below; no rebuild was
+  requested in this follow-up. Root runtime and dist EXE hashes are unchanged.
 - Latest local Windows test bundle: rebuilt **2026-09-20 from `a2ebb97`** into
   `dist/NightScope`, including the local meteor windows and preceding layout/
   recommendation fixes. VERSION remains 1.46.21; it is NOT the public artifact.
