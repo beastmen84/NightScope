@@ -2,7 +2,8 @@
 
 ## NightScope 1.47.0 - 2026-09-20
 
-- Versione sorgente e pacchetto Windows locale; non ancora una pubblicazione. Manuale IT/EN/ES, documentazione tecnica e note di provenienza allineati. I download pubblici restano Windows 1.46.21 e Linux 1.43.0. Le voci seguenti consolidano il lavoro successivo alla 1.46.21.
+- Pubblicata la versione 1.47.0 per Windows; il pacchetto Linux resta alla 1.43.0. Manuale IT/EN/ES, documentazione tecnica, sito e note di provenienza allineati. Le voci seguenti consolidano il lavoro successivo alla 1.46.21.
+- Calendario IMO delle piogge meteoriche 2026: durante la manutenzione del sito IMO, è possibile scaricare il calendario dalla [pubblicazione del curatore su ResearchGate](https://www.researchgate.net/publication/393092133_2026_IMO_Meteor_Shower_Calendar) e importare manualmente il PDF in NightScope.
 
 - Provider COBS gratuito e senza account: osservazioni cometarie scaricate in background dopo il primo frame, cache giornaliera separata e scheda accanto a IMO. Attribuzione e licenza dati CC BY-NC-SA 4.0 esplicite; codice MPL invariato.
 - Le serie recenti e coerenti possono correggere la luminosità entro 72 ore dall'ultima misura: la correzione entra nella selezione delle comete, nelle notti utili e nel consiglio sullo strumento, con margine prudenziale. Stime visuali e CCD equivalenti separate; altre bande, dati discordanti, insufficienti o scaduti mantengono JPL. Nessuna modifica a orbite, NSOM o formule ottiche; nessuna estrapolazione COBS sui 90 giorni dell'analisi.

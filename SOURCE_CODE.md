@@ -1,32 +1,28 @@
 # Source Code Availability
 
-This file accompanies NightScope 1.47.0, prepared as a local Windows build on
-2026-09-20. It is not a public release. The exact local build commit and artifact
-identity are recorded in `docs/TESTING.md`; preserve that checkout with this
-test package. The intended release source is
-`https://github.com/beastmen84/NightScope/tree/v1.47.0`, but this preparation
-does not create or publish that tag. Before public distribution, publish the
-matching audited source and update this notice with its verified identity.
-
-The public portable Windows release is NightScope 1.46.21.
+The public portable Windows release is NightScope 1.47.0, published on
+2026-09-20. The verified public source tag and local build identity are given
+below; artifact validation and publication metadata are in `docs/TESTING.md`.
 The published Linux package remains version 1.43.0 and carries its own
 version-specific source and native-component notices.
 
 ## NightScope
 
 NightScope is distributed under the Mozilla Public License 2.0. The complete
-corresponding source for the public Windows release is identified by `v1.46.21`:
+corresponding source for the public Windows release is identified by `v1.47.0`:
 
 - Repository: `https://github.com/beastmen84/NightScope`
-- Release source: `https://github.com/beastmen84/NightScope/tree/v1.46.21`
+- Release source: `https://github.com/beastmen84/NightScope/tree/v1.47.0`
 - Source archive:
-  `https://github.com/beastmen84/NightScope/archive/refs/tags/v1.46.21.tar.gz`
+  `https://github.com/beastmen84/NightScope/archive/refs/tags/v1.47.0.tar.gz`
 
 The source tag includes the PyInstaller specifications and scripts used to
 produce the portable bundles. The project license is reproduced in `LICENSE`.
-The public `v1.46.21` tag points to `f6b45e96f61e8d268157f1459f3a7791340881ff`.
-Its changes after the validated Windows build source `66c4b5a` are validation
-documentation only; application code and packaged resources are unchanged.
+The public `v1.47.0` tag points to `bc71d129dbefacbe2d888932783f01408a8c88f8`.
+Its changes after the validated Windows build source `15cc17a` are documentation
+and changelog formatting only; application code and packaged resources are unchanged.
+This post-publication notice updates the repository, not the uploaded ZIP.
+The validated local bundle and source tag retain their build-time wording.
 
 ## Qt And Qt For Python
 

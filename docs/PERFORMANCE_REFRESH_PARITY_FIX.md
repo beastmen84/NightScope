@@ -1,6 +1,6 @@
 # Parità degli aggiornamenti osservativi accorpati
 
-Correzione inclusa nel sorgente 1.47.0 e nel relativo bundle Windows locale.
+Correzione inclusa nel sorgente 1.47.0 e nel relativo pacchetto Windows pubblicato.
 Il testo seguente conserva il contesto storico del primo intervento sui
 sorgenti 1.46.21; versione e pacchetto attuali sono documentati in `TESTING.md`.
 

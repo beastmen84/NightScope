@@ -1,9 +1,9 @@
 # COBS comet observations
 
-Included in source 1.47.0 and its Windows build preparation, 2026-09-20.
-The user's confirmed intended use is noncommercial. Public Windows 1.46.21
-does not include this integration. Artifact validation is recorded separately
-in `TESTING.md`; a local build is not publication.
+Included in source 1.47.0 and the Windows release published on 2026-09-20.
+The user's confirmed intended use is noncommercial. Public Linux 1.43.0
+does not include this integration. Artifact validation and verified publication
+metadata are recorded separately in `TESTING.md`.
 
 ## Sources and rights
 

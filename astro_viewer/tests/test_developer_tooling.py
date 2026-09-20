@@ -884,9 +884,10 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     )
     assert (PROJECT_ROOT / "website" / "index.html").is_file()
     assert screenshot.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
-    assert "- Windows: [NightScope 1.46.21]" in readme
+    assert "- Windows: [NightScope 1.47.0]" in readme
     assert "- Linux: [NightScope 1.43.0]" in readme
-    assert "releases/tag/v1.46.21" in readme
+    assert "releases/tag/v1.47.0" in readme
+    assert "1.46.21" not in readme
     assert "releases/tag/v1.43.0" in readme
     assert "1.45.21" not in readme
     assert "1.46.13" not in readme
@@ -904,23 +905,25 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
 
 def test_public_windows_download_and_source_use_verified_release_identity() -> None:
     repository = "https://github.com/beastmen84/NightScope"
-    release = "v1.46.21"
+    release = "v1.47.0"
     readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
     source_notice = (PROJECT_ROOT / "SOURCE_CODE.md").read_text(encoding="utf-8")
     third_party_notice = (PROJECT_ROOT / "THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
-    # Match the verified asset name after the publisher corrected its duplicate extension.
-    asset = "NightScope-v1.46.21-windows-x64.zip"
+    # Match the public GitHub asset and source tag verified after publication.
+    asset = "NightScope-v1.47.0-windows-x64.zip"
     assert f"]({repository}/releases/download/{release}/{asset})" in readme
     assert ".zip.zip" not in readme
     assert f"{repository}/archive/refs/tags/{release}.tar.gz" in source_notice
-    assert "f6b45e96f61e8d268157f1459f3a7791340881ff" in source_notice
-    assert "66c4b5a" in source_notice
+    assert "bc71d129dbefacbe2d888932783f01408a8c88f8" in source_notice
+    assert "15cc17a" in source_notice
     for notice in (source_notice, third_party_notice):
         assert f"{repository}/tree/{release}" in notice
         assert "1.43.0" in notice
         assert "1.46.13" not in notice
+        assert "1.46.21" not in notice
         assert "not yet published" not in notice
         assert "not yet created" not in notice
+        assert "not a public release" not in notice
 
 
 @pytest.mark.parametrize(
@@ -938,11 +941,14 @@ def test_manual_public_releases_and_revision_are_consistent(
         re.DOTALL,
     )
     assert hero is not None
-    for version in ("1.46.21", "1.43.0"):
+    for version in ("1.47.0", "1.43.0"):
         assert f"NightScope {version}" in hero.group(1)
         assert f"releases/tag/v{version}" in hero.group(1)
     assert "1.45.21" not in hero.group(1)
     assert "1.46.13" not in hero.group(1)
+    assert "1.46.21" not in hero.group(1)
+    for obsolete in ("non ancora pubblicato", "not published", "aún sin publicar"):
+        assert obsolete not in hero.group(1)
     assert "Windows" in hero.group(1) and "Linux" in hero.group(1)
     assert re.search(rf"\b{re.escape(source_version)}\b", hero.group(1))
     footer = re.search(r"<footer>(.*?)</footer>", source, re.DOTALL)
@@ -985,16 +991,21 @@ def test_multilingual_website_has_complete_local_links_and_seo_metadata() -> Non
         assert {"main-content", "why", "features", "downloads", "faq"}.issubset(
             parser.ids
         )
-        # Match complete version tokens, never prefixes such as 1.46.2 within 1.46.21.
+        # Match complete version tokens, never prefixes such as 1.47 within 1.47.0.
         mentioned_versions = set(re.findall(r"(?<!\d)(\d+\.\d+\.\d+)(?!\d)", source))
-        assert mentioned_versions == {"1.47.0", "1.46.21", "1.43.0"}
+        assert mentioned_versions == {"1.47.0", "1.43.0"}
         assert 'class="source-status"' in source
         assert "IMO" in source and "COBS" in source
         assert "CC BY-NC-SA 4.0" in source
-        assert "/releases/tag/v1.47.0" not in source
-        assert "/releases/download/v1.47.0" not in source
-        assert "<span>Windows 1.46.21</span>" in source
+        assert "/releases/tag/v1.47.0" in source
+        assert "<span>Windows 1.47.0</span>" in source
         assert "<span>Linux 1.43.0</span>" in source
+        for obsolete in (
+            "being prepared for Windows", "not a published download",
+            "in preparazione per Windows", "Non è un download pubblicato",
+            "en preparación para Windows", "No es una descarga publicada",
+        ):
+            assert obsolete not in source
 
         assert len(parser.json_ld_blocks) == 1
         structured_data = json.loads(parser.json_ld_blocks[0])
@@ -1003,7 +1014,7 @@ def test_multilingual_website_has_complete_local_links_and_seo_metadata() -> Non
         assert structured_data["url"] == canonical_url
         assert structured_data["offers"]["price"] == "0"
         assert structured_data["downloadUrl"] == [
-            "https://github.com/beastmen84/NightScope/releases/tag/v1.46.21",
+            "https://github.com/beastmen84/NightScope/releases/tag/v1.47.0",
             "https://github.com/beastmen84/NightScope/releases/tag/v1.43.0",
         ]
 
@@ -1124,6 +1135,23 @@ def test_source_and_platform_release_versions_are_documented_separately() -> Non
     assert f"Current public Linux release: `v{public_linux_release}`" in handoff
     assert manual.count(f"NightScope {public_windows_release}") == 3
     assert manual.count(f"NightScope {public_linux_release}") == 3
+
+
+def test_published_147_changelog_is_ready_for_release_copying() -> None:
+    changelog = (PROJECT_ROOT / "astro_viewer" / "CHANGELOG.md").read_text(
+        encoding="utf-8"
+    )
+    release_notes = changelog.split("## NightScope 1.47.0 -", maxsplit=1)[1]
+    release_notes = release_notes.split("\n## ", maxsplit=1)[0]
+    assert "Pubblicata la versione 1.47.0 per Windows" in release_notes
+    assert "il pacchetto Linux resta alla 1.43.0" in release_notes
+    assert "non ancora una pubblicazione" not in release_notes
+    assert (
+        "https://www.researchgate.net/publication/393092133_2026_IMO_Meteor_Shower_Calendar"
+        in release_notes
+    )
+    for line in release_notes.splitlines()[1:]:
+        assert not line.strip() or line.startswith("- ")
 
 
 def test_living_architecture_documents_keep_history_separate() -> None:

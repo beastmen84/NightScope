@@ -14,12 +14,20 @@ Updated: 2026-09-20
 
 ## Current State
 
-- Source version: `1.47.0`. The user requested documentation alignment, version
-  bump and a new local Windows distribution. Manual IT/EN/ES, README, source/legal
-  notices and the website's development notice now distinguish 1.47.0 from the
-  still-public Windows 1.46.21 / Linux 1.43.0 downloads. No public links move to
-  1.47.0 until publication. Build and validation evidence are recorded in
-  `docs/TESTING.md`; no tag, push, public release or Linux build is authorized.
+- Source version: `1.47.0`. The user published Windows 1.47.0 on 2026-09-20.
+  GitHub release/API and direct ZIP HEAD checks confirm a public stable release,
+  `NightScope-v1.47.0-windows-x64.zip` (225,801,193 bytes), and source tag
+  `v1.47.0` at `bc71d129dbefacbe2d888932783f01408a8c88f8`.
+  Current public Windows release: `v1.47.0`.
+  Current public Linux release: `v1.43.0`.
+  README, manual IT/EN/ES, website sources, notices and current documentation are
+  aligned locally. No push/deploy, release edit, artifact replacement or Linux
+  build is part of this follow-up. GitHub release notes still have the old first
+  bullet claiming no publication; the local changelog corrects it and preserves
+  the ResearchGate calendar link. See `docs/TESTING.md` for publication evidence.
+  Post-publication checks: 87 focused documentation/translation tests, scoped
+  Ruff and whitespace validation pass; no new browser/artifact review is claimed.
+  Build validation remains distinct from public metadata verification:
   The 1.47.0 source gate passes 2,303 tests / ten subtests, 87% coverage, security
   and all three isolated smokes. The 86-test documentation/translation rerun and
   2,224-message compilation per language pass. Native qmllint now completes on
@@ -36,10 +44,10 @@ Updated: 2026-09-20
   checks and original runtime hash preservation pass. The upgrade regenerates
   GeoNames IDs without changing city/alias content and applies current editorial
   seeds; 28 other tables are identical. No populated-custom-profile claim.
-  Temporary QA cleanup was blocked; its private copy remains at
-  `C:\Users\beast\AppData\Local\Temp\NightScope-147-qa-8d015a2690fd45699b4717df06d0a338`.
-  Do not ship that directory. Final evidence edits are unbundled documentation
-  only; no application change after the build source commit. No ZIP/publication.
+  The user subsequently removed the private temporary QA copy; its recorded
+  path is confirmed absent on 2026-09-20. No application change after the build
+  source commit. Post-publication documentation changes are not retroactively
+  present inside the uploaded ZIP or immutable source tag.
 
 - Source-only COBS integration after `c46aac6`, with the user's explicit request
   to use qualified observations in calculations, not just display them. Daily
@@ -275,7 +283,7 @@ Updated: 2026-09-20
   Forty coalesced cases and four ordinary full-catalogue refreshes match all
   23 payload groups against `cda5912`; the 19 shared calculation routines are
   AST-identical apart from their pre-existing cancellation boundaries.
-- Current public Windows release: `v1.46.21`, published by the user on
+- Historical public Windows release: `v1.46.21`, published by the user on
   2026-09-07 for **Windows only**.
   GitHub metadata confirms a non-draft/non-prerelease release and one asset,
   `NightScope-v1.46.21-windows-x64.zip` (222,256,635 bytes). The user corrected
@@ -1063,7 +1071,7 @@ batches; they are not implied by each patch.
 
 ## Release Boundary
 
-The stable public versions are `v1.46.21` for Windows and `v1.43.0` for Linux.
+The stable public versions are `v1.47.0` for Windows and `v1.43.0` for Linux.
 Source readiness is not publication, and validation or publication of one
 platform does not approve the other. Before a future artifact, update the target
 version, run the coverage/security gate, compile translations, complete QML and

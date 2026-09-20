@@ -1,6 +1,6 @@
 # Database Startup Optimization
 
-Included in source 1.47.0 and its local Windows build. The implementation
+Included in source 1.47.0 and its published Windows release. The implementation
 record below describes the original 1.46.21 source-only work; its version and
 distribution statements are historical. Current artifact evidence: `TESTING.md`.
 

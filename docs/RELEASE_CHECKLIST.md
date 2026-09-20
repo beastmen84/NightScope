@@ -1,11 +1,13 @@
 # NightScope Release Checklist
 
-Current target: `v1.47.0` (local Windows build; not published).
-Current public Windows release: `v1.46.21`. Current public Linux release: `v1.43.0`.
+Current target: `v1.47.0` (Windows published by the release owner on 2026-09-20).
+Current public Windows release: `v1.47.0`. Current public Linux release: `v1.43.0`.
 
-Updated 2026-09-20. This is the checklist for the new target, not inherited
-approval from an older artifact. A source commit or unit suite alone does not
-approve publication. The historical 1.46.21 release used tag `f6b45e9` and the
+Updated 2026-09-20 after verifying the public release, asset metadata and tag
+`bc71d129dbefacbe2d888932783f01408a8c88f8`. Publication does not retroactively
+complete unrecorded checks below; unchecked gates remain unverified, not waived.
+The ZIP digest supplied by GitHub is in `TESTING.md`, not a local download audit.
+The historical 1.46.21 release used tag `f6b45e9` and the
 single-extension `NightScope-v1.46.21-windows-x64.zip`; its evidence remains in
 `TESTING.md` and `REVIEW_HOME_PERFORMANCE_1_46_21.md`.
 
@@ -18,10 +20,11 @@ single-extension `NightScope-v1.46.21-windows-x64.zip`; its evidence remains in
 - [x] Explain COBS noncommercial CC BY-NC-SA 4.0 data separately from MPL code;
   preserve attribution, observer credits and modification notices. Do not bundle
   or mirror IMO publications or a COBS dataset.
-- [x] Keep website download links/structured release metadata on the published
-  platform versions; identify 1.47.0 only as source/local preparation.
-- [ ] Publish and verify the matching audited source tag, then update
-  SOURCE_CODE.md with its exact public identity before public distribution.
+- [x] Align website download links/structured release metadata with published
+  Windows 1.47.0 and Linux 1.43.0; changes are local pending push/deployment.
+- [x] Verify the published source tag and update SOURCE_CODE.md with its exact
+  public identity. This post-publication repository update does not replace
+  the already uploaded ZIP or the local bundle's build-time notices.
 - [ ] Complete the desktop/mobile browser review of the revised manual.
 
 ## 2. Automated Source Validation
@@ -52,8 +55,8 @@ single-extension `NightScope-v1.46.21-windows-x64.zip`; its evidence remains in
 - [ ] Repeat with a populated personal archive: custom equipment, assignments,
   edited built-ins, image references and observation log. The sparse copy above
   is not evidence for every populated-user scenario.
-- [x] Confirm runtime files stay outside the pristine deliverable. Disposable
-  copy cleanup was blocked by execution policy; private path recorded in TESTING.
+- [x] Confirm runtime files stay outside the pristine deliverable. The user later
+  removed the private QA copy; its absence was verified on 2026-09-20.
 - [ ] Test closed-app backup/restore and document any retained private QA copy.
 - [x] Portable Windows use requires a writable extracted directory; a read-only
   install path is not the documented deployment.
@@ -98,10 +101,11 @@ evidence but do not silently check off this complete manual matrix.
   release-owner acceptance of each uncompleted gate.
 - [ ] Ensure the tag identifies the audited source, the final archive/hash are
   recorded and source-availability notices match; only then publish.
-- [ ] Update website public download links/metadata only after the actual
-  Windows release asset exists. Do not imply publication from a local build.
+- [x] Update website source links/metadata after verifying the actual Windows
+  release asset exists (HTTP 200). No website push/deployment in this follow-up.
 
-No push, tag, GitHub publication or Linux build is part of this preparation.
+The release owner published Windows 1.47.0. This documentation follow-up performs
+no push, tag/release edit, archive replacement or Linux build.
 Linux 1.43.0 stays public; a future Linux artifact needs its own Debian 12 build,
 native-component/source/license inventory, Debian/Ubuntu Wayland/XCB smokes,
 archive/hash/extraction checks and explicit approval.

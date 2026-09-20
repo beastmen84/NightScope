@@ -1,6 +1,6 @@
 # Practical observing windows
 
-Included in source 1.47.0 and its Windows build preparation. The dated entries
+Included in source 1.47.0 and its published Windows release. The dated entries
 below describe implementation history, not the current artifact/version status.
 See `TESTING.md` and `RELEASE_CHECKLIST.md` for validation and publication.
 

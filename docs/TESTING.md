@@ -5,7 +5,45 @@ through source `1.45.6` are preserved in
 `docs/archive/TESTING_HISTORY_THROUGH_1.45.6.md`; release approval remains in
 `docs/RELEASE_CHECKLIST.md`.
 
-## Windows 1.47.0 Preparation - 2026-09-20
+## Windows 1.47.0 Publication and Documentation - 2026-09-20
+
+The release owner reported publication. Read-only GitHub release/API checks
+confirm stable, non-draft `v1.47.0`, published **2026-09-20 12:23:27 UTC**:
+https://github.com/beastmen84/NightScope/releases/tag/v1.47.0.
+
+- Public source tag: **`bc71d129dbefacbe2d888932783f01408a8c88f8`**, verified with
+  `git ls-remote`. Its differences from build source `15cc17a` are seven
+  documentation/changelog files only; application code and packaged resources
+  have not changed between those commits.
+- Sole uploaded release asset: **`NightScope-v1.47.0-windows-x64.zip`**,
+  **225,801,193 bytes**. Direct download HEAD returns HTTP 200 and matching size.
+- GitHub API-reported SHA-256:
+  **`d5e83624017d288e27e66ba79669077f639ac4bb356d4241f568a0481510b4bf`**.
+  The archive was not downloaded, independently hashed, extracted or rerun in
+  this follow-up. Local bundle checks below do not imply a new public-ZIP audit.
+- Linux remains **1.43.0**; its existing tarball and SHA-256 asset are confirmed
+  in that release. No new Linux artifact is inferred from the Windows tag.
+- README, manual and website EN/IT/ES, public source notices, provider/status
+  documents and current changelog now reflect publication. Historical records
+  remain dated; unfinished release/manual gates are not retrospectively approved.
+- The public release body still includes its preparation-era first bullet
+  claiming no publication. The local changelog corrects it and adds the same
+  ResearchGate calendar link already present in the release body. No release
+  edit, tag movement, push, website deployment or artifact replacement is done.
+- The validated local bundle and public source tag retain build-time wording
+  in manual/legal files; this follow-up does not inspect or modify the ZIP's
+  contents. Repository documentation updates do not change a published artifact.
+- The user removed the private temporary QA copy after the earlier cleanup
+  failure; the exact recorded directory below is now confirmed absent.
+
+Validation: **87 tests passed in 20.83 s** (`test_developer_tooling.py` and
+`test_translations.py`); scoped Ruff and `git diff --check` pass. The suite covers
+IT/EN/ES release labels, source/asset identity, internal links, JSON-LD, sitemap,
+manual structure and single-line changelog bullets. No new browser visual review,
+application source gate or artifact validation is claimed. Production code,
+VERSION, translations and dist are unchanged; no runtime-data operation was requested.
+
+## Windows 1.47.0 Preparation - 2026-09-20 (Pre-publication Record)
 
 The user requested documentation alignment, source version 1.47.0 and a local
 Windows distribution. Production Python/QML, catalogue data and astronomical

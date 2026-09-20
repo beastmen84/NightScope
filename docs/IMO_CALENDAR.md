@@ -1,8 +1,8 @@
 # Automatic IMO calendar
 
 Source 1.47.0 includes the International Meteor Organization as a no-account
-provider, with local meteor windows. Its Windows build preparation does not
-change the public 1.46.21 Windows distribution. See `TESTING.md` for artifact
+provider, with local meteor windows, included in the Windows release published
+on 2026-09-20. Linux remains at 1.43.0. See `TESTING.md` for artifact
 validation and `RELEASE_CHECKLIST.md` for the publication boundary.
 
 ## Download and ownership
